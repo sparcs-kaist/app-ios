@@ -29,7 +29,7 @@ struct PostComposeView: View {
         Spacer()
           .frame(maxHeight: 16)
         TextField("Please enter the title", text: $title)
-          .font(.title)
+          .font(.title3)
           .focused($isTitleFocused)
           .submitLabel(.next)
           .onSubmit {
@@ -47,7 +47,7 @@ struct PostComposeView: View {
         HStack {
           Button("select photos", systemImage: "photo") {}
             .labelStyle(.iconOnly)
-            .font(.title3)
+            .font(.title2)
 
           Spacer()
 
@@ -98,7 +98,7 @@ struct PostComposeView: View {
       HStack {
         Text(selectedFlair)
           .contentTransition(.numericText())
-        Image(systemName: "chevron.up.chevron.down")
+        Image(systemName: "chevron.down")
       }
       .padding(8)
       .padding(.horizontal, 4)

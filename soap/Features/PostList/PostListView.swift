@@ -102,6 +102,7 @@ struct PostListView: View {
     .sheet(isPresented: $showsComposeView) {
       PostComposeView()
         .environment(viewModel)
+        .padding(.top, 2)
         .presentationDragIndicator(.visible)
     }
   }

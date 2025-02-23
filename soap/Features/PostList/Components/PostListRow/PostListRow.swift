@@ -36,6 +36,7 @@ struct PostListRow: View {
         }
         .font(.caption)
         .foregroundStyle(.secondary)
+        .padding(.top, 1)
       }
 
       Spacer()
