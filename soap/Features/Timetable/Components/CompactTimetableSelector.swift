@@ -26,6 +26,7 @@ struct CompactTimetableSelector: View {
             Spacer()
 
             Text(selectedTimetable.semester.description)
+              .contentTransition(.numericText())
 
             Spacer()
 

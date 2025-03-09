@@ -140,9 +140,9 @@ struct TaxiPreviewView: View {
 
 #Preview {
   VStack {
-    Spacer()
+//    Spacer()
     TaxiPreviewView()
-      .frame(height: 212)
+//      .frame(height: 212)
   }
 }
 

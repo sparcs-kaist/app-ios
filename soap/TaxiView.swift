@@ -8,11 +8,31 @@
 import SwiftUI
 
 struct TaxiView: View {
-    var body: some View {
-        Text("TaxiView")
+  @State private var showsPreviewView = false
+  @State private var showsRoomCreationView = false
+
+  var body: some View {
+    VStack {
+      Button("TaxiPreviewView") {
+        showsPreviewView = true
+      }
+
+      Button("TaxiRoomCreationView") {
+        showsRoomCreationView = true
+      }
     }
+    .sheet(isPresented: $showsPreviewView) {
+      TaxiPreviewView()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+    }
+    .sheet(isPresented: $showsRoomCreationView) {
+      TaxiRoomCreationView()
+    }
+  }
 }
 
 #Preview {
-    TaxiView()
+  TaxiView()
 }
+
