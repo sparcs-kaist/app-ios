@@ -23,7 +23,7 @@ struct TaxiView: View {
     }
     .sheet(isPresented: $showsPreviewView) {
       TaxiPreviewView()
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.height(600)])
         .presentationDragIndicator(.visible)
     }
     .sheet(isPresented: $showsRoomCreationView) {
