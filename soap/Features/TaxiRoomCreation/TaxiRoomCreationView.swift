@@ -8,11 +8,46 @@
 import SwiftUI
 
 struct TaxiRoomCreationView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+  @State private var viewModel = TaxiRoomCreationViewModel()
+  
+  var body: some View {
+    NavigationView {
+      VStack {
+        // TODO: Destination
+        
+        Form {
+          Section {
+            TextField("Title", text: $viewModel.roomName)
+          }
+          
+          Section {
+            TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepatureTime)
+            Picker("Capacity", selection: $viewModel.roomCapacity) {
+              ForEach(2...4, id: \.self) { number in
+                Label {
+                  Text("\(number) People")
+                } icon: {
+                  Image(systemName: "person.\(number).fill")
+                }
+                .tag(number)
+              }
+            }
+          }
+        }
+      }
+      .navigationTitle("Create")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button("Done") {
+            // TODO: dismiss
+          }
+        }
+      }
     }
+  }
 }
 
 #Preview {
-    TaxiRoomCreationView()
+  TaxiRoomCreationView()
 }

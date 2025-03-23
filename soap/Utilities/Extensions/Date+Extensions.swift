@@ -34,4 +34,19 @@ extension Date {
 
     return "just now"
   }
+  
+  func ceilToNextTenMinutes() -> Date {
+    let calendar = Calendar.current
+    var components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: self)
+    
+    if let minute = components.minute {
+      let remainder = minute % 10
+      let minutesToAdd = remainder == 0 ? 0 : 10 - remainder
+      components.minute! += minutesToAdd
+      
+      return calendar.date(from: components) ?? self
+    } else {
+      return self
+    }
+  }
 }
