@@ -9,16 +9,16 @@ import SwiftUI
 
 struct TaxiDepatureTimePicker: View {
   @Binding var depatureTime: Date
-  
+
   @State private var showDatePicker = false // TODO: ViewModel required?
   @State private var showTimePicker = false
-  
+
   var body: some View {
     HStack {
       Text("Depature Time")
-      
+
       Spacer()
-      
+
       Button {
         withAnimation {
           showDatePicker.toggle()
@@ -40,28 +40,26 @@ struct TaxiDepatureTimePicker: View {
       }
       .buttonStyle(.bordered)
     }
-    
+
     if showDatePicker {
       DatePicker("",
                  selection: $depatureTime,
                  in: getDateRange(),
-                 displayedComponents: [.date])
-        .datePickerStyle(.graphical)
+                 displayedComponents: [.date]
+      )
+      .datePickerStyle(.graphical)
     }
-    
+
     if showTimePicker {
       DatePicker("",
                  selection: $depatureTime,
                  in: getDateRange(),
-                 displayedComponents: [.hourAndMinute])
-        .datePickerStyle(.wheel)
-        .onChange(of: depatureTime) { _, newValue in
-          // TODO: 날짜 제한 걸릴 때 핸들링
-          depatureTime = newValue.ceilToNextTenMinutes()
-        }
+                 displayedComponents: [.hourAndMinute]
+      )
+      .datePickerStyle(.wheel)
     }
   }
-  
+
   private func getDateRange() -> ClosedRange<Date> {
     let calander = Calendar.current
     let now = Date()
@@ -73,3 +71,4 @@ struct TaxiDepatureTimePicker: View {
 #Preview {
   TaxiDepatureTimePicker(depatureTime: .constant(Date().ceilToNextTenMinutes()))
 }
+
