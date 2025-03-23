@@ -11,5 +11,9 @@ import Foundation
 class TaxiRoomCreationViewModel {
   var roomDepatureTime = Date().ceilToNextTenMinutes()
   var roomCapacity = 4
-  var roomName = ""
+  var roomName = "new room 1"
+
+  var origin: TaxiLocation?
+  var destination: TaxiLocation?
+  var locations: [TaxiLocation] = TaxiLocation.mockList
 }
