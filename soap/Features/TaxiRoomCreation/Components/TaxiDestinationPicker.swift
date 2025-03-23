@@ -69,12 +69,11 @@ struct TaxiDestinationPicker: View {
           .foregroundStyle(Color(uiColor: .systemGray5))
         
         Button(action: {
-          withAnimation(.easeInOut(duration: 0.6)) {
+          withAnimation(.easeInOut(duration: 0.4)) {
             isFlipped.toggle()
           }
 
-          // Delay swap until halfway through flip for realism
-          DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+          DispatchQueue.main.asyncAfter(deadline: .now()) {
             swap(&origin, &destination)
           }
         }) {
