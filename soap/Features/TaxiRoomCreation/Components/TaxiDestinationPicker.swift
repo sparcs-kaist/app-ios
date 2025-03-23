@@ -75,9 +75,7 @@ struct TaxiDestinationPicker: View {
 
           // Delay swap until halfway through flip for realism
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            let temp = origin
-            origin = destination
-            destination = temp
+            swap(&origin, &destination)
           }
         }) {
           Label("swap", systemImage: "arrow.trianglehead.swap")
