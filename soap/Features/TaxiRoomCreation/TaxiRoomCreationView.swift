@@ -16,7 +16,7 @@ struct TaxiRoomCreationView: View {
         // TODO: Destination
         
         Form {
-          Section {
+          Section(header: Text("Title")) {
             TextField("Title", text: $viewModel.roomName)
           }
           

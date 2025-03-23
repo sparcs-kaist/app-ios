@@ -11,5 +11,5 @@ import Foundation
 class TaxiRoomCreationViewModel {
   var roomDepatureTime = Date().ceilToNextTenMinutes()
   var roomCapacity = 4
-  var roomName = ""
+  var roomName = "new room 1"
 }
