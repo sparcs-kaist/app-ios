@@ -14,8 +14,15 @@ struct TaxiRoomCreationView: View {
     NavigationView {
       VStack {
         // TODO: Destination
-        
         Form {
+          Section {
+            TaxiDestinationPicker(
+              origin: $viewModel.origin,
+              destination: $viewModel.destination,
+              locations: viewModel.locations
+            )
+          }
+
           Section(header: Text("Title")) {
             TextField("Title", text: $viewModel.roomName)
           }
