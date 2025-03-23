@@ -24,18 +24,14 @@ struct TaxiRoomCreationView: View {
             TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepatureTime)
             Picker("Capacity", selection: $viewModel.roomCapacity) {
               ForEach(2...4, id: \.self) { number in
-                Label {
-                  Text("\(number) People")
-                } icon: {
-                  Image(systemName: "person.\(number).fill")
-                }
+                Text("\(number) people")
                 .tag(number)
               }
             }
           }
         }
       }
-      .navigationTitle("Create")
+      .navigationTitle("New Room")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .navigationBarTrailing) {
