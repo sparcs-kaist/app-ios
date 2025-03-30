@@ -16,4 +16,10 @@ class TaxiRoomCreationViewModel {
   var origin: TaxiLocation?
   var destination: TaxiLocation?
   var locations: [TaxiLocation] = TaxiLocation.mockList
+  
+  static var randomRoomNames = [
+    "방 이름 1",
+    "방 이름 2",
+    "방 이름 3",
+  ]
 }

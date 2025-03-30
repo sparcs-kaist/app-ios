@@ -10,8 +10,14 @@ import SwiftUI
 struct TaxiDepatureTimePicker: View {
   @Binding var depatureTime: Date
 
-  @State private var showDatePicker = false // TODO: ViewModel required?
+  @State private var showDatePicker = false
   @State private var showTimePicker = false
+
+  init(depatureTime: Binding<Date>) {
+    self._depatureTime = depatureTime
+
+    UIDatePicker.appearance().minuteInterval = 10
+  }
 
   var body: some View {
     HStack {
@@ -71,4 +77,3 @@ struct TaxiDepatureTimePicker: View {
 #Preview {
   TaxiDepatureTimePicker(depatureTime: .constant(Date().ceilToNextTenMinutes()))
 }
-
