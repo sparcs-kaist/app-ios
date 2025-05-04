@@ -8,100 +8,21 @@
 import SwiftUI
 import MapKit
 
-
-enum TaxiInfoItem: Identifiable {
-    var id: String {
-        switch self {
-        case .plain(let label, _): return label
-        case .withIcon(let label, _, _): return label
-        }
-    }
-
-    case plain(label: String, value: String)
-    case withIcon(label: String, value: String, systemImage: String)
-}
-
-struct InfoRow: View {
-    let label: String
-    let value: String
-    var labelColor: Color = Color(hex: "9D9C9E")
-    var valueColor: Color = .black
-    var trailingIcon: String? = nil
-
-    var body: some View {
-        HStack {
-            Text(label)
-                .foregroundColor(labelColor)
-            Spacer()
-            HStack(spacing: 4) {
-                Text(value)
-                    .foregroundColor(valueColor)
-                if let icon = trailingIcon {
-                    Image(systemName: icon)
-                        .foregroundColor(.gray)
-                }
-            }
-        }
-    }
-}
-
-struct TaxiInfoSection: View {
-    let items: [TaxiInfoItem]
-
-    var body: some View {
-        VStack(spacing: 16) {
-            ForEach(items) { item in
-                switch item {
-                case .plain(let label, let value):
-                    InfoRow(label: label, value: value)
-
-                case .withIcon(let label, let value, let systemImage):
-                    HStack {
-                        InfoRow(label: label, value: value)
-                        Image(systemName: systemImage)
-                            .foregroundColor(.gray)
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct RouteHeaderView: View {
-    let origin: String
-    let destination: String
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(origin)
-            Image(systemName: "arrow.right")
-            Text(destination)
-        }
-        .font(.title3)
-        .fontWeight(.semibold)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-
 struct TaxiPreviewView: View {
     @Binding var roomInfo: RoomInfo
-
     @State private var route: MKRoute?
     @State private var mapCamPos: MapCameraPosition = .automatic
-
     let strokeStyle = StrokeStyle(
         lineWidth: 5,
         lineCap: .round,
         lineJoin: .round
     )
-
+    
     var body: some View {
         VStack(spacing: 0) {
             Map(position: $mapCamPos) {
                 Marker(roomInfo.origin.title, systemImage: "car.fill", coordinate: roomInfo.origin.coordinate).tint(.blue)
                 Marker(roomInfo.destination.title, coordinate: roomInfo.destination.coordinate).tint(.red)
-
                 if let route {
                     MapPolyline(route.polyline)
                         .stroke(Color.blue, style: strokeStyle)
@@ -153,7 +74,6 @@ struct TaxiPreviewView: View {
                 }
                  */
                 
-                
                 TaxiInfoSection(items: [
                     .plain(label: "Room Name", value: roomInfo.name),
                     .withIcon(
@@ -162,7 +82,6 @@ struct TaxiPreviewView: View {
                         systemImage: "chevron.right"
                     )
                 ])
-                
                 
                 Spacer()
                 
@@ -193,21 +112,18 @@ struct TaxiPreviewView: View {
         }
         .ignoresSafeArea(edges: .top)
     }
-
+    
     private func calculateRoute(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) {
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: from))
         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: to))
         request.transportType = .automobile
-
         let directions = MKDirections(request: request)
         directions.calculate { response, error in
             guard let route = response?.routes.first else {
                 return
             }
-
             self.route = route
-
             mapCamPos = .region(
                 MKCoordinateRegion(
                     center: CLLocationCoordinate2D(
@@ -221,7 +137,6 @@ struct TaxiPreviewView: View {
     }
 }
 
-
 extension TaxiLocation {
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -231,11 +146,9 @@ extension TaxiLocation {
 #Preview {
     struct TaxiPreviewWrapper: View {
         @State private var roomInfo: RoomInfo = .mock
-
         var body: some View {
             TaxiPreviewView(roomInfo: $roomInfo)
         }
     }
-
     return TaxiPreviewWrapper()
 }
