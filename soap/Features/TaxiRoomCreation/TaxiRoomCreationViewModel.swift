@@ -11,15 +11,15 @@ import Foundation
 class TaxiRoomCreationViewModel {
   var roomDepatureTime = Date().ceilToNextTenMinutes()
   var roomCapacity = 4
-  var roomName = "new room 1"
+  var roomName = "new room"
 
   var origin: TaxiLocation?
   var destination: TaxiLocation?
   var locations: [TaxiLocation] = TaxiLocation.mockList
   
-  static var randomRoomNames = [
-    "방 이름 1",
-    "방 이름 2",
-    "방 이름 3",
-  ]
+//  static var randomRoomNames = [
+//    "방 이름 1",
+//    "방 이름 2",
+//    "방 이름 3",
+//  ]
 }
