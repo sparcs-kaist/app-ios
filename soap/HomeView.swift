@@ -85,6 +85,7 @@ struct HeaderView: View {
     let appSettings: AppSettings
     
     @State private var showsTaxiPreviewView: Bool = false
+    @State private var roomInfo: RoomInfo = .mock
 
     var body: some View {
         HStack {
@@ -117,7 +118,7 @@ struct HeaderView: View {
         .foregroundStyle(.primary)
         .background { appSettings.scrollDetector(topInsets: outer.safeAreaInsets.top) }
         .sheet(isPresented: $showsTaxiPreviewView, content: {
-            TaxiPreviewView()
+            TaxiPreviewView(roomInfo: $roomInfo)
                 .presentationDetents([.height(320), .medium])
                 .presentationDragIndicator(.visible)
         })
@@ -199,8 +200,7 @@ struct SuggestionsRow: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 16) {
                 NextLectureSuggestionView()
-                
-                NextTaxiSuggestionView()
+                NextTaxiSuggestionView(roomInfo: RoomInfo.mock)
             }
             .padding(.horizontal)
             .scrollTargetLayout()
@@ -231,20 +231,22 @@ struct NextLectureSuggestionView: View {
 }
 
 struct NextTaxiSuggestionView: View {
+    let roomInfo: RoomInfo
+
     var body: some View {
         VStack(alignment: .leading) {
             Label(title: {
-                Text("KAIST")
+                Text(roomInfo.origin.title)
                 Image(systemName: "arrow.right")
-                Text("Daejeon Station")
+                Text(roomInfo.destination.title)
             }, icon: {
                 Image(systemName: "car.2.fill")
             })
             .fontWeight(.medium)
             .font(.subheadline)
             .foregroundStyle(.white)
-            
-            Text("Tomorrow at 17:45")
+
+            Text(roomInfo.departureTime.relativeTimeString)
                 .font(.footnote)
                 .foregroundStyle(.white.opacity(0.8))
         }
@@ -253,6 +255,7 @@ struct NextTaxiSuggestionView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
+
 
 extension CGFloat {
     static var screenWidth: CGFloat {
@@ -308,19 +311,19 @@ struct TaxiBoardRow: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    ForEach(0..<5) { _ in
+                    ForEach(RoomInfo.mockList, id: \.name) { room in
                         VStack(alignment: .leading) {
                             HStack {
                                 HStack {
-                                    Text("Daejeon Station")
+                                    Text(room.origin.title)
                                     Image(systemName: "arrow.right")
-                                    Text("KAIST")
+                                    Text(room.destination.title)
                                 }
-                                
+
                                 Spacer()
-                                
+
                                 HStack(spacing: 4) {
-                                    Text("2/4")
+                                    Text("\(room.occupancy)/\(room.capacity)")
                                     Image(systemName: "person.2")
                                 }
                                 .font(.footnote)
@@ -329,7 +332,8 @@ struct TaxiBoardRow: View {
                                 .background(.green.opacity(0.1))
                                 .clipShape(RoundedRectangle(cornerRadius: 4))
                             }
-                            Text("Tomorrow at 10:00\tLorem ipsum")
+
+                            Text(room.departureTime.relativeTimeString + "\tLorem ipsum")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
