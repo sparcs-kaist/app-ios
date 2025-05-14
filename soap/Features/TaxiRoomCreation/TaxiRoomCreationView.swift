@@ -9,31 +9,30 @@ import SwiftUI
 
 struct TaxiRoomCreationView: View {
   @State private var viewModel = TaxiRoomCreationViewModel()
-  
+
   var body: some View {
     NavigationView {
-      VStack {
-        // TODO: Destination
-        Form {
-          Section {
-            TaxiDestinationPicker(
-              origin: $viewModel.origin,
-              destination: $viewModel.destination,
-              locations: viewModel.locations
-            )
-          }
+      Form {
+        Section(header: Text("Location")) {
+          TaxiDestinationPicker(
+            origin: $viewModel.origin,
+            destination: $viewModel.destination,
+            locations: viewModel.locations
+          )
+        }
 
-          Section(header: Text("Title")) {
+        Section(header: Text("Title")) {
+          HStack {
             TextField("Title", text: $viewModel.roomName)
           }
-          
-          Section {
-            TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepatureTime)
-            Picker("Capacity", selection: $viewModel.roomCapacity) {
-              ForEach(2...4, id: \.self) { number in
-                Text("\(number) people")
+        }
+
+        Section(header: Text("detail")) {
+          TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepatureTime)
+          Picker("Capacity", selection: $viewModel.roomCapacity) {
+            ForEach(2...4, id: \.self) { number in
+              Text("\(number) people")
                 .tag(number)
-              }
             }
           }
         }
