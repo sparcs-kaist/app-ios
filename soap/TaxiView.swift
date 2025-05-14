@@ -10,6 +10,7 @@ import SwiftUI
 struct TaxiView: View {
   @State private var showsPreviewView = false
   @State private var showsRoomCreationView = false
+  @State private var roomInfo: RoomInfo = .mock
 
   var body: some View {
     VStack {
@@ -22,7 +23,7 @@ struct TaxiView: View {
       }
     }
     .sheet(isPresented: $showsPreviewView) {
-      TaxiPreviewView()
+        TaxiPreviewView(roomInfo: $roomInfo)
         .presentationDetents([.height(600)])
         .presentationDragIndicator(.visible)
     }
