@@ -13,7 +13,7 @@ struct TaxiRoomCreationView: View {
   var body: some View {
     NavigationView {
       Form {
-        Section {
+        Section(header: Text("Location")) {
           TaxiDestinationPicker(
             origin: $viewModel.origin,
             destination: $viewModel.destination,
@@ -27,7 +27,7 @@ struct TaxiRoomCreationView: View {
           }
         }
 
-        Section {
+        Section(header: Text("detail")) {
           TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepatureTime)
           Picker("Capacity", selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in

@@ -16,77 +16,68 @@ struct TaxiDestinationPicker: View {
   @State private var isFlipped = false
 
   var body: some View {
-    ZStack(alignment: .leading) {
-      VStack(alignment: .leading) {
-        Menu {
-          if origin == nil {
-            Button("where from?") {
-              withAnimation(.spring()) { origin = nil }
-            }
-          }
-          ForEach(locations) { location in
-            Button(location.title) {
-              withAnimation(.spring()) { origin = location }
-            }
-          }
-        } label: {
-          HStack {
-            Text(origin?.title ?? "where from?")
-              .contentTransition(.numericText())
-            Image(systemName: "chevron.up.chevron.down")
-          }
-        }
-        .padding(4)
-        .tint(.black)
-        .font(.callout)
+    HStack {
+      VStack(alignment: .leading, spacing: 12) {
+        LocationMenu(title: "meeting point", selection: $origin, locations: locations)
 
-        Menu {
-          if destination == nil {
-            Button("where to?") {
-              withAnimation(.spring()) { destination = nil }
-            }
-          }
-          ForEach(locations) { location in
-            Button(location.title) {
-              withAnimation(.spring()) { destination = location }
-            }
-          }
-        } label: {
-          HStack {
-            Text(destination?.title ?? "where to?")
-              .contentTransition(.numericText())
-            Image(systemName: "chevron.up.chevron.down")
-          }
-        }
-        .padding(4)
-        .tint(.black)
-        .font(.callout)
+        Divider()
+
+        LocationMenu(title: "where to?", selection: $destination, locations: locations)
       }
 
+      Button(action: swapLocations) {
+        Label("swap", systemImage: "arrow.trianglehead.swap")
+          .labelStyle(.iconOnly)
+          .rotation3DEffect(
+            .degrees(isFlipped ? 180 : 0),
+            axis: (x: isFlipped ? -1 : 1, y: 0, z: 0)
+          )
+          .animation(.easeInOut(duration: 0.4), value: isFlipped)
+      }
+      .buttonStyle(.bordered)
+      .buttonBorderShape(.circle)
+    }
+    .padding(4)
+  }
+
+  private func swapLocations() {
+    withAnimation(.easeInOut) {
+      isFlipped.toggle()
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+      swap(&origin, &destination)
+    }
+  }
+}
+
+fileprivate struct LocationMenu: View {
+  let title: String
+  @Binding var selection: TaxiLocation?
+  let locations: [TaxiLocation]
+
+  var body: some View {
+    Menu {
+      Button(title) {
+        withAnimation(.spring()) {
+          selection = nil
+        }
+      }
+      ForEach(locations) { location in
+        Button(location.title) {
+          withAnimation(.spring()) {
+            selection = location
+          }
+        }
+      }
+    } label: {
       HStack {
-        Rectangle()
-          .frame(height: 1)
-          .foregroundStyle(Color(uiColor: .systemGray5))
-        
-        Button(action: {
-          withAnimation(.easeInOut(duration: 0.4)) {
-            isFlipped.toggle()
-          }
-
-          DispatchQueue.main.asyncAfter(deadline: .now()) {
-            swap(&origin, &destination)
-          }
-        }) {
-          Label("swap", systemImage: "arrow.trianglehead.swap")
-            .rotation3DEffect(
-              .degrees(isFlipped ? 180 : 0),
-              axis: (x: isFlipped ? -1 : 1, y: 0, z: 0)
-            )
-        }
-        .labelStyle(.iconOnly)
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.circle)
+        Text(selection?.title ?? title)
+          .contentTransition(.numericText())
+        Image(systemName: "chevron.up.chevron.down")
+        Spacer()
       }
+      .tint(.black)
+      .font(.callout)
     }
   }
 }
@@ -103,12 +94,12 @@ fileprivate struct TaxiDestinationPickerPreview: View {
       Section {
 
         TaxiDestinationPicker(origin: $origin, destination: $destination, locations: locations)
-          .onChange(of: origin) {
-            print("origin: \(origin?.title)")
-          }
-          .onChange(of: destination) {
-            print("destination: \(destination?.title)")
-          }
+//          .onChange(of: origin) {
+//            print("origin: \(origin?.title)")
+//          }
+//          .onChange(of: destination) {
+//            print("destination: \(destination?.title)")
+//          }
       }
     }
   }
