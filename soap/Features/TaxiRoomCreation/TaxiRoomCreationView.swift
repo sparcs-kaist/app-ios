@@ -24,11 +24,6 @@ struct TaxiRoomCreationView: View {
         Section(header: Text("Title")) {
           HStack {
             TextField("Title", text: $viewModel.roomName)
-            DiceButton(action: {
-              if let randomName = TaxiRoomCreationViewModel.randomRoomNames.randomElement() {
-                viewModel.roomName = randomName
-              }
-            })
           }
         }
 
@@ -51,28 +46,6 @@ struct TaxiRoomCreationView: View {
           }
         }
       }
-    }
-  }
-
-  struct DiceButton: View {
-    var action: () -> Void
-
-    @State private var isRolling = false
-    @State private var angle: Double = 0
-
-    var body: some View {
-      Button(action: {
-        withAnimation {
-          angle += 360
-        }
-        action()
-      }) {
-        Label("generate", systemImage: "dice.fill")
-          .rotationEffect(.degrees(angle))
-      }
-      .labelStyle(.iconOnly)
-      .buttonStyle(.bordered)
-      .buttonBorderShape(.circle)
     }
   }
 }
