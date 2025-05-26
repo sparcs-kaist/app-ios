@@ -10,6 +10,8 @@ import SwiftUI
 struct PostView: View {
   @State private var htmlHeight: CGFloat = .zero
   @State private var comment: String = ""
+  @FocusState private var isWritingCommentFocusState: Bool
+  @State private var isWritingComment: Bool = false
 
   var body: some View {
     ZStack(alignment: .bottom) {
@@ -29,12 +31,17 @@ struct PostView: View {
 
       HStack {
         HStack {
-          Circle()
-            .frame(width: 21, height: 21)
+          if !isWritingComment && comment.isEmpty {
+            Circle()
+              .frame(width: 21, height: 21)
+              .transition(.move(edge: .leading).combined(with: .opacity))
+          }
 
           TextField(text: $comment, prompt: Text("reply as anonymous"), label: {})
+            .focused($isWritingCommentFocusState)
         }
         .padding(12)
+        .clipped()
         .background {
           Capsule()
             .stroke(Color(UIColor.systemGray5), lineWidth: 1)
@@ -56,7 +63,17 @@ struct PostView: View {
         }
       }
       .padding()
-      .animation(.spring(duration: 0.4, bounce: 0.4, blendDuration: 0.15), value: comment.isEmpty)
+      .animation(
+        .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
+        value: comment.isEmpty
+      )
+      .animation(
+        .spring(duration: 0.2, bounce: 0.2, blendDuration: 0.1),
+        value: isWritingComment
+      )
+    }
+    .onChange(of: isWritingCommentFocusState) {
+      isWritingComment = isWritingCommentFocusState
     }
   }
 
