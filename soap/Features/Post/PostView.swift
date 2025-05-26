@@ -18,28 +18,176 @@ struct PostView: View {
         content
 
         footer
+
+        comments
       }
       .padding()
     }
   }
 
-  private var footer: some View {
+  private var comments: some View {
     VStack(spacing: 16) {
-      HStack {
-        PostVoteButton()
+      // Main comment
+      VStack(alignment: .leading, spacing: 8) {
+        Divider()
 
-        PostCommentButton()
+        HStack {
+          Circle()
+            .frame(width: 21, height: 21)
 
-        Spacer()
+          Text("anonymous")
+            .fontWeight(.medium)
 
-        PostBookmarkButton()
+          Text("22 May 17:44")
+            .font(.caption)
+            .foregroundStyle(.secondary)
 
-        PostShareButton()
+          Spacer()
+
+          Button("more", systemImage: "ellipsis") { }
+            .labelStyle(.iconOnly)
+        }
+        .font(.callout)
+
+        Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
+          .font(.callout)
+
+        HStack {
+          Spacer()
+
+          PostCommentButton()
+            .fixedSize()
+
+          PostVoteButton()
+            .fixedSize()
+        }
+        .font(.caption)
+
+        // Threads
+        HStack(alignment: .top, spacing: 8) {
+          Image(systemName: "arrow.turn.down.right")
+
+          VStack(alignment: .leading, spacing: 8) {
+            HStack {
+              Circle()
+                .frame(width: 21, height: 21)
+
+              Text("anonymous")
+                .fontWeight(.medium)
+
+              Text("22 May 17:44")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+              Spacer()
+
+              Button("more", systemImage: "ellipsis") { }
+                .labelStyle(.iconOnly)
+            }
+            .font(.callout)
+
+            Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
+              .font(.callout)
+
+            HStack {
+              Spacer()
+
+              PostVoteButton()
+                .fixedSize()
+            }
+            .font(.caption)
+          }
+        }
+
+        HStack(alignment: .top, spacing: 8) {
+          Image(systemName: "arrow.turn.down.right")
+
+          VStack(alignment: .leading, spacing: 8) {
+            HStack {
+              Circle()
+                .frame(width: 21, height: 21)
+
+              Text("anonymous")
+                .fontWeight(.medium)
+
+              Text("22 May 17:44")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+              Spacer()
+
+              Button("more", systemImage: "ellipsis") { }
+                .labelStyle(.iconOnly)
+            }
+            .font(.callout)
+
+            Text("aaaa")
+              .font(.callout)
+
+            HStack {
+              Spacer()
+
+              PostVoteButton()
+                .fixedSize()
+            }
+            .font(.caption)
+          }
+        }
       }
-      .font(.callout)
 
-      Divider()
+      // Main comment
+      VStack(alignment: .leading, spacing: 8) {
+        Divider()
+
+        HStack {
+          Circle()
+            .frame(width: 21, height: 21)
+
+          Text("anonymous")
+            .fontWeight(.medium)
+
+          Text("22 May 17:44")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+          Spacer()
+
+          Button("more", systemImage: "ellipsis") { }
+            .labelStyle(.iconOnly)
+        }
+        .font(.callout)
+
+        Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
+          .font(.callout)
+
+        HStack {
+          Spacer()
+
+          PostCommentButton()
+            .fixedSize()
+
+          PostVoteButton()
+            .fixedSize()
+        }
+        .font(.caption)
+      }
     }
+    .padding(.top, 4)
+  }
+
+  private var footer: some View {
+    HStack {
+      PostVoteButton()
+
+      PostCommentButton()
+
+      Spacer()
+
+      PostBookmarkButton()
+
+      PostShareButton()
+    }
+    .font(.callout)
   }
 
   @ViewBuilder
@@ -69,6 +217,7 @@ struct PostView: View {
           .frame(width: 28, height: 28)
 
         Text("류형욱(전산학부)")
+          .fontWeight(.medium)
 
         Image(systemName: "chevron.right")
       }
