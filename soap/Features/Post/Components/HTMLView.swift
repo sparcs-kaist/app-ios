@@ -28,19 +28,28 @@ struct HTMLView: UIViewRepresentable {
   func updateUIView(_ webView: WKWebView, context: Context) {
     // 2) Reset HTML margins/padding & include viewport
     let fullHTML = """
-      <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          html, body { margin: 0; padding: 0; width: 100%; }
-          img { max-width: 100%; height: auto; display: block; }
-        </style>
-      </head>
-      <body>
-        \(htmlString)
-      </body>
-      </html>
-      """
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        img {
+          max-width: 100%;
+          height: auto;
+          display: block;
+        }
+      </style>
+    </head>
+    <body>
+      \(htmlString)
+    </body>
+    </html>
+    """
     webView.loadHTMLString(fullHTML, baseURL: nil)
   }
 
