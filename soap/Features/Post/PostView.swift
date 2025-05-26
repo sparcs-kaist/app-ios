@@ -12,22 +12,33 @@ struct PostView: View {
 
   var body: some View {
     ScrollView {
-      header
+      Group {
+        header
 
-//      content
+        content
 
-      footer
+        footer
+      }
+      .padding()
     }
-    .padding()
   }
 
-  @ViewBuilder
   private var footer: some View {
-    HStack {
-      Button("downvote", systemImage: "arrow.down") {
+    VStack(spacing: 16) {
+      HStack {
+        PostVoteButton()
 
+        PostCommentButton()
+
+        Spacer()
+
+        PostBookmarkButton()
+
+        PostShareButton()
       }
-      .labelStyle(.iconOnly)
+      .font(.callout)
+
+      Divider()
     }
   }
 
@@ -39,7 +50,6 @@ struct PostView: View {
 
     HTMLView(contentHeight: $htmlHeight, htmlString: contentString)
       .frame(height: htmlHeight)
-      .border(.red)
   }
 
   private var header: some View {
