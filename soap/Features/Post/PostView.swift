@@ -9,19 +9,54 @@ import SwiftUI
 
 struct PostView: View {
   @State private var htmlHeight: CGFloat = .zero
+  @State private var comment: String = ""
 
   var body: some View {
-    ScrollView {
-      Group {
-        header
+    ZStack(alignment: .bottom) {
+      ScrollView {
+        Group {
+          header
 
-        content
+          content
 
-        footer
+          footer
 
-        comments
+          comments
+        }
+        .padding()
+      }
+      .contentMargins(.bottom, 64)
+
+      HStack {
+        HStack {
+          Circle()
+            .frame(width: 21, height: 21)
+
+          TextField(text: $comment, prompt: Text("reply as anonymous"), label: {})
+        }
+        .padding(12)
+        .background {
+          Capsule()
+            .stroke(Color(UIColor.systemGray5), lineWidth: 1)
+            .fill(.regularMaterial)
+        }
+        .tint(.primary)
+        .shadow(color: .black.opacity(0.16), radius: 12)
+
+        if !comment.isEmpty {
+          Button("send", systemImage: "paperplane") { }
+            .labelStyle(.iconOnly)
+            .tint(.white)
+            .padding(12)
+            .background {
+              Circle()
+            }
+            .disabled(comment.isEmpty)
+            .transition(.move(edge: .trailing).combined(with: .opacity))
+        }
       }
       .padding()
+      .animation(.spring(duration: 0.4, bounce: 0.4, blendDuration: 0.15), value: comment.isEmpty)
     }
   }
 
