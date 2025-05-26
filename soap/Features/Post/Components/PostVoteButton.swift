@@ -10,7 +10,7 @@ import SwiftUI
 struct PostVoteButton: View {
   var body: some View {
     HStack {
-      Button("downvote", systemImage: "arrow.down") {
+      Button("downvote", systemImage: "arrowshape.down") {
 
       }
       .labelStyle(.iconOnly)
@@ -24,7 +24,7 @@ struct PostVoteButton: View {
         HStack {
           Text("13")
 
-          Image(systemName: "arrow.up")
+          Image(systemName: "arrowshape.up")
         }
       })
       .foregroundStyle(.primary)

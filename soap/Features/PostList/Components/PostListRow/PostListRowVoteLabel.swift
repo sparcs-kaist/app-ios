@@ -19,7 +19,7 @@ struct PostListRowVoteLabel: View {
         // upvoted
 
         HStack(spacing: 4) {
-          Image(systemName: "arrow.up")
+          Image(systemName: "arrowshape.up.fill")
           Text("\(voteCount)")
             .lineLimit(1)
         }
@@ -27,7 +27,7 @@ struct PostListRowVoteLabel: View {
       } else if voteCount < 0 {
         // downvoted
         HStack(spacing: 4) {
-          Image(systemName: "arrow.down")
+          Image(systemName: "arrowshape.down.fill")
           Text("\(voteCount)")
             .lineLimit(1)
         }
