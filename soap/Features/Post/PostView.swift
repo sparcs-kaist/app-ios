@@ -52,6 +52,7 @@ struct PostView: View {
 
         if !comment.isEmpty {
           Button("send", systemImage: "paperplane") { }
+            .fontWeight(.medium)
             .labelStyle(.iconOnly)
             .tint(.white)
             .padding(12)
