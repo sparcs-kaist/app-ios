@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import BottomSheet
 
 struct ContentView: View {
   private var timetableViewModel = TimetableViewModel()

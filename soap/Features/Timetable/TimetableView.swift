@@ -6,12 +6,10 @@
 //
 
 import SwiftUI
-import BottomSheet
 
 struct TimetableView: View {
   @Environment(TimetableViewModel.self) private var viewModel
 
-  @State private var bottomSheetPosition: BottomSheetPosition = .relative(0.19)
   @State private var searchText: String = ""
   @FocusState private var isFocused: Bool
 
@@ -54,46 +52,6 @@ struct TimetableView: View {
       // fetch data
       await viewModel.fetchData()
     }
-    // Bottom Search Sheet
-    .bottomSheet(bottomSheetPosition: $bottomSheetPosition, switchablePositions: [
-      .relative(0.19),
-      .relative(0.5),
-      .relativeTop(0.975)
-    ], headerContent: {
-      HStack {
-        Image(systemName: "magnifyingglass")
-          .foregroundColor(Color(UIColor.secondaryLabel))
-        TextField("Search by course title, instructor, etc.", text: $searchText)
-          .focused($isFocused)
-          .onChange(of: isFocused) {
-            if isFocused {
-              withAnimation {
-                bottomSheetMoveToTop()
-              }
-            }
-          }
-      }
-      .padding(.vertical, 8)
-      .padding(.horizontal, 5)
-      .background(
-        RoundedRectangle(cornerRadius: 10)
-          .fill(Color(UIColor.quaternarySystemFill))
-      )
-      .padding([.horizontal, .bottom])
-    }) {
-      // Bottom Sheet Content Area
-      Text("Hello")
-    }
-    .enableAppleScrollBehavior()
-    .customBackground(
-      RoundedRectangle(cornerRadius: 16)
-        .fill(Material.bar)
-    )
-    .customAnimation(.bouncy(duration: 0.3, extraBounce: -0.1))
-  }
-
-  private func bottomSheetMoveToTop() {
-    bottomSheetPosition = .relativeTop(0.975)
   }
 }
 

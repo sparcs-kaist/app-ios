@@ -1,24 +1,6 @@
 {
-  "originHash" : "e214b1a68b6b88b49ae93df4a19eaa7f3f35c919e095dbc7cbff31a8d09b0a42",
+  "originHash" : "fef25bdca91813013e9f62da30996b2504576bc8f5ed9d0a0bb177a563058bf3",
   "pins" : [
-    {
-      "identity" : "bottomsheet",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/lucaszischka/BottomSheet",
-      "state" : {
-        "revision" : "720ddbd1371fef2a09cc1ab65fc503df37767f9c",
-        "version" : "3.1.1"
-      }
-    },
-    {
-      "identity" : "smoothgradient",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/raymondjavaxx/SmoothGradient.git",
-      "state" : {
-        "revision" : "61bf248fad31c7921c9985b418e6e9297cd7b861",
-        "version" : "1.0.0"
-      }
-    },
     {
       "identity" : "swiftui-shimmer",
       "kind" : "remoteSourceControl",

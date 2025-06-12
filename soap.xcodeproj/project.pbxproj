@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B8DFC2A2CD4F3AF00AB82CC /* SmoothGradient in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8DFC292CD4F3AF00AB82CC /* SmoothGradient */; };
-		8BABEF6D2D217E4B0090B269 /* BottomSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 8BABEF6C2D217E4B0090B269 /* BottomSheet */; };
 		8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE2ECBB2D2429D900847F47 /* Shimmer */; };
 /* End PBXBuildFile section */
 
@@ -72,8 +70,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */,
-				8B8DFC2A2CD4F3AF00AB82CC /* SmoothGradient in Frameworks */,
-				8BABEF6D2D217E4B0090B269 /* BottomSheet in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,8 +130,6 @@
 			);
 			name = soap;
 			packageProductDependencies = (
-				8B8DFC292CD4F3AF00AB82CC /* SmoothGradient */,
-				8BABEF6C2D217E4B0090B269 /* BottomSheet */,
 				8BE2ECBB2D2429D900847F47 /* Shimmer */,
 			);
 			productName = soap;
@@ -221,8 +215,6 @@
 			mainGroup = 8B8DFBDD2CCF771700AB82CC;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				8B8DFC282CD4F3AF00AB82CC /* XCRemoteSwiftPackageReference "SmoothGradient" */,
-				8BABEF6B2D217E4B0090B269 /* XCRemoteSwiftPackageReference "BottomSheet" */,
 				8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -436,6 +428,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -472,6 +465,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -604,22 +598,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		8B8DFC282CD4F3AF00AB82CC /* XCRemoteSwiftPackageReference "SmoothGradient" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/raymondjavaxx/SmoothGradient.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
-		8BABEF6B2D217E4B0090B269 /* XCRemoteSwiftPackageReference "BottomSheet" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/lucaszischka/BottomSheet";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.1.1;
-			};
-		};
 		8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/markiv/SwiftUI-Shimmer";
@@ -631,16 +609,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8B8DFC292CD4F3AF00AB82CC /* SmoothGradient */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8B8DFC282CD4F3AF00AB82CC /* XCRemoteSwiftPackageReference "SmoothGradient" */;
-			productName = SmoothGradient;
-		};
-		8BABEF6C2D217E4B0090B269 /* BottomSheet */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8BABEF6B2D217E4B0090B269 /* XCRemoteSwiftPackageReference "BottomSheet" */;
-			productName = BottomSheet;
-		};
 		8BE2ECBB2D2429D900847F47 /* Shimmer */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */;
