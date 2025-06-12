@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HomeView: View {
+struct HomeViewOld: View {
     private var appSettings: AppSettings = .init()
     private let title: String = "Ara"
     
@@ -192,7 +192,7 @@ final class AppSettings {
 }
 
 #Preview {
-    HomeView()
+    HomeViewOld()
 }
 
 struct SuggestionsRow: View {
