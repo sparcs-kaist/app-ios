@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainView: View {
+  private var timetableViewModel = TimetableViewModel()
   @State private var searchText: String = ""
 
   var body: some View {
@@ -17,7 +18,8 @@ struct MainView: View {
       }
 
       Tab("Timetable", systemImage: "square.grid.2x2") {
-        Text("Timetable")
+        TimetableView()
+          .environment(timetableViewModel)
       }
 
       Tab("Taxi", systemImage: "car") {
@@ -25,12 +27,13 @@ struct MainView: View {
       }
 
       Tab(role: .search) {
-        Text("Search")
+        NavigationStack {
+          Text("Search")
+        }
       }
     }
     .tabBarMinimizeBehavior(.onScrollDown)
     .searchable(text: $searchText)
-    .searchToolbarBehavior(.minimize)
   }
 }
 
