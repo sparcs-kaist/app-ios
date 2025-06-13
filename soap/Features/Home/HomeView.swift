@@ -11,11 +11,29 @@ struct HomeView: View {
   var body: some View {
     NavigationStack {
       ScrollView {
-        Text("HomeView")
+        LazyVStack(spacing: 27) {
+          GeneralRecentSection()
+
+          TaxiRecentSection()
+        }
+        .padding(.vertical)
       }
-      .border(.red)
       .navigationTitle(Text("Home"))
       .navigationBarTitleDisplayMode(.large)
+      .toolbar {
+        ToolbarItem {
+          Button("Notifications", systemImage: "bell") { }
+        }
+
+        ToolbarSpacer(.fixed)
+
+        ToolbarItem {
+          Menu("More", systemImage: "ellipsis") {
+            Button("Settings", systemImage: "gear") { }
+          }
+        }
+      }
+      .background(Color.secondarySystemBackground)
     }
   }
 }
