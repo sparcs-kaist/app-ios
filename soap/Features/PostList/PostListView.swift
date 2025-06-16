@@ -46,8 +46,7 @@ struct PostListView: View {
     .sheet(isPresented: $showsComposeView) {
       PostComposeView()
         .environment(viewModel)
-        .padding(.top, 2)
-        .presentationDragIndicator(.visible)
+        .interactiveDismissDisabled()
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
     }
   }

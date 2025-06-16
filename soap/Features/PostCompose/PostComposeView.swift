@@ -21,6 +21,8 @@ struct PostComposeView: View {
   @State private var writeAsAnonymous = true
   @State private var isNSFW = false
   @State private var isPolitical = false
+  
+  @State private var isShowingCancelDialog = false
 
   var body: some View {
     NavigationView {
@@ -52,7 +54,16 @@ struct PostComposeView: View {
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
           Button("Cancel", systemImage: "xmark", role: .close) {
-            dismiss()
+            isShowingCancelDialog = true
+          }
+          .confirmationDialog(
+            "Are you sure you want to discard this post?",
+            isPresented: $isShowingCancelDialog,
+            titleVisibility: .hidden
+          ) {
+            Button("Discard Post", role: .destructive) {
+              dismiss()
+            }
           }
         }
 
@@ -64,7 +75,7 @@ struct PostComposeView: View {
         }
       }
       .toolbar {
-        ToolbarSpacer(.flexible, placement: .bottomBar)
+        ToolbarSpacer(.fixed, placement: .bottomBar)
 
         ToolbarItem(placement: .bottomBar) {
           Button("Photo Library", systemImage: "photo.on.rectangle") { }
