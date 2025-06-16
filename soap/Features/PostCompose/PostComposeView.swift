@@ -35,27 +35,16 @@ struct PostComposeView: View {
           .onSubmit {
             isDescriptionFocused = true
           }
+          .writingToolsBehavior(.disabled)
         Divider()
         TextField("What's happening?", text: $description, axis: .vertical)
           .focused($isDescriptionFocused)
           .submitLabel(.return)
+          .writingToolsBehavior(.complete)
 
         termsOfUseButton
 
         Spacer()
-
-        HStack {
-          Button("select photos", systemImage: "photo") {}
-            .labelStyle(.iconOnly)
-            .font(.title2)
-
-          Spacer()
-
-          Checkbox("Anonymous", isChecked: $writeAsAnonymous)
-          Checkbox("NSFW", isChecked: $isNSFW)
-          Checkbox("Political", isChecked: $isPolitical)
-        }
-        .tint(.primary)
       }
       .padding()
       .navigationTitle("Write")
@@ -72,6 +61,46 @@ struct PostComposeView: View {
             dismiss()
           }
           .disabled(title.isEmpty || description.isEmpty)
+        }
+      }
+      .toolbar {
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+
+        ToolbarItem(placement: .bottomBar) {
+          Button("Photo Library", systemImage: "photo.on.rectangle") { }
+        }
+
+        ToolbarItem(placement: .bottomBar) {
+          Button("Attach File", systemImage: "paperclip") { }
+        }
+
+        ToolbarItem(placement: .bottomBar) {
+          Menu("More", systemImage: "ellipsis") {
+            Button(action: {
+              writeAsAnonymous.toggle()
+            }, label: {
+              if writeAsAnonymous {
+                Image(systemName: "checkmark")
+              }
+              Text("Anonymous")
+            })
+            Button(action: {
+              isNSFW.toggle()
+            }, label: {
+              if isNSFW {
+                Image(systemName: "checkmark")
+              }
+              Text("NSFW")
+            })
+            Button(action: {
+              isPolitical.toggle()
+            }, label: {
+              if isPolitical {
+                Image(systemName: "checkmark")
+              }
+              Text("Political")
+            })
+          }
         }
       }
     }
