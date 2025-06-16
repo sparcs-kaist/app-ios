@@ -61,8 +61,14 @@ struct PostComposeView: View {
       .navigationTitle("Write")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button("Done") {
+        ToolbarItem(placement: .topBarLeading) {
+          Button("Cancel", systemImage: "xmark", role: .close) {
+            dismiss()
+          }
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+          Button("Done", systemImage: "arrow.up", role: .confirm) {
             dismiss()
           }
           .disabled(title.isEmpty || description.isEmpty)
