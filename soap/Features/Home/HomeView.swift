@@ -12,9 +12,15 @@ struct HomeView: View {
     NavigationStack {
       ScrollView {
         LazyVStack(spacing: 27) {
-          GeneralRecentSection()
+          BoardRecentSection(title: "Trending")
 
           TaxiRecentSection()
+
+          BoardsSection()
+
+          BoardRecentSection(title: "General")
+
+          BoardRecentSection(title: "Notice")
         }
         .padding(.vertical)
       }

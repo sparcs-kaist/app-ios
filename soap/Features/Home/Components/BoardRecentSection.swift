@@ -1,5 +1,5 @@
 //
-//  GeneralRecentSection.swift
+//  BoardRecentSection.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 13/06/2025.
@@ -7,15 +7,20 @@
 
 import SwiftUI
 
-struct GeneralRecentSection: View {
+struct BoardRecentSection: View {
+  var title: String
+  @State private var isPresented: Bool = false
+
   var body: some View {
     VStack {
       HStack {
-        Text("General")
+        Text(title)
           .font(.title2)
           .fontWeight(.bold)
 
-        Button("Navigate", systemImage: "chevron.right") { }
+        Button("Navigate", systemImage: "chevron.right") {
+          isPresented = true
+        }
           .font(.caption)
           .labelStyle(.iconOnly)
           .buttonBorderShape(.circle)
@@ -42,6 +47,9 @@ struct GeneralRecentSection: View {
       .clipShape(.rect(cornerRadius: 28))
     }
     .padding(.horizontal)
+    .navigationDestination(isPresented: $isPresented) {
+      PostListView()
+    }
   }
 }
 
@@ -49,7 +57,7 @@ struct GeneralRecentSection: View {
   ZStack {
     Color.secondarySystemBackground
 
-    GeneralRecentSection()
+    BoardRecentSection(title: "General")
   }
   .ignoresSafeArea()
 }
