@@ -28,7 +28,7 @@ struct MainView: View {
 
       Tab(role: .search) {
         NavigationStack {
-          Text("Search")
+          ContentUnavailableView.search
         }
       }
     }
