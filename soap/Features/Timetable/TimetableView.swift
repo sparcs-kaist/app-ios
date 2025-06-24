@@ -15,40 +15,30 @@ struct TimetableView: View {
 
   var body: some View {
     NavigationStack {
-      GeometryReader { geometry in
-        ScrollView {
-          VStack(spacing: 0) {
-            // Timetable Selector
-            CompactTimetableSelector()
-              .padding(.horizontal)
-              .padding(.horizontal, 4)
-            //                            .padding(.leading)
-            // Timetable Gird View
-            ZStack {
-              RoundedRectangle(cornerRadius: 16)
-                .fill(.white)
-              TimetableGrid()
-                .padding(8)
-            }
-            .frame(height: .screenHeight * 0.55)
-            .padding([.horizontal, .bottom])
-            .padding(.top, 8)
-
-            // Timetable Summary View
-            ZStack {
-              RoundedRectangle(cornerRadius: 16)
-                .fill(.white)
-              TimetableSummary()
-                .padding(8)
-                .padding(.vertical, 8)
-            }
+      ScrollView {
+        VStack(spacing: 0) {
+          // Timetable Selector
+          CompactTimetableSelector()
             .padding(.horizontal)
-          }
+            .padding(.horizontal, 4)
+
+          // Timetable Gird View
+          TimetableGrid()
+            .padding()
+            .background(.background)
+            .clipShape(.rect(cornerRadius: 28))
+            .frame(height: .screenHeight * 0.55)
+            .padding()
+
+          // Timetable Summary View
+          TimetableSummary()
+            .padding()
+            .background(.background)
+            .clipShape(.rect(cornerRadius: 28))
         }
-        .navigationTitle("Timetable")
-        .background(Color(UIColor.secondarySystemBackground))
-        .ignoresSafeArea(.keyboard)
       }
+      .navigationTitle("Timetable")
+      .background(Color.secondarySystemBackground)
       .task {
         // fetch data
         await viewModel.fetchData()
