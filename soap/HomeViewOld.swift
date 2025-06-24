@@ -256,13 +256,6 @@ struct NextTaxiSuggestionView: View {
     }
 }
 
-
-extension CGFloat {
-    static var screenWidth: CGFloat {
-        UIScreen.main.bounds.width
-    }
-}
-
 struct GeneralBoardRow: View {
     var body: some View {
         VStack(alignment: .leading) {

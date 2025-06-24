@@ -30,7 +30,7 @@ struct TimetableView: View {
               TimetableGrid()
                 .padding(8)
             }
-            .frame(height: geometry.size.height * 0.58)
+            .frame(height: .screenHeight * 0.55)
             .padding([.horizontal, .bottom])
             .padding(.top, 8)
 
@@ -62,4 +62,3 @@ struct TimetableView: View {
   TimetableView()
     .environment(TimetableViewModel())
 }
-
