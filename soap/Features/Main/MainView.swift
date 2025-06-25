@@ -17,18 +17,26 @@ struct MainView: View {
         HomeView()
       }
 
+      Tab("Boards", systemImage: "tray.full") {
+        BoardListView()
+      }
+
       Tab("Timetable", systemImage: "square.grid.2x2") {
         TimetableView()
           .environment(timetableViewModel)
       }
 
       Tab("Taxi", systemImage: "car") {
-        Text("Taxi")
+        NavigationStack {
+          ContentUnavailableView("No Rooms", systemImage: "car.2.fill", description: Text("There is no existing room."))
+            .navigationTitle("Taxi")
+        }
       }
 
       Tab(role: .search) {
         NavigationStack {
           ContentUnavailableView.search
+            .navigationTitle("Search")
         }
       }
     }
