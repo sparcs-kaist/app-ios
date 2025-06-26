@@ -16,7 +16,9 @@ struct CompactTimetableSelector: View {
         HStack {
           HStack {
             Button(action: {
-              timetableViewModel.selectPreviousSemester()
+              withAnimation(.spring) {
+                timetableViewModel.selectPreviousSemester()
+              }
             }, label: {
               Image(systemName: "chevron.left")
             })
@@ -31,7 +33,9 @@ struct CompactTimetableSelector: View {
             Spacer()
 
             Button(action: {
-              timetableViewModel.selectNextSemester()
+              withAnimation(.spring) {
+                timetableViewModel.selectNextSemester()
+              }
             }, label: {
               Image(systemName: "chevron.right")
             })
@@ -40,19 +44,24 @@ struct CompactTimetableSelector: View {
           }
           .frame(maxWidth: 160)
           .fontWeight(.semibold)
+          .padding(12)
+          .glassEffect(.regular.interactive())
 
           Spacer()
-
-          Text("My Table")
-            .fontWeight(.semibold)
 
           Button(action: {
 
           }, label: {
-            Image(systemName: "ellipsis")
+            HStack(spacing: 16) {
+              Text("My Table")
+                .fontWeight(.semibold)
+
+              Image(systemName: "ellipsis")
+            }
           })
-          .padding(.leading, 16)
           .tint(.primary)
+          .padding(12)
+          .glassEffect(.regular.interactive())
         }
       }
     }

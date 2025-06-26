@@ -16,19 +16,16 @@ struct TimetableView: View {
   var body: some View {
     NavigationStack {
       ScrollView {
-        VStack(spacing: 0) {
+        VStack(spacing: 28) {
           // Timetable Selector
           CompactTimetableSelector()
-            .padding(.horizontal)
-            .padding(.horizontal, 4)
 
           // Timetable Gird View
           TimetableGrid()
             .padding()
             .background(.background)
             .clipShape(.rect(cornerRadius: 28))
-            .frame(height: .screenHeight * 0.55)
-            .padding()
+            .frame(height: .screenHeight * 0.50)
 
           // Timetable Summary View
           TimetableSummary()
@@ -36,6 +33,7 @@ struct TimetableView: View {
             .background(.background)
             .clipShape(.rect(cornerRadius: 28))
         }
+        .padding()
       }
       .navigationTitle("Timetable")
       .background(Color.secondarySystemBackground)

@@ -26,29 +26,31 @@ struct PostComposeView: View {
 
   var body: some View {
     NavigationView {
-      VStack(alignment: .leading) {
-        flairSelector
-        Spacer()
-          .frame(maxHeight: 16)
-        TextField("Please enter the title", text: $title)
-          .font(.title3)
-          .focused($isTitleFocused)
-          .submitLabel(.next)
-          .onSubmit {
-            isDescriptionFocused = true
-          }
-          .writingToolsBehavior(.disabled)
-        Divider()
-        TextField("What's happening?", text: $description, axis: .vertical)
-          .focused($isDescriptionFocused)
-          .submitLabel(.return)
-          .writingToolsBehavior(.complete)
+      ScrollView {
+        VStack(alignment: .leading) {
+          flairSelector
+          Spacer()
+            .frame(maxHeight: 16)
+          TextField("Please enter the title", text: $title)
+            .font(.title3)
+            .focused($isTitleFocused)
+            .submitLabel(.next)
+            .onSubmit {
+              isDescriptionFocused = true
+            }
+            .writingToolsBehavior(.disabled)
+          Divider()
+          TextField("What's happening?", text: $description, axis: .vertical)
+            .focused($isDescriptionFocused)
+            .submitLabel(.return)
+            .writingToolsBehavior(.complete)
 
-        termsOfUseButton
+          termsOfUseButton
 
-        Spacer()
+          Spacer()
+        }
+        .padding()
       }
-      .padding()
       .navigationTitle("Write")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -75,7 +77,7 @@ struct PostComposeView: View {
         }
       }
       .toolbar {
-        ToolbarSpacer(.fixed, placement: .bottomBar)
+        ToolbarSpacer(.flexible, placement: .bottomBar)
 
         ToolbarItem(placement: .bottomBar) {
           Button("Photo Library", systemImage: "photo.on.rectangle") { }
