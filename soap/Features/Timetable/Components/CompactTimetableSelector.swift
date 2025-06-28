@@ -14,54 +14,11 @@ struct CompactTimetableSelector: View {
     ZStack {
       if let selectedTimetable = timetableViewModel.selectedTimetable {
         HStack {
-          HStack {
-            Button(action: {
-              withAnimation(.spring) {
-                timetableViewModel.selectPreviousSemester()
-              }
-            }, label: {
-              Image(systemName: "chevron.left")
-            })
-            .tint(.black)
-            .disabled(timetableViewModel.semesters.first == selectedTimetable.semester)
-
-            Spacer()
-
-            Text(selectedTimetable.semester.description)
-              .contentTransition(.numericText())
-
-            Spacer()
-
-            Button(action: {
-              withAnimation(.spring) {
-                timetableViewModel.selectNextSemester()
-              }
-            }, label: {
-              Image(systemName: "chevron.right")
-            })
-            .tint(.black)
-            .disabled(timetableViewModel.semesters.last == selectedTimetable.semester)
-          }
-          .frame(maxWidth: 160)
-          .fontWeight(.semibold)
-          .padding(12)
-          .glassEffect(.regular.interactive())
+          semesterSelector(selectedTimetable: selectedTimetable)
 
           Spacer()
 
-          Button(action: {
-
-          }, label: {
-            HStack(spacing: 16) {
-              Text("My Table")
-                .fontWeight(.semibold)
-
-              Image(systemName: "ellipsis")
-            }
-          })
-          .tint(.primary)
-          .padding(12)
-          .glassEffect(.regular.interactive())
+          tableSelector
         }
       }
     }
@@ -69,6 +26,59 @@ struct CompactTimetableSelector: View {
     .task {
       await timetableViewModel.fetchData()
     }
+  }
+
+  var tableSelector: some View {
+    Button(action: {
+
+    }, label: {
+      HStack(spacing: 16) {
+        Text("My Table")
+          .fontWeight(.semibold)
+
+        Image(systemName: "ellipsis")
+      }
+    })
+    .tint(.primary)
+    .padding(12)
+    .padding(.horizontal, 4)
+    .glassEffect(.regular.interactive())
+  }
+
+  func semesterSelector(selectedTimetable: Timetable) -> some View {
+    HStack {
+      Button(action: {
+        withAnimation(.spring) {
+          timetableViewModel.selectPreviousSemester()
+        }
+      }, label: {
+        Image(systemName: "chevron.left")
+      })
+      .tint(.black)
+      .disabled(timetableViewModel.semesters.first == selectedTimetable.semester)
+
+      Spacer()
+
+      Text(selectedTimetable.semester.description)
+        .contentTransition(.numericText())
+
+      Spacer()
+
+      Button(action: {
+        withAnimation(.spring) {
+          timetableViewModel.selectNextSemester()
+        }
+      }, label: {
+        Image(systemName: "chevron.right")
+      })
+      .tint(.black)
+      .disabled(timetableViewModel.semesters.last == selectedTimetable.semester)
+    }
+    .frame(maxWidth: 160)
+    .fontWeight(.semibold)
+    .padding(12)
+    .padding(.horizontal, 4)
+    .glassEffect(.regular.interactive())
   }
 }
 
