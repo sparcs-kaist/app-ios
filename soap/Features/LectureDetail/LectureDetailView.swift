@@ -38,6 +38,24 @@ struct LectureDetailView: View {
           .fontWeight(.bold)
         Spacer()
       }
+
+      HStack {
+//        Spacer()
+        lectureSummaryRow(title: "Grade", description: lecture.gradeLetter)
+        Spacer()
+        lectureSummaryRow(title: "Load", description: lecture.loadLetter)
+        Spacer()
+        lectureSummaryRow(title: "Speech", description: lecture.speechLetter)
+        Spacer()
+
+        Button("Write a Review", systemImage: "square.and.pencil") { }
+          .font(.callout)
+          .padding()
+          .background(Color.secondarySystemBackground)
+          .clipShape(.capsule)
+          .tint(.primary)
+      }
+      .padding(.vertical, 4)
     }
   }
 
@@ -94,6 +112,7 @@ struct LectureDetailView: View {
 
   var lectureSummary: some View {
     HStack {
+      Spacer()
       lectureSummaryRow(title: "Language", description: lecture.isEnglish ? "EN" : "한")
       Spacer()
       lectureSummaryRow(
@@ -113,11 +132,6 @@ struct LectureDetailView: View {
           ) + ":1"
       )
       Spacer()
-      lectureSummaryRow(title: "Grade", description: lecture.gradeLetter)
-      Spacer()
-      lectureSummaryRow(title: "Load", description: lecture.loadLetter)
-      Spacer()
-      lectureSummaryRow(title: "Speech", description: lecture.speechLetter)
     }
   }
 
