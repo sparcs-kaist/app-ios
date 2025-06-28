@@ -168,9 +168,11 @@ struct Lecture: Identifiable {
   let section: String?
   let title: LocalizedString
   let department: LocalizedString
+  let isEnglish: Bool
   let credit: Int
   let creditAu: Int
   let capacity: Int
+  let numberOfPeople: Int
   let grade: Double
   let load: Double
   let speech: Double
