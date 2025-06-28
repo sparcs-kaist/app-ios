@@ -12,8 +12,40 @@ struct Timetable: Identifiable, Comparable, Equatable {
   var lectures: [Lecture]
   let semester: Semester
 
-  // Return the minimum start minutes.
   private let defaultMinMinutes = 540 // 9:00 AM
+  private let defaultMaxMinutes = 1080 // 6:00 PM
+
+  var letters: [String] = [
+    "?",
+    "F",
+    "F",
+    "F",
+    "D-",
+    "D",
+    "D+",
+    "C-",
+    "C",
+    "C+",
+    "B-",
+    "B",
+    "B+",
+    "A-",
+    "A",
+    "A+"
+  ]
+
+  // Comparable
+  static func < (lhs: Timetable, rhs: Timetable) -> Bool {
+    return (lhs.semester == rhs.semester) ? lhs.id < rhs.id : lhs.semester < rhs.semester
+  }
+
+  static func == (lhs: Timetable, rhs: Timetable) -> Bool {
+    return lhs.id == rhs.id && lhs.semester == rhs.semester
+  }
+}
+
+extension Timetable {
+  // Return the minimum start minutes.
   var minMinutes: Int {
     lectures
       .flatMap { $0.classTimes }
@@ -23,7 +55,6 @@ struct Timetable: Identifiable, Comparable, Equatable {
   }
 
   // Return the maximum end minutes.
-  private let defaultMaxMinutes = 1080 // 6:00 PM
   var maxMinutes: Int {
     lectures
       .flatMap { $0.classTimes }
@@ -59,24 +90,6 @@ struct Timetable: Identifiable, Comparable, Equatable {
   /*
    * For Timetable Summary
    */
-  var letters: [String] = [
-    "?",
-    "F",
-    "F",
-    "F",
-    "D-",
-    "D",
-    "D+",
-    "C-",
-    "C",
-    "C+",
-    "B-",
-    "B",
-    "B+",
-    "A-",
-    "A",
-    "A+"
-  ]
 
   // Get the sum of credits
   var credits: Int {
@@ -144,15 +157,6 @@ struct Timetable: Identifiable, Comparable, Equatable {
       .map { $0.credit + $0.creditAu }
       .reduce(0, +)
   }
-
-  // Comparable
-  static func < (lhs: Timetable, rhs: Timetable) -> Bool {
-    return (lhs.semester == rhs.semester) ? lhs.id < rhs.id : lhs.semester < rhs.semester
-  }
-
-  static func == (lhs: Timetable, rhs: Timetable) -> Bool {
-    return lhs.id == rhs.id && lhs.semester == rhs.semester
-  }
 }
 
 struct LectureItem: Identifiable {
@@ -192,6 +196,55 @@ struct Lecture: Identifiable {
   // Text colour for TimetableGridCell
   var textColor: Color {
     return TimetableColorPalette.palettes[0].textColor
+  }
+
+  var letters: [String] = [
+    "?",
+    "F",
+    "F",
+    "F",
+    "D-",
+    "D",
+    "D+",
+    "C-",
+    "C",
+    "C+",
+    "B-",
+    "B",
+    "B+",
+    "A-",
+    "A",
+    "A+"
+  ]
+}
+
+extension Lecture {
+  private func calculateWeightedAverage(for value: Double, withCredits: Bool = true) -> Double {
+    let numerator = value * Double(credit + creditAu)
+    let denominator = credit + creditAu
+
+    return denominator > 0 ? numerator / Double(denominator) : 0.0
+  }
+
+  // safely get letter grade string
+  private func letter(for value: Double) -> String {
+    let index = Int(round(value))
+    return index >= 0 && index < letters.count ? letters[index] : "?"
+  }
+
+  // Letter grade for the grade
+  var gradeLetter: String {
+    letter(for: calculateWeightedAverage(for: grade))
+  }
+
+  // Letter grade for the load
+  var loadLetter: String {
+    letter(for: calculateWeightedAverage(for: load))
+  }
+
+  // Letter grade for the speech
+  var speechLetter: String {
+    letter(for: calculateWeightedAverage(for: speech))
   }
 }
 

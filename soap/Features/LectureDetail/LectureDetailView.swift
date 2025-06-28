@@ -113,11 +113,11 @@ struct LectureDetailView: View {
           ) + ":1"
       )
       Spacer()
-      lectureSummaryRow(title: "Grade", description: "A+")
+      lectureSummaryRow(title: "Grade", description: lecture.gradeLetter)
       Spacer()
-      lectureSummaryRow(title: "Load", description: "A+")
+      lectureSummaryRow(title: "Load", description: lecture.loadLetter)
       Spacer()
-      lectureSummaryRow(title: "Speech", description: "A+")
+      lectureSummaryRow(title: "Speech", description: lecture.speechLetter)
     }
   }
 
