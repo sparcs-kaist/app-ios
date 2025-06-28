@@ -21,7 +21,7 @@ class TimetableViewModel {
       updateTimetablesForSelectedSemester()
     }
   }
-
+  var selectedLecture: Lecture?
   var timetablesForSelectedSemester: [Timetable] = [Timetable]()
 
   func fetchData() async {

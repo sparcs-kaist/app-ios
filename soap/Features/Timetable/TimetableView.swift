@@ -21,7 +21,9 @@ struct TimetableView: View {
           CompactTimetableSelector()
 
           // Timetable Gird View
-          TimetableGrid()
+          TimetableGrid() { selectedLecture in
+            viewModel.selectedLecture = selectedLecture
+          }
             .padding()
             .background(.background)
             .clipShape(.rect(cornerRadius: 28))
@@ -37,11 +39,23 @@ struct TimetableView: View {
       }
       .navigationTitle("Timetable")
       .background(Color.secondarySystemBackground)
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button("Add Lecture", systemImage: "plus") { }
+        }
+      }
+      .sheet(item: Binding(
+        get: { viewModel.selectedLecture },
+        set: { viewModel.selectedLecture = $0 }
+      )) { (item: Lecture) in
+        LectureDetailView(lecture: item)
+          .presentationDragIndicator(.visible)
+          .presentationDetents([.medium, .large])
+      }
       .task {
         // fetch data
         await viewModel.fetchData()
       }
-      .navigationTitle("Timetable")
     }
   }
 }
