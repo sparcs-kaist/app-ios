@@ -33,3 +33,7 @@ enum DayType: Int, Identifiable, CaseIterable, Comparable {
         lhs.rawValue < rhs.rawValue
     }
 }
+
+extension DayType {
+  static var weekdays: [DayType] { [.mon, .tue, .wed, .thu, .fri] }
+}

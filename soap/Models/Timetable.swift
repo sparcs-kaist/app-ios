@@ -15,23 +15,9 @@ struct Timetable: Identifiable, Comparable, Equatable {
   private let defaultMinMinutes = 540 // 9:00 AM
   private let defaultMaxMinutes = 1080 // 6:00 PM
 
-  var letters: [String] = [
-    "?",
-    "F",
-    "F",
-    "F",
-    "D-",
-    "D",
-    "D+",
-    "C-",
-    "C",
-    "C+",
-    "B-",
-    "B",
-    "B+",
-    "A-",
-    "A",
-    "A+"
+  static let letters: [String] = [
+    "?", "F", "F", "F", "D-", "D", "D+", "C-", "C", "C+",
+    "B-", "B", "B+", "A-", "A", "A+"
   ]
 
   // Comparable
@@ -71,9 +57,9 @@ extension Timetable {
     let classDays = lectures.flatMap { $0.classTimes.map { $0.day } }
     let examDays = lectures.flatMap { $0.examTimes.map { $0.day } }
 
-    let allDays = Array(Set(classDays + examDays + [.mon, .tue, .wed, .thu, .fri]))
+    let combinedDays = Array(Set(classDays + examDays + DayType.weekdays))
 
-    return allDays.sorted()
+    return combinedDays.sorted()
   }
 
 
@@ -116,13 +102,13 @@ extension Timetable {
   }
 
   private func calculateWeightedAverage(for keyPath: KeyPath<Lecture, Double>, withCredits: Bool = true) -> Double {
-    let numerator = lectures
-      .filter { $0.reviewTotalWeight > 0 }
+    let relevantLectures = lectures.filter { $0.reviewTotalWeight > 0 }
+
+    let numerator = relevantLectures
       .map { $0[keyPath: keyPath] * Double($0.credit + (withCredits ? $0.creditAu : 0)) }
       .reduce(0.0, +)
 
-    let denominator = lectures
-      .filter { $0.reviewTotalWeight > 0 }
+    let denominator = relevantLectures
       .map { $0.credit + (withCredits ? $0.creditAu : 0) }
       .reduce(0, +)
 
@@ -132,7 +118,7 @@ extension Timetable {
   // safely get letter grade string
   private func letter(for value: Double) -> String {
     let index = Int(round(value))
-    return index >= 0 && index < letters.count ? letters[index] : "?"
+    return Timetable.letters[safe: index] ?? "?"
   }
 
   // Letter grade for the grade
@@ -158,123 +144,3 @@ extension Timetable {
       .reduce(0, +)
   }
 }
-
-struct LectureItem: Identifiable {
-  let id = UUID()
-  let lecture: Lecture
-  let index: Int
-}
-
-struct Lecture: Identifiable {
-  let id: Int
-  let course: Int
-  let code: String
-  let section: String?
-  let title: LocalizedString
-  let department: LocalizedString
-  let isEnglish: Bool
-  let credit: Int
-  let creditAu: Int
-  let capacity: Int
-  let numberOfPeople: Int
-  let grade: Double
-  let load: Double
-  let speech: Double
-  let reviewTotalWeight: Double
-  let type: LectureType
-  let typeDetail: LocalizedString
-  let professors: [Professor]
-  let classTimes: [ClassTime]
-  let examTimes: [ExamTime]
-
-  // Background colour for TimetableGridCell
-  var backgroundColor: Color {
-    let index = course % TimetableColorPalette.palettes[0].colors.count
-    return TimetableColorPalette.palettes[0].colors[index]
-  }
-
-  // Text colour for TimetableGridCell
-  var textColor: Color {
-    return TimetableColorPalette.palettes[0].textColor
-  }
-
-  var letters: [String] = [
-    "?",
-    "F",
-    "F",
-    "F",
-    "D-",
-    "D",
-    "D+",
-    "C-",
-    "C",
-    "C+",
-    "B-",
-    "B",
-    "B+",
-    "A-",
-    "A",
-    "A+"
-  ]
-}
-
-extension Lecture {
-  private func calculateWeightedAverage(for value: Double, withCredits: Bool = true) -> Double {
-    let numerator = value * Double(credit + creditAu)
-    let denominator = credit + creditAu
-
-    return denominator > 0 ? numerator / Double(denominator) : 0.0
-  }
-
-  // safely get letter grade string
-  private func letter(for value: Double) -> String {
-    let index = Int(round(value))
-    return index >= 0 && index < letters.count ? letters[index] : "?"
-  }
-
-  // Letter grade for the grade
-  var gradeLetter: String {
-    letter(for: calculateWeightedAverage(for: grade))
-  }
-
-  // Letter grade for the load
-  var loadLetter: String {
-    letter(for: calculateWeightedAverage(for: load))
-  }
-
-  // Letter grade for the speech
-  var speechLetter: String {
-    letter(for: calculateWeightedAverage(for: speech))
-  }
-}
-
-struct Professor: Identifiable {
-  let id: Int
-  let name: LocalizedString
-  let reviewTotalWeight: Double
-}
-
-struct ClassTime {
-  let classroomName: LocalizedString
-  let classroomNameShort: LocalizedString
-  let roomName: String
-  let day: DayType
-  let begin: Int
-  let end: Int
-
-  var duration: Int {
-    end - begin
-  }
-}
-
-struct ExamTime {
-  let str: LocalizedString
-  let day: DayType
-  let begin: Int
-  let end: Int
-
-  var duration: Int {
-    end - begin
-  }
-}
-
