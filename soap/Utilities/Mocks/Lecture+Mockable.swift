@@ -11,14 +11,19 @@ extension Lecture: Mockable {
         Lecture(
             id: 1884981,
             course: 3423,
+            code: "CE.20091",
+            section: nil,
             title: LocalizedString(["ko": "지리공간 분석 개론", "en": "Introduction to Geospatial Analysis"]),
+            department: LocalizedString(["ko": "건설및환경공학과", "en": "Civil and Environmental Engineering"]),
             credit: 3,
             creditAu: 0,
+            capacity: 25,
             grade: 14.63246654364472,
             load: 14.73445735528331,
             speech: 14.054518611026038,
             reviewTotalWeight: 16.325001,
             type: .me,
+            typeDetail: LocalizedString(["ko": "전공선택", "en": "Major Elective"]),
             professors: [
                 Professor(
                     id: 2368,
@@ -60,14 +65,19 @@ extension Lecture: Mockable {
             Lecture(
                 id: 1882911,
                 course: 774,
+                code: "CS.20002",
+                section: nil,
                 title: LocalizedString(["ko": "문제해결기법", "en": "Problem Solving"]),
+                department: LocalizedString(["ko": "전산학부", "en": "School of Computing"]),
                 credit: 3,
                 creditAu: 0,
+                capacity: 0,
                 grade: 15.000001,
                 load: 13.176537392839839,
                 speech: 14.54781488787623,
                 reviewTotalWeight: 26.5377465836487,
                 type: .me,
+                typeDetail: LocalizedString(["ko": "전공선택", "en": "Major Elective"]),
                 professors: [
                     Professor(
                         id: 1652,
@@ -98,14 +108,19 @@ extension Lecture: Mockable {
             Lecture(
                 id: 1882913,
                 course: 745,
+                code: "CS.20004",
+                section: "A",
                 title: LocalizedString(["ko": "이산구조", "en": "Discrete Mathematics"]),
+                department: LocalizedString(["ko": "전산학부", "en": "School of Computing"]),
                 credit: 3,
                 creditAu: 0,
+                capacity: 100,
                 grade: 14.12613402076768,
                 load: 14.13128727171274,
                 speech: 14.173633461345839,
                 reviewTotalWeight: 113.9682314202921,
                 type: .mr,
+                typeDetail: LocalizedString(["ko": "전공필수", "en": "Major Required"]),
                 professors: [
                     Professor(
                         id: 1534,
@@ -143,14 +158,19 @@ extension Lecture: Mockable {
             Lecture(
                 id: 1882915,
                 course: 746,
+                code: "CS.20006",
+                section: nil,
                 title: LocalizedString(["ko": "데이타구조", "en": "Data Structure"]),
+                department: LocalizedString(["ko": "전산학부", "en": "School of Computing"]),
                 credit: 3,
                 creditAu: 0,
+                capacity: 199,
                 grade: 12.75854087583137,
                 load: 14.35217200637648,
                 speech: 13.98624399640883,
                 reviewTotalWeight: 344.9845019592524,
                 type: .mr,
+                typeDetail: LocalizedString(["ko": "전공필수", "en": "Major Required"]),
                 professors: [
                     Professor(
                         id: 39201,
@@ -188,14 +208,19 @@ extension Lecture: Mockable {
             Lecture(
                 id: 1882917,
                 course: 765,
+                code: "CS.20300",
+                section: nil,
                 title: LocalizedString(["ko": "시스템프로그래밍", "en": "System Programming"]),
+                department: LocalizedString(["ko": "전산학부", "en": "School of Computing"]),
                 credit: 3,
                 creditAu: 0,
+                capacity: 240,
                 grade: 13.115049833673599,
                 load: 8.975561454273896,
                 speech: 13.81878472492449,
                 reviewTotalWeight: 119.1822984880496,
                 type: .me,
+                typeDetail: LocalizedString(["ko": "전공선택", "en": "Major Elective"]),
                 professors: [
                     Professor(
                         id: 2268,
@@ -233,14 +258,19 @@ extension Lecture: Mockable {
             Lecture(
                 id: 1884981,
                 course: 3423,
+                code: "CE.20091",
+                section: nil,
                 title: LocalizedString(["ko": "지리공간 분석 개론", "en": "Introduction to Geospatial Analysis"]),
+                department: LocalizedString(["ko": "건설및환경공학과", "en": "Civil and Environmental Engineering"]),
                 credit: 3,
                 creditAu: 0,
+                capacity: 25,
                 grade: 14.63246654364472,
                 load: 14.73445735528331,
                 speech: 14.054518611026038,
                 reviewTotalWeight: 16.325001,
                 type: .me,
+                typeDetail: LocalizedString(["ko": "전공선택", "en": "Major Elective"]),
                 professors: [
                     Professor(
                         id: 2368,
