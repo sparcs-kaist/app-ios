@@ -47,12 +47,14 @@ struct LectureDetailView: View {
         lectureSummaryRow(title: "Speech", description: lecture.speechLetter)
         Spacer()
 
-        Button("Write a Review", systemImage: "square.and.pencil") { }
+        Button(action: { }, label: {
+          Label("Write a Review", systemImage: "square.and.pencil")
+            .padding(8)
+        })
           .font(.callout)
-          .padding()
-          .background(Color.secondarySystemBackground)
-          .clipShape(.capsule)
-          .tint(.primary)
+          .buttonStyle(.glassProminent)
+          .tint(Color.secondarySystemBackground)
+          .foregroundStyle(.primary)
       }
       .padding(.vertical, 4)
 
@@ -72,9 +74,14 @@ struct LectureDetailView: View {
 
             Spacer()
 
-            Menu("More", systemImage: "ellipsis") {
+            Menu {
               Button("Translate", systemImage: "translate") { }
+              Button("Summarise", systemImage: "text.append") { }
               Button("Report", systemImage: "exclamationmark.triangle.fill") { }
+            } label: {
+              Label("More", systemImage: "ellipsis")
+                .padding(8)
+                .contentShape(.rect)
             }
             .labelStyle(.iconOnly)
           }
@@ -150,9 +157,14 @@ struct LectureDetailView: View {
 
             Spacer()
 
-            Menu("More", systemImage: "ellipsis") {
+            Menu {
               Button("Translate", systemImage: "translate") { }
+              Button("Summarise", systemImage: "text.append") { }
               Button("Report", systemImage: "exclamationmark.triangle.fill") { }
+            } label: {
+              Label("More", systemImage: "ellipsis")
+                .padding(8)
+                .contentShape(.rect)
             }
             .labelStyle(.iconOnly)
           }
