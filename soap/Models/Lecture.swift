@@ -12,6 +12,8 @@ struct Lecture: Identifiable {
   let course: Int
   let code: String
   let section: String?
+  let year: Int
+  let semester: SemesterType
   let title: LocalizedString
   let department: LocalizedString
   let isEnglish: Bool
