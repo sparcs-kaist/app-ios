@@ -27,10 +27,7 @@ struct MainView: View {
       }
 
       Tab("Taxi", systemImage: "car") {
-        NavigationStack {
-          ContentUnavailableView("No Rooms", systemImage: "car.2.fill", description: Text("There is no existing room."))
-            .navigationTitle("Taxi")
-        }
+        TaxiListView()
       }
 
       Tab(role: .search) {

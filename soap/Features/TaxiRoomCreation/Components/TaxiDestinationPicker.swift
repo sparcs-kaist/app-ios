@@ -90,18 +90,7 @@ fileprivate struct TaxiDestinationPickerPreview: View {
   @State private var locations: [TaxiLocation] = TaxiLocation.mockList
 
   var body: some View {
-    Form {
-      Section {
-
-        TaxiDestinationPicker(origin: $origin, destination: $destination, locations: locations)
-//          .onChange(of: origin) {
-//            print("origin: \(origin?.title)")
-//          }
-//          .onChange(of: destination) {
-//            print("destination: \(destination?.title)")
-//          }
-      }
-    }
+    TaxiDestinationPicker(origin: $origin, destination: $destination, locations: locations)
   }
 }
 
