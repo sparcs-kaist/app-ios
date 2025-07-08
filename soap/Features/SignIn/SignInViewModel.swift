@@ -24,7 +24,7 @@ class SignInViewModel: NSObject, ASWebAuthenticationPresentationContextProviding
   }
 
   func signIn() {
-    guard let authURL = URL(string: "https://sparcssso.kaist.ac.kr/account/login/?next=/api/v2/token/require/?client_id=testc6a31e7c88b889ecd119") else {
+    guard let authURL = URL(string: "http://10.251.1.14:3000/api/auth/sparcssso?redirect=%2Fmypage&isSPARCSApp=true") else {
       self.errorMessage = "Invalid login URL."
       return
     }

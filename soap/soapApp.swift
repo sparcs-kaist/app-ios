@@ -11,7 +11,7 @@ import SwiftUI
 struct soapApp: App {
   var body: some Scene {
     WindowGroup {
-      MainView()
+      SignInView()
     }
   }
 }
