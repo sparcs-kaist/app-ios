@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B2AF35D2E1DB57800648F86 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8B2AF35C2E1DB57800648F86 /* KeychainSwift */; };
+		8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */; };
 		8B7C19DC2E1DAE8900DB2D21 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DB2E1DAE8900DB2D21 /* Factory */; };
 		8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */; };
-		8B7C19E02E1DAE8900DB2D21 /* FactoryTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DF2E1DAE8900DB2D21 /* FactoryTesting */; };
 		8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */; };
 		8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E42E1DAEEB00DB2D21 /* Moya */; };
 		8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE2ECBB2D2429D900847F47 /* Shimmer */; };
@@ -74,8 +75,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B7C19E02E1DAE8900DB2D21 /* FactoryTesting in Frameworks */,
+				8B2AF35D2E1DB57800648F86 /* KeychainSwift in Frameworks */,
 				8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */,
+				8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */,
 				8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */,
 				8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */,
 				8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */,
@@ -143,9 +145,10 @@
 				8BE2ECBB2D2429D900847F47 /* Shimmer */,
 				8B7C19DB2E1DAE8900DB2D21 /* Factory */,
 				8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */,
-				8B7C19DF2E1DAE8900DB2D21 /* FactoryTesting */,
 				8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */,
 				8B7C19E42E1DAEEB00DB2D21 /* Moya */,
+				8B2AF35C2E1DB57800648F86 /* KeychainSwift */,
+				8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -233,6 +236,8 @@
 				8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */,
 				8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */,
 				8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */,
+				8B2AF35B2E1DB57800648F86 /* XCRemoteSwiftPackageReference "keychain-swift" */,
+				8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8B8DFBE72CCF771700AB82CC /* Products */;
@@ -617,6 +622,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8B2AF35B2E1DB57800648F86 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
+		8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.1;
+			};
+		};
 		8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hmlongco/Factory.git";
@@ -644,6 +665,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8B2AF35C2E1DB57800648F86 /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B2AF35B2E1DB57800648F86 /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
+		};
+		8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
+			productName = SwiftyBeaver;
+		};
 		8B7C19DB2E1DAE8900DB2D21 /* Factory */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */;
@@ -653,11 +684,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */;
 			productName = FactoryKit;
-		};
-		8B7C19DF2E1DAE8900DB2D21 /* FactoryTesting */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */;
-			productName = FactoryTesting;
 		};
 		8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */ = {
 			isa = XCSwiftPackageProductDependency;
