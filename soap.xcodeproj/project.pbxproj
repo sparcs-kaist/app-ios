@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B7C19DC2E1DAE8900DB2D21 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DB2E1DAE8900DB2D21 /* Factory */; };
+		8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */; };
+		8B7C19E02E1DAE8900DB2D21 /* FactoryTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DF2E1DAE8900DB2D21 /* FactoryTesting */; };
+		8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */; };
+		8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E42E1DAEEB00DB2D21 /* Moya */; };
 		8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE2ECBB2D2429D900847F47 /* Shimmer */; };
 /* End PBXBuildFile section */
 
@@ -69,7 +74,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B7C19E02E1DAE8900DB2D21 /* FactoryTesting in Frameworks */,
+				8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */,
+				8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */,
 				8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */,
+				8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */,
+				8B7C19DC2E1DAE8900DB2D21 /* Factory in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +141,11 @@
 			name = soap;
 			packageProductDependencies = (
 				8BE2ECBB2D2429D900847F47 /* Shimmer */,
+				8B7C19DB2E1DAE8900DB2D21 /* Factory */,
+				8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */,
+				8B7C19DF2E1DAE8900DB2D21 /* FactoryTesting */,
+				8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */,
+				8B7C19E42E1DAEEB00DB2D21 /* Moya */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -216,6 +231,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */,
+				8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */,
+				8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8B8DFBE72CCF771700AB82CC /* Products */;
@@ -600,6 +617,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hmlongco/Factory.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.3;
+			};
+		};
+		8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 15.0.3;
+			};
+		};
 		8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/markiv/SwiftUI-Shimmer";
@@ -611,6 +644,31 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8B7C19DB2E1DAE8900DB2D21 /* Factory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = Factory;
+		};
+		8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = FactoryKit;
+		};
+		8B7C19DF2E1DAE8900DB2D21 /* FactoryTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = FactoryTesting;
+		};
+		8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = CombineMoya;
+		};
+		8B7C19E42E1DAEEB00DB2D21 /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
 		8BE2ECBB2D2429D900847F47 /* Shimmer */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */;
