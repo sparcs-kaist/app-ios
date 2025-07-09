@@ -10,17 +10,19 @@ import KeychainSwift
 
 class TokenStorage: TokenStorageProtocol {
   private let keychain = KeychainSwift()
-  private static let accessTokenKey = "accessToken"
   private static let refreshTokenKey = "refreshToken"
 
+  private var accessToken: String? = nil
+
   func save(accessToken: String, refreshToken: String) {
-    keychain.set(accessToken, forKey: TokenStorage.accessTokenKey)
+    self.accessToken = accessToken
     keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey)
     logger.info("Tokens saved to Keychain.")
   }
 
   func getAccessToken() -> String? {
-    return keychain.get(TokenStorage.accessTokenKey)
+    // check payload if it's expired
+    return accessToken
   }
 
   func getRefreshToken() -> String? {
@@ -28,7 +30,7 @@ class TokenStorage: TokenStorageProtocol {
   }
 
   func clearTokens() {
-    keychain.delete(TokenStorage.accessTokenKey)
+    self.accessToken = nil
     keychain.delete(TokenStorage.refreshTokenKey)
     logger.info("Tokens cleared from Keychain.")
   }

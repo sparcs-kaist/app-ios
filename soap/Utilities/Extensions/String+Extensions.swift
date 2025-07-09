@@ -18,3 +18,9 @@ extension String {
         return dateFormatter.date(from: self)
     }
 }
+
+extension String {
+  var urlEscaped: String {
+    addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+  }
+}

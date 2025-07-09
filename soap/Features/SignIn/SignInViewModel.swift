@@ -8,16 +8,26 @@
 import SwiftUI
 import Observation
 import AuthenticationServices
-import Combine
+import Factory
 
 @Observable
 class SignInViewModel {
-  var isAuthenticated: Bool = false
   var isLoading: Bool = false
   var errorMessage: String? = nil
+
+  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
 
   func signIn() {
     isLoading = true
     errorMessage = nil
+    Task { @MainActor in
+      do {
+        try await authUseCase.signIn()
+      } catch {
+        errorMessage = error.localizedDescription
+        logger.error("Sign in failed: \(error.localizedDescription)")
+      }
+      isLoading = false
+    }
   }
 }

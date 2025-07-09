@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import Factory
 
 struct HomeView: View {
+  @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
+
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -36,6 +39,11 @@ struct HomeView: View {
         ToolbarItem {
           Menu("More", systemImage: "ellipsis") {
             Button("Settings", systemImage: "gear") { }
+            Button("Sign Out", systemImage: "rectangle.portrait.and.arrow.right") {
+              Task {
+                try await authUseCase.signOut()
+              }
+            }
           }
         }
       }

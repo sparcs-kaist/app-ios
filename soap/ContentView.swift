@@ -6,42 +6,26 @@
 //
 
 import SwiftUI
+import Combine
+import Factory
 
 struct ContentView: View {
-  private var timetableViewModel = TimetableViewModel()
-  @State private var selectedTab: String = "Home"
+  @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
+  @Bindable private var viewModel = ContentViewModel()
 
   var body: some View {
-    NavigationStack {
-      TabView(selection: $selectedTab) {
-        Tab("Home", systemImage: "house", value: "Home") {
-          VStack {
-            NavigationLink {
-              PostListView()
-            } label: {
-              Text("go to post list")
-            }
-          }
-          .toolbarBackground(.visible, for: .tabBar)
-        }
-
-        Tab("Timetable", systemImage: "square.grid.2x2", value: "Timetable") {
-          TimetableView()
-            .environment(timetableViewModel)
-            .toolbarBackground(.visible, for: .tabBar)
-        }
-
-        Tab("Taxi", systemImage: "car", value: "Taxi") {
-          TaxiView()
-            .toolbarBackground(.visible, for: .tabBar)
-        }
-
-        Tab("More", systemImage: "ellipsis", value: "More") {
-          DetailsView()
-            .toolbarBackground(.visible, for: .tabBar)
-        }
+    ZStack {
+      if viewModel.isAuthenticated {
+        MainView()
+          .transition(.opacity)
+      } else if !viewModel.isLoading {
+        SignInView()
+          .transition(.opacity)
       }
-      .navigationTitle(selectedTab)
+    }
+    .animation(.easeInOut(duration: 0.3), value: viewModel.isAuthenticated)
+    .task {
+      await viewModel.refreshAccessTokenIfNeeded()
     }
   }
 }

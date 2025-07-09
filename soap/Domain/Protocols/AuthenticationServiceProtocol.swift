@@ -1,0 +1,13 @@
+//
+//  AuthenticationServiceProtocol.swift
+//  soap
+//
+//  Created by Soongyu Kwon on 09/07/2025.
+//
+
+import Foundation
+
+protocol AuthenticationServiceProtocol {
+  func authenticate() async throws -> TokenResponseDTO
+  func refreshAccessToken(refreshToken: String) async throws -> TokenResponseDTO
+}
