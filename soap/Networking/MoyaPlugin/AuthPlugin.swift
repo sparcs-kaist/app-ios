@@ -1,5 +1,5 @@
 //
-//  AccessTokenPlugin.swift
+//  AuthPlugin.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 09/07/2025.
@@ -8,7 +8,7 @@
 import Foundation
 import Moya
 
-final class AccessTokenPlugin: PluginType {
+final class AuthPlugin: PluginType {
   private let tokenStorage: TokenStorageProtocol
 
   init(tokenStorage: TokenStorageProtocol) {

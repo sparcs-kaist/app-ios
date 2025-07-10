@@ -14,6 +14,9 @@ struct SignInView: View {
     VStack {
       Spacer()
       Text("SPARCS APP INTERNAL")
+        .fontWeight(.medium)
+        .fontDesign(.monospaced)
+        .font(.title2)
       Spacer()
 
       Button(action: {

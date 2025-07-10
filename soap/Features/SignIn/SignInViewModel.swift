@@ -26,6 +26,7 @@ class SignInViewModel {
       } catch {
         errorMessage = error.localizedDescription
         logger.error("Sign in failed: \(error.localizedDescription)")
+        // TODO: HANDLE ERROR
       }
       isLoading = false
     }

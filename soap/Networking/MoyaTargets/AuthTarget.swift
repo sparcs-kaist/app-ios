@@ -9,45 +9,59 @@ import Foundation
 import Moya
 
 enum AuthTarget {
+  case requestTokens(authorisationCode: String, codeVerifier: String)
   case refreshTokens(refreshToken: String)
 }
 
 extension AuthTarget: TargetType {
   var baseURL: URL {
-    switch self {
-    case .refreshTokens:
-      return Constants.taxiBackendURL
-    }
+    Constants.taxiBackendURL
   }
 
   var path: String {
     switch self {
+    case .requestTokens:
+      "/auth/sparcsapp/token/issue"
     case .refreshTokens:
-      "/auth/refreshToken"
+      "/auth/sparcsapp/token/refresh"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .refreshTokens:
+    case .requestTokens, .refreshTokens:
       .post
     }
   }
 
   var task: Moya.Task {
     switch self {
-    case .refreshTokens(let refreshToken):
+    case .requestTokens(_, let codeVerifier):
         .requestParameters(
-          parameters: ["refreshToken": "\(refreshToken)"],
+          parameters: ["codeVerifier": codeVerifier],
           encoding: JSONEncoding.default
         )
+    case .refreshTokens(let refreshToken):
+      .requestParameters(
+        parameters: ["refreshToken": "\(refreshToken)"],
+        encoding: JSONEncoding.default
+      )
     }
   }
 
   var headers: [String : String]? {
-    return [
-      "Origin": "taxi.sparcs.org",
-      "Content-Type": "application/json"
-    ]
+    switch self {
+    case .requestTokens(let authorisationCode, _):
+      [
+        "Origin": "taxi.sparcs.org",
+        "Content-Type": "application/json",
+        "Cookie": "connect.sid=\(authorisationCode)"
+      ]
+    default:
+      [
+        "Origin": "taxi.sparcs.org",
+        "Content-Type": "application/json"
+      ]
+    }
   }
 }

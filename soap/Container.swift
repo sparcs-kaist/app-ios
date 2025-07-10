@@ -26,7 +26,7 @@ extension Container {
       MainActor.assumeIsolated {
         AuthenticationService(provider: self.authProvider.resolve())
       }
-    }
+    }.singleton
   }
 
   // MARK: - Use Cases
