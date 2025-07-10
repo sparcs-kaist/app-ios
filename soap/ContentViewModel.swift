@@ -13,7 +13,7 @@ import Factory
 @Observable
 @MainActor
 class ContentViewModel {
-  var isLoading = false
+  var isLoading = true
   var isAuthenticated = false
   private var cancellables = Set<AnyCancellable>()
 

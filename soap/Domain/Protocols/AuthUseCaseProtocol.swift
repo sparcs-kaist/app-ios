@@ -13,5 +13,6 @@ protocol AuthUseCaseProtocol {
   func signIn() async throws
   func signOut() async throws
   func getAccessToken() -> String?
+  func getValidAccessToken() async throws -> String?
   func refreshAccessTokenIfNeeded() async throws
 }

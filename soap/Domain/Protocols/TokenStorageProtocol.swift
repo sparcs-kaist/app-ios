@@ -11,5 +11,7 @@ protocol TokenStorageProtocol {
   func save(accessToken: String, refreshToken: String)
   func getAccessToken() -> String?
   func getRefreshToken() -> String?
+  func isTokenExpired() -> Bool
+  func getTokenExpirationDate() -> Date?
   func clearTokens()
 }

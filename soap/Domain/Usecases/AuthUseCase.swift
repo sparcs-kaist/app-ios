@@ -22,23 +22,46 @@ class AuthUseCase: AuthUseCaseProtocol {
   init(authenticationService: AuthenticationServiceProtocol, tokenStorage: TokenStorageProtocol) {
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
-    _isAuthenticatedSubject.value = tokenStorage.getAccessToken() != nil
+    _isAuthenticatedSubject.value = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
   }
 
   func getAccessToken() -> String? {
+    if tokenStorage.isTokenExpired() {
+      logger.warning("[AuthUseCase] Access token is expired. Attempting to refresh...")
+
+      Task {
+        do {
+          try await refreshAccessTokenIfNeeded()
+        } catch {
+          logger.error("[AuthUseCase] Failed to refresh expired token: \(error.localizedDescription)")
+        }
+      }
+      
+      return nil
+    }
+    
+    return tokenStorage.getAccessToken()
+  }
+  
+  func getValidAccessToken() async throws -> String? {
+    if tokenStorage.isTokenExpired() {
+      logger.info("[AuthUseCase] Access token is expired. Refreshing...")
+      try await refreshAccessTokenIfNeeded()
+    }
+    
     return tokenStorage.getAccessToken()
   }
 
   func refreshAccessTokenIfNeeded() async throws {
-    if tokenStorage.getAccessToken() != nil {
-      // Access token already in memory. No refresh needed at this point
+    if let accessToken = tokenStorage.getAccessToken(), !tokenStorage.isTokenExpired() {
+      logger.info("[AuthUseCase] Access token is still valid. No refresh needed.")
       return
     }
 
     guard let currentRefreshToken = tokenStorage.getRefreshToken() else {
       // No refresh token found, sign out.
       _isAuthenticatedSubject.value = false
-      return
+      throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
     }
 
     // Attempts to refresh token using refresh token from Keychain
