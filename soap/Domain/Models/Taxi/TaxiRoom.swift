@@ -9,7 +9,7 @@ import Foundation
 
 struct TaxiRoom: Identifiable, Hashable {
   let id: String
-  let name: String
+  let title: String
   let from: TaxiLocationShort
   let to: TaxiLocationShort
   let departAt: Date

@@ -29,40 +29,13 @@ struct TaxiRecentSection: View {
 
       ScrollView(.horizontal, showsIndicators: false) {
         LazyHStack {
-          ForEach(RoomInfo.mockList, id: \.name) { room in
-            VStack(alignment: .leading, spacing: 12) {
-              HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                  Label(room.origin.title, systemImage: "location.fill")
-                  Label(room.destination.title, systemImage: "flag.pattern.checkered")
-                }
-                .fontWeight(.medium)
-
-                Spacer()
-
-                HStack(spacing: 4) {
-                  Text("\(room.occupancy)/\(room.capacity)")
-                  Image(systemName: "person.2")
-                }
-                .font(.footnote)
-                .foregroundStyle(.green)
-                .padding(4)
-                .background(.green.opacity(0.1))
-                .clipShape(.rect(cornerRadius: 4))
+          ForEach(TaxiRoom.mockList, id: \.title) { room in
+            TaxiRoomCell(room: room)
+              .frame(width: .screenWidth - 80)
+              .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
+                effect
+                  .scaleEffect(phase.isIdentity ? 1.0 : 0.95)
               }
-
-              Text(room.departureTime.relativeTimeString + "\tLorem ipsum")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            }
-            .frame(width: .screenWidth - 80)
-            .padding()
-            .background(Color.systemBackground)
-            .clipShape(.rect(cornerRadius: 28))
-            .scrollTransition(.interactive, axis: .horizontal) { effect, phase in
-              effect
-                .scaleEffect(phase.isIdentity ? 1.0 : 0.95)
-            }
           }
         }
         .scrollTargetLayout()

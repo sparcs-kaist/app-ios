@@ -33,7 +33,7 @@ struct TaxiRoomDTO: Codable {
 
 
 extension TaxiRoomDTO {
-  func toMode() -> TaxiRoom {
+  func toModel() -> TaxiRoom {
     let formatter = ISO8601DateFormatter()
     formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
     let timeInFormat = formatter.date(from: time) ?? Date()
@@ -41,7 +41,7 @@ extension TaxiRoomDTO {
 
     return TaxiRoom(
       id: id,
-      name: name,
+      title: name,
       from: from.toModel(),
       to: to.toModel(),
       departAt: timeInFormat,

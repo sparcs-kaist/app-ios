@@ -20,6 +20,15 @@ extension Container {
     self { MoyaProvider<AuthTarget>() }
   }
 
+  private var taxiRoomProvider: Factory<MoyaProvider<TaxiRoomTarget>> {
+    self { MoyaProvider<TaxiRoomTarget>() }
+  }
+
+  // MARK: - Repositories
+  var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol> {
+    self { TaxiRoomRepository(provider: self.taxiRoomProvider.resolve()) }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
