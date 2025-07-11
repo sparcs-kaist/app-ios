@@ -29,7 +29,7 @@ struct WeekDaySelector: View {
           }
         }()
 
-        VStack(spacing: 4) {
+        VStack(spacing: 2) {
           Text("\(calendar.component(.day, from: day))")
             .font(.title3)
             .fontWeight(.semibold)
@@ -47,14 +47,14 @@ struct WeekDaySelector: View {
             textColor
           }
         }
-        .clipShape(.rect(cornerRadius: 22))
+        .clipShape(.rect(cornerRadius: 20))
         .onTapGesture {
           selectedDate = day
         }
       }
     }
     .padding(4)
-    .background(Color.systemBackground, in: .rect(cornerRadius: 26))
+    .background(Color.systemBackground, in: .rect(cornerRadius: 28))
   }
 
   private func weekdaySymbol(for date: Date) -> String {

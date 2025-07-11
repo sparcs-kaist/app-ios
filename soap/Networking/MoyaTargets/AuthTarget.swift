@@ -49,17 +49,17 @@ extension AuthTarget: TargetType {
     }
   }
 
-  var headers: [String : String]? {
+  var headers: [String: String]? {
     switch self {
     case .requestTokens(let authorisationCode, _):
       [
-        "Origin": "taxi.sparcs.org",
+        "Origin": "sparcsapp",
         "Content-Type": "application/json",
         "Cookie": "connect.sid=\(authorisationCode)"
       ]
     default:
       [
-        "Origin": "taxi.sparcs.org",
+        "Origin": "sparcsapp",
         "Content-Type": "application/json"
       ]
     }

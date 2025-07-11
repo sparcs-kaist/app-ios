@@ -12,6 +12,7 @@ struct TaxiListView: View {
   @State private var destination: TaxiLocationOld?
   @State private var locations: [TaxiLocationOld] = TaxiLocationOld.mockList
   @State private var selectedDate: Date = Date()
+  @State private var viewModel = TaxiListViewModel()
 
   var body: some View {
     NavigationStack {
@@ -19,12 +20,11 @@ struct TaxiListView: View {
         LazyVStack(pinnedViews: .sectionHeaders) {
           TaxiDestinationPicker(origin: $origin, destination: $destination, locations: locations)
             .padding()
-            .background(Color.systemBackground, in: .rect(cornerRadius: 26))
+            .background(Color.systemBackground, in: .rect(cornerRadius: 28))
             .padding(.horizontal)
 
           Section {
-            ForEach(0..<100) { _ in
-              Text("test")
+            if viewModel.rooms.isEmpty {
             }
           } header: {
             WeekDaySelector(selectedDate: $selectedDate)
@@ -39,6 +39,9 @@ struct TaxiListView: View {
       }
       .navigationTitle("Taxi")
       .background(Color.secondarySystemBackground)
+    }
+    .task {
+      await viewModel.fetchData()
     }
   }
 }
