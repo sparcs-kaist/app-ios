@@ -24,7 +24,15 @@ struct TaxiListView: View {
             .padding(.horizontal)
 
           Section {
+            Spacer()
+              .frame(height: 30)
             if viewModel.rooms.isEmpty {
+              ContentUnavailableView("No Rooms", systemImage: "car.2.fill", description: Text("There is no existing room for this week."))
+            } else {
+              ForEach(viewModel.rooms) { room in
+                TaxiRoomCell(room: room)
+                  .padding(.horizontal)
+              }
             }
           } header: {
             WeekDaySelector(selectedDate: $selectedDate)

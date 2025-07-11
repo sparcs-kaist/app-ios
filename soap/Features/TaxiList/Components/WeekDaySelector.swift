@@ -12,7 +12,7 @@ struct WeekDaySelector: View {
   let calendar = Calendar.current
 
   var body: some View {
-    HStack(spacing: 4) {
+    HStack(spacing: 1) {
       ForEach(week, id: \.self) { day in
         let isSelected = calendar.isDate(selectedDate, inSameDayAs: day)
         let symbol = weekdaySymbol(for: day)
@@ -29,7 +29,7 @@ struct WeekDaySelector: View {
           }
         }()
 
-        VStack(spacing: 2) {
+        VStack(spacing: 4) {
           Text("\(calendar.component(.day, from: day))")
             .font(.title3)
             .fontWeight(.semibold)
@@ -47,14 +47,15 @@ struct WeekDaySelector: View {
             textColor
           }
         }
-        .clipShape(.rect(cornerRadius: 20))
+        .clipShape(.capsule)
         .onTapGesture {
           selectedDate = day
         }
       }
     }
     .padding(4)
-    .background(Color.systemBackground, in: .rect(cornerRadius: 28))
+    .glassEffect()
+//    .background(Color.systemBackground, in: .rect(cornerRadius: 28))
   }
 
   private func weekdaySymbol(for date: Date) -> String {

@@ -21,6 +21,7 @@ class TaxiListViewModel {
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
 
   func fetchData() async {
+    logger.debug("[TaxiListViewModel] fetching data")
     isLoading = true
     errorMessage = nil
     do {

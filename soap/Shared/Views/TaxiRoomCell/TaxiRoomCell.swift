@@ -32,9 +32,14 @@ struct TaxiRoomCell: View {
         .clipShape(.rect(cornerRadius: 4))
       }
 
-      Text(room.departAt.relativeTimeString + "\t" + room.title)
-        .font(.footnote)
-        .foregroundStyle(.secondary)
+      HStack {
+        Text(room.departAt.relativeTimeString)
+        Divider()
+        Text(room.title)
+      }
+      .fixedSize()
+      .font(.footnote)
+      .foregroundStyle(.secondary)
     }
     .padding()
     .background(Color.systemBackground, in: .rect(cornerRadius: 28))
