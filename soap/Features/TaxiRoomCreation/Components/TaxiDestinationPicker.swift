@@ -9,9 +9,9 @@ import SwiftUI
 import MapKit
 
 struct TaxiDestinationPicker: View {
-  @Binding var origin: TaxiLocation?
-  @Binding var destination: TaxiLocation?
-  let locations: [TaxiLocation]
+  @Binding var origin: TaxiLocationOld?
+  @Binding var destination: TaxiLocationOld?
+  let locations: [TaxiLocationOld]
 
   @State private var isFlipped = false
 
@@ -52,8 +52,8 @@ struct TaxiDestinationPicker: View {
 
 fileprivate struct LocationMenu: View {
   let title: String
-  @Binding var selection: TaxiLocation?
-  let locations: [TaxiLocation]
+  @Binding var selection: TaxiLocationOld?
+  let locations: [TaxiLocationOld]
 
   var body: some View {
     Menu {
@@ -85,9 +85,9 @@ fileprivate struct LocationMenu: View {
 #if DEBUG
 
 fileprivate struct TaxiDestinationPickerPreview: View {
-  @State private var origin: TaxiLocation?
-  @State private var destination: TaxiLocation?
-  @State private var locations: [TaxiLocation] = TaxiLocation.mockList
+  @State private var origin: TaxiLocationOld?
+  @State private var destination: TaxiLocationOld?
+  @State private var locations: [TaxiLocationOld] = TaxiLocationOld.mockList
 
   var body: some View {
     TaxiDestinationPicker(origin: $origin, destination: $destination, locations: locations)

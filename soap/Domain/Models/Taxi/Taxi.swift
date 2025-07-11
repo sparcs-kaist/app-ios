@@ -6,7 +6,7 @@
 //
 import Foundation
 
-struct TaxiLocation: Identifiable, Hashable {
+struct TaxiLocationOld: Identifiable, Hashable {
   let id: String
   let title: String
   let priority: Double
@@ -15,8 +15,8 @@ struct TaxiLocation: Identifiable, Hashable {
 }
 
 struct RoomInfo {
-  var origin: TaxiLocation
-  var destination: TaxiLocation
+  var origin: TaxiLocationOld
+  var destination: TaxiLocationOld
   var name: String
   var occupancy: Int
   var capacity: Int

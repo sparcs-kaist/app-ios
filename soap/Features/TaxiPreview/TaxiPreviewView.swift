@@ -137,7 +137,7 @@ struct TaxiPreviewView: View {
     }
 }
 
-extension TaxiLocation {
+extension TaxiLocationOld {
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }

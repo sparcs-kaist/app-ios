@@ -13,9 +13,9 @@ class TaxiRoomCreationViewModel {
   var roomCapacity = 4
   var roomName = "new room"
 
-  var origin: TaxiLocation?
-  var destination: TaxiLocation?
-  var locations: [TaxiLocation] = TaxiLocation.mockList
+  var origin: TaxiLocationOld?
+  var destination: TaxiLocationOld?
+  var locations: [TaxiLocationOld] = TaxiLocationOld.mockList
   
 //  static var randomRoomNames = [
 //    "방 이름 1",
