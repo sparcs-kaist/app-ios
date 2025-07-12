@@ -29,7 +29,7 @@ struct TaxiRecentSection: View {
 
       ScrollView(.horizontal, showsIndicators: false) {
         LazyHStack {
-          ForEach(TaxiRoom.mockList, id: \.title) { room in
+          ForEach(TaxiRoom.mockList, id: \.id) { room in
             TaxiRoomCell(room: room)
               .frame(width: .screenWidth - 40)
               .scrollTransition(.interactive, axis: .horizontal) { effect, phase in

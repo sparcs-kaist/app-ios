@@ -18,6 +18,7 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
     case error(message: String)
   }
 
+  // MARK: - ViewModel Properties
   public var state: ViewState = .loading
   public var week: [Date] {
     let calendar = Calendar.current
@@ -25,18 +26,31 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
       calendar.date(byAdding: .day, value: $0, to: Date())
     }
   }
+  public var rooms: [TaxiRoom] = []
+  public var locations: [TaxiLocation] = []
 
+  // MARK: - View Properties
+  public var origin: TaxiLocation?
+  public var destination: TaxiLocation?
+  public var selectedDate: Date = Date()
+
+  // Room Creation
+  public var roomDepartureTime: Date = Date().ceilToNextTenMinutes()
+  public var roomCapacity: Int = 4
+
+  // MARK: - Dependency
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
 
+  // MARK: - Functions
   public func fetchData() async {
     logger.debug("[TaxiListViewModel] fetching data")
     do {
       async let roomsTask: [TaxiRoom] = taxiRoomRepository.fetchRooms()
       async let locationsTask: [TaxiLocation] = taxiRoomRepository.fetchLocations()
 
-      let (rooms, locations) = try await (roomsTask, locationsTask)
+      (rooms, locations) = try await (roomsTask, locationsTask)
 
       withAnimation(.spring) {
         if rooms.isEmpty {

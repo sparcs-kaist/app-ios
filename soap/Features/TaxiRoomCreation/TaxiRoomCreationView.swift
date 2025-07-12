@@ -8,7 +8,14 @@
 import SwiftUI
 
 struct TaxiRoomCreationView: View {
-  @State private var viewModel = TaxiRoomCreationViewModel()
+  @State var viewModel: TaxiListViewModelProtocol
+  @Environment(\.dismiss) private var dismiss
+
+  @State private var title: String = "new room"
+
+  init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
+    _viewModel = State(wrappedValue: viewModel)
+  }
 
   var body: some View {
     NavigationView {
@@ -23,12 +30,12 @@ struct TaxiRoomCreationView: View {
 
         Section(header: Text("Title")) {
           HStack {
-            TextField("Title", text: $viewModel.roomName)
+            TextField("Title", text: $title)
           }
         }
 
         Section(header: Text("detail")) {
-          TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepatureTime)
+          TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepartureTime)
           Picker("Capacity", selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in
               Text("\(number) people")
@@ -40,10 +47,17 @@ struct TaxiRoomCreationView: View {
       .navigationTitle("New Room")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button("Done") {
-            // TODO: dismiss
+        ToolbarItem(placement: .topBarLeading) {
+          Button("Cancel", systemImage: "xmark", role: .close) {
+            dismiss()
           }
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+          Button("Done", systemImage: "arrow.up", role: .confirm) {
+            dismiss()
+          }
+          .disabled(viewModel.origin == nil || viewModel.destination == nil)
         }
       }
     }
@@ -51,5 +65,6 @@ struct TaxiRoomCreationView: View {
 }
 
 #Preview {
-  TaxiRoomCreationView()
+  let vm = MockTaxiListViewModel()
+  return TaxiRoomCreationView(viewModel: vm)
 }
