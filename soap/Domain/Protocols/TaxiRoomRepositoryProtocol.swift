@@ -9,4 +9,5 @@ import Foundation
 
 protocol TaxiRoomRepositoryProtocol {
   func fetchRooms() async throws -> [TaxiRoom]
+  func fetchLocations() async throws -> [TaxiLocation]
 }

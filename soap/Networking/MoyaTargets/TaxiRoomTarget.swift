@@ -10,6 +10,7 @@ import Moya
 
 enum TaxiRoomTarget {
   case fetchRooms
+  case fetchLocations
 }
 
 extension TaxiRoomTarget: TargetType {
@@ -21,26 +22,28 @@ extension TaxiRoomTarget: TargetType {
     switch self {
     case .fetchRooms:
       "/rooms/search"
+    case .fetchLocations:
+      "/locations"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .fetchRooms:
+    case .fetchRooms, .fetchLocations:
       .get
     }
   }
 
   var task: Moya.Task {
     switch self {
-    case .fetchRooms:
+    case .fetchRooms, .fetchLocations:
       .requestPlain
     }
   }
 
   var headers: [String: String]? {
     switch self {
-    case .fetchRooms:
+    case .fetchRooms, .fetchLocations:
       [
         "Origin": "sparcsapp",
         "Content-Type": "application/json"

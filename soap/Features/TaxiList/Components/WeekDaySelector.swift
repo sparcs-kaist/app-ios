@@ -12,7 +12,7 @@ struct WeekDaySelector: View {
   let calendar = Calendar.current
 
   var body: some View {
-    HStack(spacing: 1) {
+    HStack(spacing: 0) {
       ForEach(week, id: \.self) { day in
         let isSelected = calendar.isDate(selectedDate, inSameDayAs: day)
         let symbol = weekdaySymbol(for: day)

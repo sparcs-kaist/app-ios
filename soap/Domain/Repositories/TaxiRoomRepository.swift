@@ -33,4 +33,24 @@ class TaxiRoomRepository: TaxiRoomRepositoryProtocol {
       }
     }
   }
+
+  func fetchLocations() async throws -> [TaxiLocation] {
+    return try await withCheckedThrowingContinuation { continuation in
+      provider.request(.fetchLocations) { result in
+        switch result {
+        case .success(let response):
+          do {
+            let locations: [TaxiLocation] = try response.map(TaxiLocationResponseDTO.self)
+              .locations
+              .compactMap { $0.toModel() }
+            continuation.resume(returning: locations)
+          } catch {
+            continuation.resume(throwing: error)
+          }
+        case .failure(let error):
+          continuation.resume(throwing: error)
+        }
+      }
+    }
+  }
 }

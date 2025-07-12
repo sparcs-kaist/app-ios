@@ -15,6 +15,7 @@ class TaxiListViewModel {
   var errorMessage: String? = nil
 
   var rooms: [TaxiRoom] = []
+  var locations: [TaxiLocation] = []
 
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
@@ -25,9 +26,13 @@ class TaxiListViewModel {
     isLoading = true
     errorMessage = nil
     do {
-      let rooms: [TaxiRoom] = try await taxiRoomRepository.fetchRooms()
-      logger.debug(rooms)
+      async let roomsTask: [TaxiRoom] = taxiRoomRepository.fetchRooms()
+      async let locationsTask: [TaxiLocation] = taxiRoomRepository.fetchLocations()
+
+      let (rooms, locations) = try await (roomsTask, locationsTask)
+
       self.rooms = rooms
+      self.locations = locations
     } catch {
       errorMessage = error.localizedDescription
       logger.error("[TaxiListViewModel] fetch data failed: \(error.localizedDescription)")

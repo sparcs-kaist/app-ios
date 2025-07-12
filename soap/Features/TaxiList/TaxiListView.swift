@@ -17,15 +17,14 @@ struct TaxiListView: View {
   var body: some View {
     NavigationStack {
       ScrollView {
-        LazyVStack(pinnedViews: .sectionHeaders) {
+        LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
           TaxiDestinationPicker(origin: $origin, destination: $destination, locations: locations)
             .padding()
             .background(Color.systemBackground, in: .rect(cornerRadius: 28))
             .padding(.horizontal)
 
+
           Section {
-            Spacer()
-              .frame(height: 30)
             if viewModel.rooms.isEmpty {
               ContentUnavailableView("No Rooms", systemImage: "car.2.fill", description: Text("There is no existing room for this week."))
             } else {
