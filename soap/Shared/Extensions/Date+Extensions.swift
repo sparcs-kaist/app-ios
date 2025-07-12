@@ -102,4 +102,10 @@ extension Date {
     formatter.dateFormat = "EEEE"
     return formatter.string(from: self)
   }
+
+  var weekdaySymbol: String {
+    let calendar = Calendar.current
+    let weekdayIndex = calendar.component(.weekday, from: self) - 1
+    return calendar.weekdaySymbols[weekdayIndex]
+  }
 }

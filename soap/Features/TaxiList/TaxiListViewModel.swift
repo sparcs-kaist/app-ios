@@ -19,6 +19,12 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   }
 
   public var state: ViewState = .loading
+  public var week: [Date] {
+    let calendar = Calendar.current
+    return (0..<7).compactMap {
+      calendar.date(byAdding: .day, value: $0, to: Date())
+    }
+  }
 
   @ObservationIgnored @Injected(
     \.taxiRoomRepository

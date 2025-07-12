@@ -9,7 +9,12 @@ import SwiftUI
 
 struct WeekDaySelector: View {
   @Binding var selectedDate: Date
-  let calendar = Calendar.current
+  let week: [Date]
+  var select: ((Date) -> Void)?
+
+  @Namespace private var selectionNamespace // 1. Create a Namespace
+
+  private let calendar = Calendar.current
 
   var body: some View {
     HStack(spacing: 0) {
@@ -44,29 +49,27 @@ struct WeekDaySelector: View {
         .frame(maxWidth: .infinity, minHeight: 60)
         .background {
           if isSelected {
-            textColor
+            // 2. Apply matchedGeometryEffect to the selected background
+            RoundedRectangle(cornerRadius: 24)
+              .foregroundStyle(textColor)
+              .matchedGeometryEffect(id: "selectedDay", in: selectionNamespace)
           }
         }
-        .clipShape(.capsule)
         .onTapGesture {
-          selectedDate = day
+          withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) { // 3. Animate selection change
+            selectedDate = day
+            select?(day)
+          }
         }
       }
     }
     .padding(4)
-    .glassEffect()
-//    .background(Color.systemBackground, in: .rect(cornerRadius: 28))
+    .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 28))
   }
 
   private func weekdaySymbol(for date: Date) -> String {
     let weekdayIndex = calendar.component(.weekday, from: date) - 1
     return calendar.shortWeekdaySymbols[weekdayIndex].prefix(3).uppercased()
-  }
-
-  private var week: [Date] {
-    return (0..<7).compactMap {
-      calendar.date(byAdding: .day, value: $0, to: Date())
-    }
   }
 
   private func weekTitle(for date: Date) -> String {
@@ -79,9 +82,16 @@ struct WeekDaySelector: View {
 
 #Preview {
   @Previewable @State var date: Date = Date()
+  var week: [Date] {
+    let calendar = Calendar.current
+    return (0..<7).compactMap {
+      calendar.date(byAdding: .day, value: $0, to: Date())
+    }
+  }
+
   ZStack {
     Color.secondarySystemBackground
-    WeekDaySelector(selectedDate: $date)
+    WeekDaySelector(selectedDate: $date, week: week)
       .padding()
   }
   .ignoresSafeArea()

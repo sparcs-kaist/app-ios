@@ -35,10 +35,10 @@ struct MainView: View {
           ContentUnavailableView.search
             .navigationTitle("Search")
         }
+        .searchable(text: $searchText)
       }
     }
     .tabBarMinimizeBehavior(.onScrollDown)
-    .searchable(text: $searchText)
   }
 }
 

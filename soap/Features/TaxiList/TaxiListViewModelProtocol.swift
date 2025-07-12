@@ -9,5 +9,6 @@ import Foundation
 
 public protocol TaxiListViewModelProtocol {
   var state: TaxiListViewModel.ViewState { get set }
+  var week: [Date] { get }
   func fetchData() async
 }
