@@ -35,7 +35,7 @@ struct TaxiRoomCreationView: View {
         }
 
         Section(header: Text("detail")) {
-          TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepartureTime)
+          TaxiDepartureTimePicker(departureTime: $viewModel.roomDepartureTime)
           Picker("Capacity", selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in
               Text("\(number) people")

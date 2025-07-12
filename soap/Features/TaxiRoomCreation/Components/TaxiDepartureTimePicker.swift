@@ -1,5 +1,5 @@
 //
-//  TaxiDepatureTimePicker.swift
+//  TaxiDepartureTimePicker.swift
 //  soap
 //
 //  Created by 김민찬 on 3/23/25.
@@ -7,21 +7,21 @@
 
 import SwiftUI
 
-struct TaxiDepatureTimePicker: View {
-  @Binding var depatureTime: Date
+struct TaxiDepartureTimePicker: View {
+  @Binding var departureTime: Date
 
   @State private var showDatePicker = false
   @State private var showTimePicker = false
 
-  init(depatureTime: Binding<Date>) {
-    self._depatureTime = depatureTime
+  init(departureTime: Binding<Date>) {
+    self._departureTime = departureTime
 
     UIDatePicker.appearance().minuteInterval = 10
   }
 
   var body: some View {
     HStack {
-      Text("Depature Time")
+      Text("Departure Time")
 
       Spacer()
 
@@ -31,7 +31,7 @@ struct TaxiDepatureTimePicker: View {
           showTimePicker = false
         }
       } label: {
-        Text(depatureTime.formatted(.dateTime.month().day()))
+        Text(departureTime.formatted(.dateTime.month().day()))
           .foregroundStyle(showDatePicker ? .accent : .primary)
       }
       .buttonStyle(.bordered)
@@ -41,7 +41,7 @@ struct TaxiDepatureTimePicker: View {
           showDatePicker = false
         }
       } label: {
-        Text(depatureTime.formatted(.dateTime.hour().minute()))
+        Text(departureTime.formatted(.dateTime.hour().minute()))
           .foregroundStyle(showTimePicker ? .accent : .primary)
       }
       .buttonStyle(.bordered)
@@ -49,7 +49,7 @@ struct TaxiDepatureTimePicker: View {
 
     if showDatePicker {
       DatePicker("",
-                 selection: $depatureTime,
+                 selection: $departureTime,
                  in: getDateRange(),
                  displayedComponents: [.date]
       )
@@ -58,7 +58,7 @@ struct TaxiDepatureTimePicker: View {
 
     if showTimePicker {
       DatePicker("",
-                 selection: $depatureTime,
+                 selection: $departureTime,
                  in: getDateRange(),
                  displayedComponents: [.hourAndMinute]
       )
@@ -75,5 +75,5 @@ struct TaxiDepatureTimePicker: View {
 }
 
 #Preview {
-  TaxiDepatureTimePicker(depatureTime: .constant(Date().ceilToNextTenMinutes()))
+  TaxiDepartureTimePicker(departureTime: .constant(Date().ceilToNextTenMinutes()))
 }
