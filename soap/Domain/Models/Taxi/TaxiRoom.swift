@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct TaxiRoom: Identifiable, Hashable {
-  let id: String
+public struct TaxiRoom: Identifiable, Hashable {
+  public let id: String
   let title: String
   let from: TaxiLocationShort
   let to: TaxiLocationShort

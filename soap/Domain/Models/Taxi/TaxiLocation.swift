@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct TaxiLocation: Identifiable, Hashable {
-  let id: String
+public struct TaxiLocation: Identifiable, Hashable {
+  public let id: String
   let title: LocalizedString
   let priority: Double
   let latitude: Double

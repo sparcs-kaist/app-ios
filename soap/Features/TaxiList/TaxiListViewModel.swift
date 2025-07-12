@@ -10,34 +10,42 @@ import Observation
 import Factory
 
 @Observable
-class TaxiListViewModel {
-  var isLoading: Bool = false
-  var errorMessage: String? = nil
+public class TaxiListViewModel: TaxiListViewModelProtocol {
+  public enum ViewState {
+    case loading
+    case loaded(rooms: [TaxiRoom], locations: [TaxiLocation])
+    case empty(locations: [TaxiLocation])
+    case error(message: String)
+  }
 
-  var rooms: [TaxiRoom] = []
-  var locations: [TaxiLocation] = []
+  public var state: ViewState = .loading
 
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
 
-  func fetchData() async {
+  public func fetchData() async {
     logger.debug("[TaxiListViewModel] fetching data")
-    isLoading = true
-    errorMessage = nil
     do {
       async let roomsTask: [TaxiRoom] = taxiRoomRepository.fetchRooms()
       async let locationsTask: [TaxiLocation] = taxiRoomRepository.fetchLocations()
 
       let (rooms, locations) = try await (roomsTask, locationsTask)
 
-      self.rooms = rooms
-      self.locations = locations
+      withAnimation(.spring) {
+        if rooms.isEmpty {
+          state = .empty(locations: locations)
+          return
+        }
+
+        state = .loaded(rooms: rooms, locations: locations)
+      }
     } catch {
-      errorMessage = error.localizedDescription
       logger.error("[TaxiListViewModel] fetch data failed: \(error.localizedDescription)")
+      withAnimation(.spring) {
+        state = .error(message: error.localizedDescription)
+      }
       // TODO: HANDLE ERROR
     }
-    isLoading = false
   }
 }
