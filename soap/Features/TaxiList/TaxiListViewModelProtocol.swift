@@ -15,7 +15,7 @@ public protocol TaxiListViewModelProtocol {
   var locations: [TaxiLocation] { get }
 
   // MARK: - View Properties
-  var origin: TaxiLocation? { get set }
+  var source: TaxiLocation? { get set }
   var destination: TaxiLocation? { get set }
   var selectedDate: Date { get set }
 

@@ -21,7 +21,7 @@ class MockTaxiListViewModel: TaxiListViewModelProtocol {
   var rooms: [TaxiRoom] = TaxiRoom.mockList
   var locations: [TaxiLocation] = TaxiLocation.mockList
 
-  var origin: TaxiLocation? = nil
+  var source: TaxiLocation? = nil
   var destination: TaxiLocation? = nil
   var selectedDate: Date = Date()
 

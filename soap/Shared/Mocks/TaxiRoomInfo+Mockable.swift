@@ -11,7 +11,7 @@ import Foundation
 extension RoomInfo: Mockable {
     static var mock: RoomInfo {
         RoomInfo(
-            origin: TaxiLocationOld.mockList[0],
+            source: TaxiLocationOld.mockList[0],
             destination: TaxiLocationOld.mockList[1],
             name: "레로레로레로레로",
             occupancy: 2,
@@ -23,7 +23,7 @@ extension RoomInfo: Mockable {
     static var mockList: [RoomInfo] {
         [
             RoomInfo(
-                origin: TaxiLocationOld.mockList[0],
+                source: TaxiLocationOld.mockList[0],
                 destination: TaxiLocationOld.mockList[2],
                 name: "순규is바보",
                 occupancy: 1,
@@ -31,7 +31,7 @@ extension RoomInfo: Mockable {
                 departureTime: Date().addingTimeInterval(600)
             ),
             RoomInfo(
-                origin: TaxiLocationOld.mockList[1],
+                source: TaxiLocationOld.mockList[1],
                 destination: TaxiLocationOld.mockList[4],
                 name: "민재is천재",
                 occupancy: 3,

@@ -12,6 +12,7 @@ enum TaxiRoomTarget {
   case fetchRooms
   case fetchLocations
   case createRoom(with: TaxiCreateRoomRequestDTO)
+  case joinRoom(id: String)
 }
 
 extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
@@ -27,6 +28,8 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       "/locations"
     case .createRoom:
       "/rooms/create"
+    case .joinRoom:
+      "/rooms/join"
     }
   }
 
@@ -34,7 +37,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchRooms, .fetchLocations:
       .get
-    case .createRoom:
+    case .createRoom, .joinRoom:
       .post
     }
   }
@@ -45,12 +48,14 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       .requestPlain
     case .createRoom(let request):
       .requestJSONEncodable(request)
+    case .joinRoom(let id):
+        .requestParameters(parameters: ["roomId": id], encoding: JSONEncoding.default)
     }
   }
 
   var headers: [String: String]? {
     switch self {
-    case .fetchRooms, .fetchLocations, .createRoom:
+    case .fetchRooms, .fetchLocations, .createRoom, .joinRoom:
       [
         "Origin": "sparcsapp",
         "Content-Type": "application/json"

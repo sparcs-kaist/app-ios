@@ -25,7 +25,7 @@ class TimetableViewModel {
   var timetablesForSelectedSemester: [Timetable] = [Timetable]()
 
   func fetchData() async {
-    do {
+//    do {
       //            try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
       await MainActor.run {
         timetables = Timetable.mockList
@@ -37,9 +37,9 @@ class TimetableViewModel {
         }
         isLoading = false
       }
-    } catch {
-      print("[TimetableViewModel] fetchData failed.")
-    }
+//    } catch {
+//      print("[TimetableViewModel] fetchData failed.")
+//    }
   }
 
   func selectPreviousSemester() {

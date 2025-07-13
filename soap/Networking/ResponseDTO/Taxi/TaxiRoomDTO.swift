@@ -10,8 +10,8 @@ import Foundation
 struct TaxiRoomDTO: Codable {
   let id: String
   let name: String
-  let from: TaxiLocationShortDTO
-  let to: TaxiLocationShortDTO
+  let from: TaxiLocationDTO
+  let to: TaxiLocationDTO
   let time: String
   let participants: [TaxiParticipantDTO]
   let madeAt: String
@@ -42,8 +42,8 @@ extension TaxiRoomDTO {
     return TaxiRoom(
       id: id,
       title: name,
-      from: from.toModel(),
-      to: to.toModel(),
+      source: from.toModel(),
+      destination: to.toModel(),
       departAt: timeInFormat,
       participants: participants.map { $0.toModel() },
       madeAt: madeAtInFormat,

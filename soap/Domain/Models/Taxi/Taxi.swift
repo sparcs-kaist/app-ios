@@ -15,7 +15,7 @@ struct TaxiLocationOld: Identifiable, Hashable {
 }
 
 struct RoomInfo {
-  var origin: TaxiLocationOld
+  var source: TaxiLocationOld
   var destination: TaxiLocationOld
   var name: String
   var occupancy: Int

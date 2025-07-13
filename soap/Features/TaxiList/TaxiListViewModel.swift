@@ -30,7 +30,7 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   public var locations: [TaxiLocation] = []
 
   // MARK: - View Properties
-  public var origin: TaxiLocation?
+  public var source: TaxiLocation?
   public var destination: TaxiLocation?
   public var selectedDate: Date = Date()
 
@@ -40,15 +40,15 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
 
   // MARK: - Dependency
   @ObservationIgnored @Injected(
-    \.taxiRoomRepository
-  ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+    \.taxiRepository
+  ) private var taxiRepository: TaxiRepositoryProtocol
 
   // MARK: - Functions
   public func fetchData() async {
     logger.debug("[TaxiListViewModel] fetching data")
     do {
-      async let roomsTask: [TaxiRoom] = taxiRoomRepository.fetchRooms()
-      async let locationsTask: [TaxiLocation] = taxiRoomRepository.fetchLocations()
+      async let roomsTask: [TaxiRoom] = taxiRepository.fetchRooms()
+      async let locationsTask: [TaxiLocation] = taxiRepository.fetchLocations()
 
       (rooms, locations) = try await (roomsTask, locationsTask)
 
@@ -72,11 +72,11 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
     logger.debug("[TaxiListViewModel] creating a room")
     let requestModel = TaxiCreateRoom(
       title: title,
-      origin: origin!,
+      source: source!,
       destination: destination!,
       departureTime: roomDepartureTime,
       capacity: roomCapacity
     )
-    let _ = try await taxiRoomRepository.createRoom(with: requestModel)
+    let _ = try await taxiRepository.createRoom(with: requestModel)
   }
 }

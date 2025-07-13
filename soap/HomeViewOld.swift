@@ -236,7 +236,7 @@ struct NextTaxiSuggestionView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Label(title: {
-                Text(roomInfo.origin.title)
+                Text(roomInfo.source.title)
                 Image(systemName: "arrow.right")
                 Text(roomInfo.destination.title)
             }, icon: {
@@ -308,7 +308,7 @@ struct TaxiBoardRow: View {
                         VStack(alignment: .leading) {
                             HStack {
                                 HStack {
-                                    Text(room.origin.title)
+                                    Text(room.source.title)
                                     Image(systemName: "arrow.right")
                                     Text(room.destination.title)
                                 }

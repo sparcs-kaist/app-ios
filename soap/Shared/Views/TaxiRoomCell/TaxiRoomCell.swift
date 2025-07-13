@@ -14,22 +14,14 @@ struct TaxiRoomCell: View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(alignment: .top) {
         VStack(alignment: .leading, spacing: 4) {
-          Label(room.from.title.localized(), systemImage: "location.fill")
-          Label(room.to.title.localized(), systemImage: "flag.pattern.checkered")
+          Label(room.source.title.localized(), systemImage: "location.fill")
+          Label(room.destination.title.localized(), systemImage: "flag.pattern.checkered")
         }
         .fontWeight(.medium)
 
         Spacer()
 
-        HStack(spacing: 4) {
-          Text("\(room.participants.count)/\(room.capacity)")
-          Image(systemName: "person.2")
-        }
-        .font(.footnote)
-        .foregroundStyle(.green)
-        .padding(4)
-        .background(.green.opacity(0.1))
-        .clipShape(.rect(cornerRadius: 4))
+        TaxiParticipantsIndicator(participants: room.participants.count, capacity: room.capacity)
       }
 
       HStack {

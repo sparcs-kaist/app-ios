@@ -9,7 +9,7 @@ import Foundation
 
 struct TaxiCreateRoom {
   var title: String
-  var origin: TaxiLocation
+  var source: TaxiLocation
   var destination: TaxiLocation
   var departureTime: Date
   var capacity: Int

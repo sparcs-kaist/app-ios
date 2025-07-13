@@ -10,20 +10,27 @@ import MapKit
 
 struct TaxiPreviewView: View {
   let room: TaxiRoom
+
+  @State private var viewModel = TaxiPreviewViewModel()
+
+  @Environment(\.dismiss) private var dismiss
   @State private var route: MKRoute?
   @State private var mapCamPos: MapCameraPosition = .automatic
+
+  @State private var showErrorAlert: Bool = false
+  @State private var errorMessage: String = ""
 
   var body: some View {
     VStack(spacing: 0) {
       Map(position: $mapCamPos) {
         Marker(
-          room.from.title.localized(),
+          room.source.title.localized(),
           systemImage: "location.fill",
-          coordinate: room.from.coordinate
+          coordinate: room.source.coordinate
         )
         .tint(.accent)
 
-        Marker(room.to.title.localized(), coordinate: room.to.coordinate)
+        Marker(room.destination.title.localized(), coordinate: room.destination.coordinate)
 
         if let route {
           let strokeStyle = StrokeStyle(
@@ -37,9 +44,9 @@ struct TaxiPreviewView: View {
         }
       }
       .disabled(true)
-      .frame(height: 220)
-      .onAppear {
-        calculateRoute(from: room.from.coordinate, to: room.to.coordinate)
+      .frame(height: 200)
+      .task {
+        route = try? await viewModel.calculateRoute(source: room.source.coordinate, destination: room.destination.coordinate)
       }
 
       VStack(alignment: .leading, spacing: 12) {
@@ -52,20 +59,12 @@ struct TaxiPreviewView: View {
 
           Spacer()
 
-          HStack(spacing: 4) {
-            Text("\(room.participants.count)/\(room.capacity)")
-            Image(systemName: "person.2")
-          }
-          .font(.footnote)
-          .foregroundStyle(.green)
-          .padding(4)
-          .background(.green.opacity(0.1))
-          .clipShape(.rect(cornerRadius: 4))
+          TaxiParticipantsIndicator(participants: room.participants.count, capacity: room.capacity)
         }
 
         RouteHeaderView(
-          origin: room.from.title.localized(),
-          destination: room.to.title.localized()
+          source: room.source.title.localized(),
+          destination: room.destination.title.localized()
         )
 
         TaxiInfoSection(items: [
@@ -85,64 +84,41 @@ struct TaxiPreviewView: View {
               .labelStyle(.iconOnly)
               .frame(width: 44, height: 44)
           }
-          .buttonStyle(.bordered)
+          .buttonStyle(.glass)
           .buttonBorderShape(.circle)
 
           Button(action: {
-            // Join action
+            Task {
+              do {
+                try await viewModel.joinRoom(id: room.id)
+                dismiss()
+              } catch {
+                errorMessage = error.localizedDescription
+                showErrorAlert = true
+              }
+            }
           }) {
             Label("Join", systemImage: "car.2.fill")
               .frame(maxWidth: .infinity, maxHeight: 44)
           }
-          .buttonStyle(.borderedProminent)
+          .buttonStyle(.glassProminent)
           .buttonBorderShape(.roundedRectangle(radius: 36))
+          .disabled(room.participants.count >= room.capacity)
         }
       }
       .padding()
     }
+    .alert("Error", isPresented: $showErrorAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(errorMessage)
+    })
     .ignoresSafeArea()
-  }
-
-  private func calculateRoute(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) {
-    let request = MKDirections.Request()
-    let fromLocation = CLLocation(latitude: from.latitude, longitude: from.longitude)
-    let toLocation = CLLocation(latitude: to.latitude, longitude: to.longitude)
-    request.source = MKMapItem(location: fromLocation, address: nil)
-    request.destination = MKMapItem(location: toLocation, address: nil)
-    request.transportType = .automobile
-    let directions = MKDirections(request: request)
-    directions.calculate { response, error in
-      guard let route = response?.routes.first else {
-        return
-      }
-      self.route = route
-      mapCamPos = .region(
-        MKCoordinateRegion(
-          center: CLLocationCoordinate2D(
-            latitude: (from.latitude + to.latitude) / 2 + 0.005,
-            longitude: (from.longitude + to.longitude) / 2
-          ),
-          span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0)
-        )
-      )
-    }
-  }
-}
-
-extension TaxiLocationOld {
-  var coordinate: CLLocationCoordinate2D {
-    CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
   }
 }
 
 #Preview {
-  struct TaxiPreviewWrapper: View {
-    @State private var roomInfo: RoomInfo = .mock
-    var body: some View {
-      TaxiPreviewView(room: TaxiRoom.mockList[6])
-    }
-  }
-  return TaxiPreviewWrapper()
+  TaxiPreviewView(room: TaxiRoom.mockList[6])
 }
 
 

@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 
 struct TaxiDestinationPicker: View {
-  @Binding var origin: TaxiLocation?
+  @Binding var source: TaxiLocation?
   @Binding var destination: TaxiLocation?
   let locations: [TaxiLocation]
 
@@ -18,7 +18,7 @@ struct TaxiDestinationPicker: View {
   var body: some View {
     HStack {
       VStack(alignment: .leading, spacing: 12) {
-        LocationMenu(title: "meeting point", selection: $origin, locations: locations)
+        LocationMenu(title: "meeting point", selection: $source, locations: locations)
 
         Divider()
 
@@ -45,7 +45,7 @@ struct TaxiDestinationPicker: View {
       isFlipped.toggle()
     }
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-      swap(&origin, &destination)
+      swap(&source, &destination)
     }
   }
 }
@@ -85,12 +85,12 @@ fileprivate struct LocationMenu: View {
 #if DEBUG
 
 fileprivate struct TaxiDestinationPickerPreview: View {
-  @State private var origin: TaxiLocation?
+  @State private var source: TaxiLocation?
   @State private var destination: TaxiLocation?
   @State private var locations: [TaxiLocation] = TaxiLocation.mockList
 
   var body: some View {
-    TaxiDestinationPicker(origin: $origin, destination: $destination, locations: locations)
+    TaxiDestinationPicker(source: $source, destination: $destination, locations: locations)
   }
 }
 

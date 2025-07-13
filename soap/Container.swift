@@ -32,8 +32,8 @@ extension Container {
   }
 
   // MARK: - Repositories
-  var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol> {
-    self { TaxiRoomRepository(provider: self.taxiRoomProvider.resolve()) }
+  var taxiRepository: Factory<TaxiRepositoryProtocol> {
+    self { TaxiRepository(provider: self.taxiRoomProvider.resolve()) }
   }
 
   // MARK: - Services

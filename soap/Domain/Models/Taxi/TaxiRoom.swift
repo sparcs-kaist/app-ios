@@ -10,8 +10,8 @@ import Foundation
 public struct TaxiRoom: Identifiable, Hashable {
   public let id: String
   let title: String
-  let from: TaxiLocationShort
-  let to: TaxiLocationShort
+  let source: TaxiLocation
+  let destination: TaxiLocation
   let departAt: Date
   let participants: [TaxiParticipant]
   let madeAt: Date

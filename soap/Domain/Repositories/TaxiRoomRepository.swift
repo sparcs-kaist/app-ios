@@ -1,5 +1,5 @@
 //
-//  TaxiRoomRepository.swift
+//  TaxiRepository.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 12/07/2025.
@@ -8,7 +8,7 @@
 import Foundation
 import Moya
 
-class TaxiRoomRepository: TaxiRoomRepositoryProtocol {
+class TaxiRepository: TaxiRepositoryProtocol {
   private let provider: MoyaProvider<TaxiRoomTarget>
 
   init(provider: MoyaProvider<TaxiRoomTarget>) {
@@ -16,60 +16,62 @@ class TaxiRoomRepository: TaxiRoomRepositoryProtocol {
   }
 
   func fetchRooms() async throws -> [TaxiRoom] {
-    return try await withCheckedThrowingContinuation { continuation in
-      provider.request(.fetchRooms) { result in
-        switch result {
-        case .success(let response):
-          do {
-            let rooms: [TaxiRoom] = try response.map([TaxiRoomDTO].self)
-              .compactMap { $0.toModel() }
-            continuation.resume(returning: rooms)
-          } catch {
-            continuation.resume(throwing: error)
-          }
-        case .failure(let error):
-          continuation.resume(throwing: error)
-        }
-      }
+    do {
+      let response = try await provider.request(.fetchRooms)
+      let result = try response.map([TaxiRoomDTO].self)
+        .compactMap { $0.toModel() }
+
+      return result
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
     }
   }
 
   func fetchLocations() async throws -> [TaxiLocation] {
-    return try await withCheckedThrowingContinuation { continuation in
-      provider.request(.fetchLocations) { result in
-        switch result {
-        case .success(let response):
-          do {
-            let locations: [TaxiLocation] = try response.map(TaxiLocationResponseDTO.self)
-              .locations
-              .compactMap { $0.toModel() }
-            continuation.resume(returning: locations)
-          } catch {
-            continuation.resume(throwing: error)
-          }
-        case .failure(let error):
-          continuation.resume(throwing: error)
-        }
-      }
+    do {
+      let response = try await provider.request(.fetchLocations)
+      let result = try response.map(TaxiLocationResponseDTO.self)
+        .locations
+        .compactMap { $0.toModel() }
+
+      return result
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
     }
   }
 
   func createRoom(with: TaxiCreateRoom) async throws -> TaxiRoom {
-    return try await withCheckedThrowingContinuation { continuation in
+    do {
       let requestDTO = TaxiCreateRoomRequestDTO.fromModel(with)
-      provider.request(.createRoom(with: requestDTO)) { result in
-        switch result {
-        case .success(let response):
-          do {
-            let room: TaxiRoom = try response.map(TaxiRoomDTO.self).toModel()
-            continuation.resume(returning: room)
-          } catch {
-            continuation.resume(throwing: error)
-          }
-        case .failure(let error):
-          continuation.resume(throwing: error)
-        }
-      }
+      let response = try await provider.request(.createRoom(with: requestDTO))
+      let result = try response.map(TaxiRoomDTO.self).toModel()
+
+      return result
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
+    }
+  }
+
+  func joinRoom(id: String) async throws -> TaxiRoom {
+    do {
+      let response = try await provider.request(.joinRoom(id: id))
+      let result = try response.map(TaxiRoomDTO.self).toModel()
+
+      return result
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
     }
   }
 }

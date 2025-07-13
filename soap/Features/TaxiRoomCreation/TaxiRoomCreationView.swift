@@ -24,7 +24,7 @@ struct TaxiRoomCreationView: View {
       Form {
         Section {
           TaxiDestinationPicker(
-            origin: $viewModel.origin,
+            source: $viewModel.source,
             destination: $viewModel.destination,
             locations: viewModel.locations
           )
@@ -81,7 +81,7 @@ struct TaxiRoomCreationView: View {
 
   var isValid: Bool {
     return (
-      viewModel.origin != nil && viewModel.destination != nil && !title.isEmpty && viewModel.origin != viewModel.destination && viewModel.roomDepartureTime > Date()
+      viewModel.source != nil && viewModel.destination != nil && !title.isEmpty && viewModel.source != viewModel.destination && viewModel.roomDepartureTime > Date()
     )
   }
 }

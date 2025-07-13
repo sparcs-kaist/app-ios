@@ -23,7 +23,7 @@ extension TaxiCreateRoomRequestDTO {
 
     return TaxiCreateRoomRequestDTO(
       name: model.title,
-      from: model.origin.id,
+      from: model.source.id,
       to: model.destination.id,
       time: formatter.string(from: model.departureTime),
       maxPartLength: model.capacity

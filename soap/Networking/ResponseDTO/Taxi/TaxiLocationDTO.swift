@@ -11,8 +11,8 @@ struct TaxiLocationDTO: Codable {
   let id: String
   let enName: String
   let koName: String
-  let priority: Double
-  let isValid: Bool
+  let priority: Double?
+  let isValid: Bool?
   let latitude: Double
   let longitude: Double
 

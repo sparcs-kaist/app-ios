@@ -6,11 +6,18 @@
 //
 
 import Foundation
+import MapKit
 
 public struct TaxiLocation: Identifiable, Hashable {
   public let id: String
   let title: LocalizedString
-  let priority: Double
+  let priority: Double?
   let latitude: Double
   let longitude: Double
+}
+
+extension TaxiLocation {
+  var coordinate: CLLocationCoordinate2D {
+    CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+  }
 }

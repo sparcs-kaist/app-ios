@@ -9,9 +9,16 @@ import SwiftUI
 
 struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
+
+  // view properties
   @State private var scrollTarget: String? = nil
+
+  // show taxi room preview
   @State private var showRoomCreationSheet: Bool = false
   @State private var selectedRoom: TaxiRoom? = nil
+
+  // show taxi chats
+  @State private var showChat: Bool = false
 
   init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(initialValue: viewModel)
@@ -32,7 +39,7 @@ struct TaxiListView: View {
         ScrollView {
           LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
             TaxiDestinationPicker(
-              origin: $viewModel.origin,
+              source: $viewModel.source,
               destination: $viewModel.destination,
               locations: viewModel.locations
             )
@@ -76,6 +83,14 @@ struct TaxiListView: View {
       }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
+          Button("Chats", systemImage: "bubble.left.and.text.bubble.right") {
+            showChat = true
+          }
+        }
+
+        ToolbarSpacer(.flexible, placement: .topBarTrailing)
+
+        ToolbarItem(placement: .topBarTrailing) {
           Button("Create", systemImage: "plus") {
             showRoomCreationSheet = true
           }
@@ -92,6 +107,13 @@ struct TaxiListView: View {
       TaxiPreviewView(room: room)
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(400), .height(500)])
+    }
+    .sheet(isPresented: $showChat) {
+      TaxiChatListView()
+        .presentationDragIndicator(.visible)
+    }
+    .onAppear {
+      print("hello")
     }
     .task {
       await viewModel.fetchData()
@@ -122,19 +144,19 @@ struct TaxiListView: View {
   private func loadedView(rooms: [TaxiRoom], locations: [TaxiLocation]) -> some View {
     let calendar = Calendar.current
     let filteredRooms: [TaxiRoom] = rooms.filter { room in
-      let matchesOrigin = viewModel.origin == nil || room.from.id == viewModel.origin!.id
-      let matchesDestination = viewModel.destination == nil || room.to.id == viewModel.destination!.id
-      return matchesOrigin && matchesDestination
+      let matchessource = viewModel.source == nil || room.source.id == viewModel.source!.id
+      let matchesDestination = viewModel.destination == nil || room.destination.id == viewModel.destination!.id
+      return matchessource && matchesDestination
     }
 
     return Group {
       if  filteredRooms.isEmpty {
         var description: String {
-          switch (viewModel.origin, viewModel.destination) {
-          case let (origin?, destination?):
-            return "No rooms found from \(origin.title.localized()) to \(destination.title.localized()). Be the first one to create one!"
-          case let (origin?, nil):
-            return "No rooms found from \(origin.title.localized()) to any destination. Be the first one to create one!"
+          switch (viewModel.source, viewModel.destination) {
+          case let (source?, destination?):
+            return "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!"
+          case let (source?, nil):
+            return "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!"
           case let (nil, destination?):
             return "No rooms found heading to \(destination.title.localized()). Be the first one to create one!"
           case (nil, nil):
@@ -150,12 +172,12 @@ struct TaxiListView: View {
             Text(description)
           },
           actions: {
-            Button("create a new room") {
+            Button("Create a New Room") {
               showRoomCreationSheet = true
             }
 
-            Button("clear selection") {
-              viewModel.origin = nil
+            Button("Clear Selection") {
+              viewModel.source = nil
               viewModel.destination = nil
             }
           }
@@ -203,7 +225,11 @@ struct TaxiListView: View {
         Text(errorMessage)
       },
       actions: {
-        Button("try again") { }
+        Button("Try Again") {
+          Task {
+            await viewModel.fetchData()
+          }
+        }
       }
     )
   }
