@@ -23,24 +23,20 @@ extension Container {
     } }
   }
 
-  private var authProvider: Factory<MoyaProvider<AuthTarget>> {
-    self { MoyaProvider<AuthTarget>() }
-  }
-
-  private var taxiRoomProvider: Factory<MoyaProvider<TaxiRoomTarget>> {
-    self { MoyaProvider<TaxiRoomTarget>(plugins: [self.authPlugin.resolve()]) }
-  }
-
   // MARK: - Repositories
-  var taxiRepository: Factory<TaxiRepositoryProtocol> {
-    self { TaxiRepository(provider: self.taxiRoomProvider.resolve()) }
+  var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol> {
+    self { TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [self.authPlugin.resolve()])) }
+  }
+
+  var taxiUserRepository: Factory<TaxiUserRepositoryProtocol> {
+    self { TaxiUserRepository(provider: MoyaProvider<TaxiUserTarget>(plugins: [self.authPlugin.resolve()])) }
   }
 
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
       MainActor.assumeIsolated {
-        AuthenticationService(provider: self.authProvider.resolve())
+        AuthenticationService(provider: MoyaProvider<AuthTarget>())
       }
     }.singleton
   }
@@ -52,6 +48,13 @@ extension Container {
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve()
       )
+    }.singleton
+  }
+
+  @MainActor
+  var userUseCase: Factory<UserUseCaseProtocol> {
+    self {
+      @MainActor in UserUseCase(taxiUserRepository: self.taxiUserRepository.resolve())
     }.singleton
   }
 }

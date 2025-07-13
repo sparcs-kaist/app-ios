@@ -11,6 +11,7 @@ import Factory
 
 struct ContentView: View {
   @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @Bindable private var viewModel = ContentViewModel()
 
   var body: some View {
@@ -18,6 +19,9 @@ struct ContentView: View {
       if viewModel.isAuthenticated {
         MainView()
           .transition(.opacity)
+          .task {
+            await userUseCase.fetchUsers()
+          }
       } else if !viewModel.isLoading {
         SignInView()
           .transition(.opacity)
