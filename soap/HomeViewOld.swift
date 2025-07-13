@@ -117,11 +117,11 @@ struct HeaderView: View {
         }
         .foregroundStyle(.primary)
         .background { appSettings.scrollDetector(topInsets: outer.safeAreaInsets.top) }
-        .sheet(isPresented: $showsTaxiPreviewView, content: {
-            TaxiPreviewView(roomInfo: $roomInfo)
-                .presentationDetents([.height(320), .medium])
-                .presentationDragIndicator(.visible)
-        })
+//        .sheet(isPresented: $showsTaxiPreviewView, content: {
+//            TaxiPreviewView(roomInfo: $roomInfo)
+//                .presentationDetents([.height(320), .medium])
+//                .presentationDragIndicator(.visible)
+//        })
     }
 }
 

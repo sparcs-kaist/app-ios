@@ -34,57 +34,50 @@ extension Date {
 
     return "just now"
   }
-  
+
   func ceilToNextTenMinutes() -> Date {
     let calendar = Calendar.current
     var components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: self)
-    
+
     if let minute = components.minute {
       let remainder = minute % 10
       let minutesToAdd = remainder == 0 ? 0 : 10 - remainder
       components.minute! += minutesToAdd
-      
+
       return calendar.date(from: components) ?? self
     } else {
       return self
     }
   }
-    
-  var DateString: String {
+
+  var formattedString: String {
     let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US")
-    formatter.dateFormat = "MMM d, EEEE"
+    formatter.locale = Locale.current
+    formatter.setLocalizedDateFormatFromTemplate("MMMM d, EEE, jm")
     return formatter.string(from: self)
   }
 
-  var TimeString: String {
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US")
-    formatter.dateFormat = "h:mm a"
-    return formatter.string(from: self)
-  }
-  
   var relativeTimeString: String {
     let calendar = Calendar.current
 
     if calendar.isDateInToday(self) {
-        return "Today at \(self.formattedTime)"
+      return "Today at \(self.localizedTime)"
     } else if calendar.isDateInTomorrow(self) {
-        return "Tomorrow at \(self.formattedTime)"
+      return "Tomorrow at \(self.localizedTime)"
     } else if let weekday = self.weekdayNameIfWithinAWeek {
-        return "\(weekday) at \(self.formattedTime)"
+      return "\(weekday) at \(self.localizedTime)"
     } else {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.dateFormat = "MMM d 'at' h:mm a"
-        return formatter.string(from: self)
+      let formatter = DateFormatter()
+      formatter.locale = Locale.current
+      formatter.setLocalizedDateFormatFromTemplate("MMM d 'at' jm")
+      return formatter.string(from: self)
     }
   }
-  
-  private var formattedTime: String {
+
+  private var localizedTime: String {
     let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US")
-    formatter.dateFormat = "h:mm a"
+    formatter.locale = Locale.current
+    formatter.timeStyle = .short
     return formatter.string(from: self)
   }
 
@@ -98,8 +91,8 @@ extension Date {
           days > 0 && days < 7 else { return nil }
 
     let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US")
-    formatter.dateFormat = "EEEE"
+    formatter.locale = Locale.current
+    formatter.setLocalizedDateFormatFromTemplate("EEEE")
     return formatter.string(from: self)
   }
 

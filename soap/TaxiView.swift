@@ -22,11 +22,11 @@ struct TaxiView: View {
         showsRoomCreationView = true
       }
     }
-    .sheet(isPresented: $showsPreviewView) {
-        TaxiPreviewView(roomInfo: $roomInfo)
-        .presentationDetents([.height(600)])
-        .presentationDragIndicator(.visible)
-    }
+//    .sheet(isPresented: $showsPreviewView) {
+//        TaxiPreviewView(roomInfo: $roomInfo)
+//        .presentationDetents([.height(600)])
+//        .presentationDragIndicator(.visible)
+//    }
     .sheet(isPresented: $showsRoomCreationView) {
       TaxiRoomCreationView()
     }

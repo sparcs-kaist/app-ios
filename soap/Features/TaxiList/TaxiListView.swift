@@ -11,6 +11,7 @@ struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
   @State private var scrollTarget: String? = nil
   @State private var showRoomCreationSheet: Bool = false
+  @State private var selectedRoom: TaxiRoom? = nil
 
   init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(initialValue: viewModel)
@@ -87,6 +88,11 @@ struct TaxiListView: View {
       .navigationTitle("Taxi")
       .background(Color.secondarySystemBackground)
     }
+    .sheet(item: $selectedRoom) { room in
+      TaxiPreviewView(room: room)
+        .presentationDragIndicator(.visible)
+        .presentationDetents([.height(400), .height(500)])
+    }
     .task {
       await viewModel.fetchData()
     }
@@ -125,7 +131,6 @@ struct TaxiListView: View {
       let roomsForDay = filteredRooms.filter { calendar.isDate($0.departAt, inSameDayAs: day) }
       if !roomsForDay.isEmpty {
         VStack(spacing: 12) {
-
           HStack(alignment: .bottom) {
             Text(day.weekdaySymbol)
               .font(.title3)
@@ -138,6 +143,9 @@ struct TaxiListView: View {
             TaxiRoomCell(room: room)
               .padding(.horizontal)
               .id(day.weekdaySymbol)
+              .onTapGesture {
+                selectedRoom = room
+              }
           }
         }
         .id(day.weekdaySymbol)
