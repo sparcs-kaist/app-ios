@@ -8,6 +8,8 @@
 import Foundation
 import Moya
 
+extension Response: @unchecked @retroactive Sendable {}
+
 extension MoyaProvider {
   func request(_ target: Target) async throws -> Response {
     return try await withCheckedThrowingContinuation { continuation in

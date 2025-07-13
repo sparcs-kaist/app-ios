@@ -28,18 +28,9 @@ class AuthUseCase: AuthUseCaseProtocol {
   func getAccessToken() -> String? {
     if tokenStorage.isTokenExpired() {
       logger.warning("[AuthUseCase] Access token is expired. Attempting to refresh...")
-
-      Task {
-        do {
-          try await refreshAccessTokenIfNeeded()
-        } catch {
-          logger.error("[AuthUseCase] Failed to refresh expired token: \(error.localizedDescription)")
-        }
-      }
-      
+      // If the token is expired, return nil. Caller should invoke getValidAccessToken() to attempt refresh asynchronously.
       return nil
     }
-    
     return tokenStorage.getAccessToken()
   }
   
@@ -107,3 +98,4 @@ class AuthUseCase: AuthUseCaseProtocol {
     logger.info("[AuthUseCase] Signed Out")
   }
 }
+

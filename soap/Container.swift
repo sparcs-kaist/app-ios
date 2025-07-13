@@ -17,10 +17,12 @@ extension Container {
 
   // MARK: - Networking
   private var authPlugin: Factory<AccessTokenPlugin> {
-    self { AccessTokenPlugin { _ in
-      let authUseCase = self.authUseCase.resolve()
-      return authUseCase.getAccessToken() ?? ""
-    } }
+    self {
+      let tokenStorage = self.tokenStorage.resolve()
+      return AccessTokenPlugin { _ in
+        return tokenStorage.getAccessToken() ?? ""
+      }
+    }
   }
 
   // MARK: - Repositories
@@ -42,9 +44,10 @@ extension Container {
   }
 
   // MARK: - Use Cases
+  @MainActor
   var authUseCase: Factory<AuthUseCaseProtocol> {
     self {
-      AuthUseCase(
+      @MainActor in AuthUseCase(
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve()
       )

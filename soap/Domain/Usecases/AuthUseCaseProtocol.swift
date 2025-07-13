@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+@MainActor
 protocol AuthUseCaseProtocol {
   var isAuthenticatedPublisher: AnyPublisher<Bool, Never> { get }
   func signIn() async throws

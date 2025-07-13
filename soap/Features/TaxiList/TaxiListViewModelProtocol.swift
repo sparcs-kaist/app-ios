@@ -7,7 +7,8 @@
 
 import Foundation
 
-public protocol TaxiListViewModelProtocol {
+@MainActor
+public protocol TaxiListViewModelProtocol: Observable {
   // MARK: - ViewModel Properties
   var state: TaxiListViewModel.ViewState { get set }
   var week: [Date] { get }

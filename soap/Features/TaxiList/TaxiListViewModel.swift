@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 
+@MainActor
 @Observable
 public class TaxiListViewModel: TaxiListViewModelProtocol {
   public enum ViewState {
@@ -39,17 +40,15 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   public var roomCapacity: Int = 4
 
   // MARK: - Dependency
-  @ObservationIgnored @Injected(
-    \.taxiRepository
-  ) private var taxiRepository: TaxiRepositoryProtocol
+  @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
 
   // MARK: - Functions
   public func fetchData() async {
     logger.debug("[TaxiListViewModel] fetching data")
     do {
-      async let roomsTask: [TaxiRoom] = taxiRepository.fetchRooms()
-      async let locationsTask: [TaxiLocation] = taxiRepository.fetchLocations()
-
+      let repo = taxiRoomRepository
+      async let roomsTask: [TaxiRoom] = repo.fetchRooms()
+      async let locationsTask: [TaxiLocation] = repo.fetchLocations()
       (rooms, locations) = try await (roomsTask, locationsTask)
 
       withAnimation(.spring) {
@@ -70,13 +69,20 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
 
   public func createRoom(title: String) async throws {
     logger.debug("[TaxiListViewModel] creating a room")
+
+    // Safely capture values before any suspension
+    guard let source = source, let destination = destination else { return }
+    let departureTime = roomDepartureTime
+    let capacity = roomCapacity
+
     let requestModel = TaxiCreateRoom(
       title: title,
-      source: source!,
-      destination: destination!,
-      departureTime: roomDepartureTime,
-      capacity: roomCapacity
+      source: source,
+      destination: destination,
+      departureTime: departureTime,
+      capacity: capacity
     )
-    let _ = try await taxiRepository.createRoom(with: requestModel)
+
+    let _ = try await taxiRoomRepository.createRoom(with: requestModel)
   }
 }

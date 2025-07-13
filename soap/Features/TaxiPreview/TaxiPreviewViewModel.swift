@@ -10,11 +10,18 @@ import MapKit
 import Observation
 import Factory
 
+@MainActor
 @Observable
 class TaxiPreviewViewModel {
   @ObservationIgnored @Injected(
-    \.taxiRepository
-  ) private var taxiRepository: TaxiRepositoryProtocol
+    \.taxiRoomRepository
+  ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+
+  func isJoined(participants: [TaxiParticipant]) -> Bool {
+    return participants.first(where: { $0.id == userUseCase.taxiUser?.oid }) != nil
+  }
 
   func calculateRoute(source: CLLocationCoordinate2D, destination: CLLocationCoordinate2D) async throws -> MKRoute {
     let request = MKDirections.Request()
@@ -33,6 +40,6 @@ class TaxiPreviewViewModel {
   }
 
   func joinRoom(id: String) async throws {
-    let _ = try await taxiRepository.joinRoom(id: id)
+    let _ = try await taxiRoomRepository.joinRoom(id: id)
   }
 }

@@ -1,5 +1,5 @@
 //
-//  TaxiRepository.swift
+//  TaxiRoomRepository.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 12/07/2025.
@@ -8,7 +8,7 @@
 import Foundation
 import Moya
 
-class TaxiRepository: TaxiRepositoryProtocol {
+final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, @unchecked Sendable {
   private let provider: MoyaProvider<TaxiRoomTarget>
 
   init(provider: MoyaProvider<TaxiRoomTarget>) {

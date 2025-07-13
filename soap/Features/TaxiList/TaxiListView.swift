@@ -112,9 +112,6 @@ struct TaxiListView: View {
       TaxiChatListView()
         .presentationDragIndicator(.visible)
     }
-    .onAppear {
-      print("hello")
-    }
     .task {
       await viewModel.fetchData()
     }

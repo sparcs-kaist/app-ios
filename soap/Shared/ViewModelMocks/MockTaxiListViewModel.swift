@@ -9,8 +9,9 @@
 import SwiftUI
 import Observation
 
+@MainActor
 @Observable
-class MockTaxiListViewModel: TaxiListViewModelProtocol {
+final class MockTaxiListViewModel: TaxiListViewModelProtocol, Sendable {
   var state: TaxiListViewModel.ViewState = .loading
   var week: [Date] {
     let calendar = Calendar.current

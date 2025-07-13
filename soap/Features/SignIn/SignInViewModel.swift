@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 
+@MainActor
 @Observable
 class SignInViewModel {
   var isLoading: Bool = false

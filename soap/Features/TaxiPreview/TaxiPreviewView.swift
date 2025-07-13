@@ -46,7 +46,11 @@ struct TaxiPreviewView: View {
       .disabled(true)
       .frame(height: 200)
       .task {
-        route = try? await viewModel.calculateRoute(source: room.source.coordinate, destination: room.destination.coordinate)
+        let calculatedRoute = try? await viewModel.calculateRoute(
+          source: room.source.coordinate,
+          destination: room.destination.coordinate
+        )
+        route = calculatedRoute
       }
 
       VStack(alignment: .leading, spacing: 12) {
@@ -98,12 +102,24 @@ struct TaxiPreviewView: View {
               }
             }
           }) {
-            Label("Join", systemImage: "car.2.fill")
-              .frame(maxWidth: .infinity, maxHeight: 44)
+            Group {
+              if viewModel
+                .isJoined(participants: room.participants) {
+                Label("Joined", systemImage: "car.2.fill")
+              } else if room.participants.count >= room.capacity || viewModel.isJoined(participants: room.participants) {
+                Label("This room is full", systemImage: "car.2.fill")
+              } else {
+                Label("Join", systemImage: "car.2.fill")
+              }
+            }
+            .frame(maxWidth: .infinity, maxHeight: 44)
           }
           .buttonStyle(.glassProminent)
           .buttonBorderShape(.roundedRectangle(radius: 36))
-          .disabled(room.participants.count >= room.capacity)
+          .disabled(
+            room.participants.count >= room.capacity || viewModel
+              .isJoined(participants: room.participants)
+          )
         }
       }
       .padding()
