@@ -11,7 +11,9 @@ struct TaxiRoomCreationView: View {
   @State var viewModel: TaxiListViewModelProtocol
   @Environment(\.dismiss) private var dismiss
 
-  @State private var title: String = "new room"
+  @State private var title: String = ""
+  @State private var showErrorAlert: Bool = false
+  @State private var errorMessage: String = ""
 
   init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(wrappedValue: viewModel)
@@ -20,7 +22,7 @@ struct TaxiRoomCreationView: View {
   var body: some View {
     NavigationView {
       Form {
-        Section(header: Text("Location")) {
+        Section {
           TaxiDestinationPicker(
             origin: $viewModel.origin,
             destination: $viewModel.destination,
@@ -28,13 +30,13 @@ struct TaxiRoomCreationView: View {
           )
         }
 
-        Section(header: Text("Title")) {
+        Section {
           HStack {
             TextField("Title", text: $title)
           }
         }
 
-        Section(header: Text("detail")) {
+        Section {
           TaxiDepartureTimePicker(departureTime: $viewModel.roomDepartureTime)
           Picker("Capacity", selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in
@@ -55,12 +57,32 @@ struct TaxiRoomCreationView: View {
 
         ToolbarItem(placement: .topBarTrailing) {
           Button("Done", systemImage: "arrow.up", role: .confirm) {
-            dismiss()
+            Task {
+              do {
+                try await viewModel.createRoom(title: title)
+                await viewModel.fetchData()
+                dismiss()
+              } catch {
+                self.errorMessage = error.localizedDescription
+                self.showErrorAlert = true
+              }
+            }
           }
-          .disabled(viewModel.origin == nil || viewModel.destination == nil)
+          .disabled(!isValid)
         }
       }
     }
+    .alert("Error", isPresented: $showErrorAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(errorMessage)
+    })
+  }
+
+  var isValid: Bool {
+    return (
+      viewModel.origin != nil && viewModel.destination != nil && !title.isEmpty && viewModel.origin != viewModel.destination && viewModel.roomDepartureTime > Date()
+    )
   }
 }
 

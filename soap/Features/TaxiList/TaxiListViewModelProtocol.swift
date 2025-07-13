@@ -24,4 +24,5 @@ public protocol TaxiListViewModelProtocol {
 
   // MARK: - Functions
   func fetchData() async
+  func createRoom(title: String) async throws
 }

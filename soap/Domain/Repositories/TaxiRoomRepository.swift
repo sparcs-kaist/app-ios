@@ -53,4 +53,23 @@ class TaxiRoomRepository: TaxiRoomRepositoryProtocol {
       }
     }
   }
+
+  func createRoom(with: TaxiCreateRoom) async throws -> TaxiRoom {
+    return try await withCheckedThrowingContinuation { continuation in
+      let requestDTO = TaxiCreateRoomRequestDTO.fromModel(with)
+      provider.request(.createRoom(with: requestDTO)) { result in
+        switch result {
+        case .success(let response):
+          do {
+            let room: TaxiRoom = try response.map(TaxiRoomDTO.self).toModel()
+            continuation.resume(returning: room)
+          } catch {
+            continuation.resume(throwing: error)
+          }
+        case .failure(let error):
+          continuation.resume(throwing: error)
+        }
+      }
+    }
+  }
 }

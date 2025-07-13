@@ -16,12 +16,19 @@ extension Container {
   }
 
   // MARK: - Networking
+  private var authPlugin: Factory<AccessTokenPlugin> {
+    self { AccessTokenPlugin { _ in
+      let authUseCase = self.authUseCase.resolve()
+      return authUseCase.getAccessToken() ?? ""
+    } }
+  }
+
   private var authProvider: Factory<MoyaProvider<AuthTarget>> {
     self { MoyaProvider<AuthTarget>() }
   }
 
   private var taxiRoomProvider: Factory<MoyaProvider<TaxiRoomTarget>> {
-    self { MoyaProvider<TaxiRoomTarget>() }
+    self { MoyaProvider<TaxiRoomTarget>(plugins: [self.authPlugin.resolve()]) }
   }
 
   // MARK: - Repositories

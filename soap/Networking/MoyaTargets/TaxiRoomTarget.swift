@@ -11,9 +11,10 @@ import Moya
 enum TaxiRoomTarget {
   case fetchRooms
   case fetchLocations
+  case createRoom(with: TaxiCreateRoomRequestDTO)
 }
 
-extension TaxiRoomTarget: TargetType {
+extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
   var baseURL: URL {
     Constants.taxiBackendURL
   }
@@ -24,6 +25,8 @@ extension TaxiRoomTarget: TargetType {
       "/rooms/search"
     case .fetchLocations:
       "/locations"
+    case .createRoom:
+      "/rooms/create"
     }
   }
 
@@ -31,6 +34,8 @@ extension TaxiRoomTarget: TargetType {
     switch self {
     case .fetchRooms, .fetchLocations:
       .get
+    case .createRoom:
+      .post
     }
   }
 
@@ -38,16 +43,22 @@ extension TaxiRoomTarget: TargetType {
     switch self {
     case .fetchRooms, .fetchLocations:
       .requestPlain
+    case .createRoom(let request):
+      .requestJSONEncodable(request)
     }
   }
 
   var headers: [String: String]? {
     switch self {
-    case .fetchRooms, .fetchLocations:
+    case .fetchRooms, .fetchLocations, .createRoom:
       [
         "Origin": "sparcsapp",
         "Content-Type": "application/json"
       ]
     }
+  }
+
+  var authorizationType: Moya.AuthorizationType? {
+    .bearer
   }
 }

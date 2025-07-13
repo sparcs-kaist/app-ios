@@ -65,7 +65,18 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
       withAnimation(.spring) {
         state = .error(message: error.localizedDescription)
       }
-      // TODO: HANDLE ERROR
     }
+  }
+
+  public func createRoom(title: String) async throws {
+    logger.debug("[TaxiListViewModel] creating a room")
+    let requestModel = TaxiCreateRoom(
+      title: title,
+      origin: origin!,
+      destination: destination!,
+      departureTime: roomDepartureTime,
+      capacity: roomCapacity
+    )
+    let _ = try await taxiRoomRepository.createRoom(with: requestModel)
   }
 }

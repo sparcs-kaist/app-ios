@@ -24,10 +24,15 @@ class MockTaxiListViewModel: TaxiListViewModelProtocol {
   var origin: TaxiLocation? = nil
   var destination: TaxiLocation? = nil
   var selectedDate: Date = Date()
+
   var roomDepartureTime: Date = Date().ceilToNextTenMinutes()
   var roomCapacity: Int = 4
 
   func fetchData() async {
+
+  }
+
+  func createRoom(title: String) async throws {
 
   }
 }

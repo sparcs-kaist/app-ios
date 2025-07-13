@@ -64,6 +64,7 @@ struct TaxiListView: View {
                 .disabled(!isInteractable)
             }
           }
+          .padding(.bottom)
         }
         .scrollPosition(id: $scrollTarget, anchor: .top)
         .onChange(of: scrollTarget) {
@@ -114,9 +115,14 @@ struct TaxiListView: View {
 
   private func loadedView(rooms: [TaxiRoom], locations: [TaxiLocation]) -> some View {
     let calendar = Calendar.current
+    var filteredRooms: [TaxiRoom] = rooms.filter { room in
+      let matchesOrigin = viewModel.origin == nil || room.from.id == viewModel.origin!.id
+      let matchesDestination = viewModel.destination == nil || room.to.id == viewModel.destination!.id
+      return matchesOrigin && matchesDestination
+    }
 
     return ForEach(viewModel.week, id: \.self.weekdaySymbol) { day in
-      let roomsForDay = rooms.filter { calendar.isDate($0.departAt, inSameDayAs: day) }
+      let roomsForDay = filteredRooms.filter { calendar.isDate($0.departAt, inSameDayAs: day) }
       if !roomsForDay.isEmpty {
         VStack(spacing: 12) {
 

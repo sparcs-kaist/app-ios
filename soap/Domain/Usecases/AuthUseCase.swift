@@ -43,18 +43,23 @@ class AuthUseCase: AuthUseCaseProtocol {
     return tokenStorage.getAccessToken()
   }
   
-  func getValidAccessToken() async throws -> String? {
+  func getValidAccessToken() async throws -> String {
     if tokenStorage.isTokenExpired() {
       logger.info("[AuthUseCase] Access token is expired. Refreshing...")
       try await refreshAccessTokenIfNeeded()
     }
-    
-    return tokenStorage.getAccessToken()
+
+    guard let accessToken = tokenStorage.getAccessToken() else {
+      throw AuthUseCaseError.noAccessToken
+    }
+
+    return accessToken
   }
 
   func refreshAccessTokenIfNeeded() async throws {
     if let accessToken = tokenStorage.getAccessToken(), !tokenStorage.isTokenExpired() {
       logger.info("[AuthUseCase] Access token is still valid. No refresh needed.")
+      logger.debug("AccessToken: \(accessToken)")
       return
     }
 
