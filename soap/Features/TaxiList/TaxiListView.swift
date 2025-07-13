@@ -127,35 +127,71 @@ struct TaxiListView: View {
       return matchesOrigin && matchesDestination
     }
 
-    return ForEach(viewModel.week, id: \.self.weekdaySymbol) { day in
-      let roomsForDay = filteredRooms.filter { calendar.isDate($0.departAt, inSameDayAs: day) }
-      if !roomsForDay.isEmpty {
-        VStack(spacing: 12) {
-          HStack(alignment: .bottom) {
-            Text(day.weekdaySymbol)
-              .font(.title3)
-              .fontWeight(.bold)
-            Spacer()
-          }
-          .padding(.horizontal)
-
-          ForEach(roomsForDay) { room in
-            TaxiRoomCell(room: room)
-              .padding(.horizontal)
-              .id(day.weekdaySymbol)
-              .onTapGesture {
-                selectedRoom = room
-              }
+    return Group {
+      if  filteredRooms.isEmpty {
+        var description: String {
+          switch (viewModel.origin, viewModel.destination) {
+          case let (origin?, destination?):
+            return "No rooms found from \(origin.title.localized()) to \(destination.title.localized()). Be the first one to create one!"
+          case let (origin?, nil):
+            return "No rooms found from \(origin.title.localized()) to any destination. Be the first one to create one!"
+          case let (nil, destination?):
+            return "No rooms found heading to \(destination.title.localized()). Be the first one to create one!"
+          case (nil, nil):
+            return "No rooms found for this week. Be the first one to create one!"
           }
         }
-        .id(day.weekdaySymbol)
-        .scrollTargetLayout()
+
+        ContentUnavailableView(
+          label: {
+            Label("No Rides Found", systemImage: "car.2.fill")
+          },
+          description: {
+            Text(description)
+          },
+          actions: {
+            Button("create a new room") {
+              showRoomCreationSheet = true
+            }
+
+            Button("clear selection") {
+              viewModel.origin = nil
+              viewModel.destination = nil
+            }
+          }
+        )
+      } else {
+        ForEach(viewModel.week, id: \.self.weekdaySymbol) { day in
+          let roomsForDay = filteredRooms.filter { calendar.isDate($0.departAt, inSameDayAs: day) }
+          if !roomsForDay.isEmpty {
+            VStack(spacing: 12) {
+              HStack(alignment: .bottom) {
+                Text(day.weekdaySymbol)
+                  .font(.title3)
+                  .fontWeight(.bold)
+                Spacer()
+              }
+              .padding(.horizontal)
+
+              ForEach(roomsForDay) { room in
+                TaxiRoomCell(room: room)
+                  .padding(.horizontal)
+                  .id(day.weekdaySymbol)
+                  .onTapGesture {
+                    selectedRoom = room
+                  }
+              }
+            }
+            .id(day.weekdaySymbol)
+            .scrollTargetLayout()
+          }
+        }
       }
     }
   }
 
   private func emptyView(locations: [TaxiLocation]) -> some View {
-    ContentUnavailableView("No Rooms", systemImage: "car.2.fill", description: Text("There is no existing room for this week."))
+    ContentUnavailableView("No Rides This Week", systemImage: "car.2.fill", description: Text("Looks like there are no rooms scheduled for this week. Be the first to create one!"))
   }
 
   private func errorView(errorMessage: String) -> some View {
@@ -167,7 +203,7 @@ struct TaxiListView: View {
         Text(errorMessage)
       },
       actions: {
-        Button("Try Again") { }
+        Button("try again") { }
       }
     )
   }
