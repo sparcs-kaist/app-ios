@@ -16,5 +16,7 @@ public struct TaxiRoom: Identifiable, Hashable {
   let participants: [TaxiParticipant]
   let madeAt: Date
   let capacity: Int
+  let settlementTotal: Int?
   let isDeparted: Bool
+  let isOver: Bool?
 }

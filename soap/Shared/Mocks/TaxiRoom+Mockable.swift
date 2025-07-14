@@ -32,7 +32,9 @@ extension TaxiRoom: Mockable {
         participants: participants,
         madeAt: baseDate,
         capacity: 4,
-        isDeparted: false
+        settlementTotal: nil,
+        isDeparted: false,
+        isOver: nil
       )
     }
   }

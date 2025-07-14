@@ -10,6 +10,7 @@ import Moya
 
 enum TaxiRoomTarget {
   case fetchRooms
+  case fetchMyRooms
   case fetchLocations
   case createRoom(with: TaxiCreateRoomRequestDTO)
   case joinRoom(id: String)
@@ -24,6 +25,8 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchRooms:
       "/rooms/search"
+    case .fetchMyRooms:
+      "/rooms/searchByUser"
     case .fetchLocations:
       "/locations"
     case .createRoom:
@@ -35,7 +38,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var method: Moya.Method {
     switch self {
-    case .fetchRooms, .fetchLocations:
+    case .fetchRooms, .fetchMyRooms, .fetchLocations:
       .get
     case .createRoom, .joinRoom:
       .post
@@ -44,7 +47,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var task: Moya.Task {
     switch self {
-    case .fetchRooms, .fetchLocations:
+    case .fetchRooms, .fetchMyRooms, .fetchLocations:
       .requestPlain
     case .createRoom(let request):
       .requestJSONEncodable(request)
@@ -54,13 +57,10 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
   }
 
   var headers: [String: String]? {
-    switch self {
-    case .fetchRooms, .fetchLocations, .createRoom, .joinRoom:
-      [
-        "Origin": "sparcsapp",
-        "Content-Type": "application/json"
-      ]
-    }
+    [
+      "Origin": "sparcsapp",
+      "Content-Type": "application/json"
+    ]
   }
 
   var authorizationType: Moya.AuthorizationType? {

@@ -138,7 +138,6 @@ struct TaxiListView: View {
 
   private func loadingView() -> some View {
     VStack(spacing: 12) {
-
       HStack(alignment: .bottom) {
         Text(Date().weekdaySymbol)
           .font(.title3)

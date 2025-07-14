@@ -10,7 +10,7 @@ import Foundation
 @MainActor
 public protocol TaxiListViewModelProtocol: Observable {
   // MARK: - ViewModel Properties
-  var state: TaxiListViewModel.ViewState { get set }
+  var state: TaxiListViewModel.ViewState { get }
   var week: [Date] { get }
   var rooms: [TaxiRoom] { get }
   var locations: [TaxiLocation] { get }

@@ -16,7 +16,9 @@ struct TaxiRoomDTO: Codable {
   let participants: [TaxiParticipantDTO]
   let madeAt: String
   let maxParticipants: Int
+  let settlementTotal: Int?
   let isDeparted: Bool
+  let isOver: Bool?
 
   enum CodingKeys: String, CodingKey {
     case id = "_id"
@@ -27,7 +29,9 @@ struct TaxiRoomDTO: Codable {
     case participants = "part"
     case madeAt = "madeat"
     case maxParticipants = "maxPartLength"
+    case settlementTotal
     case isDeparted
+    case isOver
   }
 }
 
@@ -48,7 +52,9 @@ extension TaxiRoomDTO {
       participants: participants.map { $0.toModel() },
       madeAt: madeAtInFormat,
       capacity: maxParticipants,
-      isDeparted: isDeparted
+      settlementTotal: settlementTotal,
+      isDeparted: isDeparted,
+      isOver: isOver
     )
   }
 }

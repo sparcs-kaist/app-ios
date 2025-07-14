@@ -30,6 +30,23 @@ final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, @unchecked Sendable 
     }
   }
 
+  func fetchMyRooms() async throws -> (onGoing: [TaxiRoom], done: [TaxiRoom]) {
+    do {
+      let response = try await provider.request(.fetchMyRooms)
+      let result = try response.map(TaxiMyRoomsResponseDTO.self)
+
+      let onGoingRooms: [TaxiRoom] = result.onGoing.compactMap { $0.toModel() }
+      let doneRooms: [TaxiRoom] = result.done.compactMap { $0.toModel() }
+
+      return (onGoing: onGoingRooms, done: doneRooms)
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
+    }
+  }
+
   func fetchLocations() async throws -> [TaxiLocation] {
     do {
       let response = try await provider.request(.fetchLocations)
