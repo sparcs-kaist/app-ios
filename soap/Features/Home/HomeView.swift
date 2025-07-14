@@ -48,7 +48,11 @@ struct HomeView: View {
             }
             #endif
             Button("Settings", systemImage: "gear") { }
-            Button("Sign Out", systemImage: "rectangle.portrait.and.arrow.right") {
+            Button(
+              "Sign Out",
+              systemImage: "rectangle.portrait.and.arrow.right",
+              role: .destructive
+            ) {
               Task {
                 try await authUseCase.signOut()
               }
