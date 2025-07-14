@@ -33,6 +33,19 @@ struct TaxiListView: View {
     }
   }
 
+  var description: String {
+    switch (viewModel.source, viewModel.destination) {
+    case let (source?, destination?):
+      return "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!"
+    case let (source?, nil):
+      return "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!"
+    case let (nil, destination?):
+      return "No rooms found heading to \(destination.title.localized()). Be the first one to create one!"
+    case (nil, nil):
+      return "No rooms found for this week. Be the first one to create one!"
+    }
+  }
+
   var body: some View {
     NavigationStack {
       ScrollViewReader { scrollViewProxy in
@@ -43,11 +56,11 @@ struct TaxiListView: View {
               destination: $viewModel.destination,
               locations: viewModel.locations
             )
-              .padding()
-              .background(Color.systemBackground, in: .rect(cornerRadius: 28))
-              .padding(.horizontal)
-              .redacted(reason: isInteractable ? [] : .placeholder)
-              .disabled(!isInteractable)
+            .padding()
+            .background(Color.systemBackground, in: .rect(cornerRadius: 28))
+            .padding(.horizontal)
+            .redacted(reason: isInteractable ? [] : .placeholder)
+            .disabled(!isInteractable)
 
             Section {
               Group {
@@ -67,9 +80,9 @@ struct TaxiListView: View {
               WeekDaySelector(selectedDate: $viewModel.selectedDate, week: viewModel.week)  { day in
                 scrollViewProxy.scrollTo(day.weekdaySymbol, anchor: .center)
               }
-                .padding(.horizontal)
-                .redacted(reason: isInteractable ? [] : .placeholder)
-                .disabled(!isInteractable)
+              .padding(.horizontal)
+              .redacted(reason: isInteractable ? [] : .placeholder)
+              .disabled(!isInteractable)
             }
           }
           .padding(.bottom)
@@ -105,6 +118,11 @@ struct TaxiListView: View {
     }
     .sheet(item: $selectedRoom) { room in
       TaxiPreviewView(room: room)
+        .onDisappear {
+          Task {
+            await viewModel.fetchData()
+          }
+        }
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(400), .height(500)])
     }
@@ -148,37 +166,7 @@ struct TaxiListView: View {
 
     return Group {
       if  filteredRooms.isEmpty {
-        var description: String {
-          switch (viewModel.source, viewModel.destination) {
-          case let (source?, destination?):
-            return "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!"
-          case let (source?, nil):
-            return "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!"
-          case let (nil, destination?):
-            return "No rooms found heading to \(destination.title.localized()). Be the first one to create one!"
-          case (nil, nil):
-            return "No rooms found for this week. Be the first one to create one!"
-          }
-        }
-
-        ContentUnavailableView(
-          label: {
-            Label("No Rides Found", systemImage: "car.2.fill")
-          },
-          description: {
-            Text(description)
-          },
-          actions: {
-            Button("Create a New Room") {
-              showRoomCreationSheet = true
-            }
-
-            Button("Clear Selection") {
-              viewModel.source = nil
-              viewModel.destination = nil
-            }
-          }
-        )
+        emptyResultView
       } else {
         ForEach(viewModel.week, id: \.self.weekdaySymbol) { day in
           let roomsForDay = filteredRooms.filter { calendar.isDate($0.departAt, inSameDayAs: day) }
@@ -207,6 +195,8 @@ struct TaxiListView: View {
         }
       }
     }
+    .animation(.spring, value: viewModel.source)
+    .animation(.spring, value: viewModel.destination)
   }
 
   private func emptyView(locations: [TaxiLocation]) -> some View {
@@ -226,6 +216,27 @@ struct TaxiListView: View {
           Task {
             await viewModel.fetchData()
           }
+        }
+      }
+    )
+  }
+
+  private var emptyResultView: some View {
+    ContentUnavailableView(
+      label: {
+        Label("No Rides Found", systemImage: "car.2.fill")
+      },
+      description: {
+        Text(description)
+      },
+      actions: {
+        Button("Create a New Room") {
+          showRoomCreationSheet = true
+        }
+
+        Button("Clear Selection") {
+          viewModel.source = nil
+          viewModel.destination = nil
         }
       }
     )
