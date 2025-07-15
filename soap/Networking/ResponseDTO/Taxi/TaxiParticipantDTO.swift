@@ -28,17 +28,13 @@ struct TaxiParticipantDTO: Codable {
 
 extension TaxiParticipantDTO {
   func toModel() -> TaxiParticipant {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    let readAtInFormat = formatter.date(from: readAt) ?? Date()
-
-    return TaxiParticipant(
+    TaxiParticipant(
       id: id,
       name: name,
       nickname: nickname,
       profileImageURL: URL(string: profileImageURL),
       withdraw: withdraw,
-      readAt: readAtInFormat
+      readAt: readAt.toDate() ?? Date()
     )
   }
 }

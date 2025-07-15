@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import Factory
 
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
+  @Injected(\.taxiChatUseCase) private var taxiChatUseCase: TaxiChatUseCaseProtocol
 
   init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()) {
     _viewModel = State(initialValue: viewModel)
@@ -86,6 +88,9 @@ struct TaxiChatListView: View {
 
       ForEach(onGoing) { room in
         TaxiRoomCell(room: room)
+          .onTapGesture {
+            taxiChatUseCase.connect(to: room)
+          }
       }
     }
 

@@ -102,3 +102,13 @@ extension Date {
     return calendar.weekdaySymbols[weekdayIndex]
   }
 }
+
+extension Date {
+  var toISO8601: String {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+    return formatter.string(from: self)
+  }
+}

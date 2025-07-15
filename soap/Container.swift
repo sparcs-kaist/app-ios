@@ -34,6 +34,14 @@ extension Container {
     self { TaxiUserRepository(provider: MoyaProvider<TaxiUserTarget>(plugins: [self.authPlugin.resolve()])) }
   }
 
+  var taxiChatRepository: Factory<TaxiChatRepositoryProtocol> {
+    self {
+      TaxiChatRepository(
+        provider: MoyaProvider<TaxiChatTarget>(plugins: [self.authPlugin.resolve()])
+      )
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -59,5 +67,12 @@ extension Container {
     self {
       @MainActor in UserUseCase(taxiUserRepository: self.taxiUserRepository.resolve())
     }.singleton
+  }
+
+  @MainActor
+  var taxiChatUseCase: Factory<TaxiChatUseCaseProtocol> {
+    self {
+      @MainActor in TaxiChatUseCase(authUseCase: self.authUseCase.resolve(), taxiChatRepository: self.taxiChatRepository.resolve())
+    }
   }
 }

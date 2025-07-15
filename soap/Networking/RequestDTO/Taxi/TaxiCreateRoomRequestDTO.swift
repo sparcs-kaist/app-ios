@@ -17,15 +17,11 @@ struct TaxiCreateRoomRequestDTO: Codable {
 
 extension TaxiCreateRoomRequestDTO {
   static func fromModel(_ model: TaxiCreateRoom) -> TaxiCreateRoomRequestDTO {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    formatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-    return TaxiCreateRoomRequestDTO(
+    TaxiCreateRoomRequestDTO(
       name: model.title,
       from: model.source.id,
       to: model.destination.id,
-      time: formatter.string(from: model.departureTime),
+      time: model.departureTime.toISO8601,
       maxPartLength: model.capacity
     )
   }

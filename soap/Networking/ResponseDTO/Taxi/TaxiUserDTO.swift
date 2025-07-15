@@ -39,11 +39,7 @@ struct TaxiUserDTO: Codable {
 
 extension TaxiUserDTO {
   func toModel() -> TaxiUser {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    let joinedAtInFormat = formatter.date(from: joinAt) ?? Date()
-
-    return TaxiUser(
+    TaxiUser(
       id: id,
       oid: oid,
       name: name,
@@ -53,7 +49,7 @@ extension TaxiUserDTO {
       withdraw: withdraw,
       ban: ban,
       agreeOnTermsOfService: agreeOnTermsOfService,
-      joinedAt: joinedAtInFormat,
+      joinedAt: joinAt.toDate() ?? Date(),
       profileImageURL: URL(string: profileImageURL),
       account: account
     )

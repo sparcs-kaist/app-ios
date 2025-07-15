@@ -8,15 +8,14 @@
 import Foundation
 
 extension String {
-    // Converts an ISO 8601 date string to a `Date` object.
-    // - Returns: A `Date` object if the string is valid, otherwise `nil`.
-    func toDate() -> Date? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        return dateFormatter.date(from: self)
-    }
+  // Converts an ISO 8601 date string to a `Date` object.
+  // - Returns: A `Date` object if the string is valid, otherwise `nil`.
+  func toDate() -> Date? {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    return formatter.date(from: self)
+  }
 }
 
 extension String {
@@ -24,3 +23,4 @@ extension String {
     addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
   }
 }
+

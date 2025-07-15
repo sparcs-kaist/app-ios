@@ -38,19 +38,14 @@ struct TaxiRoomDTO: Codable {
 
 extension TaxiRoomDTO {
   func toModel() -> TaxiRoom {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    let timeInFormat = formatter.date(from: time) ?? Date()
-    let madeAtInFormat = formatter.date(from: madeAt) ?? Date()
-
-    return TaxiRoom(
+    TaxiRoom(
       id: id,
       title: name,
       source: from.toModel(),
       destination: to.toModel(),
-      departAt: timeInFormat,
+      departAt: time.toDate() ?? Date(),
       participants: participants.map { $0.toModel() },
-      madeAt: madeAtInFormat,
+      madeAt: madeAt.toDate() ?? Date(),
       capacity: maxParticipants,
       settlementTotal: settlementTotal,
       isDeparted: isDeparted,

@@ -12,11 +12,21 @@ struct TaxiChatView: View {
 
   var body: some View {
     NavigationStack {
-      Text("hello")
-        .navigationTitle(Text(room.title))
-        .navigationSubtitle(Text(
-          Text(room.source.title.localized()) + Text(room.destination.title.localized())
-        )
+      ScrollView {
+        LazyVStack {
+          Text("hello")
+        }
+      }
+      .navigationTitle(Text(room.title))
+      .navigationSubtitle(Text("\(room.source.title.localized()) → \(room.destination.title.localized())"))
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Menu("More", systemImage: "ellipsis") {
+
+          }
+        }
+      }
     }
   }
 }
