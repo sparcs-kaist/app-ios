@@ -72,7 +72,10 @@ extension Container {
   @MainActor
   var taxiChatUseCase: Factory<TaxiChatUseCaseProtocol> {
     self {
-      @MainActor in TaxiChatUseCase(authUseCase: self.authUseCase.resolve(), taxiChatRepository: self.taxiChatRepository.resolve())
+      @MainActor in TaxiChatUseCase(
+        tokenStorage: self.tokenStorage.resolve(),
+        taxiChatRepository: self.taxiChatRepository.resolve()
+      )
     }
   }
 }

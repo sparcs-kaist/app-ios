@@ -31,14 +31,15 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - State
   private var room: TaxiRoom?
   private var isSendingMessage = false
+  private var manager: SocketManager
   private var socket: SocketIOClient
 
   // MARK: - Dependency
-  private let authUseCase: AuthUseCaseProtocol
+  private let tokenStorage: TokenStorageProtocol
   private let taxiChatRepository: TaxiChatRepositoryProtocol
 
-  init(authUseCase: AuthUseCaseProtocol, taxiChatRepository: TaxiChatRepositoryProtocol) {
-    self.authUseCase = authUseCase
+  init(tokenStorage: TokenStorageProtocol, taxiChatRepository: TaxiChatRepositoryProtocol) {
+    self.tokenStorage = tokenStorage
     self.taxiChatRepository = taxiChatRepository
 
     let manager = SocketManager(
@@ -46,11 +47,16 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
       config: [
         .log(true),
         .compress,
-//        .extraHeaders(["Authorization": "Bearer \(self.authUseCase.getAccessToken() ?? "")"])
+        .forceWebsockets(true),
+        .extraHeaders([
+          "Origin": "sparcsapp",
+          "Authorization": "Bearer \(self.tokenStorage.getAccessToken() ?? "")"
+        ])
       ]
     )
 
-    self.socket = manager.defaultSocket
+    self.manager = manager
+    self.socket = self.manager.defaultSocket
 
     socket.on(clientEvent: .connect) { data, _ in
       logger.debug("[TaxiChatUseCase] >>> Connected")
