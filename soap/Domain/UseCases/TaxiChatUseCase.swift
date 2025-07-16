@@ -58,15 +58,42 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     self.manager = manager
     self.socket = self.manager.defaultSocket
 
+    setupSocketEvents()
+
+    socket.connect()
+  }
+
+  func setupSocketEvents() {
     socket.on(clientEvent: .connect) { data, _ in
       logger.debug("[TaxiChatUseCase] >>> Connected")
     }
 
-    socket.onAny { event in
-      print("📡 Socket Event - \(event.event):", event.items ?? [])
+    socket.on("chat_init") { data, _ in
+      logger.debug("[TaxiChatUseCase] <<< chat_init")
+      guard let dataDict = data.first as? [String: Any],
+            let chatArray = dataDict["chats"] as? [[String: Any]] else {
+        return
+      }
+
+      self.handleChats(chatArray)
     }
 
-    socket.connect()
+    //    socket.onAny { event in
+    //      print("📡 Socket Event - \(event.event):", event.items ?? [])
+    //    }
+  }
+
+  func handleChats(_ data: [[String: Any]]) {
+    do {
+      let jsonData = try JSONSerialization.data(withJSONObject: data)
+      let decoder = JSONDecoder()
+      let chatDTOs = try decoder.decode([TaxiChatDTO].self, from: jsonData)
+
+      let chats = chatDTOs.compactMap { $0.toModel() }
+      logger.debug(chats)
+    } catch {
+      logger.error("Failed to decode chats: \(error.localizedDescription)")
+    }
   }
 
   func connect(to room: TaxiRoom) {
