@@ -10,12 +10,37 @@ import SwiftUI
 struct TaxiChatView: View {
   let room: TaxiRoom
 
+  @State private var text: String = ""
+
   var body: some View {
     NavigationStack {
-      ScrollView {
-        LazyVStack {
-          Text("hello")
+      ZStack(alignment: .bottom) {
+        ScrollView {
+          LazyVStack {
+            ForEach(0..<100) { _ in
+              Text("Hello")
+            }
+          }
         }
+
+        HStack {
+          Button("More", systemImage: "plus") { }
+            .labelStyle(.iconOnly)
+            .padding()
+            .glassEffect(.regular.interactive(), in: .circle)
+
+          HStack {
+            TextField("Type a message...", text: $text)
+              .padding(.leading, 4)
+            Button("Send", systemImage: "arrow.up") { }
+              .labelStyle(.iconOnly)
+              .fontWeight(.semibold)
+              .buttonStyle(.borderedProminent)
+          }
+          .padding(8)
+          .glassEffect(.regular.interactive())
+        }
+        .padding(.horizontal)
       }
       .navigationTitle(Text(room.title))
       .navigationSubtitle(Text("\(room.source.title.localized()) → \(room.destination.title.localized())"))
