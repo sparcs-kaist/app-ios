@@ -43,7 +43,7 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     self.taxiChatRepository = taxiChatRepository
 
     let manager = SocketManager(
-      socketURL: Constants.taxiBackendURL,
+      socketURL: Constants.taxiSocketURL,
       config: [
         .log(true),
         .compress,
