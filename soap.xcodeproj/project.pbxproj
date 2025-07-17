@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		8B2AF35D2E1DB57800648F86 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8B2AF35C2E1DB57800648F86 /* KeychainSwift */; };
 		8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */; };
+		8B6B2B4B2E2878CD00D13D50 /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6B2B4A2E2878CD00D13D50 /* Nuke */; };
+		8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6B2B4C2E2878CD00D13D50 /* NukeExtensions */; };
+		8B6B2B4F2E2878CD00D13D50 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6B2B4E2E2878CD00D13D50 /* NukeUI */; };
+		8B6B2B512E2878CD00D13D50 /* NukeVideo in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6B2B502E2878CD00D13D50 /* NukeVideo */; };
 		8B7C19DC2E1DAE8900DB2D21 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DB2E1DAE8900DB2D21 /* Factory */; };
 		8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */; };
 		8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */; };
@@ -80,12 +84,16 @@
 				8B2AF35D2E1DB57800648F86 /* KeychainSwift in Frameworks */,
 				8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */,
 				8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */,
+				8B6B2B4F2E2878CD00D13D50 /* NukeUI in Frameworks */,
+				8B6B2B512E2878CD00D13D50 /* NukeVideo in Frameworks */,
+				8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */,
 				8BE7B5302E2438B00090F960 /* FLEX in Frameworks */,
 				8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */,
 				8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */,
 				8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */,
 				8B7C19DC2E1DAE8900DB2D21 /* Factory in Frameworks */,
 				8BD3045B2E26392300B17695 /* SocketIO in Frameworks */,
+				8B6B2B4B2E2878CD00D13D50 /* Nuke in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,6 +163,10 @@
 				8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */,
 				8BE7B52F2E2438B00090F960 /* FLEX */,
 				8BD3045A2E26392300B17695 /* SocketIO */,
+				8B6B2B4A2E2878CD00D13D50 /* Nuke */,
+				8B6B2B4C2E2878CD00D13D50 /* NukeExtensions */,
+				8B6B2B4E2E2878CD00D13D50 /* NukeUI */,
+				8B6B2B502E2878CD00D13D50 /* NukeVideo */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -246,6 +258,7 @@
 				8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				8BE7B52E2E2438B00090F960 /* XCRemoteSwiftPackageReference "FLEX" */,
 				8BD304592E26392300B17695 /* XCRemoteSwiftPackageReference "socket" */,
+				8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8B8DFBE72CCF771700AB82CC /* Products */;
@@ -648,6 +661,14 @@
 				minimumVersion = 2.1.1;
 			};
 		};
+		8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Nuke.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
 		8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hmlongco/Factory.git";
@@ -700,6 +721,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
+		};
+		8B6B2B4A2E2878CD00D13D50 /* Nuke */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = Nuke;
+		};
+		8B6B2B4C2E2878CD00D13D50 /* NukeExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeExtensions;
+		};
+		8B6B2B4E2E2878CD00D13D50 /* NukeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeUI;
+		};
+		8B6B2B502E2878CD00D13D50 /* NukeVideo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeVideo;
 		};
 		8B7C19DB2E1DAE8900DB2D21 /* Factory */ = {
 			isa = XCSwiftPackageProductDependency;
