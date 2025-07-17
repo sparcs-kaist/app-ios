@@ -11,9 +11,11 @@ import Foundation
 struct TaxiChatView: View {
   let room: TaxiRoom
 
-  @State private var text: String = ""
   @State private var viewModel = TaxiChatViewModel()
-  @State private var hasScrolledToBottom = false
+
+  @State private var text: String = ""
+  @State private var hasScrolledToBottom: Bool = false
+  @FocusState private var isFocused: Bool
 
   var body: some View {
     ScrollViewReader { proxy in
@@ -106,7 +108,8 @@ struct TaxiChatView: View {
       HStack {
         TextField("Chat as \(viewModel.nickname ?? "unknown")", text: $text)
           .padding(.leading, 4)
-        
+          .focused($isFocused)
+
         Button("Send", systemImage: "arrow.up") { }
           .labelStyle(.iconOnly)
           .fontWeight(.semibold)
@@ -117,7 +120,7 @@ struct TaxiChatView: View {
       .padding(8)
       .glassEffect(.regular.interactive())
     }
-    .padding(.horizontal)
+    .padding(isFocused ? [.horizontal, .vertical] : [.horizontal])
   }
 
   @ToolbarContentBuilder
