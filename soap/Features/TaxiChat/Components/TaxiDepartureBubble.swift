@@ -70,6 +70,7 @@ struct TaxiDepartureBubble: View {
     authorID: nil,
     authorName: nil,
     authorProfileImageURL: nil,
+    date: Date(),
     isMe: false
   ) {
     TaxiDepartureBubble(room: TaxiRoom.mock)

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TaxiArrivalBubble: View {
   var body: some View {
-    Text("There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Money** to complete the settlement request or payment.")
+    Text("There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment.")
       .padding(12)
       .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 24))
   }
@@ -20,6 +20,7 @@ struct TaxiArrivalBubble: View {
     authorID: nil,
     authorName: nil,
     authorProfileImageURL: nil,
+    date: Date(),
     isMe: false
   ) {
     TaxiArrivalBubble()

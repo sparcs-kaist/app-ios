@@ -12,11 +12,13 @@ struct TaxiChatUserWrapper<Content: View>: View {
   let authorID: String?
   let authorName: String?
   let authorProfileImageURL: URL?
+  let date: Date?
   let isMe: Bool
   @ViewBuilder let content: () -> Content
 
   var body: some View {
     HStack(alignment: .bottom, spacing: 8) {
+      // profile picture
       if !isMe {
         if authorID == nil {
           botProfileImage
@@ -24,20 +26,47 @@ struct TaxiChatUserWrapper<Content: View>: View {
           userProfileImage
         }
       } else {
-        Spacer(minLength: 80)
+        // spacer for me
+        Spacer(minLength: 60)
       }
 
       VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
+        // nickname label
         if !isMe {
           authorNameplace
             .font(.caption)
             .fontWeight(.medium)
         }
-        content()
+
+        HStack(alignment: .bottom, spacing: 4) {
+          // time label for me
+          if isMe {
+            if let date = date {
+              Text(date.formattedTime)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            }
+          }
+
+          // chat bubbles
+          VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
+            content()
+          }
+
+          // time label for other users
+          if !isMe {
+            if let date = date {
+              Text(date.formattedTime)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            }
+          }
+        }
       }
 
+      // spacer for other users
       if !isMe {
-        Spacer(minLength: 80)
+        Spacer(minLength: 60)
       }
     }
   }
@@ -95,58 +124,64 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorID: "",
       authorName: "alex",
       authorProfileImageURL: nil,
+      date: Date(),
       isMe: false
     ) {
-      TaxiChatBubble(content: "hey", date: Date(), showTip: true, isMe: false)
+      TaxiChatBubble(content: "hey", showTip: true, isMe: false)
     }
 
     TaxiChatUserWrapper(
       authorID: "",
       authorName: "jordan",
       authorProfileImageURL: nil,
+      date: Date(),
       isMe: true
     ) {
-      TaxiChatBubble(content: "hey alex!", date: Date(), showTip: true, isMe: true)
+      TaxiChatBubble(content: "hey alex!", showTip: true, isMe: true)
     }
 
     TaxiChatUserWrapper(
       authorID: "",
       authorName: "sam",
       authorProfileImageURL: nil,
+      date: Date(),
       isMe: false
     ) {
-      TaxiChatBubble(content: "yo everyone", date: Date(), showTip: false, isMe: false)
-      TaxiChatBubble(content: "what's up", date: Date(), showTip: true, isMe: false)
+      TaxiChatBubble(content: "yo everyone", showTip: false, isMe: false)
+      TaxiChatBubble(content: "what's up", showTip: true, isMe: false)
     }
 
     TaxiChatUserWrapper(
       authorID: "",
       authorName: "alex",
       authorProfileImageURL: nil,
+      date: Date(),
       isMe: false
     ) {
-      TaxiChatBubble(content: "how's your day going?", date: Date(), showTip: true, isMe: false)
+      TaxiChatBubble(content: "how's your day going?", showTip: true, isMe: false)
     }
 
     TaxiChatUserWrapper(
       authorID: "",
       authorName: "sam",
       authorProfileImageURL: nil,
+      date: Date(),
       isMe: false
     ) {
-      TaxiChatBubble(content: "pretty chill", date: Date(), showTip: false, isMe: false)
-      TaxiChatBubble(content: "so far", date: Date(), showTip: false, isMe: false)
-      TaxiChatBubble(content: "might hit the gym later.", date: Date(), showTip: true, isMe: false)
+      TaxiChatBubble(content: "pretty chill", showTip: false, isMe: false)
+      TaxiChatBubble(content: "so far", showTip: false, isMe: false)
+      TaxiChatBubble(content: "might hit the gym later.", showTip: true, isMe: false)
     }
 
     TaxiChatUserWrapper(
       authorID: "",
       authorName: "jordan",
       authorProfileImageURL: nil,
+      date: Date(),
       isMe: true
     ) {
-      TaxiChatBubble(content: "same here", date: Date(), showTip: false, isMe: true)
-      TaxiChatBubble(content: "just working through emails", date: Date(), showTip: true, isMe: true)
+      TaxiChatBubble(content: "same here", showTip: false, isMe: true)
+      TaxiChatBubble(content: "just working through emails", showTip: true, isMe: true)
     }
   }
   .padding(.leading)

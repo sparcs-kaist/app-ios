@@ -64,6 +64,7 @@ struct TaxiChatView: View {
               authorID: authorID,
               authorName: authorName,
               authorProfileImageURL: authorProfileImageURL,
+              date: currentDate,
               isMe: isMe
             ) {
               ForEach(group.chatGroup.indices, id: \.self) { i in
@@ -73,7 +74,6 @@ struct TaxiChatView: View {
                 case .text:
                   TaxiChatBubble(
                     content: message.content,
-                    date: message.time,
                     showTip: i == group.chatGroup.count - 1,
                     isMe: isMe
                   )
@@ -107,7 +107,7 @@ struct TaxiChatView: View {
   private var inputBar: some View {
     HStack {
       Menu {
-        Button("Send Money", systemImage: "wonsign.circle") { }
+        Button("Send Payment", systemImage: "wonsign.circle") { }
         Button("Request Settlement", systemImage: "square.and.pencil") { }
         Button("Photo Library", systemImage: "photo.on.rectangle") { }
       } label: {
