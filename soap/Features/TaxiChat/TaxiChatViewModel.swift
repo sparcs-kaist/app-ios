@@ -51,37 +51,43 @@ class TaxiChatViewModel {
     guard !chats.isEmpty else { return [] }
 
     var result: [TaxiChatGroup] = []
-    var currentGroup: [TaxiChat] = [chats[0]]
+    var currentGroup: [TaxiChat] = []
 
-    for i in 1..<chats.count {
-      let current = chats[i]
-      let previous = chats[i - 1]
-
-      let isBoundaryChat: Bool = {
-        return current.type == .entrance || current.type == .exit
-      }()
-
-      if isBoundaryChat {
-        if !currentGroup.isEmpty {
-          result.append(TaxiChatGroup(chatGroup: currentGroup, isMe: currentGroup.first?.authorID == currentUserID))
-          currentGroup = []
-        }
-        result.append(TaxiChatGroup(chatGroup: [current], isMe: current.authorID == currentUserID))
-      } else if current.authorID == previous.authorID {
-        currentGroup.append(current)
-      } else {
-        if !currentGroup.isEmpty {
-          result.append(TaxiChatGroup(chatGroup: currentGroup, isMe: currentGroup.first?.authorID == currentUserID))
-        }
-        currentGroup = [current]
+    func flushGroup() {
+      if !currentGroup.isEmpty {
+        let isMe = currentGroup.first?.authorID == currentUserID
+        result.append(TaxiChatGroup(chatGroup: currentGroup, isMe: isMe))
+        currentGroup = []
       }
     }
 
-    // Append the final group
-    if !currentGroup.isEmpty {
-      result.append(TaxiChatGroup(chatGroup: currentGroup, isMe: currentGroup.first?.authorID == currentUserID))
+    let calendar = Calendar.current
+
+    for (_, chat) in chats.enumerated() {
+      if chat.type == .entrance || chat.type == .exit {
+        flushGroup()
+        result.append(TaxiChatGroup(chatGroup: [chat], isMe: chat.authorID == currentUserID))
+        continue
+      }
+
+      if currentGroup.isEmpty {
+        currentGroup.append(chat)
+        continue
+      }
+
+      let lastChat = currentGroup.last!
+      let sameAuthor = chat.authorID == lastChat.authorID
+      let sameMinute = calendar.isDate(chat.time, equalTo: lastChat.time, toGranularity: .minute)
+
+      if sameAuthor && sameMinute {
+        currentGroup.append(chat)
+      } else {
+        flushGroup()
+        currentGroup = [chat]
+      }
     }
 
+    flushGroup()
     return result
   }
 }
