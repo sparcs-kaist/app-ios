@@ -38,7 +38,6 @@ struct TaxiChatView: View {
   private func chatScrollView(proxy: ScrollViewProxy) -> some View {
     ScrollView {
       LazyVStack(spacing: 16) {
-
         // 🔄 Top loading spinner or scroll trigger
         Group {
           if isLoadingMore {
@@ -107,21 +106,11 @@ struct TaxiChatView: View {
             }
           }
         }
-
-        // 📌 Anchor to scroll to bottom
-        Color.clear
-          .frame(height: 1)
-          .id("BOTTOM")
       }
       .padding(.leading)
       .padding(.trailing, 8)
     }
-    .onChange(of: viewModel.groupedChats) {
-      if !hasScrolledToBottom {
-        proxy.scrollTo("BOTTOM", anchor: .bottom)
-        hasScrolledToBottom = true
-      }
-    }
+    .defaultScrollAnchor(.bottom)
   }
 
   private var inputBar: some View {
