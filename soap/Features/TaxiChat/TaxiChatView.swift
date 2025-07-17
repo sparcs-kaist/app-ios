@@ -62,6 +62,8 @@ struct TaxiChatView: View {
                   )
                 case .departure:
                   TaxiDepartureBubble(room: room)
+                case .arrival:
+                  TaxiArrivalBubble()
                 default:
                   Text(type.rawValue)
                 }
@@ -104,10 +106,13 @@ struct TaxiChatView: View {
       HStack {
         TextField("Chat as \(viewModel.nickname ?? "unknown")", text: $text)
           .padding(.leading, 4)
+        
         Button("Send", systemImage: "arrow.up") { }
           .labelStyle(.iconOnly)
           .fontWeight(.semibold)
           .buttonStyle(.borderedProminent)
+          .opacity(text.isEmpty ? 0 : 1)
+          .disabled(text.isEmpty)
       }
       .padding(8)
       .glassEffect(.regular.interactive())
