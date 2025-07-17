@@ -11,9 +11,12 @@ import SocketIO
 
 import Playgrounds
 
+@MainActor
 protocol TaxiChatUseCaseProtocol {
-  func connect(to room: TaxiRoom)
   var chatsPublisher: AnyPublisher<[TaxiChat], Never> { get }
+
+  func connect(to room: TaxiRoom)
+  func fetchChats(before date: Date) async
 }
 
 final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
@@ -78,9 +81,19 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
       self.handleChats(chatArray)
     }
 
-    //    socket.onAny { event in
-    //      print("📡 Socket Event - \(event.event):", event.items ?? [])
-    //    }
+    socket.on("chat_push_front") { data, _ in
+      logger.debug("[TaxiChatUseCase] <<< chat_push_front")
+      guard let dataDict = data.first as? [String: Any],
+            let chatArray = dataDict["chats"] as? [[String: Any]] else {
+        return
+      }
+
+      self.handlePushFront(chatArray)
+    }
+
+    socket.onAny { event in
+      print("📡 Socket Event - \(event.event):", event.items ?? [])
+    }
   }
 
   private func handleChats(_ data: [[String: Any]]) {
@@ -96,12 +109,44 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     }
   }
 
+  private func handlePushFront(_ data: [[String: Any]]) {
+    do {
+      let jsonData = try JSONSerialization.data(withJSONObject: data)
+      let decoder = JSONDecoder()
+      let chatDTOs = try decoder.decode([TaxiChatDTO].self, from: jsonData)
+
+      let newChats = chatDTOs.compactMap { $0.toModel() }
+
+      // Prepend newChats to existing chats
+      let updatedChats = newChats + chatsSubject.value
+      chatsSubject.send(updatedChats)
+    } catch {
+      logger.error("Failed to decode chats: \(error.localizedDescription)")
+    }
+  }
+
   func connect(to room: TaxiRoom) {
     logger.debug("Connecting to \(room.title)")
     self.room = room
 
     if socket.status == .connected {
       fetchInitialChats(for: room)
+    }
+  }
+
+  func fetchChats(before date: Date) async {
+    logger.debug("Fetching chats before \(date.formattedString)")
+    guard let roomID = self.room?.id else {
+      logger.error("lost room id")
+      return
+    }
+
+    if socket.status == .connected {
+      do {
+        try await taxiChatRepository.fetchChats(roomID: roomID, before: date)
+      } catch {
+        logger.error(error)
+      }
     }
   }
 

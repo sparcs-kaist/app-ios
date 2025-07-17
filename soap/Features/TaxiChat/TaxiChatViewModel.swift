@@ -22,6 +22,7 @@ class TaxiChatViewModel {
   var chats: [TaxiChat] = []
   var groupedChats: [TaxiChatGroup] = []
   private var cancellables = Set<AnyCancellable>()
+  private var isFetching: Bool = false
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.taxiChatUseCase) private var taxiChatUseCase: TaxiChatUseCaseProtocol
@@ -45,6 +46,14 @@ class TaxiChatViewModel {
       }
       .store(in: &cancellables)
     taxiChatUseCase.connect(to: room)
+  }
+
+  func fetchChats(before date: Date) async {
+    if isFetching { return }
+    isFetching = true
+    defer { isFetching = false }
+    
+    await taxiChatUseCase.fetchChats(before: date)
   }
 
   private func groupChats(_ chats: [TaxiChat], currentUserID: String) -> [TaxiChatGroup] {

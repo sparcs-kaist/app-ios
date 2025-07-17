@@ -15,6 +15,8 @@ struct TaxiChatView: View {
 
   @State private var text: String = ""
   @State private var hasScrolledToBottom: Bool = false
+  @State private var isLoadingMore: Bool = false
+  @State private var fetchedDateSet: Set<Date> = []
   @FocusState private var isFocused: Bool
 
   var body: some View {
@@ -36,11 +38,28 @@ struct TaxiChatView: View {
   private func chatScrollView(proxy: ScrollViewProxy) -> some View {
     ScrollView {
       LazyVStack(spacing: 16) {
-        // First date header (top of chat)
+
+        // 🔄 Top loading spinner or scroll trigger
+        Group {
+          if isLoadingMore {
+            ProgressView()
+              .progressViewStyle(.circular)
+              .frame(height: 40)
+          } else {
+            Color.clear
+              .frame(height: 1)
+              .onAppear {
+                loadMoreIfNeeded()
+              }
+          }
+        }
+
+        // 🗓️ First date header (top of chat)
         if let firstDate = viewModel.groupedChats.first?.chatGroup.first?.time {
           TaxiChatDayMessage(date: firstDate)
         }
 
+        // 💬 Message groups
         ForEach(viewModel.groupedChats.indices, id: \.self) { index in
           let group = viewModel.groupedChats[index]
           let isMe = group.isMe
@@ -49,7 +68,7 @@ struct TaxiChatView: View {
           let authorProfileImageURL = group.chatGroup.first?.authorProfileURL
           let currentDate = group.chatGroup.first?.time
 
-          // Insert date label if day changes from previous group
+          // 🗓️ Day separator if day changes
           if index > 0,
              let current = currentDate,
              let previous = viewModel.groupedChats[index - 1].chatGroup.first?.time,
@@ -69,7 +88,7 @@ struct TaxiChatView: View {
             ) {
               ForEach(group.chatGroup.indices, id: \.self) { i in
                 let message = group.chatGroup[i]
-                let type: TaxiChat.ChatType = message.type
+                let type = message.type
                 switch type {
                 case .text:
                   TaxiChatBubble(
@@ -89,6 +108,7 @@ struct TaxiChatView: View {
           }
         }
 
+        // 📌 Anchor to scroll to bottom
         Color.clear
           .frame(height: 1)
           .id("BOTTOM")
@@ -141,6 +161,22 @@ struct TaxiChatView: View {
   private var toolbarContent: some ToolbarContent {
     ToolbarItem(placement: .topBarTrailing) {
       Menu("More", systemImage: "ellipsis") { }
+    }
+  }
+
+  private func loadMoreIfNeeded() {
+    guard !isLoadingMore,
+          let oldestDate = viewModel.groupedChats.first?.chatGroup.first?.time else { return }
+
+    // ❌ Prevent duplicate fetches
+    guard !fetchedDateSet.contains(oldestDate) else { return }
+
+    fetchedDateSet.insert(oldestDate)
+    isLoadingMore = true
+
+    Task {
+      await viewModel.fetchChats(before: oldestDate)
+      isLoadingMore = false
     }
   }
 }
