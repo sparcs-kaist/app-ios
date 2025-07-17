@@ -24,6 +24,8 @@ struct TaxiChat: Equatable {
     case share
     case departure
     case arrival
+    
+    case unknown
   }
 
   let roomID: String
