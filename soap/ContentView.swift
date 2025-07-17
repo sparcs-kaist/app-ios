@@ -13,6 +13,7 @@ struct ContentView: View {
   @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @Bindable private var viewModel = ContentViewModel()
+  @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
     ZStack {
@@ -30,6 +31,13 @@ struct ContentView: View {
     .animation(.easeInOut(duration: 0.3), value: viewModel.isAuthenticated)
     .task {
       await viewModel.refreshAccessTokenIfNeeded()
+    }
+    .onChange(of: scenePhase) { newPhase in
+      if newPhase == .active {
+        Task {
+          await viewModel.refreshAccessTokenIfNeeded()
+        }
+      }
     }
   }
 }
