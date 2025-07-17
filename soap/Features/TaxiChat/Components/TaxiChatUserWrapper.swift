@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import NukeUI
 
 struct TaxiChatUserWrapper<Content: View>: View {
   let authorID: String?
@@ -20,8 +21,7 @@ struct TaxiChatUserWrapper<Content: View>: View {
         if authorID == nil {
           botProfileImage
         } else {
-          Circle()
-            .frame(width: 36, height: 36)
+          userProfileImage
         }
       } else {
         Spacer(minLength: 80)
@@ -38,6 +38,29 @@ struct TaxiChatUserWrapper<Content: View>: View {
 
       if !isMe {
         Spacer(minLength: 80)
+      }
+    }
+  }
+
+  private var userProfileImage: some View {
+    Group {
+      if let url = authorProfileImageURL {
+        LazyImage(url: url) { state in
+          if let image = state.image {
+            image
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+          } else {
+            Circle()
+              .fill(Color.secondarySystemBackground)
+          }
+        }
+        .frame(width: 36, height: 36)
+        .clipShape(.circle)
+      } else {
+        Circle()
+          .fill(Color.secondarySystemBackground)
+          .frame(width: 36, height: 36)
       }
     }
   }
