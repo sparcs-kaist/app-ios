@@ -59,6 +59,7 @@ struct TaxiChatView: View {
                 case .text:
                   TaxiChatBubble(
                     content: message.content,
+                    date: message.time,
                     showTip: i == group.chatGroup.count - 1,
                     isMe: isMe
                   )

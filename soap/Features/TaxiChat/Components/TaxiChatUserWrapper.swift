@@ -97,7 +97,7 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       isMe: false
     ) {
-      TaxiChatBubble(content: "hey", showTip: true, isMe: false)
+      TaxiChatBubble(content: "hey", date: Date(), showTip: true, isMe: false)
     }
 
     TaxiChatUserWrapper(
@@ -106,7 +106,7 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       isMe: true
     ) {
-      TaxiChatBubble(content: "hey alex!", showTip: true, isMe: true)
+      TaxiChatBubble(content: "hey alex!", date: Date(), showTip: true, isMe: true)
     }
 
     TaxiChatUserWrapper(
@@ -115,8 +115,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       isMe: false
     ) {
-      TaxiChatBubble(content: "yo everyone", showTip: false, isMe: false)
-      TaxiChatBubble(content: "what's up", showTip: true, isMe: false)
+      TaxiChatBubble(content: "yo everyone", date: Date(), showTip: false, isMe: false)
+      TaxiChatBubble(content: "what's up", date: Date(), showTip: true, isMe: false)
     }
 
     TaxiChatUserWrapper(
@@ -125,7 +125,7 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       isMe: false
     ) {
-      TaxiChatBubble(content: "how's your day going?", showTip: true, isMe: false)
+      TaxiChatBubble(content: "how's your day going?", date: Date(), showTip: true, isMe: false)
     }
 
     TaxiChatUserWrapper(
@@ -134,9 +134,9 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       isMe: false
     ) {
-      TaxiChatBubble(content: "pretty chill", showTip: false, isMe: false)
-      TaxiChatBubble(content: "so far", showTip: false, isMe: false)
-      TaxiChatBubble(content: "might hit the gym later.", showTip: true, isMe: false)
+      TaxiChatBubble(content: "pretty chill", date: Date(), showTip: false, isMe: false)
+      TaxiChatBubble(content: "so far", date: Date(), showTip: false, isMe: false)
+      TaxiChatBubble(content: "might hit the gym later.", date: Date(), showTip: true, isMe: false)
     }
 
     TaxiChatUserWrapper(
@@ -145,8 +145,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       isMe: true
     ) {
-      TaxiChatBubble(content: "same here", showTip: false, isMe: true)
-      TaxiChatBubble(content: "just working through emails", showTip: true, isMe: true)
+      TaxiChatBubble(content: "same here", date: Date(), showTip: false, isMe: true)
+      TaxiChatBubble(content: "just working through emails", date: Date(), showTip: true, isMe: true)
     }
   }
   .padding(.leading)

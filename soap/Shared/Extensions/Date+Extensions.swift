@@ -57,6 +57,20 @@ extension Date {
     return formatter.string(from: self)
   }
 
+  var formattedTime: String {
+    let formatter = DateFormatter()
+    formatter.locale = Locale.current
+    formatter.setLocalizedDateFormatFromTemplate("jm") // e.g., 3:30 PM
+    return formatter.string(from: self)
+  }
+
+  var formattedDate: String {
+    let formatter = DateFormatter()
+    formatter.locale = Locale.current
+    formatter.setLocalizedDateFormatFromTemplate("MMMM d, EEE") // e.g., July 18, Thu
+    return formatter.string(from: self)
+  }
+
   var relativeTimeString: String {
     let calendar = Calendar.current
 
