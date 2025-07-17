@@ -27,3 +27,8 @@ struct TaxiChatGeneralMessage: View {
     .font(.footnote)
   }
 }
+
+#Preview {
+  TaxiChatGeneralMessage(authorName: "testuser", type: .entrance)
+  TaxiChatGeneralMessage(authorName: "testuser", type: .exit)
+}

@@ -36,12 +36,26 @@ struct TaxiChatView: View {
   private func chatScrollView(proxy: ScrollViewProxy) -> some View {
     ScrollView {
       LazyVStack(spacing: 16) {
+        // First date header (top of chat)
+        if let firstDate = viewModel.groupedChats.first?.chatGroup.first?.time {
+          TaxiChatDayMessage(date: firstDate)
+        }
+
         ForEach(viewModel.groupedChats.indices, id: \.self) { index in
           let group = viewModel.groupedChats[index]
           let isMe = group.isMe
           let authorName = group.chatGroup.first?.authorName
           let authorID = group.chatGroup.first?.authorID
           let authorProfileImageURL = group.chatGroup.first?.authorProfileURL
+          let currentDate = group.chatGroup.first?.time
+
+          // Insert date label if day changes from previous group
+          if index > 0,
+             let current = currentDate,
+             let previous = viewModel.groupedChats[index - 1].chatGroup.first?.time,
+             !Calendar.current.isDate(current, inSameDayAs: previous) {
+            TaxiChatDayMessage(date: current)
+          }
 
           if group.chatGroup.first?.type == .entrance || group.chatGroup.first?.type == .exit {
             TaxiChatGeneralMessage(authorName: authorName ?? "unknown", type: group.chatGroup.first?.type ?? .entrance)
@@ -82,7 +96,6 @@ struct TaxiChatView: View {
       .padding(.leading)
       .padding(.trailing, 8)
     }
-//    .contentMargins(.bottom, 60)
     .onChange(of: viewModel.groupedChats) {
       if !hasScrolledToBottom {
         proxy.scrollTo("BOTTOM", anchor: .bottom)
