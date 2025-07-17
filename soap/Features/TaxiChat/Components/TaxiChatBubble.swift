@@ -8,67 +8,34 @@
 import SwiftUI
 
 struct TaxiChatBubble: View {
-  let chat: TaxiChat
+  let content: String
   let showTip: Bool
-  let isSentByMe: Bool
+  let isMe: Bool
 
   var body: some View {
-    HStack {
-      if isSentByMe {
-        Spacer(minLength: 130)
-      } else {
-        
-      }
-
-      Text(chat.content)
-        .padding(12)
-        .background(
-          isSentByMe ? .accent : .secondarySystemBackground,
-          in: .rect(
-            topLeadingRadius: 24,
-            bottomLeadingRadius: !isSentByMe && showTip ? 4 : 24,
-            bottomTrailingRadius: isSentByMe && showTip ? 4 : 24,
-            topTrailingRadius: 24
-          )
+    Text(content)
+      .padding(12)
+      .background(
+        isMe ? .accent : .secondarySystemBackground,
+        in: .rect(
+          topLeadingRadius: 24,
+          bottomLeadingRadius: !isMe && showTip ? 4 : 24,
+          bottomTrailingRadius: isMe && showTip ? 4 : 24,
+          topTrailingRadius: 24
         )
-        .foregroundStyle(isSentByMe ? .white : .primary)
-
-      if !isSentByMe {
-        Spacer(minLength: 130)
-      }
-    }
+      )
+      .foregroundStyle(isMe ? .white : .primary)
   }
 }
 
 #Preview {
-  let chat = TaxiChat(
-    roomID: "",
-    type: .text,
-    authorID: "",
-    authorName: "testuser",
-    authorProfileURL: nil,
-    authorIsWithdrew: false,
-    content: "this is a test ad dasdf eioqe qfdaa sdfasdfa sodfa asdfwo qwojef oqjweof qowjf ",
-    time: Date(),
-    isValid: false,
-    inOutNames: []
-  )
-  let short = TaxiChat(
-    roomID: "",
-    type: .text,
-    authorID: "",
-    authorName: "testuser",
-    authorProfileURL: nil,
-    authorIsWithdrew: false,
-    content: "this is a test",
-    time: Date(),
-    isValid: false,
-    inOutNames: []
-  )
-
   VStack(spacing: 4) {
-    TaxiChatBubble(chat: short, showTip: true, isSentByMe: false)
-    TaxiChatBubble(chat: short, showTip: false, isSentByMe: true)
-    TaxiChatBubble(chat: chat, showTip: true, isSentByMe: true)
+    TaxiChatBubble(content: "this is a test", showTip: true, isMe: false)
+    TaxiChatBubble(content: "this is a test", showTip: true, isMe: true)
+    TaxiChatBubble(content: "this is a test", showTip: false, isMe: false)
+    TaxiChatBubble(content: "this is a test", showTip: true, isMe: false)
+    TaxiChatBubble(content: "this is a test", showTip: false, isMe: true)
+    TaxiChatBubble(content: "this is a test ad dasdf eioqe qfdaa sdfasdfa sodfa asdfwo qwojef oqjweof qowjf ", showTip: true, isMe: true)
   }
+  .padding()
 }

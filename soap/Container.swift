@@ -69,10 +69,9 @@ extension Container {
     }.singleton
   }
 
-  @MainActor
   var taxiChatUseCase: Factory<TaxiChatUseCaseProtocol> {
     self {
-      @MainActor in TaxiChatUseCase(
+      TaxiChatUseCase(
         tokenStorage: self.tokenStorage.resolve(),
         taxiChatRepository: self.taxiChatRepository.resolve()
       )

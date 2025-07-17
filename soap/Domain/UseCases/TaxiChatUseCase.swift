@@ -13,19 +13,15 @@ import Playgrounds
 
 protocol TaxiChatUseCaseProtocol {
   func connect(to room: TaxiRoom)
+  var chatsPublisher: AnyPublisher<[TaxiChat], Never> { get }
 }
 
 final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Publishers
-  private let chatsSubject = CurrentValueSubject<[String], Never>([])
-  private let displayNewMessageSubject = CurrentValueSubject<Bool, Never>(false)
+  private let chatsSubject = CurrentValueSubject<[TaxiChat], Never>([])
 
-  var chatsPublisher: AnyPublisher<[String], Never> {
+  var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
     chatsSubject.eraseToAnyPublisher()
-  }
-
-  var displayNewMessagePublisher: AnyPublisher<Bool, Never> {
-    displayNewMessageSubject.eraseToAnyPublisher()
   }
 
   // MARK: - State
@@ -66,6 +62,10 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   func setupSocketEvents() {
     socket.on(clientEvent: .connect) { data, _ in
       logger.debug("[TaxiChatUseCase] >>> Connected")
+
+      if let room = self.room {
+        self.fetchInitialChats(for: room)
+      }
     }
 
     socket.on("chat_init") { data, _ in
@@ -83,26 +83,34 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     //    }
   }
 
-  func handleChats(_ data: [[String: Any]]) {
+  private func handleChats(_ data: [[String: Any]]) {
     do {
       let jsonData = try JSONSerialization.data(withJSONObject: data)
       let decoder = JSONDecoder()
       let chatDTOs = try decoder.decode([TaxiChatDTO].self, from: jsonData)
 
       let chats = chatDTOs.compactMap { $0.toModel() }
-      logger.debug(chats)
+      chatsSubject.send(chats)
     } catch {
       logger.error("Failed to decode chats: \(error.localizedDescription)")
     }
   }
 
   func connect(to room: TaxiRoom) {
+    logger.debug("Connecting to \(room.title)")
     self.room = room
-    let roomId = room.id
+
+    if socket.status == .connected {
+      fetchInitialChats(for: room)
+    }
+  }
+
+  private func fetchInitialChats(for room: TaxiRoom) {
+    let roomID = room.id
     let repository = taxiChatRepository
     Task {
       do {
-        try await repository.fetchChats(roomID: roomId)
+        try await repository.fetchChats(roomID: roomID)
       } catch {
         logger.error(error)
       }

@@ -6,56 +6,108 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct TaxiChatView: View {
   let room: TaxiRoom
 
   @State private var text: String = ""
+  @State private var viewModel = TaxiChatViewModel()
+  @State private var hasScrolledToBottom = false
 
   var body: some View {
-    NavigationStack {
-      ZStack(alignment: .bottom) {
-        ScrollView {
-          LazyVStack {
-            ForEach(0..<100) { _ in
-              Text("Hello")
+    ScrollViewReader { proxy in
+      ScrollView {
+        LazyVStack(spacing: 16) {
+          ForEach(viewModel.groupedChats.indices, id: \.self) { index in
+            let group = viewModel.groupedChats[index]
+            let isMe = group.isMe
+            let authorName = group.chatGroup.first?.authorName
+            let authorID = group.chatGroup.first?.authorID
+            let authorProfileImageURL = group.chatGroup.first?.authorProfileURL
+
+            if group.chatGroup.first?.type == .entrance || group.chatGroup.first?.type == .exit {
+              TaxiChatGeneralMessage(authorName: authorName ?? "unknown", type: group.chatGroup.first?.type ?? .entrance)
+            } else {
+              TaxiChatUserWrapper(
+                authorID: authorID,
+                authorName: authorName,
+                authorProfileImageURL: authorProfileImageURL,
+                isMe: isMe
+              ) {
+                ForEach(group.chatGroup.indices, id: \.self) { i in
+                  let message = group.chatGroup[i]
+                  let type: TaxiChat.ChatType = message.type
+                  switch type {
+                  case .text:
+                    TaxiChatBubble(
+                      content: message.content,
+                      showTip: i == group.chatGroup.count - 1,
+                      isMe: isMe
+                    )
+                  default:
+                    Text(type.rawValue)
+                  }
+                }
+              }
             }
           }
+          Color.clear
+            .frame(height: 1)
+            .id("BOTTOM")
         }
+        .padding(.leading)
+        .padding(.trailing, 8)
+      }
+      .contentMargins(.bottom, 60)
+      .onChange(of: viewModel.groupedChats) {
+        if !hasScrolledToBottom {
+          proxy.scrollTo("BOTTOM", anchor: .bottom)
+          hasScrolledToBottom = true
+        }
+      }
+    }
+    .navigationTitle(Text(room.title))
+    .navigationSubtitle(Text("\(room.source.title.localized()) → \(room.destination.title.localized())"))
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        Menu("More", systemImage: "ellipsis") {
+
+        }
+      }
+    }
+    .safeAreaBar(edge: .bottom) {
+      HStack {
+        Button("More", systemImage: "plus") { }
+          .labelStyle(.iconOnly)
+          .padding()
+          .fontWeight(.semibold)
+          .glassEffect(.regular.interactive(), in: .circle)
 
         HStack {
-          Button("More", systemImage: "plus") { }
+          TextField("Chat as \(viewModel.nickname ?? "unknown")", text: $text)
+            .padding(.leading, 4)
+          Button("Send", systemImage: "arrow.up") { }
             .labelStyle(.iconOnly)
-            .padding()
-            .glassEffect(.regular.interactive(), in: .circle)
-
-          HStack {
-            TextField("Type a message...", text: $text)
-              .padding(.leading, 4)
-            Button("Send", systemImage: "arrow.up") { }
-              .labelStyle(.iconOnly)
-              .fontWeight(.semibold)
-              .buttonStyle(.borderedProminent)
-          }
-          .padding(8)
-          .glassEffect(.regular.interactive())
+            .fontWeight(.semibold)
+            .buttonStyle(.borderedProminent)
         }
-        .padding(.horizontal)
+        .padding(8)
+        .glassEffect(.regular.interactive())
       }
-      .navigationTitle(Text(room.title))
-      .navigationSubtitle(Text("\(room.source.title.localized()) → \(room.destination.title.localized())"))
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
-          Menu("More", systemImage: "ellipsis") {
-
-          }
-        }
-      }
+      .padding(.horizontal)
+    }
+    .toolbar(.hidden, for: .tabBar)
+    .onAppear {
+      viewModel.connect(to: room)
+      hasScrolledToBottom = false
     }
   }
 }
 
 #Preview {
-  TaxiChatView(room: TaxiRoom.mock)
+  NavigationStack {
+    TaxiChatView(room: TaxiRoom.mock)
+  }
 }

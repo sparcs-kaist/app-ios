@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TaxiChat {
+struct TaxiChat: Equatable {
   enum ChatType: String {
     // User sent type
     case text               // normal message
@@ -17,7 +17,7 @@ struct TaxiChat {
     case account            // account message
 
     // General type
-    case enterance = "in"   // enterance message
+    case entrance = "in"   // enterance message
     case exit = "out"       // exit message
 
     // Bot sent type

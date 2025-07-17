@@ -96,39 +96,38 @@ struct TaxiListView: View {
       }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Chats", systemImage: "bubble.left.and.text.bubble.right") {
-            showChat = true
+          Button("Create", systemImage: "plus") {
+            showRoomCreationSheet = true
           }
         }
 
         ToolbarSpacer(.flexible, placement: .topBarTrailing)
 
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Create", systemImage: "plus") {
-            showRoomCreationSheet = true
+          Button("Chats", systemImage: "bubble.left.and.text.bubble.right") {
+            showChat = true
           }
         }
+      }
+      .navigationTitle("Taxi")
+      .background(Color.secondarySystemBackground)
+      .navigationDestination(isPresented: $showChat) {
+        TaxiChatListView()
       }
       .sheet(isPresented: $showRoomCreationSheet) {
         TaxiRoomCreationView(viewModel: viewModel)
           .presentationDragIndicator(.visible)
       }
-      .navigationTitle("Taxi")
-      .background(Color.secondarySystemBackground)
-    }
-    .sheet(item: $selectedRoom) { room in
-      TaxiPreviewView(room: room)
-        .onDisappear {
-          Task {
-            await viewModel.fetchData()
+      .sheet(item: $selectedRoom) { room in
+        TaxiPreviewView(room: room)
+          .onDisappear {
+            Task {
+              await viewModel.fetchData()
+            }
           }
-        }
-        .presentationDragIndicator(.visible)
-        .presentationDetents([.height(400), .height(500)])
-    }
-    .sheet(isPresented: $showChat) {
-      TaxiChatListView()
-        .presentationDragIndicator(.visible)
+          .presentationDragIndicator(.visible)
+          .presentationDetents([.height(400), .height(500)])
+      }
     }
     .task {
       await viewModel.fetchData()

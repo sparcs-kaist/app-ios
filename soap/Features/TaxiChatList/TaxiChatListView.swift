@@ -10,32 +10,34 @@ import Factory
 
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
-  @Injected(\.taxiChatUseCase) private var taxiChatUseCase: TaxiChatUseCaseProtocol
+  @State private var selectedRoom: TaxiRoom?
 
   init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()) {
     _viewModel = State(initialValue: viewModel)
   }
 
   var body: some View {
-    NavigationStack {
-      ScrollView {
-        LazyVStack(spacing: 16) {
-          Group {
-            switch viewModel.state {
-            case .loading:
-              loadingView
-            case .loaded(let onGoing, let done):
-              loadedView(onGoing: onGoing, done: done)
-            case .error(let message):
-              errorView(errorMessage: message)
-            }
+    ScrollView {
+      LazyVStack(spacing: 16) {
+        Group {
+          switch viewModel.state {
+          case .loading:
+            loadingView
+          case .loaded(let onGoing, let done):
+            loadedView(onGoing: onGoing, done: done)
+          case .error(let message):
+            errorView(errorMessage: message)
           }
-          .transition(.opacity.animation(.easeInOut(duration: 0.3)))
         }
-        .padding()
+        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
-      .navigationTitle(Text("Chats"))
-      .background(Color.secondarySystemBackground)
+      .padding()
+    }
+    .navigationTitle(Text("Chats"))
+    .background(Color.secondarySystemBackground)
+    .toolbar(.hidden, for: .tabBar)
+    .navigationDestination(item: $selectedRoom) { room in
+      TaxiChatView(room: room)
     }
     .task {
       await viewModel.fetchData()
@@ -89,7 +91,7 @@ struct TaxiChatListView: View {
       ForEach(onGoing) { room in
         TaxiRoomCell(room: room)
           .onTapGesture {
-            taxiChatUseCase.connect(to: room)
+            selectedRoom = room
           }
       }
     }
