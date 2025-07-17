@@ -60,6 +60,8 @@ struct TaxiChatView: View {
                     showTip: i == group.chatGroup.count - 1,
                     isMe: isMe
                   )
+                case .departure:
+                  TaxiDepartureBubble(room: room)
                 default:
                   Text(type.rawValue)
                 }
