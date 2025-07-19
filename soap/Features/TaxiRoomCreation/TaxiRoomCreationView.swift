@@ -8,27 +8,36 @@
 import SwiftUI
 
 struct TaxiRoomCreationView: View {
-  @State private var viewModel = TaxiRoomCreationViewModel()
+  @State var viewModel: TaxiListViewModelProtocol
+  @Environment(\.dismiss) private var dismiss
+
+  @State private var title: String = ""
+  @State private var showErrorAlert: Bool = false
+  @State private var errorMessage: String = ""
+
+  init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
+    _viewModel = State(wrappedValue: viewModel)
+  }
 
   var body: some View {
     NavigationView {
       Form {
-        Section(header: Text("Location")) {
+        Section {
           TaxiDestinationPicker(
-            origin: $viewModel.origin,
+            source: $viewModel.source,
             destination: $viewModel.destination,
             locations: viewModel.locations
           )
         }
 
-        Section(header: Text("Title")) {
+        Section {
           HStack {
-            TextField("Title", text: $viewModel.roomName)
+            TextField("Title", text: $title)
           }
         }
 
-        Section(header: Text("detail")) {
-          TaxiDepatureTimePicker(depatureTime: $viewModel.roomDepatureTime)
+        Section {
+          TaxiDepartureTimePicker(departureTime: $viewModel.roomDepartureTime)
           Picker("Capacity", selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in
               Text("\(number) people")
@@ -40,16 +49,44 @@ struct TaxiRoomCreationView: View {
       .navigationTitle("New Room")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button("Done") {
-            // TODO: dismiss
+        ToolbarItem(placement: .topBarLeading) {
+          Button("Cancel", systemImage: "xmark", role: .close) {
+            dismiss()
           }
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+          Button("Done", systemImage: "arrow.up", role: .confirm) {
+            Task {
+              do {
+                try await viewModel.createRoom(title: title)
+                await viewModel.fetchData()
+                dismiss()
+              } catch {
+                self.errorMessage = error.localizedDescription
+                self.showErrorAlert = true
+              }
+            }
+          }
+          .disabled(!isValid)
         }
       }
     }
+    .alert("Error", isPresented: $showErrorAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(errorMessage)
+    })
+  }
+
+  var isValid: Bool {
+    return (
+      viewModel.source != nil && viewModel.destination != nil && !title.isEmpty && viewModel.source != viewModel.destination && viewModel.roomDepartureTime > Date()
+    )
   }
 }
 
 #Preview {
-  TaxiRoomCreationView()
+  let vm = MockTaxiListViewModel()
+  return TaxiRoomCreationView(viewModel: vm)
 }

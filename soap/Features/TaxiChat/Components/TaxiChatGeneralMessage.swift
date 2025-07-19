@@ -1,0 +1,34 @@
+//
+//  TaxiChatGeneralMessage.swift
+//  soap
+//
+//  Created by Soongyu Kwon on 18/07/2025.
+//
+
+import SwiftUI
+
+struct TaxiChatGeneralMessage: View {
+  let authorName: String?
+  let type: TaxiChat.ChatType
+
+  var body: some View {
+    Group {
+      switch type {
+      case .entrance:
+        Text("\(authorName ?? "unknown") has joined")
+      case .exit:
+        Text("\(authorName ?? "unknown") has left")
+      default:
+        EmptyView()
+      }
+    }
+    .foregroundStyle(.secondary)
+    .fontWeight(.medium)
+    .font(.footnote)
+  }
+}
+
+#Preview {
+  TaxiChatGeneralMessage(authorName: "testuser", type: .entrance)
+  TaxiChatGeneralMessage(authorName: "testuser", type: .exit)
+}

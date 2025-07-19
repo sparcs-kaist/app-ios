@@ -14,11 +14,28 @@ struct SignInView: View {
     VStack {
       Spacer()
       Text("SPARCS APP INTERNAL")
+        .fontWeight(.medium)
+        .fontDesign(.monospaced)
+        .font(.title2)
       Spacer()
 
-      Button("Sign In with SPARCS") {
+      Button(action: {
         viewModel.signIn()
-      }
+      }, label: {
+        Group {
+          if viewModel.isLoading {
+            ProgressView()
+              .tint(.white)
+          } else {
+            Text("Sign In with SPARCS SSO")
+              .fontWeight(.medium)
+          }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(8)
+      })
+      .buttonStyle(.glassProminent)
+      .disabled(viewModel.isLoading)
     }
     .padding()
   }

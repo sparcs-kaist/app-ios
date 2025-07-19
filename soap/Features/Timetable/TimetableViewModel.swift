@@ -8,8 +8,9 @@
 import SwiftUI
 import Observation
 
+@MainActor
 @Observable
-class TimetableViewModel {
+final class TimetableViewModel {
   var isLoading: Bool = true
 
   // Needs to be fetched
@@ -21,25 +22,23 @@ class TimetableViewModel {
       updateTimetablesForSelectedSemester()
     }
   }
-
+  var selectedLecture: Lecture?
   var timetablesForSelectedSemester: [Timetable] = [Timetable]()
 
   func fetchData() async {
-    do {
-      //            try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
-      await MainActor.run {
-        timetables = Timetable.mockList
-        semesters = Array(Set(timetables.map(\.semester))).sorted()
+    //    do {
+    //            try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+    timetables = Timetable.mockList
+    semesters = Array(Set(timetables.map(\.semester))).sorted()
 
-        if let firstTimetable = timetables.first {
-          selectedTimetable = firstTimetable
-          selectedSemester = firstTimetable.semester
-        }
-        isLoading = false
-      }
-    } catch {
-      print("[TimetableViewModel] fetchData failed.")
+    if let firstTimetable = timetables.first {
+      selectedTimetable = firstTimetable
+      selectedSemester = firstTimetable.semester
     }
+    isLoading = false
+    //    } catch {
+    //      print("[TimetableViewModel] fetchData failed.")
+    //    }
   }
 
   func selectPreviousSemester() {
@@ -71,4 +70,5 @@ class TimetableViewModel {
     }
   }
 }
+
 

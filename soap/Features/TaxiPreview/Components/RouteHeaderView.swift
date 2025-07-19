@@ -8,22 +8,22 @@
 import SwiftUI
 
 struct RouteHeaderView: View {
-    let origin: String
-    let destination: String
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(origin)
-            Image(systemName: "arrow.right")
-            Text(destination)
-        }
-        .font(.title3)
-        .fontWeight(.semibold)
-        .frame(maxWidth: .infinity, alignment: .leading)
+  let source: String
+  let destination: String
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Label(source, systemImage: "location.fill")
+      Label(destination, systemImage: "flag.pattern.checkered")
     }
+    .font(.title3)
+    .fontWeight(.semibold)
+    .frame(maxWidth: .infinity, alignment: .leading)
+  }
 }
 
 #Preview {
-    RouteHeaderView(origin: "Seoul", destination: "Busan")
-        .padding()
+  RouteHeaderView(source: "Seoul", destination: "Busan")
+    .padding()
 }
+

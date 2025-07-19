@@ -64,21 +64,21 @@ struct HTMLView: UIViewRepresentable {
       self.parent = parent
     }
 
-    override func observeValue(
-      forKeyPath keyPath: String?,
-      of object: Any?,
-      change: [NSKeyValueChangeKey : Any]?,
-      context: UnsafeMutableRawPointer?
-    ) {
-      if keyPath == "contentSize",
-         let scroll = object as? UIScrollView,
-         scroll == (scroll.superview as? WKWebView)?.scrollView,
-         let newSize = change?[.newKey] as? CGSize {
-        DispatchQueue.main.async {
-          self.parent.contentHeight = newSize.height
-        }
-      }
-    }
+//    override func observeValue(
+//      forKeyPath keyPath: String?,
+//      of object: Any?,
+//      change: [NSKeyValueChangeKey : Any]?,
+//      context: UnsafeMutableRawPointer?
+//    ) {
+//      if keyPath == "contentSize",
+//         let scroll = object as? UIScrollView,
+//         scroll == (scroll.superview as? WKWebView)?.scrollView,
+//         let newSize = change?[.newKey] as? CGSize {
+//        DispatchQueue.main.async {
+//          self.parent.contentHeight = newSize.height
+//        }
+//      }
+//    }
 
     deinit {
       // Note: WKWebView’s scrollView will remove observers when deallocated,

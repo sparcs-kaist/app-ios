@@ -25,7 +25,7 @@ struct BoardListView: View {
         }
         .headerProminence(.increased)
 
-        Section(header: Label("Orgarnisations and Clubs", systemImage: "person.2.circle.fill")) {
+        Section(header: Label("Organisations and Clubs", systemImage: "person.2.fill")) {
           NavigationLink("Students Group", destination: { })
           NavigationLink("Club", destination: { })
         }

@@ -6,43 +6,37 @@
 //
 
 import SwiftUI
-import BottomSheet
+import Combine
+import Factory
 
 struct ContentView: View {
-  private var timetableViewModel = TimetableViewModel()
-  @State private var selectedTab: String = "Home"
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @Bindable private var viewModel = ContentViewModel()
+  @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
-    NavigationStack {
-      TabView(selection: $selectedTab) {
-        Tab("Home", systemImage: "house", value: "Home") {
-          VStack {
-            NavigationLink {
-              PostListView()
-            } label: {
-              Text("go to post list")
-            }
+    ZStack {
+      if viewModel.isAuthenticated {
+        MainView()
+          .transition(.opacity)
+          .task {
+            await userUseCase.fetchUsers()
           }
-          .toolbarBackground(.visible, for: .tabBar)
-        }
-
-        Tab("Timetable", systemImage: "square.grid.2x2", value: "Timetable") {
-          TimetableView()
-            .environment(timetableViewModel)
-            .toolbarBackground(.visible, for: .tabBar)
-        }
-
-        Tab("Taxi", systemImage: "car", value: "Taxi") {
-          TaxiView()
-            .toolbarBackground(.visible, for: .tabBar)
-        }
-
-        Tab("More", systemImage: "ellipsis", value: "More") {
-          DetailsView()
-            .toolbarBackground(.visible, for: .tabBar)
+      } else if !viewModel.isLoading {
+        SignInView()
+          .transition(.opacity)
+      }
+    }
+    .animation(.easeInOut(duration: 0.3), value: viewModel.isAuthenticated)
+    .task {
+      await viewModel.refreshAccessTokenIfNeeded()
+    }
+    .onChange(of: scenePhase) { newPhase in
+      if newPhase == .active {
+        Task {
+          await viewModel.refreshAccessTokenIfNeeded()
         }
       }
-      .navigationTitle(selectedTab)
     }
   }
 }
