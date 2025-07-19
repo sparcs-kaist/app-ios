@@ -42,29 +42,9 @@ struct TaxiChatUserWrapper<Content: View>: View {
               .fontWeight(.medium)
           }
 
-          HStack(alignment: .bottom, spacing: 4) {
-            // time label for me
-            if isMe {
-              if let date = date {
-                Text(date.formattedTime)
-                  .font(.caption2)
-                  .foregroundStyle(.secondary)
-              }
-            }
-
-            // chat bubbles
-            VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
-              content()
-            }
-
-            // time label for other users
-            if !isMe {
-              if let date = date {
-                Text(date.formattedTime)
-                  .font(.caption2)
-                  .foregroundStyle(.secondary)
-              }
-            }
+          // chat bubbles
+          VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
+            content()
           }
         }
 

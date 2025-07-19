@@ -10,11 +10,6 @@ import Observation
 import Factory
 import Combine
 
-struct TaxiChatGroupOld: Equatable {
-  let chatGroup: [TaxiChat]
-  let isMe: Bool
-}
-
 @MainActor
 @Observable
 class TaxiChatViewModel {
@@ -23,15 +18,18 @@ class TaxiChatViewModel {
   var taxiUser: TaxiUser?
   var fetchedDateSet: Set<Date> = []
 
+  private var room: TaxiRoom
   private var cancellables = Set<AnyCancellable>()
   private var isFetching: Bool = false
 
   // MARK: - Dependencies
   private let taxiChatUseCase: TaxiChatUseCaseProtocol
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
 
   // MARK: - Initialiser
   init(room: TaxiRoom) {
+    self.room = room
     taxiChatUseCase = Container.shared.taxiChatUseCase(room)
 
     bind()
@@ -64,9 +62,20 @@ class TaxiChatViewModel {
 
   func sendChat(_ message: String, type: TaxiChat.ChatType) {
     if type == .text && message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return }
-    
+
     Task {
       await taxiChatUseCase.sendChat(message, type: type)
+    }
+  }
+
+  func commitSettlement() {
+    Task {
+      do {
+        let room: TaxiRoom = try await taxiRoomRepository.commitSettlement(id: room.id)
+        self.room = room
+      } catch {
+        logger.debug(error)
+      }
     }
   }
 }

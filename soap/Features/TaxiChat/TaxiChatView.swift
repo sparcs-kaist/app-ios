@@ -67,10 +67,13 @@ struct TaxiChatView: View {
                   showTip: groupedChat.lastChatID == chat.id,
                   isMe: groupedChat.isMe
                 )
+                .environment(\.chatTime, groupedChat.time)
               case .departure:
                 TaxiDepartureBubble(room: room)
               case .arrival:
                 TaxiArrivalBubble()
+              case .settlement:
+                TaxiChatSettlementBubble()
               default:
                 Text(chat.type.rawValue)
               }
@@ -93,7 +96,9 @@ struct TaxiChatView: View {
     HStack {
       Menu {
         Button("Send Payment", systemImage: "wonsign.circle") { }
-        Button("Request Settlement", systemImage: "square.and.pencil") { }
+        Button("Request Settlement", systemImage: "square.and.pencil") {
+          viewModel.commitSettlement()
+        }
         Button("Photo Library", systemImage: "photo.on.rectangle") { }
       } label: {
         Label("More", systemImage: "plus")
