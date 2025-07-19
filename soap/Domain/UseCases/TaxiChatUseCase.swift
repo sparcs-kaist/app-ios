@@ -54,6 +54,15 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     }
   }
 
+  func sendChat(_ content: String?, type: TaxiChat.ChatType) async {
+    do {
+      let request = TaxiChatRequest(roomID: room.id, type: type, content: content)
+      try await taxiChatRepository.sendChat(request)
+    } catch {
+      logger.error(error)
+    }
+  }
+
   private func bind() {
     // is socket(TaxiChatService) connected
     taxiChatService.isConnectedPublisher

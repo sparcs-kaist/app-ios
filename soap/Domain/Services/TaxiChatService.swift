@@ -79,7 +79,7 @@ final class TaxiChatService: TaxiChatServiceProtocol {
 
     // retrieves older chats
     socket.on("chat_push_front") { data, _ in
-      logger.debug("[TaxiChatService] <<< chat_init")
+      logger.debug("[TaxiChatService] <<< chat_push_front")
       guard let dataDict = data.first as? [String: Any],
             let chatArray = dataDict["chats"] as? [[String: Any]] else {
         return
@@ -87,6 +87,21 @@ final class TaxiChatService: TaxiChatServiceProtocol {
       
       let chats: [TaxiChat] = self.handleChats(chatArray)
       self.chats.insert(contentsOf: chats, at: 0)
+    }
+
+    socket.on("chat_push_back") { data, _ in
+      logger.debug("[TaxiChatService] <<< chat_push_back")
+      guard let dataDict = data.first as? [String: Any],
+            let chatArray = dataDict["chats"] as? [[String: Any]] else {
+        return
+      }
+
+      let chats: [TaxiChat] = self.handleChats(chatArray)
+      self.chats.append(contentsOf: chats)
+    }
+
+    socket.onAny { event in
+      print("📡 Socket Event - \(event.event):", event.items ?? [])
     }
   }
 

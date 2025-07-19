@@ -61,4 +61,12 @@ class TaxiChatViewModel {
     
     await taxiChatUseCase.fetchChats(before: date)
   }
+
+  func sendChat(_ message: String, type: TaxiChat.ChatType) {
+    if type == .text && message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return }
+    
+    Task {
+      await taxiChatUseCase.sendChat(message, type: type)
+    }
+  }
 }

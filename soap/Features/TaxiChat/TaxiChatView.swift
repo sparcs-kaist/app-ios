@@ -109,12 +109,15 @@ struct TaxiChatView: View {
           .padding(.leading, 4)
           .focused($isFocused)
 
-        Button("Send", systemImage: "arrow.up") { }
-          .labelStyle(.iconOnly)
-          .fontWeight(.semibold)
-          .buttonStyle(.borderedProminent)
-          .opacity(text.isEmpty ? 0 : 1)
-          .disabled(text.isEmpty)
+        Button("Send", systemImage: "arrow.up") {
+          viewModel.sendChat(text, type: .text)
+          text = ""
+        }
+        .labelStyle(.iconOnly)
+        .fontWeight(.semibold)
+        .buttonStyle(.borderedProminent)
+        .opacity(text.isEmpty ? 0 : 1)
+        .disabled(text.isEmpty)
       }
       .padding(8)
       .glassEffect(.regular.interactive())
