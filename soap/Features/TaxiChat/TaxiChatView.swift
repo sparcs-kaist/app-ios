@@ -86,6 +86,7 @@ struct TaxiChatView: View {
     .onChange(of: viewModel.groupedChats) {
       proxy.scrollTo(topChatID, anchor: .top)
     }
+    .contentMargins(.bottom, 20)
   }
 
   private var inputBar: some View {
