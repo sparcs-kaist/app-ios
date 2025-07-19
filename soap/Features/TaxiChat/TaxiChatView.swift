@@ -14,6 +14,7 @@ struct TaxiChatView: View {
   @State private var viewModel: TaxiChatViewModel
 
   @State private var text: String = ""
+  @State private var topChatID: String? = nil
   @State private var isLoadingMore: Bool = false
   @FocusState private var isFocused: Bool
 
@@ -82,6 +83,9 @@ struct TaxiChatView: View {
       .padding(.trailing, 8)
     }
     .defaultScrollAnchor(.bottom)
+    .onChange(of: viewModel.groupedChats) {
+      proxy.scrollTo(topChatID, anchor: .top)
+    }
   }
 
   private var inputBar: some View {
@@ -130,6 +134,7 @@ struct TaxiChatView: View {
 
     // Prevent duplicate fetches
     guard !viewModel.fetchedDateSet.contains(oldestDate) else { return }
+    topChatID = viewModel.groupedChats.first?.id
 
     viewModel.fetchedDateSet.insert(oldestDate)
     isLoadingMore = true
