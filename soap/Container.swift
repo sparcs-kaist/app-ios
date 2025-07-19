@@ -15,6 +15,10 @@ extension Container {
     self { TokenStorage() }.singleton
   }
 
+  private var userStorage: Factory<UserStorageProtocol> {
+    self { UserStorage() }.singleton
+  }
+
   // MARK: - Networking
   private var authPlugin: Factory<AccessTokenPlugin> {
     self {
@@ -51,6 +55,12 @@ extension Container {
     }.singleton
   }
 
+  private var taxiChatService: Factory<TaxiChatServiceProtocol> {
+    self {
+      TaxiChatService(tokenStorage: self.tokenStorage.resolve())
+    }
+  }
+
   // MARK: - Use Cases
   @MainActor
   var authUseCase: Factory<AuthUseCaseProtocol> {
@@ -62,19 +72,23 @@ extension Container {
     }.singleton
   }
 
-  @MainActor
   var userUseCase: Factory<UserUseCaseProtocol> {
     self {
-      @MainActor in UserUseCase(taxiUserRepository: self.taxiUserRepository.resolve())
-    }.singleton
+      UserUseCase(
+        taxiUserRepository: self.taxiUserRepository.resolve(),
+        userStorage: self.userStorage.resolve()
+      )
+    }
   }
 
   @MainActor
-  var taxiChatUseCase: Factory<TaxiChatUseCaseProtocol> {
+  var taxiChatUseCase: ParameterFactory<TaxiRoom, TaxiChatUseCaseProtocol> {
     self {
       @MainActor in TaxiChatUseCase(
-        tokenStorage: self.tokenStorage.resolve(),
-        taxiChatRepository: self.taxiChatRepository.resolve()
+        taxiChatService: self.taxiChatService.resolve(),
+        userUseCase: self.userUseCase.resolve(),
+        taxiChatRepository: self.taxiChatRepository.resolve(),
+        room: $0
       )
     }
   }

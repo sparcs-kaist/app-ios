@@ -13,14 +13,24 @@ import Factory
 @MainActor
 @Observable
 class TaxiPreviewViewModel {
+  // MARK: - Properties
+  var taxiUser: TaxiUser?
+
+  // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
-
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
 
+  //MARK: - Initialiser
+  init() {
+    Task {
+      await fetchTaxiUser()
+    }
+  }
+
   func isJoined(participants: [TaxiParticipant]) -> Bool {
-    return participants.first(where: { $0.id == userUseCase.taxiUser?.oid }) != nil
+    return participants.first(where: { $0.id == taxiUser?.oid }) != nil
   }
 
   func calculateRoute(source: CLLocationCoordinate2D, destination: CLLocationCoordinate2D) async throws -> MKRoute {
@@ -41,5 +51,9 @@ class TaxiPreviewViewModel {
 
   func joinRoom(id: String) async throws {
     let _ = try await taxiRoomRepository.joinRoom(id: id)
+  }
+
+  private func fetchTaxiUser() async {
+    self.taxiUser = await userUseCase.taxiUser
   }
 }

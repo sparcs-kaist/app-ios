@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct TaxiChatGeneralMessage: View {
-  let authorName: String
+  let authorName: String?
   let type: TaxiChat.ChatType
 
   var body: some View {
     Group {
       switch type {
       case .entrance:
-        Text("\(authorName) has joined")
+        Text("\(authorName ?? "unknown") has joined")
       case .exit:
-        Text("\(authorName) has left")
+        Text("\(authorName ?? "unknown") has left")
       default:
         EmptyView()
       }

@@ -7,9 +7,8 @@
 
 import Foundation
 
-@MainActor
-protocol UserUseCaseProtocol {
-  var taxiUser: TaxiUser? { get }
+protocol UserUseCaseProtocol: Sendable {
+  var taxiUser: TaxiUser? { get async }
 
   func fetchUsers() async
   func fetchTaxiUser() async throws

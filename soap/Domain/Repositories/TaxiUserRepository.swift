@@ -6,9 +6,11 @@
 //
 
 import Foundation
+
+@preconcurrency
 import Moya
 
-final class TaxiUserRepository: TaxiUserRepositoryProtocol, @unchecked Sendable {
+final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<TaxiUserTarget>
 
   init(provider: MoyaProvider<TaxiUserTarget>) {

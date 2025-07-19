@@ -10,15 +10,19 @@ import Factory
 
 final class UserUseCase: UserUseCaseProtocol {
   private let taxiUserRepository: TaxiUserRepositoryProtocol
+  private let userStorage: UserStorageProtocol
 
-  var taxiUser: TaxiUser?
-
-  init(taxiUserRepository: TaxiUserRepositoryProtocol) {
+  init(taxiUserRepository: TaxiUserRepositoryProtocol, userStorage: UserStorageProtocol) {
     self.taxiUserRepository = taxiUserRepository
+    self.userStorage = userStorage
     logger.debug("Fetching Users")
     Task {
       await fetchUsers()
     }
+  }
+
+  var taxiUser: TaxiUser? {
+    get async { await userStorage.getTaxiUser() }
   }
 
   func fetchUsers() async {
@@ -32,7 +36,7 @@ final class UserUseCase: UserUseCaseProtocol {
   func fetchTaxiUser() async throws {
     logger.debug("Fetching Taxi User")
     let user = try await taxiUserRepository.fetchUser()
-    taxiUser = user
+    await userStorage.setTaxiUser(user)
     logger.debug(user)
   }
 }

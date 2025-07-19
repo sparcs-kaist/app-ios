@@ -11,17 +11,20 @@ import Foundation
 struct TaxiChatView: View {
   let room: TaxiRoom
 
-  @State private var viewModel = TaxiChatViewModel()
+  @State private var viewModel: TaxiChatViewModel
 
   @State private var text: String = ""
-  @State private var hasScrolledToBottom: Bool = false
   @State private var isLoadingMore: Bool = false
-  @State private var fetchedDateSet: Set<Date> = []
   @FocusState private var isFocused: Bool
+
+  init(room: TaxiRoom) {
+    self.room = room
+    _viewModel = State(initialValue: TaxiChatViewModel(room: room))
+  }
 
   var body: some View {
     ScrollViewReader { proxy in
-      chatScrollView(proxy: proxy)
+      contentView(proxy: proxy)
     }
     .navigationTitle(Text(room.title))
     .navigationSubtitle(Text("\(room.source.title.localized()) → \(room.destination.title.localized())"))
@@ -29,82 +32,50 @@ struct TaxiChatView: View {
     .toolbar { toolbarContent }
     .safeAreaBar(edge: .bottom) { inputBar }
     .toolbar(.hidden, for: .tabBar)
-    .onAppear {
-      viewModel.connect(to: room)
-      hasScrolledToBottom = false
-    }
   }
 
-  private func chatScrollView(proxy: ScrollViewProxy) -> some View {
+  private func contentView(proxy: ScrollViewProxy) -> some View {
     ScrollView {
       LazyVStack(spacing: 16) {
-        // 🔄 Top loading spinner or scroll trigger
-        Group {
-          if isLoadingMore {
-            ProgressView()
-              .progressViewStyle(.circular)
-              .frame(height: 40)
-          } else {
-            Color.clear
-              .frame(height: 1)
-              .onAppear {
-                loadMoreIfNeeded()
-              }
+        Color.clear
+          .frame(height: 1)
+          .onAppear {
+            loadMoreIfNeeded()
           }
-        }
 
-        // 🗓️ First date header (top of chat)
-        if let firstDate = viewModel.groupedChats.first?.chatGroup.first?.time {
+        if let firstDate = viewModel.groupedChats.first?.time {
           TaxiChatDayMessage(date: firstDate)
         }
 
-        // 💬 Message groups
-        ForEach(viewModel.groupedChats.indices, id: \.self) { index in
-          let group = viewModel.groupedChats[index]
-          let isMe = group.isMe
-          let authorName = group.chatGroup.first?.authorName
-          let authorID = group.chatGroup.first?.authorID
-          let authorProfileImageURL = group.chatGroup.first?.authorProfileURL
-          let currentDate = group.chatGroup.first?.time
-
-          // 🗓️ Day separator if day changes
-          if index > 0,
-             let current = currentDate,
-             let previous = viewModel.groupedChats[index - 1].chatGroup.first?.time,
-             !Calendar.current.isDate(current, inSameDayAs: previous) {
-            TaxiChatDayMessage(date: current)
-          }
-
-          if group.chatGroup.first?.type == .entrance || group.chatGroup.first?.type == .exit {
-            TaxiChatGeneralMessage(authorName: authorName ?? "unknown", type: group.chatGroup.first?.type ?? .entrance)
-          } else {
-            TaxiChatUserWrapper(
-              authorID: authorID,
-              authorName: authorName,
-              authorProfileImageURL: authorProfileImageURL,
-              date: currentDate,
-              isMe: isMe
-            ) {
-              ForEach(group.chatGroup.indices, id: \.self) { i in
-                let message = group.chatGroup[i]
-                let type = message.type
-                switch type {
-                case .text:
-                  TaxiChatBubble(
-                    content: message.content,
-                    showTip: i == group.chatGroup.count - 1,
-                    isMe: isMe
-                  )
-                case .departure:
-                  TaxiDepartureBubble(room: room)
-                case .arrival:
-                  TaxiArrivalBubble()
-                default:
-                  Text(type.rawValue)
-                }
+        ForEach(viewModel.groupedChats) { groupedChat in
+          TaxiChatUserWrapper(
+            authorID: groupedChat.authorID,
+            authorName: groupedChat.authorName,
+            authorProfileImageURL: groupedChat.authorProfileURL,
+            date: groupedChat.time,
+            isMe: groupedChat.isMe,
+            isGeneral: groupedChat.isGeneral
+          ) {
+            ForEach(groupedChat.chats) { chat in
+              switch chat.type {
+              case .entrance, .exit:
+                TaxiChatGeneralMessage(authorName: chat.authorName, type: chat.type)
+              case .text:
+                TaxiChatBubble(
+                  content: chat.content,
+                  showTip: groupedChat.lastChatID == chat.id,
+                  isMe: groupedChat.isMe
+                )
+              case .departure:
+                TaxiDepartureBubble(room: room)
+              case .arrival:
+                TaxiArrivalBubble()
+              default:
+                Text(chat.type.rawValue)
               }
             }
           }
+          .id(groupedChat.id)
         }
       }
       .padding(.leading)
@@ -129,7 +100,7 @@ struct TaxiChatView: View {
       .glassEffect(.regular.interactive(), in: .circle)
 
       HStack {
-        TextField("Chat as \(viewModel.nickname ?? "unknown")", text: $text)
+        TextField("Chat as \(viewModel.taxiUser?.nickname ?? "unknown")", text: $text)
           .padding(.leading, 4)
           .focused($isFocused)
 
@@ -155,12 +126,12 @@ struct TaxiChatView: View {
 
   private func loadMoreIfNeeded() {
     guard !isLoadingMore,
-          let oldestDate = viewModel.groupedChats.first?.chatGroup.first?.time else { return }
+          let oldestDate = viewModel.groupedChats.first?.chats.first?.time else { return }
 
-    // ❌ Prevent duplicate fetches
-    guard !fetchedDateSet.contains(oldestDate) else { return }
+    // Prevent duplicate fetches
+    guard !viewModel.fetchedDateSet.contains(oldestDate) else { return }
 
-    fetchedDateSet.insert(oldestDate)
+    viewModel.fetchedDateSet.insert(oldestDate)
     isLoadingMore = true
 
     Task {

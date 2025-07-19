@@ -14,59 +14,64 @@ struct TaxiChatUserWrapper<Content: View>: View {
   let authorProfileImageURL: URL?
   let date: Date?
   let isMe: Bool
+  let isGeneral: Bool
   @ViewBuilder let content: () -> Content
 
   var body: some View {
-    HStack(alignment: .bottom, spacing: 8) {
-      // profile picture
-      if !isMe {
-        if authorID == nil {
-          botProfileImage
-        } else {
-          userProfileImage
-        }
-      } else {
-        // spacer for me
-        Spacer(minLength: 60)
-      }
-
-      VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
-        // nickname label
+    if isGeneral {
+      content()
+    } else {
+      HStack(alignment: .bottom, spacing: 8) {
+        // profile picture
         if !isMe {
-          authorNameplace
-            .font(.caption)
-            .fontWeight(.medium)
+          if authorID == nil {
+            botProfileImage
+          } else {
+            userProfileImage
+          }
+        } else {
+          // spacer for me
+          Spacer(minLength: 60)
         }
 
-        HStack(alignment: .bottom, spacing: 4) {
-          // time label for me
-          if isMe {
-            if let date = date {
-              Text(date.formattedTime)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            }
-          }
-
-          // chat bubbles
-          VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
-            content()
-          }
-
-          // time label for other users
+        VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
+          // nickname label
           if !isMe {
-            if let date = date {
-              Text(date.formattedTime)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            authorNameplace
+              .font(.caption)
+              .fontWeight(.medium)
+          }
+
+          HStack(alignment: .bottom, spacing: 4) {
+            // time label for me
+            if isMe {
+              if let date = date {
+                Text(date.formattedTime)
+                  .font(.caption2)
+                  .foregroundStyle(.secondary)
+              }
+            }
+
+            // chat bubbles
+            VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
+              content()
+            }
+
+            // time label for other users
+            if !isMe {
+              if let date = date {
+                Text(date.formattedTime)
+                  .font(.caption2)
+                  .foregroundStyle(.secondary)
+              }
             }
           }
         }
-      }
 
-      // spacer for other users
-      if !isMe {
-        Spacer(minLength: 60)
+        // spacer for other users
+        if !isMe {
+          Spacer(minLength: 60)
+        }
       }
     }
   }
@@ -125,7 +130,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorName: "alex",
       authorProfileImageURL: nil,
       date: Date(),
-      isMe: false
+      isMe: false,
+      isGeneral: false
     ) {
       TaxiChatBubble(content: "hey", showTip: true, isMe: false)
     }
@@ -135,7 +141,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorName: "jordan",
       authorProfileImageURL: nil,
       date: Date(),
-      isMe: true
+      isMe: true,
+      isGeneral: false
     ) {
       TaxiChatBubble(content: "hey alex!", showTip: true, isMe: true)
     }
@@ -145,7 +152,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorName: "sam",
       authorProfileImageURL: nil,
       date: Date(),
-      isMe: false
+      isMe: false,
+      isGeneral: false
     ) {
       TaxiChatBubble(content: "yo everyone", showTip: false, isMe: false)
       TaxiChatBubble(content: "what's up", showTip: true, isMe: false)
@@ -156,7 +164,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorName: "alex",
       authorProfileImageURL: nil,
       date: Date(),
-      isMe: false
+      isMe: false,
+      isGeneral: false
     ) {
       TaxiChatBubble(content: "how's your day going?", showTip: true, isMe: false)
     }
@@ -166,7 +175,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorName: "sam",
       authorProfileImageURL: nil,
       date: Date(),
-      isMe: false
+      isMe: false,
+      isGeneral: false
     ) {
       TaxiChatBubble(content: "pretty chill", showTip: false, isMe: false)
       TaxiChatBubble(content: "so far", showTip: false, isMe: false)
@@ -178,7 +188,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorName: "jordan",
       authorProfileImageURL: nil,
       date: Date(),
-      isMe: true
+      isMe: true,
+      isGeneral: false
     ) {
       TaxiChatBubble(content: "same here", showTip: false, isMe: true)
       TaxiChatBubble(content: "just working through emails", showTip: true, isMe: true)

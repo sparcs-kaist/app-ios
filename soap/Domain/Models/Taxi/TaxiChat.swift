@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TaxiChat: Equatable {
+struct TaxiChat: Identifiable, Equatable, Hashable, Sendable {
   enum ChatType: String {
     // User sent type
     case text               // normal message
@@ -28,6 +28,7 @@ struct TaxiChat: Equatable {
     case unknown
   }
 
+  let id = UUID()
   let roomID: String
   let type: ChatType
   let authorID: String?
