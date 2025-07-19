@@ -107,6 +107,9 @@ struct TaxiChatListView: View {
 
       ForEach(done) { room in
         TaxiRoomCell(room: room)
+          .onTapGesture {
+            selectedRoom = room
+          }
       }
     }
   }
