@@ -80,8 +80,7 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
           guard let self = self else { return }
 
           let user: TaxiUser? = await self.userUseCase.taxiUser
-
-          let groupedChats = self.groupChats(chats, currentUserID: user?.id ?? "")
+          let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
           self.groupedChats = groupedChats
         }
       }
