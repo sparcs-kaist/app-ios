@@ -9,11 +9,6 @@ import Foundation
 import Combine
 import SocketIO
 
-protocol TaxiChatServiceProtocol {
-  var chatsPublisher: AnyPublisher<[TaxiChat], Never> { get }
-  var isConnectedPublisher: AnyPublisher<Bool, Never> { get }
-}
-
 final class TaxiChatService: TaxiChatServiceProtocol {
   // MARK: - Publisher
   private var chatsSubject = CurrentValueSubject<[TaxiChat], Never>([])

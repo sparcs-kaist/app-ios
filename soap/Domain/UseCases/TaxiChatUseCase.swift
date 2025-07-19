@@ -9,13 +9,6 @@ import Foundation
 import Combine
 import SocketIO
 
-@MainActor
-protocol TaxiChatUseCaseProtocol {
-  var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
-
-  func fetchChats(before date: Date) async
-}
-
 final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Publishers
   private var groupedChatsSubject = CurrentValueSubject<[TaxiChatGroup], Never>([])
