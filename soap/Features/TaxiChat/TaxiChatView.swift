@@ -58,24 +58,43 @@ struct TaxiChatView: View {
             isGeneral: groupedChat.isGeneral
           ) {
             ForEach(groupedChat.chats) { chat in
-              switch chat.type {
-              case .entrance, .exit:
-                TaxiChatGeneralMessage(authorName: chat.authorName, type: chat.type)
-              case .text:
-                TaxiChatBubble(
-                  content: chat.content,
-                  showTip: groupedChat.lastChatID == chat.id,
-                  isMe: groupedChat.isMe
-                )
-                .environment(\.chatTime, groupedChat.time)
-              case .departure:
-                TaxiDepartureBubble(room: room)
-              case .arrival:
-                TaxiArrivalBubble()
-              case .settlement:
-                TaxiChatSettlementBubble()
-              default:
-                Text(chat.type.rawValue)
+              HStack(alignment: .bottom, spacing: 4) {
+                let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
+
+                // time label for this sender
+                if showTimeLabel && groupedChat.isMe {
+                  Text(groupedChat.time.formattedTime)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                }
+
+                Group {
+                  switch chat.type {
+                  case .entrance, .exit:
+                    TaxiChatGeneralMessage(authorName: chat.authorName, type: chat.type)
+                  case .text:
+                    TaxiChatBubble(
+                      content: chat.content,
+                      showTip: groupedChat.lastChatID == chat.id,
+                      isMe: groupedChat.isMe
+                    )
+                  case .departure:
+                    TaxiDepartureBubble(room: room)
+                  case .arrival:
+                    TaxiArrivalBubble()
+                  case .settlement:
+                    TaxiChatSettlementBubble()
+                  default:
+                    Text(chat.type.rawValue)
+                  }
+                }
+
+                // time label for other senders
+                if showTimeLabel && !groupedChat.isMe {
+                  Text(groupedChat.time.formattedTime)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                }
               }
             }
           }
