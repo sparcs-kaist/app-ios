@@ -78,4 +78,8 @@ class TaxiChatViewModel {
       }
     }
   }
+
+  var isCommitSettlementAvailable: Bool {
+    return room.isDeparted && !(room.isOver ?? false)
+  }
 }

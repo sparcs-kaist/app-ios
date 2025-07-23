@@ -118,6 +118,8 @@ struct TaxiChatView: View {
         Button("Request Settlement", systemImage: "square.and.pencil") {
           viewModel.commitSettlement()
         }
+        .disabled(!viewModel.isCommitSettlementAvailable)
+
         Button("Photo Library", systemImage: "photo.on.rectangle") { }
       } label: {
         Label("More", systemImage: "plus")
