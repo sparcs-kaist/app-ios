@@ -15,6 +15,7 @@ enum TaxiRoomTarget {
   case createRoom(with: TaxiCreateRoomRequestDTO)
   case joinRoom(roomID: String)
   case commitSettlement(roomID: String)
+  case commitPayment(roomID: String)
 }
 
 extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
@@ -36,6 +37,8 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       "/rooms/join"
     case .commitSettlement:
       "/rooms/commitSettlement"
+    case .commitPayment:
+      "/rooms/commitPayment"
     }
   }
 
@@ -43,7 +46,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchRooms, .fetchMyRooms, .fetchLocations:
       .get
-    case .createRoom, .joinRoom, .commitSettlement:
+    case .createRoom, .joinRoom, .commitSettlement, .commitPayment:
       .post
     }
   }
@@ -57,6 +60,8 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
     case .joinRoom(let roomID):
         .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .commitSettlement(let roomID):
+        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+    case .commitPayment(let roomID):
         .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     }
   }
