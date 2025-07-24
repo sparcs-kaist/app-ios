@@ -128,7 +128,7 @@ struct TaxiChatView: View {
           .fontWeight(.semibold)
           .contentShape(.circle)
       }
-      .glassEffect(.regular.interactive(), in: .circle)
+      .glassEffect(.clear.interactive(), in: .circle)
 
       HStack {
         TextField("Chat as \(viewModel.taxiUser?.nickname ?? "unknown")", text: $text)
@@ -146,7 +146,7 @@ struct TaxiChatView: View {
         .disabled(text.isEmpty)
       }
       .padding(8)
-      .glassEffect(.regular.interactive())
+      .glassEffect(.clear.interactive())
     }
     .padding(isFocused ? [.horizontal, .vertical] : [.horizontal])
   }
