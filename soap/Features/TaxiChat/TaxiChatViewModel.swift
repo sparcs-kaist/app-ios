@@ -80,7 +80,8 @@ class TaxiChatViewModel {
   }
 
   var isCommitSettlementAvailable: Bool {
-    return room.isDeparted && !(room.isOver ?? false)
+    return room.isDeparted && room.settlementTotal == 0
+  }
 
   func commitPayment() {
     Task {
