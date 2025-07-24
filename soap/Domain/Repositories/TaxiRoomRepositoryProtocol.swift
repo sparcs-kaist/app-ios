@@ -14,4 +14,5 @@ protocol TaxiRoomRepositoryProtocol: Sendable {
   func createRoom(with: TaxiCreateRoom) async throws -> TaxiRoom
   func joinRoom(id: String) async throws -> TaxiRoom
   func commitSettlement(id: String) async throws -> TaxiRoom
+  func commitPayment(id: String) async throws -> TaxiRoom
 }

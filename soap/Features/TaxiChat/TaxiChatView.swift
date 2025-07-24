@@ -114,7 +114,10 @@ struct TaxiChatView: View {
   private var inputBar: some View {
     HStack {
       Menu {
-        Button("Send Payment", systemImage: "wonsign.circle") { }
+        Button("Send Payment", systemImage: "wonsign.circle") {
+          viewModel.commitPayment()
+        }
+        .disabled(!viewModel.isCommitPaymentAvailable)
         Button("Request Settlement", systemImage: "square.and.pencil") {
           viewModel.commitSettlement()
         }

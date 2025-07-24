@@ -81,5 +81,23 @@ class TaxiChatViewModel {
 
   var isCommitSettlementAvailable: Bool {
     return room.isDeparted && !(room.isOver ?? false)
+
+  func commitPayment() {
+    Task {
+      do {
+        let room: TaxiRoom = try await taxiRoomRepository.commitPayment(id: room.id)
+        self.room = room
+      } catch {
+        logger.debug(error)
+      }
+    }
+  }
+
+  var isCommitPaymentAvailable: Bool {
+    let me: TaxiParticipant? = room.participants.first(where: { $0.id == taxiUser?.oid})
+
+    return room.isDeparted && room.settlementTotal != 0 && (
+      me?.isSettlement == .paymentRequired
+    )
   }
 }
