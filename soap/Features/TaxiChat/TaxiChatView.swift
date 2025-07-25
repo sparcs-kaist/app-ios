@@ -84,6 +84,8 @@ struct TaxiChatView: View {
                     TaxiArrivalBubble()
                   case .settlement:
                     TaxiChatSettlementBubble()
+                  case .payment:
+                    TaxiChatPaymentBubble()
                   default:
                     Text(chat.type.rawValue)
                   }
