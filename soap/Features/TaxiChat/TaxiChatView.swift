@@ -9,8 +9,6 @@ import SwiftUI
 import Foundation
 
 struct TaxiChatView: View {
-  let room: TaxiRoom
-
   @State private var viewModel: TaxiChatViewModel
 
   @State private var text: String = ""
@@ -19,7 +17,6 @@ struct TaxiChatView: View {
   @FocusState private var isFocused: Bool
 
   init(room: TaxiRoom) {
-    self.room = room
     _viewModel = State(initialValue: TaxiChatViewModel(room: room))
   }
 
@@ -27,8 +24,8 @@ struct TaxiChatView: View {
     ScrollViewReader { proxy in
       contentView(proxy: proxy)
     }
-    .navigationTitle(Text(room.title))
-    .navigationSubtitle(Text("\(room.source.title.localized()) → \(room.destination.title.localized())"))
+    .navigationTitle(Text(viewModel.room.title))
+    .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
     .navigationBarTitleDisplayMode(.inline)
     .toolbar { toolbarContent }
     .safeAreaBar(edge: .bottom) { inputBar }
@@ -79,7 +76,7 @@ struct TaxiChatView: View {
                       isMe: groupedChat.isMe
                     )
                   case .departure:
-                    TaxiDepartureBubble(room: room)
+                    TaxiDepartureBubble(room: viewModel.room)
                   case .arrival:
                     TaxiArrivalBubble()
                   case .settlement:
@@ -159,7 +156,27 @@ struct TaxiChatView: View {
   @ToolbarContentBuilder
   private var toolbarContent: some ToolbarContent {
     ToolbarItem(placement: .topBarTrailing) {
-      Menu("More", systemImage: "ellipsis") { }
+      Menu("More", systemImage: "ellipsis") {
+        ControlGroup {
+          Button("Share", systemImage: "square.and.arrow.up") { }
+          Button("Call Taxi", systemImage: "car.fill") { }
+          Button("Report", systemImage: "exclamationmark.triangle.fill") { }
+        }
+
+        Divider()
+
+        Text(viewModel.room.departAt.formattedString)
+
+        Menu("Participants", systemImage: "person.3") {
+          ForEach(viewModel.room.participants) { participant in
+            Text(participant.nickname)
+          }
+        }
+
+        Divider()
+
+        Button("Leave", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) { }
+      }
     }
   }
 

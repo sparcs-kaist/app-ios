@@ -18,7 +18,7 @@ class TaxiChatViewModel {
   var taxiUser: TaxiUser?
   var fetchedDateSet: Set<Date> = []
 
-  private var room: TaxiRoom
+  var room: TaxiRoom
   private var cancellables = Set<AnyCancellable>()
   private var isFetching: Bool = false
 
