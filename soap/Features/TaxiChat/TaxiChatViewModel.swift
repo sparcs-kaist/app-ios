@@ -68,6 +68,10 @@ class TaxiChatViewModel {
     }
   }
 
+  func leaveRoom() async throws {
+    let _ = try await taxiRoomRepository.leaveRoom(id: room.id)
+  }
+
   func commitSettlement() {
     Task {
       do {

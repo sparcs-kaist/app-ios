@@ -11,9 +11,17 @@ import Foundation
 struct TaxiChatView: View {
   @State private var viewModel: TaxiChatViewModel
 
+  @Environment(\.openURL) private var openURL
+  @Environment(\.dismiss) private var dismiss
+
   @State private var text: String = ""
   @State private var topChatID: String? = nil
   @State private var isLoadingMore: Bool = false
+
+  @State private var showCallTaxiAlert: Bool = false
+  @State private var showErrorAlert: Bool = false
+  @State private var errorMessage: String = ""
+
   @FocusState private var isFocused: Bool
 
   init(room: TaxiRoom) {
@@ -30,6 +38,29 @@ struct TaxiChatView: View {
     .toolbar { toolbarContent }
     .safeAreaBar(edge: .bottom) { inputBar }
     .toolbar(.hidden, for: .tabBar)
+    .alert(
+      "Call Taxi",
+      isPresented: $showCallTaxiAlert,
+      actions: {
+        Button("Open Kakao T", role: .confirm) {
+          openKakaoT()
+        }
+        Button("Open Uber", role: .confirm) {
+          openUber()
+        }
+        Button("Cancel", role: .cancel) { }
+      },
+      message: {
+        Text(
+          "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from \(viewModel.room.source.title.localized()) to \(viewModel.room.destination.title.localized())."
+        )
+      }
+    )
+    .alert("Error", isPresented: $showErrorAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(errorMessage)
+    })
   }
 
   private func contentView(proxy: ScrollViewProxy) -> some View {
@@ -159,15 +190,20 @@ struct TaxiChatView: View {
       Menu("More", systemImage: "ellipsis") {
         ControlGroup {
           Button("Share", systemImage: "square.and.arrow.up") { }
-          Button("Call Taxi", systemImage: "car.fill") { }
+          Button("Call Taxi", systemImage: "car.fill") {
+            showCallTaxiAlert = true
+          }
           Button("Report", systemImage: "exclamationmark.triangle.fill") { }
         }
 
         Divider()
 
-        Text(viewModel.room.departAt.formattedString)
+        Label(viewModel.room.departAt.formattedString, systemImage: "calendar.badge.clock")
 
-        Menu("Participants", systemImage: "person.3") {
+        Menu(
+          "Participants \(viewModel.room.participants.count)/\(viewModel.room.capacity)",
+          systemImage: "person.3"
+        ) {
           ForEach(viewModel.room.participants) { participant in
             Text(participant.nickname)
           }
@@ -175,7 +211,17 @@ struct TaxiChatView: View {
 
         Divider()
 
-        Button("Leave", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) { }
+        Button("Leave", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) {
+          Task {
+            do {
+              try await viewModel.leaveRoom()
+              dismiss()
+            } catch {
+              errorMessage = error.localizedDescription
+              showErrorAlert = true
+            }
+          }
+        }
       }
     }
   }
@@ -194,6 +240,22 @@ struct TaxiChatView: View {
     Task {
       await viewModel.fetchChats(before: oldestDate)
       isLoadingMore = false
+    }
+  }
+
+  private func openKakaoT() {
+    if let url = URL(
+      string: "kakaot://taxi/set?dest_lng=\(viewModel.room.destination.longitude)&dest_lat=\(viewModel.room.destination.latitude)&origin_lng=\(viewModel.room.source.longitude)&origin_lat=\(viewModel.room.source.latitude)"
+    ) {
+      openURL(url)
+    }
+  }
+
+  private func openUber() {
+    if let url = URL(
+      string: "uber://?action=setPickup&client_id=a&&pickup[latitude]=\(viewModel.room.source.latitude)&pickup[longitude]=\(viewModel.room.source.longitude)&&dropoff[latitude]=\(viewModel.room.destination.latitude)&dropoff[longitude]=\(viewModel.room.destination.longitude)"
+    ) {
+      openURL(url)
     }
   }
 }

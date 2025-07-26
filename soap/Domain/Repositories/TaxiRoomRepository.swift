@@ -92,6 +92,20 @@ final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, @unchecked Sendable 
     }
   }
 
+  func leaveRoom(id: String) async throws -> TaxiRoom {
+    do {
+      let response = try await provider.request(.leaveRoom(roomID: id))
+      let result = try response.map(TaxiRoomDTO.self).toModel()
+
+      return result
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
+    }
+  }
+
   func commitSettlement(id: String) async throws -> TaxiRoom {
     do {
       let response = try await provider.request(.commitSettlement(roomID: id))
