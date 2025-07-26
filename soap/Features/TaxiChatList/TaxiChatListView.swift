@@ -90,6 +90,7 @@ struct TaxiChatListView: View {
 
       ForEach(onGoing) { room in
         TaxiRoomCell(room: room)
+          .environment(\.taxiUser, viewModel.taxiUser)
           .onTapGesture {
             selectedRoom = room
           }
@@ -107,6 +108,7 @@ struct TaxiChatListView: View {
 
       ForEach(done) { room in
         TaxiRoomCell(room: room)
+          .environment(\.taxiUser, viewModel.taxiUser)
           .onTapGesture {
             selectedRoom = room
           }

@@ -6,23 +6,35 @@
 //
 
 import SwiftUI
+import Factory
 
 struct TaxiRoomCell: View {
   let room: TaxiRoom
 
+  @Environment(\.taxiUser) private var taxiUser: TaxiUser?
+
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      HStack(alignment: .top) {
-        VStack(alignment: .leading, spacing: 4) {
+      VStack(alignment: .leading, spacing: 4) {
+        HStack(alignment: .top) {
           Label(room.source.title.localized(), systemImage: "location.fill")
-          Label(room.destination.title.localized(), systemImage: "flag.pattern.checkered")
+
+          Spacer()
+
+          if room.isDeparted,
+             let taxiUser = taxiUser {
+            TaxiRoomStatusIndicator(
+              settlementType: room.participants.first(where: { $0.id == taxiUser.oid })?.isSettlement ?? .notDeparted,
+              settlementCount: room.settlementTotal ?? 0,
+              participantsCount: room.participants.count
+            )
+          } else {
+            TaxiParticipantsIndicator(participants: room.participants.count, capacity: room.capacity)
+          }
         }
-        .fontWeight(.medium)
-
-        Spacer()
-
-        TaxiParticipantsIndicator(participants: room.participants.count, capacity: room.capacity)
+        Label(room.destination.title.localized(), systemImage: "flag.pattern.checkered")
       }
+      .fontWeight(.medium)
 
       HStack {
         Text(room.departAt.relativeTimeString)

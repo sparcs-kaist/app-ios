@@ -11,6 +11,7 @@ import Foundation
 protocol TaxiChatListViewModelProtocol: Observable {
   // MARK: - ViewModel Properties
   var state: TaxiChatListViewModel.ViewState { get }
+  var taxiUser: TaxiUser? { get }
 
   // MARK: - Functions
   func fetchData() async
