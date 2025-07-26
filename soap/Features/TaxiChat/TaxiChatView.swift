@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import PhotosUI
 
 struct TaxiChatView: View {
   @State private var viewModel: TaxiChatViewModelProtocol
@@ -21,6 +22,9 @@ struct TaxiChatView: View {
   @State private var showCallTaxiAlert: Bool = false
   @State private var showErrorAlert: Bool = false
   @State private var errorMessage: String = ""
+
+  @State private var showPhotosPicker: Bool = false
+  @State private var selectedPhoto: PhotosPickerItem?
 
   @FocusState private var isFocused: Bool
 
@@ -52,6 +56,12 @@ struct TaxiChatView: View {
     .toolbar { toolbarContent }
     .safeAreaBar(edge: .bottom) { inputBar }
     .toolbar(.hidden, for: .tabBar)
+    .photosPicker(
+      isPresented: $showPhotosPicker,
+      selection: $selectedPhoto,
+      matching: .images,
+      photoLibrary: .shared()
+    )
     .alert(
       "Call Taxi",
       isPresented: $showCallTaxiAlert,
@@ -168,7 +178,9 @@ struct TaxiChatView: View {
         }
         .disabled(!viewModel.isCommitSettlementAvailable)
 
-        Button("Photo Library", systemImage: "photo.on.rectangle") { }
+        Button("Photo Library", systemImage: "photo.on.rectangle") {
+          showPhotosPicker = true
+        }
       } label: {
         Label("More", systemImage: "plus")
           .labelStyle(.iconOnly)
