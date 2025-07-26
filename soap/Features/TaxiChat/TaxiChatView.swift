@@ -9,7 +9,7 @@ import SwiftUI
 import Foundation
 
 struct TaxiChatView: View {
-  @State private var viewModel: TaxiChatViewModel
+  @State private var viewModel: TaxiChatViewModelProtocol
 
   @Environment(\.openURL) private var openURL
   @Environment(\.dismiss) private var dismiss
@@ -27,10 +27,24 @@ struct TaxiChatView: View {
   init(room: TaxiRoom) {
     _viewModel = State(initialValue: TaxiChatViewModel(room: room))
   }
+  
+  init(viewModel: TaxiChatViewModelProtocol) {
+    _viewModel = State(initialValue: viewModel)
+  }
 
   var body: some View {
     ScrollViewReader { proxy in
-      contentView(proxy: proxy)
+      Group {
+        switch viewModel.state {
+        case .loading:
+          loadingView
+        case .loaded:
+          contentView(proxy: proxy)
+        case .error(let message):
+          errorView(errorMessage: message)
+        }
+      }
+      .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
     .navigationTitle(Text(viewModel.room.title))
     .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
@@ -259,10 +273,122 @@ struct TaxiChatView: View {
       openURL(url)
     }
   }
+  
+  @ViewBuilder
+  private var loadingView: some View {
+    ScrollView {
+      LazyVStack(spacing: 16) {
+        Color.clear
+          .frame(height: 1)
+
+        if let firstDate = TaxiChatGroup.mockList.first?.time {
+          TaxiChatDayMessage(date: firstDate)
+        }
+
+        ForEach(TaxiChatGroup.mockList.prefix(6)) { groupedChat in
+          TaxiChatUserWrapper(
+            authorID: groupedChat.authorID,
+            authorName: groupedChat.authorName,
+            authorProfileImageURL: groupedChat.authorProfileURL,
+            date: groupedChat.time,
+            isMe: false,
+            isGeneral: groupedChat.isGeneral
+          ) {
+            ForEach(groupedChat.chats) { chat in
+              HStack(alignment: .bottom, spacing: 4) {
+                let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
+                Group {
+                  switch chat.type {
+                  case .entrance, .exit:
+                    TaxiChatGeneralMessage(authorName: chat.authorName, type: chat.type)
+                  case .text:
+                    TaxiChatBubble(
+                      content: chat.content,
+                      showTip: groupedChat.lastChatID == chat.id,
+                      isMe: false
+                    )
+                  case .departure:
+                    TaxiDepartureBubble(room: TaxiRoom.mock)
+                  case .arrival:
+                    TaxiArrivalBubble()
+                  case .settlement:
+                    TaxiChatSettlementBubble()
+                  case .payment:
+                    TaxiChatPaymentBubble()
+                  default:
+                    Text(chat.type.rawValue)
+                  }
+                }
+
+                if showTimeLabel {
+                  Text(groupedChat.time.formattedTime)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                }
+              }
+            }
+          }
+        }
+      }
+      .padding(.leading)
+      .padding(.trailing, 8)
+    }
+    .defaultScrollAnchor(.bottom)
+    .contentMargins(.bottom, 20)
+    .redacted(reason: .placeholder)
+    .disabled(true)
+  }
+  
+  private func errorView(errorMessage: String) -> some View {
+    ContentUnavailableView(
+      label: {
+        Label("Error", systemImage: "exclamationmark.triangle.fill")
+      },
+      description: {
+        Text(errorMessage)
+      },
+      actions: {
+        Button("Try Again") {
+          // In a real implementation, this would retry loading
+        }
+      }
+    )
+  }
 }
 
-#Preview {
-  NavigationStack {
-    TaxiChatView(room: TaxiRoom.mock)
+// MARK: - Previews
+#Preview("Loading State") {
+  let vm = MockTaxiChatViewModel()
+  vm.state = .loading
+  return NavigationStack {
+    TaxiChatView(viewModel: vm)
+  }
+}
+
+#Preview("Loaded State") {
+  let vm = MockTaxiChatViewModel()
+  vm.groupedChats = Array(TaxiChatGroup.mockList)
+  vm.state = .loaded(groupedChats: vm.groupedChats)
+  vm.taxiUser = TaxiUser.mock
+  return NavigationStack {
+    TaxiChatView(viewModel: vm)
+  }
+}
+
+#Preview("Error State") {
+  let vm = MockTaxiChatViewModel()
+  vm.state = .error(message: "Failed to load chats.")
+  return NavigationStack {
+    TaxiChatView(viewModel: vm)
+  }
+}
+
+#Preview("Empty Chat") {
+  let vm = MockTaxiChatViewModel()
+  vm.groupedChats = []
+  vm.state = .loaded(groupedChats: [])
+  vm.taxiUser = TaxiUser.mock
+  return NavigationStack {
+    TaxiChatView(viewModel: vm)
   }
 }

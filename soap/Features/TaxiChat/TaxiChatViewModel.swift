@@ -12,8 +12,14 @@ import Combine
 
 @MainActor
 @Observable
-class TaxiChatViewModel {
+class TaxiChatViewModel: TaxiChatViewModelProtocol {
+  enum ViewState {
+    case loading
+    case loaded(groupedChats: [TaxiChatGroup])
+    case error(message: String)
+  }
   // MARK: - Properties
+  var state: ViewState = .loading
   var groupedChats: [TaxiChatGroup] = []
   var taxiUser: TaxiUser?
   var fetchedDateSet: Set<Date> = []
@@ -48,6 +54,9 @@ class TaxiChatViewModel {
       .sink { [weak self] groupedChats in
         guard let self = self else { return }
         self.groupedChats = groupedChats
+        withAnimation(.spring) {
+          self.state = .loaded(groupedChats: groupedChats)
+        }
       }
       .store(in: &cancellables)
   }
