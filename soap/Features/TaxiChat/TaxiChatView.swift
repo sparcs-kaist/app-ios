@@ -152,6 +152,7 @@ struct TaxiChatView: View {
     .onChange(of: viewModel.groupedChats) {
       proxy.scrollTo(topChatID, anchor: .top)
     }
+    .scrollDismissesKeyboard(.interactively)
     .contentMargins(.bottom, 20)
   }
 
