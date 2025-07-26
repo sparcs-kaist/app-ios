@@ -222,6 +222,7 @@ struct TaxiChatView: View {
             }
           }
         }
+        .disabled(!viewModel.isLeaveRoomAvailable)
       }
     }
   }

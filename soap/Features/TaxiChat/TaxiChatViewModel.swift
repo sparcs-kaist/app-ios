@@ -72,6 +72,10 @@ class TaxiChatViewModel {
     let _ = try await taxiRoomRepository.leaveRoom(id: room.id)
   }
 
+  var isLeaveRoomAvailable: Bool {
+    return !room.isDeparted
+  }
+
   func commitSettlement() {
     Task {
       do {
