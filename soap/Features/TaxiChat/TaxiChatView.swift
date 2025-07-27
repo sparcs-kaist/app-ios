@@ -24,7 +24,8 @@ struct TaxiChatView: View {
   @State private var errorMessage: String = ""
 
   @State private var showPhotosPicker: Bool = false
-  @State private var selectedPhoto: PhotosPickerItem?
+  @State private var selectedItem: PhotosPickerItem?
+  @State private var selectedImage: UIImage?
 
   @FocusState private var isFocused: Bool
 
@@ -58,10 +59,11 @@ struct TaxiChatView: View {
     .toolbar(.hidden, for: .tabBar)
     .photosPicker(
       isPresented: $showPhotosPicker,
-      selection: $selectedPhoto,
+      selection: $selectedItem,
       matching: .images,
       photoLibrary: .shared()
     )
+    .onChange(of: selectedItem, loadImage)
     .alert(
       "Call Taxi",
       isPresented: $showCallTaxiAlert,
@@ -167,7 +169,7 @@ struct TaxiChatView: View {
   }
 
   private var inputBar: some View {
-    HStack {
+    HStack(alignment: .bottom) {
       Menu {
         Button("Send Payment", systemImage: "wonsign.circle") {
           viewModel.commitPayment()
@@ -184,16 +186,38 @@ struct TaxiChatView: View {
       } label: {
         Label("More", systemImage: "plus")
           .labelStyle(.iconOnly)
-          .padding()
           .fontWeight(.semibold)
+          .frame(width: 48, height: 48)
           .contentShape(.circle)
       }
       .glassEffect(.clear.interactive(), in: .circle)
 
-      HStack {
-        TextField("Chat as \(viewModel.taxiUser?.nickname ?? "unknown")", text: $text)
-          .padding(.leading, 4)
-          .focused($isFocused)
+      HStack(alignment: .bottom) {
+        if let image = selectedImage {
+          Image(uiImage: image)
+            .resizable()
+            .scaledToFit()
+            .frame(maxHeight: 200)
+            .clipShape(.containerRelative)
+            .overlay(alignment: .topTrailing) {
+              Button("Remove", systemImage: "xmark") {
+                selectedItem = nil
+                selectedImage = nil
+              }
+              .labelStyle(.iconOnly)
+              .padding(4)
+              .font(.caption2)
+              .glassEffect(.clear.interactive(), in: .circle)
+              .padding(8)
+            }
+
+          Spacer()
+        } else {
+          TextField("Chat as \(viewModel.taxiUser?.nickname ?? "unknown")", text: $text)
+            .padding(.leading, 4)
+            .frame(height: 32)
+            .focused($isFocused)
+        }
 
         Button("Send", systemImage: "arrow.up") {
           viewModel.sendChat(text, type: .text)
@@ -202,11 +226,14 @@ struct TaxiChatView: View {
         .labelStyle(.iconOnly)
         .fontWeight(.semibold)
         .buttonStyle(.borderedProminent)
-        .opacity(text.isEmpty ? 0 : 1)
-        .disabled(text.isEmpty)
+        .frame(height: 32)
+        .opacity((text.isEmpty && selectedImage == nil) ? 0 : 1)
+        .disabled((text.isEmpty && selectedImage == nil))
       }
       .padding(8)
-      .glassEffect(.clear.interactive())
+      .frame(maxWidth: .infinity)
+//      .frame(height: 48)
+      .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24))
     }
     .padding(isFocused ? [.horizontal, .vertical] : [.horizontal])
   }
@@ -286,7 +313,16 @@ struct TaxiChatView: View {
       openURL(url)
     }
   }
-  
+
+  private func loadImage() {
+    Task {
+      guard let imageData = try await selectedItem?.loadTransferable(type: Data.self) else { return }
+      guard let image = UIImage(data: imageData) else { return }
+
+      self.selectedImage = image
+    }
+  }
+
   @ViewBuilder
   private var loadingView: some View {
     ScrollView {
@@ -362,7 +398,7 @@ struct TaxiChatView: View {
       },
       actions: {
         Button("Try Again") {
-          // In a real implementation, this would retry loading
+          // TODO: try again
         }
       }
     )

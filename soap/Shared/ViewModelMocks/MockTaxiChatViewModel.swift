@@ -16,7 +16,7 @@ class MockTaxiChatViewModel: TaxiChatViewModelProtocol {
   var taxiUser: TaxiUser?
   var fetchedDateSet: Set<Date> = []
   var room: TaxiRoom = TaxiRoom.mock
-  
+
   // MARK: - Computed Properties
   var isLeaveRoomAvailable: Bool = true
   var isCommitSettlementAvailable: Bool = false
