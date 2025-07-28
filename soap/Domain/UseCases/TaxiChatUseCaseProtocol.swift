@@ -13,6 +13,7 @@ import UIKit
 protocol TaxiChatUseCaseProtocol {
   var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
 
+  func fetchInitialChats() async
   func fetchChats(before date: Date) async
   func sendChat(_ content: String?, type: TaxiChat.ChatType) async
   func sendImage(_ content: UIImage) async throws

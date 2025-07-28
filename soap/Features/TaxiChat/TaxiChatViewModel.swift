@@ -70,6 +70,10 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     await taxiChatUseCase.fetchChats(before: date)
   }
 
+  func fetchInitialChats() async {
+    await taxiChatUseCase.fetchInitialChats()
+  }
+
   func sendChat(_ message: String, type: TaxiChat.ChatType) {
     if type == .text && message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return }
 

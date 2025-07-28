@@ -25,6 +25,7 @@ protocol TaxiChatViewModelProtocol: Observable {
 
   // MARK: - Functions
   func fetchChats(before date: Date) async
+  func fetchInitialChats() async
   func sendChat(_ message: String, type: TaxiChat.ChatType)
   func leaveRoom() async throws
   func commitSettlement()

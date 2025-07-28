@@ -94,6 +94,9 @@ struct TaxiChatView: View {
     }, message: {
       Text(errorMessage)
     })
+    .task {
+      await viewModel.fetchInitialChats()
+    }
   }
 
   private func contentView(proxy: ScrollViewProxy) -> some View {

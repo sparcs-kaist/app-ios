@@ -28,6 +28,10 @@ class MockTaxiChatViewModel: TaxiChatViewModelProtocol {
     // Mock implementation - no actual fetching
   }
   
+  func fetchInitialChats() async {
+    // Mock implementation - no actual fetching
+  }
+  
   func sendChat(_ message: String, type: TaxiChat.ChatType) {
     // Mock implementation - no actual sending
   }

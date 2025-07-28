@@ -48,6 +48,17 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     bind()
   }
 
+  func fetchInitialChats() async {
+    guard !hasInitialChatsBeenFetched else { return }
+    
+    hasInitialChatsBeenFetched = true
+    do {
+      try await taxiChatRepository.fetchChats(roomID: room.id)
+    } catch {
+      logger.error(error)
+    }
+  }
+
   func fetchChats(before date: Date) async {
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id, before: date)
@@ -79,10 +90,6 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     // is socket(TaxiChatService) connected
     taxiChatService.isConnectedPublisher
       .sink { [weak self] isConnected in
-        if !(self?.isSocketConnected ?? false) && isConnected && !(self?.hasInitialChatsBeenFetched ?? false) {
-          self?.fetchInitialChats()
-        }
-
         self?.isSocketConnected = isConnected
       }
       .store(in: &cancellables)
@@ -100,20 +107,6 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
       }
       .store(in: &cancellables)
   }
-
-  private func fetchInitialChats() {
-    guard !hasInitialChatsBeenFetched else { return }
-    
-    hasInitialChatsBeenFetched = true
-    Task {
-      do {
-        try await taxiChatRepository.fetchChats(roomID: room.id)
-      } catch {
-        logger.error(error)
-      }
-    }
-  }
-
 
   private func groupChats(_ chats: [TaxiChat], currentUserID: String) -> [TaxiChatGroup] {
     guard !chats.isEmpty else { return [] }
