@@ -23,6 +23,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   var groupedChats: [TaxiChatGroup] = []
   var taxiUser: TaxiUser?
   var fetchedDateSet: Set<Date> = []
+  var isUploading: Bool = false               // to show progress on image upload
 
   var room: TaxiRoom
   private var cancellables = Set<AnyCancellable>()
@@ -117,5 +118,12 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     return room.isDeparted && room.settlementTotal != 0 && (
       me?.isSettlement == .paymentRequired
     )
+  }
+
+  func sendImage(_ image: UIImage) async throws {
+    isUploading = true
+    defer { isUploading = false }
+
+    try await taxiChatUseCase.sendImage(image)
   }
 }

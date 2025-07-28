@@ -91,4 +91,29 @@ final class TaxiChatRepository: TaxiChatRepositoryProtocol, @unchecked Sendable 
       )
     }
   }
+
+  func getPresignedURL(roomID: String) async throws -> TaxiChatPresignedURLDTO {
+    do {
+      let response = try await provider.request(.getPresignedURL(roomID: roomID))
+      let result = try response.map(TaxiChatPresignedURLDTO.self)
+
+      return result
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
+    }
+  }
+
+  func uploadImage(presignedURL: TaxiChatPresignedURLDTO, imageData: Data) async throws {
+    let _ = try await provider
+      .request(
+        .uploadImage(url: presignedURL.url, fields: presignedURL.fields, imageData: imageData)
+      )
+  }
+
+  func notifyImageUploadComplete(id: String) async throws {
+    let _ = try await provider.request(.notifyImageUploadComplete(id: id))
+  }
 }

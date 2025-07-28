@@ -16,6 +16,7 @@ class MockTaxiChatViewModel: TaxiChatViewModelProtocol {
   var taxiUser: TaxiUser?
   var fetchedDateSet: Set<Date> = []
   var room: TaxiRoom = TaxiRoom.mock
+  var isUploading: Bool = false
 
   // MARK: - Computed Properties
   var isLeaveRoomAvailable: Bool = true
@@ -42,4 +43,8 @@ class MockTaxiChatViewModel: TaxiChatViewModelProtocol {
   func commitPayment() {
     // Mock implementation - no actual payment
   }
-} 
+
+  func sendImage(_ image: UIImage) async throws {
+    
+  }
+}

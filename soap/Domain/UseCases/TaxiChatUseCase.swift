@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import Combine
 import SocketIO
 
@@ -61,6 +62,16 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     } catch {
       logger.error(error)
     }
+  }
+
+  func sendImage(_ content: UIImage) async throws {
+    guard let imageData = content.compressForUpload(maxSizeMB: 1.0, maxDimension: 1000) else {
+      return
+    }
+
+    let presignedURL: TaxiChatPresignedURLDTO = try await taxiChatRepository.getPresignedURL(roomID: room.id)
+    try await taxiChatRepository.uploadImage(presignedURL: presignedURL, imageData: imageData)
+    try await taxiChatRepository.notifyImageUploadComplete(id: presignedURL.id)
   }
 
   private func bind() {

@@ -220,15 +220,33 @@ struct TaxiChatView: View {
         }
 
         Button("Send", systemImage: "arrow.up") {
-          viewModel.sendChat(text, type: .text)
-          text = ""
+          if let image = selectedImage {
+            Task {
+              do {
+                try await viewModel.sendImage(image)
+                selectedItem = nil
+                selectedImage = nil
+              } catch {
+                errorMessage = error.localizedDescription
+                showErrorAlert = true
+              }
+            }
+          } else {
+            viewModel.sendChat(text, type: .text)
+            text = ""
+          }
         }
         .labelStyle(.iconOnly)
         .fontWeight(.semibold)
         .buttonStyle(.borderedProminent)
         .frame(height: 32)
         .opacity((text.isEmpty && selectedImage == nil) ? 0 : 1)
-        .disabled((text.isEmpty && selectedImage == nil))
+        .disabled((text.isEmpty && selectedImage == nil) || viewModel.isUploading)
+        .overlay {
+          if viewModel.isUploading {
+            ProgressView()
+          }
+        }
       }
       .padding(8)
       .frame(maxWidth: .infinity)

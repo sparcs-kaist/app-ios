@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @MainActor
 protocol TaxiChatViewModelProtocol: Observable {
@@ -15,7 +16,8 @@ protocol TaxiChatViewModelProtocol: Observable {
   var taxiUser: TaxiUser? { get }
   var fetchedDateSet: Set<Date> { get set }
   var room: TaxiRoom { get }
-  
+  var isUploading: Bool { get }
+
   // MARK: - Computed Properties
   var isLeaveRoomAvailable: Bool { get }
   var isCommitSettlementAvailable: Bool { get }
@@ -27,4 +29,5 @@ protocol TaxiChatViewModelProtocol: Observable {
   func leaveRoom() async throws
   func commitSettlement()
   func commitPayment()
-} 
+  func sendImage(_ image: UIImage) async throws
+}

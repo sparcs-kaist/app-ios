@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 @MainActor
 protocol TaxiChatUseCaseProtocol {
@@ -14,4 +15,5 @@ protocol TaxiChatUseCaseProtocol {
 
   func fetchChats(before date: Date) async
   func sendChat(_ content: String?, type: TaxiChat.ChatType) async
+  func sendImage(_ content: UIImage) async throws
 }
