@@ -26,6 +26,8 @@ struct TaxiChatImageBubble: View {
           .frame(width: 200, height: 300)
       }
     }
+    .processors([.resize(height: 360)])
+    .priority(.veryHigh)
   }
 }
 
