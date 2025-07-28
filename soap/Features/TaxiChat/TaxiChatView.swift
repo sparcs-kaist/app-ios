@@ -27,6 +27,9 @@ struct TaxiChatView: View {
   @State private var selectedItem: PhotosPickerItem?
   @State private var selectedImage: UIImage?
 
+  @State private var tappedImageID: String? = nil
+
+  @Namespace private var namespace
   @FocusState private var isFocused: Bool
 
   init(room: TaxiRoom) {
@@ -64,6 +67,10 @@ struct TaxiChatView: View {
       photoLibrary: .shared()
     )
     .onChange(of: selectedItem, loadImage)
+    .navigationDestination(item: $tappedImageID) { id in
+      FullscreenImageView(url: Constants.taxiChatImageURL.appending(path: id))
+        .navigationTransition(.zoom(sourceID: id, in: namespace))
+    }
     .alert(
       "Call Taxi",
       isPresented: $showCallTaxiAlert,
@@ -134,6 +141,10 @@ struct TaxiChatView: View {
                     )
                   case .s3img:
                     TaxiChatImageBubble(id: chat.content)
+                      .matchedTransitionSource(id: chat.content, in: namespace)
+                      .onTapGesture {
+                        tappedImageID = chat.content
+                      }
                   case .departure:
                     TaxiDepartureBubble(room: viewModel.room)
                   case .arrival:
