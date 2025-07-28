@@ -10,7 +10,6 @@ import Combine
 import Factory
 
 struct ContentView: View {
-  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @Bindable private var viewModel = ContentViewModel()
   @Environment(\.scenePhase) private var scenePhase
 
