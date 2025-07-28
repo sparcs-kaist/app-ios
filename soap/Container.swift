@@ -78,7 +78,7 @@ extension Container {
         taxiUserRepository: self.taxiUserRepository.resolve(),
         userStorage: self.userStorage.resolve()
       )
-    }
+    }.singleton
   }
 
   @MainActor
