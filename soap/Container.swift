@@ -58,7 +58,7 @@ extension Container {
   private var taxiChatService: Factory<TaxiChatServiceProtocol> {
     self {
       TaxiChatService(tokenStorage: self.tokenStorage.resolve())
-    }
+    }.singleton
   }
 
   // MARK: - Use Cases
