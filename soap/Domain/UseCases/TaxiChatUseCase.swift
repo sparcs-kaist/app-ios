@@ -100,6 +100,8 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
         Task {
           guard let self = self else { return }
 
+          try? await self.taxiChatRepository.readChats(roomID: self.room.id)
+
           let user: TaxiUser? = await self.userUseCase.taxiUser
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
           self.groupedChats = groupedChats
