@@ -132,6 +132,8 @@ struct TaxiChatView: View {
                       showTip: groupedChat.lastChatID == chat.id,
                       isMe: groupedChat.isMe
                     )
+                  case .s3img:
+                    TaxiChatImageBubble(id: chat.content)
                   case .departure:
                     TaxiDepartureBubble(room: viewModel.room)
                   case .arrival:
