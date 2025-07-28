@@ -43,7 +43,7 @@ final class TaxiChatService: TaxiChatServiceProtocol {
     self.manager = SocketManager(
       socketURL: Constants.taxiSocketURL,
       config: [
-        .log(true),
+        .log(false),
         .compress,
         .forceWebsockets(true),
         .extraHeaders([
@@ -100,9 +100,9 @@ final class TaxiChatService: TaxiChatServiceProtocol {
       self.chats.append(contentsOf: chats)
     }
 
-    socket.onAny { event in
-      print("📡 Socket Event - \(event.event):", event.items ?? [])
-    }
+//    socket.onAny { event in
+//      print("📡 Socket Event - \(event.event):", event.items ?? [])
+//    }
   }
 
   private func handleChats(_ data: [[String: Any]]) -> [TaxiChat] {
