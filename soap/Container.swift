@@ -90,6 +90,6 @@ extension Container {
         taxiChatRepository: self.taxiChatRepository.resolve(),
         room: $0
       )
-    }
+    }.cached
   }
 }

@@ -25,6 +25,7 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - State
   private var room: TaxiRoom
   private var isSocketConnected: Bool = false
+  private var hasInitialChatsBeenFetched: Bool = false
 
   private var cancellables = Set<AnyCancellable>()
 
@@ -78,7 +79,7 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     // is socket(TaxiChatService) connected
     taxiChatService.isConnectedPublisher
       .sink { [weak self] isConnected in
-        if !(self?.isSocketConnected ?? false) && isConnected {
+        if !(self?.isSocketConnected ?? false) && isConnected && !(self?.hasInitialChatsBeenFetched ?? false) {
           self?.fetchInitialChats()
         }
 
@@ -101,6 +102,9 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   }
 
   private func fetchInitialChats() {
+    guard !hasInitialChatsBeenFetched else { return }
+    
+    hasInitialChatsBeenFetched = true
     Task {
       do {
         try await taxiChatRepository.fetchChats(roomID: room.id)
