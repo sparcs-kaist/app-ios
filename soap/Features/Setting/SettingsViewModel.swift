@@ -7,6 +7,8 @@
 
 import Foundation
 import SwiftUI
+import Factory
+import Observation
 
 @MainActor
 @Observable
@@ -46,6 +48,19 @@ class SettingsViewModel {
     "제주",
     "KDB산업",
   ];
+  var taxiUser: TaxiUser?
   
+  // MARK: - Dependencies
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   
+  // MARK: - Initialiser
+  init() {
+    Task {
+      await fetchTaxiUser()
+    }
+  }
+  
+  private func fetchTaxiUser() async {
+    self.taxiUser = await userUseCase.taxiUser
+  }
 }

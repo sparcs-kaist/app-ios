@@ -23,8 +23,9 @@ struct SettingsView: View {
   
   private var information: some View {
     Section(header: Text("My Information")) {
-      RowElementView(title: "Name", content: "John Appleseed")
-      RowElementView(title: "Email", content: "johnappleseed@kaist.ac.kr")
+      RowElementView(title: "Name", content: vm.taxiUser?.name ?? "Unknown")
+      RowElementView(title: "Email", content: vm.taxiUser?.email ?? "Unknown")
+      RowElementView(title: "Phone Number", content: vm.taxiUser?.phoneNumber ?? "Unknown")
       RowElementView(title: "Student ID", content: "12345678")
     }
   }
@@ -48,13 +49,13 @@ struct SettingsView: View {
   
   private var taxi_settings: some View {
     Section(header: Text("Taxi")) {
-      RowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
+      RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
       Picker("Bank", selection: $vm.taxiBankName) {
         ForEach(vm.taxiBankNameList, id: \.self) {
           Text($0)
         }
       }
-      RowElementView(title: "Account", content: vm.taxiBankNumber)
+      RowElementView(title: "Account", content: vm.taxiUser?.account ?? "Unknown")
     }
   }
   
