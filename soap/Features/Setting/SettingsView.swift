@@ -14,10 +14,21 @@ struct SettingsView: View {
   var body: some View {
     NavigationStack {
       List {
+        app_settings
         ara_settings
         taxi_settings
         otlplus_settings
       }.navigationTitle(Text("Settings"))
+    }
+  }
+  
+  private var app_settings: some View {
+    Section(header: Text("App Settings")) {
+      Button(action: {
+        UIApplication.shared.open(URL(string: "App-prefs:org.sparcs.soap")!)
+      }) {
+        Text("Change App Language")
+      }
     }
   }
   
