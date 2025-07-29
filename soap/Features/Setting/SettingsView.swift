@@ -60,7 +60,6 @@ struct SettingsView: View {
       }
       NavigationLink {
         AraBlockedUsersView(blockedUsers: vm.araBlockedUsers)
-        .navigationBarTitleDisplayMode(.inline)
       } label: {
         HStack {
           Text("Blocked Users")
@@ -88,7 +87,6 @@ struct SettingsView: View {
       HStack {
         NavigationLink {
           FavoriteDepartmentView(selectedMajor: vm.otlMajor)
-          .navigationBarTitleDisplayMode(.inline)
         } label: {
           HStack {
             Text("Major")

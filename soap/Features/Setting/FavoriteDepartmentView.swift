@@ -17,24 +17,21 @@ struct FavoriteDepartmentView: View {
   }
   
   var body: some View {
-    NavigationView {
-      List {
-        Picker(selection: $selectedMajor, label: EmptyView()) {
-          ForEach(0..<majors.count, id: \.self) {
-            Text(majors[$0])
-          }
+    List {
+      Picker(selection: $selectedMajor, label: EmptyView()) {
+        ForEach(0..<majors.count, id: \.self) {
+          Text(majors[$0])
         }
-        .pickerStyle(.inline)
       }
+      .pickerStyle(.inline)
     }
     .navigationTitle(Text("Major"))
+    .navigationBarTitleDisplayMode(.inline)
   }
 }
 
 #Preview {
-  // TODO: remove weird padding on the top of the preview
   NavigationStack {
     FavoriteDepartmentView(selectedMajor: 1)
-    .navigationBarTitleDisplayMode(.inline)
   }
 }

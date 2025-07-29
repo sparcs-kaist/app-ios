@@ -15,7 +15,6 @@ struct AraBlockedUsersView: View {
   }
   
   var body: some View {
-    NavigationStack {
       List {
         ForEach(blockedUsers, id: \.self) {
           Text($0)
@@ -24,8 +23,8 @@ struct AraBlockedUsersView: View {
           // TODO: implement API call
         }
       }
-    }
     .navigationTitle("Blocked Users")
+    .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       EditButton()
     }
@@ -35,6 +34,5 @@ struct AraBlockedUsersView: View {
 #Preview {
   NavigationStack {
     AraBlockedUsersView(blockedUsers: ["Nickname 1", "Nickname 2"])
-    .navigationBarTitleDisplayMode(.inline)
   }
 }
