@@ -23,35 +23,15 @@ struct SettingsView: View {
   
   private var information: some View {
     Section(header: Text("My Information")) {
-      HStack {
-        Text("Name")
-        Spacer()
-        Text("John Appleseed")
-          .foregroundStyle(.secondary)
-      }
-      HStack {
-        Text("Email")
-        Spacer()
-        Text(verbatim: "johnappleseed@kaist.ac.kr")
-          .foregroundStyle(.secondary)
-      }
-      HStack {
-        Text("Student ID")
-        Spacer()
-        Text("12345678")
-          .foregroundStyle(.secondary)
-      }
+      RowElementView(title: "Name", content: "John Appleseed")
+      RowElementView(title: "Email", content: "johnappleseed@kaist.ac.kr")
+      RowElementView(title: "Student ID", content: "12345678")
     }
   }
   
   private var ara_settings: some View {
     Section(header: Text("Ara")) {
-      HStack {
-        Text("Nickname")
-        Spacer()
-        Text("오열하는 운영체제 및 실험_2f94d")
-          .foregroundStyle(.secondary)
-      }
+      RowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
       Toggle(isOn: $vm.araAllowSexualPosts) {
         Text("Allow Sexual Posts")
       }
@@ -61,24 +41,14 @@ struct SettingsView: View {
       NavigationLink {
         AraBlockedUsersView(blockedUsers: vm.araBlockedUsers)
       } label: {
-        HStack {
-          Text("Blocked Users")
-          Spacer()
-          Text("\(vm.araBlockedUsers.count)")
-            .foregroundStyle(.secondary)
-        }
+        RowElementView(title: "Blocked Users", content: "\(vm.araBlockedUsers.count)")
       }
     }
   }
   
   private var taxi_settings: some View {
     Section(header: Text("Taxi")) {
-      HStack {
-        Text("Nickname")
-        Spacer()
-        Text("오열하는 운영체제 및 실험_2f94d")
-          .foregroundStyle(.secondary)
-      }
+      RowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
     }
   }
   
@@ -89,13 +59,24 @@ struct SettingsView: View {
           FavoriteDepartmentView(selectedMajor: vm.otlMajor)
         } label: {
           HStack {
-            Text("Major")
-            Spacer()
-            Text("School of Electrical Engineering")
-              .foregroundStyle(.secondary)
+            RowElementView(title: "Major", content: "School of Electrical Engineering")
           }
         }
       }
+    }
+  }
+}
+
+struct RowElementView: View {
+  var title: String
+  var content: String
+  
+  var body: some View {
+    HStack {
+      Text(title)
+      Spacer()
+      Text(content)
+        .foregroundStyle(.secondary)
     }
   }
 }
