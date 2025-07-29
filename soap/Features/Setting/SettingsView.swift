@@ -49,6 +49,12 @@ struct SettingsView: View {
   private var taxi_settings: some View {
     Section(header: Text("Taxi")) {
       RowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
+      Picker("Bank", selection: $vm.taxiBankName) {
+        ForEach(vm.taxiBankNameList, id: \.self) {
+          Text($0)
+        }
+      }
+      RowElementView(title: "Account", content: vm.taxiBankNumber)
     }
   }
   
