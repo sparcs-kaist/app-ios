@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import NukeUI
 
 struct SettingsView: View {
   @State private var vm: SettingsViewModel = .init()
@@ -23,8 +24,31 @@ struct SettingsView: View {
   
   private var information: some View {
     Section(header: Text("My Information")) {
-      RowElementView(title: "Name", content: vm.taxiUser?.name ?? "Unknown")
-      RowElementView(title: "Email", content: vm.taxiUser?.email ?? "Unknown")
+      HStack {
+        if let url = vm.taxiUser?.profileImageURL {
+          LazyImage(url: url) { state in
+            if let image = state.image {
+              image.resizable()
+              .aspectRatio(contentMode: .fill)
+            } else {
+              Circle()
+                .fill(Color.secondarySystemBackground)
+            }
+          }
+          .frame(width: 75, height: 75)
+          .clipShape(.circle)
+        } else {
+          Circle()
+            .fill(Color.secondarySystemBackground)
+            .frame(width: 75, height: 75)
+            .clipShape(.circle)
+        }
+        VStack(alignment: .leading) {
+          Text(vm.taxiUser?.name ?? "Unknown")
+            .font(.title2)
+          Text(vm.taxiUser?.email ?? "Unknown")
+        }
+      }
       RowElementView(title: "Phone Number", content: vm.taxiUser?.phoneNumber ?? "Unknown")
       RowElementView(title: "Student ID", content: "12345678")
     }
@@ -55,7 +79,7 @@ struct SettingsView: View {
           Text($0)
         }
       }
-      RowElementView(title: "Account", content: vm.taxiUser?.account ?? "Unknown")
+      RowElementView(title: "Account", content: vm.taxiBankNumber)
     }
   }
   
