@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SettingsMainView: View {
+struct SettingsView: View {
   var body: some View {
     NavigationStack {
       List {
@@ -84,5 +84,5 @@ struct SettingsMainView: View {
 }
 
 #Preview {
-  SettingsMainView()
+  SettingsView()
 }

@@ -65,7 +65,7 @@ struct HomeView: View {
       }
       .background(Color.secondarySystemBackground)
       .sheet(isPresented: $showSettingsSheet) {
-          SettingsMainView().presentationDragIndicator(.visible)
+          SettingsView().presentationDragIndicator(.visible)
       }
     }
   }
