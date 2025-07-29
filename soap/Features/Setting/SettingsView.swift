@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+  @State private var vm: SettingsViewModel = .init()
+  
   var body: some View {
     NavigationStack {
       List {
@@ -50,6 +52,23 @@ struct SettingsView: View {
         Text("오열하는 운영체제 및 실험_2f94d")
           .foregroundStyle(.secondary)
       }
+      Toggle(isOn: $vm.araAllowSexualPosts) {
+        Text("Allow Sexual Posts")
+      }
+      Toggle(isOn: $vm.araAllowPoliticalPosts) {
+        Text("Allow Political Posts")
+      }
+      NavigationLink {
+        AraBlockedUsersView(blockedUsers: vm.araBlockedUsers)
+        .navigationBarTitleDisplayMode(.inline)
+      } label: {
+        HStack {
+          Text("Blocked Users")
+          Spacer()
+          Text("\(vm.araBlockedUsers.count)")
+            .foregroundStyle(.secondary)
+        }
+      }
     }
   }
   
@@ -68,7 +87,7 @@ struct SettingsView: View {
     Section(header: Text("OTL Plus")) {
       HStack {
         NavigationLink {
-          FavoriteDepartmentView(selectedMajor: 1)
+          FavoriteDepartmentView(selectedMajor: vm.otlMajor)
           .navigationBarTitleDisplayMode(.inline)
         } label: {
           HStack {
