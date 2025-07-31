@@ -44,14 +44,15 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     self.userUseCase = userUseCase
     self.taxiChatRepository = taxiChatRepository
     self.room = room
-
-    bind()
   }
 
   func fetchInitialChats() async {
     guard !hasInitialChatsBeenFetched else { return }
     
     hasInitialChatsBeenFetched = true
+
+    bind()
+
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id)
     } catch {
@@ -101,9 +102,10 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
           guard let self = self else { return }
 
           try? await self.taxiChatRepository.readChats(roomID: self.room.id)
-
+          
           let user: TaxiUser? = await self.userUseCase.taxiUser
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
+
           self.groupedChats = groupedChats
         }
       }

@@ -11,7 +11,7 @@ import SocketIO
 
 final class TaxiChatService: TaxiChatServiceProtocol {
   // MARK: - Publisher
-  private var chatsSubject = CurrentValueSubject<[TaxiChat], Never>([])
+  private var chatsSubject = PassthroughSubject<[TaxiChat], Never>()
   var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
     chatsSubject.eraseToAnyPublisher()
   }
@@ -21,9 +21,13 @@ final class TaxiChatService: TaxiChatServiceProtocol {
     isConnectedSubject.eraseToAnyPublisher()
   }
 
+  private var chatsStorage: [TaxiChat] = []
   private var chats: [TaxiChat] {
-    get { chatsSubject.value }
-    set { chatsSubject.send(newValue) }
+    get { chatsStorage }
+    set {
+      chatsStorage = newValue
+      chatsSubject.send(newValue)
+    }
   }
 
   private var isConnected: Bool {
