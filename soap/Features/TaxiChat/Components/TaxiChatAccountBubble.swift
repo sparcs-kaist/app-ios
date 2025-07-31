@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TaxiChatAccountBubble: View {
   let content: String
-  let isMe: Bool
+  let isCommitPaymentAvailable: Bool
   let markAsSent: (() -> Void)
 
   var body: some View {
@@ -37,23 +37,21 @@ struct TaxiChatAccountBubble: View {
       }
 
       Button(action: {
-        
+        markAsSent()
       }, label: {
         Label("Mark as Sent", systemImage: "checkmark")
           .frame(maxWidth: .infinity)
       })
       .fontWeight(.medium)
       .buttonStyle(.glassProminent)
-      .disabled(isMe)
+      .disabled(!isCommitPaymentAvailable)
     }
     .padding(12)
     .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 24))
     .contextMenu {
-      Button {
+      Button("Copy Account Info", systemImage: "doc.on.doc") {
         let parts = content.split(separator: " ", maxSplits: 1)
         UIPasteboard.general.string = String(parts[1])
-      } label: {
-        Label("Copy Account Info", systemImage: "doc.on.doc")
       }
     }
   }
@@ -69,7 +67,7 @@ struct TaxiChatAccountBubble: View {
     isGeneral: false,
     isWithdrawn: false
   ) {
-    TaxiChatAccountBubble(content: "KB국민 90415338958", isMe: false) {
+    TaxiChatAccountBubble(content: "KB국민 90415338958", isCommitPaymentAvailable: false) {
       logger.debug("mark as sent")
     }
   }

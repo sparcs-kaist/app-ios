@@ -172,7 +172,7 @@ struct TaxiChatView: View {
                   case .payment:
                     TaxiChatPaymentBubble()
                   case .account:
-                    TaxiChatAccountBubble(content: chat.content, isMe: groupedChat.isMe) {
+                    TaxiChatAccountBubble(content: chat.content, isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable) {
                       viewModel.commitPayment()
                     }
                   default:
@@ -432,7 +432,7 @@ struct TaxiChatView: View {
                   case .payment:
                     TaxiChatPaymentBubble()
                   case .account:
-                    TaxiChatAccountBubble(content: "BANK NUMBER", isMe: false) { }
+                    TaxiChatAccountBubble(content: "BANK NUMBER", isCommitPaymentAvailable: true) { }
                   default:
                     Text(chat.type.rawValue)
                   }
