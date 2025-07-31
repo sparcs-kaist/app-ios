@@ -467,7 +467,9 @@ struct TaxiChatView: View {
       },
       actions: {
         Button("Try Again") {
-          // TODO: try again
+          Task {
+            await viewModel.fetchInitialChats()
+          }
         }
       }
     )
