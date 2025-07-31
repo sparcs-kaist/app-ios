@@ -60,6 +60,14 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         }
       }
       .store(in: &cancellables)
+
+    taxiChatUseCase.roomUpdatePublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] updatedRoom in
+        guard let self = self else { return }
+        self.room = updatedRoom
+      }
+      .store(in: &cancellables)
   }
 
   func fetchChats(before date: Date) async {

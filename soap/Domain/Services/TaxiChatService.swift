@@ -21,6 +21,11 @@ final class TaxiChatService: TaxiChatServiceProtocol {
     isConnectedSubject.eraseToAnyPublisher()
   }
 
+  private var roomUpdateSubject = PassthroughSubject<String, Never>()
+  var roomUpdatePublisher: AnyPublisher<String, Never> {
+    roomUpdateSubject.eraseToAnyPublisher()
+  }
+
   private var chatsStorage: [TaxiChat] = []
   private var chats: [TaxiChat] {
     get { chatsStorage }
@@ -112,6 +117,7 @@ final class TaxiChatService: TaxiChatServiceProtocol {
       }
 
       logger.debug("roomID: \(roomID)")
+      self.roomUpdateSubject.send(roomID)
     }
 
 //    socket.onAny { event in

@@ -88,6 +88,7 @@ extension Container {
         taxiChatService: self.taxiChatService.resolve(),
         userUseCase: self.userUseCase.resolve(),
         taxiChatRepository: self.taxiChatRepository.resolve(),
+        taxiRoomRepository: self.taxiRoomRepository.resolve(),
         room: $0
       )
     }

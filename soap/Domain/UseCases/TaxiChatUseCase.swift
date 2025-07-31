@@ -17,6 +17,11 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     groupedChatsSubject.eraseToAnyPublisher()
   }
 
+  private var roomUpdateSubject = PassthroughSubject<TaxiRoom, Never>()
+  var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> {
+    roomUpdateSubject.eraseToAnyPublisher()
+  }
+
   private var groupedChats: [TaxiChatGroup] {
     get { groupedChatsSubject.value }
     set { groupedChatsSubject.send(newValue) }
@@ -33,16 +38,19 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   private let taxiChatService: TaxiChatServiceProtocol
   private let userUseCase: UserUseCaseProtocol
   private let taxiChatRepository: TaxiChatRepositoryProtocol
+  private let taxiRoomRepository: TaxiRoomRepositoryProtocol
 
   init(
     taxiChatService: TaxiChatServiceProtocol,
     userUseCase: UserUseCaseProtocol,
     taxiChatRepository: TaxiChatRepositoryProtocol,
+    taxiRoomRepository: TaxiRoomRepositoryProtocol,
     room: TaxiRoom
   ) {
     self.taxiChatService = taxiChatService
     self.userUseCase = userUseCase
     self.taxiChatRepository = taxiChatRepository
+    self.taxiRoomRepository = taxiRoomRepository
     self.room = room
   }
 
@@ -107,6 +115,23 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
 
           self.groupedChats = groupedChats
+        }
+      }
+      .store(in: &cancellables)
+
+    // handles room updates from chat_update event
+    taxiChatService.roomUpdatePublisher
+      .sink { [weak self] roomID in
+        Task {
+          guard let self = self, roomID == self.room.id else { return }
+          
+          do {
+            let updatedRoom: TaxiRoom = try await self.taxiRoomRepository.getRoom(id: roomID)
+            self.room = updatedRoom
+            self.roomUpdateSubject.send(updatedRoom)
+          } catch {
+            logger.error("Failed to update room: \(error)")
+          }
         }
       }
       .store(in: &cancellables)

@@ -12,6 +12,7 @@ import UIKit
 @MainActor
 protocol TaxiChatUseCaseProtocol {
   var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
+  var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> { get }
 
   func fetchInitialChats() async
   func fetchChats(before date: Date) async
