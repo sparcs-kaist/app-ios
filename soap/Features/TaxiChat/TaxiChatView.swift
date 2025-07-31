@@ -175,6 +175,8 @@ struct TaxiChatView: View {
                     TaxiChatAccountBubble(content: chat.content, isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable) {
                       viewModel.commitPayment()
                     }
+                  case .share:
+                    TaxiChatShareBubble() { }
                   default:
                     Text(chat.type.rawValue)
                   }
@@ -433,6 +435,8 @@ struct TaxiChatView: View {
                     TaxiChatPaymentBubble()
                   case .account:
                     TaxiChatAccountBubble(content: "BANK NUMBER", isCommitPaymentAvailable: true) { }
+                  case .share:
+                    TaxiChatShareBubble() { }
                   default:
                     Text(chat.type.rawValue)
                   }
