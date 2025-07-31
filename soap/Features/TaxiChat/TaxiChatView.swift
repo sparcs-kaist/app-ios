@@ -252,9 +252,13 @@ struct TaxiChatView: View {
 
           Spacer()
         } else {
-          TextField("Chat as \(viewModel.taxiUser?.nickname ?? "unknown")", text: $text)
+          TextField(
+            "Chat as \(viewModel.taxiUser?.nickname ?? "unknown")",
+            text: $text,
+            axis: .vertical
+          )
             .padding(.leading, 4)
-            .frame(height: 32)
+            .frame(minHeight: 32)
             .focused($isFocused)
         }
 
