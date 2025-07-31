@@ -120,7 +120,8 @@ struct TaxiChatView: View {
             authorProfileImageURL: groupedChat.authorProfileURL,
             date: groupedChat.time,
             isMe: groupedChat.isMe,
-            isGeneral: groupedChat.isGeneral
+            isGeneral: groupedChat.isGeneral,
+            isWithdrawn: groupedChat.authorIsWithdrew ?? false
           ) {
             ForEach(groupedChat.chats) { chat in
               let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
@@ -402,7 +403,8 @@ struct TaxiChatView: View {
             authorProfileImageURL: groupedChat.authorProfileURL,
             date: groupedChat.time,
             isMe: false,
-            isGeneral: groupedChat.isGeneral
+            isGeneral: groupedChat.isGeneral,
+            isWithdrawn: groupedChat.authorIsWithdrew ?? false
           ) {
             ForEach(groupedChat.chats) { chat in
               let showTimeLabel: Bool = groupedChat.lastChatID == chat.id

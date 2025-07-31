@@ -22,7 +22,8 @@ struct TaxiArrivalBubble: View {
     authorProfileImageURL: nil,
     date: Date(),
     isMe: false,
-    isGeneral: false
+    isGeneral: false,
+    isWithdrawn: false
   ) {
     TaxiArrivalBubble()
   }

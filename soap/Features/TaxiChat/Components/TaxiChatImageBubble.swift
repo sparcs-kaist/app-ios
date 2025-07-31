@@ -38,7 +38,8 @@ struct TaxiChatImageBubble: View {
     authorProfileImageURL: nil,
     date: Date(),
     isMe: false,
-    isGeneral: false
+    isGeneral: false,
+    isWithdrawn: false
   ) {
     TaxiChatImageBubble(id: "688714fb95fce20ddc8f19da")
   }
