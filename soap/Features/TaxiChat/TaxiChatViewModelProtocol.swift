@@ -24,6 +24,8 @@ protocol TaxiChatViewModelProtocol: Observable {
   var isCommitPaymentAvailable: Bool { get }
 
   // MARK: - Functions
+  func setup() async
+  
   func fetchChats(before date: Date) async
   func fetchInitialChats() async
   func sendChat(_ message: String, type: TaxiChat.ChatType)

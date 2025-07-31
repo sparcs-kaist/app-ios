@@ -38,11 +38,11 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   init(room: TaxiRoom) {
     self.room = room
     taxiChatUseCase = Container.shared.taxiChatUseCase(room)
+  }
 
+  func setup() async {
+    await fetchTaxiUser()
     bind()
-    Task {
-      await fetchTaxiUser()
-    }
   }
 
   private func fetchTaxiUser() async {

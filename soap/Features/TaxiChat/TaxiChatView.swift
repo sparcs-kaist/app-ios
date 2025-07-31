@@ -95,6 +95,7 @@ struct TaxiChatView: View {
       Text(errorMessage)
     })
     .task {
+      await viewModel.setup()
       await viewModel.fetchInitialChats()
     }
   }
@@ -122,14 +123,27 @@ struct TaxiChatView: View {
             isGeneral: groupedChat.isGeneral
           ) {
             ForEach(groupedChat.chats) { chat in
-              HStack(alignment: .bottom, spacing: 4) {
-                let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
+              let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
+              let otherParticipants: [TaxiParticipant] = viewModel.room.participants.filter {
+                $0.id != viewModel.taxiUser?.oid
+              }
+              let readCount = otherParticipants.count(where: { $0.readAt <= chat.time })
 
+              HStack(alignment: .bottom, spacing: 4) {
                 // time label for this sender
-                if showTimeLabel && groupedChat.isMe {
-                  Text(groupedChat.time.formattedTime)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                if groupedChat.isMe {
+                  VStack(alignment: .trailing) {
+                    if readCount > 0 {
+                      Text("\(readCount)")
+                        .font(.caption2)
+                    }
+
+                    if showTimeLabel {
+                      Text(groupedChat.time.formattedTime)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    }
+                  }
                 }
 
                 Group {
@@ -162,10 +176,19 @@ struct TaxiChatView: View {
                 }
 
                 // time label for other senders
-                if showTimeLabel && !groupedChat.isMe {
-                  Text(groupedChat.time.formattedTime)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                if !groupedChat.isMe {
+                  VStack(alignment: .trailing) {
+                    if readCount > 0 {
+                      Text("\(readCount)")
+                        .font(.caption2)
+                    }
+
+                    if showTimeLabel {
+                      Text(groupedChat.time.formattedTime)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    }
+                  }
                 }
               }
             }
@@ -378,8 +401,9 @@ struct TaxiChatView: View {
             isGeneral: groupedChat.isGeneral
           ) {
             ForEach(groupedChat.chats) { chat in
+              let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
+
               HStack(alignment: .bottom, spacing: 4) {
-                let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
                 Group {
                   switch chat.type {
                   case .entrance, .exit:
@@ -404,9 +428,14 @@ struct TaxiChatView: View {
                 }
 
                 if showTimeLabel {
-                  Text(groupedChat.time.formattedTime)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                  VStack(alignment: .leading) {
+                    Text("3")
+                      .font(.caption2)
+
+                    Text(groupedChat.time.formattedTime)
+                      .font(.caption2)
+                      .foregroundStyle(.secondary)
+                  }
                 }
               }
             }

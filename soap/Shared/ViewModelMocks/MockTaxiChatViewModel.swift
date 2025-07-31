@@ -24,6 +24,10 @@ class MockTaxiChatViewModel: TaxiChatViewModelProtocol {
   var isCommitPaymentAvailable: Bool = false
 
   // MARK: - Functions
+  func setup() async {
+    
+  }
+
   func fetchChats(before date: Date) async {
     // Mock implementation - no actual fetching
   }
