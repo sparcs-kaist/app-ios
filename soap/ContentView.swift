@@ -10,7 +10,6 @@ import Combine
 import Factory
 
 struct ContentView: View {
-  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @Bindable private var viewModel = ContentViewModel()
   @Environment(\.scenePhase) private var scenePhase
 
@@ -19,20 +18,14 @@ struct ContentView: View {
       if viewModel.isAuthenticated {
         MainView()
           .transition(.opacity)
-          .task {
-            await userUseCase.fetchUsers()
-          }
       } else if !viewModel.isLoading {
         SignInView()
           .transition(.opacity)
       }
     }
     .animation(.easeInOut(duration: 0.3), value: viewModel.isAuthenticated)
-    .task {
-      await viewModel.refreshAccessTokenIfNeeded()
-    }
-    .onChange(of: scenePhase) { newPhase in
-      if newPhase == .active {
+    .onChange(of: scenePhase) {
+      if scenePhase == .active {
         Task {
           await viewModel.refreshAccessTokenIfNeeded()
         }

@@ -10,7 +10,7 @@ import Foundation
 struct TaxiChatRequestDTO: Codable {
   let roomId: String
   let type: String
-  let content: String
+  let content: String?
 }
 
 extension TaxiChatRequestDTO {

@@ -6,21 +6,20 @@
 //
 
 import Foundation
+import UIKit
 import Combine
 import SocketIO
-
-@MainActor
-protocol TaxiChatUseCaseProtocol {
-  var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
-
-  func fetchChats(before date: Date) async
-}
 
 final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Publishers
   private var groupedChatsSubject = CurrentValueSubject<[TaxiChatGroup], Never>([])
   var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> {
     groupedChatsSubject.eraseToAnyPublisher()
+  }
+
+  private var roomUpdateSubject = PassthroughSubject<TaxiRoom, Never>()
+  var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> {
+    roomUpdateSubject.eraseToAnyPublisher()
   }
 
   private var groupedChats: [TaxiChatGroup] {
@@ -31,6 +30,7 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - State
   private var room: TaxiRoom
   private var isSocketConnected: Bool = false
+  private var hasInitialChatsBeenFetched: Bool = false
 
   private var cancellables = Set<AnyCancellable>()
 
@@ -38,19 +38,34 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   private let taxiChatService: TaxiChatServiceProtocol
   private let userUseCase: UserUseCaseProtocol
   private let taxiChatRepository: TaxiChatRepositoryProtocol
+  private let taxiRoomRepository: TaxiRoomRepositoryProtocol
 
   init(
     taxiChatService: TaxiChatServiceProtocol,
     userUseCase: UserUseCaseProtocol,
     taxiChatRepository: TaxiChatRepositoryProtocol,
+    taxiRoomRepository: TaxiRoomRepositoryProtocol,
     room: TaxiRoom
   ) {
     self.taxiChatService = taxiChatService
     self.userUseCase = userUseCase
     self.taxiChatRepository = taxiChatRepository
+    self.taxiRoomRepository = taxiRoomRepository
     self.room = room
+  }
+
+  func fetchInitialChats() async {
+    guard !hasInitialChatsBeenFetched else { return }
+    
+    hasInitialChatsBeenFetched = true
 
     bind()
+
+    do {
+      try await taxiChatRepository.fetchChats(roomID: room.id)
+    } catch {
+      logger.error(error)
+    }
   }
 
   func fetchChats(before date: Date) async {
@@ -61,14 +76,29 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
     }
   }
 
+  func sendChat(_ content: String?, type: TaxiChat.ChatType) async {
+    do {
+      let request = TaxiChatRequest(roomID: room.id, type: type, content: content)
+      try await taxiChatRepository.sendChat(request)
+    } catch {
+      logger.error(error)
+    }
+  }
+
+  func sendImage(_ content: UIImage) async throws {
+    guard let imageData = content.compressForUpload(maxSizeMB: 1.0, maxDimension: 1000) else {
+      return
+    }
+
+    let presignedURL: TaxiChatPresignedURLDTO = try await taxiChatRepository.getPresignedURL(roomID: room.id)
+    try await taxiChatRepository.uploadImage(presignedURL: presignedURL, imageData: imageData)
+    try await taxiChatRepository.notifyImageUploadComplete(id: presignedURL.id)
+  }
+
   private func bind() {
     // is socket(TaxiChatService) connected
     taxiChatService.isConnectedPublisher
       .sink { [weak self] isConnected in
-        if !(self?.isSocketConnected ?? false) && isConnected {
-          self?.fetchInitialChats()
-        }
-
         self?.isSocketConnected = isConnected
       }
       .store(in: &cancellables)
@@ -79,24 +109,33 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
         Task {
           guard let self = self else { return }
 
+          try? await self.taxiChatRepository.readChats(roomID: self.room.id)
+          
           let user: TaxiUser? = await self.userUseCase.taxiUser
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
+
           self.groupedChats = groupedChats
         }
       }
       .store(in: &cancellables)
-  }
 
-  private func fetchInitialChats() {
-    Task {
-      do {
-        try await taxiChatRepository.fetchChats(roomID: room.id)
-      } catch {
-        logger.error(error)
+    // handles room updates from chat_update event
+    taxiChatService.roomUpdatePublisher
+      .sink { [weak self] roomID in
+        Task {
+          guard let self = self, roomID == self.room.id else { return }
+          
+          do {
+            let updatedRoom: TaxiRoom = try await self.taxiRoomRepository.getRoom(id: roomID)
+            self.room = updatedRoom
+            self.roomUpdateSubject.send(updatedRoom)
+          } catch {
+            logger.error("Failed to update room: \(error)")
+          }
+        }
       }
-    }
+      .store(in: &cancellables)
   }
-
 
   private func groupChats(_ chats: [TaxiChat], currentUserID: String) -> [TaxiChatGroup] {
     guard !chats.isEmpty else { return [] }

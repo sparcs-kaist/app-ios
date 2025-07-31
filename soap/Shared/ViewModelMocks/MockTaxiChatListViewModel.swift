@@ -14,6 +14,7 @@ class MockTaxiChatListViewModel: TaxiChatListViewModelProtocol {
   var state: TaxiChatListViewModel.ViewState = .loading
   var onGoingRooms: [TaxiRoom] = []
   var doneRooms: [TaxiRoom] = []
+  var taxiUser: TaxiUser?
 
   // MARK: - Functions
   func fetchData() async {

@@ -13,6 +13,7 @@ struct TaxiParticipantDTO: Codable {
   let nickname: String
   let profileImageURL: String
   let withdraw: Bool
+  let isSettlement: String?
   let readAt: String
 
   enum CodingKeys: String, CodingKey {
@@ -21,6 +22,7 @@ struct TaxiParticipantDTO: Codable {
     case nickname
     case profileImageURL = "profileImageUrl"
     case withdraw
+    case isSettlement
     case readAt
   }
 }
@@ -34,6 +36,8 @@ extension TaxiParticipantDTO {
       nickname: nickname,
       profileImageURL: URL(string: profileImageURL),
       withdraw: withdraw,
+      isSettlement: isSettlement != nil ? TaxiParticipant
+        .SettlementType(rawValue: isSettlement!) : nil,
       readAt: readAt.toDate() ?? Date()
     )
   }

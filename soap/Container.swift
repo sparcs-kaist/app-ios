@@ -58,7 +58,7 @@ extension Container {
   private var taxiChatService: Factory<TaxiChatServiceProtocol> {
     self {
       TaxiChatService(tokenStorage: self.tokenStorage.resolve())
-    }
+    }.singleton
   }
 
   // MARK: - Use Cases
@@ -78,7 +78,7 @@ extension Container {
         taxiUserRepository: self.taxiUserRepository.resolve(),
         userStorage: self.userStorage.resolve()
       )
-    }
+    }.singleton
   }
 
   @MainActor
@@ -88,6 +88,7 @@ extension Container {
         taxiChatService: self.taxiChatService.resolve(),
         userUseCase: self.userUseCase.resolve(),
         taxiChatRepository: self.taxiChatRepository.resolve(),
+        taxiRoomRepository: self.taxiRoomRepository.resolve(),
         room: $0
       )
     }

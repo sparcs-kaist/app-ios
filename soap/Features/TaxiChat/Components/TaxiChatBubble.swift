@@ -25,6 +25,11 @@ struct TaxiChatBubble: View {
         )
       )
       .foregroundStyle(isMe ? .white : .primary)
+      .contextMenu {
+        Button("Copy", systemImage: "doc.on.doc") {
+          UIPasteboard.general.string = content
+        }
+      }
   }
 }
 

@@ -20,11 +20,20 @@ class TaxiChatListViewModel: TaxiChatListViewModelProtocol {
   var state: ViewState = .loading
   var onGoingRooms: [TaxiRoom] = []
   var doneRooms: [TaxiRoom] = []
+  var taxiUser: TaxiUser?
 
   // MARK: - Dependency
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+
+  // MARK: - Initialiser
+  init() {
+    Task {
+      await fetchTaxiUser()
+    }
+  }
 
   // MARK: - Functions
   func fetchData() async {
@@ -38,5 +47,9 @@ class TaxiChatListViewModel: TaxiChatListViewModelProtocol {
         state = .error(message: error.localizedDescription)
       }
     }
+  }
+
+  private func fetchTaxiUser() async {
+    self.taxiUser = await userUseCase.taxiUser
   }
 }
