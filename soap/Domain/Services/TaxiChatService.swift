@@ -104,6 +104,16 @@ final class TaxiChatService: TaxiChatServiceProtocol {
       self.chats.append(contentsOf: chats)
     }
 
+    socket.on("chat_update") { data, _ in
+      logger.debug("[TaxiChatService] <<< chat_update")
+      guard let dataDict = data.first as? [String: Any],
+            let roomID = dataDict["roomId"] as? String else {
+        return
+      }
+
+      logger.debug("roomID: \(roomID)")
+    }
+
 //    socket.onAny { event in
 //      print("📡 Socket Event - \(event.event):", event.items ?? [])
 //    }

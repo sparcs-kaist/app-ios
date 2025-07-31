@@ -15,6 +15,7 @@ enum TaxiRoomTarget {
   case createRoom(with: TaxiCreateRoomRequestDTO)
   case joinRoom(roomID: String)
   case leaveRoom(roomID: String)
+  case getRoom(roomID: String)
   case commitSettlement(roomID: String)
   case commitPayment(roomID: String)
 }
@@ -38,6 +39,8 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       "/rooms/join"
     case .leaveRoom:
       "/rooms/abort"
+    case .getRoom(let roomID):
+      "/rooms/info?id=\(roomID)"
     case .commitSettlement:
       "/rooms/commitSettlement"
     case .commitPayment:
@@ -47,7 +50,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var method: Moya.Method {
     switch self {
-    case .fetchRooms, .fetchMyRooms, .fetchLocations:
+    case .fetchRooms, .fetchMyRooms, .getRoom, .fetchLocations:
       .get
     case .createRoom, .joinRoom, .leaveRoom, .commitSettlement, .commitPayment:
       .post
@@ -56,7 +59,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var task: Moya.Task {
     switch self {
-    case .fetchRooms, .fetchMyRooms, .fetchLocations:
+    case .fetchRooms, .fetchMyRooms, .fetchLocations, .getRoom:
       .requestPlain
     case .createRoom(let request):
       .requestJSONEncodable(request)
