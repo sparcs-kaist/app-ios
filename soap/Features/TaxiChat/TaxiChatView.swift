@@ -294,7 +294,6 @@ struct TaxiChatView: View {
       }
       .padding(8)
       .frame(maxWidth: .infinity)
-//      .frame(height: 48)
       .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24))
     }
     .padding(isFocused ? [.horizontal, .vertical] : [.horizontal])
