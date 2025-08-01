@@ -13,6 +13,7 @@ import Observation
 class AuthUseCase: AuthUseCaseProtocol {
   private let authenticationService: AuthenticationServiceProtocol
   private let tokenStorage: TokenStorageProtocol
+  private let araUserRepository: AraUserRepositoryProtocol
 
   private let _isAuthenticatedSubject = CurrentValueSubject<Bool, Never>(false)
   var isAuthenticatedPublisher: AnyPublisher<Bool, Never> {
@@ -24,9 +25,15 @@ class AuthUseCase: AuthUseCaseProtocol {
   // Avoid collision
   private var isRefreshing = false
 
-  init(authenticationService: AuthenticationServiceProtocol, tokenStorage: TokenStorageProtocol) {
+  init(
+    authenticationService: AuthenticationServiceProtocol,
+    tokenStorage: TokenStorageProtocol,
+    araUserRepository: AraUserRepositoryProtocol
+  ) {
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
+    self.araUserRepository = araUserRepository
+
     _isAuthenticatedSubject.value = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
     scheduleRefreshTimer()
   }
@@ -127,10 +134,14 @@ class AuthUseCase: AuthUseCaseProtocol {
       let tokenResponse: SignInResponseDTO = try await authenticationService.authenticate()
       tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
+
+      try await self.araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
+
       _isAuthenticatedSubject.value = true
       logger.info("[AuthUseCase] Signed In")
       scheduleRefreshTimer() // set timer on success
     } catch {
+      tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
       logger.error(error)
       cancelRefreshTimer()

@@ -30,6 +30,8 @@ extension Container {
   }
 
   // MARK: - Repositories
+
+  // MARK: Taxi
   var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol> {
     self { TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [self.authPlugin.resolve()])) }
   }
@@ -44,6 +46,11 @@ extension Container {
         provider: MoyaProvider<TaxiChatTarget>(plugins: [self.authPlugin.resolve()])
       )
     }
+  }
+
+  // MARK: Ara
+  var araUserRepository: Factory<AraUserRepositoryProtocol> {
+    self { AraUserRepository(provider: MoyaProvider<AraUserTarget>(plugins: [self.authPlugin.resolve()])) }
   }
 
   // MARK: - Services
@@ -67,7 +74,8 @@ extension Container {
     self {
       @MainActor in AuthUseCase(
         authenticationService: self.authenticationService.resolve(),
-        tokenStorage: self.tokenStorage.resolve()
+        tokenStorage: self.tokenStorage.resolve(),
+        araUserRepository: self.araUserRepository.resolve()
       )
     }.singleton
   }
