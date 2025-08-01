@@ -32,7 +32,7 @@ class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthe
     }
   }
   
-  func authenticate() async throws -> TokenResponseDTO {
+  func authenticate() async throws -> SignInResponseDTO {
     return try await withCheckedThrowingContinuation { continuation in
       guard let authURL = Constants.authorisationURL,
             var urlComponents = URLComponents(url: authURL, resolvingAgainstBaseURL: false) else {
@@ -91,7 +91,7 @@ class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthe
     }
   }
 
-  func exchangeCodeForTokens(_ authorisationCode: String) async throws -> TokenResponseDTO {
+  func exchangeCodeForTokens(_ authorisationCode: String) async throws -> SignInResponseDTO {
     return try await withCheckedThrowingContinuation { continuation in
       provider
         .request(
@@ -103,7 +103,7 @@ class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthe
           switch result {
           case .success(let response):
             do {
-              let tokenResponse = try response.map(TokenResponseDTO.self)
+              let tokenResponse = try response.map(SignInResponseDTO.self)
               continuation.resume(returning: tokenResponse)
             } catch {
               continuation.resume(throwing: error)

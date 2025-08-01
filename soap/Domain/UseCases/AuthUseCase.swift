@@ -124,7 +124,7 @@ class AuthUseCase: AuthUseCaseProtocol {
 
   func signIn() async throws {
     do {
-      let tokenResponse: TokenResponseDTO = try await authenticationService.authenticate()
+      let tokenResponse: SignInResponseDTO = try await authenticationService.authenticate()
       tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
       _isAuthenticatedSubject.value = true
