@@ -24,7 +24,6 @@ struct AraBlockedUsersView: View {
         }
       }
     .navigationTitle("Blocked Users")
-    .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       EditButton()
     }

@@ -14,27 +14,30 @@ struct SettingsView: View {
   var body: some View {
     NavigationStack {
       List {
-        appSettings
-        araSettings
-        taxiSettings
-        otlSettings
+        Section(header: Text("Settings")) {
+          appSettings
+        }
+        
+        Section(header: Text("Services")) {
+          NavigationLink("Ara") { araSettings }
+          NavigationLink("Taxi") { taxiSettings }
+          NavigationLink("OTL") { otlSettings }
+        }
       }.navigationTitle(Text("Settings"))
     }
   }
   
   private var appSettings: some View {
-    Section(header: Text("App Settings")) {
-      Button(action: {
-        UIApplication.shared.open(URL(string: "App-prefs:org.sparcs.soap")!)
-      }) {
-        Text("Change App Language")
-      }
+    Button(action: {
+      UIApplication.shared.open(URL(string: "App-prefs:org.sparcs.soap")!)
+    }) {
+      Text("Change App Language")
     }
   }
   
   private var araSettings: some View {
-    Section(header: Text("Ara")) {
-      RowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
+    List {
+      rowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
       Toggle(isOn: $vm.araAllowSexualPosts) {
         Text("Allow Sexual Posts")
       }
@@ -44,43 +47,38 @@ struct SettingsView: View {
       NavigationLink {
         AraBlockedUsersView(blockedUsers: vm.araBlockedUsers)
       } label: {
-        RowElementView(title: "Blocked Users", content: "\(vm.araBlockedUsers.count)")
+        rowElementView(title: "Blocked Users", content: "\(vm.araBlockedUsers.count)")
       }
-    }
+    }.navigationTitle("Ara Settings")
   }
   
   private var taxiSettings: some View {
-    Section(header: Text("Taxi")) {
-      RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
+    List {
+      rowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
       Picker("Bank", selection: $vm.taxiBankName) {
         ForEach(vm.taxiBankNameList, id: \.self) {
           Text($0)
         }
       }
-      RowElementView(title: "Account", content: vm.taxiBankNumber)
-    }
+      rowElementView(title: "Account", content: vm.taxiBankNumber)
+    }.navigationTitle("Taxi Settings")
   }
   
   private var otlSettings: some View {
-    Section(header: Text("OTL")) {
+    List {
       HStack {
         NavigationLink {
           FavoriteDepartmentView(selectedMajor: vm.otlMajor)
         } label: {
           HStack {
-            RowElementView(title: "Major", content: "School of Electrical Engineering")
+            rowElementView(title: "Major", content: "School of Electrical Engineering")
           }
         }
       }
-    }
+    }.navigationTitle("OTL Settings")
   }
-}
-
-struct RowElementView: View {
-  var title: String
-  var content: String
   
-  var body: some View {
+  func rowElementView(title: String, content: String) -> some View {
     HStack {
       Text(title)
       Spacer()
