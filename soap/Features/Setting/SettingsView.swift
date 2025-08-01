@@ -24,6 +24,8 @@ struct SettingsView: View {
           NavigationLink("OTL") { otlSettings }
         }
       }.navigationTitle(Text("Settings"))
+    }.task {
+      await vm.fetchTaxiUser()  
     }
   }
   

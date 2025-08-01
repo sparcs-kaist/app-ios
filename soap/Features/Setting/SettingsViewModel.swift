@@ -53,14 +53,8 @@ class SettingsViewModel {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   
-  // MARK: - Initialiser
-  init() {
-    Task {
-      await fetchTaxiUser()
-    }
-  }
-  
-  private func fetchTaxiUser() async {
+  // MARK: - Functions
+  func fetchTaxiUser() async {
     self.taxiUser = await userUseCase.taxiUser
   }
 }
