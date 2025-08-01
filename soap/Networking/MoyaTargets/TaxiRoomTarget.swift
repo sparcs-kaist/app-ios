@@ -13,7 +13,11 @@ enum TaxiRoomTarget {
   case fetchMyRooms
   case fetchLocations
   case createRoom(with: TaxiCreateRoomRequestDTO)
-  case joinRoom(id: String)
+  case joinRoom(roomID: String)
+  case leaveRoom(roomID: String)
+  case getRoom(roomID: String)
+  case commitSettlement(roomID: String)
+  case commitPayment(roomID: String)
 }
 
 extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
@@ -33,14 +37,22 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       "/rooms/create"
     case .joinRoom:
       "/rooms/join"
+    case .leaveRoom:
+      "/rooms/abort"
+    case .getRoom:
+      "/rooms/info"
+    case .commitSettlement:
+      "/rooms/commitSettlement"
+    case .commitPayment:
+      "/rooms/commitPayment"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .fetchRooms, .fetchMyRooms, .fetchLocations:
+    case .fetchRooms, .fetchMyRooms, .getRoom, .fetchLocations:
       .get
-    case .createRoom, .joinRoom:
+    case .createRoom, .joinRoom, .leaveRoom, .commitSettlement, .commitPayment:
       .post
     }
   }
@@ -51,8 +63,16 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       .requestPlain
     case .createRoom(let request):
       .requestJSONEncodable(request)
-    case .joinRoom(let id):
-        .requestParameters(parameters: ["roomId": id], encoding: JSONEncoding.default)
+    case .joinRoom(let roomID):
+        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+    case .leaveRoom(let roomID):
+        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+    case .getRoom(let roomID):
+        .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
+    case .commitSettlement(let roomID):
+        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+    case .commitPayment(let roomID):
+        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     }
   }
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct TaxiRoom: Identifiable, Hashable {
+public struct TaxiRoom: Identifiable, Hashable, Sendable {
   public let id: String
   let title: String
   let source: TaxiLocation

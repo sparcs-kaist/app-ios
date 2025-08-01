@@ -8,7 +8,7 @@
 import Foundation
 import MapKit
 
-public struct TaxiLocation: Identifiable, Hashable {
+public struct TaxiLocation: Identifiable, Hashable, Sendable {
   public let id: String
   let title: LocalizedString
   let priority: Double?

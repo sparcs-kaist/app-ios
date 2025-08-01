@@ -9,14 +9,9 @@ import Foundation
 import Combine
 import SocketIO
 
-protocol TaxiChatServiceProtocol {
-  var chatsPublisher: AnyPublisher<[TaxiChat], Never> { get }
-  var isConnectedPublisher: AnyPublisher<Bool, Never> { get }
-}
-
 final class TaxiChatService: TaxiChatServiceProtocol {
   // MARK: - Publisher
-  private var chatsSubject = CurrentValueSubject<[TaxiChat], Never>([])
+  private var chatsSubject = PassthroughSubject<[TaxiChat], Never>()
   var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
     chatsSubject.eraseToAnyPublisher()
   }
@@ -26,9 +21,18 @@ final class TaxiChatService: TaxiChatServiceProtocol {
     isConnectedSubject.eraseToAnyPublisher()
   }
 
+  private var roomUpdateSubject = PassthroughSubject<String, Never>()
+  var roomUpdatePublisher: AnyPublisher<String, Never> {
+    roomUpdateSubject.eraseToAnyPublisher()
+  }
+
+  private var chatsStorage: [TaxiChat] = []
   private var chats: [TaxiChat] {
-    get { chatsSubject.value }
-    set { chatsSubject.send(newValue) }
+    get { chatsStorage }
+    set {
+      chatsStorage = newValue
+      chatsSubject.send(newValue)
+    }
   }
 
   private var isConnected: Bool {
@@ -48,7 +52,7 @@ final class TaxiChatService: TaxiChatServiceProtocol {
     self.manager = SocketManager(
       socketURL: Constants.taxiSocketURL,
       config: [
-        .log(true),
+        .log(false),
         .compress,
         .forceWebsockets(true),
         .extraHeaders([
@@ -84,7 +88,7 @@ final class TaxiChatService: TaxiChatServiceProtocol {
 
     // retrieves older chats
     socket.on("chat_push_front") { data, _ in
-      logger.debug("[TaxiChatService] <<< chat_init")
+      logger.debug("[TaxiChatService] <<< chat_push_front")
       guard let dataDict = data.first as? [String: Any],
             let chatArray = dataDict["chats"] as? [[String: Any]] else {
         return
@@ -93,6 +97,32 @@ final class TaxiChatService: TaxiChatServiceProtocol {
       let chats: [TaxiChat] = self.handleChats(chatArray)
       self.chats.insert(contentsOf: chats, at: 0)
     }
+
+    socket.on("chat_push_back") { data, _ in
+      logger.debug("[TaxiChatService] <<< chat_push_back")
+      guard let dataDict = data.first as? [String: Any],
+            let chatArray = dataDict["chats"] as? [[String: Any]] else {
+        return
+      }
+
+      let chats: [TaxiChat] = self.handleChats(chatArray)
+      self.chats.append(contentsOf: chats)
+    }
+
+    socket.on("chat_update") { data, _ in
+      logger.debug("[TaxiChatService] <<< chat_update")
+      guard let dataDict = data.first as? [String: Any],
+            let roomID = dataDict["roomId"] as? String else {
+        return
+      }
+
+      logger.debug("roomID: \(roomID)")
+      self.roomUpdateSubject.send(roomID)
+    }
+
+//    socket.onAny { event in
+//      print("📡 Socket Event - \(event.event):", event.items ?? [])
+//    }
   }
 
   private func handleChats(_ data: [[String: Any]]) -> [TaxiChat] {

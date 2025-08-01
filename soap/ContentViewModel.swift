@@ -18,6 +18,7 @@ class ContentViewModel {
   private var cancellables = Set<AnyCancellable>()
 
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
 
   init() {
     authUseCase.isAuthenticatedPublisher
@@ -33,6 +34,7 @@ class ContentViewModel {
     isLoading = true
     do {
       try await authUseCase.refreshAccessTokenIfNeeded()
+      await userUseCase.fetchUsers()
     } catch {
       logger.error(error)
     }

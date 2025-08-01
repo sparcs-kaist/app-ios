@@ -72,7 +72,8 @@ struct TaxiDepartureBubble: View {
     authorProfileImageURL: nil,
     date: Date(),
     isMe: false,
-    isGeneral: false
+    isGeneral: false,
+    isWithdrawn: false
   ) {
     TaxiDepartureBubble(room: TaxiRoom.mock)
   }

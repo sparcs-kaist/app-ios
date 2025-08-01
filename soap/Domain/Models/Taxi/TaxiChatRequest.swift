@@ -10,5 +10,5 @@ import Foundation
 struct TaxiChatRequest {
   let roomID: String
   let type: TaxiChat.ChatType
-  let content: String
+  let content: String?
 }

@@ -18,8 +18,28 @@ extension TaxiRoom: Mockable {
     let locations: [TaxiLocation] = TaxiLocation.mockList
 
     let participants: [TaxiParticipant] = [
-      .init(id: "686d4d8f56fd773a8bd9d78a", name: "tuesday-name", nickname: "tuesday-nickname", profileImageURL: URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/NupjukOTL.png"), withdraw: false, readAt: baseDate),
-      .init(id: "686d4d8f56fd773a8bd9d78c", name: "wednesday-name", nickname: "wednesday-nickname", profileImageURL: URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/GooseOTL.png"), withdraw: false, readAt: baseDate)
+      .init(
+        id: "686d4d8f56fd773a8bd9d78a",
+        name: "tuesday-name",
+        nickname: "tuesday-nickname",
+        profileImageURL: URL(
+          string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/NupjukOTL.png"
+        ),
+        withdraw: false,
+        isSettlement: nil,
+        readAt: baseDate
+      ),
+      .init(
+        id: "686d4d8f56fd773a8bd9d78c",
+        name: "wednesday-name",
+        nickname: "wednesday-nickname",
+        profileImageURL: URL(
+          string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/GooseOTL.png"
+        ),
+        withdraw: false,
+        isSettlement: nil,
+        readAt: baseDate
+      )
     ]
 
     return (0..<18).map { index in

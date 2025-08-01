@@ -15,6 +15,7 @@ struct TaxiChatUserWrapper<Content: View>: View {
   let date: Date?
   let isMe: Bool
   let isGeneral: Bool
+  let isWithdrawn: Bool
   @ViewBuilder let content: () -> Content
 
   var body: some View {
@@ -24,7 +25,9 @@ struct TaxiChatUserWrapper<Content: View>: View {
       HStack(alignment: .bottom, spacing: 8) {
         // profile picture
         if !isMe {
-          if authorID == nil {
+          if isWithdrawn {
+            unknownProfileImage
+          } else if authorID == nil {
             botProfileImage
           } else {
             userProfileImage
@@ -42,29 +45,9 @@ struct TaxiChatUserWrapper<Content: View>: View {
               .fontWeight(.medium)
           }
 
-          HStack(alignment: .bottom, spacing: 4) {
-            // time label for me
-            if isMe {
-              if let date = date {
-                Text(date.formattedTime)
-                  .font(.caption2)
-                  .foregroundStyle(.secondary)
-              }
-            }
-
-            // chat bubbles
-            VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
-              content()
-            }
-
-            // time label for other users
-            if !isMe {
-              if let date = date {
-                Text(date.formattedTime)
-                  .font(.caption2)
-                  .foregroundStyle(.secondary)
-              }
-            }
+          // chat bubbles
+          VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
+            content()
           }
         }
 
@@ -110,9 +93,22 @@ struct TaxiChatUserWrapper<Content: View>: View {
     }
   }
 
+  private var unknownProfileImage: some View {
+    ZStack {
+      Circle()
+        .fill(.indigo.opacity(0.1))
+        .frame(width: 36, height: 36)
+
+      Text("👻")
+        .font(.system(size: 20))
+    }
+  }
+
   private var authorNameplace: some View {
     Group {
-      if let name = authorName {
+      if isWithdrawn {
+        Text("Unknown")
+      } else if let name = authorName {
         Text(name)
       } else if authorID == nil {
         Text("Taxi Bot")
@@ -131,7 +127,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       date: Date(),
       isMe: false,
-      isGeneral: false
+      isGeneral: false,
+      isWithdrawn: false
     ) {
       TaxiChatBubble(content: "hey", showTip: true, isMe: false)
     }
@@ -142,7 +139,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       date: Date(),
       isMe: true,
-      isGeneral: false
+      isGeneral: false,
+      isWithdrawn: false
     ) {
       TaxiChatBubble(content: "hey alex!", showTip: true, isMe: true)
     }
@@ -153,7 +151,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       date: Date(),
       isMe: false,
-      isGeneral: false
+      isGeneral: false,
+      isWithdrawn: false
     ) {
       TaxiChatBubble(content: "yo everyone", showTip: false, isMe: false)
       TaxiChatBubble(content: "what's up", showTip: true, isMe: false)
@@ -165,7 +164,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       date: Date(),
       isMe: false,
-      isGeneral: false
+      isGeneral: false,
+      isWithdrawn: false
     ) {
       TaxiChatBubble(content: "how's your day going?", showTip: true, isMe: false)
     }
@@ -176,7 +176,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       date: Date(),
       isMe: false,
-      isGeneral: false
+      isGeneral: false,
+      isWithdrawn: false
     ) {
       TaxiChatBubble(content: "pretty chill", showTip: false, isMe: false)
       TaxiChatBubble(content: "so far", showTip: false, isMe: false)
@@ -189,7 +190,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       authorProfileImageURL: nil,
       date: Date(),
       isMe: true,
-      isGeneral: false
+      isGeneral: false,
+      isWithdrawn: false
     ) {
       TaxiChatBubble(content: "same here", showTip: false, isMe: true)
       TaxiChatBubble(content: "just working through emails", showTip: true, isMe: true)
