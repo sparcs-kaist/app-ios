@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-// MARK: - URL Identifiable Extension
-extension URL: @retroactive Identifiable {
-  public var id: String { absoluteString }
-}
-
-// MARK: - TaxiChatBubble
 struct TaxiChatBubble: View {
   let content: String
   let showTip: Bool
@@ -45,7 +39,7 @@ struct TaxiChatBubble: View {
       }
   }
 
-  func handleURL(_ url: URL) -> OpenURLAction.Result {
+  private func handleURL(_ url: URL) -> OpenURLAction.Result {
     selectedURL = url
     return .handled
   }
