@@ -57,12 +57,21 @@ struct SettingsView: View {
   private var taxiSettings: some View {
     List {
       rowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
-      Picker("Bank", selection: $vm.taxiBankName) {
-        ForEach(Constants.taxiBankNameList, id: \.self) {
-          Text($0)
+      HStack(alignment: .top) {
+        Text("Bank Account")
+        Spacer()
+        VStack(alignment: .trailing) {
+          Picker("", selection: $vm.taxiBankName) {
+            ForEach(Constants.taxiBankNameList, id: \.self) {
+              Text($0)
+            }
+          }
+          Spacer()
+          TextField("", text: $vm.taxiBankNumber)
+            .multilineTextAlignment(.trailing)
+            .foregroundStyle(.secondary)
         }
       }
-      rowElementView(title: "Account", content: vm.taxiBankNumber)
     }.navigationTitle("Taxi Settings")
   }
   
