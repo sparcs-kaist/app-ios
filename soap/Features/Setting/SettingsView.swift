@@ -14,15 +14,15 @@ struct SettingsView: View {
   var body: some View {
     NavigationStack {
       List {
-        app_settings
-        ara_settings
-        taxi_settings
-        otlplus_settings
+        appSettings
+        araSettings
+        taxiSettings
+        otlSettings
       }.navigationTitle(Text("Settings"))
     }
   }
   
-  private var app_settings: some View {
+  private var appSettings: some View {
     Section(header: Text("App Settings")) {
       Button(action: {
         UIApplication.shared.open(URL(string: "App-prefs:org.sparcs.soap")!)
@@ -32,7 +32,7 @@ struct SettingsView: View {
     }
   }
   
-  private var ara_settings: some View {
+  private var araSettings: some View {
     Section(header: Text("Ara")) {
       RowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
       Toggle(isOn: $vm.araAllowSexualPosts) {
@@ -49,7 +49,7 @@ struct SettingsView: View {
     }
   }
   
-  private var taxi_settings: some View {
+  private var taxiSettings: some View {
     Section(header: Text("Taxi")) {
       RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
       Picker("Bank", selection: $vm.taxiBankName) {
@@ -61,8 +61,8 @@ struct SettingsView: View {
     }
   }
   
-  private var otlplus_settings: some View {
-    Section(header: Text("OTL Plus")) {
+  private var otlSettings: some View {
+    Section(header: Text("OTL")) {
       HStack {
         NavigationLink {
           FavoriteDepartmentView(selectedMajor: vm.otlMajor)
