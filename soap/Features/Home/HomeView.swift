@@ -15,7 +15,7 @@ import FLEX
 struct HomeView: View {
   @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
   @State private var showSettingsSheet: Bool = false
-    
+
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -48,9 +48,11 @@ struct HomeView: View {
               FLEXManager.shared.showExplorer()
             }
             #endif
+
             Button("Settings", systemImage: "gear") {
                 showSettingsSheet = true
             }
+
             Button(
               "Sign Out",
               systemImage: "rectangle.portrait.and.arrow.right",
@@ -65,7 +67,8 @@ struct HomeView: View {
       }
       .background(Color.secondarySystemBackground)
       .sheet(isPresented: $showSettingsSheet) {
-          SettingsView().presentationDragIndicator(.visible)
+        SettingsView()
+          .presentationDragIndicator(.visible)
       }
     }
   }
