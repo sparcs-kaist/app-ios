@@ -25,7 +25,7 @@ struct SettingsView: View {
         }
       }.navigationTitle(Text("Settings"))
     }.task {
-      await vm.fetchTaxiUser()  
+      await vm.fetchTaxiUser()
     }
   }
   
@@ -58,7 +58,7 @@ struct SettingsView: View {
     List {
       rowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
       Picker("Bank", selection: $vm.taxiBankName) {
-        ForEach(vm.taxiBankNameList, id: \.self) {
+        ForEach(Constants.taxiBankNameList, id: \.self) {
           Text($0)
         }
       }
