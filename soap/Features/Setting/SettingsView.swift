@@ -58,10 +58,8 @@ struct SettingsView: View {
     List {
       rowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
       HStack(alignment: .top) {
-        Text("Bank Account")
-        Spacer()
         VStack(alignment: .trailing) {
-          Picker("", selection: $vm.taxiBankName) {
+          Picker("Bank Account", selection: $vm.taxiBankName) {
             ForEach(Constants.taxiBankNameList, id: \.self) {
               Text($0)
             }
