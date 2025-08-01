@@ -49,7 +49,7 @@ struct HomeView: View {
             }
             #endif
             Button("Settings", systemImage: "gear") {
-                showSettingsSheet.toggle()
+                showSettingsSheet = true
             }
             Button(
               "Sign Out",
