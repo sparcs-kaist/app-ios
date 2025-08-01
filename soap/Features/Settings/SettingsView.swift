@@ -14,7 +14,7 @@ struct SettingsView: View {
   var body: some View {
     NavigationStack {
       List {
-        Section(header: Text("Settings")) {
+        Section(header: Text("Miscellaneous")) {
           appSettings
         }
         
@@ -23,54 +23,65 @@ struct SettingsView: View {
           NavigationLink("Taxi") { taxiSettings }
           NavigationLink("OTL") { otlSettings }
         }
-      }.navigationTitle(Text("Settings"))
-    }.task {
+      }
+      .navigationTitle(Text("Settings"))
+    }
+    .task {
       await vm.fetchTaxiUser()
     }
   }
   
   private var appSettings: some View {
-    Button(action: {
+    Button("Change Language", systemImage: "globe") {
       UIApplication.shared.open(URL(string: "App-prefs:org.sparcs.soap")!)
-    }) {
-      Text("Change App Language")
     }
   }
   
   private var araSettings: some View {
     List {
-      rowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
-      Toggle(isOn: $vm.araAllowSexualPosts) {
-        Text("Allow Sexual Posts")
+      Section(header: Text("Profile")) {
+        rowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
       }
-      Toggle(isOn: $vm.araAllowPoliticalPosts) {
-        Text("Allow Political Posts")
+
+      Section(header: Text("Posts")) {
+        Toggle("Allow NSFW", isOn: $vm.araAllowNSFWPosts)
+        Toggle("Allow Political", isOn: $vm.araAllowPoliticalPosts)
       }
-      NavigationLink {
-        AraBlockedUsersView(blockedUsers: vm.araBlockedUsers)
-      } label: {
-        rowElementView(title: "Blocked Users", content: "\(vm.araBlockedUsers.count)")
+
+      Section {
+        NavigationLink {
+          AraBlockedUsersView(blockedUsers: vm.araBlockedUsers)
+        } label: {
+          rowElementView(title: "Blocked Users", content: "\(vm.araBlockedUsers.count)")
+        }
       }
-    }.navigationTitle("Ara Settings")
+    }
+    .navigationTitle("Ara Settings")
   }
   
   private var taxiSettings: some View {
     List {
-      rowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
-      HStack(alignment: .top) {
-        VStack(alignment: .trailing) {
-          Picker("Bank Account", selection: $vm.taxiBankName) {
-            ForEach(Constants.taxiBankNameList, id: \.self) {
-              Text($0)
+      Section(header: Text("Profile")) {
+        rowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
+      }
+
+      Section {
+        HStack(alignment: .top) {
+          VStack(alignment: .trailing) {
+            Picker("Bank Account", selection: $vm.taxiBankName) {
+              ForEach(Constants.taxiBankNameList, id: \.self) {
+                Text($0)
+              }
             }
+            Spacer()
+            TextField("", text: $vm.taxiBankNumber)
+              .multilineTextAlignment(.trailing)
+              .foregroundStyle(.secondary)
           }
-          Spacer()
-          TextField("", text: $vm.taxiBankNumber)
-            .multilineTextAlignment(.trailing)
-            .foregroundStyle(.secondary)
         }
       }
-    }.navigationTitle("Taxi Settings")
+    }
+    .navigationTitle("Taxi Settings")
   }
   
   private var otlSettings: some View {

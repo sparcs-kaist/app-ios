@@ -15,7 +15,7 @@ import Observation
 class SettingsViewModel {
   // MARK: - Mock data
   // TODO: implement API call & data structures
-  var araAllowSexualPosts: Bool = false
+  var araAllowNSFWPosts: Bool = false
   var araAllowPoliticalPosts: Bool = false
   var araBlockedUsers: [String] = ["유능한 시조새_0b4c"]
   var taxiBankName: String = "카카오뱅크"
