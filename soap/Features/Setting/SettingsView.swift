@@ -77,12 +77,10 @@ struct SettingsView: View {
   
   private var otlSettings: some View {
     List {
-      HStack {
-        NavigationLink {
-          FavoriteDepartmentView(selectedMajor: vm.otlMajor)
-        } label: {
-          HStack {
-            rowElementView(title: "Major", content: "School of Electrical Engineering")
+      HStack(alignment: .center) {
+        Picker("Major", selection: $vm.otlMajor) {
+          ForEach(vm.otlMajorList, id: \.self) {
+            Text($0)
           }
         }
       }
