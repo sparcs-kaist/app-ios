@@ -9,6 +9,6 @@ import Foundation
 
 @MainActor
 protocol AuthenticationServiceProtocol {
-  func authenticate() async throws -> TokenResponseDTO
+  func authenticate() async throws -> SignInResponseDTO
   func refreshAccessToken(refreshToken: String) async throws -> TokenResponseDTO
 }
