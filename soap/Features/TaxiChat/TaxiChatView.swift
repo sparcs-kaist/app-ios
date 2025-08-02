@@ -132,7 +132,7 @@ struct TaxiChatView: View {
 
               HStack(alignment: .bottom, spacing: 4) {
                 // time label for this sender
-                if groupedChat.isMe {
+                if groupedChat.isMe && groupedChat.lastChatID != nil {
                   VStack(alignment: .trailing) {
                     if readCount > 0 {
                       Text("\(readCount)")
@@ -183,8 +183,8 @@ struct TaxiChatView: View {
                 }
 
                 // time label for other senders
-                if !groupedChat.isMe {
-                  VStack(alignment: .trailing) {
+                if !groupedChat.isMe && groupedChat.lastChatID != nil {
+                  VStack(alignment: .leading) {
                     if readCount > 0 {
                       Text("\(readCount)")
                         .font(.caption2)
