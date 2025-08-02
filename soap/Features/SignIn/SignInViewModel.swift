@@ -17,18 +17,10 @@ class SignInViewModel {
 
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
 
-  func signIn() {
+  func signIn() async throws {
     isLoading = true
-    errorMessage = nil
-    Task { @MainActor in
-      do {
-        try await authUseCase.signIn()
-      } catch {
-        errorMessage = error.localizedDescription
-        logger.error("Sign in failed: \(error.localizedDescription)")
-        // TODO: HANDLE ERROR
-      }
-      isLoading = false
-    }
+    defer { isLoading = false }
+
+    try await authUseCase.signIn()
   }
 }

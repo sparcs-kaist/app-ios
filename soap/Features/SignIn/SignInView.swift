@@ -10,6 +10,9 @@ import SwiftUI
 struct SignInView: View {
   @State private var viewModel = SignInViewModel()
 
+  @State private var showErrorAlert: Bool = false
+  @State private var errorMessage: String = ""
+
   var body: some View {
     VStack {
       Spacer()
@@ -20,7 +23,14 @@ struct SignInView: View {
       Spacer()
 
       Button(action: {
-        viewModel.signIn()
+        Task {
+          do {
+            try await viewModel.signIn()
+          } catch {
+            errorMessage = error.localizedDescription
+            showErrorAlert = true
+          }
+        }
       }, label: {
         Group {
           if viewModel.isLoading {
@@ -38,6 +48,11 @@ struct SignInView: View {
       .disabled(viewModel.isLoading)
     }
     .padding()
+    .alert("Error", isPresented: $showErrorAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(errorMessage)
+    })
   }
 }
 

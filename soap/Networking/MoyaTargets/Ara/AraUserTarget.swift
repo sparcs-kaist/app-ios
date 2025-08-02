@@ -20,7 +20,7 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
   var path: String {
     switch self {
     case .register:
-      "/users/oneapp-login"
+      "/users/oneapp-login/"
     }
   }
 
