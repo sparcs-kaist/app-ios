@@ -38,5 +38,5 @@ struct TaxiChat: Identifiable, Equatable, Hashable, Sendable {
   let content: String
   let time: Date
   let isValid: Bool
-  let inOutNames: [String]
+  let inOutNames: [String]?
 }
