@@ -13,7 +13,7 @@ extension String {
   func toDate() -> Date? {
     let formatter = ISO8601DateFormatter()
     formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    
     return formatter.date(from: self)
   }
 }
