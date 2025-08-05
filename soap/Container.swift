@@ -54,7 +54,15 @@ extension Container {
   }
 
   var araBoardRepository: Factory<AraBoardRepositoryProtocol> {
-    self { AraBoardRepository(provider: MoyaProvider<AraBoardTarget>(plugins: [self.authPlugin.resolve()])) }
+    self {
+      AraBoardRepository(
+        provider: MoyaProvider<AraBoardTarget>(
+          plugins: [
+            self.authPlugin.resolve()
+          ]
+        )
+      )
+    }
   }
 
   // MARK: - Services

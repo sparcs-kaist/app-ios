@@ -10,7 +10,7 @@ import Foundation
 @preconcurrency
 import Moya
 
-protocol AraBoardRepositoryProtocol {
+protocol AraBoardRepositoryProtocol: Sendable {
   func getBoards() async throws -> [AraBoard]
 }
 

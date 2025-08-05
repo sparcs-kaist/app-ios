@@ -20,7 +20,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
   var path: String {
     switch self {
     case .getBoards:
-      "/boards"
+      "/boards/"
     }
   }
 
