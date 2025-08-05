@@ -10,6 +10,10 @@ import Foundation
 @preconcurrency
 import Moya
 
+protocol TaxiUserRepositoryProtocol: Sendable {
+  func fetchUser() async throws -> TaxiUser
+}
+
 final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<TaxiUserTarget>
 
