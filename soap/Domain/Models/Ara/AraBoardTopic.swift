@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AraBoardTopic: Identifiable {
+struct AraBoardTopic: Identifiable, Hashable {
   let id: Int
   let slug: String
   let name: LocalizedString
