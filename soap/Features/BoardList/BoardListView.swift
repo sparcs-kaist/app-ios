@@ -35,7 +35,9 @@ struct BoardListView: View {
     ForEach(groups) { group in
       Section(header: Label(group.name.localized(), systemImage: systemImage(for: group.slug))) {
         ForEach(boards.filter { $0.group.id == group.id }) { board in
-          NavigationLink(board.name.localized(), destination: { })
+          NavigationLink(board.name.localized()) {
+            PostListView()
+          }
         }
       }
       .headerProminence(.increased)
