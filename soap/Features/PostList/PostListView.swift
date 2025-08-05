@@ -20,10 +20,17 @@ struct PostListView: View {
   var body: some View {
     ZStack(alignment: .bottom) {
       List {
-        ForEach(viewModel.postList) { post in
-          PostListRow(post: post)
-            .listRowSeparator(.hidden, edges: .top)
-            .listRowSeparator(.visible, edges: .bottom)
+        switch viewModel.state {
+        case .loading:
+          ProgressView()
+        case .loaded:
+          ForEach(viewModel.postList) { post in
+            PostListRow(post: post)
+              .listRowSeparator(.hidden, edges: .top)
+              .listRowSeparator(.visible, edges: .bottom)
+          }
+        case .error(let message):
+          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
       .listStyle(.plain)

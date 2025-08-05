@@ -10,6 +10,8 @@ import Observation
 
 protocol PostListViewModelProtocol: Observable {
   var postList: [Post] { get }
+
+  var state: PostListViewModel.ViewState { get }
   var board: AraBoard { get }
 }
 
@@ -17,6 +19,12 @@ protocol PostListViewModelProtocol: Observable {
 class PostListViewModel: PostListViewModelProtocol {
   var postList: [Post] = Post.mockList
 
+  enum ViewState {
+    case loading
+    case loaded
+    case error(message: String)
+  }
+  var state: ViewState = .loading
 
   var board: AraBoard
 
@@ -24,5 +32,5 @@ class PostListViewModel: PostListViewModelProtocol {
   init(board: AraBoard) {
     self.board = board
   }
-
+  
 }
