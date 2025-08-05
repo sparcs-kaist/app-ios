@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct PostListView: View {
+  @State private var viewModel: PostListViewModelProtocol
+
+  @State private var showsComposeView: Bool = false
   @Namespace private var namespace
 
-  @State private var searchText: String = ""
-  @State private var showsComposeView: Bool = false
-
-  private var viewModel = PostListViewModel()
+  init(board: AraBoard) {
+    _viewModel = State(initialValue: PostListViewModel(board: board))
+  }
 
   var body: some View {
     ZStack(alignment: .bottom) {
@@ -26,14 +28,10 @@ struct PostListView: View {
       }
       .listStyle(.plain)
     }
-    .navigationTitle("General")
+    .navigationTitle(viewModel.board.name.localized())
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.hidden, for: .tabBar)
     .toolbar {
-      ToolbarItem(placement: .bottomBar) {
-        Label("Write", systemImage: "line.3.horizontal.decrease.circle")
-      }
-
       ToolbarSpacer(.flexible, placement: .bottomBar)
 
       ToolbarItem(placement: .bottomBar) {
@@ -45,39 +43,15 @@ struct PostListView: View {
     }
     .sheet(isPresented: $showsComposeView) {
       PostComposeView()
-        .environment(viewModel)
         .interactiveDismissDisabled()
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
     }
-  }
-
-  @ViewBuilder
-  private var composeButton: some View {
-    Button(action: {
-      showsComposeView = true
-    }, label: {
-      HStack {
-        Image(systemName: "pencil")
-          .foregroundStyle(.indigo)
-        Text("Write")
-      }
-      .padding()
-      .padding(.horizontal, 4)
-      .background(
-        Capsule()
-          .stroke(Color(UIColor.systemGray5), lineWidth: 1)
-          .fill(.regularMaterial)
-      )
-    })
-    .contentShape(Capsule())
-    .tint(.primary)
-    .shadow(color: .black.opacity(0.16), radius: 12)
   }
 }
 
 #Preview {
   NavigationStack {
-    PostListView()
+    PostListView(board: AraBoard.mock)
   }
 }
 

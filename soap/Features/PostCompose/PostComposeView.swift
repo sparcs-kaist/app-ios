@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct PostComposeView: View {
-  @Environment(PostListViewModel.self) private var viewModel
   @Environment(\.dismiss) private var dismiss
 
   @FocusState private var isTitleFocused
@@ -137,11 +136,11 @@ struct PostComposeView: View {
       Button("No flair") {
         withAnimation(.spring()) { selectedFlair = "No flair" }
       }
-      ForEach(viewModel.flairList, id: \.self) { flair in
-        Button(flair) {
-          withAnimation(.spring()) { selectedFlair = flair }
-        }
-      }
+//      ForEach(viewModel.flairList, id: \.self) { flair in
+//        Button(flair) {
+//          withAnimation(.spring()) { selectedFlair = flair }
+//        }
+//      }
     } label: {
       HStack {
         Text(selectedFlair)
@@ -165,5 +164,4 @@ struct PostComposeView: View {
 
 #Preview {
   PostComposeView()
-    .environment(PostListViewModel())
 }

@@ -8,15 +8,21 @@
 import SwiftUI
 import Observation
 
+protocol PostListViewModelProtocol: Observable {
+  var postList: [Post] { get }
+  var board: AraBoard { get }
+}
+
 @Observable
-class PostListViewModel {
+class PostListViewModel: PostListViewModelProtocol {
   var postList: [Post] = Post.mockList
-  var flairList: [String] = [
-    "SPPANGS",
-    "Meal",
-    "Money",
-    "Gaming",
-    "Dating",
-    "Lost & Found",
-  ]
+
+
+  var board: AraBoard
+
+  // MARK: - Initialiser
+  init(board: AraBoard) {
+    self.board = board
+  }
+
 }

@@ -36,7 +36,7 @@ struct BoardListView: View {
       Section(header: Label(group.name.localized(), systemImage: systemImage(for: group.slug))) {
         ForEach(boards.filter { $0.group.id == group.id }) { board in
           NavigationLink(board.name.localized()) {
-            PostListView()
+            PostListView(board: board)
           }
         }
       }
