@@ -1,40 +1,40 @@
 //
-//  AraUserTarget.swift
+//  AraBoardTarget.swift
 //  soap
 //
-//  Created by Soongyu Kwon on 01/08/2025.
+//  Created by Soongyu Kwon on 05/08/2025.
 //
 
 import Foundation
 import Moya
 
-enum AraUserTarget {
-  case register(ssoInfo: String)
+enum AraBoardTarget {
+  case getBoards
 }
 
-extension AraUserTarget: TargetType, AccessTokenAuthorizable {
+extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
   var baseURL: URL {
     Constants.araBackendURL
   }
 
   var path: String {
     switch self {
-    case .register:
-      "/users/oneapp-login/"
+    case .getBoards:
+      "/boards/"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .register:
-      .post
+    case .getBoards:
+      .get
     }
   }
 
   var task: Moya.Task {
     switch self {
-    case .register(let ssoInfo):
-        .requestParameters(parameters: ["ssoInfo": ssoInfo], encoding: JSONEncoding.default)
+    case .getBoards:
+      .requestPlain
     }
   }
 

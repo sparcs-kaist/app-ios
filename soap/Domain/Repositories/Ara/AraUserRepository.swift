@@ -10,6 +10,10 @@ import Foundation
 @preconcurrency
 import Moya
 
+protocol AraUserRepositoryProtocol: Sendable {
+  func register(ssoInfo: String) async throws
+}
+
 final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<AraUserTarget>
 
