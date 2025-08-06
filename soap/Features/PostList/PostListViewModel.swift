@@ -50,7 +50,7 @@ class PostListViewModel: PostListViewModelProtocol {
 
   func fetchInitialPosts() async {
     do {
-      let page = try await araBoardRepository.fetchPosts(boardID: board.id, page: 1)
+      let page = try await araBoardRepository.fetchPosts(boardID: board.id, page: 1, pageSize: 30)
       self.pages = page.pages
       self.items = page.items
       self.currentPage = page.currentPage

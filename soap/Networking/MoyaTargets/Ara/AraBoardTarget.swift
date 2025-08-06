@@ -10,7 +10,7 @@ import Moya
 
 enum AraBoardTarget {
   case fetchBoards
-  case fetchPosts(boardID: Int, page: Int)
+  case fetchPosts(boardID: Int, page: Int, pageSize: Int)
 }
 
 extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
@@ -38,9 +38,9 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards:
       .requestPlain
-    case .fetchPosts(let boardID, let page):
+    case .fetchPosts(let boardID, let page, let pageSize):
         .requestParameters(
-          parameters: ["parent_board": boardID, "page": page, "page_size": 30],
+          parameters: ["parent_board": boardID, "page": page, "page_size": pageSize],
           encoding: URLEncoding.queryString
         )
     }

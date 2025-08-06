@@ -12,7 +12,7 @@ import Moya
 
 protocol AraBoardRepositoryProtocol: Sendable {
   func fetchBoards() async throws -> [AraBoard]
-  func fetchPosts(boardID: Int, page: Int) async throws -> AraPostPage
+  func fetchPosts(boardID: Int, page: Int, pageSize: Int) async throws -> AraPostPage
 }
 
 actor AraBoardRepository: AraBoardRepositoryProtocol {
@@ -37,8 +37,10 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
     return boards
   }
 
-  func fetchPosts(boardID: Int, page: Int) async throws -> AraPostPage {
-    let response = try await provider.request(.fetchPosts(boardID: boardID, page: page))
+  func fetchPosts(boardID: Int, page: Int, pageSize: Int) async throws -> AraPostPage {
+    let response = try await provider.request(
+      .fetchPosts(boardID: boardID, page: page, pageSize: pageSize)
+    )
     let page: AraPostPage = try response.map(AraPostPageDTO.self).toModel()
 
     return page
