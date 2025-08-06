@@ -76,148 +76,19 @@ struct PostView: View {
   private var comments: some View {
     VStack(spacing: 16) {
       // Main comment
-      VStack(alignment: .leading, spacing: 8) {
-        Divider()
+      if let comments = post.comments {
+        ForEach(comments) { comment in
+          VStack(spacing: 12) {
+            PostCommentCell(comment: comment)
 
-        HStack {
-          Circle()
-            .frame(width: 21, height: 21)
-
-          Text("anonymous")
-            .fontWeight(.medium)
-
-          Text("22 May 17:44")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-          Spacer()
-
-          Button("more", systemImage: "ellipsis") { }
-            .labelStyle(.iconOnly)
-        }
-        .font(.callout)
-
-        Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
-          .font(.callout)
-
-        HStack {
-          Spacer()
-
-          PostCommentButton()
-            .fixedSize()
-
-          PostVoteButton()
-            .fixedSize()
-        }
-        .font(.caption)
-
-        // Threads
-        HStack(alignment: .top, spacing: 8) {
-          Image(systemName: "arrow.turn.down.right")
-
-          VStack(alignment: .leading, spacing: 8) {
-            HStack {
-              Circle()
-                .frame(width: 21, height: 21)
-
-              Text("anonymous")
-                .fontWeight(.medium)
-
-              Text("22 May 17:44")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-              Spacer()
-
-              Button("more", systemImage: "ellipsis") { }
-                .labelStyle(.iconOnly)
+            // Threads
+            if let threads = comment.comments {
+              ForEach(threads) { thread in
+                PostThreadedCommentCell(comment: thread)
+              }
             }
-            .font(.callout)
-
-            Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
-              .font(.callout)
-
-            HStack {
-              Spacer()
-
-              PostVoteButton()
-                .fixedSize()
-            }
-            .font(.caption)
           }
         }
-
-        HStack(alignment: .top, spacing: 8) {
-          Image(systemName: "arrow.turn.down.right")
-
-          VStack(alignment: .leading, spacing: 8) {
-            HStack {
-              Circle()
-                .frame(width: 21, height: 21)
-
-              Text("anonymous")
-                .fontWeight(.medium)
-
-              Text("22 May 17:44")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-              Spacer()
-
-              Button("more", systemImage: "ellipsis") { }
-                .labelStyle(.iconOnly)
-            }
-            .font(.callout)
-
-            Text("aaaa")
-              .font(.callout)
-
-            HStack {
-              Spacer()
-
-              PostVoteButton()
-                .fixedSize()
-            }
-            .font(.caption)
-          }
-        }
-      }
-
-      // Main comment
-      VStack(alignment: .leading, spacing: 8) {
-        Divider()
-
-        HStack {
-          Circle()
-            .frame(width: 21, height: 21)
-
-          Text("anonymous")
-            .fontWeight(.medium)
-
-          Text("22 May 17:44")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-          Spacer()
-
-          Button("more", systemImage: "ellipsis") { }
-            .labelStyle(.iconOnly)
-        }
-        .font(.callout)
-
-        Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
-          .font(.callout)
-
-        HStack {
-          Spacer()
-
-          PostCommentButton()
-            .fixedSize()
-
-          PostVoteButton()
-            .fixedSize()
-        }
-        .font(.caption)
       }
     }
     .padding(.top, 4)
@@ -225,9 +96,9 @@ struct PostView: View {
 
   private var footer: some View {
     HStack {
-      PostVoteButton()
+      PostVoteButton(myVote: post.myVote, votes: post.upvotes - post.downvotes, onDownvote: { }, onUpvote: { })
 
-      PostCommentButton()
+      PostCommentButton(commentCount: post.commentCount)
 
       Spacer()
 

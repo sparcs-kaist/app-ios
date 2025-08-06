@@ -23,7 +23,7 @@ struct PostListRowVoteLabel: View {
           Text("\(voteCount)")
             .lineLimit(1)
         }
-        .foregroundStyle(Color(hex: "ff4500"))
+        .foregroundStyle(Color.upvote)
       } else if voteCount < 0 {
         // downvoted
         HStack(spacing: 4) {
@@ -31,7 +31,7 @@ struct PostListRowVoteLabel: View {
           Text("\(voteCount)")
             .lineLimit(1)
         }
-        .foregroundStyle(Color(hex: "047dff"))
+        .foregroundStyle(Color.downvote)
       }
     }
   }

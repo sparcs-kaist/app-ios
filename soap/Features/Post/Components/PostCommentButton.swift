@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct PostCommentButton: View {
+  let commentCount: Int
+
   var body: some View {
     HStack {
       Button("comments", systemImage: "text.bubble") {
@@ -17,7 +19,7 @@ struct PostCommentButton: View {
       .labelStyle(.iconOnly)
       .foregroundStyle(.primary)
 
-      Text("23")
+      Text("\(commentCount)")
     }
     .padding(8)
     .glassEffect(.regular.interactive())

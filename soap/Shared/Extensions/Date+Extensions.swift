@@ -83,7 +83,7 @@ extension Date {
     } else {
       let formatter = DateFormatter()
       formatter.locale = Locale.current
-      formatter.setLocalizedDateFormatFromTemplate("MMM d 'at' jm")
+      formatter.setLocalizedDateFormatFromTemplate("yMMM d 'at' jm")
       return formatter.string(from: self)
     }
   }

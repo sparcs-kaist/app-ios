@@ -16,6 +16,6 @@ struct PostShareButton: View {
     .labelStyle(.iconOnly)
     .foregroundStyle(.primary)
     .padding(8)
-    .glassEffect(.regular.interactive())
+    .glassEffect(.regular.interactive(), in: .circle)
   }
 }
