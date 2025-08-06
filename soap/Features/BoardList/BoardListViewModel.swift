@@ -12,7 +12,7 @@ import Factory
 @MainActor
 @Observable
 class BoardListViewModel {
-  enum ViewState {
+  enum ViewState: Equatable {
     case loading
     case loaded(boards: [AraBoard], groups: [AraBoardGroup])
     case error(message: String)

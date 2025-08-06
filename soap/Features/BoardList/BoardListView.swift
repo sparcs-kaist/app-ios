@@ -15,7 +15,8 @@ struct BoardListView: View {
       List {
         switch viewModel.state {
         case .loading:
-          ProgressView()
+          loadingView
+            .redacted(reason: .placeholder)
         case .loaded(let boards, let groups):
           loadedView(boards: boards, groups: groups)
         case .error(let message):
@@ -23,6 +24,7 @@ struct BoardListView: View {
         }
       }
       .listStyle(.sidebar)
+      .disabled(viewModel.state == .loading)
       .navigationTitle("Boards")
       .task {
         await viewModel.fetchBoards()
@@ -42,6 +44,43 @@ struct BoardListView: View {
       }
       .headerProminence(.increased)
     }
+  }
+
+  @ViewBuilder
+  var loadingView: some View {
+    Section(header: Label("Notice", systemImage: "bell.badge.fill")) {
+      NavigationLink("Portal Notice", destination: { })
+      NavigationLink("Staff Notice", destination: { })
+      NavigationLink("Facility Notice", destination: { })
+      NavigationLink("External Company Advertisement", destination: { })
+    }
+    .headerProminence(.increased)
+
+    Section(header: Label("Talk", systemImage: "text.bubble.fill")) {
+      NavigationLink("General", destination: { })
+    }
+    .headerProminence(.increased)
+
+    Section(header: Label("Organisations and Clubs", systemImage: "person.2.fill")) {
+      NavigationLink("Students Group", destination: { })
+      NavigationLink("Club", destination: { })
+    }
+    .headerProminence(.increased)
+
+    Section(header: Label("Trade", systemImage: "tag.fill")) {
+      NavigationLink("Wanted", destination: { })
+      NavigationLink("Market", destination: { })
+      NavigationLink("Real Estate", destination: { })
+    }
+    .headerProminence(.increased)
+
+    Section(header: Label("Communication", systemImage: "envelope.open.fill")) {
+      NavigationLink("Facility Feedback", destination: { })
+      NavigationLink("Ara Feedback", destination: { })
+      NavigationLink("Messages to the School", destination: { })
+      NavigationLink("KAIST News", destination: { })
+    }
+    .headerProminence(.increased)
   }
 
   func systemImage(for slug: String) -> String {
