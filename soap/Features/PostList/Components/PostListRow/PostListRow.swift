@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PostListRow: View {
-  let post: AraPost
+  let post: AraPostHeader
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {

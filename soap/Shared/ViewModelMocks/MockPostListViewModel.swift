@@ -12,9 +12,9 @@ import Observation
 class MockPostListViewModel: PostListViewModelProtocol {
   // MARK: - ViewModel Properties
   var postList: [Post] = Post.mockList
-  var state: PostListViewModel.ViewState = .loaded(posts: AraPost.mockList)
+  var state: PostListViewModel.ViewState = .loaded(posts: AraPostHeader.mockList)
   var board: AraBoard = AraBoard.mock
-  var posts: [AraPost] = AraPost.mockList
+  var posts: [AraPostHeader] = AraPostHeader.mockList
   var isLoadingMore: Bool = false
   var hasMorePages: Bool = true
 

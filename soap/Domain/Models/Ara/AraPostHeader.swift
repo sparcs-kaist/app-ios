@@ -1,5 +1,5 @@
 //
-//  AraPost.swift
+//  AraPostHeader.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 06/08/2025.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AraPost: Identifiable, Hashable {
+struct AraPostHeader: Identifiable, Hashable {
   enum AttachmentType: String {
     case none = "NONE"
     case image = "IMAGE"

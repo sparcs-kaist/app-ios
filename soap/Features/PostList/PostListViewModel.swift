@@ -15,7 +15,7 @@ protocol PostListViewModelProtocol: Observable {
 
   var state: PostListViewModel.ViewState { get }
   var board: AraBoard { get }
-  var posts: [AraPost] { get }
+  var posts: [AraPostHeader] { get }
   var isLoadingMore: Bool { get }
   var hasMorePages: Bool { get }
 
@@ -30,12 +30,12 @@ class PostListViewModel: PostListViewModelProtocol {
   // MARK: - Properties
   enum ViewState: Equatable {
     case loading
-    case loaded(posts: [AraPost])
+    case loaded(posts: [AraPostHeader])
     case error(message: String)
   }
   var state: ViewState = .loading
   var board: AraBoard
-  var posts: [AraPost] = []
+  var posts: [AraPostHeader] = []
   
   // 무한 스크롤 관련 속성들
   var isLoadingMore: Bool = false

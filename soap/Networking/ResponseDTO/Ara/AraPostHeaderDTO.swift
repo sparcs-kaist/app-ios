@@ -1,5 +1,5 @@
 //
-//  AraPostDTO.swift
+//  AraPostHeaderDTO.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 06/08/2025.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AraPostDTO: Codable {
+struct AraPostHeaderDTO: Codable {
   let id: Int
   let isHidden: Bool
   let hiddenReason: [String]
@@ -48,9 +48,9 @@ struct AraPostDTO: Codable {
 }
 
 
-extension AraPostDTO {
-  func toModel() -> AraPost {
-    AraPost(
+extension AraPostHeaderDTO {
+  func toModel() -> AraPostHeader {
+    AraPostHeader(
       id: id,
       isHidden: isHidden,
       hiddenReason: hiddenReason,
@@ -58,8 +58,8 @@ extension AraPostDTO {
       topic: topic?.toModel(),
       title: title,
       author: author.toModel(),
-      attachmentType: AraPost.AttachmentType(rawValue: attachmentType) ?? .none,
-      communicationArticleStatus: communicationArticleStatus != nil ? AraPost
+      attachmentType: AraPostHeader.AttachmentType(rawValue: attachmentType) ?? .none,
+      communicationArticleStatus: communicationArticleStatus != nil ? AraPostHeader
         .CommunicationArticleStatus(rawValue: communicationArticleStatus!) : nil,
       createdAt: createdAt.toDate() ?? Date(),
       isNSFW: isNSFW,

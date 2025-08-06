@@ -58,7 +58,7 @@ struct PostListView: View {
   }
 
   @ViewBuilder
-  func loadedView(_ posts: [AraPost]) -> some View {
+  func loadedView(_ posts: [AraPostHeader]) -> some View {
     ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
       PostListRow(post: post)
         .listRowSeparator(.hidden, edges: .top)
@@ -87,7 +87,7 @@ struct PostListView: View {
   }
 
   var loadingView: some View {
-    ForEach(AraPost.mockList) { post in
+    ForEach(AraPostHeader.mockList) { post in
       PostListRow(post: post)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)

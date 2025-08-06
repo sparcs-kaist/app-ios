@@ -8,9 +8,9 @@
 import Foundation
 
 #if DEBUG
-extension AraPost: Mockable {
-  static var mock: AraPost {
-    AraPost(
+extension AraPostHeader: Mockable {
+  static var mock: AraPostHeader {
+    AraPostHeader(
       id: 12328,
       isHidden: false,
       hiddenReason: [],
@@ -41,9 +41,9 @@ extension AraPost: Mockable {
     )
   }
 
-  static var mockList: [AraPost] {
+  static var mockList: [AraPostHeader] {
     [
-      AraPost(
+      AraPostHeader(
         id: 12328,
         isHidden: false,
         hiddenReason: [],
@@ -72,7 +72,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12327,
         isHidden: false,
         hiddenReason: [],
@@ -101,7 +101,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12326,
         isHidden: false,
         hiddenReason: [],
@@ -130,7 +130,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12325,
         isHidden: false,
         hiddenReason: [],
@@ -159,7 +159,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12318,
         isHidden: false,
         hiddenReason: [],
@@ -188,7 +188,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12317,
         isHidden: false,
         hiddenReason: [],
@@ -224,7 +224,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12316,
         isHidden: false,
         hiddenReason: [],
@@ -253,7 +253,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12315,
         isHidden: false,
         hiddenReason: [],
@@ -282,7 +282,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12250,
         isHidden: false,
         hiddenReason: [],
@@ -311,7 +311,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12240,
         isHidden: false,
         hiddenReason: [],
@@ -340,7 +340,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12239,
         isHidden: false,
         hiddenReason: [],
@@ -369,7 +369,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12235,
         isHidden: false,
         hiddenReason: [],
@@ -398,7 +398,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12233,
         isHidden: false,
         hiddenReason: [],
@@ -434,7 +434,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 1,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12079,
         isHidden: false,
         hiddenReason: [],
@@ -470,7 +470,7 @@ extension AraPost: Mockable {
         positiveVoteCount: 0,
         negativeVoteCount: 0
       ),
-      AraPost(
+      AraPostHeader(
         id: 12043,
         isHidden: false,
         hiddenReason: [],

@@ -11,5 +11,5 @@ struct AraPostPage {
   let pages: Int
   let items: Int
   let currentPage: Int
-  let results: [AraPost]
+  let results: [AraPostHeader]
 }
