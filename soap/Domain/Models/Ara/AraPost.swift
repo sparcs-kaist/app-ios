@@ -25,8 +25,8 @@ struct AraPost: Identifiable, Hashable {
   let isHidden: Bool
   let hiddenReason: [String]
   let overrideHidden: Bool?
-  let topic: AraBoardTopic
-  let title: String
+  let topic: AraBoardTopic?
+  let title: String?
   let author: AraPostAuthor
   let attachmentType: AttachmentType
   let communicationArticleStatus: CommunicationArticleStatus?

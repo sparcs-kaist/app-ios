@@ -8,9 +8,9 @@
 import Foundation
 
 struct AraPostAuthorProfile: Identifiable, Hashable {
-  let id: Int
+  let id: String
   let profilePictureURL: URL?
   let nickname: String
-  let isOfficial: Bool
-  let isSchoolAdmin: Bool
+  let isOfficial: Bool?
+  let isSchoolAdmin: Bool?
 }

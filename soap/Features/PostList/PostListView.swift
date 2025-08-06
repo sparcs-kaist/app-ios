@@ -23,8 +23,8 @@ struct PostListView: View {
         switch viewModel.state {
         case .loading:
           ProgressView()
-        case .loaded:
-          ForEach(viewModel.postList) { post in
+        case .loaded(let posts):
+          ForEach(posts) { post in
             PostListRow(post: post)
               .listRowSeparator(.hidden, edges: .top)
               .listRowSeparator(.visible, edges: .bottom)
@@ -52,6 +52,9 @@ struct PostListView: View {
       PostComposeView()
         .interactiveDismissDisabled()
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
+    }
+    .task {
+      await viewModel.fetchInitialPosts()
     }
   }
 }

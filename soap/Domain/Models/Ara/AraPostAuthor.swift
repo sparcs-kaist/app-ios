@@ -8,8 +8,8 @@
 import Foundation
 
 struct AraPostAuthor: Identifiable, Hashable {
-  let id: Int
+  let id: String
   let username: String
   let profile: AraPostAuthorProfile
-  let isBlocked: Bool
+  let isBlocked: Bool?
 }

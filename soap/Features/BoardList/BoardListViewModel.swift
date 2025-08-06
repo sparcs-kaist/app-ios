@@ -30,7 +30,7 @@ class BoardListViewModel {
 
   func fetchBoards() async {
     do {
-      let boards = try await araBoardRepository.getBoards()
+      let boards = try await araBoardRepository.fetchBoards()
 
       let sortedBoards = boards.sorted { $0.id < $1.id }
       let uniqueGroups = Array(Set(sortedBoards.map(\.group))).sorted { $0.id < $1.id }
