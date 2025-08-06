@@ -40,12 +40,14 @@ struct PostListView: View {
     .toolbar {
       ToolbarSpacer(.flexible, placement: .bottomBar)
 
-      ToolbarItem(placement: .bottomBar) {
-        Button("Write", systemImage: "square.and.pencil") {
-          showsComposeView = true
+      if !viewModel.board.isReadOnly && viewModel.board.userWritable {
+        ToolbarItem(placement: .bottomBar) {
+          Button("Write", systemImage: "square.and.pencil") {
+            showsComposeView = true
+          }
         }
+        .matchedTransitionSource(id: "ComposeView", in: namespace)
       }
-      .matchedTransitionSource(id: "ComposeView", in: namespace)
     }
     .sheet(isPresented: $showsComposeView) {
       PostComposeView()
