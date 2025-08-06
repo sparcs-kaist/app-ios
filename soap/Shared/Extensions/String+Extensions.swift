@@ -8,12 +8,17 @@
 import Foundation
 
 extension String {
-  // Converts an ISO 8601 date string to a `Date` object.
-  // - Returns: A `Date` object if the string is valid, otherwise `nil`.
   func toDate() -> Date? {
     let formatter = ISO8601DateFormatter()
+
+    // Try with fractional seconds first
     formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    if let date = formatter.date(from: self) {
+      return date
+    }
+
+    // Fallback to no fractional seconds
+    formatter.formatOptions = [.withInternetDateTime]
     return formatter.date(from: self)
   }
 }

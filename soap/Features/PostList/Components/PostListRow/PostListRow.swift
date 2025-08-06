@@ -8,103 +8,73 @@
 import SwiftUI
 
 struct PostListRow: View {
-  let post: Post
+  let post: AraPostHeader
 
   var body: some View {
-    HStack {
-      VStack(alignment: .leading) {
-        Text(post.title)
+    VStack(alignment: .leading, spacing: 4) {
+      HStack {
+        if let topic = post.topic {
+          Text("[\(topic.name.localized())]")
+            .font(.subheadline)
+            .fontWeight(.medium)
+            .lineLimit(1)
+            .foregroundStyle(.accent)
+        }
+
+        Text(title)
           .font(.subheadline)
           .fontWeight(.semibold)
           .lineLimit(1)
-        Text(post.description)
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .lineLimit(2)
+          .foregroundStyle(post.isHidden ? .secondary : .primary)
 
-        HStack(spacing: 12) {
-          if post.voteCount != 0 || post.commentCount > 0 {
-            HStack(spacing: 4) {
-              PostListRowVoteLabel(voteCount: post.voteCount)
-              PostListRowCommentLabel(commentCount: post.commentCount)
-            }
-          }
-
-          Text(post.author)
-
-          Text(post.createdAt.timeAgoDisplay())
+        if post.attachmentType == .image || post.attachmentType == .both {
+          Image(systemName: "photo")
+            .font(.subheadline)
+            .foregroundStyle(.teal)
         }
-        .font(.caption)
-        .foregroundStyle(.secondary)
-        .padding(.top, 1)
+
+        if post.attachmentType == .file || post.attachmentType == .both {
+          Image(systemName: "paperclip")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
       }
 
-      Spacer()
+      HStack(spacing: 12) {
+        let voteCount: Int = post.positiveVoteCount - post.negativeVoteCount
+        if voteCount != 0 || post.commentCount > 0 {
+          HStack(spacing: 4) {
+            PostListRowVoteLabel(voteCount: voteCount)
+            PostListRowCommentLabel(commentCount: post.commentCount)
+          }
+        }
 
-      if post.thumbnailURL != nil {
-        RoundedRectangle(cornerRadius: 8)
-          .aspectRatio(1.0, contentMode: .fit)
-          .frame(width: 72, height: 72)
-          .foregroundStyle(Color(UIColor.systemGray5))
+        Text(post.author.profile.nickname)
+
+        Spacer()
+        Text("\(post.views) views")
+
+        Text(post.createdAt.timeAgoDisplay())
       }
+      .font(.caption)
+      .foregroundStyle(.secondary)
+      .padding(.top, 1)
     }
   }
-}
 
-#Preview {
-  PostListRow(
-    post: Post(
-      title: "some title",
-      description: "verrrry loooonnngggg description",
-      voteCount: 10,
-      commentCount: 20,
-      author: "Anonymous",
-      createdAt: Calendar.current.date(byAdding: .hour, value: -3, to: Date())!,
-      thumbnailURL: nil
-    )
-  )
-  PostListRow(
-    post: Post(
-      title: "some title",
-      description: "verrrry loooonnngggg asdfojapsdofpoweufpoqiewfpoqiuwepfoiquwepfoiquwepfoiqwuepfoiqwuepfoiquwepfoiquwepofiquwepofiuqpwoeifuqpwoeifuqpwoeifu",
-      voteCount: -100,
-      commentCount: 0,
-      author: "Anonymous",
-      createdAt: Calendar.current.date(byAdding: .day, value: -30, to: Date())!,
-      thumbnailURL: URL(string: "https://newara.sparcs.org")
-    )
-  )
-  PostListRow(
-    post: Post(
-      title: "some title",
-      description: "verrrry loooonnngggg description",
-      voteCount: 122,
-      commentCount: 1,
-      author: "Anonymous",
-      createdAt: Calendar.current.date(byAdding: .minute, value: -30, to: Date())!,
-      thumbnailURL: nil
-    )
-  )
-  PostListRow(
-    post: Post(
-      title: "some title",
-      description: "verrrry loooonnngggg description",
-      voteCount: 0,
-      commentCount: 0,
-      author: "Anonymous",
-      createdAt: Calendar.current.date(byAdding: .second, value: -30, to: Date())!,
-      thumbnailURL: nil
-    )
-  )
-  PostListRow(
-    post: Post(
-      title: "some title",
-      description: "verrrry loooonnngggg description",
-      voteCount: 0,
-      commentCount: 0,
-      author: "Anonymous",
-      createdAt: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-      thumbnailURL: nil
-    )
-  )
+  var title: String {
+    if post.isHidden {
+      if post.isNSFW {
+        return "This post contains NSFW content"
+      }
+
+      if post.isPolitical {
+        return "This post contains political content"
+      }
+
+      return "This post is hidden"
+    }
+
+    return post.title ?? "Untitled"
+  }
 }

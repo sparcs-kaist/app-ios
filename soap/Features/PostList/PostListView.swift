@@ -8,76 +8,101 @@
 import SwiftUI
 
 struct PostListView: View {
+  @State private var viewModel: PostListViewModelProtocol
+
+  @State private var showsComposeView: Bool = false
   @Namespace private var namespace
 
-  @State private var searchText: String = ""
-  @State private var showsComposeView: Bool = false
-
-  private var viewModel = PostListViewModel()
+  init(board: AraBoard) {
+    _viewModel = State(initialValue: PostListViewModel(board: board))
+  }
 
   var body: some View {
     ZStack(alignment: .bottom) {
       List {
-        ForEach(viewModel.postList) { post in
-          PostListRow(post: post)
-            .listRowSeparator(.hidden, edges: .top)
-            .listRowSeparator(.visible, edges: .bottom)
+        switch viewModel.state {
+        case .loading:
+          loadingView
+            .redacted(reason: .placeholder)
+        case .loaded(let posts):
+          loadedView(posts)
+        case .error(let message):
+          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
+      .disabled(viewModel.state == .loading)
       .listStyle(.plain)
+      .refreshable {
+        await viewModel.fetchInitialPosts()
+      }
     }
-    .navigationTitle("General")
+    .navigationTitle(viewModel.board.name.localized())
+    .navigationSubtitle(viewModel.board.group.name.localized())
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.hidden, for: .tabBar)
     .toolbar {
-      ToolbarItem(placement: .bottomBar) {
-        Label("Write", systemImage: "line.3.horizontal.decrease.circle")
-      }
-
       ToolbarSpacer(.flexible, placement: .bottomBar)
 
-      ToolbarItem(placement: .bottomBar) {
-        Button("Write", systemImage: "square.and.pencil") {
-          showsComposeView = true
+      if !viewModel.board.isReadOnly && viewModel.board.userWritable {
+        ToolbarItem(placement: .bottomBar) {
+          Button("Write", systemImage: "square.and.pencil") {
+            showsComposeView = true
+          }
         }
+        .matchedTransitionSource(id: "ComposeView", in: namespace)
       }
-      .matchedTransitionSource(id: "ComposeView", in: namespace)
     }
     .sheet(isPresented: $showsComposeView) {
       PostComposeView()
-        .environment(viewModel)
         .interactiveDismissDisabled()
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
+    }
+    .task {
+      await viewModel.fetchInitialPosts()
     }
   }
 
   @ViewBuilder
-  private var composeButton: some View {
-    Button(action: {
-      showsComposeView = true
-    }, label: {
+  func loadedView(_ posts: [AraPostHeader]) -> some View {
+    ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
+      PostListRow(post: post)
+        .listRowSeparator(.hidden, edges: .top)
+        .listRowSeparator(.visible, edges: .bottom)
+        .onAppear {
+          // loads more contents on 60% scroll
+          let thresholdIndex = Int(Double(posts.count) * 0.6)
+          if index >= thresholdIndex && viewModel.hasMorePages && !viewModel.isLoadingMore {
+            Task {
+              await viewModel.loadNextPage()
+            }
+          }
+        }
+    }
+    
+    // Shows loding indicator on loading at the bottom
+    if viewModel.isLoadingMore {
       HStack {
-        Image(systemName: "pencil")
-          .foregroundStyle(.indigo)
-        Text("Write")
+        Spacer()
+        ProgressView()
+          .padding()
+        Spacer()
       }
-      .padding()
-      .padding(.horizontal, 4)
-      .background(
-        Capsule()
-          .stroke(Color(UIColor.systemGray5), lineWidth: 1)
-          .fill(.regularMaterial)
-      )
-    })
-    .contentShape(Capsule())
-    .tint(.primary)
-    .shadow(color: .black.opacity(0.16), radius: 12)
+      .listRowSeparator(.hidden)
+    }
+  }
+
+  var loadingView: some View {
+    ForEach(AraPostHeader.mockList) { post in
+      PostListRow(post: post)
+        .listRowSeparator(.hidden, edges: .top)
+        .listRowSeparator(.visible, edges: .bottom)
+    }
   }
 }
 
 #Preview {
   NavigationStack {
-    PostListView()
+    PostListView(board: AraBoard.mock)
   }
 }
 

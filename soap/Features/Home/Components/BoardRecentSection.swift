@@ -9,7 +9,6 @@ import SwiftUI
 
 struct BoardRecentSection: View {
   var title: String
-  @State private var isPresented: Bool = false
 
   var body: some View {
     VStack {
@@ -19,7 +18,7 @@ struct BoardRecentSection: View {
           .fontWeight(.bold)
 
         Button("Navigate", systemImage: "chevron.right") {
-          isPresented = true
+          
         }
           .font(.caption)
           .labelStyle(.iconOnly)
@@ -46,11 +45,7 @@ struct BoardRecentSection: View {
       .background(Color.systemBackground)
       .clipShape(.rect(cornerRadius: 28))
     }
-    .padding(.horizontal)
-    .navigationDestination(isPresented: $isPresented) {
-      PostListView()
-    }
-  }
+    .padding(.horizontal)  }
 }
 
 #Preview {

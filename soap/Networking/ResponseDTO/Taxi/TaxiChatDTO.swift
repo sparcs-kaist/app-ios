@@ -17,7 +17,7 @@ struct TaxiChatDTO: Codable {
   let content: String
   let time: String
   let isValid: Bool
-  let inOutNames: [String]
+  let inOutNames: [String]?
 
   enum CodingKeys: String, CodingKey {
     case roomID = "roomId"
