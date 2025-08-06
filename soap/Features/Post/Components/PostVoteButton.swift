@@ -30,9 +30,14 @@ struct PostVoteButton: View {
       .foregroundStyle(.primary)
     }
     .padding(8)
-    .background {
-      Capsule()
-        .stroke(Color(uiColor: .separator))
-    }
+    .glassEffect(.regular.interactive())
   }
+}
+
+
+#Preview {
+  HStack {
+    PostVoteButton()
+  }
+  .padding()
 }

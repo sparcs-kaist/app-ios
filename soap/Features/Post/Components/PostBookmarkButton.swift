@@ -16,9 +16,6 @@ struct PostBookmarkButton: View {
     .labelStyle(.iconOnly)
     .foregroundStyle(.primary)
     .padding(8)
-    .background {
-      Circle()
-        .stroke(Color(uiColor: .separator))
-    }
+    .glassEffect(.regular.interactive())
   }
 }

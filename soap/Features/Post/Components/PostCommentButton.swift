@@ -20,9 +20,6 @@ struct PostCommentButton: View {
       Text("23")
     }
     .padding(8)
-    .background {
-      Capsule()
-        .stroke(Color(uiColor: .separator))
-    }
+    .glassEffect(.regular.interactive())
   }
 }
