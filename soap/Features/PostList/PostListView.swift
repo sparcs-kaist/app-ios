@@ -32,6 +32,9 @@ struct PostListView: View {
       }
       .disabled(viewModel.state == .loading)
       .listStyle(.plain)
+      .refreshable {
+        await viewModel.fetchInitialPosts()
+      }
     }
     .navigationTitle(viewModel.board.name.localized())
     .navigationSubtitle(viewModel.board.group.name.localized())
