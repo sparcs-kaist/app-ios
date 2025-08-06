@@ -53,7 +53,7 @@ extension Date {
   var formattedString: String {
     let formatter = DateFormatter()
     formatter.locale = Locale.current
-    formatter.setLocalizedDateFormatFromTemplate("MMMM d, EEE, jm")
+    formatter.setLocalizedDateFormatFromTemplate("yMMMMdEEEjm")
     return formatter.string(from: self)
   }
 

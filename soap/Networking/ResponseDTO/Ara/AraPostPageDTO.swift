@@ -11,7 +11,7 @@ struct AraPostPageDTO: Codable {
   let pages: Int
   let items: Int
   let currentPage: Int
-  let results: [AraPostHeaderDTO]
+  let results: [AraPostDTO]
 
   enum CodingKeys: String, CodingKey {
     case pages = "num_pages"

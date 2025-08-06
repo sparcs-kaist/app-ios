@@ -8,9 +8,9 @@
 import Foundation
 
 #if DEBUG
-extension AraPostHeader: Mockable {
-  static var mock: AraPostHeader {
-    AraPostHeader(
+extension AraPost: Mockable {
+  static var mock: AraPost {
+    AraPost(
       id: 12328,
       isHidden: false,
       hiddenReason: [],
@@ -37,13 +37,20 @@ extension AraPostHeader: Mockable {
       views: 1,
       commentCount: 0,
       positiveVoteCount: 0,
-      negativeVoteCount: 0
+      negativeVoteCount: 0,
+      attachments: nil,
+      myCommentProfile: nil,
+      isMine: nil,
+      comments: nil,
+      content: nil,
+      myVote: nil,
+      myScrap: nil
     )
   }
 
-  static var mockList: [AraPostHeader] {
+  static var mockList: [AraPost] {
     [
-      AraPostHeader(
+      AraPost(
         id: 12328,
         isHidden: false,
         hiddenReason: [],
@@ -70,9 +77,16 @@ extension AraPostHeader: Mockable {
         views: 1,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12327,
         isHidden: false,
         hiddenReason: [],
@@ -99,9 +113,16 @@ extension AraPostHeader: Mockable {
         views: 2,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12326,
         isHidden: false,
         hiddenReason: [],
@@ -128,9 +149,16 @@ extension AraPostHeader: Mockable {
         views: 1,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12325,
         isHidden: false,
         hiddenReason: [],
@@ -157,9 +185,16 @@ extension AraPostHeader: Mockable {
         views: 1,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12318,
         isHidden: false,
         hiddenReason: [],
@@ -186,9 +221,16 @@ extension AraPostHeader: Mockable {
         views: 2,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12317,
         isHidden: false,
         hiddenReason: [],
@@ -222,9 +264,16 @@ extension AraPostHeader: Mockable {
         views: 1,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12316,
         isHidden: false,
         hiddenReason: [],
@@ -251,9 +300,16 @@ extension AraPostHeader: Mockable {
         views: 1,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12315,
         isHidden: false,
         hiddenReason: [],
@@ -280,9 +336,16 @@ extension AraPostHeader: Mockable {
         views: 1,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12250,
         isHidden: false,
         hiddenReason: [],
@@ -309,9 +372,16 @@ extension AraPostHeader: Mockable {
         views: 0,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12240,
         isHidden: false,
         hiddenReason: [],
@@ -338,9 +408,16 @@ extension AraPostHeader: Mockable {
         views: 1,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12239,
         isHidden: false,
         hiddenReason: [],
@@ -367,9 +444,16 @@ extension AraPostHeader: Mockable {
         views: 2,
         commentCount: 6,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12235,
         isHidden: false,
         hiddenReason: [],
@@ -396,9 +480,16 @@ extension AraPostHeader: Mockable {
         views: 1,
         commentCount: 0,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12233,
         isHidden: false,
         hiddenReason: [],
@@ -432,9 +523,16 @@ extension AraPostHeader: Mockable {
         views: 2,
         commentCount: 6,
         positiveVoteCount: 1,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12079,
         isHidden: false,
         hiddenReason: [],
@@ -468,9 +566,16 @@ extension AraPostHeader: Mockable {
         views: 3,
         commentCount: 1,
         positiveVoteCount: 0,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       ),
-      AraPostHeader(
+      AraPost(
         id: 12043,
         isHidden: false,
         hiddenReason: [],
@@ -504,7 +609,14 @@ extension AraPostHeader: Mockable {
         views: 2,
         commentCount: 0,
         positiveVoteCount: 1,
-        negativeVoteCount: 0
+        negativeVoteCount: 0,
+        attachments: nil,
+        myCommentProfile: nil,
+        isMine: nil,
+        comments: nil,
+        content: nil,
+        myVote: nil,
+        myScrap: nil
       )
     ]
   }

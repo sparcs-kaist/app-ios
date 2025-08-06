@@ -1,5 +1,5 @@
 //
-//  AraPostHeaderDTO.swift
+//  AraPostDTO.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 06/08/2025.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AraPostHeaderDTO: Codable {
+struct AraPostDTO: Codable {
   let id: Int
   let isHidden: Bool
   let hiddenReason: [String]
@@ -25,6 +25,15 @@ struct AraPostHeaderDTO: Codable {
   let commentCount: Int
   let positiveVoteCount: Int
   let negativeVoteCount: Int
+
+  // for detailed
+  let attachments: [AraPostAttachmentDTO]?
+  let myCommentProfile: AraPostAuthorDTO?
+  let isMine: Bool?
+  let comments: [AraPostCommentDTO]?
+  let content: String?
+  let myVote: Bool?
+  let myScrap: Bool?
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -44,13 +53,21 @@ struct AraPostHeaderDTO: Codable {
     case commentCount = "comment_count"
     case positiveVoteCount = "positive_vote_count"
     case negativeVoteCount = "negative_vote_count"
+
+    case attachments
+    case myCommentProfile = "my_comment_profile"
+    case isMine = "is_mine"
+    case comments
+    case content
+    case myVote = "my_vote"
+    case myScrap = "my_scrap"
   }
 }
 
 
-extension AraPostHeaderDTO {
-  func toModel() -> AraPostHeader {
-    AraPostHeader(
+extension AraPostDTO {
+  func toModel() -> AraPost {
+    AraPost(
       id: id,
       isHidden: isHidden,
       hiddenReason: hiddenReason,
@@ -58,8 +75,8 @@ extension AraPostHeaderDTO {
       topic: topic?.toModel(),
       title: title,
       author: author.toModel(),
-      attachmentType: AraPostHeader.AttachmentType(rawValue: attachmentType) ?? .none,
-      communicationArticleStatus: communicationArticleStatus != nil ? AraPostHeader
+      attachmentType: AraPost.AttachmentType(rawValue: attachmentType) ?? .none,
+      communicationArticleStatus: communicationArticleStatus != nil ? AraPost
         .CommunicationArticleStatus(rawValue: communicationArticleStatus!) : nil,
       createdAt: createdAt.toDate() ?? Date(),
       isNSFW: isNSFW,
@@ -67,7 +84,14 @@ extension AraPostHeaderDTO {
       views: views,
       commentCount: commentCount,
       positiveVoteCount: positiveVoteCount,
-      negativeVoteCount: negativeVoteCount
+      negativeVoteCount: negativeVoteCount,
+      attachments: attachments?.compactMap { $0.toModel() },
+      myCommentProfile: myCommentProfile?.toModel(),
+      isMine: isMine,
+      comments: comments?.compactMap { $0.toModel() },
+      content: content,
+      myVote: myVote,
+      myScrap: myScrap
     )
   }
 }
