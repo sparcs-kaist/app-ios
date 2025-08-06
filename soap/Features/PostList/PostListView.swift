@@ -64,8 +64,8 @@ struct PostListView: View {
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
         .onAppear {
-          // 전체 포스트의 70% 지점에 도달했을 때 다음 페이지 로드
-          let thresholdIndex = Int(Double(posts.count) * 0.7)
+          // loads more contents on 60% scroll
+          let thresholdIndex = Int(Double(posts.count) * 0.6)
           if index >= thresholdIndex && viewModel.hasMorePages && !viewModel.isLoadingMore {
             Task {
               await viewModel.loadNextPage()
@@ -74,7 +74,7 @@ struct PostListView: View {
         }
     }
     
-    // 로딩 중일 때 하단에 로딩 인디케이터 표시
+    // Shows loding indicator on loading at the bottom
     if viewModel.isLoadingMore {
       HStack {
         Spacer()
