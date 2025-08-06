@@ -12,10 +12,33 @@ struct PostListRow: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      Text(post.title ?? "CENSORED")
-        .font(.subheadline)
-        .fontWeight(.semibold)
-        .lineLimit(1)
+      HStack {
+        if let topic = post.topic {
+          Text("[\(topic.name.localized())]")
+            .font(.subheadline)
+            .fontWeight(.medium)
+            .lineLimit(1)
+            .foregroundStyle(.accent)
+        }
+
+        Text(title)
+          .font(.subheadline)
+          .fontWeight(.semibold)
+          .lineLimit(1)
+          .foregroundStyle(post.isHidden ? .secondary : .primary)
+
+        if post.attachmentType == .image || post.attachmentType == .both {
+          Image(systemName: "photo")
+            .font(.subheadline)
+            .foregroundStyle(.teal)
+        }
+
+        if post.attachmentType == .file || post.attachmentType == .both {
+          Image(systemName: "paperclip")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
+      }
 
       HStack(spacing: 12) {
         let voteCount: Int = post.positiveVoteCount - post.negativeVoteCount
@@ -37,5 +60,21 @@ struct PostListRow: View {
       .foregroundStyle(.secondary)
       .padding(.top, 1)
     }
+  }
+
+  var title: String {
+    if post.isHidden {
+      if post.isNSFW {
+        return "This post contains NSFW content"
+      }
+
+      if post.isPolitical {
+        return "This post contains political content"
+      }
+
+      return "This post is hidden"
+    }
+
+    return post.title ?? "Untitled"
   }
 }

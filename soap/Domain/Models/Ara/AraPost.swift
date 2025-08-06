@@ -11,7 +11,7 @@ struct AraPost: Identifiable, Hashable {
   enum AttachmentType: String {
     case none = "NONE"
     case image = "IMAGE"
-    case files = "NON_IMAGE"
+    case file = "NON_IMAGE"
     case both = "BOTH"
   }
 

@@ -34,6 +34,7 @@ struct PostListView: View {
       .listStyle(.plain)
     }
     .navigationTitle(viewModel.board.name.localized())
+    .navigationSubtitle(viewModel.board.group.name.localized())
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.hidden, for: .tabBar)
     .toolbar {
