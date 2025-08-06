@@ -23,8 +23,8 @@ struct AraPostDTO: Codable {
   let isPolitical: Bool
   let views: Int
   let commentCount: Int
-  let positiveVoteCount: Int
-  let negativeVoteCount: Int
+  let upvotes: Int
+  let downvotes: Int
 
   // for detailed
   let attachments: [AraPostAttachmentDTO]?
@@ -51,8 +51,8 @@ struct AraPostDTO: Codable {
     case isPolitical = "is_content_social"
     case views = "hit_count"
     case commentCount = "comment_count"
-    case positiveVoteCount = "positive_vote_count"
-    case negativeVoteCount = "negative_vote_count"
+    case upvotes = "positive_vote_count"
+    case downvotes = "negative_vote_count"
 
     case attachments
     case myCommentProfile = "my_comment_profile"
@@ -83,8 +83,8 @@ extension AraPostDTO {
       isPolitical: isPolitical,
       views: views,
       commentCount: commentCount,
-      positiveVoteCount: positiveVoteCount,
-      negativeVoteCount: negativeVoteCount,
+      upvotes: upvotes,
+      downvotes: downvotes,
       attachments: attachments?.compactMap { $0.toModel() },
       myCommentProfile: myCommentProfile?.toModel(),
       isMine: isMine,

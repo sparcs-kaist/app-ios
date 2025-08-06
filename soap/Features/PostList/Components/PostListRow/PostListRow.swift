@@ -41,7 +41,7 @@ struct PostListRow: View {
       }
 
       HStack(spacing: 12) {
-        let voteCount: Int = post.positiveVoteCount - post.negativeVoteCount
+        let voteCount: Int = post.upvotes - post.downvotes
         if voteCount != 0 || post.commentCount > 0 {
           HStack(spacing: 4) {
             PostListRowVoteLabel(voteCount: voteCount)

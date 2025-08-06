@@ -18,8 +18,8 @@ struct AraPostComment: Identifiable, Hashable, Sendable {
   let author: AraPostAuthor
   let comments: [AraPostComment]?
   let createdAt: Date
-  let positiveVoteCount: Int
-  let negativeVoteCount: Int
+  let upvotes: Int
+  let downvotes: Int
   let parentPost: Int
   let parentComment: Int?
 }

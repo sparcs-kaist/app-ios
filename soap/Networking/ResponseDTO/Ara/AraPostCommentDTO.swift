@@ -18,8 +18,8 @@ struct AraPostCommentDTO: Codable {
   let author: AraPostAuthorDTO
   let comments: [AraPostCommentDTO]?
   let createdAt: String
-  let positiveVoteCount: Int
-  let negativeVoteCount: Int
+  let upvotes: Int
+  let downvotes: Int
   let parentPost: Int
   let parentComment: Int?
 
@@ -34,8 +34,8 @@ struct AraPostCommentDTO: Codable {
     case author = "created_by"
     case comments
     case createdAt = "created_at"
-    case positiveVoteCount = "positive_vote_count"
-    case negativeVoteCount = "negative_vote_count"
+    case upvotes = "positive_vote_count"
+    case downvotes = "negative_vote_count"
     case parentPost = "parent_article"
     case parentComment = "parent_comment"
   }
@@ -55,8 +55,8 @@ extension AraPostCommentDTO {
       author: author.toModel(),
       comments: comments?.compactMap { $0.toModel() },
       createdAt: createdAt.toDate() ?? Date(),
-      positiveVoteCount: positiveVoteCount,
-      negativeVoteCount: negativeVoteCount,
+      upvotes: upvotes,
+      downvotes: downvotes,
       parentPost: parentPost,
       parentComment: parentComment
     )
