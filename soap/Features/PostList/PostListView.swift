@@ -59,10 +59,30 @@ struct PostListView: View {
 
   @ViewBuilder
   func loadedView(_ posts: [AraPost]) -> some View {
-    ForEach(posts) { post in
+    ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
       PostListRow(post: post)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
+        .onAppear {
+          // 전체 포스트의 70% 지점에 도달했을 때 다음 페이지 로드
+          let thresholdIndex = Int(Double(posts.count) * 0.7)
+          if index >= thresholdIndex && viewModel.hasMorePages && !viewModel.isLoadingMore {
+            Task {
+              await viewModel.loadNextPage()
+            }
+          }
+        }
+    }
+    
+    // 로딩 중일 때 하단에 로딩 인디케이터 표시
+    if viewModel.isLoadingMore {
+      HStack {
+        Spacer()
+        ProgressView()
+          .padding()
+        Spacer()
+      }
+      .listRowSeparator(.hidden)
     }
   }
 

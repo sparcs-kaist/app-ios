@@ -16,8 +16,11 @@ protocol PostListViewModelProtocol: Observable {
   var state: PostListViewModel.ViewState { get }
   var board: AraBoard { get }
   var posts: [AraPost] { get }
+  var isLoadingMore: Bool { get }
+  var hasMorePages: Bool { get }
 
   func fetchInitialPosts() async
+  func loadNextPage() async
 }
 
 @Observable
@@ -33,10 +36,13 @@ class PostListViewModel: PostListViewModelProtocol {
   var state: ViewState = .loading
   var board: AraBoard
   var posts: [AraPost] = []
-
-  var pages: Int? = nil
-  var items: Int? = nil
-  var currentPage: Int? = nil
+  
+  // 무한 스크롤 관련 속성들
+  var isLoadingMore: Bool = false
+  var hasMorePages: Bool = true
+  var currentPage: Int = 1
+  var totalPages: Int = 0
+  var pageSize: Int = 30
 
   //MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -50,15 +56,35 @@ class PostListViewModel: PostListViewModelProtocol {
 
   func fetchInitialPosts() async {
     do {
-      let page = try await araBoardRepository.fetchPosts(boardID: board.id, page: 1, pageSize: 30)
-      self.pages = page.pages
-      self.items = page.items
+      let page = try await araBoardRepository.fetchPosts(boardID: board.id, page: 1, pageSize: pageSize)
+      self.totalPages = page.pages
       self.currentPage = page.currentPage
       self.posts = page.results
+      self.hasMorePages = currentPage < totalPages
       self.state = .loaded(posts: self.posts)
     } catch {
       logger.error(error)
       state = .error(message: error.localizedDescription)
+    }
+  }
+  
+  func loadNextPage() async {
+    guard !isLoadingMore && hasMorePages else { return }
+    
+    isLoadingMore = true
+    
+    do {
+      let nextPage = currentPage + 1
+      let page = try await araBoardRepository.fetchPosts(boardID: board.id, page: nextPage, pageSize: pageSize)
+      
+      self.currentPage = page.currentPage
+      self.posts.append(contentsOf: page.results)
+      self.hasMorePages = currentPage < totalPages
+      self.state = .loaded(posts: self.posts)
+      self.isLoadingMore = false
+    } catch {
+      logger.error(error)
+      self.isLoadingMore = false
     }
   }
 }
