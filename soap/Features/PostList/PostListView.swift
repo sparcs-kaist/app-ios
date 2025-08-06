@@ -22,17 +22,15 @@ struct PostListView: View {
       List {
         switch viewModel.state {
         case .loading:
-          ProgressView()
+          loadingView
+            .redacted(reason: .placeholder)
         case .loaded(let posts):
-          ForEach(posts) { post in
-            PostListRow(post: post)
-              .listRowSeparator(.hidden, edges: .top)
-              .listRowSeparator(.visible, edges: .bottom)
-          }
+          loadedView(posts)
         case .error(let message):
           ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
+      .disabled(viewModel.state == .loading)
       .listStyle(.plain)
     }
     .navigationTitle(viewModel.board.name.localized())
@@ -55,6 +53,23 @@ struct PostListView: View {
     }
     .task {
       await viewModel.fetchInitialPosts()
+    }
+  }
+
+  @ViewBuilder
+  func loadedView(_ posts: [AraPost]) -> some View {
+    ForEach(posts) { post in
+      PostListRow(post: post)
+        .listRowSeparator(.hidden, edges: .top)
+        .listRowSeparator(.visible, edges: .bottom)
+    }
+  }
+
+  var loadingView: some View {
+    ForEach(AraPost.mockList) { post in
+      PostListRow(post: post)
+        .listRowSeparator(.hidden, edges: .top)
+        .listRowSeparator(.visible, edges: .bottom)
     }
   }
 }

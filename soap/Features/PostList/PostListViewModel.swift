@@ -25,7 +25,7 @@ class PostListViewModel: PostListViewModelProtocol {
   var postList: [Post] = Post.mockList
 
   // MARK: - Properties
-  enum ViewState {
+  enum ViewState: Equatable {
     case loading
     case loaded(posts: [AraPost])
     case error(message: String)
