@@ -12,6 +12,7 @@ struct PostListView: View {
 
   @State private var showsComposeView: Bool = false
   @Namespace private var namespace
+  @State private var searchText: String = ""
 
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostListViewModel(board: board))
@@ -40,7 +41,10 @@ struct PostListView: View {
     .navigationSubtitle(viewModel.board.group.name.localized())
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.hidden, for: .tabBar)
+    .searchable(text: $searchText)
     .toolbar {
+      DefaultToolbarItem(kind: .search, placement: .bottomBar)
+
       if !viewModel.board.isReadOnly && viewModel.board.userWritable {
         ToolbarSpacer(.flexible, placement: .bottomBar)
         ToolbarItem(placement: .bottomBar) {
