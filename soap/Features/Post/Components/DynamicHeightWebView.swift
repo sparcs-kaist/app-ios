@@ -36,29 +36,51 @@ struct DynamicHeightWebView: UIViewRepresentable {
     // Construct the full HTML document with the necessary viewport and styling.
     // This ensures content scales correctly and avoids unwanted margins.
     let fullHTML = """
-        <html>
-        <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-            <style>
-              html, body {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-                color-scheme: light dark;
-              }
-              img {
-                max-width: 100%;
-                height: auto;
-                display: block;
-              }
-            </style>
-        </head>
-        <body>
-            \(htmlString)
-        </body>
-        </html>
-        """
+      <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <style>
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #fff;
+            color: #000;
+          }
+      
+          @media (prefers-color-scheme: dark) {
+            html, body {
+              background-color: #000;
+              color: #fff;
+            }
+            a { color: #80bfff; }
+          }
+      
+          @media (prefers-color-scheme: dark) {
+            html, body, [style*="background-color:rgb(255, 255, 255)"] {
+              background-color: #000 !important;
+              color: #fff !important;
+            }
+            a { color: #80bfff; }
+          }
+      
+          img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+          }
+      
+          p {
+            margin: 0 0 1em;
+          }
+        </style>
+      </head>
+      <body>
+        \(htmlString)
+      </body>
+      </html>
+      """
     uiView.loadHTMLString(fullHTML, baseURL: nil)
   }
 

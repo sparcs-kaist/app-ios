@@ -57,6 +57,7 @@ struct PostListRow: View {
         Text(post.createdAt.timeAgoDisplay())
 
         Image(systemName: "chevron.right")
+          .opacity(post.isHidden ? 0 : 1)
       }
       .font(.caption)
       .foregroundStyle(.secondary)

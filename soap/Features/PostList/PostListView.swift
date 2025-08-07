@@ -77,8 +77,10 @@ struct PostListView: View {
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
         .background {
-          NavigationLink("", destination: PostView(post: post))
-            .opacity(0)
+          if !post.isHidden {
+            NavigationLink("", destination: PostView(post: post))
+              .opacity(0)
+          }
         }
         .onAppear {
           // loads more contents on 60% scroll
