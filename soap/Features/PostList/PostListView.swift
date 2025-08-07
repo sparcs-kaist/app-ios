@@ -41,9 +41,8 @@ struct PostListView: View {
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.hidden, for: .tabBar)
     .toolbar {
-      ToolbarSpacer(.flexible, placement: .bottomBar)
-
       if !viewModel.board.isReadOnly && viewModel.board.userWritable {
+        ToolbarSpacer(.flexible, placement: .bottomBar)
         ToolbarItem(placement: .bottomBar) {
           Button("Write", systemImage: "square.and.pencil") {
             showsComposeView = true
@@ -68,6 +67,10 @@ struct PostListView: View {
       PostListRow(post: post)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
+        .background {
+          NavigationLink("", destination: PostView(post: post))
+            .opacity(0)
+        }
         .onAppear {
           // loads more contents on 60% scroll
           let thresholdIndex = Int(Double(posts.count) * 0.6)

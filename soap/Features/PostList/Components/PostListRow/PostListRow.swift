@@ -55,6 +55,8 @@ struct PostListRow: View {
         Text("\(post.views) views")
 
         Text(post.createdAt.timeAgoDisplay())
+
+        Image(systemName: "chevron.right")
       }
       .font(.caption)
       .foregroundStyle(.secondary)

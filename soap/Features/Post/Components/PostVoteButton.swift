@@ -27,7 +27,7 @@ struct PostVoteButton: View {
 
       }, label: {
         HStack {
-          Text("13")
+          Text("\(votes)")
             .foregroundStyle(myVote != nil ? tintColor : .primary)
 
           Image(systemName: upvoteImage)
