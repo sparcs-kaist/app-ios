@@ -33,7 +33,8 @@ struct PostThreadedCommentCell: View {
         }
         .font(.callout)
 
-        Text(comment.content)
+        Text(comment.content ?? "This comment has been deleted.")
+          .foregroundStyle(comment.content != nil ? .primary : .secondary)
           .font(.callout)
 
         HStack {

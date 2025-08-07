@@ -14,7 +14,7 @@ struct AraPostCommentDTO: Codable {
   let overrideHidden: Bool?
   let myVote: Bool?
   let isMine: Bool
-  let content: String
+  let content: String?
   let author: AraPostAuthorDTO
   let comments: [AraPostCommentDTO]?
   let createdAt: String

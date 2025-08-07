@@ -14,7 +14,7 @@ struct AraPostComment: Identifiable, Hashable, Sendable {
   let overrideHidden: Bool?
   let myVote: Bool?
   let isMine: Bool
-  let content: String
+  let content: String?
   let author: AraPostAuthor
   let comments: [AraPostComment]?
   let createdAt: Date
