@@ -40,18 +40,18 @@ struct DynamicHeightWebView: UIViewRepresentable {
         <head>
             <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
             <style>
-                html, body {
-                    margin: 0;
-                    padding: 0;
-                    width: 100%;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-                }
-                /* Ensure images scale down to fit the width of the view */
-                img {
-                    max-width: 100%;
-                    height: auto;
-                    display: block;
-                }
+              html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                color-scheme: light dark;
+              }
+              img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+              }
             </style>
         </head>
         <body>
@@ -98,7 +98,7 @@ struct DynamicHeightWebView: UIViewRepresentable {
         decisionHandler(.cancel)
         return
       }
-      
+
       decisionHandler(.allow)
     }
   }
