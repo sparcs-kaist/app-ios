@@ -7,11 +7,14 @@
 
 import SwiftUI
 import NukeUI
+import WebKit
 
 struct PostView: View {
   let post: AraPost
 
   @State private var htmlHeight: CGFloat = .zero
+  @State private var tappedURL: URL?
+
   @State private var comment: String = ""
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var isWritingComment: Bool = false
@@ -32,44 +35,10 @@ struct PostView: View {
     .scrollDismissesKeyboard(.interactively)
     .contentMargins(.bottom, 64)
     .safeAreaBar(edge: .bottom) {
-      HStack {
-        HStack {
-          if !isWritingComment && comment.isEmpty {
-            Circle()
-              .frame(width: 21, height: 21)
-              .transition(.move(edge: .leading).combined(with: .opacity))
-          }
-
-          TextField(text: $comment, prompt: Text("reply as anonymous"), label: {})
-            .focused($isWritingCommentFocusState)
-        }
-        .padding(12)
-        .glassEffect(.clear.interactive())
-        .tint(.primary)
-
-        if !comment.isEmpty {
-          Button("send", systemImage: "paperplane") { }
-            .fontWeight(.medium)
-            .labelStyle(.iconOnly)
-            .tint(.white)
-            .padding(12)
-            .glassEffect(.regular.tint(.black).interactive(), in: .circle)
-            .disabled(comment.isEmpty)
-            .transition(.move(edge: .trailing).combined(with: .opacity))
-        }
-      }
-      .padding()
-      .animation(
-        .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
-        value: comment.isEmpty
-      )
-      .animation(
-        .spring(duration: 0.2, bounce: 0.2, blendDuration: 0.1),
-        value: isWritingComment
-      )
+      inputBar
     }
-    .onChange(of: isWritingCommentFocusState) {
-      isWritingComment = isWritingCommentFocusState
+    .sheet(item: $tappedURL) { url in
+      SafariViewWrapper(url: url)
     }
   }
 
@@ -111,8 +80,14 @@ struct PostView: View {
 
   @ViewBuilder
   private var content: some View {
-//    HTMLView(contentHeight: $htmlHeight, htmlString: contentString)
-//      .frame(height: htmlHeight)
+    DynamicHeightWebView(
+      htmlString: post.content ?? "",
+      dynamicHeight: $htmlHeight,
+      onLinkTapped: { url in
+        self.tappedURL = url
+      }
+    )
+      .frame(height: htmlHeight)
   }
 
   private var header: some View {
@@ -156,6 +131,47 @@ struct PostView: View {
 
       Divider()
         .padding(.vertical, 4)
+    }
+  }
+
+  private var inputBar: some View {
+    HStack {
+      HStack {
+        if !isWritingComment && comment.isEmpty {
+          Circle()
+            .frame(width: 21, height: 21)
+            .transition(.move(edge: .leading).combined(with: .opacity))
+        }
+
+        TextField(text: $comment, prompt: Text("reply as anonymous"), label: {})
+          .focused($isWritingCommentFocusState)
+      }
+      .padding(12)
+      .glassEffect(.clear.interactive())
+      .tint(.primary)
+
+      if !comment.isEmpty {
+        Button("send", systemImage: "paperplane") { }
+          .fontWeight(.medium)
+          .labelStyle(.iconOnly)
+          .tint(.white)
+          .padding(12)
+          .glassEffect(.regular.tint(.black).interactive(), in: .circle)
+          .disabled(comment.isEmpty)
+          .transition(.move(edge: .trailing).combined(with: .opacity))
+      }
+    }
+    .padding()
+    .animation(
+      .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
+      value: comment.isEmpty
+    )
+    .animation(
+      .spring(duration: 0.2, bounce: 0.2, blendDuration: 0.1),
+      value: isWritingComment
+    )
+    .onChange(of: isWritingCommentFocusState) {
+      isWritingComment = isWritingCommentFocusState
     }
   }
 }
