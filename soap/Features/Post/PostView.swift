@@ -53,14 +53,19 @@ struct PostView: View {
     VStack(spacing: 16) {
       // Main comment
       if let comments = viewModel.post.comments {
-        ForEach(comments) { comment in
-          VStack(spacing: 12) {
-            PostCommentCell(comment: comment)
+        if comments.isEmpty {
+          ContentUnavailableView("No one has commented.", systemImage: "text.bubble", description: Text("Be the first one to share your thoughts."))
+            .scaleEffect(0.8)
+        } else {
+          ForEach(comments) { comment in
+            VStack(spacing: 12) {
+              PostCommentCell(comment: comment)
 
-            // Threads
-            if let threads = comment.comments {
-              ForEach(threads) { thread in
-                PostThreadedCommentCell(comment: thread)
+              // Threads
+              if let threads = comment.comments {
+                ForEach(threads) { thread in
+                  PostThreadedCommentCell(comment: thread)
+                }
               }
             }
           }
@@ -87,14 +92,18 @@ struct PostView: View {
 
   @ViewBuilder
   private var content: some View {
-    DynamicHeightWebView(
-      htmlString: viewModel.post.content ?? "",
-      dynamicHeight: $htmlHeight,
-      onLinkTapped: { url in
-        self.tappedURL = url
-      }
-    )
+    if let content = viewModel.post.content {
+      DynamicHeightWebView(
+        htmlString: content,
+        dynamicHeight: $htmlHeight,
+        onLinkTapped: { url in
+          self.tappedURL = url
+        }
+      )
       .frame(height: htmlHeight)
+    } else {
+      ProgressView()
+    }
   }
 
   private var header: some View {
