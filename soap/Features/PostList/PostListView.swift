@@ -12,6 +12,8 @@ struct PostListView: View {
 
   @State private var showsComposeView: Bool = false
   @Namespace private var namespace
+
+  @State private var loadedInitialPost: Bool = false
   @State private var searchText: String = ""
 
   init(board: AraBoard) {
@@ -61,7 +63,10 @@ struct PostListView: View {
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
     }
     .task {
-      await viewModel.fetchInitialPosts()
+      if !loadedInitialPost {
+        await viewModel.fetchInitialPosts()
+        loadedInitialPost = true
+      }
     }
   }
 

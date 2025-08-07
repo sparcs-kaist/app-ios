@@ -15,8 +15,8 @@ struct AraPostDTO: Codable {
   let topic: AraBoardTopicDTO?
   let title: String?
   let author: AraPostAuthorDTO
-  let readStatus: String
-  let attachmentType: String
+  let readStatus: String?
+  let attachmentType: String?
   let communicationArticleStatus: Int?
   let createdAt: String
   let isNSFW: Bool
@@ -75,7 +75,7 @@ extension AraPostDTO {
       topic: topic?.toModel(),
       title: title,
       author: author.toModel(),
-      attachmentType: AraPost.AttachmentType(rawValue: attachmentType) ?? .none,
+      attachmentType: AraPost.AttachmentType(rawValue: attachmentType ?? "") ?? .none,
       communicationArticleStatus: communicationArticleStatus != nil ? AraPost
         .CommunicationArticleStatus(rawValue: communicationArticleStatus!) : nil,
       createdAt: createdAt.toDate() ?? Date(),

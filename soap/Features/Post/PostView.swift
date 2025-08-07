@@ -10,7 +10,7 @@ import NukeUI
 import WebKit
 
 struct PostView: View {
-  let post: AraPost
+  @State private var viewModel: PostViewModelProtocol
 
   @State private var htmlHeight: CGFloat = .zero
   @State private var tappedURL: URL?
@@ -18,6 +18,10 @@ struct PostView: View {
   @State private var comment: String = ""
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var isWritingComment: Bool = false
+
+  init(post: AraPost) {
+    _viewModel = State(initialValue: PostViewModel(post: post))
+  }
 
   var body: some View {
     ScrollView {
@@ -40,12 +44,15 @@ struct PostView: View {
     .sheet(item: $tappedURL) { url in
       SafariViewWrapper(url: url)
     }
+    .task {
+      await viewModel.fetchPost()
+    }
   }
 
   private var comments: some View {
     VStack(spacing: 16) {
       // Main comment
-      if let comments = post.comments {
+      if let comments = viewModel.post.comments {
         ForEach(comments) { comment in
           VStack(spacing: 12) {
             PostCommentCell(comment: comment)
@@ -65,9 +72,9 @@ struct PostView: View {
 
   private var footer: some View {
     HStack {
-      PostVoteButton(myVote: post.myVote, votes: post.upvotes - post.downvotes, onDownvote: { }, onUpvote: { })
+      PostVoteButton(myVote: viewModel.post.myVote, votes: viewModel.post.upvotes - viewModel.post.downvotes, onDownvote: { }, onUpvote: { })
 
-      PostCommentButton(commentCount: post.commentCount)
+      PostCommentButton(commentCount: viewModel.post.commentCount)
 
       Spacer()
 
@@ -81,7 +88,7 @@ struct PostView: View {
   @ViewBuilder
   private var content: some View {
     DynamicHeightWebView(
-      htmlString: post.content ?? "",
+      htmlString: viewModel.post.content ?? "",
       dynamicHeight: $htmlHeight,
       onLinkTapped: { url in
         self.tappedURL = url
@@ -92,18 +99,18 @@ struct PostView: View {
 
   private var header: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text(post.title ?? "Untitled")
+      Text(viewModel.post.title ?? "Untitled")
         .font(.headline)
 
       HStack {
-        Text(post.createdAt.formattedString)
-        Text("\(post.views) views")
+        Text(viewModel.post.createdAt.formattedString)
+        Text("\(viewModel.post.views) views")
       }
       .font(.caption)
       .foregroundStyle(.secondary)
 
       HStack {
-        if let url = post.author.profile.profilePictureURL {
+        if let url = viewModel.post.author.profile.profilePictureURL {
           LazyImage(url: url) { state in
             if let image = state.image {
               image
@@ -122,7 +129,7 @@ struct PostView: View {
             .frame(width: 28, height: 28)
         }
 
-        Text(post.author.profile.nickname)
+        Text(viewModel.post.author.profile.nickname)
           .fontWeight(.medium)
 
         Image(systemName: "chevron.right")

@@ -20,7 +20,7 @@ struct AraPostComment: Identifiable, Hashable, Sendable {
   let createdAt: Date
   let upvotes: Int
   let downvotes: Int
-  let parentPost: Int
+  let parentPost: Int?
   let parentComment: Int?
 }
 

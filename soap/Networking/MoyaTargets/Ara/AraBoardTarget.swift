@@ -11,6 +11,13 @@ import Moya
 enum AraBoardTarget {
   case fetchBoards
   case fetchPosts(boardID: Int, page: Int, pageSize: Int)
+
+  enum PostOrigin {
+    case all
+    case board
+    case topic(topicID: String)
+  }
+  case fetchPost(origin: PostOrigin?, postID: Int)
 }
 
 extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
@@ -24,12 +31,14 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/boards/"
     case .fetchPosts:
       "/articles/"
+    case .fetchPost(_, let postID):
+      "/articles/\(postID)/"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .fetchBoards, .fetchPosts:
+    case .fetchBoards, .fetchPosts, .fetchPost:
       .get
     }
   }
@@ -37,12 +46,29 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
   var task: Moya.Task {
     switch self {
     case .fetchBoards:
-      .requestPlain
+      return .requestPlain
     case .fetchPosts(let boardID, let page, let pageSize):
-        .requestParameters(
-          parameters: ["parent_board": boardID, "page": page, "page_size": pageSize],
-          encoding: URLEncoding.queryString
-        )
+      return .requestParameters(
+        parameters: ["parent_board": boardID, "page": page, "page_size": pageSize],
+        encoding: URLEncoding.queryString
+      )
+    case .fetchPost(let origin, _):
+      var parameters: [String: Any] = [:]
+      if let origin = origin {
+        switch origin {
+        case .all:
+          parameters["from_view"] = "all"
+        case .board:
+          parameters["from_view"] = "board"
+        case .topic(let topicID):
+          parameters["from_view"] = "topic"
+          parameters["topic_id"] = topicID
+        }
+
+        parameters["current"] = 1
+      }
+
+      return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
     }
   }
 

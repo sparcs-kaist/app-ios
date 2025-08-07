@@ -20,7 +20,7 @@ struct AraPostCommentDTO: Codable {
   let createdAt: String
   let upvotes: Int
   let downvotes: Int
-  let parentPost: Int
+  let parentPost: Int?
   let parentComment: Int?
 
   enum CodingKeys: String, CodingKey {
