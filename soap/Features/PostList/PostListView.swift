@@ -58,7 +58,7 @@ struct PostListView: View {
       }
     }
     .sheet(isPresented: $showsComposeView) {
-      PostComposeView()
+      PostComposeView(board: viewModel.board)
         .interactiveDismissDisabled()
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
     }

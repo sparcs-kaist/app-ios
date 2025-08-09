@@ -8,29 +8,27 @@
 import SwiftUI
 
 struct PostComposeView: View {
+  @State private var viewModel: PostComposeViewModelProtocol
+
   @Environment(\.dismiss) private var dismiss
 
   @FocusState private var isTitleFocused
   @FocusState private var isDescriptionFocused
-
-  @State private var selectedFlair = "No flair"
-  @State private var title = ""
-  @State private var description = ""
-
-  @State private var writeAsAnonymous = true
-  @State private var isNSFW = false
-  @State private var isPolitical = false
   
   @State private var isShowingCancelDialog = false
+
+  init(board: AraBoard) {
+    _viewModel = State(initialValue: PostComposeViewModel(board: board))
+  }
 
   var body: some View {
     NavigationView {
       ScrollView {
         VStack(alignment: .leading) {
-          flairSelector
+          topicSelector
           Spacer()
             .frame(maxHeight: 16)
-          TextField("Please enter the title", text: $title)
+          TextField("Please enter the title", text: $viewModel.title)
             .font(.title3)
             .focused($isTitleFocused)
             .submitLabel(.next)
@@ -39,7 +37,7 @@ struct PostComposeView: View {
             }
             .writingToolsBehavior(.disabled)
           Divider()
-          TextField("What's happening?", text: $description, axis: .vertical)
+          TextField("What's happening?", text: $viewModel.content, axis: .vertical)
             .focused($isDescriptionFocused)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
@@ -72,7 +70,8 @@ struct PostComposeView: View {
           Button("Done", systemImage: "arrow.up", role: .confirm) {
             dismiss()
           }
-          .disabled(title.isEmpty || description.isEmpty)
+          .disabled(viewModel.title.isEmpty)
+          .disabled(viewModel.content.isEmpty)
         }
       }
       .toolbar {
@@ -89,25 +88,25 @@ struct PostComposeView: View {
         ToolbarItem(placement: .bottomBar) {
           Menu("More", systemImage: "ellipsis") {
             Button(action: {
-              writeAsAnonymous.toggle()
+              viewModel.writeAsAnonymous.toggle()
             }, label: {
-              if writeAsAnonymous {
+              if viewModel.writeAsAnonymous {
                 Image(systemName: "checkmark")
               }
               Text("Anonymous")
             })
             Button(action: {
-              isNSFW.toggle()
+              viewModel.isNSFW.toggle()
             }, label: {
-              if isNSFW {
+              if viewModel.isNSFW {
                 Image(systemName: "checkmark")
               }
               Text("NSFW")
             })
             Button(action: {
-              isPolitical.toggle()
+              viewModel.isPolitical.toggle()
             }, label: {
-              if isPolitical {
+              if viewModel.isPolitical {
                 Image(systemName: "checkmark")
               }
               Text("Political")
@@ -131,37 +130,22 @@ struct PostComposeView: View {
     }
   }
 
-  private var flairSelector: some View {
-    Menu {
-      Button("No flair") {
-        withAnimation(.spring()) { selectedFlair = "No flair" }
-      }
-//      ForEach(viewModel.flairList, id: \.self) { flair in
-//        Button(flair) {
-//          withAnimation(.spring()) { selectedFlair = flair }
-//        }
-//      }
-    } label: {
-      HStack {
-        Text(selectedFlair)
-          .contentTransition(.numericText())
-        Image(systemName: "chevron.down")
-      }
-      .padding(8)
-      .padding(.horizontal, 4)
-      .background {
-        Capsule()
-          .fill(Color(uiColor: UIColor.systemGray6))
+  private var topicSelector: some View {
+    Picker(selection: $viewModel.selectedTopic, label: EmptyView()) {
+      Text("No topic")
+        .tag(nil as AraBoardTopic?)
+
+      ForEach(viewModel.board.topics) { topic in
+        Text(topic.name.localized())
+          .tag(topic)
       }
     }
-//    .buttonStyle(.bordered)
-//    .buttonBorderShape(.capsule)
-    .foregroundStyle(.primary)
-    .font(.subheadline)
-    .fontWeight(.semibold)
+    .pickerStyle(.menu)
+    .tint(.primary)
+    .buttonStyle(.glass)
   }
 }
 
 #Preview {
-  PostComposeView()
+  PostComposeView(board: AraBoard.mockList[1])
 }
