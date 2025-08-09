@@ -8,35 +8,72 @@
 import SwiftUI
 
 struct TaxiSettingsView: View {
-  @Binding var vm: SettingsViewModel
+  @Binding var vm: SettingsViewModelProtocol
   
   var body: some View {
     List {
-      Section(header: Text("Profile")) {
-        RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
+      switch vm.taxiState {
+      case .loading:
+        loadingView
+          .redacted(reason: .placeholder)
+      case .loaded:
+        loadedView
+      case .error(_):
+        EmptyView()
       }
-
-      Section {
-        HStack(alignment: .top) {
-          VStack(alignment: .trailing) {
-            Picker("Bank Account", selection: $vm.taxiBankName) {
-              ForEach(Constants.taxiBankNameList, id: \.self) {
-                Text($0)
-              }
+    }
+    .task {
+      await vm.fetchTaxiUser()
+    }
+  }
+  
+  @ViewBuilder
+  var loadingView: some View {
+    Group {
+      RowElementView(title: "Nickname", content: "Unknown")
+      RowElementView(title: "Bank Account", content: "Unknown")
+    }
+  }
+  
+  @ViewBuilder
+  var loadedView: some View {
+    Section(header: Text("Profile")) {
+      RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
+      HStack(alignment: .top) {
+        VStack(alignment: .trailing) {
+          Picker("Bank Account", selection: $vm.taxiBankName) {
+            Text("Select Bank").tag(Optional<String>(nil))
+            ForEach(Constants.taxiBankNameList, id: \.self) {
+              Text($0).tag($0)
             }
-            Spacer()
-            TextField("", text: $vm.taxiBankNumber)
-              .multilineTextAlignment(.trailing)
-              .foregroundStyle(.secondary)
           }
+          Spacer()
+          TextField("Enter Bank Number", text: $vm.taxiBankNumber)
+            .multilineTextAlignment(.trailing)
+            .foregroundStyle(.secondary)
         }
       }
     }
   }
 }
 
-#Preview {
-  NavigationStack {
-    TaxiSettingsView(vm: .constant(SettingsViewModel()))
+#Preview("Loading State") {
+  let vm = MockSettingsViewModel()
+  vm.taxiState = .loading
+  
+  return NavigationStack {
+    TaxiSettingsView(vm: .constant(vm))
+  }
+}
+
+#Preview("Loaded State") {
+  let vm = MockSettingsViewModel()
+  vm.taxiState = .loaded
+  vm.taxiUser = .mock
+  vm.taxiBankName = "KB국민"
+  vm.taxiBankNumber = "123-456-7654"
+  
+  return NavigationStack {
+    TaxiSettingsView(vm: .constant(vm))
   }
 }

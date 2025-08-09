@@ -9,7 +9,11 @@ import SwiftUI
 import NukeUI
 
 struct SettingsView: View {
-  @State private var vm: SettingsViewModel = .init()
+  @State private var vm: SettingsViewModelProtocol
+  
+  init() {
+    _vm = State(wrappedValue: SettingsViewModel())
+  }
   
   var body: some View {
     NavigationStack {
@@ -25,9 +29,6 @@ struct SettingsView: View {
         }
       }
       .navigationTitle(Text("Settings"))
-    }
-    .task {
-      await vm.fetchTaxiUser()
     }
   }
   

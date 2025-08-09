@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AraSettingsView: View {
-  @Binding var vm: SettingsViewModel
+  @Binding var vm: SettingsViewModelProtocol
   
   var body: some View {
     List {
