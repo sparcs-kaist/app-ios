@@ -48,6 +48,7 @@ struct PostComposeView: View {
         }
         .padding()
       }
+      .scrollDismissesKeyboard(.interactively)
       .navigationTitle("Write")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
