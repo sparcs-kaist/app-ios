@@ -38,6 +38,7 @@ class SettingsViewModel: SettingsViewModelProtocol {
   
   // MARK: - Functions
   func fetchTaxiUser() async {
+    await userUseCase.fetchUsers()
     self.taxiUser = await userUseCase.taxiUser
     taxiBankName = taxiUser?.account.split(separator: " ").first.map { String($0) }
     taxiBankNumber = String(taxiUser?.account.split(separator: " ").last ?? "")
