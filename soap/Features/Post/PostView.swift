@@ -154,12 +154,11 @@ struct PostView: View {
     HStack {
       HStack {
         if !isWritingComment && comment.isEmpty {
-          Circle()
-            .frame(width: 21, height: 21)
+          profilePicture
             .transition(.move(edge: .leading).combined(with: .opacity))
         }
 
-        TextField(text: $comment, prompt: Text("reply as anonymous"), label: {})
+        TextField(text: $comment, prompt: Text("reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")"), label: {})
           .focused($isWritingCommentFocusState)
       }
       .padding(12)
@@ -188,6 +187,29 @@ struct PostView: View {
     )
     .onChange(of: isWritingCommentFocusState) {
       isWritingComment = isWritingCommentFocusState
+    }
+  }
+
+  var profilePicture: some View {
+    Group {
+      if let url = viewModel.post.myCommentProfile?.profile.profilePictureURL {
+        LazyImage(url: url) { state in
+          if let image = state.image {
+            image
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+          } else {
+            Circle()
+              .fill(Color.secondarySystemBackground)
+          }
+        }
+        .frame(width: 21, height: 21)
+        .clipShape(.circle)
+      } else {
+        Circle()
+          .fill(Color.secondarySystemBackground)
+          .frame(width: 21, height: 21)
+      }
     }
   }
 }
