@@ -67,10 +67,26 @@ struct TaxiSettingsView: View {
         }
       }
     }
+    
+    Section(header: Text("Service")) {
+      navigationLinkWithIcon(destination: TaxiReportDetailView(), text: "Report Details", systemImage: "exclamationmark.bubble")
+      navigationLinkWithIcon(destination: TaxiNoticeListView(), text: "Notice", systemImage: "bell")
+      navigationLinkWithIcon(destination: TaxiTermsOfServiceView(isAgreed: true), text: "Terms of Service", systemImage: "list.clipboard")
+      navigationLinkWithIcon(destination: TaxiPrivacyPolicyView(), text: "Privacy Policy", systemImage: "list.clipboard")
+    }
   }
   
   var isValid: Bool {
     return vm.taxiBankName != nil && !vm.taxiBankNumber.isEmpty && (vm.taxiUser?.account != "\(vm.taxiBankName ?? "") \(vm.taxiBankNumber)")
+  }
+  
+  fileprivate func navigationLinkWithIcon(destination: some View, text: String, systemImage: String) -> some View {
+    NavigationLink(destination: destination.navigationTitle(text).navigationBarTitleDisplayMode(.inline)) {
+      HStack(alignment: .center) {
+        Image(systemName: systemImage)
+        Text(text)
+      }
+    }
   }
 }
 
