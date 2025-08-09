@@ -10,6 +10,8 @@ import SwiftUI
 struct TaxiSettingsView: View {
   @Binding var vm: SettingsViewModelProtocol
   
+  @Environment(\.dismiss) var dismiss
+  
   var body: some View {
     List {
       switch vm.taxiState {
@@ -28,6 +30,7 @@ struct TaxiSettingsView: View {
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Button("Done", systemImage: "checkmark", role: .confirm) {
+          dismiss()
           Task {
             await vm.editBankAccount(account: "\(vm.taxiBankName!) \(vm.taxiBankNumber)")
           }
