@@ -13,6 +13,7 @@ struct AraPostDTO: Codable {
   let hiddenReason: [String]
   let overrideHidden: Bool?
   let topic: AraBoardTopicDTO?
+  let board: AraBoardDTO?
   let title: String?
   let author: AraPostAuthorDTO
   let readStatus: String?
@@ -41,6 +42,7 @@ struct AraPostDTO: Codable {
     case hiddenReason = "why_hidden"
     case overrideHidden = "can_override_hidden"
     case topic = "parent_topic"
+    case board = "parent_board"
     case title
     case author = "created_by"
     case readStatus = "read_status"
@@ -73,6 +75,7 @@ extension AraPostDTO {
       hiddenReason: hiddenReason,
       overrideHidden: overrideHidden,
       topic: topic?.toModel(),
+      board: board?.toModel(),
       title: title,
       author: author.toModel(),
       attachmentType: AraPost.AttachmentType(rawValue: attachmentType ?? "") ?? .none,

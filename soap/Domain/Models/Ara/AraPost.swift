@@ -26,6 +26,7 @@ struct AraPost: Identifiable, Hashable, Sendable {
   let hiddenReason: [String]
   let overrideHidden: Bool?
   let topic: AraBoardTopic?
+  let board: AraBoard?
   let title: String?
   let author: AraPostAuthor
   let attachmentType: AttachmentType

@@ -69,7 +69,10 @@ struct PostComposeView: View {
 
         ToolbarItem(placement: .topBarTrailing) {
           Button("Done", systemImage: "arrow.up", role: .confirm) {
-            dismiss()
+            Task {
+              await viewModel.writePost()
+              dismiss()
+            }
           }
           .disabled(viewModel.title.isEmpty)
           .disabled(viewModel.content.isEmpty)
@@ -136,7 +139,7 @@ struct PostComposeView: View {
       Text("No topic")
         .tag(nil as AraBoardTopic?)
 
-      ForEach(viewModel.board.topics) { topic in
+      ForEach(viewModel.board.topics ?? []) { topic in
         Text(topic.name.localized())
           .tag(topic)
       }

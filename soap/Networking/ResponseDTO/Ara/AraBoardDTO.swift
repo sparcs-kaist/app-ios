@@ -14,9 +14,9 @@ struct AraBoardDTO: Codable {
   let enName: String
   let isReadOnly: Bool
   let group: AraBoardGroupDTO
-  let topics: [AraBoardTopicDTO]
-  let userReadable: Bool
-  let userWritable: Bool
+  let topics: [AraBoardTopicDTO]?
+  let userReadable: Bool?
+  let userWritable: Bool?
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -42,7 +42,7 @@ extension AraBoardDTO {
         "en": enName
       ]),
       group: group.toModel(),
-      topics: topics.compactMap { $0.toModel() },
+      topics: topics?.compactMap { $0.toModel() },
       isReadOnly: isReadOnly,
       userReadable: userReadable,
       userWritable: userWritable

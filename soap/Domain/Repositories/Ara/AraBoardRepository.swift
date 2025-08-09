@@ -14,6 +14,7 @@ protocol AraBoardRepositoryProtocol: Sendable {
   func fetchBoards() async throws -> [AraBoard]
   func fetchPosts(boardID: Int, page: Int, pageSize: Int) async throws -> AraPostPage
   func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost
+  func writePost(request: AraCreatePost) async throws
 }
 
 actor AraBoardRepository: AraBoardRepositoryProtocol {
@@ -52,5 +53,10 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
     let post: AraPost = try response.map(AraPostDTO.self).toModel()
 
     return post
+  }
+
+  func writePost(request: AraCreatePost) async throws {
+    let response = try await provider.request(.writePost(AraPostRequestDTO.fromModel(request)))
+    _ = try response.filterSuccessfulStatusCodes()
   }
 }

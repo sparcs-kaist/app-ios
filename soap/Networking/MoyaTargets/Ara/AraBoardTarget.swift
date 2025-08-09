@@ -18,6 +18,7 @@ enum AraBoardTarget {
     case topic(topicID: String)
   }
   case fetchPost(origin: PostOrigin?, postID: Int)
+  case writePost(_ request: AraPostRequestDTO)
 }
 
 extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
@@ -29,7 +30,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards:
       "/boards/"
-    case .fetchPosts:
+    case .fetchPosts, .writePost:
       "/articles/"
     case .fetchPost(_, let postID):
       "/articles/\(postID)/"
@@ -40,6 +41,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards, .fetchPosts, .fetchPost:
       .get
+    case .writePost:
+      .post
     }
   }
 
@@ -69,6 +72,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       }
 
       return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+    case .writePost(let request):
+      return .requestJSONEncodable(request)
     }
   }
 

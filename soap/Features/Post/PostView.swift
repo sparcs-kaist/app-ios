@@ -47,6 +47,7 @@ struct PostView: View {
     .task {
       await viewModel.fetchPost()
     }
+    .navigationTitle(viewModel.post.board?.name.localized() ?? "")
   }
 
   private var comments: some View {
@@ -54,7 +55,7 @@ struct PostView: View {
       // Main comment
       if let comments = viewModel.post.comments {
         if comments.isEmpty {
-          ContentUnavailableView("No one has commented.", systemImage: "text.bubble", description: Text("Be the first one to share your thoughts."))
+          ContentUnavailableView("No one has commented yet.", systemImage: "text.bubble", description: Text("Be the first one to share your thoughts."))
             .scaleEffect(0.8)
         } else {
           ForEach(comments) { comment in

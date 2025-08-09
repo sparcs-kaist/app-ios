@@ -16,6 +16,7 @@ extension AraPost: Mockable {
       hiddenReason: [],
       overrideHidden: nil,
       topic: nil,
+      board: nil,
       title: "Vue 2 종료에 관하여",
       author: AraPostAuthor(
         id: "984",
@@ -204,6 +205,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "성인 정치글 22",
         author: AraPostAuthor(
           id: "984",
@@ -240,6 +242,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "정치 성인글",
         author: AraPostAuthor(
           id: "984",
@@ -276,6 +279,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "성인글1",
         author: AraPostAuthor(
           id: "984",
@@ -312,6 +316,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "정치글1",
         author: AraPostAuthor(
           id: "984",
@@ -348,6 +353,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "포스터 게시판 테스트 2",
         author: AraPostAuthor(
           id: "1134",
@@ -391,6 +397,7 @@ extension AraPost: Mockable {
             "en": "Money"
           ])
         ),
+        board: nil,
         title: "포스터 게시판 테스트 - 포스터가 없을 수 있습니다.",
         author: AraPostAuthor(
           id: "1134",
@@ -427,6 +434,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "포스터 게시판 테스트 2",
         author: AraPostAuthor(
           id: "1134",
@@ -463,6 +471,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "포스터 게시판 테스트 1",
         author: AraPostAuthor(
           id: "1134",
@@ -499,6 +508,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "gd",
         author: AraPostAuthor(
           id: "984",
@@ -535,6 +545,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "ㅎㅇㅎㅇ",
         author: AraPostAuthor(
           id: "984",
@@ -571,6 +582,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "안녕하세요",
         author: AraPostAuthor(
           id: "984",
@@ -607,6 +619,7 @@ extension AraPost: Mockable {
         hiddenReason: [],
         overrideHidden: nil,
         topic: nil,
+        board: nil,
         title: "dd",
         author: AraPostAuthor(
           id: "984",
@@ -650,6 +663,7 @@ extension AraPost: Mockable {
             "en": "Lost & Found"
           ])
         ),
+        board: nil,
         title: "댓글 텟스트",
         author: AraPostAuthor(
           id: "1134",
@@ -693,6 +707,7 @@ extension AraPost: Mockable {
             "en": "Money"
           ])
         ),
+        board: nil,
         title: "테스트 (에디터 호환성 테스트)",
         author: AraPostAuthor(
           id: "1134",
@@ -736,6 +751,7 @@ extension AraPost: Mockable {
             "en": "Game"
           ])
         ),
+        board: nil,
         title: "gif 테스트",
         author: AraPostAuthor(
           id: "987",

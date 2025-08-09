@@ -47,7 +47,7 @@ struct PostListView: View {
     .toolbar {
       DefaultToolbarItem(kind: .search, placement: .bottomBar)
 
-      if !viewModel.board.isReadOnly && viewModel.board.userWritable {
+      if !viewModel.board.isReadOnly && viewModel.board.userWritable == true {
         ToolbarSpacer(.flexible, placement: .bottomBar)
         ToolbarItem(placement: .bottomBar) {
           Button("Write", systemImage: "square.and.pencil") {
@@ -57,7 +57,11 @@ struct PostListView: View {
         .matchedTransitionSource(id: "ComposeView", in: namespace)
       }
     }
-    .sheet(isPresented: $showsComposeView) {
+    .sheet(isPresented: $showsComposeView, onDismiss: {
+      Task {
+        await viewModel.fetchInitialPosts()
+      }
+    }) {
       PostComposeView(board: viewModel.board)
         .interactiveDismissDisabled()
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
