@@ -24,24 +24,8 @@ class SettingsViewModel: SettingsViewModelProtocol {
   var araAllowNSFWPosts: Bool = false
   var araAllowPoliticalPosts: Bool = false
   var araBlockedUsers: [String] = ["유능한 시조새_0b4c"]
-  var taxiBankName: String? {
-    get {
-      if let name = taxiUser?.account.split(separator: " ").first {
-        return String(name)
-      } else {
-        return nil
-      }
-    } set {
-      // TODO: change 'account' property to variable
-    }
-  }
-  var taxiBankNumber: String {
-    get {
-      String(taxiUser?.account.split(separator: " ").last ?? "")
-    } set {
-      // TODO: change 'account' property to variable
-    }
-  }
+  var taxiBankName: String?
+  var taxiBankNumber: String = ""
   var otlMajor: String = "School of Computer Science"
   let otlMajorList: [String] = ["School of Computer Science", "School of Electrical Engineering", "School of Business"]
   
@@ -55,6 +39,8 @@ class SettingsViewModel: SettingsViewModelProtocol {
   // MARK: - Functions
   func fetchTaxiUser() async {
     self.taxiUser = await userUseCase.taxiUser
+    taxiBankName = taxiUser?.account.split(separator: " ").first.map { String($0) }
+    taxiBankNumber = String(taxiUser?.account.split(separator: " ").last ?? "")
     taxiState = .loaded
   }
 }
