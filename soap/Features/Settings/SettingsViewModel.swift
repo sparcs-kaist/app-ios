@@ -43,4 +43,8 @@ class SettingsViewModel: SettingsViewModelProtocol {
     taxiBankNumber = String(taxiUser?.account.split(separator: " ").last ?? "")
     taxiState = .loaded
   }
+  
+  func editBankAccount(account: String) async {
+    await userUseCase.editAccount(account: account)
+  }
 }

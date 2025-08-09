@@ -12,4 +12,5 @@ protocol UserUseCaseProtocol: Sendable {
 
   func fetchUsers() async
   func fetchTaxiUser() async throws
+  func editAccount(account: String) async
 }

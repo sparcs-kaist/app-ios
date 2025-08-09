@@ -21,4 +21,5 @@ protocol SettingsViewModelProtocol: Observable {
   var otlMajorList: [String] { get }
   
   func fetchTaxiUser() async
+  func editBankAccount(account: String) async
 }

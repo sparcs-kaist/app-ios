@@ -12,6 +12,11 @@ import Moya
 
 protocol TaxiUserRepositoryProtocol: Sendable {
   func fetchUser() async throws -> TaxiUser
+  func editBankAccount(account: String) async throws
+}
+
+enum TaxiUserErrorCode: Int {
+  case editBankAccountFailed = 2001
 }
 
 final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
@@ -26,5 +31,17 @@ final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
     let result = try response.map(TaxiUserDTO.self).toModel()
 
     return result
+  }
+  
+  func editBankAccount(account: String) async throws {
+    let response = try await provider.request(.editBankAccount(account: account))
+    
+    if response.statusCode != 200 {
+      throw NSError(
+        domain: "TaxiUserRepository",
+        code: TaxiUserErrorCode.editBankAccountFailed.rawValue,
+        userInfo: [NSLocalizedDescriptionKey : "Failed to edit bank account"]
+      )
+    }
   }
 }

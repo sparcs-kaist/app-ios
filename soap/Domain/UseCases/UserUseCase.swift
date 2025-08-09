@@ -39,4 +39,13 @@ final class UserUseCase: UserUseCaseProtocol {
     await userStorage.setTaxiUser(user)
     logger.debug(user)
   }
+  
+  func editAccount(account: String) async {
+    logger.debug("Updating Bank Account to \(account)")
+    do {
+      try await taxiUserRepository.editBankAccount(account: account)
+    } catch {
+      logger.debug(error)
+    }
+  }
 }

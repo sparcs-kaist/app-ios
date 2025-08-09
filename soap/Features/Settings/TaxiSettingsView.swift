@@ -25,6 +25,16 @@ struct TaxiSettingsView: View {
     .task {
       await vm.fetchTaxiUser()
     }
+    .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button("Done", systemImage: "checkmark", role: .confirm) {
+          Task {
+            await vm.editBankAccount(account: "\(vm.taxiBankName!) \(vm.taxiBankNumber)")
+          }
+        }
+        .disabled(!isValid)
+      }
+    }
   }
   
   @ViewBuilder
@@ -55,6 +65,10 @@ struct TaxiSettingsView: View {
       }
     }
   }
+  
+  var isValid: Bool {
+    return vm.taxiBankName != nil && !vm.taxiBankNumber.isEmpty && (vm.taxiUser?.account != "\(vm.taxiBankName ?? "") \(vm.taxiBankNumber)")
+  }
 }
 
 #Preview("Loading State") {
@@ -70,8 +84,8 @@ struct TaxiSettingsView: View {
   let vm = MockSettingsViewModel()
   vm.taxiState = .loaded
   vm.taxiUser = .mock
-  vm.taxiBankName = "KB국민"
-  vm.taxiBankNumber = "123-456-7654"
+  vm.taxiBankName = String(vm.taxiUser!.account.split(separator: " ").first!)
+  vm.taxiBankNumber = String(vm.taxiUser!.account.split(separator: " ").last!)
   
   return NavigationStack {
     TaxiSettingsView(vm: .constant(vm))
