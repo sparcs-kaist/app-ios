@@ -15,6 +15,9 @@ protocol AraBoardRepositoryProtocol: Sendable {
   func fetchPosts(boardID: Int, page: Int, pageSize: Int) async throws -> AraPostPage
   func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost
   func writePost(request: AraCreatePost) async throws
+  func upvotePost(postID: Int) async throws
+  func downvotePost(postID: Int) async throws
+  func cancelVote(postID: Int) async throws
 }
 
 actor AraBoardRepository: AraBoardRepositoryProtocol {
@@ -57,6 +60,21 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
 
   func writePost(request: AraCreatePost) async throws {
     let response = try await provider.request(.writePost(AraPostRequestDTO.fromModel(request)))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func upvotePost(postID: Int) async throws {
+    let response = try await provider.request(.upvotePost(postID: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func downvotePost(postID: Int) async throws {
+    let response = try await provider.request(.downvotePost(postID: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func cancelVote(postID: Int) async throws {
+    let response = try await provider.request(.cancelVote(postID: postID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 }

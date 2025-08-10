@@ -83,7 +83,16 @@ struct PostView: View {
 
   private var footer: some View {
     HStack {
-      PostVoteButton(myVote: viewModel.post.myVote, votes: viewModel.post.upvotes - viewModel.post.downvotes, onDownvote: { }, onUpvote: { })
+      PostVoteButton(myVote: viewModel.post.myVote, votes: viewModel.post.upvotes - viewModel.post.downvotes, onDownvote: {
+        Task {
+          await viewModel.downvote()
+        }
+      }, onUpvote: {
+        Task {
+          await viewModel.upvote()
+        }
+      })
+      .disabled(viewModel.post.isMine ?? false)
 
       PostCommentButton(commentCount: viewModel.post.commentCount)
 

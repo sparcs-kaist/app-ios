@@ -15,25 +15,31 @@ struct PostVoteButton: View {
 
   var body: some View {
     HStack {
-      Button("downvote", systemImage: downvoteImage) {
+      Button(action: {
+        withAnimation {
+          onUpvote()
+        }
+      }, label: {
+        HStack {
+          Image(systemName: upvoteImage)
+            .foregroundStyle(myVote == true ? Color.upvote : .primary)
 
-      }
-      .labelStyle(.iconOnly)
-      .foregroundStyle(myVote == false ? Color.downvote : .primary)
+          Text("\(votes)")
+            .foregroundStyle(myVote != nil ? tintColor : .primary)
+            .contentTransition(.numericText(value: Double(votes)))
+            .animation(.spring(), value: votes)
+        }
+      })
 
       Divider()
 
-      Button(action: {
-
-      }, label: {
-        HStack {
-          Text("\(votes)")
-            .foregroundStyle(myVote != nil ? tintColor : .primary)
-
-          Image(systemName: upvoteImage)
-            .foregroundStyle(myVote == true ? Color.upvote : .primary)
+      Button("downvote", systemImage: downvoteImage) {
+        withAnimation {
+          onDownvote()
         }
-      })
+      }
+      .labelStyle(.iconOnly)
+      .foregroundStyle(myVote == false ? Color.downvote : .primary)
     }
     .padding(8)
     .glassEffect(.regular.interactive())

@@ -14,6 +14,8 @@ protocol PostViewModelProtocol: Observable {
   var post: AraPost { get }
 
   func fetchPost() async
+  func upvote() async
+  func downvote() async
 }
 
 @Observable
@@ -38,6 +40,60 @@ class PostViewModel: PostViewModelProtocol {
       self.post = post
     } catch {
       logger.error(error)
+    }
+  }
+
+  func upvote() async {
+    let previousMyVote: Bool? = post.myVote
+    let previousUpvotes: Int = post.upvotes
+    
+    do {
+      if post.myVote == true {
+        // cancel upvote
+        post.myVote = nil
+        post.upvotes -= 1
+        try await araBoardRepository.cancelVote(postID: post.id)
+      } else {
+        // upvote
+        if post.myVote == false {
+          // remove downvote if there was
+          post.downvotes -= 1
+        }
+        post.myVote = true
+        post.upvotes += 1
+        try await araBoardRepository.upvotePost(postID: post.id)
+      }
+    } catch {
+      logger.error(error)
+      post.upvotes = previousUpvotes
+      post.myVote = previousMyVote
+    }
+  }
+
+  func downvote() async {
+    let previousMyVote: Bool? = post.myVote
+    let previousDownvotes: Int = post.downvotes
+
+    do {
+      if post.myVote == false {
+        // cancel downvote
+        post.myVote = nil
+        post.downvotes -= 1
+        try await araBoardRepository.cancelVote(postID: post.id)
+      } else {
+        // downvote
+        if post.myVote == true {
+          // remove upvote if there was
+          post.upvotes -= 1
+        }
+        post.myVote = false
+        post.downvotes += 1
+        try await araBoardRepository.downvotePost(postID: post.id)
+      }
+    } catch {
+      logger.error(error)
+      post.downvotes = previousDownvotes
+      post.myVote = previousMyVote
     }
   }
 }

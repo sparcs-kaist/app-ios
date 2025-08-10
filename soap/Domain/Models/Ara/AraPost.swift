@@ -36,8 +36,8 @@ struct AraPost: Identifiable, Hashable, Sendable {
   let isPolitical: Bool
   let views: Int
   let commentCount: Int
-  let upvotes: Int
-  let downvotes: Int
+  var upvotes: Int
+  var downvotes: Int
 
   // for detailed
   let attachments: [AraPostAttachment]?
@@ -45,6 +45,6 @@ struct AraPost: Identifiable, Hashable, Sendable {
   let isMine: Bool?
   let comments: [AraPostComment]?
   let content: String?
-  let myVote: Bool?
-  let myScrap: Bool?
+  var myVote: Bool?
+  var myScrap: Bool?
 }

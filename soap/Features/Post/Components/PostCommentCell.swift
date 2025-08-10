@@ -9,7 +9,7 @@ import SwiftUI
 import NukeUI
 
 struct PostCommentCell: View {
-  let comment: AraPostComment
+  var comment: AraPostComment
   let isThreaded: Bool
 
   var body: some View {
