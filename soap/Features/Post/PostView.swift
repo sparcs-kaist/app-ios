@@ -65,12 +65,12 @@ struct PostView: View {
         } else {
           ForEach(comments) { comment in
             VStack(spacing: 12) {
-              PostCommentCell(comment: comment)
+              PostCommentCell(comment: comment, isThreaded: false)
 
               // Threads
               if let threads = comment.comments {
                 ForEach(threads) { thread in
-                  PostThreadedCommentCell(comment: thread)
+                  PostCommentCell(comment: thread, isThreaded: true)
                 }
               }
             }

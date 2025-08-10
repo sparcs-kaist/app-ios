@@ -10,58 +10,59 @@ import NukeUI
 
 struct PostCommentCell: View {
   let comment: AraPostComment
+  let isThreaded: Bool
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      Divider()
-
-      HStack {
-        profilePicture
-
-        Text(comment.author.profile.nickname)
-          .fontWeight(.medium)
-
-        Text(comment.createdAt.relativeTimeString)
-          .font(.caption)
-          .foregroundStyle(.secondary)
-
-        Spacer()
-
-        Button("more", systemImage: "ellipsis") { }
-          .labelStyle(.iconOnly)
+    HStack(alignment: .top, spacing: 8) {
+      if isThreaded {
+        Image(systemName: "arrow.turn.down.right")
       }
-      .font(.callout)
 
-      Text(comment.content ?? "This comment has been deleted.")
-        .foregroundStyle(comment.content != nil ? .primary : .secondary)
+      VStack(alignment: .leading, spacing: 8) {
+        Divider()
+
+        HStack {
+          profilePicture
+
+          Text(comment.author.profile.nickname)
+            .fontWeight(.medium)
+
+          Text(comment.createdAt.relativeTimeString)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+          Spacer()
+
+          Button("more", systemImage: "ellipsis") { }
+            .labelStyle(.iconOnly)
+        }
         .font(.callout)
 
-      HStack {
-        Spacer()
+        Text(comment.content ?? "This comment has been deleted.")
+          .foregroundStyle(comment.content != nil ? .primary : .secondary)
+          .font(.callout)
 
-        PostCommentButton(commentCount: comment.comments?.count ?? 0)
+        HStack {
+          Spacer()
+
+          if !isThreaded {
+            PostCommentButton(commentCount: comment.comments?.count ?? 0)
+              .fixedSize()
+          }
+
+          PostVoteButton(
+            myVote: comment.myVote,
+            votes: comment.upvotes - comment.downvotes,
+            onDownvote: {
+
+            },
+            onUpvote: {
+
+            })
           .fixedSize()
-
-        PostVoteButton(
-          myVote: comment.myVote,
-          votes: comment.upvotes - comment.downvotes,
-          onDownvote: {
-
-          },
-          onUpvote: {
-
-          })
-          .fixedSize()
+        }
+        .font(.caption)
       }
-      .font(.caption)
-
-      // Threads
-//      if let threads = comment.comments {
-//        ForEach(threads) { thread in
-//          PostThreadedCommentCell(comment: thread)
-//        }
-//      }
-
     }
   }
 
@@ -90,6 +91,8 @@ struct PostCommentCell: View {
 
 
 #Preview {
-  PostCommentCell(comment: AraPostComment.mock)
+  PostCommentCell(comment: AraPostComment.mock, isThreaded: false)
+    .padding()
+  PostCommentCell(comment: AraPostComment.mock, isThreaded: true)
     .padding()
 }
