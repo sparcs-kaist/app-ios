@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TaxiTermsOfServiceView: View {
-  var isAgreed: Bool = false
+  @State var isAgreed: Bool = false
   
   var body: some View {
     VStack {
