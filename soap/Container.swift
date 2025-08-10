@@ -48,6 +48,14 @@ extension Container {
     }
   }
 
+  var taxiReportRepository: Factory<TaxiReportRepositoryProtocol> {
+    self {
+      TaxiReportRepository(
+        provider: MoyaProvider<TaxiReportTarget>(plugins: [self.authPlugin.resolve()])
+      )
+    }
+  }
+
   // MARK: Ara
   var araUserRepository: Factory<AraUserRepositoryProtocol> {
     self { AraUserRepository(provider: MoyaProvider<AraUserTarget>(plugins: [self.authPlugin.resolve()])) }

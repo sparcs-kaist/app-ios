@@ -7,6 +7,14 @@
 
 import Foundation
 
+struct TaxiReportedUser: Identifiable, Hashable {
+  let id: String
+  let oid: String
+  let nickname: String
+  let profileImageURL: URL?
+  let withdraw: Bool
+}
+
 struct TaxiReport: Identifiable, Hashable {
   enum Reason: String {
     case noSettlement = "no-settlement"
@@ -16,9 +24,9 @@ struct TaxiReport: Identifiable, Hashable {
   
   let id: String
   let creatorID: String
-  let reportedID: String
+  let reportedUser: TaxiReportedUser
   let reason: Reason
-  let etcDetail: String?
+  let etcDetails: String
   let time: Date
   let roomID: String?
 }

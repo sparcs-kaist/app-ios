@@ -97,7 +97,7 @@ struct TaxiChatView: View {
       Text(errorMessage)
     })
     .sheet(isPresented: $showReportSheet) {
-      TaxiReportView(participants: viewModel.room.participants)
+      TaxiReportView(room: viewModel.room)
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(400), .height(500)])
     }

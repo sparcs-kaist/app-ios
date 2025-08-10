@@ -9,7 +9,7 @@ import SwiftUI
 import NukeUI
 
 struct TaxiReportView: View {
-  var participants: [TaxiParticipant]
+  var room: TaxiRoom
   
   @State private var viewModel = TaxiReportViewModel()
   @Environment(\.dismiss) private var dismiss
@@ -19,28 +19,45 @@ struct TaxiReportView: View {
       Form {
         Section("Who?") {
           Picker("Select", selection: $viewModel.selectedUser) {
-            ForEach(participants) { part in
-              TaxiReportUser(user: part).tag(part)
+            ForEach(room.participants) { part in
+              TaxiReportUser(user: part).tag(part) // TODO: Exclude myself
             }
           }
           .pickerStyle(.inline)
           .labelsHidden()
         }
         
-        Section("Why?") {
+        Section {
           Picker("Reason", selection: $viewModel.selectedReason) {
             Text("Select")
-              .foregroundStyle(.secondary)
               .tag(TaxiReport.Reason?.none)
               .selectionDisabled()
-            
-            Text("Didn't send money!").tag(TaxiReport.Reason.noSettlement)
-            Text("Didn't come on time!").tag(TaxiReport.Reason.noShow)
+            Text("Didn't send money!")
+              .tag(TaxiReport.Reason.noSettlement)
+              .selectionDisabled(!room.isDeparted)
+            Text("Didn't come on time!")
+              .tag(TaxiReport.Reason.noShow)
+              .selectionDisabled(!room.isDeparted)
             Text("Etc").tag(TaxiReport.Reason.etcReason)
           }
           
           if viewModel.selectedReason == .etcReason {
-            TextField("Details", text: $viewModel.etcReasonDetail)
+            HStack {
+              TextField("Details", text: $viewModel.etcDetails)
+              Text("\(viewModel.etcDetails.count)/30")
+                .foregroundStyle(viewModel.etcDetails.count > 30 ? .orange : .secondary)
+            }
+          }
+        } header: {
+          Text("Why?")
+        } footer: {
+          VStack(alignment: .leading, spacing: 8) {
+            if !room.isDeparted {
+              Text("Reports for unsettled payments and no-shows can only be submitted after the departure time.")
+            }
+            if viewModel.selectedReason == .noSettlement {
+              Text("An email will be sent asking them to send you the money.")
+            }
           }
         }
       }
@@ -55,7 +72,14 @@ struct TaxiReportView: View {
         
         ToolbarItem(placement: .topBarTrailing) {
           Button("Done", systemImage: "arrow.up", role: .confirm) {
-            // TODO
+            Task {
+              do {
+                try await viewModel.createReport(roomID: room.id)
+                dismiss()
+              } catch {
+                // TODO: Error Handling
+              }
+            }
           }
           .disabled(!isValid)
         }
@@ -66,11 +90,11 @@ struct TaxiReportView: View {
   var isValid: Bool {
     return (
       viewModel.selectedUser != nil && viewModel.selectedReason != nil &&
-      (viewModel.selectedReason != .etcReason || !viewModel.etcReasonDetail.isEmpty)
+      (viewModel.selectedReason != .etcReason || (1...30).contains(viewModel.etcDetails.count))
     )
   }
 }
 
 #Preview {
-  TaxiReportView(participants: TaxiRoom.mock.participants)
+  TaxiReportView(room: TaxiRoom.mock)
 }
