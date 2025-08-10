@@ -40,7 +40,7 @@ final class UserUseCase: UserUseCaseProtocol {
     logger.debug(user)
   }
   
-  func editAccount(account: String) async {
+  func taxiEditAccount(account: String) async {
     logger.debug("Updating Bank Account to \(account)")
     do {
       try await taxiUserRepository.editBankAccount(account: account)

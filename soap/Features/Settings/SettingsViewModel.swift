@@ -45,7 +45,7 @@ class SettingsViewModel: SettingsViewModelProtocol {
     taxiState = .loaded
   }
   
-  func editBankAccount(account: String) async {
-    await userUseCase.editAccount(account: account)
+  func taxiEditBankAccount(account: String) async {
+    await userUseCase.taxiEditAccount(account: account)
   }
 }

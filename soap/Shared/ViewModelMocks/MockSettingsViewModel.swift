@@ -24,7 +24,7 @@ class MockSettingsViewModel: SettingsViewModelProtocol {
     // Mock implementation
   }
   
-  func editBankAccount(account: String) async {
+  func taxiEditBankAccount(account: String) async {
     // Mock implementation
   }
   
