@@ -12,7 +12,7 @@ struct PostListRow: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      HStack {
+      HStack(spacing: 4) {
         if let topic = post.topic {
           Text("[\(topic.name.localized())]")
             .font(.subheadline)

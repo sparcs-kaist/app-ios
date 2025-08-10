@@ -123,8 +123,7 @@ struct PostView: View {
 
   private var header: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text(viewModel.post.title ?? "Untitled")
-        .font(.headline)
+      Text(title)
 
       HStack {
         Text(viewModel.post.createdAt.formattedString)
@@ -226,6 +225,24 @@ struct PostView: View {
           .frame(width: 21, height: 21)
       }
     }
+  }
+
+  var title: AttributedString {
+    var result = AttributedString()
+
+    if let topicName = viewModel.post.topic?.name.localized() {
+      var topicAttr = AttributedString("[\(topicName)] ")
+      topicAttr.font = .headline
+      topicAttr.foregroundColor = .accentColor
+      result.append(topicAttr)
+    }
+
+    var titleAttr = AttributedString(viewModel.post.title ?? "Untitled")
+    titleAttr.font = .headline
+    titleAttr.foregroundColor = .primary
+    result.append(titleAttr)
+
+    return result
   }
 }
 
