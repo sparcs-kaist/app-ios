@@ -29,6 +29,8 @@ struct TaxiChatView: View {
 
   @State private var tappedImageID: String? = nil
 
+  @State private var showReportSheet: Bool = false
+
   @Namespace private var namespace
   @FocusState private var isFocused: Bool
 
@@ -94,6 +96,11 @@ struct TaxiChatView: View {
     }, message: {
       Text(errorMessage)
     })
+    .sheet(isPresented: $showReportSheet) {
+      TaxiReportView(participants: viewModel.room.participants)
+        .presentationDragIndicator(.visible)
+        .presentationDetents([.height(400), .height(500)])
+    }
     .task {
       await viewModel.setup()
       await viewModel.fetchInitialChats()
@@ -314,7 +321,9 @@ struct TaxiChatView: View {
           Button("Call Taxi", systemImage: "car.fill") {
             showCallTaxiAlert = true
           }
-          Button("Report", systemImage: "exclamationmark.triangle.fill") { }
+          Button("Report", systemImage: "exclamationmark.triangle.fill") {
+            showReportSheet = true
+          }
         }
 
         Divider()
