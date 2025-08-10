@@ -11,7 +11,6 @@ import Observation
 @Observable
 class MockPostListViewModel: PostListViewModelProtocol {
   // MARK: - ViewModel Properties
-  var postList: [Post] = Post.mockList
   var state: PostListViewModel.ViewState = .loaded(posts: AraPost.mockList)
   var board: AraBoard = AraBoard.mock
   var posts: [AraPost] = AraPost.mockList
@@ -26,4 +25,8 @@ class MockPostListViewModel: PostListViewModelProtocol {
   func loadNextPage() async {
     // Mock implementation
   }
-} 
+
+  func refreshItem(postID: Int) {
+    
+  }
+}

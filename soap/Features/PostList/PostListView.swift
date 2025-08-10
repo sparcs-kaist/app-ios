@@ -82,7 +82,13 @@ struct PostListView: View {
         .listRowSeparator(.visible, edges: .bottom)
         .background {
           if !post.isHidden {
-            NavigationLink("", destination: PostView(post: post))
+            NavigationLink("", destination: {
+              PostView(post: post)
+                .onDisappear {
+                  // on dismiss, refresh this item
+                  viewModel.refreshItem(postID: post.id)
+                }
+            })
               .opacity(0)
           }
         }

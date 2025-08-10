@@ -11,8 +11,6 @@ import Factory
 
 @MainActor
 protocol PostListViewModelProtocol: Observable {
-  var postList: [Post] { get }
-
   var state: PostListViewModel.ViewState { get }
   var board: AraBoard { get }
   var posts: [AraPost] { get }
@@ -21,12 +19,11 @@ protocol PostListViewModelProtocol: Observable {
 
   func fetchInitialPosts() async
   func loadNextPage() async
+  func refreshItem(postID: Int)
 }
 
 @Observable
 class PostListViewModel: PostListViewModelProtocol {
-  var postList: [Post] = Post.mockList
-
   // MARK: - Properties
   enum ViewState: Equatable {
     case loading
@@ -85,6 +82,20 @@ class PostListViewModel: PostListViewModelProtocol {
     } catch {
       logger.error(error)
       self.isLoadingMore = false
+    }
+  }
+
+  func refreshItem(postID: Int) {
+    Task {
+      guard let updated: AraPost = try? await araBoardRepository.fetchPost(origin: .none, postID: postID) else { return }
+
+      if let idx = self.posts.firstIndex(where: { $0.id == updated.id }) {
+        var previousPost: AraPost = self.posts[idx]
+        previousPost.upvotes = updated.upvotes
+        previousPost.downvotes = updated.downvotes
+        self.posts[idx] = previousPost
+        self.state = .loaded(posts: self.posts)
+      }
     }
   }
 }
