@@ -38,8 +38,14 @@ struct PostView: View {
     }
     .scrollDismissesKeyboard(.interactively)
     .contentMargins(.bottom, 64)
+    .navigationTitle(viewModel.post.board?.name.localized() ?? "")
     .safeAreaBar(edge: .bottom) {
       inputBar
+    }
+    .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        Menu("More", systemImage: "ellipsis") { }
+      }
     }
     .sheet(item: $tappedURL) { url in
       SafariViewWrapper(url: url)
@@ -47,7 +53,6 @@ struct PostView: View {
     .task {
       await viewModel.fetchPost()
     }
-    .navigationTitle(viewModel.post.board?.name.localized() ?? "")
   }
 
   private var comments: some View {
