@@ -38,6 +38,11 @@ struct PostView: View {
       .padding()
     }
     .scrollDismissesKeyboard(.interactively)
+    .onKeyboardDismiss {
+      if comment.isEmpty {
+        targetComment = nil
+      }
+    }
     .contentMargins(.bottom, 64)
     .navigationTitle(viewModel.post.board?.name.localized() ?? "")
     .safeAreaBar(edge: .bottom) {
