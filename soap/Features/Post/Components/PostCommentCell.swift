@@ -9,8 +9,11 @@ import SwiftUI
 import NukeUI
 
 struct PostCommentCell: View {
-  var comment: AraPostComment
+  let comment: AraPostComment
   let isThreaded: Bool
+  let onDownvote: (() -> Void)
+  let onUpvote: (() -> Void)
+  let onComment: (() -> Void)?
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
@@ -54,10 +57,10 @@ struct PostCommentCell: View {
             myVote: comment.myVote,
             votes: comment.upvotes - comment.downvotes,
             onDownvote: {
-
+              onDownvote()
             },
             onUpvote: {
-
+              onUpvote()
             })
           .fixedSize()
         }
@@ -91,8 +94,18 @@ struct PostCommentCell: View {
 
 
 #Preview {
-  PostCommentCell(comment: AraPostComment.mock, isThreaded: false)
+  PostCommentCell(
+    comment: AraPostComment.mock,
+    isThreaded: false,
+    onDownvote: {},
+    onUpvote: {},
+    onComment: nil)
     .padding()
-  PostCommentCell(comment: AraPostComment.mock, isThreaded: true)
-    .padding()
+  PostCommentCell(
+    comment: AraPostComment.mock,
+    isThreaded: true,
+    onDownvote: {},
+    onUpvote: {},
+    onComment: nil)
+  .padding()
 }

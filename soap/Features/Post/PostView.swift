@@ -65,12 +65,40 @@ struct PostView: View {
         } else {
           ForEach(comments) { comment in
             VStack(spacing: 12) {
-              PostCommentCell(comment: comment, isThreaded: false)
+              PostCommentCell(
+                comment: comment,
+                isThreaded: false,
+                onDownvote: {
+                  Task {
+                    await viewModel.downvoteComment(commentID: comment.id)
+                  }
+                },
+                onUpvote: {
+                  Task {
+                    await viewModel.upvoteComment(commentID: comment.id)
+                  }
+                },
+                onComment: nil
+              )
 
               // Threads
               if let threads = comment.comments {
                 ForEach(threads) { thread in
-                  PostCommentCell(comment: thread, isThreaded: true)
+                  PostCommentCell(
+                    comment: thread,
+                    isThreaded: true,
+                    onDownvote: {
+                      Task {
+                        await viewModel.downvoteComment(commentID: thread.id)
+                      }
+                    },
+                    onUpvote: {
+                      Task {
+                        await viewModel.upvoteComment(commentID: thread.id)
+                      }
+                    },
+                    onComment: nil
+                  )
                 }
               }
             }

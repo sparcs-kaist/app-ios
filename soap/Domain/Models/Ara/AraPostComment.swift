@@ -12,15 +12,14 @@ struct AraPostComment: Identifiable, Hashable, Sendable {
   let isHidden: Bool
   let hiddenReason: [String]
   let overrideHidden: Bool?
-  let myVote: Bool?
+  var myVote: Bool?
   let isMine: Bool
   let content: String?
   let author: AraPostAuthor
-  let comments: [AraPostComment]?
+  var comments: [AraPostComment]?
   let createdAt: Date
-  let upvotes: Int
-  let downvotes: Int
+  var upvotes: Int
+  var downvotes: Int
   let parentPost: Int?
   let parentComment: Int?
 }
-
