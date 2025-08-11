@@ -147,6 +147,7 @@ struct PostView: View {
       }
     }
     .padding(.top, 4)
+    .animation(.spring, value: viewModel.post.comments)
   }
 
   private var footer: some View {
