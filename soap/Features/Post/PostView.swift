@@ -213,7 +213,7 @@ struct PostView: View {
           .labelStyle(.iconOnly)
           .tint(.white)
           .padding(12)
-          .glassEffect(.regular.tint(.black).interactive(), in: .circle)
+          .glassEffect(.regular.tint(.accent).interactive(), in: .circle)
           .disabled(comment.isEmpty)
           .transition(.move(edge: .trailing).combined(with: .opacity))
       }
