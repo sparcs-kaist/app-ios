@@ -13,17 +13,12 @@ struct PostCommentButton: View {
   let onClick: () -> Void
 
   var body: some View {
-    HStack {
-      Button("comments", systemImage: "text.bubble") {
-        onClick()
-      }
-      .labelStyle(.iconOnly)
-      .foregroundStyle(.primary)
-
-      Text("\(commentCount)")
-        .animation(.spring(), value: commentCount)
-        .contentTransition(.numericText(value: Double(commentCount)))
+    Button("\(commentCount)", systemImage: "text.bubble") {
+      onClick()
     }
+    .animation(.spring(), value: commentCount)
+    .contentTransition(.numericText(value: Double(commentCount)))
+    .tint(.primary)
     .padding(8)
     .glassEffect(.regular.interactive())
   }
