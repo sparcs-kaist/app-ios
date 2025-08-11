@@ -14,6 +14,7 @@ enum AraCommentTarget {
   case cancelVote(commentID: Int)
   case writeComment(postID: Int, content: String)
   case writeThreadedComment(commentID: Int, content: String)
+  case deleteComment(commentID: Int)
 }
 
 extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
@@ -31,6 +32,8 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
       "/comments/\(commentID)/vote_cancel/"
     case .writeComment, .writeThreadedComment:
       "/comments/"
+    case .deleteComment(let commentID):
+      "/comments/\(commentID)/"
     }
   }
 
@@ -38,6 +41,8 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .upvoteComment, .downvoteComment, .cancelVote, .writeComment, .writeThreadedComment:
         .post
+    case .deleteComment:
+        .delete
     }
   }
 
@@ -57,6 +62,8 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
           "content": content,
           "name_type": 2
         ], encoding: JSONEncoding.default)
+    case .deleteComment:
+        .requestPlain
     }
   }
 
