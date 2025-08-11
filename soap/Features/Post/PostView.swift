@@ -65,12 +65,12 @@ struct PostView: View {
             }
 
             Button("Block", systemImage: "person.slash.fill") { }
-          } else if viewModel.post.isMine == true {
-            // show edit post button
-            Button("Edit", systemImage: "square.and.pencil") { }
-          }
 
-          Divider()
+            Divider()
+          }/* else if viewModel.post.isMine == true {*/
+            // show edit post button
+//            Button("Edit", systemImage: "square.and.pencil") { }
+//          }
 
           Button("Summarise", systemImage: "text.append") { }
 
