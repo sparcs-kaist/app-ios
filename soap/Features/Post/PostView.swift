@@ -218,7 +218,7 @@ struct PostView: View {
           .transition(.move(edge: .trailing).combined(with: .opacity))
       }
     }
-    .padding()
+    .padding(.horizontal)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
       value: comment.isEmpty
