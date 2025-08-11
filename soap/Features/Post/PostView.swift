@@ -22,6 +22,8 @@ struct PostView: View {
   @State private var commentOnEdit: AraPostComment? = nil
   @State private var isUploadingComment: Bool = false
 
+  @State private var showReportedAlert: Bool = false
+
   init(post: AraPost) {
     _viewModel = State(initialValue: PostViewModel(post: post))
   }
@@ -55,6 +57,11 @@ struct PostView: View {
         actionsMenu
       }
     }
+    .alert("Report Submitted", isPresented: $showReportedAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text("Your report has been submitted successfully.")
+    })
     .sheet(item: $tappedURL) { url in
       SafariViewWrapper(url: url)
     }
@@ -71,12 +78,42 @@ struct PostView: View {
       if viewModel.post.isMine == false {
         // show report and block menus
         Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-          Button("Hate Speech") { }
-          Button("Unauthorized Sales") { }
-          Button("Spam") { }
-          Button("False Information") { }
-          Button("Defamation") { }
-          Button("Other") { }
+          Button("Hate Speech") {
+            Task {
+              try? await viewModel.report(type: .hateSpeech)
+              showReportedAlert = true
+            }
+          }
+          Button("Unauthorized Sales") {
+            Task {
+              try? await viewModel.report(type: .unauthorizedSales)
+              showReportedAlert = true
+            }
+          }
+          Button("Spam") {
+            Task {
+              try? await viewModel.report(type: .spam)
+              showReportedAlert = true
+            }
+          }
+          Button("False Information") {
+            Task {
+              try? await viewModel.report(type: .falseInformation)
+              showReportedAlert = true
+            }
+          }
+          Button("Defamation") {
+            Task {
+              try? await viewModel.report(type: .defamation)
+              showReportedAlert = true
+            }
+          }
+          Button("Other") {
+            Task {
+              try? await viewModel.report(type: .other)
+              showReportedAlert = true
+            }
+          }
         }
 
         Button("Block", systemImage: "person.slash.fill") { }

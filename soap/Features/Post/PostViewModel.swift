@@ -19,6 +19,7 @@ protocol PostViewModelProtocol: Observable {
   func writeComment(content: String) async throws
   func writeThreadedComment(commentID: Int, content: String) async throws
   func editComment(commentID: Int, content: String) async throws
+  func report(type: AraContentReportType) async throws
 }
 
 @Observable
@@ -162,5 +163,9 @@ class PostViewModel: PostViewModelProtocol {
         }
       }
     }
+  }
+
+  func report(type: AraContentReportType) async throws {
+    try await araBoardRepository.reportPost(postID: post.id, type: type)
   }
 }

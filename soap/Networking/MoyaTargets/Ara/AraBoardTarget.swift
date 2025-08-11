@@ -22,6 +22,7 @@ enum AraBoardTarget {
   case upvote(postID: Int)
   case downvote(postID: Int)
   case cancelVote(postID: Int)
+  case report(postID: Int, type: AraContentReportType)
 }
 
 extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
@@ -43,6 +44,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/articles/\(postID)/vote_negative/"
     case .cancelVote(let postID):
       "/articles/\(postID)/vote_cancel/"
+    case .report:
+      "/reports/"
     }
   }
 
@@ -50,7 +53,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards, .fetchPosts, .fetchPost:
       .get
-    case .writePost, .upvote, .downvote, .cancelVote:
+    case .writePost, .upvote, .downvote, .cancelVote, .report:
       .post
     }
   }
@@ -83,6 +86,12 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
     case .writePost(let request):
       return .requestJSONEncodable(request)
+    case .report(let postID, let type):
+      return .requestParameters(parameters: [
+        "parent_article": postID,
+        "type": "others",
+        "content": type.rawValue
+      ], encoding: JSONEncoding.default)
     }
   }
 
