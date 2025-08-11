@@ -18,6 +18,7 @@ struct PostView: View {
   @State private var comment: String = ""
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var isWritingComment: Bool = false
+  @State private var targetComment: AraPostComment? = nil
 
   init(post: AraPost) {
     _viewModel = State(initialValue: PostViewModel(post: post))
@@ -78,7 +79,10 @@ struct PostView: View {
                     await viewModel.upvoteComment(commentID: comment.id)
                   }
                 },
-                onComment: nil
+                onComment: {
+                  targetComment = comment
+                  isWritingCommentFocusState = true
+                }
               )
 
               // Threads
@@ -97,7 +101,10 @@ struct PostView: View {
                         await viewModel.upvoteComment(commentID: thread.id)
                       }
                     },
-                    onComment: nil
+                    onComment: {
+                      targetComment = thread
+                      isWritingCommentFocusState = true
+                    }
                   )
                 }
               }
@@ -122,7 +129,10 @@ struct PostView: View {
       })
       .disabled(viewModel.post.isMine ?? false)
 
-      PostCommentButton(commentCount: viewModel.post.commentCount)
+      PostCommentButton(commentCount: viewModel.post.commentCount) {
+        targetComment = nil
+        isWritingCommentFocusState = true
+      }
 
       Spacer()
 
@@ -200,7 +210,7 @@ struct PostView: View {
             .transition(.move(edge: .leading).combined(with: .opacity))
         }
 
-        TextField(text: $comment, prompt: Text("reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")"), label: {})
+        TextField(text: $comment, prompt: Text(placeholder), label: {})
           .focused($isWritingCommentFocusState)
       }
       .padding(12)
@@ -253,6 +263,14 @@ struct PostView: View {
           .frame(width: 21, height: 21)
       }
     }
+  }
+
+  var placeholder: String {
+    if let targetComment = targetComment {
+      return "reply to \(targetComment.author.profile.nickname)"
+    }
+
+    return "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")"
   }
 
   var title: AttributedString {

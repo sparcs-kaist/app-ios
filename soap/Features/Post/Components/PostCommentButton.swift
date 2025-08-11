@@ -10,11 +10,12 @@ import SwiftUI
 
 struct PostCommentButton: View {
   let commentCount: Int
+  let onClick: () -> Void
 
   var body: some View {
     HStack {
       Button("comments", systemImage: "text.bubble") {
-
+        onClick()
       }
       .labelStyle(.iconOnly)
       .foregroundStyle(.primary)

@@ -49,8 +49,10 @@ struct PostCommentCell: View {
           Spacer()
 
           if !isThreaded {
-            PostCommentButton(commentCount: comment.comments?.count ?? 0)
-              .fixedSize()
+            PostCommentButton(commentCount: comment.comments?.count ?? 0) {
+              onComment?()
+            }
+            .fixedSize()
           }
 
           PostVoteButton(
