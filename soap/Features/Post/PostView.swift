@@ -19,6 +19,7 @@ struct PostView: View {
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var isWritingComment: Bool = false
   @State private var targetComment: AraPostComment? = nil
+  @State private var isUploadingComment: Bool = false
 
   init(post: AraPost) {
     _viewModel = State(initialValue: PostViewModel(post: post))
@@ -123,15 +124,19 @@ struct PostView: View {
 
   private var footer: some View {
     HStack {
-      PostVoteButton(myVote: viewModel.post.myVote, votes: viewModel.post.upvotes - viewModel.post.downvotes, onDownvote: {
-        Task {
-          await viewModel.downvote()
+      PostVoteButton(
+        myVote: viewModel.post.myVote,
+        votes: viewModel.post.upvotes - viewModel.post.downvotes,
+        onDownvote: {
+          Task {
+            await viewModel.downvote()
+          }
+        }, onUpvote: {
+          Task {
+            await viewModel.upvote()
+          }
         }
-      }, onUpvote: {
-        Task {
-          await viewModel.upvote()
-        }
-      })
+      )
       .disabled(viewModel.post.isMine ?? false)
 
       PostCommentButton(commentCount: viewModel.post.commentCount) {
@@ -223,16 +228,40 @@ struct PostView: View {
       .tint(.primary)
 
       if !comment.isEmpty {
-        Button("send", systemImage: "paperplane") { }
+        Button(action: {
+          guard !comment.isEmpty else { return }
+
+          Task {
+            isUploadingComment = true
+            defer { isUploadingComment = false }
+            if let targetComment = targetComment {
+              await viewModel.writeThreadedComment(commentID: targetComment.id, content: comment)
+            } else {
+              await viewModel.writeComment(content: comment)
+            }
+            targetComment = nil
+            comment = ""
+            isWritingCommentFocusState = false
+          }
+        }, label: {
+          if isUploadingComment {
+            ProgressView()
+              .tint(.white)
+              .controlSize(.mini)
+          } else {
+            Label("Send", systemImage: "paperplane")
+              .labelStyle(.iconOnly)
+              .tint(.white)
+          }
+        })
           .fontWeight(.medium)
-          .labelStyle(.iconOnly)
-          .tint(.white)
           .padding(12)
           .glassEffect(.regular.tint(.accent).interactive(), in: .circle)
           .disabled(comment.isEmpty)
           .transition(.move(edge: .trailing).combined(with: .opacity))
       }
     }
+    .disabled(isUploadingComment)
     .padding(.horizontal)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),

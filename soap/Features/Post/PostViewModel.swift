@@ -12,19 +12,21 @@ import Factory
 @MainActor
 protocol PostViewModelProtocol: Observable {
   var post: AraPost { get }
-  
+
   func fetchPost() async
   func upvote() async
   func downvote() async
   func upvoteComment(commentID: Int) async
   func downvoteComment(commentID: Int) async
+  func writeComment(content: String) async
+  func writeThreadedComment(commentID: Int, content: String) async
 }
 
 @Observable
 class PostViewModel: PostViewModelProtocol {
   // MARK: - Properties
   var post: AraPost
-  
+
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.araBoardRepository
@@ -32,12 +34,12 @@ class PostViewModel: PostViewModelProtocol {
   @ObservationIgnored @Injected(
     \.araCommentRepository
   ) private var araCommentRepository: AraCommentRepositoryProtocol
-  
+
   // MARK: - Initialiser
   init(post: AraPost) {
     self.post = post
   }
-  
+
   // Recursively find and mutate a comment by id inside a nested comment tree
   private func mutateComment(withID id: Int,
                              in comments: inout [AraPostComment],
@@ -57,7 +59,27 @@ class PostViewModel: PostViewModelProtocol {
     }
     return false
   }
-  
+
+  private func insertThreadedComment(into comments: inout [AraPostComment], comment: AraPostComment) -> Bool {
+    for idx in comments.indices {
+      guard let parentComment = comment.parentComment else {
+        return false
+      }
+
+      if comments[idx].id == parentComment {
+        if comments[idx].comments != nil {
+          comments[idx].comments!.append(comment)
+        } else {
+          comments[idx].comments = [comment]
+        }
+
+        return true
+      }
+    }
+
+    return false
+  }
+
   // MARK: - Functions
   func fetchPost() async {
     do {
@@ -67,11 +89,11 @@ class PostViewModel: PostViewModelProtocol {
       logger.error(error)
     }
   }
-  
+
   func upvote() async {
     let previousMyVote: Bool? = post.myVote
     let previousUpvotes: Int = post.upvotes
-    
+
     do {
       if previousMyVote == true {
         // cancel upvote
@@ -94,11 +116,11 @@ class PostViewModel: PostViewModelProtocol {
       post.myVote = previousMyVote
     }
   }
-  
+
   func downvote() async {
     let previousMyVote: Bool? = post.myVote
     let previousDownvotes: Int = post.downvotes
-    
+
     do {
       if previousMyVote == false {
         // cancel downvote
@@ -121,14 +143,14 @@ class PostViewModel: PostViewModelProtocol {
       post.myVote = previousMyVote
     }
   }
-  
+
   func upvoteComment(commentID: Int) async {
     guard var comments = self.post.comments else { return }
-    
+
     // Keep a snapshot so we can roll back on failure
     let backup = comments
     var previousMyVote: Bool? = nil
-    
+
     let found = mutateComment(withID: commentID, in: &comments) { c in
       previousMyVote = c.myVote
       if c.myVote == true {
@@ -145,10 +167,10 @@ class PostViewModel: PostViewModelProtocol {
         c.upvotes += 1
       }
     }
-    
+
     guard found else { return }
     self.post.comments = comments
-    
+
     do {
       if previousMyVote == true {
         try await araCommentRepository.cancleVote(commentID: commentID)
@@ -161,14 +183,14 @@ class PostViewModel: PostViewModelProtocol {
       self.post.comments = backup
     }
   }
-  
+
   func downvoteComment(commentID: Int) async {
     guard var comments = self.post.comments else { return }
-    
+
     // Keep a snapshot so we can roll back on failure
     let backup = comments
     var previousMyVote: Bool? = nil
-    
+
     let found = mutateComment(withID: commentID, in: &comments) { c in
       previousMyVote = c.myVote
       if c.myVote == false {
@@ -185,10 +207,10 @@ class PostViewModel: PostViewModelProtocol {
         c.downvotes += 1
       }
     }
-    
+
     guard found else { return }
     self.post.comments = comments
-    
+
     do {
       if previousMyVote == false {
         try await araCommentRepository.cancleVote(commentID: commentID)
@@ -199,6 +221,44 @@ class PostViewModel: PostViewModelProtocol {
       logger.error(error)
       // roll back
       self.post.comments = backup
+    }
+  }
+
+  func writeComment(content: String) async {
+    do {
+      var comment: AraPostComment = try await araCommentRepository.writeComment(
+        postID: post.id,
+        content: content
+      )
+      comment.isMine = true
+
+      self.post.comments?.append(comment)
+      self.post.commentCount += 1
+    } catch {
+      logger.error(error)
+    }
+  }
+
+  func writeThreadedComment(commentID: Int, content: String) async {
+    do {
+      var comment: AraPostComment = try await araCommentRepository.writeThreadedComment(
+        commentID: commentID,
+        content: content
+      )
+      comment.isMine = true
+
+      // insert threaded comments
+      if self.post.comments == nil {
+        self.post.comments = []
+      }
+
+      var comments: [AraPostComment] = self.post.comments!
+      _ = insertThreadedComment(into: &comments, comment: comment)
+
+      self.post.comments = comments
+      self.post.commentCount += 1
+    } catch {
+      logger.error(error)
     }
   }
 }

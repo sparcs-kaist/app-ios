@@ -9,11 +9,11 @@ import Foundation
 
 struct AraPostComment: Identifiable, Hashable, Sendable {
   let id: Int
-  let isHidden: Bool
-  let hiddenReason: [String]
+  let isHidden: Bool?
+  let hiddenReason: [String]?
   let overrideHidden: Bool?
   var myVote: Bool?
-  let isMine: Bool
+  var isMine: Bool?
   let content: String?
   let author: AraPostAuthor
   var comments: [AraPostComment]?

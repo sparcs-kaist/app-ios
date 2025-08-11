@@ -21,6 +21,8 @@ struct PostCommentButton: View {
       .foregroundStyle(.primary)
 
       Text("\(commentCount)")
+        .animation(.spring(), value: commentCount)
+        .contentTransition(.numericText(value: Double(commentCount)))
     }
     .padding(8)
     .glassEffect(.regular.interactive())

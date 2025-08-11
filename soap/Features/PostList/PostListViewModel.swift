@@ -93,6 +93,7 @@ class PostListViewModel: PostListViewModelProtocol {
         var previousPost: AraPost = self.posts[idx]
         previousPost.upvotes = updated.upvotes
         previousPost.downvotes = updated.downvotes
+        previousPost.commentCount = updated.commentCount
         self.posts[idx] = previousPost
         self.state = .loaded(posts: self.posts)
       }

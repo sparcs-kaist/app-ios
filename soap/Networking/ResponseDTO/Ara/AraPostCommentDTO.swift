@@ -9,11 +9,11 @@ import Foundation
 
 struct AraPostCommentDTO: Codable {
   let id: Int
-  let isHidden: Bool
-  let hiddenReason: [String]
+  let isHidden: Bool?
+  let hiddenReason: [String]?
   let overrideHidden: Bool?
   let myVote: Bool?
-  let isMine: Bool
+  let isMine: Bool?
   let content: String?
   let author: AraPostAuthorDTO
   let comments: [AraPostCommentDTO]?

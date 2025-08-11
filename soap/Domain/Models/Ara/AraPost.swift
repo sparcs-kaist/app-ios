@@ -35,7 +35,7 @@ struct AraPost: Identifiable, Hashable, Sendable {
   let isNSFW: Bool
   let isPolitical: Bool
   let views: Int
-  let commentCount: Int
+  var commentCount: Int
   var upvotes: Int
   var downvotes: Int
 

@@ -63,7 +63,9 @@ struct PostCommentCell: View {
             },
             onUpvote: {
               onUpvote()
-            })
+            }
+          )
+          .disabled(comment.isMine ?? false)
           .fixedSize()
         }
         .font(.caption)

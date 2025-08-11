@@ -12,6 +12,8 @@ enum AraCommentTarget {
   case upvoteComment(commentID: Int)
   case downvoteComment(commentID: Int)
   case cancelVote(commentID: Int)
+  case writeComment(postID: Int, content: String)
+  case writeThreadedComment(commentID: Int, content: String)
 }
 
 extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
@@ -27,12 +29,14 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
       "/comments/\(commentID)/vote_positive/"
     case .cancelVote(let commentID):
       "/comments/\(commentID)/vote_cancel/"
+    case .writeComment, .writeThreadedComment:
+      "/comments/"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .upvoteComment, .downvoteComment, .cancelVote:
+    case .upvoteComment, .downvoteComment, .cancelVote, .writeComment, .writeThreadedComment:
         .post
     }
   }
@@ -41,6 +45,18 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .upvoteComment, .downvoteComment, .cancelVote:
         .requestPlain
+    case .writeComment(let postID, let content):
+        .requestParameters(parameters: [
+          "parent_article": postID,
+          "content": content,
+          "name_type": 2
+        ], encoding: JSONEncoding.default)
+    case .writeThreadedComment(let commentID, let content):
+        .requestParameters(parameters: [
+          "parent_comment": commentID,
+          "content": content,
+          "name_type": 2
+        ], encoding: JSONEncoding.default)
     }
   }
 
