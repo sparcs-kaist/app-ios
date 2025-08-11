@@ -105,6 +105,9 @@ struct PostView: View {
               onComment: {
                 targetComment = comment
                 isWritingCommentFocusState = true
+              },
+              onDelete: {
+                viewModel.post.commentCount -= 1
               }
             )
 
@@ -116,6 +119,9 @@ struct PostView: View {
                 onComment: {
                   targetComment = thread
                   isWritingCommentFocusState = true
+                },
+                onDelete: {
+                  viewModel.post.commentCount -= 1
                 }
               )
             }

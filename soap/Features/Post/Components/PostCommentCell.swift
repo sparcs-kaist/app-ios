@@ -13,6 +13,7 @@ struct PostCommentCell: View {
   @Binding var comment: AraPostComment
   let isThreaded: Bool
   let onComment: (() -> Void)?
+  let onDelete: (() -> Void)?
 
   // MARK: - Dependencies
   @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol
@@ -71,6 +72,7 @@ struct PostCommentCell: View {
                     do {
                       try await araCommentRepository.deleteComment(commentID: comment.id)
                       comment.content = nil
+                      onDelete?()
                     } catch {
                       logger.error(error)
                     }
@@ -214,11 +216,15 @@ struct PostCommentCell: View {
   PostCommentCell(
     comment: .constant(AraPostComment.mock),
     isThreaded: false,
-    onComment: nil)
-    .padding()
+    onComment: nil,
+    onDelete: nil
+  )
+  .padding()
   PostCommentCell(
     comment: .constant(AraPostComment.mock),
     isThreaded: true,
-    onComment: nil)
+    onComment: nil,
+    onDelete: nil
+  )
   .padding()
 }
