@@ -51,7 +51,34 @@ struct PostView: View {
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
-        Menu("More", systemImage: "ellipsis") { }
+        Menu("More", systemImage: "ellipsis") {
+          if viewModel.post.isMine == false {
+            // show report and block menus
+            Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+              Button("Hate Speech") { }
+              Button("Unauthorized Sales Post") { }
+              Button("Spam") { }
+              Button("False Information") { }
+              Button("Defamation") { }
+              Button("Other") { }
+            }
+
+            Button("Block", systemImage: "person.slash.fill") { }
+          } else if viewModel.post.isMine == true {
+            // show edit post button
+            Button("Edit", systemImage: "square.and.pencil") { }
+          }
+
+          Divider()
+
+          Button("Summarise", systemImage: "text.append") { }
+
+          if viewModel.post.isMine == true {
+            Divider()
+
+            Button("Delete", systemImage: "trash", role: .destructive) { }
+          }
+        }
       }
     }
     .sheet(item: $tappedURL) { url in
@@ -67,6 +94,7 @@ struct PostView: View {
       // Main comment
       if let comments = viewModel.post.comments {
         if comments.isEmpty {
+          Divider()
           ContentUnavailableView("No one has commented yet.", systemImage: "text.bubble", description: Text("Be the first one to share your thoughts."))
             .scaleEffect(0.8)
         } else {

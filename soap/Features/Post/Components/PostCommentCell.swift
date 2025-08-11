@@ -36,8 +36,38 @@ struct PostCommentCell: View {
 
           Spacer()
 
-          Button("more", systemImage: "ellipsis") { }
-            .labelStyle(.iconOnly)
+          Menu {
+            if comment.isMine == false {
+              // show report menu
+              Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+                Button("Hate Speech") { }
+                Button("Unauthorized Sales Post") { }
+                Button("Spam") { }
+                Button("False Information") { }
+                Button("Defamation") { }
+                Button("Other") { }
+              }
+            } else if comment.isMine == true {
+              // show edit button
+              Button("Edit", systemImage: "square.and.pencil") { }
+            }
+
+            Divider()
+
+            Button("Translate", systemImage: "translate") { }
+            Button("Summarise", systemImage: "text.append") { }
+
+            if comment.isMine == true {
+              Divider()
+
+              Button("Delete", systemImage: "trash", role: .destructive) { }
+            }
+          } label: {
+            Label("More", systemImage: "ellipsis")
+              .padding(8)
+              .contentShape(.rect)
+          }
+          .labelStyle(.iconOnly)
         }
         .font(.callout)
 
