@@ -14,6 +14,7 @@ struct PostCommentCell: View {
   let isThreaded: Bool
   let onComment: (() -> Void)?
   let onDelete: (() -> Void)?
+  let onEdit: (() -> Void)?
 
   // MARK: - Dependencies
   @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol
@@ -56,7 +57,9 @@ struct PostCommentCell: View {
                 }
               } else if comment.isMine == true {
                 // show edit button
-                Button("Edit", systemImage: "square.and.pencil") { }
+                Button("Edit", systemImage: "square.and.pencil") {
+                  onEdit?()
+                }
               }
 
               Divider()
@@ -217,14 +220,16 @@ struct PostCommentCell: View {
     comment: .constant(AraPostComment.mock),
     isThreaded: false,
     onComment: nil,
-    onDelete: nil
+    onDelete: nil,
+    onEdit: nil
   )
   .padding()
   PostCommentCell(
     comment: .constant(AraPostComment.mock),
     isThreaded: true,
     onComment: nil,
-    onDelete: nil
+    onDelete: nil,
+    onEdit: nil
   )
   .padding()
 }

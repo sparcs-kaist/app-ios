@@ -14,7 +14,8 @@ struct TaxiChatAccountBubble: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text("SETTLEMENT")
+      Text("Settlement")
+        .textCase(.uppercase)
         .font(.footnote)
         .fontWeight(.semibold)
         .foregroundStyle(.secondary)

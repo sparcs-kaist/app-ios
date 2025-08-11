@@ -15,6 +15,7 @@ enum AraCommentTarget {
   case writeComment(postID: Int, content: String)
   case writeThreadedComment(commentID: Int, content: String)
   case deleteComment(commentID: Int)
+  case patchComment(commentID: Int, content: String)
 }
 
 extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
@@ -34,6 +35,8 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
       "/comments/"
     case .deleteComment(let commentID):
       "/comments/\(commentID)/"
+    case .patchComment(let commentID, _):
+      "/comments/\(commentID)/"
     }
   }
 
@@ -43,6 +46,8 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
         .post
     case .deleteComment:
         .delete
+    case .patchComment:
+        .patch
     }
   }
 
@@ -64,6 +69,12 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
         ], encoding: JSONEncoding.default)
     case .deleteComment:
         .requestPlain
+    case .patchComment(let commentID, let content):
+        .requestParameters(parameters: [
+          "content": content,
+          "name_type": 2,
+          "is_mine": true
+        ], encoding: JSONEncoding.default)
     }
   }
 

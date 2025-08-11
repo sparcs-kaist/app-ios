@@ -16,8 +16,9 @@ protocol PostViewModelProtocol: Observable {
   func fetchPost() async
   func upvote() async
   func downvote() async
-  func writeComment(content: String) async
-  func writeThreadedComment(commentID: Int, content: String) async
+  func writeComment(content: String) async throws
+  func writeThreadedComment(commentID: Int, content: String) async throws
+  func editComment(commentID: Int, content: String) async throws
 }
 
 @Observable
@@ -118,38 +119,48 @@ class PostViewModel: PostViewModelProtocol {
     }
   }
 
-  func writeComment(content: String) async {
-    do {
-      var comment: AraPostComment = try await araCommentRepository.writeComment(
-        postID: post.id,
-        content: content
-      )
-      comment.isMine = true
+  func writeComment(content: String) async throws {
+    var comment: AraPostComment = try await araCommentRepository.writeComment(
+      postID: post.id,
+      content: content
+    )
+    comment.isMine = true
 
-      self.post.comments.append(comment)
-      self.post.commentCount += 1
-    } catch {
-      logger.error(error)
-    }
+    self.post.comments.append(comment)
+    self.post.commentCount += 1
   }
 
-  func writeThreadedComment(commentID: Int, content: String) async {
-    do {
-      var comment: AraPostComment = try await araCommentRepository.writeThreadedComment(
-        commentID: commentID,
-        content: content
-      )
-      comment.isMine = true
+  func writeThreadedComment(commentID: Int, content: String) async throws {
+    var comment: AraPostComment = try await araCommentRepository.writeThreadedComment(
+      commentID: commentID,
+      content: content
+    )
+    comment.isMine = true
 
-      // insert threaded comments
+    // insert threaded comments
 
-      var comments: [AraPostComment] = self.post.comments
-      _ = insertThreadedComment(into: &comments, comment: comment)
+    var comments: [AraPostComment] = self.post.comments
+    _ = insertThreadedComment(into: &comments, comment: comment)
 
-      self.post.comments = comments
-      self.post.commentCount += 1
-    } catch {
-      logger.error(error)
+    self.post.comments = comments
+    self.post.commentCount += 1
+  }
+
+  func editComment(commentID: Int, content: String) async throws {
+    _ = try await araCommentRepository.editComment(commentID: commentID, content: content)
+
+    for idx in post.comments.indices {
+      if post.comments[idx].id == commentID {
+        post.comments[idx].content = content
+        return
+      }
+      // scan through threads
+      for threadIdx in post.comments[idx].comments.indices {
+        if post.comments[idx].comments[threadIdx].id == commentID {
+          post.comments[idx].comments[threadIdx].content = content
+          return
+        }
+      }
     }
   }
 }

@@ -19,6 +19,7 @@ struct PostView: View {
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var isWritingComment: Bool = false
   @State private var targetComment: AraPostComment? = nil
+  @State private var commentOnEdit: AraPostComment? = nil
   @State private var isUploadingComment: Bool = false
 
   init(post: AraPost) {
@@ -108,6 +109,14 @@ struct PostView: View {
               },
               onDelete: {
                 viewModel.post.commentCount -= 1
+              },
+              onEdit: {
+                withAnimation(.spring) {
+                  self.comment = comment.content ?? ""
+                  targetComment = nil
+                  commentOnEdit = comment
+                }
+                isWritingCommentFocusState = true
               }
             )
 
@@ -122,6 +131,14 @@ struct PostView: View {
                 },
                 onDelete: {
                   viewModel.post.commentCount -= 1
+                },
+                onEdit: {
+                  withAnimation(.spring) {
+                    self.comment = thread.content ?? ""
+                    targetComment = nil
+                    commentOnEdit = comment
+                  }
+                  isWritingCommentFocusState = true
                 }
               )
             }
@@ -223,20 +240,45 @@ struct PostView: View {
   }
 
   private var inputBar: some View {
-    HStack {
-      HStack {
-        if !isWritingComment && comment.isEmpty {
-          profilePicture
-            .transition(.move(edge: .leading).combined(with: .opacity))
+    HStack(alignment: .bottom) {
+      // comment textfield
+      VStack(alignment: .leading) {
+        if commentOnEdit != nil {
+          HStack {
+            Text("Editing")
+              .textCase(.uppercase)
+              .font(.footnote)
+              .fontWeight(.semibold)
+              .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Button("Cancel", systemImage: "xmark") {
+              withAnimation(.spring) {
+                comment = ""
+                commentOnEdit = nil
+              }
+            }
+            .font(.caption)
+            .labelStyle(.iconOnly)
+          }
         }
 
-        TextField(text: $comment, prompt: Text(placeholder), label: {})
-          .focused($isWritingCommentFocusState)
+        HStack {
+          if !isWritingComment && comment.isEmpty {
+            profilePicture
+              .transition(.move(edge: .leading).combined(with: .opacity))
+          }
+
+          TextField(text: $comment, prompt: Text(placeholder), axis: .vertical, label: {})
+            .focused($isWritingCommentFocusState)
+        }
       }
       .padding(12)
-      .glassEffect(.clear.interactive())
+      .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24))
       .tint(.primary)
 
+      // write comment button
       if !comment.isEmpty {
         Button(action: {
           guard !comment.isEmpty else { return }
@@ -244,14 +286,22 @@ struct PostView: View {
           Task {
             isUploadingComment = true
             defer { isUploadingComment = false }
-            if let targetComment = targetComment {
-              await viewModel.writeThreadedComment(commentID: targetComment.id, content: comment)
-            } else {
-              await viewModel.writeComment(content: comment)
+            do {
+              if let commentOnEdit = commentOnEdit {
+                try await viewModel.editComment(commentID: commentOnEdit.id, content: comment)
+              } else if let targetComment = targetComment {
+                try await viewModel.writeThreadedComment(commentID: targetComment.id, content: comment)
+              } else {
+                try await viewModel.writeComment(content: comment)
+              }
+              targetComment = nil
+              commentOnEdit = nil
+              comment = ""
+              isWritingCommentFocusState = false
+            } catch {
+              logger.error(error)
+              // TODO: handle error here
             }
-            targetComment = nil
-            comment = ""
-            isWritingCommentFocusState = false
           }
         }, label: {
           if isUploadingComment {
@@ -264,11 +314,11 @@ struct PostView: View {
               .tint(.white)
           }
         })
-          .fontWeight(.medium)
-          .padding(12)
-          .glassEffect(.regular.tint(.accent).interactive(), in: .circle)
-          .disabled(comment.isEmpty)
-          .transition(.move(edge: .trailing).combined(with: .opacity))
+        .fontWeight(.medium)
+        .padding(12)
+        .glassEffect(.regular.tint(.accent).interactive(), in: .circle)
+        .disabled(comment.isEmpty)
+        .transition(.move(edge: .trailing).combined(with: .opacity))
       }
     }
     .disabled(isUploadingComment)
@@ -312,6 +362,10 @@ struct PostView: View {
   var placeholder: String {
     if let targetComment = targetComment {
       return "reply to \(targetComment.author.profile.nickname)"
+    }
+
+    if let commentOnEdit = commentOnEdit {
+      return commentOnEdit.content ?? ""
     }
 
     return "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")"
