@@ -16,6 +16,8 @@ struct PostCommentCell: View {
   let onDelete: (() -> Void)?
   let onEdit: (() -> Void)?
 
+  @State private var showReportedAlert: Bool = false
+
   // MARK: - Dependencies
   @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol
 
@@ -31,70 +33,7 @@ struct PostCommentCell: View {
       VStack(alignment: .leading, spacing: 8) {
         Divider()
 
-        HStack {
-          profilePicture
-
-          Text(comment.author.profile.nickname)
-            .fontWeight(.medium)
-
-          Text(comment.createdAt.relativeTimeString)
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-          Spacer()
-
-          if !isDeleted {
-            Menu {
-              if comment.isMine == false {
-                // show report menu
-                Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-                  Button("Hate Speech") { }
-                  Button("Unauthorized Sales") { }
-                  Button("Spam") { }
-                  Button("False Information") { }
-                  Button("Defamation") { }
-                  Button("Other") { }
-                }
-              } else if comment.isMine == true {
-                // show edit button
-                Button("Edit", systemImage: "square.and.pencil") {
-                  onEdit?()
-                }
-              }
-
-              Divider()
-
-              Button("Translate", systemImage: "translate") { }
-              Button("Summarise", systemImage: "text.append") { }
-
-              if comment.isMine == true {
-                Divider()
-
-                Button("Delete", systemImage: "trash", role: .destructive) {
-                  Task {
-                    let previousContent: String? = comment.content
-                    do {
-                      comment.content = nil
-                      onDelete?()
-                      try await araCommentRepository.deleteComment(commentID: comment.id)
-                    } catch {
-                      comment.content = previousContent
-                      logger.error(error)
-                    }
-                  }
-                }
-              }
-            } label: {
-              Label("More", systemImage: "ellipsis")
-                .padding(8)
-                .contentShape(.rect)
-            }
-            .labelStyle(.iconOnly)
-            .transition(.blurReplace)
-            .animation(.spring, value: comment)
-          }
-        }
-        .font(.callout)
+        header
 
         Text(comment.content ?? "This comment has been deleted.")
           .foregroundStyle(isDeleted ? .secondary : .primary)
@@ -103,43 +42,154 @@ struct PostCommentCell: View {
           .animation(.spring, value: comment)
 
         if !isDeleted {
-          HStack {
-            Spacer()
-
-            if !isThreaded {
-              PostCommentButton(commentCount: comment.comments.count) {
-                onComment?()
-              }
-              .fixedSize()
-            }
-
-            PostVoteButton(
-              myVote: comment.myVote,
-              votes: comment.upvotes - comment.downvotes,
-              onDownvote: {
-                Task {
-                  await downvote()
-                }
-              },
-              onUpvote: {
-                Task {
-                  await upvote()
-                }
-              }
-            )
-            .disabled(comment.isMine ?? false)
-            .fixedSize()
-          }
-          .font(.caption)
-          .transition(.blurReplace)
-          .animation(.spring, value: comment)
+          footer
         }
       }
     }
+    .alert("Report Submitted", isPresented: $showReportedAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text("Your report has been submitted successfully.")
+    })
+  }
+
+  private var footer: some View {
+    HStack {
+      Spacer()
+
+      if !isThreaded {
+        PostCommentButton(commentCount: comment.comments.count) {
+          onComment?()
+        }
+        .fixedSize()
+      }
+
+      PostVoteButton(
+        myVote: comment.myVote,
+        votes: comment.upvotes - comment.downvotes,
+        onDownvote: {
+          Task {
+            await downvote()
+          }
+        },
+        onUpvote: {
+          Task {
+            await upvote()
+          }
+        }
+      )
+      .disabled(comment.isMine ?? false)
+      .fixedSize()
+    }
+    .font(.caption)
+    .transition(.blurReplace)
+    .animation(.spring, value: comment)
+  }
+
+  private var header: some View {
+    HStack {
+      let isDeleted: Bool = comment.content == nil
+      profilePicture
+
+      Text(comment.author.profile.nickname)
+        .fontWeight(.medium)
+
+      Text(comment.createdAt.relativeTimeString)
+        .font(.caption)
+        .foregroundStyle(.secondary)
+
+      Spacer()
+
+      if !isDeleted {
+        actionsMenu
+      }
+    }
+    .font(.callout)
+  }
+
+  private var actionsMenu: some View {
+    Menu {
+      if comment.isMine == false {
+        // show report menu
+        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+          Button("Hate Speech") {
+            Task {
+              try? await araCommentRepository
+                .reportComment(commentID: comment.id, type: .hateSpeech)
+              showReportedAlert = true
+            }
+          }
+          Button("Unauthorized Sales") {
+            Task {
+              try? await araCommentRepository
+                .reportComment(commentID: comment.id, type: .unauthorizedSales)
+              showReportedAlert = true
+            }
+          }
+          Button("Spam") { }
+          Button("False Information") {
+            Task {
+              try? await araCommentRepository
+                .reportComment(commentID: comment.id, type: .falseInformation)
+              showReportedAlert = true
+            }
+          }
+          Button("Defamation") {
+            Task {
+              try? await araCommentRepository
+                .reportComment(commentID: comment.id, type: .defamation)
+              showReportedAlert = true
+            }
+          }
+          Button("Other") {
+            Task {
+              try? await araCommentRepository
+                .reportComment(commentID: comment.id, type: .other)
+              showReportedAlert = true
+            }
+          }
+        }
+      } else if comment.isMine == true {
+        // show edit button
+        Button("Edit", systemImage: "square.and.pencil") {
+          onEdit?()
+        }
+      }
+
+      Divider()
+
+      Button("Translate", systemImage: "translate") { }
+      Button("Summarise", systemImage: "text.append") { }
+
+      if comment.isMine == true {
+        Divider()
+
+        Button("Delete", systemImage: "trash", role: .destructive) {
+          Task {
+            let previousContent: String? = comment.content
+            do {
+              comment.content = nil
+              onDelete?()
+              try await araCommentRepository.deleteComment(commentID: comment.id)
+            } catch {
+              comment.content = previousContent
+              logger.error(error)
+            }
+          }
+        }
+      }
+    } label: {
+      Label("More", systemImage: "ellipsis")
+        .padding(8)
+        .contentShape(.rect)
+    }
+    .labelStyle(.iconOnly)
+    .transition(.blurReplace)
+    .animation(.spring, value: comment)
   }
 
   @ViewBuilder
-  var profilePicture: some View {
+  private var profilePicture: some View {
     if let url = comment.author.profile.profilePictureURL {
       LazyImage(url: url) { state in
         if let image = state.image {

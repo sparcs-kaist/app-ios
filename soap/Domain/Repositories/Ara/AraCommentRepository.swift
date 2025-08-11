@@ -18,6 +18,7 @@ protocol AraCommentRepositoryProtocol: Sendable {
   func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment
   func deleteComment(commentID: Int) async throws
   func editComment(commentID: Int, content: String) async throws -> AraPostComment
+  func reportComment(commentID: Int, type: AraContentReportType) async throws
 }
 
 actor AraCommentRepository: AraCommentRepositoryProtocol {
@@ -76,5 +77,10 @@ actor AraCommentRepository: AraCommentRepositoryProtocol {
     let comment: AraPostComment = try response.map(AraPostCommentDTO.self).toModel()
 
     return comment
+  }
+
+  func reportComment(commentID: Int, type: AraContentReportType) async throws {
+    let response = try await provider.request(.report(commentID: commentID, type: type))
+    _ = try response.filterSuccessfulStatusCodes()
   }
 }

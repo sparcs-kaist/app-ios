@@ -16,7 +16,7 @@ enum AraCommentTarget {
   case postThreaded(commentID: Int, content: String)
   case delete(commentID: Int)
   case patch(commentID: Int, content: String)
-
+  case report(commentID: Int, type: AraContentReportType)
 }
 
 extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
@@ -38,12 +38,14 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
       "/comments/\(commentID)/"
     case .patch(let commentID, _):
       "/comments/\(commentID)/"
+    case .report:
+      "/reports/"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .upvote, .downvote, .cancelVote, .post, .postThreaded:
+    case .upvote, .downvote, .cancelVote, .post, .postThreaded, .report:
         .post
     case .delete:
         .delete
@@ -70,11 +72,17 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
         ], encoding: JSONEncoding.default)
     case .delete:
         .requestPlain
-    case .patch(let commentID, let content):
+    case .patch(_, let content):
         .requestParameters(parameters: [
           "content": content,
           "name_type": 2,
           "is_mine": true
+        ], encoding: JSONEncoding.default)
+    case .report(let commentID, let type):
+        .requestParameters(parameters: [
+          "parent_comment": commentID,
+          "type": "others",
+          "content": type.rawValue
         ], encoding: JSONEncoding.default)
     }
   }
