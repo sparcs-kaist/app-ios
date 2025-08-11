@@ -18,6 +18,9 @@ struct PostCommentCell: View {
   @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol
 
   var body: some View {
+    // is this comment deleted?
+    let isDeleted: Bool = comment.content == nil
+
     HStack(alignment: .top, spacing: 8) {
       if isThreaded {
         Image(systemName: "arrow.turn.down.right")
@@ -38,73 +41,92 @@ struct PostCommentCell: View {
 
           Spacer()
 
-          Menu {
-            if comment.isMine == false {
-              // show report menu
-              Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-                Button("Hate Speech") { }
-                Button("Unauthorized Sales Post") { }
-                Button("Spam") { }
-                Button("False Information") { }
-                Button("Defamation") { }
-                Button("Other") { }
+          if !isDeleted {
+            Menu {
+              if comment.isMine == false {
+                // show report menu
+                Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+                  Button("Hate Speech") { }
+                  Button("Unauthorized Sales Post") { }
+                  Button("Spam") { }
+                  Button("False Information") { }
+                  Button("Defamation") { }
+                  Button("Other") { }
+                }
+              } else if comment.isMine == true {
+                // show edit button
+                Button("Edit", systemImage: "square.and.pencil") { }
               }
-            } else if comment.isMine == true {
-              // show edit button
-              Button("Edit", systemImage: "square.and.pencil") { }
-            }
 
-            Divider()
-
-            Button("Translate", systemImage: "translate") { }
-            Button("Summarise", systemImage: "text.append") { }
-
-            if comment.isMine == true {
               Divider()
 
-              Button("Delete", systemImage: "trash", role: .destructive) { }
+              Button("Translate", systemImage: "translate") { }
+              Button("Summarise", systemImage: "text.append") { }
+
+              if comment.isMine == true {
+                Divider()
+
+                Button("Delete", systemImage: "trash", role: .destructive) {
+                  Task {
+                    do {
+                      try await araCommentRepository.deleteComment(commentID: comment.id)
+                      comment.content = nil
+                    } catch {
+                      logger.error(error)
+                    }
+                  }
+                }
+              }
+            } label: {
+              Label("More", systemImage: "ellipsis")
+                .padding(8)
+                .contentShape(.rect)
             }
-          } label: {
-            Label("More", systemImage: "ellipsis")
-              .padding(8)
-              .contentShape(.rect)
+            .labelStyle(.iconOnly)
+            .transition(.blurReplace)
+            .animation(.spring, value: comment)
           }
-          .labelStyle(.iconOnly)
         }
         .font(.callout)
 
         Text(comment.content ?? "This comment has been deleted.")
-          .foregroundStyle(comment.content != nil ? .primary : .secondary)
+          .foregroundStyle(isDeleted ? .secondary : .primary)
           .font(.callout)
+          .contentTransition(.numericText())
+          .animation(.spring, value: comment)
 
-        HStack {
-          Spacer()
+        if !isDeleted {
+          HStack {
+            Spacer()
 
-          if !isThreaded {
-            PostCommentButton(commentCount: comment.comments.count) {
-              onComment?()
+            if !isThreaded {
+              PostCommentButton(commentCount: comment.comments.count) {
+                onComment?()
+              }
+              .fixedSize()
             }
+
+            PostVoteButton(
+              myVote: comment.myVote,
+              votes: comment.upvotes - comment.downvotes,
+              onDownvote: {
+                Task {
+                  await downvote()
+                }
+              },
+              onUpvote: {
+                Task {
+                  await upvote()
+                }
+              }
+            )
+            .disabled(comment.isMine ?? false)
             .fixedSize()
           }
-
-          PostVoteButton(
-            myVote: comment.myVote,
-            votes: comment.upvotes - comment.downvotes,
-            onDownvote: {
-              Task {
-                await downvote()
-              }
-            },
-            onUpvote: {
-              Task {
-                await upvote()
-              }
-            }
-          )
-          .disabled(comment.isMine ?? false)
-          .fixedSize()
+          .font(.caption)
+          .transition(.blurReplace)
+          .animation(.spring, value: comment)
         }
-        .font(.caption)
       }
     }
   }
