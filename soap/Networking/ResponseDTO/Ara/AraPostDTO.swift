@@ -91,7 +91,7 @@ extension AraPostDTO {
       attachments: attachments?.compactMap { $0.toModel() },
       myCommentProfile: myCommentProfile?.toModel(),
       isMine: isMine,
-      comments: comments?.compactMap { $0.toModel() },
+      comments: comments?.compactMap { $0.toModel() } ?? [],
       content: content,
       myVote: myVote,
       myScrap: myScrap

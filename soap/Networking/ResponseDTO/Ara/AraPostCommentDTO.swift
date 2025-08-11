@@ -53,7 +53,7 @@ extension AraPostCommentDTO {
       isMine: isMine,
       content: content,
       author: author.toModel(),
-      comments: comments?.compactMap { $0.toModel() },
+      comments: comments?.compactMap { $0.toModel() } ?? [],
       createdAt: createdAt.toDate() ?? Date(),
       upvotes: upvotes,
       downvotes: downvotes,

@@ -92,56 +92,32 @@ struct PostView: View {
   private var comments: some View {
     VStack(spacing: 16) {
       // Main comment
-      if let comments = viewModel.post.comments {
-        if comments.isEmpty {
-          Divider()
-          ContentUnavailableView("No one has commented yet.", systemImage: "text.bubble", description: Text("Be the first one to share your thoughts."))
-            .scaleEffect(0.8)
-        } else {
-          ForEach(comments) { comment in
-            VStack(spacing: 12) {
+      if viewModel.post.comments.isEmpty {
+        Divider()
+        ContentUnavailableView("No one has commented yet.", systemImage: "text.bubble", description: Text("Be the first one to share your thoughts."))
+          .scaleEffect(0.8)
+      } else {
+        ForEach($viewModel.post.comments) { $comment in
+          VStack(spacing: 12) {
+            PostCommentCell(
+              comment: $comment,
+              isThreaded: false,
+              onComment: {
+                targetComment = comment
+                isWritingCommentFocusState = true
+              }
+            )
+
+            // Threads
+            ForEach($comment.comments) { $thread in
               PostCommentCell(
-                comment: comment,
-                isThreaded: false,
-                onDownvote: {
-                  Task {
-                    await viewModel.downvoteComment(commentID: comment.id)
-                  }
-                },
-                onUpvote: {
-                  Task {
-                    await viewModel.upvoteComment(commentID: comment.id)
-                  }
-                },
+                comment: $thread,
+                isThreaded: true,
                 onComment: {
-                  targetComment = comment
+                  targetComment = thread
                   isWritingCommentFocusState = true
                 }
               )
-
-              // Threads
-              if let threads = comment.comments {
-                ForEach(threads) { thread in
-                  PostCommentCell(
-                    comment: thread,
-                    isThreaded: true,
-                    onDownvote: {
-                      Task {
-                        await viewModel.downvoteComment(commentID: thread.id)
-                      }
-                    },
-                    onUpvote: {
-                      Task {
-                        await viewModel.upvoteComment(commentID: thread.id)
-                      }
-                    },
-                    onComment: {
-                      targetComment = thread
-                      isWritingCommentFocusState = true
-                    }
-                  )
-                }
-              }
             }
           }
         }

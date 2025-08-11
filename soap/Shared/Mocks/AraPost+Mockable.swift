@@ -231,7 +231,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -268,7 +268,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -305,7 +305,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -342,7 +342,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -379,7 +379,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -423,7 +423,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -460,7 +460,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -497,7 +497,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -534,7 +534,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -571,7 +571,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -608,7 +608,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -645,7 +645,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -689,7 +689,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -733,7 +733,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil
@@ -777,7 +777,7 @@ extension AraPost: Mockable {
         attachments: nil,
         myCommentProfile: nil,
         isMine: nil,
-        comments: nil,
+        comments: [],
         content: nil,
         myVote: nil,
         myScrap: nil

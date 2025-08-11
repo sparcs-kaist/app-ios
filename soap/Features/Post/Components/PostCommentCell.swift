@@ -7,13 +7,15 @@
 
 import SwiftUI
 import NukeUI
+import Factory
 
 struct PostCommentCell: View {
-  let comment: AraPostComment
+  @Binding var comment: AraPostComment
   let isThreaded: Bool
-  let onDownvote: (() -> Void)
-  let onUpvote: (() -> Void)
   let onComment: (() -> Void)?
+
+  // MARK: - Dependencies
+  @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
@@ -79,7 +81,7 @@ struct PostCommentCell: View {
           Spacer()
 
           if !isThreaded {
-            PostCommentButton(commentCount: comment.comments?.count ?? 0) {
+            PostCommentButton(commentCount: comment.comments.count) {
               onComment?()
             }
             .fixedSize()
@@ -89,10 +91,14 @@ struct PostCommentCell: View {
             myVote: comment.myVote,
             votes: comment.upvotes - comment.downvotes,
             onDownvote: {
-              onDownvote()
+              Task {
+                await downvote()
+              }
             },
             onUpvote: {
-              onUpvote()
+              Task {
+                await upvote()
+              }
             }
           )
           .disabled(comment.isMine ?? false)
@@ -124,22 +130,73 @@ struct PostCommentCell: View {
         .frame(width: 21, height: 21)
     }
   }
+
+  // MARK: - Functions
+  private func upvote() async {
+    let previousMyVote: Bool? = comment.myVote
+    let previousUpvotes: Int = comment.upvotes
+
+    do {
+      if previousMyVote == true {
+        // cancel upvote
+        comment.myVote = nil
+        comment.upvotes -= 1
+        try await araCommentRepository.cancelVote(commentID: comment.id)
+      } else {
+        // upvote
+        if previousMyVote == false {
+          // remove downvote if there was
+          comment.downvotes -= 1
+        }
+        comment.myVote = true
+        comment.upvotes += 1
+        try await araCommentRepository.upvoteComment(commentID: comment.id)
+      }
+    } catch {
+      logger.error(error)
+      comment.upvotes = previousUpvotes
+      comment.myVote = previousMyVote
+    }
+  }
+
+  func downvote() async {
+    let previousMyVote: Bool? = comment.myVote
+    let previousDownvotes: Int = comment.downvotes
+
+    do {
+      if previousMyVote == false {
+        // cancel downvote
+        comment.myVote = nil
+        comment.downvotes -= 1
+        try await araCommentRepository.cancelVote(commentID: comment.id)
+      } else {
+        // downvote
+        if previousMyVote == true {
+          // remove upvote if there was
+          comment.upvotes -= 1
+        }
+        comment.myVote = false
+        comment.downvotes += 1
+        try await araCommentRepository.downvoteComment(commentID: comment.id)
+      }
+    } catch {
+      logger.error(error)
+      comment.downvotes = previousDownvotes
+      comment.myVote = previousMyVote
+    }
+  }
 }
 
 
 #Preview {
   PostCommentCell(
-    comment: AraPostComment.mock,
+    comment: .constant(AraPostComment.mock),
     isThreaded: false,
-    onDownvote: {},
-    onUpvote: {},
     onComment: nil)
     .padding()
   PostCommentCell(
-    comment: AraPostComment.mock,
+    comment: .constant(AraPostComment.mock),
     isThreaded: true,
-    onDownvote: {},
-    onUpvote: {},
     onComment: nil)
   .padding()
 }

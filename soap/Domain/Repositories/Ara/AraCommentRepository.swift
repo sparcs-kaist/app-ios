@@ -13,7 +13,7 @@ import Moya
 protocol AraCommentRepositoryProtocol: Sendable {
   func upvoteComment(commentID: Int) async throws
   func downvoteComment(commentID: Int) async throws
-  func cancleVote(commentID: Int) async throws
+  func cancelVote(commentID: Int) async throws
   func writeComment(postID: Int, content: String) async throws -> AraPostComment
   func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment
   func deleteComment(commentID: Int) async throws
@@ -36,7 +36,7 @@ actor AraCommentRepository: AraCommentRepositoryProtocol {
     _ = try response.filterSuccessfulStatusCodes()
   }
 
-  func cancleVote(commentID: Int) async throws {
+  func cancelVote(commentID: Int) async throws {
     let response = try await provider.request(.cancelVote(commentID: commentID))
     _ = try response.filterSuccessfulStatusCodes()
   }

@@ -43,7 +43,7 @@ struct AraPost: Identifiable, Hashable, Sendable {
   let attachments: [AraPostAttachment]?
   let myCommentProfile: AraPostAuthor?
   let isMine: Bool?
-  var comments: [AraPostComment]?
+  var comments: [AraPostComment]
   let content: String?
   var myVote: Bool?
   var myScrap: Bool?
