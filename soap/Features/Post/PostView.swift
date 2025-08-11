@@ -52,34 +52,7 @@ struct PostView: View {
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
-        Menu("More", systemImage: "ellipsis") {
-          if viewModel.post.isMine == false {
-            // show report and block menus
-            Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-              Button("Hate Speech") { }
-              Button("Unauthorized Sales") { }
-              Button("Spam") { }
-              Button("False Information") { }
-              Button("Defamation") { }
-              Button("Other") { }
-            }
-
-            Button("Block", systemImage: "person.slash.fill") { }
-
-            Divider()
-          }/* else if viewModel.post.isMine == true {*/
-            // show edit post button
-//            Button("Edit", systemImage: "square.and.pencil") { }
-//          }
-
-          Button("Summarise", systemImage: "text.append") { }
-
-          if viewModel.post.isMine == true {
-            Divider()
-
-            Button("Delete", systemImage: "trash", role: .destructive) { }
-          }
-        }
+        actionsMenu
       }
     }
     .sheet(item: $tappedURL) { url in
@@ -87,6 +60,40 @@ struct PostView: View {
     }
     .task {
       await viewModel.fetchPost()
+    }
+    .refreshable {
+      await viewModel.fetchPost()
+    }
+  }
+
+  private var actionsMenu: some View {
+    Menu("More", systemImage: "ellipsis") {
+      if viewModel.post.isMine == false {
+        // show report and block menus
+        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+          Button("Hate Speech") { }
+          Button("Unauthorized Sales") { }
+          Button("Spam") { }
+          Button("False Information") { }
+          Button("Defamation") { }
+          Button("Other") { }
+        }
+
+        Button("Block", systemImage: "person.slash.fill") { }
+
+        Divider()
+      }/* else if viewModel.post.isMine == true {*/
+      // show edit post button
+      //            Button("Edit", systemImage: "square.and.pencil") { }
+      //          }
+
+      Button("Summarise", systemImage: "text.append") { }
+
+      if viewModel.post.isMine == true {
+        Divider()
+
+        Button("Delete", systemImage: "trash", role: .destructive) { }
+      }
     }
   }
 
