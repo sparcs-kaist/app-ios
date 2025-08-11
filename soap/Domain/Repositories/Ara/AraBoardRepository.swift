@@ -64,12 +64,12 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
   }
 
   func upvotePost(postID: Int) async throws {
-    let response = try await provider.request(.upvotePost(postID: postID))
+    let response = try await provider.request(.upvote(postID: postID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 
   func downvotePost(postID: Int) async throws {
-    let response = try await provider.request(.downvotePost(postID: postID))
+    let response = try await provider.request(.downvote(postID: postID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 

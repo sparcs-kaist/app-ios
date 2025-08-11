@@ -28,12 +28,12 @@ actor AraCommentRepository: AraCommentRepositoryProtocol {
   }
 
   func upvoteComment(commentID: Int) async throws {
-    let response = try await provider.request(.upvoteComment(commentID: commentID))
+    let response = try await provider.request(.upvote(commentID: commentID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 
   func downvoteComment(commentID: Int) async throws {
-    let response = try await provider.request(.downvoteComment(commentID: commentID))
+    let response = try await provider.request(.downvote(commentID: commentID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 
@@ -43,7 +43,7 @@ actor AraCommentRepository: AraCommentRepositoryProtocol {
   }
 
   func writeComment(postID: Int, content: String) async throws -> AraPostComment {
-    let response = try await provider.request(.writeComment(postID: postID, content: content))
+    let response = try await provider.request(.post(postID: postID, content: content))
     _ = try response.filterSuccessfulStatusCodes()
 
     let comment: AraPostComment = try response.map(AraPostCommentDTO.self).toModel()
@@ -53,7 +53,7 @@ actor AraCommentRepository: AraCommentRepositoryProtocol {
 
   func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment {
     let response = try await provider.request(
-      .writeThreadedComment(commentID: commentID, content: content)
+      .postThreaded(commentID: commentID, content: content)
     )
     _ = try response.filterSuccessfulStatusCodes()
 
@@ -63,13 +63,13 @@ actor AraCommentRepository: AraCommentRepositoryProtocol {
   }
 
   func deleteComment(commentID: Int) async throws {
-    let response = try await provider.request(.deleteComment(commentID: commentID))
+    let response = try await provider.request(.delete(commentID: commentID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 
   func editComment(commentID: Int, content: String) async throws -> AraPostComment {
     let response = try await provider.request(
-      .patchComment(commentID: commentID, content: content)
+      .patch(commentID: commentID, content: content)
     )
     _ = try response.filterSuccessfulStatusCodes()
 

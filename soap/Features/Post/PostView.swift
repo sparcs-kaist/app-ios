@@ -57,7 +57,7 @@ struct PostView: View {
             // show report and block menus
             Menu("Report", systemImage: "exclamationmark.triangle.fill") {
               Button("Hate Speech") { }
-              Button("Unauthorized Sales Post") { }
+              Button("Unauthorized Sales") { }
               Button("Spam") { }
               Button("False Information") { }
               Button("Defamation") { }

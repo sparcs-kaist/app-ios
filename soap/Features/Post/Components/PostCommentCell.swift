@@ -49,7 +49,7 @@ struct PostCommentCell: View {
                 // show report menu
                 Menu("Report", systemImage: "exclamationmark.triangle.fill") {
                   Button("Hate Speech") { }
-                  Button("Unauthorized Sales Post") { }
+                  Button("Unauthorized Sales") { }
                   Button("Spam") { }
                   Button("False Information") { }
                   Button("Defamation") { }

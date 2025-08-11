@@ -19,8 +19,8 @@ enum AraBoardTarget {
   }
   case fetchPost(origin: PostOrigin?, postID: Int)
   case writePost(_ request: AraPostRequestDTO)
-  case upvotePost(postID: Int)
-  case downvotePost(postID: Int)
+  case upvote(postID: Int)
+  case downvote(postID: Int)
   case cancelVote(postID: Int)
 }
 
@@ -37,9 +37,9 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/articles/"
     case .fetchPost(_, let postID):
       "/articles/\(postID)/"
-    case .upvotePost(let postID):
+    case .upvote(let postID):
       "/articles/\(postID)/vote_positive/"
-    case .downvotePost(let postID):
+    case .downvote(let postID):
       "/articles/\(postID)/vote_negative/"
     case .cancelVote(let postID):
       "/articles/\(postID)/vote_cancel/"
@@ -50,14 +50,14 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards, .fetchPosts, .fetchPost:
       .get
-    case .writePost, .upvotePost, .downvotePost, .cancelVote:
+    case .writePost, .upvote, .downvote, .cancelVote:
       .post
     }
   }
 
   var task: Moya.Task {
     switch self {
-    case .fetchBoards, .upvotePost, .downvotePost, .cancelVote:
+    case .fetchBoards, .upvote, .downvote, .cancelVote:
       return .requestPlain
     case .fetchPosts(let boardID, let page, let pageSize):
       return .requestParameters(

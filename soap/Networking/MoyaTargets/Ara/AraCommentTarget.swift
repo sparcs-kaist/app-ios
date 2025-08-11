@@ -9,13 +9,14 @@ import Foundation
 import Moya
 
 enum AraCommentTarget {
-  case upvoteComment(commentID: Int)
-  case downvoteComment(commentID: Int)
+  case upvote(commentID: Int)
+  case downvote(commentID: Int)
   case cancelVote(commentID: Int)
-  case writeComment(postID: Int, content: String)
-  case writeThreadedComment(commentID: Int, content: String)
-  case deleteComment(commentID: Int)
-  case patchComment(commentID: Int, content: String)
+  case post(postID: Int, content: String)
+  case postThreaded(commentID: Int, content: String)
+  case delete(commentID: Int)
+  case patch(commentID: Int, content: String)
+
 }
 
 extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
@@ -25,51 +26,51 @@ extension AraCommentTarget: TargetType, AccessTokenAuthorizable {
 
   var path: String {
     switch self {
-    case .downvoteComment(let commentID):
+    case .downvote(let commentID):
       "/comments/\(commentID)/vote_negative/"
-    case .upvoteComment(let commentID):
+    case .upvote(let commentID):
       "/comments/\(commentID)/vote_positive/"
     case .cancelVote(let commentID):
       "/comments/\(commentID)/vote_cancel/"
-    case .writeComment, .writeThreadedComment:
+    case .post, .postThreaded:
       "/comments/"
-    case .deleteComment(let commentID):
+    case .delete(let commentID):
       "/comments/\(commentID)/"
-    case .patchComment(let commentID, _):
+    case .patch(let commentID, _):
       "/comments/\(commentID)/"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .upvoteComment, .downvoteComment, .cancelVote, .writeComment, .writeThreadedComment:
+    case .upvote, .downvote, .cancelVote, .post, .postThreaded:
         .post
-    case .deleteComment:
+    case .delete:
         .delete
-    case .patchComment:
+    case .patch:
         .patch
     }
   }
 
   var task: Moya.Task {
     switch self {
-    case .upvoteComment, .downvoteComment, .cancelVote:
+    case .upvote, .downvote, .cancelVote:
         .requestPlain
-    case .writeComment(let postID, let content):
+    case .post(let postID, let content):
         .requestParameters(parameters: [
           "parent_article": postID,
           "content": content,
           "name_type": 2
         ], encoding: JSONEncoding.default)
-    case .writeThreadedComment(let commentID, let content):
+    case .postThreaded(let commentID, let content):
         .requestParameters(parameters: [
           "parent_comment": commentID,
           "content": content,
           "name_type": 2
         ], encoding: JSONEncoding.default)
-    case .deleteComment:
+    case .delete:
         .requestPlain
-    case .patchComment(let commentID, let content):
+    case .patch(let commentID, let content):
         .requestParameters(parameters: [
           "content": content,
           "name_type": 2,
