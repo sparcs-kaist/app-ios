@@ -72,11 +72,13 @@ struct PostCommentCell: View {
 
                 Button("Delete", systemImage: "trash", role: .destructive) {
                   Task {
+                    let previousContent: String? = comment.content
                     do {
-                      try await araCommentRepository.deleteComment(commentID: comment.id)
                       comment.content = nil
                       onDelete?()
+                      try await araCommentRepository.deleteComment(commentID: comment.id)
                     } catch {
+                      comment.content = previousContent
                       logger.error(error)
                     }
                   }

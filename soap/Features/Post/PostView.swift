@@ -307,7 +307,6 @@ struct PostView: View {
           if isUploadingComment {
             ProgressView()
               .tint(.white)
-              .controlSize(.mini)
           } else {
             Label("Send", systemImage: "paperplane")
               .labelStyle(.iconOnly)
