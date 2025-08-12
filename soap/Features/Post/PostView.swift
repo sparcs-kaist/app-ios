@@ -116,8 +116,7 @@ struct PostView: View {
           }
         }
 
-        // SUPPORT FOR BLOCK USER IS POSTPONED
-//        Button("Block", systemImage: "person.slash.fill") { }
+        Button("Block", systemImage: "person.slash.fill") { }
 
         Divider()
       }
