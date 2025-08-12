@@ -116,10 +116,13 @@ struct PostView: View {
           }
         }
 
-        Button("Block", systemImage: "person.slash.fill") { }
+        // SUPPORT FOR BLOCK USER IS POSTPONED
+//        Button("Block", systemImage: "person.slash.fill") { }
 
         Divider()
-      }/* else if viewModel.post.isMine == true {*/
+      }
+      // SUPPORT FOR POST EDIT IS POSTPONED
+      /* else if viewModel.post.isMine == true {*/
       // show edit post button
       //            Button("Edit", systemImage: "square.and.pencil") { }
       //          }
