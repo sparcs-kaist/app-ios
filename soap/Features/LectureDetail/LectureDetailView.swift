@@ -77,6 +77,7 @@ struct LectureDetailView: View {
             Menu {
               Button("Translate", systemImage: "translate") { }
               Button("Summarise", systemImage: "text.append") { }
+              Divider()
               Button("Report", systemImage: "exclamationmark.triangle.fill") { }
             } label: {
               Label("More", systemImage: "ellipsis")
@@ -160,6 +161,7 @@ struct LectureDetailView: View {
             Menu {
               Button("Translate", systemImage: "translate") { }
               Button("Summarise", systemImage: "text.append") { }
+              Divider()
               Button("Report", systemImage: "exclamationmark.triangle.fill") { }
             } label: {
               Label("More", systemImage: "ellipsis")
