@@ -41,9 +41,7 @@ struct PostCommentCell: View {
           .contentTransition(.numericText())
           .animation(.spring, value: comment)
 
-        if !isDeleted {
-          footer
-        }
+        footer
       }
     }
     .alert("Report Submitted", isPresented: $showReportedAlert, actions: {
@@ -55,6 +53,7 @@ struct PostCommentCell: View {
 
   private var footer: some View {
     HStack {
+      let isDeleted: Bool = comment.content == nil
       Spacer()
 
       if !isThreaded {
@@ -64,22 +63,24 @@ struct PostCommentCell: View {
         .fixedSize()
       }
 
-      PostVoteButton(
-        myVote: comment.myVote,
-        votes: comment.upvotes - comment.downvotes,
-        onDownvote: {
-          Task {
-            await downvote()
+      if !isDeleted {
+        PostVoteButton(
+          myVote: comment.myVote,
+          votes: comment.upvotes - comment.downvotes,
+          onDownvote: {
+            Task {
+              await downvote()
+            }
+          },
+          onUpvote: {
+            Task {
+              await upvote()
+            }
           }
-        },
-        onUpvote: {
-          Task {
-            await upvote()
-          }
-        }
-      )
-      .disabled(comment.isMine ?? false)
-      .fixedSize()
+        )
+        .disabled(comment.isMine ?? false)
+        .fixedSize()
+      }
     }
     .font(.caption)
     .transition(.blurReplace)
