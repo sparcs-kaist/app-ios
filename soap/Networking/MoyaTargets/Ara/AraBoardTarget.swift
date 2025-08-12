@@ -10,7 +10,7 @@ import Moya
 
 enum AraBoardTarget {
   case fetchBoards
-  case fetchPosts(boardID: Int, page: Int, pageSize: Int)
+  case fetchPosts(boardID: Int, page: Int, pageSize: Int, searchKeyword: String?)
 
   enum PostOrigin {
     case all
@@ -62,9 +62,18 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards, .upvote, .downvote, .cancelVote:
       return .requestPlain
-    case .fetchPosts(let boardID, let page, let pageSize):
+    case .fetchPosts(let boardID, let page, let pageSize, let searchKeyword):
+      var parameters: [String: Any] = [
+        "parent_board": boardID,
+        "page": page,
+        "page_size": pageSize
+      ]
+      if let searchKeyword {
+        parameters["main_search__contains"] = searchKeyword
+      }
+
       return .requestParameters(
-        parameters: ["parent_board": boardID, "page": page, "page_size": pageSize],
+        parameters: parameters,
         encoding: URLEncoding.queryString
       )
     case .fetchPost(let origin, _):

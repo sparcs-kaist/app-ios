@@ -14,6 +14,7 @@ class MockPostListViewModel: PostListViewModelProtocol {
   var state: PostListViewModel.ViewState = .loaded(posts: AraPost.mockList)
   var board: AraBoard = AraBoard.mock
   var posts: [AraPost] = AraPost.mockList
+  var searchKeyword: String = ""
   var isLoadingMore: Bool = false
   var hasMorePages: Bool = true
 
@@ -29,4 +30,6 @@ class MockPostListViewModel: PostListViewModelProtocol {
   func refreshItem(postID: Int) {
     
   }
+
+  func bind() { }
 }

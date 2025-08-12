@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import Observation
 import Factory
 
@@ -14,12 +15,15 @@ protocol PostListViewModelProtocol: Observable {
   var state: PostListViewModel.ViewState { get }
   var board: AraBoard { get }
   var posts: [AraPost] { get }
+  var searchKeyword: String { get set }
+
   var isLoadingMore: Bool { get }
   var hasMorePages: Bool { get }
 
   func fetchInitialPosts() async
   func loadNextPage() async
   func refreshItem(postID: Int)
+  func bind()
 }
 
 @Observable
@@ -33,7 +37,14 @@ class PostListViewModel: PostListViewModelProtocol {
   var state: ViewState = .loading
   var board: AraBoard
   var posts: [AraPost] = []
-  
+
+  // Search Properties
+  var searchKeyword: String = "" {
+    didSet { searchKeywordSubject.send(searchKeyword) }
+  }
+  @ObservationIgnored private var cancellables = Set<AnyCancellable>()
+  @ObservationIgnored private let searchKeywordSubject = PassthroughSubject<String, Never>()
+
   // 무한 스크롤 관련 속성들
   var isLoadingMore: Bool = false
   var hasMorePages: Bool = true
@@ -51,9 +62,30 @@ class PostListViewModel: PostListViewModelProtocol {
     self.board = board
   }
 
+  func bind() {
+    cancellables.removeAll()
+
+    searchKeywordSubject
+      .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+      .removeDuplicates()
+      .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self else { return }
+        Task {
+          await self.fetchInitialPosts()
+        }
+      }
+      .store(in: &cancellables)
+  }
+
   func fetchInitialPosts() async {
     do {
-      let page = try await araBoardRepository.fetchPosts(boardID: board.id, page: 1, pageSize: pageSize)
+      let page = try await araBoardRepository.fetchPosts(
+        boardID: board.id,
+        page: 1,
+        pageSize: pageSize,
+        searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
+      )
       self.totalPages = page.pages
       self.currentPage = page.currentPage
       self.posts = page.results
@@ -72,8 +104,13 @@ class PostListViewModel: PostListViewModelProtocol {
     
     do {
       let nextPage = currentPage + 1
-      let page = try await araBoardRepository.fetchPosts(boardID: board.id, page: nextPage, pageSize: pageSize)
-      
+      let page = try await araBoardRepository.fetchPosts(
+        boardID: board.id,
+        page: nextPage,
+        pageSize: pageSize,
+        searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
+      )
+
       self.currentPage = page.currentPage
       self.posts.append(contentsOf: page.results)
       self.hasMorePages = currentPage < totalPages

@@ -21,29 +21,26 @@ struct PostListView: View {
   }
 
   var body: some View {
-    ZStack(alignment: .bottom) {
-      List {
-        switch viewModel.state {
-        case .loading:
-          loadingView
-            .redacted(reason: .placeholder)
-        case .loaded(let posts):
-          loadedView(posts)
-        case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
-        }
+    List {
+      switch viewModel.state {
+      case .loading:
+        loadingView
+          .redacted(reason: .placeholder)
+      case .loaded(let posts):
+        loadedView(posts)
+      case .error(let message):
+        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
-      .disabled(viewModel.state == .loading)
-      .listStyle(.plain)
-      .refreshable {
-        await viewModel.fetchInitialPosts()
-      }
+    }
+    .disabled(viewModel.state == .loading)
+    .listStyle(.plain)
+    .refreshable {
+      await viewModel.fetchInitialPosts()
     }
     .navigationTitle(viewModel.board.name.localized())
     .navigationSubtitle(viewModel.board.group.name.localized())
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.hidden, for: .tabBar)
-    .searchable(text: $searchText)
     .toolbar {
       DefaultToolbarItem(kind: .search, placement: .bottomBar)
 
@@ -68,8 +65,15 @@ struct PostListView: View {
     }
     .task {
       if !loadedInitialPost {
+        viewModel.bind()
         await viewModel.fetchInitialPosts()
         loadedInitialPost = true
+      }
+    }
+    .searchable(text: $viewModel.searchKeyword)
+    .overlay(alignment: .center) {
+      if !viewModel.searchKeyword.isEmpty && viewModel.posts.isEmpty {
+        ContentUnavailableView.search(text: viewModel.searchKeyword)
       }
     }
   }
