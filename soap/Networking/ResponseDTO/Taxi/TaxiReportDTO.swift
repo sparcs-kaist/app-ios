@@ -42,7 +42,7 @@ struct TaxiReportDTO: Decodable {
 }
 
 extension TaxiReportDTO.TaxiReportDetail {
-  func toModel(type: TaxiReport.ReportType) -> TaxiReport {
-    TaxiReport(id: id, nickname: self.reportedId.nickname, type: type, etcDetail: etcDetail, createdAt: createdAt.toDate())
+  func toModel(reportType: TaxiReport.ReportType) throws -> TaxiReport {
+    TaxiReport(id: id, nickname: self.reportedId.nickname, reportType: reportType, reason: .init(rawValue: type)!, etcDetail: etcDetail, reportedAt: createdAt.toDate()!)
   }
 }

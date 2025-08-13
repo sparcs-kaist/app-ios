@@ -8,24 +8,28 @@
 import SwiftUI
 
 struct TaxiReportDetailRow: View {
-  var reason: String // TODO: implement enums
-  var nickname: String?
-  var reportedAt: Date
-  var detailedReason: String?
+  var report: TaxiReport
   
   var body: some View {
     VStack {
-      RowElementView(title: "Reason", content: "Other reasons")
-      Divider().padding(.vertical, 4)
-      if let nickname = nickname {
-        RowElementView(title: "Nickname", content: nickname).padding(.bottom, 4)
+      switch report.reason {
+      case .etc:
+        RowElementView(title: "Reason", content: "Other reasons")
+      case .noShow:
+        RowElementView(title: "Reason", content: "Not showing up")
+      case .noSettlement:
+        RowElementView(title: "Reason", content: "No settlement")
       }
-      RowElementView(title: "Date", content: reportedAt.formattedString).padding(.bottom, 4)
-      if let detailedReason = detailedReason {
+      Divider().padding(.vertical, 4)
+      if (report.nickname != nil) && report.reportType == .reporting {
+        RowElementView(title: "Nickname", content: report.nickname!).padding(.bottom, 4)
+      }
+      RowElementView(title: "Date", content: report.reportedAt.formattedString).padding(.bottom, 4)
+      if report.reason == .etc {
         HStack(alignment: .top) {
           Text("Other reasons")
           Spacer()
-          Text(detailedReason)
+          Text(report.etcDetail)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.trailing)
         }
@@ -40,8 +44,12 @@ struct TaxiReportDetailRow: View {
 #Preview {
   ZStack {
     Color.secondarySystemBackground
-    
-    TaxiReportDetailRow(reason: "Other reasons", nickname: "자신감 있는 유체역학_8c249", reportedAt: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date(), detailedReason: "Not showing up at the scheduled time")
-      .padding(.horizontal)
+    VStack {
+      TaxiReportDetailRow(report: TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reporting, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()))
+        .padding(.horizontal)
+      TaxiReportDetailRow(report: TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()))
+        .padding(.horizontal)
+    }
   }
+  .ignoresSafeArea()
 }

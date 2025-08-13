@@ -54,11 +54,11 @@ final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
     var reporting: [TaxiReport] = []
     
     for report in result.reported {
-      reported.append(report.toModel(type: .reported))
+      try reported.append(report.toModel(reportType: .reported))
     }
     
     for report in result.reporting {
-      reporting.append(report.toModel(type: .reporting))
+      try reporting.append(report.toModel(reportType: .reporting))
     }
     
     return (reported: reported, reporting: reporting)
