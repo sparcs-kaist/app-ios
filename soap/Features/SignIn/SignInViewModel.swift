@@ -16,11 +16,13 @@ class SignInViewModel {
   var errorMessage: String? = nil
 
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
 
   func signIn() async throws {
     isLoading = true
     defer { isLoading = false }
 
     try await authUseCase.signIn()
+    await userUseCase.fetchUsers()
   }
 }

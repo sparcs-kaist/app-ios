@@ -7,7 +7,6 @@
 
 import Foundation
 
-#if DEBUG
 extension Post: Mockable {
   static var mock: Post {
     Post(
@@ -161,4 +160,3 @@ extension Post: Mockable {
     ]
   }
 }
-#endif

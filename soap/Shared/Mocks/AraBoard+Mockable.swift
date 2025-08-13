@@ -7,7 +7,6 @@
 
 import Foundation
 
-#if DEBUG
 extension AraBoard: Mockable {
   static var mock: AraBoard {
     AraBoard(
@@ -529,5 +528,4 @@ extension AraBoard: Mockable {
       )
     ]
   }
-}
-#endif 
+} 

@@ -7,7 +7,6 @@
 
 import Foundation
 
-#if DEBUG
 extension AraPost: Mockable {
   static var mock: AraPost {
     AraPost(
@@ -785,4 +784,3 @@ extension AraPost: Mockable {
     ]
   }
 }
-#endif 
