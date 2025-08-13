@@ -8,6 +8,7 @@
 import SwiftUI
 import Observation
 import Factory
+import PhotosUI
 
 @MainActor
 protocol PostComposeViewModelProtocol: Observable {
@@ -16,12 +17,14 @@ protocol PostComposeViewModelProtocol: Observable {
   var selectedTopic: AraBoardTopic? { get set }
   var title: String { get set }
   var content: String { get set }
+  var selectedItems: [PhotosPickerItem] { get set }
+  var selectedImages: [UIImage] { get }
 
   var writeAsAnonymous: Bool { get set }
   var isNSFW: Bool { get set }
   var isPolitical: Bool { get set }
 
-  func writePost() async
+  func writePost() async throws
 }
 
 @Observable
@@ -32,6 +35,14 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
   var selectedTopic: AraBoardTopic? = nil
   var title: String = ""
   var content: String = ""
+  var selectedItems: [PhotosPickerItem] = [] {
+    didSet {
+      Task {
+        await loadSelectedImages()
+      }
+    }
+  }
+  var selectedImages: [UIImage] = []
 
   var writeAsAnonymous: Bool = true
   var isNSFW: Bool = false
@@ -46,11 +57,18 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
     self.board = board
   }
 
-  func writePost() async {
+  func writePost() async throws {
+    var attachments: [AraAttachment] = []
+    for image in selectedImages {
+      let attachment: AraAttachment = try await araBoardRepository.uploadImage(image: image)
+
+      attachments.append(attachment)
+    }
+
     let request = AraCreatePost(
       title: title,
       content: content,
-      attachments: [],
+      attachments: attachments,
       topic: selectedTopic,
       isNSFW: isNSFW,
       isPolitical: isPolitical,
@@ -58,10 +76,19 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
       board: board
     )
 
-    do {
-      try await araBoardRepository.writePost(request: request)
-    } catch {
-      logger.error(error)
+    try await araBoardRepository.writePost(request: request)
+  }
+
+  private func loadSelectedImages() async {
+    var images: [UIImage] = []
+
+    for item in selectedItems {
+      if let data = try? await item.loadTransferable(type: Data.self),
+         let image = UIImage(data: data) {
+        images.append(image)
+      }
     }
+
+    selectedImages = images
   }
 }
