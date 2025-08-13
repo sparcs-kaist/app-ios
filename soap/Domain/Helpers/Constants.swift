@@ -9,11 +9,11 @@ import Foundation
 
 enum Constants {
   // MARK: Authorisation
-  static let authorisationURL = URL(string: "http://10.251.1.14:3000/api/auth/sparcsapp/login")
+  static let authorisationURL = URL(string: "https://taxi.dev.sparcs.org/api/auth/sparcsapp/login")
 
   // MARK: Taxi
-  static let taxiBackendURL = URL(string: "http://10.251.1.14:3000/api")!
-  static let taxiSocketURL = URL(string: "http://10.251.1.14:3000")!
+  static let taxiBackendURL = URL(string: "https://taxi.dev.sparcs.org/api")!
+  static let taxiSocketURL = URL(string: "https://taxi.dev.sparcs.org/")!
   static let taxiChatImageURL = URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
 
   // MARK: Ara
