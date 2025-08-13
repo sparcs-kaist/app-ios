@@ -10,6 +10,7 @@ import Moya
 
 enum AraUserTarget {
   case register(ssoInfo: String)
+  case agreeTOS(userID: Int)
 }
 
 extension AraUserTarget: TargetType, AccessTokenAuthorizable {
@@ -21,6 +22,8 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .register:
       "/users/oneapp-login/"
+    case .agreeTOS(let userID):
+      "/user_profiles/\(userID)/agree_terms_of_service/"
     }
   }
 
@@ -28,6 +31,8 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .register:
       .post
+    case .agreeTOS:
+        .patch
     }
   }
 
@@ -35,6 +40,8 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .register(let ssoInfo):
         .requestParameters(parameters: ["ssoInfo": ssoInfo], encoding: JSONEncoding.default)
+    case .agreeTOS:
+        .requestPlain
     }
   }
 

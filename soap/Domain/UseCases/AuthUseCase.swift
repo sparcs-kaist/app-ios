@@ -135,7 +135,8 @@ class AuthUseCase: AuthUseCaseProtocol {
       tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
 
-      try await self.araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
+      let userInfo: AraSignInResponseDTO = try await self.araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
+      try await self.araUserRepository.agreeTOS(userID: userInfo.userID)
 
       _isAuthenticatedSubject.value = true
       logger.info("[AuthUseCase] Signed In")

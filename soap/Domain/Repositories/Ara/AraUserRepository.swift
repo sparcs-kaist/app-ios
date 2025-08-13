@@ -11,7 +11,8 @@ import Foundation
 import Moya
 
 protocol AraUserRepositoryProtocol: Sendable {
-  func register(ssoInfo: String) async throws
+  func register(ssoInfo: String) async throws -> AraSignInResponseDTO
+  func agreeTOS(userID: Int) async throws
 }
 
 final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
@@ -21,8 +22,16 @@ final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
     self.provider = provider
   }
 
-  func register(ssoInfo: String) async throws {
+  func register(ssoInfo: String) async throws -> AraSignInResponseDTO {
     let response = try await provider.request(.register(ssoInfo: ssoInfo))
     let _ = try response.filterSuccessfulStatusCodes()
+    let userInfo: AraSignInResponseDTO = try response.map(AraSignInResponseDTO.self)
+
+    return userInfo
+  }
+
+  func agreeTOS(userID: Int) async throws {
+    let response = try await provider.request(.agreeTOS(userID: userID))
+    _ = try response.filterSuccessfulStatusCodes()
   }
 }
