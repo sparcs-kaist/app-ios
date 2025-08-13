@@ -144,11 +144,6 @@ struct PostComposeView: View {
         }
 
         ToolbarItem(placement: .bottomBar) {
-          Button("Attach File", systemImage: "paperclip") { }
-            .disabled(isUploading)
-        }
-
-        ToolbarItem(placement: .bottomBar) {
           Menu("More", systemImage: "ellipsis") {
             Button(action: {
               viewModel.writeAsAnonymous.toggle()
