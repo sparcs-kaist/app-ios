@@ -11,6 +11,7 @@ import Moya
 enum TaxiUserTarget {
   case fetchUserInfo
   case editBankAccount(account: String)
+  case fetchReports
 }
 
 extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
@@ -24,6 +25,8 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
       "/logininfo"
     case .editBankAccount:
       "/users/editAccount"
+    case .fetchReports:
+      "/reports/searchByUser"
     }
   }
 
@@ -33,6 +36,8 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
       .get
     case .editBankAccount:
       .post
+    case .fetchReports:
+      .get
     }
   }
 
@@ -42,6 +47,8 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
       .requestPlain
     case let .editBankAccount(account):
       .requestParameters(parameters: ["account": account], encoding: JSONEncoding.default)
+    case .fetchReports:
+      .requestPlain
     }
   }
 
@@ -52,6 +59,10 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
         "Content-Type": "application/json"
       ]
     case .editBankAccount:      [
+      "Origin": "sparcsapp",
+      "Content-Type": "application/json"
+      ]
+    case .fetchReports:      [
       "Origin": "sparcsapp",
       "Content-Type": "application/json"
       ]

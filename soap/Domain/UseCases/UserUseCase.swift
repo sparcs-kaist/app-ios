@@ -48,4 +48,9 @@ final class UserUseCase: UserUseCaseProtocol {
       logger.debug(error)
     }
   }
+  
+  func fetchTaxiReports() async throws -> (reported: [TaxiReport], reporting: [TaxiReport]) {
+    logger.debug("Fetching Taxi Reports")
+    return try await taxiUserRepository.fetchReports()
+  }
 }
