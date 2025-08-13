@@ -20,7 +20,7 @@ extension TaxiNoticeTarget: TargetType {
   var path: String {
     switch self {
       case .fetchNotice:
-       "/api/notice/list"
+       "/notice/list"
     }
   }
   
