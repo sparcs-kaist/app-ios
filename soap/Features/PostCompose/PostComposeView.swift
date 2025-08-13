@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct PostComposeView: View {
   @State private var viewModel: PostComposeViewModelProtocol
@@ -16,6 +17,7 @@ struct PostComposeView: View {
   @FocusState private var isDescriptionFocused
   
   @State private var isShowingCancelDialog = false
+  @State private var showPhotosPicker: Bool = false
 
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostComposeViewModel(board: board))
@@ -26,8 +28,11 @@ struct PostComposeView: View {
       ScrollView {
         VStack(alignment: .leading) {
           topicSelector
+            .padding(.horizontal)
+
           Spacer()
             .frame(maxHeight: 16)
+
           TextField("Please enter the title", text: $viewModel.title)
             .font(.title3)
             .focused($isTitleFocused)
@@ -36,22 +41,44 @@ struct PostComposeView: View {
               isDescriptionFocused = true
             }
             .writingToolsBehavior(.disabled)
+            .padding(.horizontal)
+
           Divider()
+            .padding(.horizontal)
+
           TextField("What's happening?", text: $viewModel.content, axis: .vertical)
             .focused($isDescriptionFocused)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
+            .padding(.horizontal)
+
+          if !viewModel.selectedImages.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+              HStack {
+                ForEach(viewModel.selectedImages, id: \.self) { image in
+                  Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 120, height: 120)
+                    .clipShape(.rect(cornerRadius: 8))
+                }
+              }
+              .padding()
+            }
+          }
 
           termsOfUseButton
+            .padding(.horizontal)
 
           Spacer()
         }
-        .padding()
+        .padding(.vertical)
       }
       .scrollDismissesKeyboard(.interactively)
       .navigationTitle("Write")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
+        // Top tool bar
         ToolbarItem(placement: .topBarLeading) {
           Button("Cancel", systemImage: "xmark", role: .close) {
             isShowingCancelDialog = true
@@ -79,10 +106,13 @@ struct PostComposeView: View {
         }
       }
       .toolbar {
+        // Bottom tool bar
         ToolbarSpacer(.flexible, placement: .bottomBar)
 
         ToolbarItem(placement: .bottomBar) {
-          Button("Photo Library", systemImage: "photo.on.rectangle") { }
+          Button("Photo Library", systemImage: "photo.on.rectangle") {
+            showPhotosPicker = true
+          }
         }
 
         ToolbarItem(placement: .bottomBar) {
@@ -118,6 +148,13 @@ struct PostComposeView: View {
           }
         }
       }
+      .photosPicker(
+        isPresented: $showPhotosPicker,
+        selection: $viewModel.selectedItems,
+        maxSelectionCount: 10,
+        matching: .images,
+        photoLibrary: .shared()
+      )
     }
   }
 
