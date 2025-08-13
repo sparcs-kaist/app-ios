@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @preconcurrency
 import Moya
@@ -14,6 +15,7 @@ protocol AraBoardRepositoryProtocol: Sendable {
   func fetchBoards() async throws -> [AraBoard]
   func fetchPosts(boardID: Int, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
   func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost
+  func uploadImage(image: UIImage) async throws -> AraAttachment
   func writePost(request: AraCreatePost) async throws
   func upvotePost(postID: Int) async throws
   func downvotePost(postID: Int) async throws
@@ -57,6 +59,17 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
     let post: AraPost = try response.map(AraPostDTO.self).toModel()
 
     return post
+  }
+
+  func uploadImage(image: UIImage) async throws -> AraAttachment {
+    guard let imageData = image.compressForUpload(maxSizeMB: 1.0, maxDimension: 500) else {
+      throw NSError(domain: "AraBoardRepository", code: 1)
+    }
+
+    let response = try await provider.request(.uploadImage(imageData: imageData))
+    let attachment: AraAttachment = try response.map(AraAttachmentDTO.self).toModel()
+
+    return attachment
   }
 
   func writePost(request: AraCreatePost) async throws {

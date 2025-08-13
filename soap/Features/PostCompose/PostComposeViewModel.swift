@@ -58,10 +58,17 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
   }
 
   func writePost() async {
+    var attachments: [AraAttachment] = []
+    for image in selectedImages {
+      if let attachment = try? await araBoardRepository.uploadImage(image: image) {
+        attachments.append(attachment)
+      }
+    }
+
     let request = AraCreatePost(
       title: title,
       content: content,
-      attachments: [],
+      attachments: attachments,
       topic: selectedTopic,
       isNSFW: isNSFW,
       isPolitical: isPolitical,

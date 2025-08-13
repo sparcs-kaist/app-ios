@@ -18,6 +18,7 @@ enum AraBoardTarget {
     case topic(topicID: String)
   }
   case fetchPost(origin: PostOrigin?, postID: Int)
+  case uploadImage(imageData: Data)
   case writePost(_ request: AraPostRequestDTO)
   case upvote(postID: Int)
   case downvote(postID: Int)
@@ -46,6 +47,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/articles/\(postID)/vote_cancel/"
     case .report:
       "/reports/"
+    case .uploadImage:
+      "/attachments/"
     }
   }
 
@@ -53,7 +56,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards, .fetchPosts, .fetchPost:
       .get
-    case .writePost, .upvote, .downvote, .cancelVote, .report:
+    case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage:
       .post
     }
   }
@@ -93,6 +96,14 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       }
 
       return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+    case .uploadImage(let imageData):
+      let imageMultipart = MultipartFormData(
+        provider: .data(imageData),
+        name: "file",
+        fileName: "image.png",
+        mimeType: "image/png"
+      )
+      return .uploadMultipart([imageMultipart])
     case .writePost(let request):
       return .requestJSONEncodable(request)
     case .report(let postID, let type):
