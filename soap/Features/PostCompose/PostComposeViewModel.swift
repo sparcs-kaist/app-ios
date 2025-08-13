@@ -24,7 +24,7 @@ protocol PostComposeViewModelProtocol: Observable {
   var isNSFW: Bool { get set }
   var isPolitical: Bool { get set }
 
-  func writePost() async
+  func writePost() async throws
 }
 
 @Observable
@@ -57,12 +57,12 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
     self.board = board
   }
 
-  func writePost() async {
+  func writePost() async throws {
     var attachments: [AraAttachment] = []
     for image in selectedImages {
-      if let attachment = try? await araBoardRepository.uploadImage(image: image) {
-        attachments.append(attachment)
-      }
+      let attachment: AraAttachment = try await araBoardRepository.uploadImage(image: image)
+
+      attachments.append(attachment)
     }
 
     let request = AraCreatePost(
@@ -76,11 +76,7 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
       board: board
     )
 
-    do {
-      try await araBoardRepository.writePost(request: request)
-    } catch {
-      logger.error(error)
-    }
+    try await araBoardRepository.writePost(request: request)
   }
 
   private func loadSelectedImages() async {

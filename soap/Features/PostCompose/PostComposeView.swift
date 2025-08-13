@@ -19,6 +19,11 @@ struct PostComposeView: View {
   @State private var isShowingCancelDialog = false
   @State private var showPhotosPicker: Bool = false
 
+  @State private var showErrorAlert: Bool = false
+  @State private var errorMessage: String = ""
+
+  @State private var isUploading: Bool = false
+
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostComposeViewModel(board: board))
   }
@@ -29,6 +34,7 @@ struct PostComposeView: View {
         VStack(alignment: .leading) {
           topicSelector
             .padding(.horizontal)
+            .disabled(isUploading)
 
           Spacer()
             .frame(maxHeight: 16)
@@ -42,6 +48,7 @@ struct PostComposeView: View {
             }
             .writingToolsBehavior(.disabled)
             .padding(.horizontal)
+            .disabled(isUploading)
 
           Divider()
             .padding(.horizontal)
@@ -51,6 +58,7 @@ struct PostComposeView: View {
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
             .padding(.horizontal)
+            .disabled(isUploading)
 
           if !viewModel.selectedImages.isEmpty {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -92,17 +100,36 @@ struct PostComposeView: View {
               dismiss()
             }
           }
+          .disabled(isUploading)
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Done", systemImage: "arrow.up", role: .confirm) {
-            Task {
-              await viewModel.writePost()
-              dismiss()
+          Button(
+            role: .confirm,
+            action: {
+              Task {
+                isUploading = true
+                defer { isUploading = false }
+                do {
+                  try await viewModel.writePost()
+                  dismiss()
+                } catch {
+                  errorMessage = "Failed to write post. Please try again later."
+                  showErrorAlert = true
+                }
+              }
+            },
+            label: {
+              if isUploading {
+                ProgressView()
+              } else {
+                Label("Done", systemImage: "arrow.up")
+              }
             }
-          }
+          )
           .disabled(viewModel.title.isEmpty)
           .disabled(viewModel.content.isEmpty)
+          .disabled(isUploading)
         }
       }
       .toolbar {
@@ -113,10 +140,12 @@ struct PostComposeView: View {
           Button("Photo Library", systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
+          .disabled(isUploading)
         }
 
         ToolbarItem(placement: .bottomBar) {
           Button("Attach File", systemImage: "paperclip") { }
+            .disabled(isUploading)
         }
 
         ToolbarItem(placement: .bottomBar) {
@@ -146,6 +175,7 @@ struct PostComposeView: View {
               Text("Political")
             })
           }
+          .disabled(isUploading)
         }
       }
       .photosPicker(
@@ -155,6 +185,11 @@ struct PostComposeView: View {
         matching: .images,
         photoLibrary: .shared()
       )
+      .alert("Error", isPresented: $showErrorAlert, actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(errorMessage)
+      })
     }
   }
 
