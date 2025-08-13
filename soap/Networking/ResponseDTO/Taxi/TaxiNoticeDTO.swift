@@ -28,3 +28,9 @@ struct TaxiNoticeDTO: Decodable {
   
   let notices: [NoticeElement]
 }
+
+extension TaxiNoticeDTO.NoticeElement {
+  func toModel() throws -> TaxiNotice {
+    TaxiNotice(id: id, title: title, notionURL: URL(string: notionURL)!, isPinned: isPinned, isActive: isActive, createdAt: createdAt.toDate()!, updatedAt: updatedAt.toDate()!)
+  }
+}

@@ -47,6 +47,14 @@ extension Container {
       )
     }
   }
+  
+  var taxiNoticeRepository: Factory<TaxiNoticeRepositoryProtocol> {
+    self {
+      TaxiNoticeRepository(
+        provider: MoyaProvider<TaxiNoticeTarget>()
+      )
+    }
+  }
 
   // MARK: Ara
   var araUserRepository: Factory<AraUserRepositoryProtocol> {

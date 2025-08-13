@@ -70,7 +70,7 @@ struct TaxiSettingsView: View {
     
     Section(header: Text("Service")) {
       navigationLinkWithIcon(destination: TaxiReportDetailView(), text: "Report Details", systemImage: "exclamationmark.bubble")
-      navigationLinkWithIcon(destination: TaxiNoticeListView(), text: "Notice", systemImage: "bell")
+      navigationLinkWithIcon(destination: TaxiNoticeView(), text: "Notice", systemImage: "bell")
       navigationLinkWithIcon(destination: TaxiTermsOfServiceView(isAgreed: vm.taxiUser?.agreeOnTermsOfService ?? false), text: "Terms of Service", systemImage: "list.clipboard")
       navigationLinkWithIcon(destination: TaxiPrivacyPolicyView(), text: "Privacy Policy", systemImage: "list.clipboard")
     }
