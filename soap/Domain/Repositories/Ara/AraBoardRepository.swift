@@ -12,7 +12,13 @@ import Moya
 
 protocol AraBoardRepositoryProtocol: Sendable {
   func fetchBoards() async throws -> [AraBoard]
-  func fetchPosts(boardID: Int, page: Int, pageSize: Int) async throws -> AraPostPage
+  func fetchPosts(boardID: Int, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
+  func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost
+  func writePost(request: AraCreatePost) async throws
+  func upvotePost(postID: Int) async throws
+  func downvotePost(postID: Int) async throws
+  func cancelVote(postID: Int) async throws
+  func reportPost(postID: Int, type: AraContentReportType) async throws
 }
 
 actor AraBoardRepository: AraBoardRepositoryProtocol {
@@ -37,12 +43,44 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
     return boards
   }
 
-  func fetchPosts(boardID: Int, page: Int, pageSize: Int) async throws -> AraPostPage {
+  func fetchPosts(boardID: Int, page: Int, pageSize: Int, searchKeyword: String? = nil) async throws -> AraPostPage {
     let response = try await provider.request(
-      .fetchPosts(boardID: boardID, page: page, pageSize: pageSize)
+      .fetchPosts(boardID: boardID, page: page, pageSize: pageSize, searchKeyword: searchKeyword)
     )
     let page: AraPostPage = try response.map(AraPostPageDTO.self).toModel()
 
     return page
+  }
+
+  func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost {
+    let response = try await provider.request(.fetchPost(origin: origin, postID: postID))
+    let post: AraPost = try response.map(AraPostDTO.self).toModel()
+
+    return post
+  }
+
+  func writePost(request: AraCreatePost) async throws {
+    let response = try await provider.request(.writePost(AraPostRequestDTO.fromModel(request)))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func upvotePost(postID: Int) async throws {
+    let response = try await provider.request(.upvote(postID: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func downvotePost(postID: Int) async throws {
+    let response = try await provider.request(.downvote(postID: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func cancelVote(postID: Int) async throws {
+    let response = try await provider.request(.cancelVote(postID: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func reportPost(postID: Int, type: AraContentReportType) async throws {
+    let response = try await provider.request(.report(postID: postID, type: type))
+    _ = try response.filterSuccessfulStatusCodes()
   }
 }

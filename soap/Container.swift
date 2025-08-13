@@ -65,6 +65,14 @@ extension Container {
     }
   }
 
+  var araCommentRepository: Factory<AraCommentRepositoryProtocol> {
+    self {
+      AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {

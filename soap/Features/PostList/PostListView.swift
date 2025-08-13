@@ -13,37 +13,39 @@ struct PostListView: View {
   @State private var showsComposeView: Bool = false
   @Namespace private var namespace
 
+  @State private var loadedInitialPost: Bool = false
+  @State private var searchText: String = ""
+
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostListViewModel(board: board))
   }
 
   var body: some View {
-    ZStack(alignment: .bottom) {
-      List {
-        switch viewModel.state {
-        case .loading:
-          loadingView
-            .redacted(reason: .placeholder)
-        case .loaded(let posts):
-          loadedView(posts)
-        case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
-        }
+    List {
+      switch viewModel.state {
+      case .loading:
+        loadingView
+          .redacted(reason: .placeholder)
+      case .loaded(let posts):
+        loadedView(posts)
+      case .error(let message):
+        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
-      .disabled(viewModel.state == .loading)
-      .listStyle(.plain)
-      .refreshable {
-        await viewModel.fetchInitialPosts()
-      }
+    }
+    .disabled(viewModel.state == .loading)
+    .listStyle(.plain)
+    .refreshable {
+      await viewModel.fetchInitialPosts()
     }
     .navigationTitle(viewModel.board.name.localized())
     .navigationSubtitle(viewModel.board.group.name.localized())
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.hidden, for: .tabBar)
     .toolbar {
-      ToolbarSpacer(.flexible, placement: .bottomBar)
+      DefaultToolbarItem(kind: .search, placement: .bottomBar)
 
-      if !viewModel.board.isReadOnly && viewModel.board.userWritable {
+      if !viewModel.board.isReadOnly && viewModel.board.userWritable == true {
+        ToolbarSpacer(.flexible, placement: .bottomBar)
         ToolbarItem(placement: .bottomBar) {
           Button("Write", systemImage: "square.and.pencil") {
             showsComposeView = true
@@ -52,22 +54,48 @@ struct PostListView: View {
         .matchedTransitionSource(id: "ComposeView", in: namespace)
       }
     }
-    .sheet(isPresented: $showsComposeView) {
-      PostComposeView()
+    .sheet(isPresented: $showsComposeView, onDismiss: {
+      Task {
+        await viewModel.fetchInitialPosts()
+      }
+    }) {
+      PostComposeView(board: viewModel.board)
         .interactiveDismissDisabled()
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
     }
     .task {
-      await viewModel.fetchInitialPosts()
+      if !loadedInitialPost {
+        viewModel.bind()
+        await viewModel.fetchInitialPosts()
+        loadedInitialPost = true
+      }
+    }
+    .searchable(text: $viewModel.searchKeyword)
+    .overlay(alignment: .center) {
+      if !viewModel.searchKeyword.isEmpty && viewModel.posts.isEmpty {
+        ContentUnavailableView.search(text: viewModel.searchKeyword)
+      }
     }
   }
 
   @ViewBuilder
-  func loadedView(_ posts: [AraPostHeader]) -> some View {
+  func loadedView(_ posts: [AraPost]) -> some View {
     ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
       PostListRow(post: post)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
+        .background {
+          if !post.isHidden {
+            NavigationLink("", destination: {
+              PostView(post: post)
+                .onDisappear {
+                  // on dismiss, refresh this item
+                  viewModel.refreshItem(postID: post.id)
+                }
+            })
+              .opacity(0)
+          }
+        }
         .onAppear {
           // loads more contents on 60% scroll
           let thresholdIndex = Int(Double(posts.count) * 0.6)
@@ -92,7 +120,7 @@ struct PostListView: View {
   }
 
   var loadingView: some View {
-    ForEach(AraPostHeader.mockList) { post in
+    ForEach(AraPost.mockList) { post in
       PostListRow(post: post)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)

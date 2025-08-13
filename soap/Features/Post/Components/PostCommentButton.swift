@@ -9,20 +9,17 @@ import SwiftUI
 
 
 struct PostCommentButton: View {
+  let commentCount: Int
+  let onClick: () -> Void
+
   var body: some View {
-    HStack {
-      Button("comments", systemImage: "text.bubble") {
-
-      }
-      .labelStyle(.iconOnly)
-      .foregroundStyle(.primary)
-
-      Text("23")
+    Button("\(commentCount)", systemImage: "text.bubble") {
+      onClick()
     }
+    .animation(.spring(), value: commentCount)
+    .contentTransition(.numericText(value: Double(commentCount)))
+    .tint(.primary)
     .padding(8)
-    .background {
-      Capsule()
-        .stroke(Color(uiColor: .separator))
-    }
+    .glassEffect(.regular.interactive())
   }
 }

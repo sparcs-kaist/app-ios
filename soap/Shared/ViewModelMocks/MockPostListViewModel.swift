@@ -11,10 +11,10 @@ import Observation
 @Observable
 class MockPostListViewModel: PostListViewModelProtocol {
   // MARK: - ViewModel Properties
-  var postList: [Post] = Post.mockList
-  var state: PostListViewModel.ViewState = .loaded(posts: AraPostHeader.mockList)
+  var state: PostListViewModel.ViewState = .loaded(posts: AraPost.mockList)
   var board: AraBoard = AraBoard.mock
-  var posts: [AraPostHeader] = AraPostHeader.mockList
+  var posts: [AraPost] = AraPost.mockList
+  var searchKeyword: String = ""
   var isLoadingMore: Bool = false
   var hasMorePages: Bool = true
 
@@ -26,4 +26,10 @@ class MockPostListViewModel: PostListViewModelProtocol {
   func loadNextPage() async {
     // Mock implementation
   }
-} 
+
+  func refreshItem(postID: Int) {
+    
+  }
+
+  func bind() { }
+}

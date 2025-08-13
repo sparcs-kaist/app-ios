@@ -74,4 +74,7 @@ extension Color {
   static let systemTeal = Color(UIColor.systemTeal)
   static let systemIndigo = Color(UIColor.systemIndigo)
 
+  // MARK: - Custom Colors
+  static let upvote = Color(hex: "ff4500")
+  static let downvote = Color(hex: "047dff")
 }

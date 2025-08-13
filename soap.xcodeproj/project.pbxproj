@@ -20,6 +20,7 @@
 		8BD3045B2E26392300B17695 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 8BD3045A2E26392300B17695 /* SocketIO */; };
 		8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE2ECBB2D2429D900847F47 /* Shimmer */; };
 		8BE7B5302E2438B00090F960 /* FLEX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE7B52F2E2438B00090F960 /* FLEX */; };
+		8BE804172E49EE3A00904AC6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		8B8DFBE62CCF771700AB82CC /* soap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = soap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFBF82CCF771800AB82CC /* soapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFC022CCF771800AB82CC /* soapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BE804162E49EE3A00904AC6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -121,6 +123,7 @@
 				8B8DFBFB2CCF771800AB82CC /* soapTests */,
 				8B8DFC052CCF771800AB82CC /* soapUITests */,
 				8B8DFBE72CCF771700AB82CC /* Products */,
+				8BE804162E49EE3A00904AC6 /* AppIcon.icon */,
 			);
 			sourceTree = "<group>";
 		};
@@ -277,6 +280,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BE804172E49EE3A00904AC6 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
