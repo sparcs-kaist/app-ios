@@ -8,6 +8,7 @@
 import SwiftUI
 import NukeUI
 import Factory
+import Translation
 
 struct PostCommentCell: View {
   @Binding var comment: AraPostComment
@@ -17,6 +18,7 @@ struct PostCommentCell: View {
   let onEdit: (() -> Void)?
 
   @State private var showReportedAlert: Bool = false
+  @State private var showTranslateSheet: Bool = false
 
   // MARK: - Dependencies
   @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol
@@ -49,6 +51,7 @@ struct PostCommentCell: View {
     }, message: {
       Text("Your report has been submitted successfully.")
     })
+    .translationPresentation(isPresented: $showTranslateSheet, text: comment.content ?? "")
   }
 
   private var footer: some View {
@@ -159,7 +162,9 @@ struct PostCommentCell: View {
 
       Divider()
 
-      Button("Translate", systemImage: "translate") { }
+      Button("Translate", systemImage: "translate") {
+        showTranslateSheet = true
+      }
 
       if comment.isMine == true {
         Divider()
