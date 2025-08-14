@@ -25,7 +25,7 @@ class FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
       return "Model is currently unavailable. Please try again later."
     }
 
-    let cleanedText = self.convertHtmlToPlainText(html: text) ?? ""
+    let cleanedText = text.convertFromHTML()
 
     if cleanedText.count <= 20 {
       return "This post is too short to summarize."
@@ -48,27 +48,6 @@ class FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
       return response.content.trimmingCharacters(in: .whitespacesAndNewlines)
     } catch {
       return "Failed to summarise text. Please try again later."
-    }
-  }
-
-  func convertHtmlToPlainText(html: String) -> String? {
-    guard let data = html.data(using: .utf8) else {
-      return nil
-    }
-
-    do {
-      let attributedString = try NSAttributedString(
-        data: data,
-        options: [
-          .documentType: NSAttributedString.DocumentType.html,
-          .characterEncoding: String.Encoding.utf8.rawValue
-        ],
-        documentAttributes: nil
-      )
-      return attributedString.string
-    } catch {
-      print("Error converting HTML: \(error)")
-      return nil
     }
   }
 }
