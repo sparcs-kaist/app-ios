@@ -13,12 +13,18 @@ struct SummarisationView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text(isLoading ? "Summarising..." : "Summary")
-        .textCase(.uppercase)
-        .font(.footnote)
-        .fontWeight(.semibold)
-        .foregroundStyle(.secondary)
-        .contentTransition(.numericText())
+      HStack {
+        Image(systemName: "text.append")
+
+        Text(isLoading ? "Summarising..." : "Summary")
+          .textCase(.uppercase)
+          .contentTransition(.numericText())
+
+        Spacer()
+      }
+      .font(.footnote)
+      .fontWeight(.semibold)
+      .foregroundStyle(.secondary)
 
       Group {
         if isLoading {
@@ -30,13 +36,9 @@ struct SummarisationView: View {
       }
       .transition(.opacity)
 
-      HStack {
-        Text("**Note:** May contain errors, please double-check facts.")
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-
-        Spacer()
-      }
+      Text("**Note:** May contain errors, please double-check facts.")
+        .font(.footnote)
+        .foregroundStyle(.secondary)
     }
     .animation(.spring, value: text)
   }

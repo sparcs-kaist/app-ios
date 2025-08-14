@@ -248,9 +248,9 @@ struct PostView: View {
   private var content: some View {
     if let summarisedContent {
       SummarisationView(text: summarisedContent)
-        .padding(.vertical)
+        .padding(.bottom)
         .transition(.asymmetric(
-          insertion: .offset(y: -30).combined(with: .opacity),
+          insertion: .offset(y: -10).combined(with: .opacity),
           removal: .opacity
         ))
     }

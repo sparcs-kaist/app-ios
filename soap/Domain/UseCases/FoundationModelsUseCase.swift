@@ -36,6 +36,7 @@ class FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
 
     let prompt = """
       Summarise the following post in a \(tone) style, preserving key facts and subjects, names, dates, numbers.
+      Ignore greetings if that is not the main topic.
       Write the summary in the same language as the original post — do not translate it.
       Limit the summary to \(maxWords) words.
       
