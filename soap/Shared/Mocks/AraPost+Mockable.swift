@@ -16,7 +16,7 @@ extension AraPost: Mockable {
       overrideHidden: nil,
       topic: nil,
       board: nil,
-      title: "Vue 2 종료에 관하여",
+      title: "[Ara for KAIST] 아라만 깔아도 커피쿠폰을 준다고?",
       author: AraPostAuthor(
         id: "984",
         username: "c7431c7c-adfa-44e5-8045-306535494ea1",
@@ -190,7 +190,7 @@ extension AraPost: Mockable {
           parentComment: nil
         )
       ],
-      content: "<p><img src=\"https://sparcs-newara-dev.s3.amazonaws.com/files/image_2.png\" width=\"500\" data-attachment=\"216\"></p><p>이것은 첨부파일 이미지 이구요</p><p><a href=\"https://sparcssso.kaist.ac.kr/\" rel=\"nofollow\">스팍스 SSO 링크</a></p><p><a href=\"https://sparcssso.kaist.ac.kr/\" data-bookmark=\"true\" rel=\"nofollow\">스팍스 SSO 북마크</a></p><p>이것은 링크와 북마크 이구요</p><p>문제지 첨부파일도 넣었구요</p><p><img src=\"https://sparcs-newara-dev.s3.amazonaws.com/files/%E1%84%8C%E1%85%A6%E1%84%86%E1%85%A9%E1%86%A8.png\" width=\"500\" data-attachment=\"218\"></p><p>냅다 춘식이? 얼굴도 넣어줬습니다</p><p>이상입니다 ^_^</p>",
+      content: "<p>안녕하세요, KAIST 학부 총학생회 산하 특별기구 SPARCS의&nbsp;Ara팀입니다.</p><p>딱, 오늘 하루, 아라앱만 깔아도 상품을 드립니다!</p><p><strong>📅 이벤트 기간</strong></p><ul><li><p>진행: 2025년 8월 14일 (목) 23:59</p></li><li><p>상품 지급: 2025년 8월 15일 (금)</p></li></ul><p><strong>👥 참여 대상</strong></p><ul><li><p>Ara를 사용하는 KAIST 구성원 전부</p></li></ul><p><strong>🖋 참여 방법</strong></p><ol><li><p>구글 플레이스토어 또는 앱스토어 에서 \"<strong>Ara for KAIST</strong>\"를 검색해서 설치해 주세요.</p></li><li><p><strong>KAIST IAM</strong>으로 Ara 앱에 로그인해 주세요.</p></li><li><p>Ara에 게시글을 작성하면 추첨을 통해 30분께 커피쿠폰을 드립니다!</p></li></ol><p><strong>🏆 상품</strong></p><ul><li><p><strong>참가상 (30명) </strong>: 스타벅스 아메리카노(R) 기프티콘</p></li></ul><p>앞으로 있을 다양한 이벤트에도 많은 관심 부탁드립니다.</p><p><br>카이스트만의 커뮤니티, Ara에 대한 많은 관심과 이용 부탁드립니다<br>Ara가 여러분의 일상을 함께 할 수 있는 서비스가 될 수 있도록 최선을 다하겠습니다!</p><p>감사합니다.</p><p>SPARCS&nbsp;Ara팀 드림</p>",
       myVote: nil,
       myScrap: nil
     )
