@@ -25,6 +25,9 @@ struct PostTranslationView: View {
 
   @State private var configuration: TranslationSession.Configuration?
 
+  @State private var showErrorAlert: Bool = false
+  @State private var errorMessage: String = ""
+
   @State private var isTranslating: Bool = true
 
   init(post: AraPost) {
@@ -99,10 +102,17 @@ struct PostTranslationView: View {
           }
         } catch {
           // TODO: Handle error
+          errorMessage = "Failed to translate. Please try again."
+          showErrorAlert = true
         }
       }
       .navigationTitle("Translate")
       .navigationBarTitleDisplayMode(.inline)
+      .alert("Error", isPresented: $showErrorAlert, actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(errorMessage)
+      })
     }
   }
 
