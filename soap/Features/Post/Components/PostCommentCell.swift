@@ -160,7 +160,6 @@ struct PostCommentCell: View {
       Divider()
 
       Button("Translate", systemImage: "translate") { }
-      Button("Summarise", systemImage: "text.append") { }
 
       if comment.isMine == true {
         Divider()
