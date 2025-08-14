@@ -35,10 +35,11 @@ class FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
     session.prewarm()
 
     let prompt = """
-      Summarise the following text in a \(tone) style, preserving key facts and subjects, names, dates, numbers, language.
+      Summarise the following post in a \(tone) style, preserving key facts and subjects, names, dates, numbers.
+      Write the summary in the same language as the original post — do not translate it.
       Limit the summary to \(maxWords) words.
       
-      Text:
+      Post:
       \(cleanedText)
       """
     do {
