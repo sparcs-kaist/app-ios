@@ -13,7 +13,7 @@ struct SummarisationView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text(isLoading ? "Summarizing..." : "Summary")
+      Text(isLoading ? "Summarising..." : "Summary")
         .textCase(.uppercase)
         .font(.footnote)
         .fontWeight(.semibold)
