@@ -73,10 +73,7 @@ struct PostView: View {
         SafariViewWrapper(url: url)
       }
       .sheet(isPresented: $showTranslationView) {
-        PostTranslationView(
-          post: viewModel.post,
-          convertedContent: viewModel.post.content?.convertFromHTML() ?? ""
-        )
+        PostTranslationView(post: viewModel.post)
       }
       .task {
         await viewModel.fetchPost()

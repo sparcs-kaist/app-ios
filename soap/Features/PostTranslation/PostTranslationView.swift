@@ -9,10 +9,10 @@ import SwiftUI
 
 @preconcurrency
 import Translation
+import NaturalLanguage
 
 struct PostTranslationView: View {
   let post: AraPost
-  let convertedContent: String
 
   @Environment(\.dismiss) private var dismiss
 
@@ -25,28 +25,51 @@ struct PostTranslationView: View {
 
   @State private var configuration: TranslationSession.Configuration?
 
-  @State private var isTranslating: Bool = false
+  @State private var isTranslating: Bool = true
 
-  init(post: AraPost, convertedContent: String) {
+  init(post: AraPost) {
     self.post = post
-    self.convertedContent = convertedContent
   }
 
   var body: some View {
     NavigationStack {
       ScrollView {
         VStack(alignment: .leading) {
-          Text(selectedTarget == nil ? post.title ?? "" : title)
-            .font(.headline)
+          Group {
+            if isTranslating {
+              Text(post.title ?? "")
+                .font(.headline)
+                .redacted(reason: isTranslating ? [.placeholder] : [])
+            } else {
+              Text(title)
+                .font(.headline)
+            }
+          }
+          .transition(.opacity)
 
           Divider()
 
-          Text(selectedTarget == nil ? convertedContent : content)
+          Group {
+            if isTranslating {
+              Text(content.isEmpty ? post.content ?? "" : content)
+                .redacted(reason: isTranslating ? [.placeholder] : [])
+            } else {
+              Text(content)
+            }
+          }
+          .transition(.opacity)
         }
         .padding()
+        .animation(.spring, value: isTranslating)
       }
       .task {
         availableLanguages = await languageAvailability.supportedLanguages
+        if let langCode = detectDominantLanguage(of: post.content?.convertFromHTML() ?? "") {
+          availableLanguages = availableLanguages.filter { $0.languageCode?.identifier != langCode }
+          if let targetLanguage = availableLanguages.first(where: { $0.languageCode?.identifier == (langCode == "ko" ? "en" : "ko") }) {
+            selectedTarget = targetLanguage
+          }
+        }
       }
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
@@ -78,6 +101,8 @@ struct PostTranslationView: View {
           // TODO: Handle error
         }
       }
+      .navigationTitle("Translate")
+      .navigationBarTitleDisplayMode(.inline)
     }
   }
 
@@ -94,9 +119,6 @@ struct PostTranslationView: View {
 
   private var languageSelector: some View {
     Picker("", selection: $selectedTarget) {
-      Text("Original")
-        .tag(nil as Locale.Language?)
-
       ForEach(availableLanguages, id: \.minimalIdentifier) { language in
         Text("\(displayName(for: language))")
           .tag(language)
@@ -106,13 +128,6 @@ struct PostTranslationView: View {
     .buttonStyle(.glass)
     .onChange(of: selectedTarget) {
       triggerTranslation()
-    }
-    .disabled(isTranslating)
-    .overlay {
-      if isTranslating {
-        ProgressView()
-          .controlSize(.small)
-      }
     }
   }
 
@@ -124,8 +139,19 @@ struct PostTranslationView: View {
     // Fallback: identifier (e.g., "en_US")
     return Locale.current.localizedString(forIdentifier: lang.minimalIdentifier) ?? lang.minimalIdentifier
   }
+
+  private func detectDominantLanguage(of text: String) -> String? {
+    let recognizer = NLLanguageRecognizer()
+    recognizer.processString(text)
+
+    if let language = recognizer.dominantLanguage {
+      return language.rawValue
+    }
+
+    return nil
+  }
 }
 
 #Preview {
-  PostTranslationView(post: AraPost.mock, convertedContent: AraPost.mock.content?.convertFromHTML() ?? "")
+  PostTranslationView(post: AraPost.mock)
 }
