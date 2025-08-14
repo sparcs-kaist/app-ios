@@ -12,49 +12,71 @@ import Translation
 
 struct PostTranslationView: View {
   let post: AraPost
+  let convertedContent: String
+
+  @Environment(\.dismiss) private var dismiss
 
   @State private var title: String = ""
   @State private var content: String = ""
 
+  @State private var availableLanguages: [Locale.Language] = []
+  @State private var selectedTarget: Locale.Language? = nil
+  private let languageAvailability = LanguageAvailability()
+
   @State private var configuration: TranslationSession.Configuration?
-  @State private var translateToEnglish: Bool // translate to korean if it's false
-  @Namespace private var namespace
 
-  init(post: AraPost) {
+  @State private var isTranslating: Bool = false
+
+  init(post: AraPost, convertedContent: String) {
     self.post = post
-
-    let languageCode = Locale.current.language.languageCode?.identifier ?? "ko"
-    translateToEnglish = languageCode != "ko"
+    self.convertedContent = convertedContent
   }
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading) {
-        Text(title)
-          .font(.headline)
+    NavigationStack {
+      ScrollView {
+        VStack(alignment: .leading) {
+          Text(selectedTarget == nil ? post.title ?? "" : title)
+            .font(.headline)
 
-        Divider()
+          Divider()
 
-        Text(content)
-      }
-      .padding()
-    }
-    .safeAreaBar(edge: .bottom) {
-      languageSelector
-    }
-    .translationTask(configuration) { session in
-      do {
-        async let translatedTitleTask = try await session.translate(post.title ?? "")
-        async let translatedContentTask = try await session.translate(post.content ?? "")
-
-        let (translatedTitle, translatedContent) = try await (translatedTitleTask, translatedContentTask)
-
-        await MainActor.run {
-          title = translatedTitle.targetText
-          content = translatedContent.targetText
+          Text(selectedTarget == nil ? convertedContent : content)
         }
-      } catch {
-        // TODO: Handle error
+        .padding()
+      }
+      .task {
+        availableLanguages = await languageAvailability.supportedLanguages
+      }
+      .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          Button("Dismiss", systemImage: "xmark") {
+            dismiss()
+          }
+        }
+      }
+      .safeAreaBar(edge: .bottom) {
+        languageSelector
+      }
+      .translationTask(configuration) { session in
+        isTranslating = true
+        defer { isTranslating = false }
+
+        do {
+          async let translatedTitleTask = try await session.translate(post.title ?? "")
+          async let translatedContentTask = try await session.translate(
+            post.content?.convertFromHTML() ?? ""
+          )
+
+          let (translatedTitle, translatedContent) = try await (translatedTitleTask, translatedContentTask)
+
+          await MainActor.run {
+            title = translatedTitle.targetText
+            content = translatedContent.targetText
+          }
+        } catch {
+          // TODO: Handle error
+        }
       }
     }
   }
@@ -62,59 +84,48 @@ struct PostTranslationView: View {
   private func triggerTranslation() {
     guard configuration == nil else {
       configuration?.invalidate()
+      configuration = TranslationSession.Configuration(source: nil, target: selectedTarget)
+
       return
     }
 
-    let target = translateToEnglish ? "en" : "ko"
-    configuration = TranslationSession
-      .Configuration(source: nil, target: Locale.Language(identifier: target))
+    configuration = TranslationSession.Configuration(source: nil, target: selectedTarget)
   }
 
   private var languageSelector: some View {
-    GlassEffectContainer {
-      HStack {
-        if translateToEnglish {
-          languageCapsule("Korean")
-            .matchedGeometryEffect(id: "Korean", in: namespace)
-        } else {
-          languageCapsule("English")
-            .matchedGeometryEffect(id: "English", in: namespace)
-        }
+    Picker("", selection: $selectedTarget) {
+      Text("Original")
+        .tag(nil as Locale.Language?)
 
-        Button("Change", systemImage: "arrow.left.and.right") {
-          withAnimation(.spring) {
-            translateToEnglish.toggle()
-            triggerTranslation()
-          }
-        }
-        .labelStyle(.iconOnly)
-        .fontDesign(.rounded)
-        .fontWeight(.semibold)
-        .padding(12)
-        .glassEffect(.clear.interactive(), in: .circle)
-
-        if translateToEnglish {
-          languageCapsule("English")
-            .matchedGeometryEffect(id: "English", in: namespace)
-        } else {
-          languageCapsule("Korean")
-            .matchedGeometryEffect(id: "Korean", in: namespace)
-        }
+      ForEach(availableLanguages, id: \.minimalIdentifier) { language in
+        Text("\(displayName(for: language))")
+          .tag(language)
+      }
+    }
+    .pickerStyle(.menu)
+    .buttonStyle(.glass)
+    .onChange(of: selectedTarget) {
+      triggerTranslation()
+    }
+    .disabled(isTranslating)
+    .overlay {
+      if isTranslating {
+        ProgressView()
+          .controlSize(.small)
       }
     }
   }
 
-  private func languageCapsule(_ language: String) -> some View {
-    Text(language)
-      .textCase(.uppercase)
-      .fontDesign(.rounded)
-      .fontWeight(.semibold)
-      .frame(width: 80)
-      .padding(12)
-      .glassEffect(.clear)
+  private func displayName(for lang: Locale.Language) -> String {
+    // Prefer base language code (e.g., "en", "ko")
+    if let code = lang.languageCode?.identifier {
+      return Locale.current.localizedString(forLanguageCode: code) ?? lang.minimalIdentifier
+    }
+    // Fallback: identifier (e.g., "en_US")
+    return Locale.current.localizedString(forIdentifier: lang.minimalIdentifier) ?? lang.minimalIdentifier
   }
 }
 
 #Preview {
-  PostTranslationView(post: AraPost.mock)
+  PostTranslationView(post: AraPost.mock, convertedContent: AraPost.mock.content?.convertFromHTML() ?? "")
 }

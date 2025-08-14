@@ -25,6 +25,7 @@ struct PostView: View {
   @State private var isUploadingComment: Bool = false
 
   @State private var showReportedAlert: Bool = false
+  @State private var showTranslationView: Bool = false
 
   @State private var summarisedContent: String? = nil
 
@@ -70,6 +71,12 @@ struct PostView: View {
       })
       .sheet(item: $tappedURL) { url in
         SafariViewWrapper(url: url)
+      }
+      .sheet(isPresented: $showTranslationView) {
+        PostTranslationView(
+          post: viewModel.post,
+          convertedContent: viewModel.post.content?.convertFromHTML() ?? ""
+        )
       }
       .task {
         await viewModel.fetchPost()
@@ -131,9 +138,13 @@ struct PostView: View {
       //            Button("Edit", systemImage: "square.and.pencil") { }
       //          }
 
-      if viewModel.isFoundationModelsAvailable {
-        if viewModel.post.isMine == false { Divider () }
+      if viewModel.post.isMine == false { Divider () }
 
+      Button("Translate", systemImage: "translate") {
+        showTranslationView = true
+      }
+
+      if viewModel.isFoundationModelsAvailable {
         Button("Summarise", systemImage: "text.append") {
           summarisedContent = ""
           Task {
@@ -141,9 +152,9 @@ struct PostView: View {
           }
         }
         .disabled(summarisedContent != nil)
-
-        if viewModel.post.isMine == true { Divider () }
       }
+
+      if viewModel.post.isMine == true { Divider () }
 
       if viewModel.post.isMine == true {
         Button("Delete", systemImage: "trash", role: .destructive) { }
