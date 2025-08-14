@@ -92,6 +92,7 @@ struct PostListView: View {
                   // on dismiss, refresh this item
                   viewModel.refreshItem(postID: post.id)
                 }
+                .addKeyboardVisibilityToEnvironment()
             })
               .opacity(0)
           }

@@ -12,6 +12,8 @@ import WebKit
 struct PostView: View {
   @State private var viewModel: PostViewModelProtocol
 
+  @Environment(\.keyboardShowing) var keyboardShowing
+
   @State private var htmlHeight: CGFloat = .zero
   @State private var tappedURL: URL?
 
@@ -319,6 +321,10 @@ struct PostView: View {
 
           TextField(text: $comment, prompt: Text(placeholder), axis: .vertical, label: {})
             .focused($isWritingCommentFocusState)
+            .onChange(of: isWritingCommentFocusState) {
+              print(isWritingCommentFocusState)
+              isWritingComment = isWritingCommentFocusState
+            }
         }
       }
       .padding(12)
@@ -368,7 +374,8 @@ struct PostView: View {
         .disabled(isUploadingComment)
       }
     }
-    .padding(.horizontal)
+    .padding(keyboardShowing ? [.horizontal, .vertical] : [.horizontal])
+    .animation(.spring, value: keyboardShowing)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
       value: comment.isEmpty
@@ -377,9 +384,6 @@ struct PostView: View {
       .spring(duration: 0.2, bounce: 0.2, blendDuration: 0.1),
       value: isWritingComment
     )
-    .onChange(of: isWritingCommentFocusState) {
-      isWritingComment = isWritingCommentFocusState
-    }
   }
 
   var profilePicture: some View {
