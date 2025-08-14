@@ -31,47 +31,49 @@ struct PostView: View {
   }
 
   var body: some View {
-    ScrollView {
-      Group {
-        header
+    ScrollViewReader { proxy in
+      ScrollView {
+        Group {
+          header
 
-        content
+          content
 
-        footer
+          footer
 
-        comments
+          comments
+        }
+        .padding()
       }
-      .padding()
-    }
-    .scrollDismissesKeyboard(.interactively)
-    .onKeyboardDismiss {
-      if comment.isEmpty {
-        targetComment = nil
+      .scrollDismissesKeyboard(.interactively)
+      .onKeyboardDismiss {
+        if comment.isEmpty {
+          targetComment = nil
+        }
       }
-    }
-    .contentMargins(.bottom, 64)
-    .navigationTitle(viewModel.post.board?.name.localized() ?? "")
-    .safeAreaBar(edge: .bottom) {
-      inputBar
-    }
-    .toolbar {
-      ToolbarItem(placement: .topBarTrailing) {
-        actionsMenu
+      .contentMargins(.bottom, 64)
+      .navigationTitle(viewModel.post.board?.name.localized() ?? "")
+      .safeAreaBar(edge: .bottom) {
+        inputBar(proxy: proxy)
       }
-    }
-    .alert("Report Submitted", isPresented: $showReportedAlert, actions: {
-      Button("Okay", role: .close) { }
-    }, message: {
-      Text("Your report has been submitted successfully.")
-    })
-    .sheet(item: $tappedURL) { url in
-      SafariViewWrapper(url: url)
-    }
-    .task {
-      await viewModel.fetchPost()
-    }
-    .refreshable {
-      await viewModel.fetchPost()
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          actionsMenu
+        }
+      }
+      .alert("Report Submitted", isPresented: $showReportedAlert, actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text("Your report has been submitted successfully.")
+      })
+      .sheet(item: $tappedURL) { url in
+        SafariViewWrapper(url: url)
+      }
+      .task {
+        await viewModel.fetchPost()
+      }
+      .refreshable {
+        await viewModel.fetchPost()
+      }
     }
   }
 
@@ -167,6 +169,7 @@ struct PostView: View {
                 isWritingCommentFocusState = true
               }
             )
+            .id(comment.id)
 
             // Threads
             ForEach($comment.comments) { $thread in
@@ -189,6 +192,7 @@ struct PostView: View {
                   isWritingCommentFocusState = true
                 }
               )
+              .id(thread.id)
             }
           }
         }
@@ -288,7 +292,7 @@ struct PostView: View {
     }
   }
 
-  private var inputBar: some View {
+  private func inputBar(proxy: ScrollViewProxy) -> some View {
     HStack(alignment: .bottom) {
       // comment textfield
       VStack(alignment: .leading) {
@@ -340,17 +344,22 @@ struct PostView: View {
             isUploadingComment = true
             defer { isUploadingComment = false }
             do {
+              var uploadedComment: AraPostComment? = nil
               if let commentOnEdit = commentOnEdit {
-                try await viewModel.editComment(commentID: commentOnEdit.id, content: comment)
+                uploadedComment = try await viewModel.editComment(commentID: commentOnEdit.id, content: comment)
               } else if let targetComment = targetComment {
-                try await viewModel.writeThreadedComment(commentID: targetComment.id, content: comment)
+                uploadedComment = try await viewModel.writeThreadedComment(commentID: targetComment.id, content: comment)
               } else {
-                try await viewModel.writeComment(content: comment)
+                uploadedComment = try await viewModel.writeComment(content: comment)
               }
               targetComment = nil
               commentOnEdit = nil
               comment = ""
               isWritingCommentFocusState = false
+
+              withAnimation(.spring) {
+                proxy.scrollTo(uploadedComment?.id, anchor: .center)
+              }
             } catch {
               logger.error(error)
               // TODO: handle error here

@@ -16,9 +16,9 @@ protocol PostViewModelProtocol: Observable {
   func fetchPost() async
   func upvote() async
   func downvote() async
-  func writeComment(content: String) async throws
-  func writeThreadedComment(commentID: Int, content: String) async throws
-  func editComment(commentID: Int, content: String) async throws
+  func writeComment(content: String) async throws -> AraPostComment
+  func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment
+  func editComment(commentID: Int, content: String) async throws -> AraPostComment
   func report(type: AraContentReportType) async throws
 }
 
@@ -120,7 +120,7 @@ class PostViewModel: PostViewModelProtocol {
     }
   }
 
-  func writeComment(content: String) async throws {
+  func writeComment(content: String) async throws -> AraPostComment {
     var comment: AraPostComment = try await araCommentRepository.writeComment(
       postID: post.id,
       content: content
@@ -129,9 +129,11 @@ class PostViewModel: PostViewModelProtocol {
 
     self.post.comments.append(comment)
     self.post.commentCount += 1
+
+    return comment
   }
 
-  func writeThreadedComment(commentID: Int, content: String) async throws {
+  func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment {
     var comment: AraPostComment = try await araCommentRepository.writeThreadedComment(
       commentID: commentID,
       content: content
@@ -145,24 +147,32 @@ class PostViewModel: PostViewModelProtocol {
 
     self.post.comments = comments
     self.post.commentCount += 1
+
+    return comment
   }
 
-  func editComment(commentID: Int, content: String) async throws {
-    _ = try await araCommentRepository.editComment(commentID: commentID, content: content)
+  func editComment(commentID: Int, content: String) async throws -> AraPostComment {
+    var comment: AraPostComment = try await araCommentRepository.editComment(
+      commentID: commentID,
+      content: content
+    )
+    comment.isMine = true
 
     for idx in post.comments.indices {
       if post.comments[idx].id == commentID {
         post.comments[idx].content = content
-        return
+        return post.comments[idx]
       }
       // scan through threads
       for threadIdx in post.comments[idx].comments.indices {
         if post.comments[idx].comments[threadIdx].id == commentID {
           post.comments[idx].comments[threadIdx].content = content
-          return
+          return post.comments[idx]
         }
       }
     }
+
+    return comment
   }
 
   func report(type: AraContentReportType) async throws {
