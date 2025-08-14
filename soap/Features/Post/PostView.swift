@@ -365,9 +365,9 @@ struct PostView: View {
         .glassEffect(.regular.tint(.accent).interactive(), in: .circle)
         .disabled(comment.isEmpty)
         .transition(.move(edge: .trailing).combined(with: .opacity))
+        .disabled(isUploadingComment)
       }
     }
-    .disabled(isUploadingComment)
     .padding(.horizontal)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
