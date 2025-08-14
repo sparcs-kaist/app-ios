@@ -184,7 +184,7 @@ struct PostView: View {
                   withAnimation(.spring) {
                     self.comment = thread.content ?? ""
                     targetComment = nil
-                    commentOnEdit = comment
+                    commentOnEdit = thread
                   }
                   isWritingCommentFocusState = true
                 }
