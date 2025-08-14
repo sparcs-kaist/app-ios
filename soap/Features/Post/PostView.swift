@@ -26,6 +26,8 @@ struct PostView: View {
 
   @State private var showReportedAlert: Bool = false
 
+  @State private var summarisedContent: String? = nil
+
   init(post: AraPost) {
     _viewModel = State(initialValue: PostViewModel(post: post))
   }
@@ -43,6 +45,7 @@ struct PostView: View {
           comments
         }
         .padding()
+        .animation(.spring(), value: summarisedContent)
       }
       .scrollDismissesKeyboard(.interactively)
       .onKeyboardDismiss {
@@ -121,8 +124,6 @@ struct PostView: View {
         }
 
         Button("Block", systemImage: "person.slash.fill") { }
-
-        Divider()
       }
       // SUPPORT FOR POST EDIT IS POSTPONED
       /* else if viewModel.post.isMine == true {*/
@@ -130,11 +131,21 @@ struct PostView: View {
       //            Button("Edit", systemImage: "square.and.pencil") { }
       //          }
 
-      Button("Summarise", systemImage: "text.append") { }
+      if viewModel.isFoundationModelsAvailable {
+        if viewModel.post.isMine == false { Divider () }
+
+        Button("Summarise", systemImage: "text.append") {
+          summarisedContent = ""
+          Task {
+            summarisedContent = await viewModel.summarisedContent()
+          }
+        }
+        .disabled(summarisedContent != nil)
+
+        if viewModel.post.isMine == true { Divider () }
+      }
 
       if viewModel.post.isMine == true {
-        Divider()
-
         Button("Delete", systemImage: "trash", role: .destructive) { }
       }
     }
@@ -235,6 +246,15 @@ struct PostView: View {
 
   @ViewBuilder
   private var content: some View {
+    if let summarisedContent {
+      SummarisationView(text: summarisedContent)
+        .padding(.vertical)
+        .transition(.asymmetric(
+          insertion: .offset(y: -30).combined(with: .opacity),
+          removal: .opacity
+        ))
+    }
+
     if let content = viewModel.post.content {
       DynamicHeightWebView(
         htmlString: content,

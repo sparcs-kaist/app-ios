@@ -12,6 +12,7 @@ import Factory
 @MainActor
 protocol PostViewModelProtocol: Observable {
   var post: AraPost { get set }
+  var isFoundationModelsAvailable: Bool { get }
 
   func fetchPost() async
   func upvote() async
@@ -20,12 +21,16 @@ protocol PostViewModelProtocol: Observable {
   func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment
   func editComment(commentID: Int, content: String) async throws -> AraPostComment
   func report(type: AraContentReportType) async throws
+  func summarisedContent() async -> String
 }
 
 @Observable
 class PostViewModel: PostViewModelProtocol {
   // MARK: - Properties
   var post: AraPost
+  var isFoundationModelsAvailable: Bool {
+    foundationModelsUseCase.isAvailable
+  }
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -34,6 +39,9 @@ class PostViewModel: PostViewModelProtocol {
   @ObservationIgnored @Injected(
     \.araCommentRepository
   ) private var araCommentRepository: AraCommentRepositoryProtocol
+  @ObservationIgnored @Injected(
+    \.foundationModelsUseCase
+  ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
 
   // MARK: - Initialiser
   init(post: AraPost) {
@@ -177,5 +185,9 @@ class PostViewModel: PostViewModelProtocol {
 
   func report(type: AraContentReportType) async throws {
     try await araBoardRepository.reportPost(postID: post.id, type: type)
+  }
+
+  func summarisedContent() async -> String {
+    return await foundationModelsUseCase.summarise(post.content ?? "", maxWords: 50, tone: "concise")
   }
 }
