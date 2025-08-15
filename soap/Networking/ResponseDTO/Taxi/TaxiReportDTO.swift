@@ -41,8 +41,21 @@ struct TaxiReportDTO: Decodable {
   }
 }
 
+enum TaxiReportConversionError: Error {
+  case invalidReason
+  case invalidDate
+}
+
 extension TaxiReportDTO.TaxiReportDetail {
   func toModel(reportType: TaxiReport.ReportType) throws -> TaxiReport {
-    TaxiReport(id: id, nickname: self.reportedId.nickname, reportType: reportType, reason: .init(rawValue: type)!, etcDetail: etcDetail, reportedAt: createdAt.toDate()!)
+    guard let reason: TaxiReport.ReportReason = .init(rawValue: type) else {
+      throw TaxiReportConversionError.invalidReason
+    }
+    
+    guard let reportedDate = createdAt.toDate() else {
+      throw TaxiReportConversionError.invalidDate
+    }
+    
+    return TaxiReport(id: id, nickname: self.reportedId.nickname, reportType: reportType, reason: reason, etcDetail: etcDetail, reportedAt: reportedDate)
   }
 }

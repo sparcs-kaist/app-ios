@@ -29,8 +29,26 @@ struct TaxiNoticeDTO: Decodable {
   let notices: [NoticeElement]
 }
 
+enum TaxiNoticeConversionError: Error {
+  case invalidURL
+  case invalidCreatedAt
+  case invalidUpdatedAt
+}
+
 extension TaxiNoticeDTO.NoticeElement {
   func toModel() throws -> TaxiNotice {
-    TaxiNotice(id: id, title: title, notionURL: URL(string: notionURL)!, isPinned: isPinned, isActive: isActive, createdAt: createdAt.toDate()!, updatedAt: updatedAt.toDate()!)
+    guard let url = URL(string: notionURL) else {
+      throw TaxiNoticeConversionError.invalidURL
+    }
+    
+    guard let createdDate = createdAt.toDate() else {
+      throw TaxiNoticeConversionError.invalidCreatedAt
+    }
+    
+    guard let updatedDate = updatedAt.toDate() else {
+      throw TaxiNoticeConversionError.invalidUpdatedAt
+    }
+    
+    return TaxiNotice(id: id, title: title, notionURL: url, isPinned: isPinned, isActive: isActive, createdAt: createdDate, updatedAt: updatedDate)
   }
 }
