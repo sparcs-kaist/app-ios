@@ -25,6 +25,8 @@ struct PostView: View {
   @State private var commentOnEdit: AraPostComment? = nil
   @State private var isUploadingComment: Bool = false
 
+  @State private var selectedAuthor: AraPostAuthor? = nil
+
   @State private var showTranslationView: Bool = false
   @State private var showDeleteConfirmation: Bool = false
 
@@ -98,6 +100,9 @@ struct PostView: View {
       }
       .sheet(isPresented: $showTranslationView) {
         PostTranslationView(post: viewModel.post)
+      }
+      .navigationDestination(item: $selectedAuthor) { author in
+        UserPostListView(user: author)
       }
       .task {
         await viewModel.fetchPost()
@@ -307,32 +312,40 @@ struct PostView: View {
       .font(.caption)
       .foregroundStyle(.secondary)
 
-      HStack {
-        if let url = viewModel.post.author.profile.profilePictureURL {
-          LazyImage(url: url) { state in
-            if let image = state.image {
-              image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-            } else {
-              Circle()
-                .fill(Color.secondarySystemBackground)
+      Button(action: {
+        selectedAuthor = viewModel.post.author
+      }, label: {
+        HStack {
+          if let url = viewModel.post.author.profile.profilePictureURL {
+            LazyImage(url: url) { state in
+              if let image = state.image {
+                image
+                  .resizable()
+                  .aspectRatio(contentMode: .fill)
+              } else {
+                Circle()
+                  .fill(Color.secondarySystemBackground)
+              }
             }
-          }
-          .frame(width: 28, height: 28)
-          .clipShape(.circle)
-        } else {
-          Circle()
-            .fill(Color.secondarySystemBackground)
             .frame(width: 28, height: 28)
+            .clipShape(.circle)
+          } else {
+            Circle()
+              .fill(Color.secondarySystemBackground)
+              .frame(width: 28, height: 28)
+          }
+
+          Text(viewModel.post.author.profile.nickname)
+            .fontWeight(.medium)
+
+          if viewModel.post.author.username != "anonymous" {
+            Image(systemName: "chevron.right")
+          }
         }
-
-        Text(viewModel.post.author.profile.nickname)
-          .fontWeight(.medium)
-
-        Image(systemName: "chevron.right")
-      }
-      .font(.subheadline)
+        .font(.subheadline)
+      })
+      .tint(.primary)
+      .disabled(viewModel.post.author.username == "anonymous")
 
       Divider()
         .padding(.vertical, 4)

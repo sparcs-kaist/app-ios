@@ -21,22 +21,35 @@ struct PostListView: View {
   }
 
   var body: some View {
-    List {
+    Group {
       switch viewModel.state {
       case .loading:
-        loadingView
-          .redacted(reason: .placeholder)
+        PostList(
+          posts: nil,
+          destination: { _ in
+            EmptyView()
+          }
+        )
       case .loaded(let posts):
-        loadedView(posts)
+        PostList(
+          posts: posts,
+          destination: { post in
+            PostView(post: post)
+              .addKeyboardVisibilityToEnvironment()
+              .onDisappear {
+                viewModel.refreshItem(postID: post.id)
+              }
+          }, onRefresh: {
+            await viewModel.fetchInitialPosts()
+          }, onLoadMore: {
+            await viewModel.loadNextPage()
+          }
+        )
       case .error(let message):
         ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .disabled(viewModel.state == .loading)
-    .listStyle(.plain)
-    .refreshable {
-      await viewModel.fetchInitialPosts()
-    }
     .navigationTitle(viewModel.board.name.localized())
     .navigationSubtitle(viewModel.board.group.name.localized())
     .navigationBarTitleDisplayMode(.inline)
@@ -75,58 +88,6 @@ struct PostListView: View {
       if !viewModel.searchKeyword.isEmpty && viewModel.posts.isEmpty {
         ContentUnavailableView.search(text: viewModel.searchKeyword)
       }
-    }
-  }
-
-  @ViewBuilder
-  func loadedView(_ posts: [AraPost]) -> some View {
-    ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
-      PostListRow(post: post)
-        .listRowSeparator(.hidden, edges: .top)
-        .listRowSeparator(.visible, edges: .bottom)
-        .background {
-          if !post.isHidden {
-            NavigationLink("", destination: {
-              PostView(post: post, onPostDeleted: { deletedPostID in
-                viewModel.removePost(postID: deletedPostID)
-              })
-                .onDisappear {
-                  // on dismiss, refresh this item
-                  viewModel.refreshItem(postID: post.id)
-                }
-                .addKeyboardVisibilityToEnvironment()
-            })
-              .opacity(0)
-          }
-        }
-        .onAppear {
-          // loads more contents on 60% scroll
-          let thresholdIndex = Int(Double(posts.count) * 0.6)
-          if index >= thresholdIndex && viewModel.hasMorePages && !viewModel.isLoadingMore {
-            Task {
-              await viewModel.loadNextPage()
-            }
-          }
-        }
-    }
-    
-    // Shows loding indicator on loading at the bottom
-    if viewModel.isLoadingMore {
-      HStack {
-        Spacer()
-        ProgressView()
-          .padding()
-        Spacer()
-      }
-      .listRowSeparator(.hidden)
-    }
-  }
-
-  var loadingView: some View {
-    ForEach(AraPost.mockList) { post in
-      PostListRow(post: post)
-        .listRowSeparator(.hidden, edges: .top)
-        .listRowSeparator(.visible, edges: .bottom)
     }
   }
 }

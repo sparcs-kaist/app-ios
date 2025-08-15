@@ -13,7 +13,7 @@ import Moya
 
 protocol AraBoardRepositoryProtocol: Sendable {
   func fetchBoards() async throws -> [AraBoard]
-  func fetchPosts(boardID: Int, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
+  func fetchPosts(type: AraBoardTarget.PostListType, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
   func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost
   func uploadImage(image: UIImage) async throws -> AraAttachment
   func writePost(request: AraCreatePost) async throws
@@ -46,9 +46,9 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
     return boards
   }
 
-  func fetchPosts(boardID: Int, page: Int, pageSize: Int, searchKeyword: String? = nil) async throws -> AraPostPage {
+  func fetchPosts(type: AraBoardTarget.PostListType, page: Int, pageSize: Int, searchKeyword: String? = nil) async throws -> AraPostPage {
     let response = try await provider.request(
-      .fetchPosts(boardID: boardID, page: page, pageSize: pageSize, searchKeyword: searchKeyword)
+      .fetchPosts(type: type, page: page, pageSize: pageSize, searchKeyword: searchKeyword)
     )
     let page: AraPostPage = try response.map(AraPostPageDTO.self).toModel()
 
