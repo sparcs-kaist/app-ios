@@ -28,7 +28,7 @@ class TaxiReportListViewModel: TaxiReportDetailViewModelProtocol, Observable {
   var state: ViewState = .loading
   var reports: (reported: [TaxiReport], reporting: [TaxiReport]) = (reported: [], reporting: [])
   
-  // MARK: - Depenedencies
+  // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   
   // MARK: - Functions
