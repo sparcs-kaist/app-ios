@@ -32,6 +32,7 @@ struct TaxiNoticeView: View {
     .fullScreenCover(item: $selectedNoticeURL) {
       SafariViewWrapper(url: $0)
     }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
   }
   
   private var loadingView: some View {

@@ -39,6 +39,7 @@ struct TaxiSettingsView: View {
         .disabled(!isValid)
       }
     }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
   }
   
   @ViewBuilder

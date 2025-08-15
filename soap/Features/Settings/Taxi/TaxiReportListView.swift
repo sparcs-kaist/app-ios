@@ -17,23 +17,23 @@ struct TaxiReportListView: View {
   
   var body: some View {
     ScrollView {
-      VStack(spacing: 0) {
-        Picker("Report Type", selection: $taxiReportType) {
-          ForEach(TaxiReport.ReportType.allCases, id: \.rawValue) { item in
-            Text(item.rawValue).tag(item)
-          }
-        }
-        .pickerStyle(.segmented)
-        .padding(.bottom)
-        switch vm.state {
-        case .loaded:
-          loadedView
-        case .loading:
-          loadingView
-        case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+      Picker("Report Type", selection: $taxiReportType) {
+        ForEach(TaxiReport.ReportType.allCases, id: \.rawValue) { item in
+          Text(item.rawValue).tag(item)
         }
       }
+      .pickerStyle(.segmented)
+      .padding(.bottom)
+      Group {
+        switch vm.state {
+          case .loaded:
+            loadedView
+          case .loading:
+            loadingView
+          case .error(let message):
+          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        }
+      }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
     .padding()
     .background(Color.secondarySystemBackground)
@@ -43,7 +43,7 @@ struct TaxiReportListView: View {
   }
   
   private var loadingView: some View {
-    VStack(spacing: 10) {
+    Group {
       TaxiReportDetailRow(report: TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()))
       TaxiReportDetailRow(report: TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()))
     }
@@ -51,14 +51,14 @@ struct TaxiReportListView: View {
   }
   
   private var loadedView: some View {
-  VStack(spacing: 10) {
-        switch taxiReportType {
+    Group {
+      switch taxiReportType {
         case .reported:
           reportViewList(reports: vm.reports.reported)
         case .reporting:
           reportViewList(reports: vm.reports.reporting)
-        }
-    }
+      }
+    }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
   }
   
   private func reportViewList(reports: [TaxiReport]) -> some View {
@@ -82,7 +82,7 @@ struct TaxiReportListView: View {
 
 #Preview("Loaded State") {
   let vm = MockTaxiReportDetailViewModel()
-  vm.reports = (reported: [TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date())], reporting: [TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date())])
+  vm.reports = (reported: [TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date())], reporting: [TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()), TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date())])
   vm.state = .loaded
   
   return TaxiReportListView(vm: vm)
