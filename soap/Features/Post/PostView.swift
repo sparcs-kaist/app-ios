@@ -25,10 +25,14 @@ struct PostView: View {
   @State private var commentOnEdit: AraPostComment? = nil
   @State private var isUploadingComment: Bool = false
 
-  @State private var showReportedAlert: Bool = false
   @State private var showTranslationView: Bool = false
+  @State private var showDeleteConfirmation: Bool = false
 
   @State private var summarisedContent: String? = nil
+
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
 
   let onPostDeleted: ((Int) -> Void)?
 
@@ -66,12 +70,28 @@ struct PostView: View {
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
           actionsMenu
+            .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+              Button("Delete", role: .destructive) {
+                Task {
+                  do {
+                    try await viewModel.deletePost()
+                    onPostDeleted?(viewModel.post.id)
+                    dismiss()
+                  } catch {
+                    showAlert(title: "Error", message: "Failed to delete a post. Please try again later.")
+                  }
+                }
+              }
+              Button("Cancel", role: .cancel) { }
+            } message: {
+              Text("Are you sure you want to delete this post?")
+            }
         }
       }
-      .alert("Report Submitted", isPresented: $showReportedAlert, actions: {
+      .alert(alertTitle, isPresented: $showAlert, actions: {
         Button("Okay", role: .close) { }
       }, message: {
-        Text("Your report has been submitted successfully.")
+        Text(alertMessage)
       })
       .sheet(item: $tappedURL) { url in
         SafariViewWrapper(url: url)
@@ -96,37 +116,37 @@ struct PostView: View {
           Button("Hate Speech") {
             Task {
               try? await viewModel.report(type: .hateSpeech)
-              showReportedAlert = true
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
             }
           }
           Button("Unauthorized Sales") {
             Task {
               try? await viewModel.report(type: .unauthorizedSales)
-              showReportedAlert = true
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
             }
           }
           Button("Spam") {
             Task {
               try? await viewModel.report(type: .spam)
-              showReportedAlert = true
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
             }
           }
           Button("False Information") {
             Task {
               try? await viewModel.report(type: .falseInformation)
-              showReportedAlert = true
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
             }
           }
           Button("Defamation") {
             Task {
               try? await viewModel.report(type: .defamation)
-              showReportedAlert = true
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
             }
           }
           Button("Other") {
             Task {
               try? await viewModel.report(type: .other)
-              showReportedAlert = true
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
             }
           }
         }
@@ -159,16 +179,7 @@ struct PostView: View {
 
       if viewModel.post.isMine == true {
         Button("Delete", systemImage: "trash", role: .destructive) {
-          Task {
-            do {
-              try await viewModel.deletePost()
-              onPostDeleted?(viewModel.post.id)
-              dismiss()
-            } catch {
-              // 에러 처리 (필요시 alert 추가)
-              logger.error(error)
-            }
-          }
+          showDeleteConfirmation = true
         }
       }
     }
@@ -489,6 +500,12 @@ struct PostView: View {
     result.append(titleAttr)
 
     return result
+  }
+
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
   }
 }
 
