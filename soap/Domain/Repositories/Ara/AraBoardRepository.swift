@@ -21,6 +21,7 @@ protocol AraBoardRepositoryProtocol: Sendable {
   func downvotePost(postID: Int) async throws
   func cancelVote(postID: Int) async throws
   func reportPost(postID: Int, type: AraContentReportType) async throws
+  func deletePost(postID: Int) async throws
 }
 
 actor AraBoardRepository: AraBoardRepositoryProtocol {
@@ -94,6 +95,11 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
 
   func reportPost(postID: Int, type: AraContentReportType) async throws {
     let response = try await provider.request(.report(postID: postID, type: type))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func deletePost(postID: Int) async throws {
+    let response = try await provider.request(.delete(postID: postID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 }
