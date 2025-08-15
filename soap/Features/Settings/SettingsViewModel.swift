@@ -16,7 +16,6 @@ class SettingsViewModel: SettingsViewModelProtocol {
   enum ViewState {
     case loading
     case loaded
-    case error(message: String)
   }
   
   // MARK: - Mock data

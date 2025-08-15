@@ -20,8 +20,6 @@ struct TaxiSettingsView: View {
           .redacted(reason: .placeholder)
       case .loaded:
         loadedView
-      case .error(_):
-        EmptyView()
       }
     }
     .task {
