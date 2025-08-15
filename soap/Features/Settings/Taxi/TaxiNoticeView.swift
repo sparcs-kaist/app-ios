@@ -49,11 +49,14 @@ struct TaxiNoticeView: View {
         Button {
           selectedNoticeURL = notice.notionURL
         } label: {
-          NavigationLink(value: UUID()) {
+          HStack {
             Text(notice.title)
+            Spacer()
+            Image(systemName: "chevron.right")
+              .foregroundStyle(.secondary)
           }
+          .foregroundStyle(.foreground)
         }
-        .foregroundStyle(.black)
       }
     }
   }
