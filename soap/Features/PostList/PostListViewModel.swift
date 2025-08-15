@@ -23,6 +23,7 @@ protocol PostListViewModelProtocol: Observable {
   func fetchInitialPosts() async
   func loadNextPage() async
   func refreshItem(postID: Int)
+  func removePost(postID: Int)
   func bind()
 }
 
@@ -134,6 +135,13 @@ class PostListViewModel: PostListViewModelProtocol {
         self.posts[idx] = previousPost
         self.state = .loaded(posts: self.posts)
       }
+    }
+  }
+
+  func removePost(postID: Int) {
+    if let idx = self.posts.firstIndex(where: { $0.id == postID }) {
+      self.posts.remove(at: idx)
+      self.state = .loaded(posts: self.posts)
     }
   }
 }

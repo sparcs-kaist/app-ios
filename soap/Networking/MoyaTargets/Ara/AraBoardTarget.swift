@@ -24,6 +24,7 @@ enum AraBoardTarget {
   case downvote(postID: Int)
   case cancelVote(postID: Int)
   case report(postID: Int, type: AraContentReportType)
+  case delete(postID: Int)
 }
 
 extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
@@ -49,6 +50,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/reports/"
     case .uploadImage:
       "/attachments/"
+    case .delete(let postID):
+      "/articles/\(postID)/"
     }
   }
 
@@ -58,6 +61,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       .get
     case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage:
       .post
+    case .delete:
+      .delete
     }
   }
 
@@ -112,6 +117,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
         "type": "others",
         "content": type.rawValue
       ], encoding: JSONEncoding.default)
+    case .delete:
+      return .requestPlain
     }
   }
 

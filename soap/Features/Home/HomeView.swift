@@ -28,8 +28,8 @@ struct HomeView: View {
         }
         .padding(.vertical)
       }
-      .navigationTitle(Text("Home"))
-      .navigationBarTitleDisplayMode(.large)
+      .navigationTitle("My")
+      .toolbarTitleDisplayMode(.inlineLarge)
       .toolbar {
         ToolbarItem {
           Button("Notifications", systemImage: "bell") { }

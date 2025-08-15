@@ -110,6 +110,7 @@ struct TaxiListView: View {
         }
       }
       .navigationTitle("Taxi")
+      .toolbarTitleDisplayMode(.inlineLarge)
       .background(Color.secondarySystemBackground)
       .navigationDestination(isPresented: $showChat) {
         TaxiChatListView()

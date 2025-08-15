@@ -22,6 +22,7 @@ protocol PostViewModelProtocol: Observable {
   func editComment(commentID: Int, content: String) async throws -> AraPostComment
   func report(type: AraContentReportType) async throws
   func summarisedContent() async -> String
+  func deletePost() async throws
 }
 
 @Observable
@@ -189,5 +190,9 @@ class PostViewModel: PostViewModelProtocol {
 
   func summarisedContent() async -> String {
     return await foundationModelsUseCase.summarise(post.content ?? "", maxWords: 50, tone: "concise")
+  }
+
+  func deletePost() async throws {
+    try await araBoardRepository.deletePost(postID: post.id)
   }
 }
