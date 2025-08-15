@@ -16,23 +16,25 @@ struct PostList<Destination: View>: View {
   @State private var isLoadingMore: Bool = false
 
   var body: some View {
-    List {
-      if posts == nil {
-        loadingView
-          .redacted(reason: .placeholder)
-      } else if let posts, posts.isEmpty {
-        ContentUnavailableView(
-          "Nothing Here Yet",
-          systemImage: "questionmark.text.page",
-          description: Text("It looks like there are no posts on this page right now.")
-        )
-      } else if let posts {
-        loadedView(posts)
+    if let posts, posts.isEmpty {
+      ContentUnavailableView(
+        "Nothing Here Yet",
+        systemImage: "questionmark.text.page",
+        description: Text("It looks like there are no posts on this page right now.")
+      )
+    } else {
+      List {
+        if posts == nil {
+          loadingView
+            .redacted(reason: .placeholder)
+        } else if let posts {
+          loadedView(posts)
+        }
       }
-    }
-    .listStyle(.plain)
-    .refreshable {
-      await onRefresh?()
+      .listStyle(.plain)
+      .refreshable {
+        await onRefresh?()
+      }
     }
   }
 

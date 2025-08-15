@@ -1,8 +1,8 @@
 //
-//  PostListViewModel.swift
+//  UserPostListViewModel.swift
 //  soap
 //
-//  Created by Soongyu Kwon on 15/02/2025.
+//  Created by Soongyu Kwon on 16/08/2025.
 //
 
 import SwiftUI
@@ -11,9 +11,9 @@ import Observation
 import Factory
 
 @MainActor
-protocol PostListViewModelProtocol: Observable {
-  var state: PostListViewModel.ViewState { get }
-  var board: AraBoard { get }
+protocol UserPostListViewModelProtocol: Observable {
+  var state: UserPostListViewModel.ViewState { get }
+  var user: AraPostAuthor { get }
   var posts: [AraPost] { get }
   var searchKeyword: String { get set }
 
@@ -28,7 +28,7 @@ protocol PostListViewModelProtocol: Observable {
 }
 
 @Observable
-class PostListViewModel: PostListViewModelProtocol {
+class UserPostListViewModel: UserPostListViewModelProtocol {
   // MARK: - Properties
   enum ViewState: Equatable {
     case loading
@@ -36,7 +36,7 @@ class PostListViewModel: PostListViewModelProtocol {
     case error(message: String)
   }
   var state: ViewState = .loading
-  var board: AraBoard
+  var user: AraPostAuthor
   var posts: [AraPost] = []
 
   // Search Properties
@@ -53,14 +53,14 @@ class PostListViewModel: PostListViewModelProtocol {
   var totalPages: Int = 0
   var pageSize: Int = 30
 
-  //MARK: - Dependencies
+  // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.araBoardRepository
   ) private var araBoardRepository: AraBoardRepositoryProtocol
 
   // MARK: - Initialiser
-  init(board: AraBoard) {
-    self.board = board
+  init(user: AraPostAuthor) {
+    self.user = user
   }
 
   func bind() {
@@ -80,9 +80,10 @@ class PostListViewModel: PostListViewModelProtocol {
   }
 
   func fetchInitialPosts() async {
+    guard let userID = Int(user.id) else { return }
     do {
       let page = try await araBoardRepository.fetchPosts(
-        type: .board(boardID: board.id),
+        type: .user(userID: userID),
         page: 1,
         pageSize: pageSize,
         searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
@@ -97,16 +98,17 @@ class PostListViewModel: PostListViewModelProtocol {
       state = .error(message: error.localizedDescription)
     }
   }
-  
+
   func loadNextPage() async {
+    guard let userID = Int(user.id) else { return }
     guard !isLoadingMore && hasMorePages else { return }
-    
+
     isLoadingMore = true
-    
+
     do {
       let nextPage = currentPage + 1
       let page = try await araBoardRepository.fetchPosts(
-        type: .board(boardID: board.id),
+        type: .user(userID: userID),
         page: nextPage,
         pageSize: pageSize,
         searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
