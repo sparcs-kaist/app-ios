@@ -150,14 +150,7 @@ struct PostView: View {
             }
           }
         }
-
-        Button("Block", systemImage: "person.slash.fill") { }
       }
-      // SUPPORT FOR POST EDIT IS POSTPONED
-      /* else if viewModel.post.isMine == true {*/
-      // show edit post button
-      //            Button("Edit", systemImage: "square.and.pencil") { }
-      //          }
 
       if viewModel.post.isMine == false { Divider () }
 
