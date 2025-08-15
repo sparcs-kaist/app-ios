@@ -32,4 +32,8 @@ class MockPostListViewModel: PostListViewModelProtocol {
   }
 
   func bind() { }
+
+  func removePost(postID: Int) {
+    
+  }
 }

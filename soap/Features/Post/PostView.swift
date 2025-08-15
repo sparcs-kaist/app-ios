@@ -11,6 +11,7 @@ import WebKit
 
 struct PostView: View {
   @State private var viewModel: PostViewModelProtocol
+  @Environment(\.dismiss) private var dismiss
 
   @Environment(\.keyboardShowing) var keyboardShowing
 
@@ -29,8 +30,11 @@ struct PostView: View {
 
   @State private var summarisedContent: String? = nil
 
-  init(post: AraPost) {
+  let onPostDeleted: ((Int) -> Void)?
+
+  init(post: AraPost, onPostDeleted: ((Int) -> Void)? = nil) {
     _viewModel = State(initialValue: PostViewModel(post: post))
+    self.onPostDeleted = onPostDeleted
   }
 
   var body: some View {
@@ -154,7 +158,18 @@ struct PostView: View {
       if viewModel.post.isMine == true { Divider () }
 
       if viewModel.post.isMine == true {
-        Button("Delete", systemImage: "trash", role: .destructive) { }
+        Button("Delete", systemImage: "trash", role: .destructive) {
+          Task {
+            do {
+              try await viewModel.deletePost()
+              onPostDeleted?(viewModel.post.id)
+              dismiss()
+            } catch {
+              // 에러 처리 (필요시 alert 추가)
+              logger.error(error)
+            }
+          }
+        }
       }
     }
   }
@@ -478,7 +493,5 @@ struct PostView: View {
 }
 
 #Preview {
-  NavigationStack {
-    PostView(post: AraPost.mock)
-  }
+  PostView(post: AraPost.mock, onPostDeleted: nil)
 }

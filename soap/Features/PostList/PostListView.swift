@@ -87,7 +87,9 @@ struct PostListView: View {
         .background {
           if !post.isHidden {
             NavigationLink("", destination: {
-              PostView(post: post)
+              PostView(post: post, onPostDeleted: { deletedPostID in
+                viewModel.removePost(postID: deletedPostID)
+              })
                 .onDisappear {
                   // on dismiss, refresh this item
                   viewModel.refreshItem(postID: post.id)
