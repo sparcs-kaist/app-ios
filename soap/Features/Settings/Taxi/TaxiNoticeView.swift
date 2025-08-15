@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TaxiNoticeView: View {
   @State private var vm: TaxiNoticeViewModelProtocol
-  @State private var showNotice: Bool = false
+  @State private var selectedNoticeURL: URL?
   
   init(vm: TaxiNoticeViewModelProtocol = TaxiNoticeViewModel()) {
     _vm = State(initialValue: vm)
@@ -29,6 +29,9 @@ struct TaxiNoticeView: View {
     .task {
         await vm.fetchNotices()
     }
+    .fullScreenCover(item: $selectedNoticeURL) {
+      SafariViewWrapper(url: $0)
+    }
   }
   
   private var loadingView: some View {
@@ -44,14 +47,11 @@ struct TaxiNoticeView: View {
     List {
       ForEach(vm.notices) { notice in
         Button {
-          showNotice = true
+          selectedNoticeURL = notice.notionURL
         } label: {
           NavigationLink(value: UUID()) {
             Text(notice.title)
           }
-        }
-        .fullScreenCover(isPresented: $showNotice) {
-          SafariViewWrapper(url: notice.notionURL)
         }
         .foregroundStyle(.black)
       }
