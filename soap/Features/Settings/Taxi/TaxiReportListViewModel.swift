@@ -9,7 +9,7 @@ import Foundation
 import Factory
 
 @MainActor
-protocol TaxiReportDetailViewModelProtocol: Observable {
+protocol TaxiReportListViewModelProtocol: Observable {
   var state: TaxiReportListViewModel.ViewState { get set }
   var reports: (reported: [TaxiReport], reporting: [TaxiReport]) { get set }
   
@@ -17,7 +17,7 @@ protocol TaxiReportDetailViewModelProtocol: Observable {
 }
 
 @MainActor
-class TaxiReportListViewModel: TaxiReportDetailViewModelProtocol, Observable {
+class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
   enum ViewState {
     case loading
     case loaded

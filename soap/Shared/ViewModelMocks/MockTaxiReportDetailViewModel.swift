@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-class MockTaxiReportDetailViewModel: TaxiReportDetailViewModelProtocol, Observable {
+class MockTaxiReportDetailViewModel: TaxiReportListViewModelProtocol, Observable {
   var state: TaxiReportListViewModel.ViewState = .loading
   var reports: (reported: [TaxiReport], reporting: [TaxiReport]) = (reported: [], reporting: [])
   

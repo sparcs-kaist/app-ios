@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct TaxiReportDetailView: View {
+struct TaxiReportListView: View {
   @State private var taxiReportType: TaxiReport.ReportType = .reported
-  @State private var vm: TaxiReportDetailViewModelProtocol
+  @State private var vm: TaxiReportListViewModelProtocol
   
-  init(vm: TaxiReportDetailViewModelProtocol = TaxiReportListViewModel()) {
+  init(vm: TaxiReportListViewModelProtocol = TaxiReportListViewModel()) {
     _vm = State(initialValue: vm)
   }
   
@@ -77,7 +77,7 @@ struct TaxiReportDetailView: View {
   let vm = MockTaxiReportDetailViewModel()
   vm.state = .loading
   
-  return TaxiReportDetailView(vm: vm)
+  return TaxiReportListView(vm: vm)
 }
 
 #Preview("Loaded State") {
@@ -85,12 +85,12 @@ struct TaxiReportDetailView: View {
   vm.reports = (reported: [TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date())], reporting: [TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date())])
   vm.state = .loaded
   
-  return TaxiReportDetailView(vm: vm)
+  return TaxiReportListView(vm: vm)
 }
 
 #Preview("Error State") {
   let vm = MockTaxiReportDetailViewModel()
   vm.state = .error(message: "Network error")
   
-  return TaxiReportDetailView(vm: vm)
+  return TaxiReportListView(vm: vm)
 }
