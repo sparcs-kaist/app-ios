@@ -26,6 +26,7 @@ struct BoardListView: View {
       .listStyle(.sidebar)
       .disabled(viewModel.state == .loading)
       .navigationTitle("Boards")
+      .toolbarTitleDisplayMode(.inlineLarge)
       .task {
         await viewModel.fetchBoards()
       }
