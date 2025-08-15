@@ -32,7 +32,8 @@ struct TaxiSettingsView: View {
         Button("Done", systemImage: "checkmark", role: .confirm) {
           dismiss()
           Task {
-            await vm.taxiEditBankAccount(account: "\(vm.taxiBankName!) \(vm.taxiBankNumber)")
+            guard let bankName = vm.taxiBankName else { return }
+            await vm.taxiEditBankAccount(account: "\(bankName) \(vm.taxiBankNumber)")
           }
         }
         .disabled(!isValid)
