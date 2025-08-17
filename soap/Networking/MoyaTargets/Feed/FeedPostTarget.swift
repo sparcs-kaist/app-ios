@@ -1,0 +1,77 @@
+//
+//  FeedPostTarget.swift
+//  soap
+//
+//  Created by Soongyu Kwon on 17/08/2025.
+//
+
+import Foundation
+import Moya
+
+enum FeedPostTarget {
+  case fetchPosts(cursor: String?, limit: Int)
+  case writePost(request: FeedPostRequestDTO)
+  case delete(postID: String)
+  case vote(postID: String, type: FeedVoteType)
+  case deleteVote(postID: String)
+}
+
+extension FeedPostTarget: TargetType, AccessTokenAuthorizable {
+  var baseURL: URL {
+    Constants.feedBackendURL
+  }
+
+  var path: String {
+    switch self {
+    case .fetchPosts, .writePost:
+      "/posts"
+    case .delete(let postID):
+      "/posts/\(postID)"
+    case .vote(let postID, _):
+      "/posts/\(postID)/vote"
+    case .deleteVote(let postID):
+      "/posts/\(postID)/vote"
+    }
+  }
+
+  var method: Moya.Method {
+    switch self {
+    case .fetchPosts:
+      .get
+    case .writePost, .vote:
+      .post
+    case .delete, .deleteVote:
+      .delete
+    }
+  }
+
+  var task: Moya.Task {
+    switch self {
+    case .fetchPosts(let cursor, let limit):
+      var parameters: [String: Any] = [:]
+      if let cursor {
+        parameters["cursor"] = cursor
+      }
+      parameters["limit"] = limit
+      return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+    case .writePost(let request):
+      return .requestJSONEncodable(request)
+    case .delete(_):
+      return .requestPlain
+    case .vote(let postID, let type):
+      return .requestParameters(parameters: ["vote": type.rawValue], encoding: JSONEncoding.default)
+    case .deleteVote(_):
+      return .requestPlain
+    }
+  }
+
+  var headers: [String: String]? {
+    [
+      "Content-Type": "application/json"
+    ]
+  }
+
+  var authorizationType: Moya.AuthorizationType? {
+    .bearer
+  }
+}

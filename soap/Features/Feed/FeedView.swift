@@ -24,6 +24,14 @@ struct FeedView: View {
       .toolbarTitleDisplayMode(.inlineLarge)
       .toolbar {
         ToolbarItem {
+          Button("Write", systemImage: "square.and.pencil") {
+
+          }
+        }
+
+        ToolbarSpacer(.fixed)
+        
+        ToolbarItem {
           Menu("More", systemImage: "ellipsis") {
             Button("Notifications", systemImage: "bell") { }
 
@@ -42,14 +50,6 @@ struct FeedView: View {
                 try await authUseCase.signOut()
               }
             }
-          }
-        }
-
-        ToolbarSpacer(.fixed)
-
-        ToolbarItem {
-          Button("Write", systemImage: "square.and.pencil") {
-
           }
         }
       }
