@@ -73,6 +73,15 @@ extension Container {
     }
   }
 
+  // MARK: Feed
+  var feedUserRepository: Factory<FeedUserRepositoryProtocol> {
+    self {
+      FeedUserRepository(provider: MoyaProvider<FeedUserTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -95,7 +104,8 @@ extension Container {
       @MainActor in AuthUseCase(
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve(),
-        araUserRepository: self.araUserRepository.resolve()
+        araUserRepository: self.araUserRepository.resolve(),
+        feedUserRepository: self.feedUserRepository.resolve()
       )
     }.singleton
   }
