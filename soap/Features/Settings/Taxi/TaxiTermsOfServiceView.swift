@@ -12,7 +12,7 @@ struct TaxiTermsOfServiceView: View {
   
   var body: some View {
     VStack {
-      ScrollableTextView("Taxi Terms of Service")
+      ScrollableTextView("taxi_terms_of_service")
       HStack {
         Spacer()
         Button("Agree") { }

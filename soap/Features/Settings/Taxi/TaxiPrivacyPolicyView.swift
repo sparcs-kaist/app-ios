@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TaxiPrivacyPolicyView: View {
   var body: some View {
-    ScrollableTextView("Taxi Privacy Policy").padding(.horizontal)
+    ScrollableTextView("taxi_privacy_policy").padding(.horizontal)
   }
 }
 

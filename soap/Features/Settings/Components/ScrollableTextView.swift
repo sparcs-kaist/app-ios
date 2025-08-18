@@ -8,23 +8,42 @@
 import SwiftUI
 
 struct ScrollableTextView: View {
-  var text: String
+  var text: String?
   
-  init(_ text: String) {
-    self.text = text
+  init(_ file: String) {
+    self.text = loadMarkdown(from: file)
   }
   
   var body: some View {
+    if let text = text {
+      bodyText(text: text)
+    } else {
+      ContentUnavailableView("Failed to load content", systemImage: "exclamationmark.triangle.text.page")
+    }
+  }
+  
+  private func bodyText(text: String) -> some View {
     ScrollView {
       HStack {
-        Text(text)
+        Text(LocalizedStringKey(text))
           .multilineTextAlignment(.leading)
         Spacer()
       }
     }
   }
+  
+  func loadMarkdown(from file: String) -> String? {
+    guard let url = Bundle.main.url(forResource: file, withExtension: "md") else {
+      return nil
+    }
+    return try? String(contentsOf: url, encoding: .utf8)
+  }
 }
 
-#Preview {
-  ScrollableTextView("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eu interdum magna, eu tristique felis. Mauris in nisi nec leo auctor dictum et sed nisi. Integer porttitor blandit nunc, sit amet lobortis leo ornare sed. Vestibulum mattis at ante blandit sagittis. Duis interdum nisi ac quam dignissim ultrices. Vivamus aliquam.").padding()
+#Preview("Loaded State") {
+  ScrollableTextView("taxi_privacy_policy").padding()
+}
+
+#Preview("Error State") {
+  ScrollableTextView("").padding()
 }
