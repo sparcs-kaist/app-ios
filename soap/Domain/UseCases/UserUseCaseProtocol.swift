@@ -14,4 +14,6 @@ protocol UserUseCaseProtocol: Sendable {
   func fetchUsers() async
   func fetchAraUser() async throws
   func fetchTaxiUser() async throws
+  
+  func updateAraUser(allowNSFW: Bool, allowPolitical: Bool) async throws
 }

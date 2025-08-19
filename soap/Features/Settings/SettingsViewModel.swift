@@ -29,6 +29,7 @@ class SettingsViewModel: SettingsViewModelProtocol {
   let otlMajorList: [String] = ["School of Computer Science", "School of Electrical Engineering", "School of Business"]
   
   // MARK: - Properties
+  var araUser: AraMe?
   var taxiUser: TaxiUser?
   var taxiState: ViewState = .loading
   
@@ -37,6 +38,20 @@ class SettingsViewModel: SettingsViewModelProtocol {
   @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
   
   // MARK: - Functions
+  func fetchAraUser() async {
+    self.araUser = await userUseCase.araUser
+    araAllowNSFWPosts = araUser?.allowNSFW ?? false
+    araAllowPoliticalPosts = araUser?.allowPolitical ?? false
+  }
+  
+  func updateAraUser(allowNSFW: Bool, allowPolitical: Bool) async {
+    do {
+      try await userUseCase.updateAraUser(allowNSFW: allowNSFW, allowPolitical: allowPolitical)
+    } catch {
+      logger.debug("Failed to update ara user: \(error)")
+    }
+  }
+  
   func fetchTaxiUser() async {
     await userUseCase.fetchUsers()
     self.taxiUser = await userUseCase.taxiUser

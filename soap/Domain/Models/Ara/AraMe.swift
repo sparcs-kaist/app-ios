@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct AraMe {
+struct AraMe: Identifiable {
+  let id: Int
   let allowNSFW: Bool
   let allowPolitical: Bool
 }

@@ -29,6 +29,14 @@ struct AraSettingsView: View {
         }
       }
     }
+    .task {
+      await vm.fetchAraUser()
+    }
+    .onChange(of: [vm.araAllowNSFWPosts, vm.araAllowPoliticalPosts]) {
+      Task {
+        await vm.updateAraUser(allowNSFW: vm.araAllowNSFWPosts, allowPolitical: vm.araAllowPoliticalPosts)
+      }
+    }
   }
 }
 

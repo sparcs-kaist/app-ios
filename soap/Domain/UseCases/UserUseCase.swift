@@ -53,4 +53,9 @@ final class UserUseCase: UserUseCaseProtocol {
     await userStorage.setTaxiUser(user)
     logger.debug(user)
   }
+  
+  func updateAraUser(allowNSFW: Bool, allowPolitical: Bool) async throws {
+    logger.debug("Updating Ara User Visibility Setting")
+    try await araUserRepository.updateVisibility(id: araUser?.id ?? -1, allowNSFW: allowNSFW, allowPolitical: allowPolitical)
+  }
 }
