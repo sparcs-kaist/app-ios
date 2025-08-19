@@ -15,10 +15,14 @@ protocol SettingsViewModelProtocol: Observable {
   var taxiBankNumber: String { get set }
   var araAllowNSFWPosts: Bool { get set}
   var araAllowPoliticalPosts: Bool { get set }
-  var araBlockedUsers: [String] { get set }
+  var araNickname: String { get set }
   var otlMajor: String { get set }
   
   var otlMajorList: [String] { get }
+  
+  func fetchAraUser() async
+  func updateAraNickname() async throws
+  func updateAraPostVisibility() async
   
   func fetchTaxiUser() async
   func taxiEditBankAccount(account: String) async

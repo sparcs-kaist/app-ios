@@ -14,7 +14,7 @@ protocol AraUserRepositoryProtocol: Sendable {
   func register(ssoInfo: String) async throws -> AraSignInResponseDTO
   func agreeTOS(userID: Int) async throws
   func fetchMe() async throws -> AraMe
-  func updateVisibility(id: Int, allowNSFW: Bool, allowPolitical: Bool) async throws
+  func updateMe(id: Int, params: [String: Any]) async throws
 }
 
 final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
@@ -45,8 +45,8 @@ final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
     return userInfo
   }
   
-  func updateVisibility(id: Int, allowNSFW: Bool, allowPolitical: Bool) async throws {
-    let response = try await provider.request(.patchMe(userID: id, allowNSFW: allowNSFW, allowPolitical: allowPolitical))
+  func updateMe(id: Int, params: [String: Any]) async throws {
+    let response = try await provider.request(.updateUser(userID: id, params: params))
     _ = try response.filterSuccessfulStatusCodes()
   }
 }

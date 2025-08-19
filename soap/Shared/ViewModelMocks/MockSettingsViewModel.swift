@@ -14,11 +14,23 @@ class MockSettingsViewModel: SettingsViewModelProtocol {
   var taxiState: SettingsViewModel.ViewState = .loading
   var taxiBankName: String?
   var taxiBankNumber: String = ""
+  var araNickname: String = "유능한 시조새_0b4c"
   var araAllowNSFWPosts: Bool = false
   var araAllowPoliticalPosts: Bool = false
-  var araBlockedUsers: [String] = ["유능한 시조새_0b4c"]
   var otlMajor: String = "School of Computer Science"
   let otlMajorList: [String] = ["School of Computer Science", "School of Electrical Engineering", "School of Business"]
+  
+  func fetchAraUser() async {
+    // Mock implementation
+  }
+  
+  func updateAraNickname() async throws {
+    // Mock implementation
+  }
+  
+  func updateAraPostVisibility() async {
+    // Mock implementation
+  }
   
   func fetchTaxiUser() async {
     // Mock implementation

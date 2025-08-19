@@ -9,6 +9,7 @@ import Foundation
 
 struct AraMe: Identifiable {
   let id: Int
+  let nickname: String
   let allowNSFW: Bool
   let allowPolitical: Bool
 }

@@ -9,11 +9,16 @@ import SwiftUI
 
 struct AraSettingsView: View {
   @Binding var vm: SettingsViewModelProtocol
+  @State private var showNicknameAlert: Bool = false
   
   var body: some View {
     List {
       Section(header: Text("Profile")) {
-        RowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
+        TextField("Nickname", text: $vm.araNickname)
+        .autocorrectionDisabled()
+        .onSubmit {
+          updateAraNickname()
+        }
       }
 
       Section(header: Text("Posts")) {
@@ -26,7 +31,24 @@ struct AraSettingsView: View {
     }
     .onChange(of: [vm.araAllowNSFWPosts, vm.araAllowPoliticalPosts]) {
       Task {
-        await vm.updateAraUser(allowNSFW: vm.araAllowNSFWPosts, allowPolitical: vm.araAllowPoliticalPosts)
+        await vm.updateAraPostVisibility()
+      }
+    }
+    .alert("Error", isPresented: $showNicknameAlert) {
+      
+    } message: {
+      Text("Nicknames can only be changed every 3 months. Please try again later.")
+    }
+  }
+  
+  func updateAraNickname() {
+    Task {
+      do {
+        try await vm.updateAraNickname()
+      } catch {
+        if let error = error as? SettingsViewModel.SettingsError, error == .araNicknameInterval {
+          showNicknameAlert = true
+        }
       }
     }
   }

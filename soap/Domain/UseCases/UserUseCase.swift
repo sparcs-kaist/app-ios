@@ -54,8 +54,8 @@ final class UserUseCase: UserUseCaseProtocol {
     logger.debug(user)
   }
   
-  func updateAraUser(allowNSFW: Bool, allowPolitical: Bool) async throws {
-    logger.debug("Updating Ara User Visibility Setting")
-    try await araUserRepository.updateVisibility(id: araUser?.id ?? -1, allowNSFW: allowNSFW, allowPolitical: allowPolitical)
+  func updateAraUser(params: [String: Any]) async throws {
+    logger.debug("Updating Ara User Information: \(params)")
+    try await araUserRepository.updateMe(id: araUser?.id ?? -1, params: params)
   }
 }

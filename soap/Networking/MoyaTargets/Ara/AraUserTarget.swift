@@ -12,7 +12,7 @@ enum AraUserTarget {
   case register(ssoInfo: String)
   case agreeTOS(userID: Int)
   case fetchMe
-  case patchMe(userID: Int, allowNSFW: Bool, allowPolitical: Bool)
+  case updateUser(userID: Int, params: [String: Any])
 }
 
 extension AraUserTarget: TargetType, AccessTokenAuthorizable {
@@ -28,7 +28,7 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
       "/user_profiles/\(userID)/agree_terms_of_service/"
     case .fetchMe:
       "/me"
-    case .patchMe(let userID, _, _):
+    case .updateUser(let userID, _):
       "/user_profiles/\(userID)/"
     }
   }
@@ -37,7 +37,7 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .register:
       .post
-    case .agreeTOS, .patchMe:
+    case .agreeTOS, .updateUser:
         .patch
     case .fetchMe:
       .get
@@ -50,8 +50,8 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
         .requestParameters(parameters: ["ssoInfo": ssoInfo], encoding: JSONEncoding.default)
     case .agreeTOS, .fetchMe:
         .requestPlain
-    case .patchMe(_, let allowNSFW, let allowPolitical):
-        .requestParameters(parameters: ["see_sexual": allowNSFW, "see_social": allowPolitical], encoding: JSONEncoding.default)
+    case .updateUser(_, let params):
+        .requestParameters(parameters: params, encoding: JSONEncoding.default)
     }
   }
 

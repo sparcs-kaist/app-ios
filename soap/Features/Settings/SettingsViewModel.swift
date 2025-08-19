@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import Factory
 import Observation
+import Moya
 
 @MainActor
 @Observable
@@ -17,12 +18,15 @@ class SettingsViewModel: SettingsViewModelProtocol {
     case loading
     case loaded
   }
+  enum SettingsError: Error {
+    case araNicknameInterval
+  }
   
   // MARK: - Mock data
   // TODO: implement API call & data structures
   var araAllowNSFWPosts: Bool = false
   var araAllowPoliticalPosts: Bool = false
-  var araBlockedUsers: [String] = ["유능한 시조새_0b4c"]
+  var araNickname: String = ""
   var taxiBankName: String?
   var taxiBankNumber: String = ""
   var otlMajor: String = "School of Computer Science"
@@ -42,13 +46,25 @@ class SettingsViewModel: SettingsViewModelProtocol {
     self.araUser = await userUseCase.araUser
     araAllowNSFWPosts = araUser?.allowNSFW ?? false
     araAllowPoliticalPosts = araUser?.allowPolitical ?? false
+    araNickname = araUser?.nickname ?? ""
   }
   
-  func updateAraUser(allowNSFW: Bool, allowPolitical: Bool) async {
+  func updateAraNickname() async throws {
     do {
-      try await userUseCase.updateAraUser(allowNSFW: allowNSFW, allowPolitical: allowPolitical)
+      try await userUseCase.updateAraUser(params: ["nickname": araNickname])
     } catch {
-      logger.debug("Failed to update ara user: \(error)")
+      logger.debug("Failed to update ara nickname: \(error)")
+      if let error = error as? MoyaError, error.response?.statusCode == 400 {
+        throw SettingsError.araNicknameInterval
+      }
+    }
+  }
+  
+  func updateAraPostVisibility() async {
+    do {
+      try await userUseCase.updateAraUser(params: ["see-sexual": araAllowNSFWPosts, "see-social": araAllowPoliticalPosts])
+    } catch {
+      logger.debug("Failed to update ara post visibility: \(error)")
     }
   }
   
