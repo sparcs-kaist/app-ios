@@ -9,10 +9,12 @@ import Foundation
 import Factory
 
 final class UserUseCase: UserUseCaseProtocol {
+  private let araUserRepository: AraUserRepositoryProtocol
   private let taxiUserRepository: TaxiUserRepositoryProtocol
   private let userStorage: UserStorageProtocol
 
-  init(taxiUserRepository: TaxiUserRepositoryProtocol, userStorage: UserStorageProtocol) {
+  init(araUserRepository: AraUserRepositoryProtocol, taxiUserRepository: TaxiUserRepositoryProtocol, userStorage: UserStorageProtocol) {
+    self.araUserRepository = araUserRepository
     self.taxiUserRepository = taxiUserRepository
     self.userStorage = userStorage
     logger.debug("Fetching Users")
@@ -21,18 +23,30 @@ final class UserUseCase: UserUseCaseProtocol {
     }
   }
 
+  var araUser: AraMe? {
+    get async { await userStorage.getAraUser() }
+  }
+  
   var taxiUser: TaxiUser? {
     get async { await userStorage.getTaxiUser() }
   }
 
   func fetchUsers() async {
     do {
+      try await fetchAraUser()
       try await fetchTaxiUser()
     } catch {
       logger.error(error)
     }
   }
 
+  func fetchAraUser() async throws {
+    logger.debug("Fetching Ara User")
+    let user = try await araUserRepository.fetchMe()
+    await userStorage.setAraUser(user)
+    logger.debug(user)
+  }
+  
   func fetchTaxiUser() async throws {
     logger.debug("Fetching Taxi User")
     let user = try await taxiUserRepository.fetchUser()

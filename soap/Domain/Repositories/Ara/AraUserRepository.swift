@@ -13,6 +13,7 @@ import Moya
 protocol AraUserRepositoryProtocol: Sendable {
   func register(ssoInfo: String) async throws -> AraSignInResponseDTO
   func agreeTOS(userID: Int) async throws
+  func fetchMe() async throws -> AraMe
 }
 
 final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
@@ -33,5 +34,13 @@ final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
   func agreeTOS(userID: Int) async throws {
     let response = try await provider.request(.agreeTOS(userID: userID))
     _ = try response.filterSuccessfulStatusCodes()
+  }
+  
+  func fetchMe() async throws -> AraMe {
+    let response = try await provider.request(.fetchMe)
+    let _ = try response.filterSuccessfulStatusCodes()
+    let userInfo: AraMe = try response.map(AraMeResponseDTO.self).toModel()
+    
+    return userInfo
   }
 }
