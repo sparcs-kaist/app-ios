@@ -20,14 +20,6 @@ struct AraSettingsView: View {
         Toggle("Allow NSFW", isOn: $vm.araAllowNSFWPosts)
         Toggle("Allow Political", isOn: $vm.araAllowPoliticalPosts)
       }
-
-      Section {
-        NavigationLink {
-          AraBlockedUsersView(blockedUsers: vm.araBlockedUsers)
-        } label: {
-          RowElementView(title: "Blocked Users", content: "\(vm.araBlockedUsers.count)")
-        }
-      }
     }
     .task {
       await vm.fetchAraUser()
