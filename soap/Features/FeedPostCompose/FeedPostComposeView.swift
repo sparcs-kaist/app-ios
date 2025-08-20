@@ -27,6 +27,15 @@ struct FeedPostComposeView: View {
             .writingToolsBehavior(.complete)
             .padding(.horizontal)
 
+          HStack {
+            Spacer()
+
+            Text("\(viewModel.text.count)/280")
+              .font(.footnote)
+              .foregroundStyle(.secondary)
+          }
+          .padding(.horizontal)
+
           if !viewModel.selectedImages.isEmpty {
             FeedPostPhotoItemStrip(images: $viewModel.selectedImages)
               .padding(.top)
