@@ -7,19 +7,26 @@
 
 import SwiftUI
 import Factory
+import NukeUI
 
 struct FeedView: View {
-  @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
+  @State private var viewModel: FeedViewModelProtocol = FeedViewModel()
+
   @State private var showSettingsSheet: Bool = false
 
   var body: some View {
     NavigationStack {
-      List {
-        ForEach(0..<100) { _ in
-          Text("hello")
+      ScrollView {
+        LazyVStack(spacing: 0) {
+          ForEach(.constant(FeedPost.mockList)) { $post in
+            FeedPostRow(post: $post)
+              .padding(.vertical)
+
+            Divider()
+              .padding(.horizontal)
+          }
         }
       }
-      .listStyle(.plain)
       .navigationTitle("Feed")
       .toolbarTitleDisplayMode(.inlineLarge)
       .toolbar {
@@ -47,7 +54,7 @@ struct FeedView: View {
               role: .destructive
             ) {
               Task {
-                try await authUseCase.signOut()
+                try await viewModel.signOut()
               }
             }
           }
@@ -60,6 +67,8 @@ struct FeedView: View {
     }
   }
 }
+
+
 
 #Preview {
   FeedView()

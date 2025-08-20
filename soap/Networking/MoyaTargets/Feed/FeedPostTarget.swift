@@ -58,7 +58,7 @@ extension FeedPostTarget: TargetType, AccessTokenAuthorizable {
       return .requestJSONEncodable(request)
     case .delete(_):
       return .requestPlain
-    case .vote(let postID, let type):
+    case .vote(_, let type):
       return .requestParameters(parameters: ["vote": type.rawValue], encoding: JSONEncoding.default)
     case .deleteVote(_):
       return .requestPlain

@@ -54,7 +54,7 @@ struct PostListRow: View {
         Spacer()
         Text("\(post.views) views")
 
-        Text(post.createdAt.timeAgoDisplay())
+        Text(post.createdAt.timeAgoDisplay)
 
         Image(systemName: "chevron.right")
           .opacity(post.isHidden ? 0 : 1)

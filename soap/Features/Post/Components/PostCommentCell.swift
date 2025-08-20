@@ -98,7 +98,7 @@ struct PostCommentCell: View {
       Text(comment.author.profile.nickname)
         .fontWeight(.medium)
 
-      Text(comment.createdAt.relativeTimeString)
+      Text(comment.createdAt.timeAgoDisplay)
         .font(.caption)
         .foregroundStyle(.secondary)
 
