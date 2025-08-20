@@ -16,7 +16,7 @@ protocol FeedPostComposeViewModelProtocol: Observable {
   var text: String { get  set }
   var selectedComposeType: FeedPostComposeViewModel.ComposeType { get set }
   var selectedItems: [PhotosPickerItem] { get set }
-  var selectedImages: [FeedPostPhotoItem] { get }
+  var selectedImages: [FeedPostPhotoItem] { get set }
 
   func fetchFeedUser() async
 }
@@ -24,8 +24,8 @@ protocol FeedPostComposeViewModelProtocol: Observable {
 struct FeedPostPhotoItem: Identifiable, Hashable {
   let id: String
   let image: UIImage
-  let spoiler: Bool
-  let description: String
+  var spoiler: Bool
+  var description: String
 }
 
 @Observable

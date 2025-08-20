@@ -20,12 +20,19 @@ struct FeedPostComposeView: View {
       ScrollView {
         VStack(alignment: .leading) {
           header
+            .padding(.horizontal)
 
           TextField("What's happening?", text: $viewModel.text, axis: .vertical)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
+            .padding(.horizontal)
+
+          if !viewModel.selectedImages.isEmpty {
+            FeedPostPhotoItemStrip(images: $viewModel.selectedImages)
+              .padding(.top)
+          }
         }
-        .padding()
+        .padding(.vertical)
       }
       .navigationTitle("Write")
       .navigationBarTitleDisplayMode(.inline)
