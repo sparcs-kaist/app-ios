@@ -82,6 +82,14 @@ extension Container {
     }
   }
 
+  var feedPostRepository: Factory<FeedPostRepositoryProtocol> {
+    self {
+      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {

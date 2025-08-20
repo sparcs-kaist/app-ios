@@ -11,7 +11,7 @@ import Foundation
 import Moya
 
 protocol FeedPostRepositoryProtocol: Sendable {
-
+  func fetchPosts(cursor: String?, page: Int) async throws -> FeedPostPage
 }
 
 actor FeedPostRepository: FeedPostRepositoryProtocol {

@@ -18,17 +18,39 @@ struct FeedView: View {
     NavigationStack {
       ScrollView {
         LazyVStack(spacing: 0) {
-          ForEach(.constant(FeedPost.mockList)) { $post in
-            FeedPostRow(post: $post)
-              .padding(.vertical)
+          switch viewModel.state {
+          case .loading:
+            ForEach(.constant(FeedPost.mockList)) { $post in
+              FeedPostRow(post: $post)
+                .padding(.vertical)
 
-            Divider()
-              .padding(.horizontal)
+              Divider()
+                .padding(.horizontal)
+            }
+            .redacted(reason: .placeholder)
+          case .loaded:
+            ForEach($viewModel.posts) { $post in
+              FeedPostRow(post: $post)
+                .padding(.vertical)
+
+              Divider()
+                .padding(.horizontal)
+            }
+          case .error(let message):
+            ContentUnavailableView(
+              "Error",
+              systemImage: "questionmark.text.page",
+              description: Text(message)
+            )
           }
         }
       }
+      .disabled(viewModel.state == .loading)
       .navigationTitle("Feed")
       .toolbarTitleDisplayMode(.inlineLarge)
+      .task {
+        await viewModel.fetchInitialData()
+      }
       .toolbar {
         ToolbarItem {
           Button("Write", systemImage: "square.and.pencil") {
