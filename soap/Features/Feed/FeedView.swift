@@ -11,8 +11,10 @@ import NukeUI
 
 struct FeedView: View {
   @State private var viewModel: FeedViewModelProtocol = FeedViewModel()
+  @Namespace private var namespace
 
   @State private var showSettingsSheet: Bool = false
+  @State private var showComposeView: Bool = false
 
   var body: some View {
     NavigationStack {
@@ -54,9 +56,10 @@ struct FeedView: View {
       .toolbar {
         ToolbarItem {
           Button("Write", systemImage: "square.and.pencil") {
-
+            showComposeView = true
           }
         }
+        .matchedTransitionSource(id: "ComposeView", in: namespace)
 
         ToolbarSpacer(.fixed)
         
@@ -85,6 +88,10 @@ struct FeedView: View {
       .sheet(isPresented: $showSettingsSheet) {
         SettingsView()
           .presentationDragIndicator(.visible)
+      }
+      .sheet(isPresented: $showComposeView) {
+        FeedPostComposeView()
+          .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
       }
     }
   }
