@@ -7,10 +7,13 @@
 
 import SwiftUI
 import NukeUI
+import PhotosUI
 
 struct FeedPostComposeView: View {
   @State private var viewModel: FeedPostComposeViewModelProtocol = FeedPostComposeViewModel()
   @Environment(\.dismiss) private var dismiss
+
+  @State private var showPhotosPicker: Bool = false
 
   var body: some View {
     NavigationStack {
@@ -37,10 +40,27 @@ struct FeedPostComposeView: View {
           Button("Done", systemImage: "arrow.up", role: .confirm) { }
         }
       }
+      .toolbar {
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+
+        ToolbarItem(placement: .bottomBar) {
+          Button("Photo Library", systemImage: "photo.on.rectangle") {
+            showPhotosPicker = true
+          }
+        }
+      }
     }
     .task {
       await viewModel.fetchFeedUser()
     }
+    .photosPicker(
+      isPresented: $showPhotosPicker,
+      selection: $viewModel.selectedItems,
+      maxSelectionCount: 10,
+      selectionBehavior: .ordered,
+      matching: .images,
+      photoLibrary: .shared()
+    )
   }
 
   var header: some View {
