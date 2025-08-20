@@ -10,10 +10,16 @@ import Factory
 
 final class UserUseCase: UserUseCaseProtocol {
   private let taxiUserRepository: TaxiUserRepositoryProtocol
+  private let feedUserRepository: FeedUserRepositoryProtocol
   private let userStorage: UserStorageProtocol
 
-  init(taxiUserRepository: TaxiUserRepositoryProtocol, userStorage: UserStorageProtocol) {
+  init(
+    taxiUserRepository: TaxiUserRepositoryProtocol,
+    feedUserRepository: FeedUserRepositoryProtocol,
+    userStorage: UserStorageProtocol
+  ) {
     self.taxiUserRepository = taxiUserRepository
+    self.feedUserRepository = feedUserRepository
     self.userStorage = userStorage
     logger.debug("Fetching Users")
     Task {
@@ -25,9 +31,15 @@ final class UserUseCase: UserUseCaseProtocol {
     get async { await userStorage.getTaxiUser() }
   }
 
+  var feedUser: FeedUser? {
+    get async { await userStorage.getFeedUser() }
+  }
+
   func fetchUsers() async {
     do {
-      try await fetchTaxiUser()
+      async let taxiUserTask: () = fetchTaxiUser()
+      async let feedUserTask: () = fetchFeedUser()
+      _ = try await (taxiUserTask, feedUserTask)
     } catch {
       logger.error(error)
     }
@@ -37,6 +49,13 @@ final class UserUseCase: UserUseCaseProtocol {
     logger.debug("Fetching Taxi User")
     let user = try await taxiUserRepository.fetchUser()
     await userStorage.setTaxiUser(user)
+    logger.debug(user)
+  }
+
+  func fetchFeedUser() async throws {
+    logger.debug("Fetching Feed User")
+    let user = try await feedUserRepository.getUser()
+    await userStorage.setFeedUser(user)
     logger.debug(user)
   }
 }

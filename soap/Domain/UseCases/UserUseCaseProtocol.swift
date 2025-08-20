@@ -9,7 +9,9 @@ import Foundation
 
 protocol UserUseCaseProtocol: Sendable {
   var taxiUser: TaxiUser? { get async }
+  var feedUser: FeedUser? { get async }
 
   func fetchUsers() async
   func fetchTaxiUser() async throws
+  func fetchFeedUser() async throws
 }

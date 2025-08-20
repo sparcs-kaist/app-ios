@@ -122,6 +122,7 @@ extension Container {
     self {
       UserUseCase(
         taxiUserRepository: self.taxiUserRepository.resolve(),
+        feedUserRepository: self.feedUserRepository.resolve(),
         userStorage: self.userStorage.resolve()
       )
     }.singleton
