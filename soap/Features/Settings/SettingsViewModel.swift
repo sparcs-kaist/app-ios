@@ -34,6 +34,7 @@ class SettingsViewModel: SettingsViewModelProtocol {
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
   
   // MARK: - Functions
   func fetchTaxiUser() async {
@@ -45,6 +46,10 @@ class SettingsViewModel: SettingsViewModelProtocol {
   }
   
   func taxiEditBankAccount(account: String) async {
-    await userUseCase.taxiEditAccount(account: account)
+    do {
+      try await taxiUserRepository.editBankAccount(account: account)
+    } catch {
+      logger.debug("Failed to edit bank account: \(error.localizedDescription)")
+    }
   }
 }

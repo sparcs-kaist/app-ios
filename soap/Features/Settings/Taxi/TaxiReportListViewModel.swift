@@ -29,12 +29,12 @@ class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
   var reports: (reported: [TaxiReport], reporting: [TaxiReport]) = (reported: [], reporting: [])
   
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
   
   // MARK: - Functions
   func fetchReports() async {
     do {
-      reports = try await userUseCase.fetchTaxiReports()
+      reports = try await taxiUserRepository.fetchReports()
       state = .loaded
     } catch {
       logger.debug(error)
