@@ -52,19 +52,18 @@ struct TaxiSettingsView: View {
   var loadedView: some View {
     Section(header: Text("Profile")) {
       RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
-      HStack(alignment: .top) {
-        VStack(alignment: .trailing) {
-          Picker("Bank Account", selection: $vm.taxiBankName) {
-            Text("Select Bank").tag(Optional<String>(nil))
-            ForEach(Constants.taxiBankNameList, id: \.self) {
-              Text($0).tag($0)
-            }
-          }
-          Spacer()
-          TextField("Enter Bank Number", text: $vm.taxiBankNumber)
-            .multilineTextAlignment(.trailing)
-            .foregroundStyle(.secondary)
+      Picker("Bank Name", selection: $vm.taxiBankName) {
+        Text("Select Bank").tag(Optional<String>(nil))
+        ForEach(Constants.taxiBankNameList, id: \.self) {
+          Text($0).tag($0)
         }
+      }
+      HStack {
+        Text("Bank Number")
+        Spacer()
+        TextField("Enter Bank Number", text: $vm.taxiBankNumber)
+          .multilineTextAlignment(.trailing)
+          .foregroundStyle(.secondary)
       }
     }
     
