@@ -73,12 +73,8 @@ struct TaxiSettingsView: View {
     
     Section(header: Text("Service")) {
       navigationLinkWithIcon(destination: TaxiReportListView(), text: "Report Details", systemImage: "exclamationmark.bubble")
-      Button("Terms of Service") {
-        safariURL = URL(string: "https://sparcs.org/")! // placeholder
-      }
-      Button("Privacy Policy") {
-        safariURL = URL(string: "https://sparcs.org") // placeholder
-      }
+      webViewButton("list.bullet.clipboard", text: "Terms of Service", url: URL(string: "https://sparcs.org")!)
+      webViewButton("list.bullet.clipboard", text: "Privacy Policy", url: URL(string: "https://sparcs.org")!)
     }
   }
   
@@ -92,6 +88,16 @@ struct TaxiSettingsView: View {
         Image(systemName: systemImage)
         Text(text)
       }
+    }
+  }
+  
+  fileprivate func webViewButton(_ systemImage: String, text: String, url: URL) -> some View {
+    NavigationLink(value: UUID()) {
+      Image(systemName: systemImage)
+      Text(text)
+    }
+    .onTapGesture {
+      safariURL = url
     }
   }
 }
