@@ -15,7 +15,7 @@ protocol FeedUserRepositoryProtocol: Sendable {
   func getUser() async throws -> FeedUser
 }
 
-final class FeedUserRepository: FeedUserRepositoryProtocol, Sendable {
+final class FeedUserRepository: FeedUserRepositoryProtocol {
   private let provider: MoyaProvider<FeedUserTarget>
 
   init(provider: MoyaProvider<FeedUserTarget>) {

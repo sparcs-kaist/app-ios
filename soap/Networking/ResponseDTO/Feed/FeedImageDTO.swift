@@ -12,7 +12,7 @@ struct FeedImageDTO: Codable {
   let url: String
   let mimeType: String
   let size: Int
-  let spoiler: Bool
+  let spoiler: Bool?
 
   enum CodingKeys: String, CodingKey {
     case id
