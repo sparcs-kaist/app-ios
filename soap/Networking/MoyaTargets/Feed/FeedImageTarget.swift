@@ -34,12 +34,12 @@ extension FeedImageTarget: TargetType, AccessTokenAuthorizable {
   var task: Moya.Task {
     switch self {
     case .uploadPostImage(let imageData, let description, let spoiler):
-      var multipartData: [MultipartFormData] = [
+      let multipartData: [MultipartFormData] = [
         MultipartFormData(
           provider: .data(imageData),
           name: "file",
-          fileName: "image.png",
-          mimeType: "image/png"
+          fileName: "image.jpg",
+          mimeType: "image/jpeg"
         ),
         MultipartFormData(provider: .data(description.data(using: .utf8)!), name: "description"),
         MultipartFormData(provider: .data(Data((spoiler ? "true" : "false").utf8)), name: "spoiler")
