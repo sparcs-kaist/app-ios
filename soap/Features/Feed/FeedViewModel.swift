@@ -45,7 +45,6 @@ final class FeedViewModel: FeedViewModelProtocol {
   }
 
   func fetchInitialData() async {
-    self.state = .loading
     do {
       let page: FeedPostPage = try await feedPostRepository.fetchPosts(cursor: nil, page: 20)
       self.posts = page.items

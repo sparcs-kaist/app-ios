@@ -14,6 +14,7 @@ struct FeedPostComposeView: View {
   @Environment(\.dismiss) private var dismiss
 
   @State private var showPhotosPicker: Bool = false
+  @State private var isUploading: Bool = false
 
   var body: some View {
     NavigationStack {
@@ -21,11 +22,13 @@ struct FeedPostComposeView: View {
         VStack(alignment: .leading) {
           header
             .padding(.horizontal)
+            .disabled(isUploading)
 
           TextField("What's happening?", text: $viewModel.text, axis: .vertical)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
             .padding(.horizontal)
+            .disabled(isUploading)
 
           HStack {
             Spacer()
@@ -38,6 +41,7 @@ struct FeedPostComposeView: View {
 
           if !viewModel.selectedImages.isEmpty {
             FeedPostPhotoItemStrip(images: $viewModel.selectedImages)
+              .disabled(isUploading)
           }
         }
         .padding(.vertical)
@@ -50,12 +54,35 @@ struct FeedPostComposeView: View {
           Button("Close", systemImage: "xmark") {
             dismiss()
           }
+          .disabled(isUploading)
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Done", systemImage: "arrow.up", role: .confirm) { }
-            .disabled(viewModel.text.isEmpty)
-            .disabled(viewModel.text.count > 280)
+          Button(
+            role: .confirm,
+            action: {
+              Task {
+                isUploading = true
+                defer { isUploading = false }
+                do {
+                  try await viewModel.writePost()
+                  dismiss()
+                } catch {
+                  // TODO: Handle Error here
+                }
+              }
+            }, label: {
+              if isUploading {
+                ProgressView()
+                  .tint(.white)
+              } else {
+                Label("Done", systemImage: "arrow.up")
+              }
+            }
+          )
+          .disabled(viewModel.text.isEmpty)
+          .disabled(viewModel.text.count > 280)
+          .disabled(isUploading)
         }
       }
       .toolbar {
@@ -65,6 +92,7 @@ struct FeedPostComposeView: View {
           Button("Photo Library", systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
+          .disabled(isUploading)
         }
       }
     }

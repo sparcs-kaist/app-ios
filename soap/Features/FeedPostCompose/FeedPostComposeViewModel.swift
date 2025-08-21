@@ -19,6 +19,7 @@ protocol FeedPostComposeViewModelProtocol: Observable {
   var selectedImages: [FeedPostPhotoItem] { get set }
 
   func fetchFeedUser() async
+  func writePost() async throws
 }
 
 struct FeedPostPhotoItem: Identifiable, Hashable {
@@ -50,10 +51,44 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(
+    \.feedImageRepository
+  ) private var feedImageRepository: FeedImageRepositoryProtocol
+  @ObservationIgnored @Injected(
+    \.feedPostRepository
+  ) private var feedPostRepository: FeedPostRepositoryProtocol
 
   // MARK: - Functions
   func fetchFeedUser() async {
     self.feedUser = await userUseCase.feedUser
+  }
+
+  func writePost() async throws {
+    // Run uploads concurrently
+    let uploadedImages: [FeedImage] = try await withThrowingTaskGroup(
+      of: (Int, FeedImage).self
+    ) { group in
+      for (idx, item) in selectedImages.enumerated() {
+        group.addTask {
+          let image = try await self.feedImageRepository.uploadPostImage(item: item)
+          return (idx, image)
+        }
+      }
+
+      var ordered = Array<FeedImage?>(repeating: nil, count: selectedImages.count)
+      for try await (idx, image) in group {
+        ordered[idx] = image
+      }
+      // All succeeded -> unwrap in order
+      return ordered.compactMap { $0 }
+    }
+
+    let request = FeedCreatePost(
+      content: text,
+      isAnonymous: selectedComposeType == .anonymously,
+      images: uploadedImages
+    )
+    try await feedPostRepository.writePost(request: request)
   }
 
   private func loadImagesAndReconcile() async {

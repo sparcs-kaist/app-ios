@@ -12,6 +12,7 @@ import Moya
 
 protocol FeedPostRepositoryProtocol: Sendable {
   func fetchPosts(cursor: String?, page: Int) async throws -> FeedPostPage
+  func writePost(request: FeedCreatePost) async throws
 }
 
 actor FeedPostRepository: FeedPostRepositoryProtocol {
@@ -26,5 +27,10 @@ actor FeedPostRepository: FeedPostRepositoryProtocol {
     let page: FeedPostPage = try response.map(FeedPostPageDTO.self).toModel()
 
     return page
+  }
+
+  func writePost(request: FeedCreatePost) async throws {
+    let response = try await provider.request(.writePost(request: FeedPostRequestDTO.fromModel(request)))
+    _ = try response.filterSuccessfulStatusCodes()
   }
 }

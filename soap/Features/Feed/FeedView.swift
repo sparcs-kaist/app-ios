@@ -53,6 +53,9 @@ struct FeedView: View {
       .task {
         await viewModel.fetchInitialData()
       }
+      .refreshable {
+        await viewModel.fetchInitialData()
+      }
       .toolbar {
         ToolbarItem {
           Button("Write", systemImage: "square.and.pencil") {
@@ -89,7 +92,11 @@ struct FeedView: View {
         SettingsView()
           .presentationDragIndicator(.visible)
       }
-      .sheet(isPresented: $showComposeView) {
+      .sheet(isPresented: $showComposeView, onDismiss: {
+        Task {
+          await viewModel.fetchInitialData()
+        }
+      }) {
         FeedPostComposeView()
           .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
           .interactiveDismissDisabled()
