@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TaxiSettingsView: View {
   @Binding var vm: SettingsViewModelProtocol
+  @State private var safariURL: URL?
   
   @Environment(\.dismiss) var dismiss
   
@@ -38,6 +39,9 @@ struct TaxiSettingsView: View {
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+    .fullScreenCover(item: $safariURL) {
+      SafariViewWrapper(url: $0)
+    }
   }
   
   @ViewBuilder
@@ -69,8 +73,12 @@ struct TaxiSettingsView: View {
     
     Section(header: Text("Service")) {
       navigationLinkWithIcon(destination: TaxiReportListView(), text: "Report Details", systemImage: "exclamationmark.bubble")
-      navigationLinkWithIcon(destination: TaxiTermsOfServiceView(isAgreed: vm.taxiUser?.agreeOnTermsOfService ?? false), text: "Terms of Service", systemImage: "list.clipboard")
-      navigationLinkWithIcon(destination: TaxiPrivacyPolicyView(), text: "Privacy Policy", systemImage: "list.clipboard")
+      Button("Terms of Service") {
+        safariURL = URL(string: "https://sparcs.org/")! // placeholder
+      }
+      Button("Privacy Policy") {
+        safariURL = URL(string: "https://sparcs.org") // placeholder
+      }
     }
   }
   
