@@ -38,11 +38,11 @@ struct FeedPostComposeView: View {
 
           if !viewModel.selectedImages.isEmpty {
             FeedPostPhotoItemStrip(images: $viewModel.selectedImages)
-              .padding(.top)
           }
         }
         .padding(.vertical)
       }
+      .scrollDismissesKeyboard(.interactively)
       .navigationTitle("Write")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -54,6 +54,8 @@ struct FeedPostComposeView: View {
 
         ToolbarItem(placement: .topBarTrailing) {
           Button("Done", systemImage: "arrow.up", role: .confirm) { }
+            .disabled(viewModel.text.isEmpty)
+            .disabled(viewModel.text.count > 280)
         }
       }
       .toolbar {

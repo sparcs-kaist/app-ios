@@ -92,6 +92,7 @@ struct FeedView: View {
       .sheet(isPresented: $showComposeView) {
         FeedPostComposeView()
           .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
+          .interactiveDismissDisabled()
       }
     }
   }
