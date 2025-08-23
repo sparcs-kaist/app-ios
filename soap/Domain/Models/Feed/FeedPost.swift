@@ -15,10 +15,10 @@ struct FeedPost: Identifiable, Hashable {
   let nickname: String?
   let profileImageURL: URL?
   let createdAt: Date
-  let commentCount: Int
-  let upvotes: Int
-  let downvotes: Int
-  let myVote: FeedVoteType?
+  var commentCount: Int
+  var upvotes: Int
+  var downvotes: Int
+  var myVote: FeedVoteType?
   let isAuthor: Bool
   let images: [FeedImage]
 }

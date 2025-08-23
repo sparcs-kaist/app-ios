@@ -105,10 +105,16 @@ struct FeedPostRow: View {
   var footer: some View {
     HStack {
       PostVoteButton(
-        myVote: nil,
+        myVote: post.myVote == .up ? true : post.myVote == .down ? false : nil,
         votes: post.upvotes - post.downvotes,
         onDownvote: {
+          Task {
+            await downvote()
+          }
         }, onUpvote: {
+          Task {
+            await upvote()
+          }
         }
       )
 
@@ -123,6 +129,61 @@ struct FeedPostRow: View {
     }
     .padding(.horizontal)
     .padding(.top, 4)
+  }
+
+  // MARK: - Functions
+  private func upvote() async {
+    let previousMyVote: FeedVoteType? = post.myVote
+    let previousUpvotes: Int = post.upvotes
+
+    do {
+      if previousMyVote == .up {
+        // cancel upvote
+        post.myVote = nil
+        post.upvotes -= 1
+        try await feedPostRepository.deleteVote(postID: post.id)
+      } else {
+        // upvote
+        if previousMyVote == .down {
+          // remove downvote if there was
+          post.downvotes -= 1
+        }
+        post.myVote = .up
+        post.upvotes += 1
+        try await feedPostRepository.vote(postID: post.id, type: .up)
+      }
+    } catch {
+      logger.error(error)
+      post.myVote = previousMyVote
+      post.upvotes = previousUpvotes
+    }
+  }
+
+  private func downvote() async {
+    let previousMyVote: FeedVoteType? = post.myVote
+    let previousDownvotes: Int = post.downvotes
+
+    do {
+      if previousMyVote == .down {
+        // cancel downvote
+        post.myVote = nil
+        post.downvotes -= 1
+        try await feedPostRepository.deleteVote(postID: post.id)
+      } else {
+        // downvote
+        if previousMyVote == .up {
+          // remove downvote if there was
+          post.upvotes -= 1
+        }
+        post.myVote = .down
+        post.downvotes += 1
+        try await feedPostRepository.vote(postID: post.id, type: .down)
+      }
+    } catch {
+      logger.error(error)
+      post.myVote = previousMyVote
+      post.downvotes = previousDownvotes
+    }
   }
 }
 

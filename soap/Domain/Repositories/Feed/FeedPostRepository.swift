@@ -14,6 +14,8 @@ protocol FeedPostRepositoryProtocol: Sendable {
   func fetchPosts(cursor: String?, page: Int) async throws -> FeedPostPage
   func writePost(request: FeedCreatePost) async throws
   func deletePost(postID: String) async throws
+  func vote(postID: String, type: FeedVoteType) async throws
+  func deleteVote(postID: String) async throws
 }
 
 actor FeedPostRepository: FeedPostRepositoryProtocol {
@@ -37,6 +39,16 @@ actor FeedPostRepository: FeedPostRepositoryProtocol {
 
   func deletePost(postID: String) async throws {
     let response = try await provider.request(.delete(postID: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func vote(postID: String, type: FeedVoteType) async throws {
+    let response = try await provider.request(.vote(postID: postID, type: type))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func deleteVote(postID: String) async throws {
+    let response = try await provider.request(.deleteVote(postID: postID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 }
