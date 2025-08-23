@@ -16,6 +16,7 @@ protocol FeedViewModelProtocol: Observable {
 
   func signOut() async throws
   func fetchInitialData() async
+  func deletePost(postID: String) async throws
 }
 
 @MainActor
@@ -55,5 +56,10 @@ final class FeedViewModel: FeedViewModelProtocol {
       logger.error(error)
       self.state = .error(message: error.localizedDescription)
     }
+  }
+
+  func deletePost(postID: String) async throws {
+    try await feedPostRepository.deletePost(postID: postID)
+    self.posts.removeAll { $0.id == postID }
   }
 }

@@ -16,6 +16,10 @@ struct FeedView: View {
   @State private var showSettingsSheet: Bool = false
   @State private var showComposeView: Bool = false
 
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
+  @State private var showAlert: Bool = false
+
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -23,7 +27,7 @@ struct FeedView: View {
           switch viewModel.state {
           case .loading:
             ForEach(.constant(FeedPost.mockList)) { $post in
-              FeedPostRow(post: $post)
+              FeedPostRow(post: $post, onPostDeleted: nil)
                 .padding(.vertical)
 
               Divider()
@@ -32,7 +36,15 @@ struct FeedView: View {
             .redacted(reason: .placeholder)
           case .loaded:
             ForEach($viewModel.posts) { $post in
-              FeedPostRow(post: $post)
+              FeedPostRow(post: $post, onPostDeleted: { postID in
+                Task {
+                  do {
+                    try await viewModel.deletePost(postID: postID)
+                  } catch {
+                    showAlert(title: "Error", message: "Failed to delete a post. Please try again later.")
+                  }
+                }
+              })
                 .padding(.vertical)
 
               Divider()
@@ -46,6 +58,7 @@ struct FeedView: View {
             )
           }
         }
+        .animation(.spring, value: viewModel.posts)
       }
       .disabled(viewModel.state == .loading)
       .navigationTitle("Feed")
@@ -101,7 +114,19 @@ struct FeedView: View {
           .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
           .interactiveDismissDisabled()
       }
+      .alert(alertTitle, isPresented: $showAlert, actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(alertMessage)
+      })
+
     }
+  }
+
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
   }
 }
 

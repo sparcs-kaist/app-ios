@@ -7,9 +7,16 @@
 
 import SwiftUI
 import NukeUI
+import Factory
 
 struct FeedPostRow: View {
   @Binding var post: FeedPost
+  let onPostDeleted: ((String) -> Void)?
+
+  @State private var showDeleteConfirmation: Bool = false
+
+  // MARK: - Dependencies
+  @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol
 
   var body: some View {
     Group {
@@ -64,10 +71,25 @@ struct FeedPostRow: View {
 
       Spacer()
 
-      Menu("More", systemImage: "ellipsis") { }
-        .labelStyle(.iconOnly)
+      Menu("More", systemImage: "ellipsis") {
+        if post.isAuthor {
+          Button("Delete", systemImage: "trash", role: .destructive) {
+            showDeleteConfirmation = true
+          }
+        }
+      }
+      .labelStyle(.iconOnly)
+      .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+        Button("Delete", role: .destructive) {
+          Task {
+            onPostDeleted?(post.id)
+          }
+        }
+        Button("Cancel", role: .cancel) { }
+      } message: {
+        Text("Are you sure you want to delete this post?")
+      }
     }
-    .tint(.secondary)
     .padding(.horizontal)
   }
 
@@ -105,5 +127,5 @@ struct FeedPostRow: View {
 }
 
 #Preview {
-  FeedPostRow(post: .constant(FeedPost.mock))
+  FeedPostRow(post: .constant(FeedPost.mock), onPostDeleted: nil)
 }
