@@ -36,16 +36,25 @@ struct FeedView: View {
             .redacted(reason: .placeholder)
           case .loaded:
             ForEach($viewModel.posts) { $post in
-              FeedPostRow(post: $post, onPostDeleted: { postID in
-                Task {
-                  do {
-                    try await viewModel.deletePost(postID: postID)
-                  } catch {
-                    showAlert(title: "Error", message: "Failed to delete a post. Please try again later.")
+              NavigationLink(destination: {
+                FeedPostView(post: $post)
+                  .navigationTransition(.zoom(sourceID: post.id, in: namespace))
+              }, label: {
+                FeedPostRow(post: $post, onPostDeleted: { postID in
+                  Task {
+                    do {
+                      try await viewModel.deletePost(postID: postID)
+                    } catch {
+                      showAlert(title: "Error", message: "Failed to delete a post. Please try again later.")
+                    }
                   }
-                }
+                })
+                .contentShape(.rect)
               })
-                .padding(.vertical)
+              .padding(.vertical)
+              .navigationLinkIndicatorVisibility(.hidden)
+              .buttonStyle(.plain)
+              .matchedTransitionSource(id: post.id, in: namespace)
 
               Divider()
                 .padding(.horizontal)

@@ -71,14 +71,10 @@ struct PostCommentCell: View {
           myVote: comment.myVote,
           votes: comment.upvotes - comment.downvotes,
           onDownvote: {
-            Task {
-              await downvote()
-            }
+            await downvote()
           },
           onUpvote: {
-            Task {
-              await upvote()
-            }
+            await upvote()
           }
         )
         .disabled(comment.isMine ?? false)

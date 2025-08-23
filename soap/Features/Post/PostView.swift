@@ -251,13 +251,9 @@ struct PostView: View {
         myVote: viewModel.post.myVote,
         votes: viewModel.post.upvotes - viewModel.post.downvotes,
         onDownvote: {
-          Task {
-            await viewModel.downvote()
-          }
+          await viewModel.downvote()
         }, onUpvote: {
-          Task {
-            await viewModel.upvote()
-          }
+          await viewModel.upvote()
         }
       )
       .disabled(viewModel.post.isMine ?? false)

@@ -21,13 +21,10 @@ struct FeedPostRow: View {
   var body: some View {
     Group {
       VStack(alignment: .leading) {
-        // header
         header
 
-        // content
         content
 
-        // footer
         footer
       }
     }
@@ -66,28 +63,31 @@ struct FeedPostRow: View {
       Text(post.authorName)
         .fontWeight(.semibold)
 
-      Text(post.createdAt.timeAgoDisplay)
+      // onPostDeleted == nil here means FeedPostRow is in the FeedPostView.
+      Text(onPostDeleted != nil ? post.createdAt.relativeTimeString : post.createdAt.timeAgoDisplay)
         .foregroundStyle(.secondary)
 
       Spacer()
 
-      Menu("More", systemImage: "ellipsis") {
-        if post.isAuthor {
-          Button("Delete", systemImage: "trash", role: .destructive) {
-            showDeleteConfirmation = true
+      if onPostDeleted != nil {
+        Menu("More", systemImage: "ellipsis") {
+          if post.isAuthor {
+            Button("Delete", systemImage: "trash", role: .destructive) {
+              showDeleteConfirmation = true
+            }
           }
         }
-      }
-      .labelStyle(.iconOnly)
-      .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-        Button("Delete", role: .destructive) {
-          Task {
-            onPostDeleted?(post.id)
+        .labelStyle(.iconOnly)
+        .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+          Button("Delete", role: .destructive) {
+            Task {
+              onPostDeleted?(post.id)
+            }
           }
+          Button("Cancel", role: .cancel) { }
+        } message: {
+          Text("Are you sure you want to delete this post?")
         }
-        Button("Cancel", role: .cancel) { }
-      } message: {
-        Text("Are you sure you want to delete this post?")
       }
     }
     .padding(.horizontal)
@@ -108,13 +108,9 @@ struct FeedPostRow: View {
         myVote: post.myVote == .up ? true : post.myVote == .down ? false : nil,
         votes: post.upvotes - post.downvotes,
         onDownvote: {
-          Task {
-            await downvote()
-          }
+          await downvote()
         }, onUpvote: {
-          Task {
-            await upvote()
-          }
+          await upvote()
         }
       )
 
