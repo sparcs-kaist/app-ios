@@ -12,25 +12,44 @@ import Observation
 
 @MainActor
 @Observable
-class SettingsViewModel {
+class SettingsViewModel: SettingsViewModelProtocol {
+  enum ViewState {
+    case loading
+    case loaded
+  }
+  
   // MARK: - Mock data
   // TODO: implement API call & data structures
   var araAllowNSFWPosts: Bool = false
   var araAllowPoliticalPosts: Bool = false
   var araBlockedUsers: [String] = ["유능한 시조새_0b4c"]
-  var taxiBankName: String = "카카오뱅크"
-  var taxiBankNumber: String = "7777-02-3456789"
+  var taxiBankName: String?
+  var taxiBankNumber: String = ""
   var otlMajor: String = "School of Computer Science"
   let otlMajorList: [String] = ["School of Computer Science", "School of Electrical Engineering", "School of Business"]
   
   // MARK: - Properties
   var taxiUser: TaxiUser?
+  var taxiState: ViewState = .loading
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
   
   // MARK: - Functions
   func fetchTaxiUser() async {
+    await userUseCase.fetchUsers()
     self.taxiUser = await userUseCase.taxiUser
+    taxiBankName = taxiUser?.account.split(separator: " ").first.map { String($0) }
+    taxiBankNumber = String(taxiUser?.account.split(separator: " ").last ?? "")
+    taxiState = .loaded
+  }
+  
+  func taxiEditBankAccount(account: String) async {
+    do {
+      try await taxiUserRepository.editBankAccount(account: account)
+    } catch {
+      logger.debug("Failed to edit bank account: \(error.localizedDescription)")
+    }
   }
 }
