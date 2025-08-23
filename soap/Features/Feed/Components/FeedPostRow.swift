@@ -64,7 +64,7 @@ struct FeedPostRow: View {
         .fontWeight(.semibold)
 
       // onPostDeleted == nil here means FeedPostRow is in the FeedPostView.
-      Text(onPostDeleted != nil ? post.createdAt.relativeTimeString : post.createdAt.timeAgoDisplay)
+      Text(onPostDeleted != nil ? post.createdAt.timeAgoDisplay : post.createdAt.relativeTimeString)
         .foregroundStyle(.secondary)
 
       Spacer()
