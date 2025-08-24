@@ -12,12 +12,14 @@ struct AraSettingsView: View {
   @State private var showNicknameAlert: Bool = false
   
   var body: some View {
-    List {
+    Group {
       switch vm.state {
       case .loading:
         loadingView
       case .loaded:
         loadedView
+      case .error(let message):
+        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .task {
@@ -36,9 +38,13 @@ struct AraSettingsView: View {
   }
   
   private var loadingView: some View {
-    Group {
+    List {
       Section(header: Text("Profile")) {
-        TextField("Nickname", text: .constant("Unknown"))
+        HStack {
+          Text("Nickname")
+          Spacer()
+          TextField("Nickname", text: .constant("Unknown"))
+        }
       }
 
       Section(header: Text("Posts")) {
@@ -50,12 +56,18 @@ struct AraSettingsView: View {
   }
   
   private var loadedView: some View {
-    Group {
+    List {
       Section(header: Text("Profile")) {
-        TextField("Nickname", text: $vm.araNickname)
-        .autocorrectionDisabled()
-        .onSubmit {
-          updateAraNickname()
+        HStack {
+          Text("Nickname")
+          Spacer()
+          TextField("Nickname", text: $vm.araNickname)
+          .autocorrectionDisabled()
+          .onSubmit {
+            updateAraNickname()
+          }
+          .multilineTextAlignment(.trailing)
+          .foregroundStyle(.secondary)
         }
       }
 
@@ -79,8 +91,32 @@ struct AraSettingsView: View {
   }
 }
 
-#Preview {
-  NavigationStack {
-    AraSettingsView(vm: .constant(SettingsViewModel()))
+#Preview("Loading State") {
+  let vm = MockSettingsViewModel()
+  vm.state = .loading
+  
+  return NavigationStack {
+    AraSettingsView(vm: .constant(vm))
+  }
+}
+
+#Preview("Loaded State") {
+  let vm = MockSettingsViewModel()
+  vm.state = .loaded
+  vm.araNickname = "오열하는 운영체제 및 실험"
+  vm.araAllowNSFWPosts = false
+  vm.araAllowPoliticalPosts = true
+  
+  return NavigationStack {
+    AraSettingsView(vm: .constant(vm))
+  }
+}
+
+#Preview("Error State") {
+  let vm = MockSettingsViewModel()
+  vm.state = .error(message: "Network error")
+  
+  return NavigationStack {
+    AraSettingsView(vm: .constant(vm))
   }
 }

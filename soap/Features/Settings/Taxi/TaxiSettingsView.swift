@@ -14,13 +14,15 @@ struct TaxiSettingsView: View {
   @Environment(\.dismiss) var dismiss
   
   var body: some View {
-    List {
+    Group {
       switch vm.state {
       case .loading:
         loadingView
           .redacted(reason: .placeholder)
       case .loaded:
         loadedView
+      case .error(let message):
+        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .task {
@@ -46,7 +48,7 @@ struct TaxiSettingsView: View {
   
   @ViewBuilder
   var loadingView: some View {
-    Group {
+    List {
       RowElementView(title: "Nickname", content: "Unknown")
       RowElementView(title: "Bank Account", content: "Unknown")
     }
@@ -54,27 +56,29 @@ struct TaxiSettingsView: View {
   
   @ViewBuilder
   var loadedView: some View {
-    Section(header: Text("Profile")) {
-      RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
-      Picker("Bank Name", selection: $vm.taxiBankName) {
-        Text("Select Bank").tag(Optional<String>(nil))
-        ForEach(Constants.taxiBankNameList, id: \.self) {
-          Text($0).tag($0)
+    List {
+      Section(header: Text("Profile")) {
+        RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
+        Picker("Bank Name", selection: $vm.taxiBankName) {
+          Text("Select Bank").tag(Optional<String>(nil))
+          ForEach(Constants.taxiBankNameList, id: \.self) {
+            Text($0).tag($0)
+          }
+        }
+        HStack {
+          Text("Bank Number")
+          Spacer()
+          TextField("Enter Bank Number", text: $vm.taxiBankNumber)
+            .multilineTextAlignment(.trailing)
+            .foregroundStyle(.secondary)
         }
       }
-      HStack {
-        Text("Bank Number")
-        Spacer()
-        TextField("Enter Bank Number", text: $vm.taxiBankNumber)
-          .multilineTextAlignment(.trailing)
-          .foregroundStyle(.secondary)
+      
+      Section(header: Text("Service")) {
+        navigationLinkWithIcon(destination: TaxiReportListView(), text: "Report Details", systemImage: "exclamationmark.bubble")
+        webViewButton("list.bullet.clipboard", text: "Terms of Service", url: URL(string: "https://sparcs.org")!)
+        webViewButton("list.bullet.clipboard", text: "Privacy Policy", url: URL(string: "https://sparcs.org")!)
       }
-    }
-    
-    Section(header: Text("Service")) {
-      navigationLinkWithIcon(destination: TaxiReportListView(), text: "Report Details", systemImage: "exclamationmark.bubble")
-      webViewButton("list.bullet.clipboard", text: "Terms of Service", url: URL(string: "https://sparcs.org")!)
-      webViewButton("list.bullet.clipboard", text: "Privacy Policy", url: URL(string: "https://sparcs.org")!)
     }
   }
   
@@ -117,6 +121,15 @@ struct TaxiSettingsView: View {
   vm.taxiUser = .mock
   vm.taxiBankName = String(vm.taxiUser!.account.split(separator: " ").first!)
   vm.taxiBankNumber = String(vm.taxiUser!.account.split(separator: " ").last!)
+  
+  return NavigationStack {
+    TaxiSettingsView(vm: .constant(vm))
+  }
+}
+
+#Preview("Error State") {
+  let vm = MockSettingsViewModel()
+  vm.state = .error(message: "Network error")
   
   return NavigationStack {
     TaxiSettingsView(vm: .constant(vm))

@@ -17,6 +17,7 @@ class SettingsViewModel: SettingsViewModelProtocol {
   enum ViewState {
     case loading
     case loaded
+    case error(message: String)
   }
   enum SettingsError: Error {
     case araNicknameInterval
@@ -44,6 +45,11 @@ class SettingsViewModel: SettingsViewModelProtocol {
   // MARK: - Functions
   func fetchAraUser() async {
     state = .loading
+    do {
+      try await userUseCase.fetchAraUser()
+    } catch {
+      state = .error(message: error.localizedDescription)
+    }
     self.araUser = await userUseCase.araUser
     araAllowNSFWPosts = araUser?.allowNSFW ?? false
     araAllowPoliticalPosts = araUser?.allowPolitical ?? false
@@ -72,7 +78,11 @@ class SettingsViewModel: SettingsViewModelProtocol {
   
   func fetchTaxiUser() async {
     state = .loading
-    await userUseCase.fetchUsers()
+    do {
+      try await userUseCase.fetchTaxiUser()
+    } catch {
+      state = .error(message: error.localizedDescription)
+    }
     self.taxiUser = await userUseCase.taxiUser
     taxiBankName = taxiUser?.account.split(separator: " ").first.map { String($0) }
     taxiBankNumber = String(taxiUser?.account.split(separator: " ").last ?? "")
