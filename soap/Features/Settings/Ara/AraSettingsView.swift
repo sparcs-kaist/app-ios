@@ -13,17 +13,11 @@ struct AraSettingsView: View {
   
   var body: some View {
     List {
-      Section(header: Text("Profile")) {
-        TextField("Nickname", text: $vm.araNickname)
-        .autocorrectionDisabled()
-        .onSubmit {
-          updateAraNickname()
-        }
-      }
-
-      Section(header: Text("Posts")) {
-        Toggle("Allow NSFW", isOn: $vm.araAllowNSFWPosts)
-        Toggle("Allow Political", isOn: $vm.araAllowPoliticalPosts)
+      switch vm.state {
+      case .loading:
+        loadingView
+      case .loaded:
+        loadedView
       }
     }
     .task {
@@ -38,6 +32,37 @@ struct AraSettingsView: View {
       
     } message: {
       Text("Nicknames can only be changed every 3 months. Please try again later.")
+    }
+  }
+  
+  private var loadingView: some View {
+    Group {
+      Section(header: Text("Profile")) {
+        TextField("Nickname", text: .constant("Unknown"))
+      }
+
+      Section(header: Text("Posts")) {
+        Toggle("Allow NSFW", isOn: .constant(true))
+        Toggle("Allow Political", isOn: .constant(true))
+      }
+    }
+    .redacted(reason: .placeholder)
+  }
+  
+  private var loadedView: some View {
+    Group {
+      Section(header: Text("Profile")) {
+        TextField("Nickname", text: $vm.araNickname)
+        .autocorrectionDisabled()
+        .onSubmit {
+          updateAraNickname()
+        }
+      }
+
+      Section(header: Text("Posts")) {
+        Toggle("Allow NSFW", isOn: $vm.araAllowNSFWPosts)
+        Toggle("Allow Political", isOn: $vm.araAllowPoliticalPosts)
+      }
     }
   }
   

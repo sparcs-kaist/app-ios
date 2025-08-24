@@ -10,7 +10,7 @@ import Foundation
 @MainActor
 protocol SettingsViewModelProtocol: Observable {
   var taxiUser: TaxiUser? { get }
-  var taxiState: SettingsViewModel.ViewState { get }
+  var state: SettingsViewModel.ViewState { get }
   var taxiBankName: String? { get set }
   var taxiBankNumber: String { get set }
   var araAllowNSFWPosts: Bool { get set}

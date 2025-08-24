@@ -15,7 +15,7 @@ struct TaxiSettingsView: View {
   
   var body: some View {
     List {
-      switch vm.taxiState {
+      switch vm.state {
       case .loading:
         loadingView
           .redacted(reason: .placeholder)
@@ -104,7 +104,7 @@ struct TaxiSettingsView: View {
 
 #Preview("Loading State") {
   let vm = MockSettingsViewModel()
-  vm.taxiState = .loading
+  vm.state = .loading
   
   return NavigationStack {
     TaxiSettingsView(vm: .constant(vm))
@@ -113,7 +113,7 @@ struct TaxiSettingsView: View {
 
 #Preview("Loaded State") {
   let vm = MockSettingsViewModel()
-  vm.taxiState = .loaded
+  vm.state = .loaded
   vm.taxiUser = .mock
   vm.taxiBankName = String(vm.taxiUser!.account.split(separator: " ").first!)
   vm.taxiBankNumber = String(vm.taxiUser!.account.split(separator: " ").last!)

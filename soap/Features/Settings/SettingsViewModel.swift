@@ -35,7 +35,7 @@ class SettingsViewModel: SettingsViewModelProtocol {
   // MARK: - Properties
   var araUser: AraMe?
   var taxiUser: TaxiUser?
-  var taxiState: ViewState = .loading
+  var state: ViewState = .loading
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
@@ -43,10 +43,12 @@ class SettingsViewModel: SettingsViewModelProtocol {
   
   // MARK: - Functions
   func fetchAraUser() async {
+    state = .loading
     self.araUser = await userUseCase.araUser
     araAllowNSFWPosts = araUser?.allowNSFW ?? false
     araAllowPoliticalPosts = araUser?.allowPolitical ?? false
     araNickname = araUser?.nickname ?? ""
+    state = .loaded
   }
   
   func updateAraNickname() async throws {
@@ -62,18 +64,19 @@ class SettingsViewModel: SettingsViewModelProtocol {
   
   func updateAraPostVisibility() async {
     do {
-      try await userUseCase.updateAraUser(params: ["see-sexual": araAllowNSFWPosts, "see-social": araAllowPoliticalPosts])
+      try await userUseCase.updateAraUser(params: ["see_sexual": araAllowNSFWPosts, "see_social": araAllowPoliticalPosts])
     } catch {
       logger.debug("Failed to update ara post visibility: \(error)")
     }
   }
   
   func fetchTaxiUser() async {
+    state = .loading
     await userUseCase.fetchUsers()
     self.taxiUser = await userUseCase.taxiUser
     taxiBankName = taxiUser?.account.split(separator: " ").first.map { String($0) }
     taxiBankNumber = String(taxiUser?.account.split(separator: " ").last ?? "")
-    taxiState = .loaded
+    state = .loaded
   }
   
   func taxiEditBankAccount(account: String) async {

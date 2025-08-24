@@ -11,7 +11,7 @@ import SwiftUI
 class MockSettingsViewModel: SettingsViewModelProtocol {
   // MARK: - Properties
   var taxiUser: TaxiUser?
-  var taxiState: SettingsViewModel.ViewState = .loading
+  var state: SettingsViewModel.ViewState = .loading
   var taxiBankName: String?
   var taxiBankNumber: String = ""
   var araNickname: String = "유능한 시조새_0b4c"
