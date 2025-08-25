@@ -90,6 +90,14 @@ extension Container {
     }
   }
 
+  var feedCommentRepository: Factory<FeedCommentRepositoryProtocol> {
+    self {
+      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   var feedImageRepository: Factory<FeedImageRepositoryProtocol> {
     self {
       FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
