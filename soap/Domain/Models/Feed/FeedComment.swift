@@ -19,10 +19,10 @@ struct FeedComment: Identifiable, Hashable, Sendable {
   let isMyComment: Bool
   let profileImageURL: URL?
   let createdAt: Date
-  let upvotes: Int
-  let downvotes: Int
-  let myVote: FeedVoteType?
+  var upvotes: Int
+  var downvotes: Int
+  var myVote: FeedVoteType?
   let image: FeedImage?
-  let replyCount: Int
-  let replies: [FeedComment]
+  var replyCount: Int
+  var replies: [FeedComment]
 }

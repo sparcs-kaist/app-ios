@@ -18,17 +18,18 @@ struct FeedPostView: View {
   @Injected(
     \.feedPostRepository
   ) private var feedPostRepository: FeedPostRepositoryProtocol
+  @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
 
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 16) {
         FeedPostRow(post: $post, onPostDeleted: nil)
 
-        Divider()
-          .padding(.horizontal)
-
         comments
       }
+    }
+    .task {
+      await viewModel.fetchComments(postID: post.id)
     }
     .navigationTitle("Post")
     .navigationBarTitleDisplayMode(.inline)
@@ -55,8 +56,56 @@ struct FeedPostView: View {
   }
 
   private var comments: some View {
-    LazyVStack {
-      
+    Group {
+      switch viewModel.state {
+      case .loading:
+        VStack(alignment: .leading, spacing: 16) {
+          Divider()
+            .padding(.horizontal)
+
+          Text("\(post.commentCount) comments")
+            .font(.headline)
+            .padding(.horizontal)
+
+          ForEach(FeedComment.mockList.prefix(4)) { comment in
+            FeedCommentRow(comment: .constant(comment), isReply: false)
+              .padding(.horizontal)
+              .redacted(reason: .placeholder)
+
+            Divider()
+              .padding(.horizontal)
+          }
+        }
+      case .loaded:
+        LazyVStack(alignment: .leading, spacing: 16) {
+          Divider()
+            .padding(.horizontal)
+
+          Text("\(post.commentCount) comments")
+            .font(.headline)
+            .padding(.horizontal)
+
+          ForEach($viewModel.comments) { $comment in
+            FeedCommentRow(comment: $comment, isReply: false)
+              .padding(.horizontal)
+
+            if !comment.replies.isEmpty {
+              VStack(spacing: 12) {
+                ForEach($comment.replies) { $reply in
+                  FeedCommentRow(comment: $reply, isReply: true)
+                    .padding(.horizontal)
+                }
+              }
+            }
+
+            Divider()
+              .padding(.horizontal)
+          }
+        }
+      case .error(let message):
+        ContentUnavailableView("Error", systemImage: "text.bubble", description: Text(message))
+          .scaleEffect(0.8)
+      }
     }
   }
 }
