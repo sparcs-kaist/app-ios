@@ -121,9 +121,11 @@ struct FeedPostRow: View {
 
       Spacer()
 
-      PostBookmarkButton()
+      if onPostDeleted == nil {
+//        PostBookmarkButton()
 
-      PostShareButton()
+        PostShareButton()
+      }
     }
     .padding(.horizontal)
     .padding(.top, 4)
