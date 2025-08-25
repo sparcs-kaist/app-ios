@@ -12,7 +12,7 @@ struct FeedComment: Identifiable, Hashable, Sendable {
   let postID: String
   let parentCommentID: String?
   let content: String
-  let isDeleted: Bool
+  var isDeleted: Bool
   let isAnonymous: Bool
   let authorName: String
   let isAuthor: Bool

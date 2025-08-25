@@ -122,8 +122,6 @@ struct FeedPostRow: View {
       Spacer()
 
       if onPostDeleted == nil {
-//        PostBookmarkButton()
-
         PostShareButton()
       }
     }

@@ -28,7 +28,7 @@ struct FeedCommentRow: View {
         header
 
         content
-
+        
         footer
       }
     }
@@ -74,33 +74,47 @@ struct FeedCommentRow: View {
 
       Spacer()
 
-      Menu("More", systemImage: "ellipsis") { }
+      Menu("More", systemImage: "ellipsis") {
+        if comment.isMyComment {
+          Button("Delete", systemImage: "trash", role: .destructive) {
+            Task {
+              await delete()
+            }
+          }
+        }
+      }
         .labelStyle(.iconOnly)
     }
   }
 
   @ViewBuilder
   var content: some View {
-    Text(comment.content)
+    Text(comment.isDeleted ? "This comment has been deleted." : comment.content)
+      .foregroundStyle(comment.isDeleted ? .secondary : .primary)
+      .contentTransition(.numericText())
+      .animation(.spring, value: comment)
   }
 
   var footer: some View {
     HStack {
       Spacer()
 
-      PostVoteButton(
-        myVote: comment.myVote == .up ? true : comment.myVote == .down ? false : nil,
-        votes: comment.upvotes - comment.downvotes,
-        onDownvote: {
-          await downvote()
-        }, onUpvote: {
-          await upvote()
-        }
-      )
-
       if comment.parentCommentID == nil {
         PostCommentButton(commentCount: comment.replyCount) {
         }
+      }
+
+      if !comment.isDeleted {
+        PostVoteButton(
+          myVote: comment.myVote == .up ? true : comment.myVote == .down ? false : nil,
+          votes: comment.upvotes - comment.downvotes,
+          onDownvote: {
+            await downvote()
+          }, onUpvote: {
+            await upvote()
+          }
+        )
+        .disabled(comment.isMyComment)
       }
     }
     .font(.caption)
@@ -160,6 +174,15 @@ struct FeedCommentRow: View {
       logger.error(error)
       comment.myVote = previousMyVote
       comment.downvotes = previousDownvotes
+    }
+  }
+
+  private func delete() async {
+    comment.isDeleted = true
+    do {
+      try await feedCommentRepository.deleteComment(commentID: comment.id)
+    } catch {
+      comment.isDeleted = false
     }
   }
 }
