@@ -13,8 +13,12 @@ import Factory
 protocol FeedPostViewModelProtocol: Observable {
   var state: FeedPostViewModel.ViewState { get }
   var comments: [FeedComment] { get set }
+  var text: String { get set }
+  var image: UIImage? { get set }
+  var isAnonymous: Bool { get set }
 
   func fetchComments(postID: String) async
+  func writeComment(postID: String) async throws -> FeedComment
 }
 
 @Observable
@@ -28,6 +32,10 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   // MARK: - Properties
   var state: ViewState = .loading
   var comments: [FeedComment] = []
+
+  var text: String = ""
+  var image: UIImage? = nil
+  var isAnonymous: Bool = true
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -43,5 +51,18 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
     } catch {
       self.state = .error(message: error.localizedDescription)
     }
+  }
+
+  func writeComment(postID: String) async throws -> FeedComment {
+    let request = FeedCreateComment(
+      content: text,
+      isAnonymous: isAnonymous,
+      image: nil
+    )
+    let comment: FeedComment = try await feedCommentRepository.writeComment(postID: postID, request: request)
+
+    self.comments.append(comment)
+
+    return comment
   }
 }

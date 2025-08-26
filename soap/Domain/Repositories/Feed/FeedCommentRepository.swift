@@ -12,8 +12,8 @@ import Moya
 
 protocol FeedCommentRepositoryProtocol: Sendable {
   func fetchComments(postID: String) async throws -> [FeedComment]
-  func writeComment(postID: String, request: FeedCreateComment) async throws
-  func writeReply(commentID: String, request: FeedCreateComment) async throws
+  func writeComment(postID: String, request: FeedCreateComment) async throws -> FeedComment
+  func writeReply(commentID: String, request: FeedCreateComment) async throws -> FeedComment
   func deleteComment(commentID: String) async throws
   func vote(commentID: String, type: FeedVoteType) async throws
   func deleteVote(commentID: String) async throws
@@ -34,18 +34,24 @@ actor FeedCommentRepository: FeedCommentRepositoryProtocol {
     return comments
   }
 
-  func writeComment(postID: String, request: FeedCreateComment) async throws {
+  func writeComment(postID: String, request: FeedCreateComment) async throws -> FeedComment {
     let response = try await provider.request(
       .writeComment(postID: postID, request: FeedCommentRequestDTO.fromModel(request))
     )
     _ = try response.filterSuccessfulStatusCodes()
+    let comment: FeedComment = try response.map(FeedCommentDTO.self).toModel()
+
+    return comment
   }
 
-  func writeReply(commentID: String, request: FeedCreateComment) async throws {
+  func writeReply(commentID: String, request: FeedCreateComment) async throws -> FeedComment {
     let response = try await provider.request(
       .writeReply(commentID: commentID, request: FeedCommentRequestDTO.fromModel(request))
     )
     _ = try response.filterSuccessfulStatusCodes()
+    let comment: FeedComment = try response.map(FeedCommentDTO.self).toModel()
+
+    return comment
   }
 
   func deleteComment(commentID: String) async throws {

@@ -38,6 +38,7 @@ struct FeedView: View {
             ForEach($viewModel.posts) { $post in
               NavigationLink(destination: {
                 FeedPostView(post: $post)
+                  .addKeyboardVisibilityToEnvironment()
                   .navigationTransition(.zoom(sourceID: post.id, in: namespace))
               }, label: {
                 FeedPostRow(post: $post, onPostDeleted: { postID in

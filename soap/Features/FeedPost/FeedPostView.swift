@@ -12,47 +12,142 @@ import Factory
 struct FeedPostView: View {
   @Binding var post: FeedPost
 
+  @Environment(\.keyboardShowing) var keyboardShowing
+
   @State private var showDeleteConfirmation: Bool = false
+
+  @State private var feedUser: FeedUser? = nil
+
+  @FocusState private var isWritingCommentFocusState: Bool
+  @State private var targetComment: FeedComment? = nil
+  @State private var isUploadingComment: Bool = false
 
   // MARK: - Dependencies
   @Injected(
     \.feedPostRepository
   ) private var feedPostRepository: FeedPostRepositoryProtocol
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 16) {
-        FeedPostRow(post: $post, onPostDeleted: nil)
+    ScrollViewReader { proxy in
+      ScrollView {
+        VStack(alignment: .leading, spacing: 16) {
+          FeedPostRow(post: $post, onPostDeleted: nil)
 
-        comments
+          comments
+        }
       }
-    }
-    .task {
-      await viewModel.fetchComments(postID: post.id)
-    }
-    .navigationTitle("Post")
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbarVisibility(.hidden, for: .tabBar)
-    .toolbar {
-      ToolbarItem(placement: .topBarTrailing) {
-        Menu("More", systemImage: "ellipsis") {
-          if post.isAuthor {
-            Button("Delete", systemImage: "trash", role: .destructive) {
-              showDeleteConfirmation = true
+      .task {
+        await viewModel.fetchComments(postID: post.id)
+        self.feedUser = await userUseCase.feedUser
+      }
+      .navigationTitle("Post")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbarVisibility(.hidden, for: .tabBar)
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Menu("More", systemImage: "ellipsis") {
+            if post.isAuthor {
+              Button("Delete", systemImage: "trash", role: .destructive) {
+                showDeleteConfirmation = true
+              }
             }
           }
-        }
-        .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-          Button("Delete", role: .destructive) {
+          .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
 
+            }
+            Button("Cancel", role: .cancel) { }
+          } message: {
+            Text("Are you sure you want to delete this post?")
           }
-          Button("Cancel", role: .cancel) { }
-        } message: {
-          Text("Are you sure you want to delete this post?")
         }
       }
+      .scrollDismissesKeyboard(.interactively)
+      .safeAreaBar(edge: .bottom) {
+        inputBar(proxy: proxy)
+      }
     }
+  }
+
+  private func inputBar(proxy: ScrollViewProxy) -> some View {
+    HStack(alignment: .bottom) {
+      // comment textfield
+      VStack(alignment: .leading) {
+        // maybe some images and anonymous selector
+        TextField(
+          text: $viewModel.text,
+          prompt: Text("Write a comment"),
+          axis: .vertical,
+          label: { }
+        )
+        .focused($isWritingCommentFocusState)
+
+        if keyboardShowing {
+          Toggle("Write Anonymously", isOn: $viewModel.isAnonymous)
+            .foregroundStyle(.secondary)
+            .textCase(.uppercase)
+            .fontDesign(.rounded)
+            .font(.callout)
+            .fontWeight(.medium)
+        }
+      }
+      .padding(12)
+      .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
+
+      // write comment button
+      if !viewModel.text.isEmpty {
+        Button(action: {
+          guard !viewModel.text.isEmpty else { return }
+
+          Task {
+            isUploadingComment = true
+            defer { isUploadingComment = false }
+            do {
+              var uploadedComment: FeedComment? = nil
+              if let targetComment {
+//                uploadedComment = try await viewModel.writeThreadedComment(commentID: targetComment.id, content: comment)
+              } else {
+                uploadedComment = try await viewModel.writeComment(postID: post.id)
+              }
+              post.commentCount += 1
+              targetComment = nil
+              viewModel.text = ""
+              isWritingCommentFocusState = false
+
+              withAnimation(.spring) {
+                proxy.scrollTo(uploadedComment?.id, anchor: .center)
+              }
+            } catch {
+              logger.error(error)
+              // TODO: handle error here
+            }
+          }
+        }, label: {
+          if isUploadingComment {
+            ProgressView()
+              .tint(.white)
+          } else {
+            Label("Send", systemImage: "paperplane")
+              .labelStyle(.iconOnly)
+              .tint(.white)
+          }
+        })
+        .fontWeight(.medium)
+        .padding(12)
+        .glassEffect(.regular.tint(.accent).interactive(), in: .circle)
+        .disabled(viewModel.text.isEmpty)
+        .transition(.move(edge: .trailing).combined(with: .opacity))
+        .disabled(isUploadingComment)
+      }
+    }
+    .padding(keyboardShowing ? [.horizontal, .vertical] : [.horizontal])
+    .animation(.spring, value: keyboardShowing)
+    .animation(
+      .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
+      value: viewModel.text.isEmpty
+    )
   }
 
   private var comments: some View {
@@ -84,16 +179,20 @@ struct FeedPostView: View {
           Text("\(post.commentCount) comments")
             .font(.headline)
             .padding(.horizontal)
+            .contentTransition(.numericText(value: Double(post.commentCount)))
+            .animation(.spring, value: post.commentCount)
 
           ForEach($viewModel.comments) { $comment in
             FeedCommentRow(comment: $comment, isReply: false)
               .padding(.horizontal)
+              .id(comment.id)
 
             if !comment.replies.isEmpty {
               VStack(spacing: 12) {
                 ForEach($comment.replies) { $reply in
                   FeedCommentRow(comment: $reply, isReply: true)
                     .padding(.horizontal)
+                    .id(reply.id)
                 }
               }
             }
@@ -102,6 +201,7 @@ struct FeedPostView: View {
               .padding(.horizontal)
           }
         }
+        .animation(.spring, value: viewModel.comments)
       case .error(let message):
         ContentUnavailableView("Error", systemImage: "text.bubble", description: Text(message))
           .scaleEffect(0.8)

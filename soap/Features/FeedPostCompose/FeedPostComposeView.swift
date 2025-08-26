@@ -117,7 +117,7 @@ struct FeedPostComposeView: View {
         Text(viewModel.feedUser?.nickname ?? "")
           .tag(FeedPostComposeViewModel.ComposeType.publicly)
 
-        Text("Anonymously")
+        Text("Anonymous")
           .tag(FeedPostComposeViewModel.ComposeType.anonymously)
       }
       .pickerStyle(.menu)
