@@ -57,7 +57,7 @@ struct AraSettingsView: View {
   
   private var loadedView: some View {
     List {
-      Section(header: Text("Profile")) {
+      Section {
         HStack {
           Text("Nickname")
           Spacer()
@@ -68,6 +68,16 @@ struct AraSettingsView: View {
           }
           .multilineTextAlignment(.trailing)
           .foregroundStyle(.secondary)
+          .disabled(vm.araNicknameUpdatable == false)
+        }
+      } header: {
+        Text("Profile")
+      } footer: {
+        VStack(alignment: .leading) {
+          if vm.araNicknameUpdatable == false, let date = vm.araNicknameUpdatableSince {
+            Text("You can't change nickname until \(date.formatted(.iso8601.year().month().day())).")
+          }
+          Text("Nicknames can only be changed every 3 months.")
         }
       }
 

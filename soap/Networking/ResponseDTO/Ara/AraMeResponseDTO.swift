@@ -10,12 +10,14 @@ import Foundation
 struct AraMeResponseDTO: Codable {
   let id: Int
   let nickname: String
+  let nicknameUpdatedAt: String
   let allowNSFW: Bool
   let allowPolitical: Bool
   
   enum CodingKeys: String, CodingKey {
     case id = "user"
     case nickname
+    case nicknameUpdatedAt = "nickname_updated_at"
     case allowNSFW = "see_sexual"
     case allowPolitical = "see_social"
   }
@@ -23,6 +25,6 @@ struct AraMeResponseDTO: Codable {
 
 extension AraMeResponseDTO {
   func toModel() -> AraMe {
-    AraMe(id: id, nickname: nickname, allowNSFW: allowNSFW, allowPolitical: allowPolitical)
+    AraMe(id: id, nickname: nickname, nicknameUpdatedAt: nicknameUpdatedAt.toDate(), allowNSFW: allowNSFW, allowPolitical: allowPolitical)
   }
 }

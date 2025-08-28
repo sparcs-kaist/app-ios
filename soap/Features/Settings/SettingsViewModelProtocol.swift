@@ -16,8 +16,11 @@ protocol SettingsViewModelProtocol: Observable {
   var araAllowNSFWPosts: Bool { get set}
   var araAllowPoliticalPosts: Bool { get set }
   var araNickname: String { get set }
+  var araNicknameUpdatable: Bool { get }
+  var araNicknameUpdatableSince: Date? { get }
   var otlMajor: String { get set }
   
+  var araUser: AraMe? { get }
   var otlMajorList: [String] { get }
   
   func fetchAraUser() async

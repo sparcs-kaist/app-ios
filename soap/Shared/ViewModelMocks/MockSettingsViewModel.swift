@@ -10,11 +10,14 @@ import SwiftUI
 @Observable
 class MockSettingsViewModel: SettingsViewModelProtocol {
   // MARK: - Properties
+  var araUser: AraMe?
   var taxiUser: TaxiUser?
   var state: SettingsViewModel.ViewState = .loading
   var taxiBankName: String?
   var taxiBankNumber: String = ""
   var araNickname: String = "유능한 시조새_0b4c"
+  var araNicknameUpdatable: Bool = false
+  var araNicknameUpdatableSince: Date? = Calendar.current.date(byAdding: .day, value: 1, to: Date())
   var araAllowNSFWPosts: Bool = false
   var araAllowPoliticalPosts: Bool = false
   var otlMajor: String = "School of Computer Science"

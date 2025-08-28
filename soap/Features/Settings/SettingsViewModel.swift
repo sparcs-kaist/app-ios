@@ -28,6 +28,18 @@ class SettingsViewModel: SettingsViewModelProtocol {
   var araAllowNSFWPosts: Bool = false
   var araAllowPoliticalPosts: Bool = false
   var araNickname: String = ""
+  var araNicknameUpdatable: Bool {
+    if let date = araNicknameUpdatableSince, date <= Date() {
+      return true
+    }
+    return false
+  }
+  var araNicknameUpdatableSince: Date? {
+    if let nicknameUpdatedAt = araUser?.nicknameUpdatedAt, let date = Calendar.current.date(byAdding: .month, value: 3, to: nicknameUpdatedAt) {
+      return date
+    }
+    return nil
+  }
   var taxiBankName: String?
   var taxiBankNumber: String = ""
   var otlMajor: String = "School of Computer Science"
