@@ -20,6 +20,8 @@ struct TaxiChatView: View {
   @State private var isLoadingMore: Bool = false
 
   @State private var showCallTaxiAlert: Bool = false
+  @State private var showPayMoneyAlert: Bool = false
+  @State private var showReportSheet: Bool = false
   @State private var showErrorAlert: Bool = false
   @State private var errorMessage: String = ""
 
@@ -28,8 +30,6 @@ struct TaxiChatView: View {
   @State private var selectedImage: UIImage?
 
   @State private var tappedImageID: String? = nil
-
-  @State private var showReportSheet: Bool = false
 
   @Namespace private var namespace
   @FocusState private var isFocused: Bool
@@ -91,6 +91,27 @@ struct TaxiChatView: View {
         )
       }
     )
+    .alert(
+      "Pay Money",
+      isPresented: $showPayMoneyAlert,
+      actions: {
+        Button("Open Kakao Pay", role: .confirm) {
+          openKakaoPay()
+        }
+        Button("Open Toss", role: .confirm) {
+          openToss()
+        }
+        Button("I sent", role: .confirm) {
+          viewModel.commitPayment()
+        }
+        Button("Cancel", role: .cancel) { }
+      },
+      message: {
+        Text(
+          "You can launch the banking app. After sending money, press \"I sent\" button to notify the other participants."
+        )
+      }
+    )
     .alert("Error", isPresented: $showErrorAlert, actions: {
       Button("Okay", role: .close) { }
     }, message: {
@@ -99,7 +120,7 @@ struct TaxiChatView: View {
     .sheet(isPresented: $showReportSheet) {
       TaxiReportView(room: viewModel.room)
         .presentationDragIndicator(.visible)
-        .presentationDetents([.height(400), .height(500)])
+        .presentationDetents([.height(450)])
     }
     .task {
       await viewModel.setup()
@@ -225,10 +246,11 @@ struct TaxiChatView: View {
     HStack(alignment: .bottom) {
       Menu {
         Button("Send Payment", systemImage: "wonsign.circle") {
-          viewModel.commitPayment()
+          showPayMoneyAlert = true
         }
         .disabled(!viewModel.isCommitPaymentAvailable)
         Button("Request Settlement", systemImage: "square.and.pencil") {
+          // TODO: 계좌번호 확인
           viewModel.commitSettlement()
         }
         .disabled(!viewModel.isCommitSettlementAvailable)
@@ -385,6 +407,25 @@ struct TaxiChatView: View {
   private func openUber() {
     if let url = URL(
       string: "uber://?action=setPickup&client_id=a&&pickup[latitude]=\(viewModel.room.source.latitude)&pickup[longitude]=\(viewModel.room.source.longitude)&&dropoff[latitude]=\(viewModel.room.destination.latitude)&dropoff[longitude]=\(viewModel.room.destination.longitude)"
+    ) {
+      openURL(url)
+    }
+  }
+
+  private func openKakaoPay() {
+    if let url = URL(
+      string:
+        "kakaotalk://kakaopay/money/to/bank"
+    ) {
+      openURL(url)
+    }
+  }
+
+  private func openToss() {
+    // TODO: amount, bankCode, accountNo
+    if let url = URL(
+      string:
+        "supertoss://send"
     ) {
       openURL(url)
     }
