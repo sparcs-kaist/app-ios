@@ -10,6 +10,7 @@ import SwiftUI
 struct TaxiSettingsView: View {
   @State private var vm: TaxiSettingsViewModelProtocol
   @State private var safariURL: URL?
+  @State private var isValid: Bool = false
   
   @Environment(\.dismiss) var dismiss
   
@@ -48,6 +49,9 @@ struct TaxiSettingsView: View {
     .fullScreenCover(item: $safariURL) {
       SafariViewWrapper(url: $0)
     }
+    .onChange(of: [vm.taxiBankName, vm.taxiBankNumber]) {
+      isValid = vm.taxiBankName != nil && !vm.taxiBankNumber.isEmpty && (vm.taxiUser?.account != "\(vm.taxiBankName ?? "") \(vm.taxiBankNumber)")
+    }
   }
   
   @ViewBuilder
@@ -84,10 +88,6 @@ struct TaxiSettingsView: View {
         webViewButton("list.bullet.clipboard", text: "Privacy Policy", url: URL(string: "https://sparcs.org")!)
       }
     }
-  }
-  
-  var isValid: Bool {
-    return vm.taxiBankName != nil && !vm.taxiBankNumber.isEmpty && (vm.taxiUser?.account != "\(vm.taxiBankName ?? "") \(vm.taxiBankNumber)")
   }
   
   fileprivate func navigationLinkWithIcon(destination: some View, text: String, systemImage: String) -> some View {

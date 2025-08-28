@@ -19,6 +19,7 @@ protocol TaxiSettingsViewModelProtocol: Observable {
   func taxiEditBankAccount(account: String) async
 }
 
+@Observable
 class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   enum ViewState {
     case loading
