@@ -96,7 +96,7 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     do {
       try await userUseCase.updateAraUser(params: ["see_sexual": araAllowNSFWPosts, "see_social": araAllowPoliticalPosts])
     } catch {
-      logger.debug("Failed to update ara post visibility: \(error)")
+      logger.error("Failed to update ara post visibility: \(error)")
     }
   }
   

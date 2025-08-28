@@ -117,7 +117,7 @@ struct AraSettingsView: View {
       do {
         try await vm.updateAraNickname()
       } catch {
-        logger.debug("Failed to update Ara nickname: \(error.localizedDescription)")
+        logger.error("Failed to update Ara nickname: \(error.localizedDescription)")
       }
     }
   }
