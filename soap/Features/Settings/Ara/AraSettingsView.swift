@@ -8,9 +8,13 @@
 import SwiftUI
 
 struct AraSettingsView: View {
-  @Binding var vm: SettingsViewModelProtocol
+  @State private var vm: AraSettingsViewModelProtocol
   @State private var showNicknameAlert: Bool = false
   @Environment(\.dismiss) private var dismiss
+  
+  init() {
+    _vm = State(wrappedValue: AraSettingsViewModel())
+  }
   
   var body: some View {
     Group {
@@ -99,40 +103,38 @@ struct AraSettingsView: View {
       do {
         try await vm.updateAraNickname()
       } catch {
-        if let error = error as? SettingsViewModel.SettingsError, error == .araNicknameInterval {
-          showNicknameAlert = true
-        }
+        logger.debug("Failed to update Ara nickname: \(error.localizedDescription)")
       }
     }
   }
 }
 
 #Preview("Loading State") {
-  let vm = MockSettingsViewModel()
+  let vm = MockAraSettingsViewModel()
   vm.state = .loading
   
   return NavigationStack {
-    AraSettingsView(vm: .constant(vm))
+    AraSettingsView()
   }
 }
 
 #Preview("Loaded State") {
-  let vm = MockSettingsViewModel()
+  let vm = MockAraSettingsViewModel()
   vm.state = .loaded
   vm.araNickname = "오열하는 운영체제 및 실험"
   vm.araAllowNSFWPosts = false
   vm.araAllowPoliticalPosts = true
   
   return NavigationStack {
-    AraSettingsView(vm: .constant(vm))
+    AraSettingsView()
   }
 }
 
 #Preview("Error State") {
-  let vm = MockSettingsViewModel()
+  let vm = MockAraSettingsViewModel()
   vm.state = .error(message: "Network error")
   
   return NavigationStack {
-    AraSettingsView(vm: .constant(vm))
+    AraSettingsView()
   }
 }

@@ -19,34 +19,12 @@ class SettingsViewModel: SettingsViewModelProtocol {
     case loaded
     case error(message: String)
   }
-  enum SettingsError: Error {
-    case araNicknameInterval
-  }
   
-  // MARK: - Mock data
-  // TODO: implement API call & data structures
-  var araAllowNSFWPosts: Bool = false
-  var araAllowPoliticalPosts: Bool = false
-  var araNickname: String = ""
-  var araNicknameUpdatable: Bool {
-    if let date = araNicknameUpdatableSince, date <= Date() {
-      return true
-    }
-    return false
-  }
-  var araNicknameUpdatableSince: Date? {
-    if let nicknameUpdatedAt = araUser?.nicknameUpdatedAt, let date = Calendar.current.date(byAdding: .month, value: 3, to: nicknameUpdatedAt) {
-      return date
-    }
-    return nil
-  }
+  // MARK: - Properties
   var taxiBankName: String?
   var taxiBankNumber: String = ""
   var otlMajor: String = "School of Computer Science"
   let otlMajorList: [String] = ["School of Computer Science", "School of Electrical Engineering", "School of Business"]
-  
-  // MARK: - Properties
-  var araUser: AraMe?
   var taxiUser: TaxiUser?
   var state: ViewState = .loading
   
@@ -55,39 +33,6 @@ class SettingsViewModel: SettingsViewModelProtocol {
   @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
   
   // MARK: - Functions
-  func fetchAraUser() async {
-    state = .loading
-    do {
-      try await userUseCase.fetchAraUser()
-    } catch {
-      state = .error(message: error.localizedDescription)
-    }
-    self.araUser = await userUseCase.araUser
-    araAllowNSFWPosts = araUser?.allowNSFW ?? false
-    araAllowPoliticalPosts = araUser?.allowPolitical ?? false
-    araNickname = araUser?.nickname ?? ""
-    state = .loaded
-  }
-  
-  func updateAraNickname() async throws {
-    do {
-      try await userUseCase.updateAraUser(params: ["nickname": araNickname])
-    } catch {
-      logger.debug("Failed to update ara nickname: \(error)")
-      if let error = error as? MoyaError, error.response?.statusCode == 400 {
-        throw SettingsError.araNicknameInterval
-      }
-    }
-  }
-  
-  func updateAraPostVisibility() async {
-    do {
-      try await userUseCase.updateAraUser(params: ["see_sexual": araAllowNSFWPosts, "see_social": araAllowPoliticalPosts])
-    } catch {
-      logger.debug("Failed to update ara post visibility: \(error)")
-    }
-  }
-  
   func fetchTaxiUser() async {
     state = .loading
     do {

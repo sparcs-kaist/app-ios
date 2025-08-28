@@ -23,7 +23,7 @@ struct SettingsView: View {
         }
         
         Section(header: Text("Services")) {
-          NavigationLink("Ara") { AraSettingsView(vm: $vm).navigationTitle("Ara Settings") }
+          NavigationLink("Ara") { AraSettingsView().navigationTitle("Ara Settings") }
           NavigationLink("Taxi") { TaxiSettingsView(vm: $vm).navigationTitle("Taxi Settings") }
           NavigationLink("OTL") { OTLSettingsView(vm: $vm).navigationTitle("OTL Settings") }
         }
