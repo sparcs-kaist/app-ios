@@ -9,10 +9,10 @@ import SwiftUI
 import NukeUI
 
 struct SettingsView: View {
-  @State private var vm: SettingsViewModelProtocol
+  @State private var vm: OTLSettingsViewModelProtocol
   
   init() {
-    _vm = State(wrappedValue: SettingsViewModel())
+    _vm = State(wrappedValue: OTLSettingsViewModel())
   }
   
   var body: some View {
