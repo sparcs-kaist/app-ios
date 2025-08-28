@@ -15,6 +15,7 @@ protocol AraBoardRepositoryProtocol: Sendable {
   func fetchBoards() async throws -> [AraBoard]
   func fetchPosts(type: AraBoardTarget.PostListType, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
   func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost
+  func fetchScraps(page: Int, pageSize: Int) async throws -> AraPostPage
   func uploadImage(image: UIImage) async throws -> AraAttachment
   func writePost(request: AraCreatePost) async throws
   func upvotePost(postID: Int) async throws
@@ -54,12 +55,19 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
 
     return page
   }
-
+  
   func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost {
     let response = try await provider.request(.fetchPost(origin: origin, postID: postID))
     let post: AraPost = try response.map(AraPostDTO.self).toModel()
 
     return post
+  }
+  
+  func fetchScraps(page: Int, pageSize: Int) async throws -> AraPostPage {
+    let response = try await provider.request(.fetchScraps(page: page, pageSize: pageSize))
+    let page: AraPostPage = try response.map(AraScrapPageDTO.self).toModel()
+    
+    return page
   }
 
   func uploadImage(image: UIImage) async throws -> AraAttachment {

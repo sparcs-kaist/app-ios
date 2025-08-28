@@ -24,8 +24,8 @@ protocol AraSettingsViewModelProtocol: Observable {
   func fetchAraUser() async
   func updateAraNickname() async throws
   func updateAraPostVisibility() async
-  func fetchInitialPosts() async
-  func loadNextPage() async
+  func fetchInitialPosts(type: AraSettingsViewModel.PostType) async
+  func loadNextPage(type: AraSettingsViewModel.PostType) async
   func refreshItem(postID: Int) 
 }
 
@@ -100,16 +100,24 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     }
   }
   
-  func fetchInitialPosts() async {
+  func fetchInitialPosts(type: PostType) async {
     guard let userID = araUser?.id else { return }
     
     do {
       self.state = .loading
-      let page = try await araBoardRepository.fetchPosts(
-        type: .user(userID: userID),
-        page: 1,
-        pageSize: pageSize,
-        searchKeyword: nil)
+      var page: AraPostPage
+      switch type {
+      case .all:
+        page = try await araBoardRepository.fetchPosts(
+          type: .user(userID: userID),
+          page: 1,
+          pageSize: pageSize,
+          searchKeyword: nil)
+      case .bookmark:
+        page = try await araBoardRepository.fetchScraps(
+          page: 1,
+          pageSize: pageSize)
+      }
       self.totalPages = page.pages
       self.currentPage = page.currentPage
       self.posts = page.results
@@ -121,7 +129,7 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     }
   }
   
-  func loadNextPage() async {
+  func loadNextPage(type: PostType) async {
     guard let userID = araUser?.id else { return }
     guard !isLoadingMore && hasMorePages else { return }
     
@@ -129,12 +137,21 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     
     do {
       let nextPage = currentPage + 1
-      let page = try await araBoardRepository.fetchPosts(
-        type: .user(userID: userID),
-        page: nextPage,
-        pageSize: pageSize,
-        searchKeyword: nil
-      )
+      var page: AraPostPage
+      switch type {
+      case .all:
+        page = try await araBoardRepository.fetchPosts(
+          type: .user(userID: userID),
+          page: nextPage,
+          pageSize: pageSize,
+          searchKeyword: nil
+        )
+      case .bookmark:
+        page = try await araBoardRepository.fetchScraps(
+          page: nextPage,
+          pageSize: pageSize
+        )
+      }
       self.totalPages = page.pages
       self.currentPage = page.currentPage
       self.posts.append(contentsOf: page.results)

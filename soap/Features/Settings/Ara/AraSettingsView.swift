@@ -35,6 +35,7 @@ struct AraSettingsView: View {
         await vm.updateAraPostVisibility()
       }
     }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .alert("Warning", isPresented: $showNicknameAlert) {
       Button(role: .cancel) {
         showNicknameAlert = false
@@ -98,8 +99,15 @@ struct AraSettingsView: View {
       
       NavigationLink(
         "My Posts",
-        destination: AraMyPostView(vm: $vm)
+        destination: AraMyPostView(vm: $vm, postType: .all)
           .navigationTitle("My Posts")
+          .navigationBarTitleDisplayMode(.inline)
+      )
+      NavigationLink(
+        "Bookmarked Posts",
+        destination: AraMyPostView(vm: $vm, postType: .bookmark)
+          .navigationTitle("Bookmarked Posts")
+          .navigationBarTitleDisplayMode(.inline)
       )
     }
   }

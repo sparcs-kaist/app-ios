@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AraMyPostView: View {
   @Binding var vm: AraSettingsViewModelProtocol
-  @State private var postType: AraSettingsViewModel.PostType = .all
+  @State var postType: AraSettingsViewModel.PostType
   
   var body: some View {
     Group {
@@ -23,7 +23,7 @@ struct AraMyPostView: View {
       }
     }
     .task {
-      await vm.fetchInitialPosts()
+      await vm.fetchInitialPosts(type: postType)
     }
   }
   
@@ -33,30 +33,22 @@ struct AraMyPostView: View {
   }
   
   private var loadedView: some View {
-    Group {
-      Picker("Post Type", selection: $postType) {
-        ForEach(AraSettingsViewModel.PostType.allCases, id: \.self) {
-          Text($0.rawValue)
-        }
+    PostList(
+      posts: vm.posts,
+      destination: { post in
+        PostView(post: post)
+          .addKeyboardVisibilityToEnvironment()
+          .onDisappear() {
+            vm.refreshItem(postID: post.id)
+          }
+      },
+      onRefresh: {
+        await vm.fetchInitialPosts(type: postType)
+      },
+      onLoadMore: {
+        await vm.loadNextPage(type: postType)
       }
-      .pickerStyle(.segmented)
-      PostList(
-        posts: vm.posts,
-        destination: { post in
-          PostView(post: post)
-            .addKeyboardVisibilityToEnvironment()
-            .onDisappear() {
-              vm.refreshItem(postID: post.id)
-            }
-        },
-        onRefresh: {
-          await vm.fetchInitialPosts()
-        },
-        onLoadMore: {
-          await vm.loadNextPage()
-        }
-      )
-    }
+    )
   }
 }
 
@@ -65,7 +57,7 @@ struct AraMyPostView: View {
   vm.state = .loading
   
   return NavigationStack {
-    AraMyPostView(vm: .constant(vm))
+    AraMyPostView(vm: .constant(vm), postType: .all)
   }
 }
 
@@ -77,7 +69,7 @@ struct AraMyPostView: View {
   vm.araAllowPoliticalPosts = true
   
   return NavigationStack {
-    AraMyPostView(vm: .constant(vm))
+    AraMyPostView(vm: .constant(vm), postType: .all)
   }
 }
 
@@ -86,6 +78,6 @@ struct AraMyPostView: View {
   vm.state = .error(message: "Network error")
   
   return NavigationStack {
-    AraMyPostView(vm: .constant(vm))
+    AraMyPostView(vm: .constant(vm), postType: .all)
   }
 }

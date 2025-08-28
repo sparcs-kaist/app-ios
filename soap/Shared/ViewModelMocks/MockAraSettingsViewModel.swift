@@ -32,11 +32,11 @@ class MockAraSettingsViewModel: AraSettingsViewModelProtocol {
     // Mock implementation
   }
   
-  func fetchInitialPosts() async {
+  func fetchInitialPosts(type: AraSettingsViewModel.PostType) async {
     // Mock implementation
   }
   
-  func loadNextPage() async {
+  func loadNextPage(type: AraSettingsViewModel.PostType) async {
     // Mock implementation
   }
   
