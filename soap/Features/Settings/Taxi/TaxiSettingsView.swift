@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct TaxiSettingsView: View {
-  @Binding var vm: SettingsViewModelProtocol
+  @State private var vm: TaxiSettingsViewModelProtocol
   @State private var safariURL: URL?
   
   @Environment(\.dismiss) var dismiss
+  
+  init(vm: TaxiSettingsViewModelProtocol = TaxiSettingsViewModel()) {
+    _vm = State(initialValue: vm)
+  }
   
   var body: some View {
     Group {
@@ -107,31 +111,30 @@ struct TaxiSettingsView: View {
 }
 
 #Preview("Loading State") {
-  let vm = MockSettingsViewModel()
+  let vm = MockTaxiSettingsViewModel()
   vm.state = .loading
   
   return NavigationStack {
-    TaxiSettingsView(vm: .constant(vm))
+    TaxiSettingsView(vm: vm)
   }
 }
 
 #Preview("Loaded State") {
-  let vm = MockSettingsViewModel()
+  let vm = MockTaxiSettingsViewModel()
   vm.state = .loaded
-  vm.taxiUser = .mock
   vm.taxiBankName = String(vm.taxiUser!.account.split(separator: " ").first!)
   vm.taxiBankNumber = String(vm.taxiUser!.account.split(separator: " ").last!)
   
   return NavigationStack {
-    TaxiSettingsView(vm: .constant(vm))
+    TaxiSettingsView(vm: vm)
   }
 }
 
 #Preview("Error State") {
-  let vm = MockSettingsViewModel()
+  let vm = MockTaxiSettingsViewModel()
   vm.state = .error(message: "Network error")
   
   return NavigationStack {
-    TaxiSettingsView(vm: .constant(vm))
+    TaxiSettingsView(vm: vm)
   }
 }
