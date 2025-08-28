@@ -92,23 +92,25 @@ struct AraSettingsView: View {
         }
       }
 
-      Section(header: Text("Post Setttings")) {
+      Section(header: Text("Content Preferences")) {
         Toggle("Allow NSFW", isOn: $vm.araAllowNSFWPosts)
         Toggle("Allow Political", isOn: $vm.araAllowPoliticalPosts)
       }
       
-      NavigationLink(
-        "My Posts",
-        destination: AraMyPostView(vm: $vm, postType: .all)
-          .navigationTitle("My Posts")
-          .navigationBarTitleDisplayMode(.inline)
-      )
-      NavigationLink(
-        "Bookmarked Posts",
-        destination: AraMyPostView(vm: $vm, postType: .bookmark)
-          .navigationTitle("Bookmarked Posts")
-          .navigationBarTitleDisplayMode(.inline)
-      )
+      Section(header: Text("Posts")){
+        NavigationLink(
+          "My Posts",
+          destination: AraMyPostView(vm: $vm, postType: .all)
+            .navigationTitle("My Posts")
+            .navigationBarTitleDisplayMode(.inline)
+        )
+        NavigationLink(
+          "Bookmarked Posts",
+          destination: AraMyPostView(vm: $vm, postType: .bookmark)
+            .navigationTitle("Bookmarked Posts")
+            .navigationBarTitleDisplayMode(.inline)
+        )
+      }
     }
   }
   
