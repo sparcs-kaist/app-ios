@@ -10,6 +10,7 @@ import SwiftUI
 struct AraSettingsView: View {
   @Binding var vm: SettingsViewModelProtocol
   @State private var showNicknameAlert: Bool = false
+  @Environment(\.dismiss) private var dismiss
   
   var body: some View {
     Group {
@@ -30,10 +31,15 @@ struct AraSettingsView: View {
         await vm.updateAraPostVisibility()
       }
     }
-    .alert("Error", isPresented: $showNicknameAlert) {
-      
+    .alert("Warning", isPresented: $showNicknameAlert) {
+      Button(role: .cancel) {
+        showNicknameAlert = false
+      }
+      Button(role: .confirm) {
+        updateAraNickname()
+      }
     } message: {
-      Text("Nicknames can only be changed every 3 months. Please try again later.")
+      Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.araNickname)?")
     }
   }
   
@@ -64,7 +70,7 @@ struct AraSettingsView: View {
           TextField("Nickname", text: $vm.araNickname)
           .autocorrectionDisabled()
           .onSubmit {
-            updateAraNickname()
+            showNicknameAlert = true
           }
           .multilineTextAlignment(.trailing)
           .foregroundStyle(.secondary)
