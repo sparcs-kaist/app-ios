@@ -17,7 +17,8 @@ class MockAraSettingsViewModel: AraSettingsViewModelProtocol {
   var araAllowNSFWPosts: Bool = false
   var araAllowPoliticalPosts: Bool = false
   var state: AraSettingsViewModel.ViewState = .loading
-
+  var posts: [AraPost] = AraPost.mockList
+  
   // MARK: - Functions
   func fetchAraUser() async {
     // Mock implementation
@@ -28,6 +29,18 @@ class MockAraSettingsViewModel: AraSettingsViewModelProtocol {
   }
   
   func updateAraPostVisibility() async {
+    // Mock implementation
+  }
+  
+  func fetchInitialPosts() async {
+    // Mock implementation
+  }
+  
+  func loadNextPage() async {
+    // Mock implementation
+  }
+  
+  func refreshItem(postID: Int) {
     // Mock implementation
   }
 }

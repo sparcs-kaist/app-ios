@@ -12,8 +12,8 @@ struct AraSettingsView: View {
   @State private var showNicknameAlert: Bool = false
   @Environment(\.dismiss) private var dismiss
   
-  init() {
-    _vm = State(wrappedValue: AraSettingsViewModel())
+  init(vm: AraSettingsViewModelProtocol = AraSettingsViewModel()) {
+    _vm = State(initialValue: vm)
   }
   
   var body: some View {
@@ -91,10 +91,16 @@ struct AraSettingsView: View {
         }
       }
 
-      Section(header: Text("Posts")) {
+      Section(header: Text("Post Setttings")) {
         Toggle("Allow NSFW", isOn: $vm.araAllowNSFWPosts)
         Toggle("Allow Political", isOn: $vm.araAllowPoliticalPosts)
       }
+      
+      NavigationLink(
+        "My Posts",
+        destination: AraMyPostView(vm: $vm)
+          .navigationTitle("My Posts")
+      )
     }
   }
   
@@ -114,7 +120,7 @@ struct AraSettingsView: View {
   vm.state = .loading
   
   return NavigationStack {
-    AraSettingsView()
+    AraSettingsView(vm: vm)
   }
 }
 
@@ -126,7 +132,7 @@ struct AraSettingsView: View {
   vm.araAllowPoliticalPosts = true
   
   return NavigationStack {
-    AraSettingsView()
+    AraSettingsView(vm: vm)
   }
 }
 
@@ -135,6 +141,6 @@ struct AraSettingsView: View {
   vm.state = .error(message: "Network error")
   
   return NavigationStack {
-    AraSettingsView()
+    AraSettingsView(vm: vm)
   }
 }
