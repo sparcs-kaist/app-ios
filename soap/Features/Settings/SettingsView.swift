@@ -6,15 +6,8 @@
 //
 
 import SwiftUI
-import NukeUI
 
 struct SettingsView: View {
-  @State private var vm: OTLSettingsViewModelProtocol
-  
-  init() {
-    _vm = State(wrappedValue: OTLSettingsViewModel())
-  }
-  
   var body: some View {
     NavigationStack {
       List {
@@ -25,7 +18,7 @@ struct SettingsView: View {
         Section(header: Text("Services")) {
           NavigationLink("Ara") { AraSettingsView().navigationTitle("Ara Settings") }
           NavigationLink("Taxi") { TaxiSettingsView().navigationTitle("Taxi Settings") }
-          NavigationLink("OTL") { OTLSettingsView(vm: $vm).navigationTitle("OTL Settings") }
+          NavigationLink("OTL") { OTLSettingsView().navigationTitle("OTL Settings") }
         }
       }
       .navigationTitle(Text("Settings"))
