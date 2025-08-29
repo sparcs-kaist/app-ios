@@ -32,7 +32,7 @@ struct AraSettingsView: View {
     }
     .onChange(of: [vm.araAllowNSFWPosts, vm.araAllowPoliticalPosts]) {
       Task {
-        await vm.updateAraPostVisibility()
+        await vm.updateAraContentPreference()
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))

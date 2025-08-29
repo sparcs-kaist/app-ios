@@ -23,7 +23,7 @@ protocol AraSettingsViewModelProtocol: Observable {
   
   func fetchAraUser() async
   func updateAraNickname() async throws
-  func updateAraPostVisibility() async
+  func updateAraContentPreference() async
   func fetchInitialPosts(type: AraSettingsViewModel.PostType) async
   func loadNextPage(type: AraSettingsViewModel.PostType) async
   func refreshItem(postID: Int) 
@@ -92,11 +92,11 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     try await userUseCase.updateAraUser(params: ["nickname": araNickname])
   }
   
-  func updateAraPostVisibility() async {
+  func updateAraContentPreference() async {
     do {
       try await userUseCase.updateAraUser(params: ["see_sexual": araAllowNSFWPosts, "see_social": araAllowPoliticalPosts])
     } catch {
-      logger.error("Failed to update ara post visibility: \(error)")
+      logger.error("Failed to update Ara content preference: \(error)")
     }
   }
   

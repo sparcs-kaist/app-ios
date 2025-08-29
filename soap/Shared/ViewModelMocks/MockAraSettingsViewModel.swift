@@ -28,7 +28,7 @@ class MockAraSettingsViewModel: AraSettingsViewModelProtocol {
     // Mock implementation
   }
   
-  func updateAraPostVisibility() async {
+  func updateAraContentPreference() async {
     // Mock implementation
   }
   

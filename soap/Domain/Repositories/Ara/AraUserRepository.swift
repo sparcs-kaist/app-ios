@@ -39,7 +39,7 @@ final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
   
   func fetchMe() async throws -> AraMe {
     let response = try await provider.request(.fetchMe)
-    let _ = try response.filterSuccessfulStatusCodes()
+    _ = try response.filterSuccessfulStatusCodes()
     let userInfo: AraMe = try response.map(AraMeResponseDTO.self).toModel()
     
     return userInfo
