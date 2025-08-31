@@ -16,6 +16,15 @@ struct AraMyPostView: View {
   }
   
   var body: some View {
+    switch vm.type {
+    case .all:
+      myPostView
+    case .bookmark:
+      bookmarkedPostView
+    }
+  }
+  
+  private var myPostView: some View {
     Group {
       if !vm.searchKeyword.isEmpty && vm.posts.isEmpty {
         ContentUnavailableView.search(text: vm.searchKeyword)
@@ -38,7 +47,22 @@ struct AraMyPostView: View {
       }
     }
     .searchable(text: $vm.searchKeyword)
-    .disabled(vm.state == .loading)
+  }
+  
+  private var bookmarkedPostView: some View {
+    Group {
+      switch vm.state {
+      case .loading:
+        loadingView
+      case .loaded:
+        loadedView
+      case .error(let message):
+        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+      }
+    }
+    .task {
+      await vm.fetchInitialPosts()
+    }
   }
   
   private var loadingView: some View {
