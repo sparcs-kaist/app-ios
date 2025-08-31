@@ -40,11 +40,6 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   // MARK: - Functions
   func fetchTaxiUser() async {
     state = .loading
-    do {
-      try await userUseCase.fetchTaxiUser()
-    } catch {
-      state = .error(message: error.localizedDescription)
-    }
     self.taxiUser = await userUseCase.taxiUser
     taxiBankName = taxiUser?.account.split(separator: " ").first.map { String($0) }
     taxiBankNumber = String(taxiUser?.account.split(separator: " ").last ?? "")

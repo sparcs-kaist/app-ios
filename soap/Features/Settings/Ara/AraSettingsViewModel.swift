@@ -27,7 +27,7 @@ protocol AraSettingsViewModelProtocol: Observable {
 
 @Observable
 class AraSettingsViewModel: AraSettingsViewModelProtocol {
-  enum ViewState {
+  enum ViewState: Equatable {
     case loading
     case loaded
     case error(message: String)
@@ -59,11 +59,6 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
   // MARK: - Functions
   func fetchAraUser() async {
     state = .loading
-    do {
-      try await userUseCase.fetchAraUser()
-    } catch {
-      state = .error(message: error.localizedDescription)
-    }
     self.araUser = await userUseCase.araUser
     araAllowNSFWPosts = araUser?.allowNSFW ?? false
     araAllowPoliticalPosts = araUser?.allowPolitical ?? false
