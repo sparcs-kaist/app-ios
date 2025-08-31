@@ -19,14 +19,10 @@ protocol AraSettingsViewModelProtocol: Observable {
   var araNicknameUpdatable: Bool { get }
   var araNicknameUpdatableSince: Date? { get }
   var state: AraSettingsViewModel.ViewState { get }
-  var posts: [AraPost] { get }
   
   func fetchAraUser() async
   func updateAraNickname() async throws
   func updateAraContentPreference() async
-  func fetchInitialPosts(type: AraSettingsViewModel.PostType) async
-  func loadNextPage(type: AraSettingsViewModel.PostType) async
-  func refreshItem(postID: Int) 
 }
 
 @Observable
@@ -35,11 +31,6 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     case loading
     case loaded
     case error(message: String)
-  }
-  
-  enum PostType: String, CaseIterable {
-    case all = "All"
-    case bookmark = "Bookmarked"
   }
   
   // MARK: - Dependencies
@@ -64,14 +55,6 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     return nil
   }
   var state: ViewState = .loading
-  var posts: [AraPost] = []
-  
-  // Infinite Scroll Properties
-  var isLoadingMore: Bool = false
-  var hasMorePages: Bool = true
-  var currentPage: Int = 1
-  var totalPages: Int = 0
-  var pageSize: Int = 30
   
   // MARK: - Functions
   func fetchAraUser() async {
@@ -97,85 +80,6 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
       try await userUseCase.updateAraUser(params: ["see_sexual": araAllowNSFWPosts, "see_social": araAllowPoliticalPosts])
     } catch {
       logger.error("Failed to update Ara content preference: \(error)")
-    }
-  }
-  
-  func fetchInitialPosts(type: PostType) async {
-    guard let userID = araUser?.id else { return }
-    
-    do {
-      self.state = .loading
-      var page: AraPostPage
-      switch type {
-      case .all:
-        page = try await araBoardRepository.fetchPosts(
-          type: .user(userID: userID),
-          page: 1,
-          pageSize: pageSize,
-          searchKeyword: nil)
-      case .bookmark:
-        page = try await araBoardRepository.fetchScraps(
-          page: 1,
-          pageSize: pageSize)
-      }
-      self.totalPages = page.pages
-      self.currentPage = page.currentPage
-      self.posts = page.results
-      self.hasMorePages = currentPage < totalPages
-      self.state = .loaded
-    } catch {
-      logger.error(error)
-      state = .error(message: error.localizedDescription)
-    }
-  }
-  
-  func loadNextPage(type: PostType) async {
-    guard let userID = araUser?.id else { return }
-    guard !isLoadingMore && hasMorePages else { return }
-    
-    isLoadingMore = true
-    
-    do {
-      let nextPage = currentPage + 1
-      var page: AraPostPage
-      switch type {
-      case .all:
-        page = try await araBoardRepository.fetchPosts(
-          type: .user(userID: userID),
-          page: nextPage,
-          pageSize: pageSize,
-          searchKeyword: nil
-        )
-      case .bookmark:
-        page = try await araBoardRepository.fetchScraps(
-          page: nextPage,
-          pageSize: pageSize
-        )
-      }
-      self.totalPages = page.pages
-      self.currentPage = page.currentPage
-      self.posts.append(contentsOf: page.results)
-      self.hasMorePages = currentPage < totalPages
-      self.state = .loaded
-      self.isLoadingMore = false
-    } catch {
-      logger.error(error)
-      state = .error(message: error.localizedDescription)
-    }
-  }
-  
-  func refreshItem(postID: Int) {
-    Task {
-      guard let updated: AraPost = try? await araBoardRepository.fetchPost(origin: .none, postID: postID) else { return }
-      
-      if let idx = self.posts.firstIndex(where: { $0.id == updated.id }) {
-        var previousPost: AraPost = self.posts[idx]
-        previousPost.upvotes = updated.upvotes
-        previousPost.downvotes = updated.downvotes
-        previousPost.commentCount = updated.commentCount
-        self.posts[idx] = previousPost
-        self.state = .loaded
-      }
     }
   }
 }

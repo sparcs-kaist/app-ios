@@ -8,23 +8,37 @@
 import SwiftUI
 
 struct AraMyPostView: View {
-  @Binding var vm: AraSettingsViewModelProtocol
-  @State var postType: AraSettingsViewModel.PostType
+  @State private var vm: AraMyPostViewModelProtocol
+  @State private var loadedInitialPosts: Bool = false
+  
+  init(user: AraMe?, type: AraMyPostViewModel.PostType = .all) {
+    _vm = State(initialValue: AraMyPostViewModel(user: user, type: type))
+  }
   
   var body: some View {
     Group {
-      switch vm.state {
-      case .loading:
-        loadingView
-      case .loaded:
-        loadedView
-      case .error(let message):
-        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+      if !vm.searchKeyword.isEmpty && vm.posts.isEmpty {
+        ContentUnavailableView.search(text: vm.searchKeyword)
+      } else {
+        switch vm.state {
+        case .loading:
+          loadingView
+        case .loaded:
+          loadedView
+        case .error(let message):
+          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        }
       }
     }
     .task {
-      await vm.fetchInitialPosts(type: postType)
+      if !loadedInitialPosts {
+        vm.bind()
+        await vm.fetchInitialPosts()
+        loadedInitialPosts = true
+      }
     }
+    .searchable(text: $vm.searchKeyword)
+    .disabled(vm.state == .loading)
   }
   
   private var loadingView: some View {
@@ -43,41 +57,11 @@ struct AraMyPostView: View {
           }
       },
       onRefresh: {
-        await vm.fetchInitialPosts(type: postType)
+        await vm.fetchInitialPosts()
       },
       onLoadMore: {
-        await vm.loadNextPage(type: postType)
+        await vm.loadNextPage()
       }
     )
-  }
-}
-
-#Preview("Loading State") {
-  let vm = MockAraSettingsViewModel()
-  vm.state = .loading
-  
-  return NavigationStack {
-    AraMyPostView(vm: .constant(vm), postType: .all)
-  }
-}
-
-#Preview("Loaded State") {
-  let vm = MockAraSettingsViewModel()
-  vm.state = .loaded
-  vm.araNickname = "오열하는 운영체제 및 실험"
-  vm.araAllowNSFWPosts = false
-  vm.araAllowPoliticalPosts = true
-  
-  return NavigationStack {
-    AraMyPostView(vm: .constant(vm), postType: .all)
-  }
-}
-
-#Preview("Error State") {
-  let vm = MockAraSettingsViewModel()
-  vm.state = .error(message: "Network error")
-  
-  return NavigationStack {
-    AraMyPostView(vm: .constant(vm), postType: .all)
   }
 }
