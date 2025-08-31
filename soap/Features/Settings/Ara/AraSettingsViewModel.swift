@@ -60,9 +60,13 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
   func fetchAraUser() async {
     state = .loading
     self.araUser = await userUseCase.araUser
-    araAllowNSFWPosts = araUser?.allowNSFW ?? false
-    araAllowPoliticalPosts = araUser?.allowPolitical ?? false
-    araNickname = araUser?.nickname ?? ""
+    guard let user = self.araUser else {
+      state = .error(message: "Ara User Information Not Found. ")
+      return
+    }
+    araAllowNSFWPosts = user.allowNSFW
+    araAllowPoliticalPosts = user.allowPolitical
+    araNickname = user.nickname
     state = .loaded
   }
   

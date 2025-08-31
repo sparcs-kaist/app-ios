@@ -56,6 +56,11 @@ final class UserUseCase: UserUseCaseProtocol {
   
   func updateAraUser(params: [String: Any]) async throws {
     logger.debug("Updating Ara User Information: \(params)")
-    try await araUserRepository.updateMe(id: araUser?.id ?? -1, params: params)
+    guard let araUser = await araUser else {
+      logger.error("Ara User Not Found")
+      return
+    }
+    try await araUserRepository.updateMe(id: araUser.id, params: params)
+    try await fetchAraUser()
   }
 }

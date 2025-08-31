@@ -41,14 +41,19 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   func fetchTaxiUser() async {
     state = .loading
     self.taxiUser = await userUseCase.taxiUser
-    taxiBankName = taxiUser?.account.split(separator: " ").first.map { String($0) }
-    taxiBankNumber = String(taxiUser?.account.split(separator: " ").last ?? "")
+    guard let user = self.taxiUser else {
+      state = .error(message: "Taxi User Information Not Found.")
+      return
+    }
+    taxiBankName = user.account.split(separator: " ").first.map { String($0) }
+    taxiBankNumber = String(user.account.split(separator: " ").last ?? "")
     state = .loaded
   }
   
   func taxiEditBankAccount(account: String) async {
     do {
       try await taxiUserRepository.editBankAccount(account: account)
+      try await userUseCase.fetchTaxiUser()
     } catch {
       logger.debug("Failed to edit bank account: \(error.localizedDescription)")
     }
