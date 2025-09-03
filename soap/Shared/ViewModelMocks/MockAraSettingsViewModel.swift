@@ -10,24 +10,24 @@ import Foundation
 @Observable
 class MockAraSettingsViewModel: AraSettingsViewModelProtocol {
   // MARK: - Properties
-  var araUser: AraMe?
-  var araNickname: String = "유능한 시조새_0b4c"
-  var araNicknameUpdatable: Bool = false
-  var araNicknameUpdatableSince: Date? = Calendar.current.date(byAdding: .day, value: 1, to: Date())
-  var araAllowNSFWPosts: Bool = false
-  var araAllowPoliticalPosts: Bool = false
+  var user: AraMe?
+  var nickname: String = "유능한 시조새_0b4c"
+  var nicknameUpdatable: Bool = false
+  var nicknameUpdatableFrom: Date? = Calendar.current.date(byAdding: .day, value: 1, to: Date())
+  var allowNSFW: Bool = false
+  var allowPolitical: Bool = false
   var state: AraSettingsViewModel.ViewState = .loading
   
   // MARK: - Functions
-  func fetchAraUser() async {
+  func fetchUser() async {
     // Mock implementation
   }
   
-  func updateAraNickname() async throws {
+  func updateNickname() async throws {
     // Mock implementation
   }
   
-  func updateAraContentPreference() async {
+  func updateContentPreference() async {
     // Mock implementation
   }
 }

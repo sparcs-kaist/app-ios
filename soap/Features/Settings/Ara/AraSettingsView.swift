@@ -28,11 +28,11 @@ struct AraSettingsView: View {
       }
     }
     .task {
-      await vm.fetchAraUser()
+      await vm.fetchUser()
     }
-    .onChange(of: [vm.araAllowNSFWPosts, vm.araAllowPoliticalPosts]) {
+    .onChange(of: [vm.allowNSFW, vm.allowPolitical]) {
       Task {
-        await vm.updateAraContentPreference()
+        await vm.updateContentPreference()
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
@@ -44,7 +44,7 @@ struct AraSettingsView: View {
         updateAraNickname()
       }
     } message: {
-      Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.araNickname)?")
+      Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?")
     }
   }
   
@@ -72,20 +72,20 @@ struct AraSettingsView: View {
         HStack {
           Text("Nickname")
           Spacer()
-          TextField("Nickname", text: $vm.araNickname)
+          TextField("Nickname", text: $vm.nickname)
           .autocorrectionDisabled()
           .onSubmit {
             showNicknameAlert = true
           }
           .multilineTextAlignment(.trailing)
           .foregroundStyle(.secondary)
-          .disabled(vm.araNicknameUpdatable == false)
+          .disabled(vm.nicknameUpdatable == false)
         }
       } header: {
         Text("Profile")
       } footer: {
         VStack(alignment: .leading) {
-          if vm.araNicknameUpdatable == false, let date = vm.araNicknameUpdatableSince {
+          if vm.nicknameUpdatable == false, let date = vm.nicknameUpdatableFrom {
             Text("You can't change nickname until \(date.formatted(.iso8601.year().month().day())).")
           }
           Text("Nicknames can only be changed every 3 months.")
@@ -93,20 +93,20 @@ struct AraSettingsView: View {
       }
 
       Section(header: Text("Content Preferences")) {
-        Toggle("Allow NSFW", isOn: $vm.araAllowNSFWPosts)
-        Toggle("Allow Political", isOn: $vm.araAllowPoliticalPosts)
+        Toggle("Allow NSFW", isOn: $vm.allowNSFW)
+        Toggle("Allow Political", isOn: $vm.allowPolitical)
       }
       
       Section(header: Text("Posts")){
         NavigationLink(
           "My Posts",
-          destination: AraMyPostView(user: vm.araUser, type: .all)
+          destination: AraMyPostView(user: vm.user, type: .all)
             .navigationTitle("My Posts")
             .navigationBarTitleDisplayMode(.inline)
         )
         NavigationLink(
           "Bookmarked Posts",
-          destination: AraMyPostView(user: vm.araUser, type: .bookmark)
+          destination: AraMyPostView(user: vm.user, type: .bookmark)
             .navigationTitle("Bookmarked Posts")
             .navigationBarTitleDisplayMode(.inline)
         )
@@ -117,7 +117,7 @@ struct AraSettingsView: View {
   func updateAraNickname() {
     Task {
       do {
-        try await vm.updateAraNickname()
+        try await vm.updateNickname()
       } catch {
         logger.error("Failed to update Ara nickname: \(error.localizedDescription)")
       }
@@ -137,9 +137,9 @@ struct AraSettingsView: View {
 #Preview("Loaded State") {
   let vm = MockAraSettingsViewModel()
   vm.state = .loaded
-  vm.araNickname = "오열하는 운영체제 및 실험"
-  vm.araAllowNSFWPosts = false
-  vm.araAllowPoliticalPosts = true
+  vm.nickname = "오열하는 운영체제 및 실험"
+  vm.allowNSFW = false
+  vm.allowPolitical = true
   
   return NavigationStack {
     AraSettingsView(vm: vm)

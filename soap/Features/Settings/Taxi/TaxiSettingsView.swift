@@ -31,15 +31,15 @@ struct TaxiSettingsView: View {
       }
     }
     .task {
-      await vm.fetchTaxiUser()
+      await vm.fetchUser()
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Button("Done", systemImage: "checkmark", role: .confirm) {
           dismiss()
           Task {
-            guard let bankName = vm.taxiBankName else { return }
-            await vm.taxiEditBankAccount(account: "\(bankName) \(vm.taxiBankNumber)")
+            guard let bankName = vm.bankName else { return }
+            await vm.editBankAccount(account: "\(bankName) \(vm.bankNumber)")
           }
         }
         .disabled(!isValid)
@@ -49,8 +49,8 @@ struct TaxiSettingsView: View {
     .fullScreenCover(item: $safariURL) {
       SafariViewWrapper(url: $0)
     }
-    .onChange(of: [vm.taxiBankName, vm.taxiBankNumber]) {
-      isValid = vm.taxiBankName != nil && !vm.taxiBankNumber.isEmpty && (vm.taxiUser?.account != "\(vm.taxiBankName ?? "") \(vm.taxiBankNumber)")
+    .onChange(of: [vm.bankName, vm.bankNumber]) {
+      isValid = vm.bankName != nil && !vm.bankNumber.isEmpty && (vm.user?.account != "\(vm.bankName ?? "") \(vm.bankNumber)")
     }
   }
   
@@ -66,8 +66,8 @@ struct TaxiSettingsView: View {
   var loadedView: some View {
     List {
       Section(header: Text("Profile")) {
-        RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
-        Picker("Bank Name", selection: $vm.taxiBankName) {
+        RowElementView(title: "Nickname", content: vm.user?.nickname ?? "Unknown")
+        Picker("Bank Name", selection: $vm.bankName) {
           Text("Select Bank").tag(Optional<String>(nil))
           ForEach(Constants.taxiBankNameList, id: \.self) {
             Text($0).tag($0)
@@ -76,7 +76,7 @@ struct TaxiSettingsView: View {
         HStack {
           Text("Bank Number")
           Spacer()
-          TextField("Enter Bank Number", text: $vm.taxiBankNumber)
+          TextField("Enter Bank Number", text: $vm.bankNumber)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
         }
@@ -122,8 +122,8 @@ struct TaxiSettingsView: View {
 #Preview("Loaded State") {
   let vm = MockTaxiSettingsViewModel()
   vm.state = .loaded
-  vm.taxiBankName = String(vm.taxiUser!.account.split(separator: " ").first!)
-  vm.taxiBankNumber = String(vm.taxiUser!.account.split(separator: " ").last!)
+  vm.bankName = String(vm.user!.account.split(separator: " ").first!)
+  vm.bankNumber = String(vm.user!.account.split(separator: " ").last!)
   
   return NavigationStack {
     TaxiSettingsView(vm: vm)

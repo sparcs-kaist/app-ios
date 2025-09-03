@@ -10,13 +10,13 @@ import Factory
 
 @MainActor
 protocol TaxiSettingsViewModelProtocol: Observable {
-  var taxiBankName: String? { get set }
-  var taxiBankNumber: String { get set }
-  var taxiUser: TaxiUser? { get }
+  var bankName: String? { get set }
+  var bankNumber: String { get set }
+  var user: TaxiUser? { get }
   var state: TaxiSettingsViewModel.ViewState { get }
   
-  func fetchTaxiUser() async
-  func taxiEditBankAccount(account: String) async
+  func fetchUser() async
+  func editBankAccount(account: String) async
 }
 
 @Observable
@@ -32,25 +32,25 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
   
   // MARK: - Properties
-  var taxiBankName: String?
-  var taxiBankNumber: String = ""
-  var taxiUser: TaxiUser?
+  var bankName: String?
+  var bankNumber: String = ""
+  var user: TaxiUser?
   var state: ViewState = .loading
 
   // MARK: - Functions
-  func fetchTaxiUser() async {
+  func fetchUser() async {
     state = .loading
-    self.taxiUser = await userUseCase.taxiUser
-    guard let user = self.taxiUser else {
+    self.user = await userUseCase.taxiUser
+    guard let user = self.user else {
       state = .error(message: "Taxi User Information Not Found.")
       return
     }
-    taxiBankName = user.account.split(separator: " ").first.map { String($0) }
-    taxiBankNumber = String(user.account.split(separator: " ").last ?? "")
+    bankName = user.account.split(separator: " ").first.map { String($0) }
+    bankNumber = String(user.account.split(separator: " ").last ?? "")
     state = .loaded
   }
   
-  func taxiEditBankAccount(account: String) async {
+  func editBankAccount(account: String) async {
     do {
       try await taxiUserRepository.editBankAccount(account: account)
       try await userUseCase.fetchTaxiUser()
