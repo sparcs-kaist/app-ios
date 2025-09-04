@@ -23,7 +23,7 @@ final class UserUseCase: UserUseCaseProtocol {
     }
   }
 
-  var araUser: AraMe? {
+  var araUser: AraUser? {
     get async { await userStorage.getAraUser() }
   }
   
@@ -42,7 +42,7 @@ final class UserUseCase: UserUseCaseProtocol {
 
   func fetchAraUser() async throws {
     logger.debug("Fetching Ara User")
-    let user = try await araUserRepository.fetchMe()
+    let user = try await araUserRepository.fetchUser()
     await userStorage.setAraUser(user)
     logger.debug(user)
   }

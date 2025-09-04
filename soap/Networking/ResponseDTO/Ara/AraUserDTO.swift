@@ -1,5 +1,5 @@
 //
-//  AraMeDTO.swift
+//  AraUserDTO.swift
 //  soap
 //
 //  Created by 하정우 on 8/19/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AraMeResponseDTO: Codable {
+struct AraUserDTO: Codable {
   let id: Int
   let nickname: String
   let nicknameUpdatedAt: String
@@ -23,8 +23,8 @@ struct AraMeResponseDTO: Codable {
   }
 }
 
-extension AraMeResponseDTO {
-  func toModel() -> AraMe {
-    AraMe(id: id, nickname: nickname, nicknameUpdatedAt: nicknameUpdatedAt.toDate(), allowNSFW: allowNSFW, allowPolitical: allowPolitical)
+extension AraUserDTO {
+  func toModel() -> AraUser {
+    AraUser(id: id, nickname: nickname, nicknameUpdatedAt: nicknameUpdatedAt.toDate(), allowNSFW: allowNSFW, allowPolitical: allowPolitical)
   }
 }

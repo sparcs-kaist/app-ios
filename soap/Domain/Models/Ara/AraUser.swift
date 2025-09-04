@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AraMe: Identifiable {
+struct AraUser: Identifiable {
   let id: Int
   let nickname: String
   let nicknameUpdatedAt: Date?

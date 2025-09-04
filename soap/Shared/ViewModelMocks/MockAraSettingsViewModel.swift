@@ -10,7 +10,7 @@ import Foundation
 @Observable
 class MockAraSettingsViewModel: AraSettingsViewModelProtocol {
   // MARK: - Properties
-  var user: AraMe?
+  var user: AraUser?
   var nickname: String = "유능한 시조새_0b4c"
   var nicknameUpdatable: Bool = false
   var nicknameUpdatableFrom: Date? = Calendar.current.date(byAdding: .day, value: 1, to: Date())

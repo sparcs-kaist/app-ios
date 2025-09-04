@@ -8,10 +8,10 @@
 import Foundation
 
 actor UserStorage: UserStorageProtocol {
-  private var araUser: AraMe?
+  private var araUser: AraUser?
   private var taxiUser: TaxiUser?
 
-  func setAraUser(_ user: AraMe?) {
+  func setAraUser(_ user: AraUser?) {
     self.araUser = user
   }
   
@@ -19,7 +19,7 @@ actor UserStorage: UserStorageProtocol {
     self.taxiUser = user
   }
 
-  func getAraUser() -> AraMe? {
+  func getAraUser() -> AraUser? {
     return araUser
   }
   

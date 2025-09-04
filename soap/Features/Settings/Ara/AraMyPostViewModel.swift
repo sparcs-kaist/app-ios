@@ -14,7 +14,7 @@ protocol AraMyPostViewModelProtocol: Observable {
   var posts: [AraPost] { get }
   var state: AraMyPostViewModel.ViewState { get }
   var type: AraMyPostViewModel.PostType { get set }
-  var user: AraMe? { get }
+  var user: AraUser? { get }
   
   var searchKeyword: String { get set }
   
@@ -42,7 +42,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   var posts: [AraPost] = []
   var state: ViewState = .loading
   var type: PostType = .all
-  var user: AraMe?
+  var user: AraUser?
   
   // Search Properties
   var searchKeyword: String = "" {
@@ -60,7 +60,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   var totalPages: Int = 0
   var pageSize: Int = 30
   
-  init(user: AraMe?, type: PostType) {
+  init(user: AraUser?, type: PostType) {
     self.user = user
     self.type = type
   }
@@ -95,7 +95,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
           searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
         )
       case .bookmark:
-        page = try await araBoardRepository.fetchScraps(
+        page = try await araBoardRepository.fetchBookmarks(
           page: 1,
           pageSize: pageSize)
       }
@@ -128,7 +128,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
           searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
         )
       case .bookmark:
-        page = try await araBoardRepository.fetchScraps(
+        page = try await araBoardRepository.fetchBookmarks(
           page: nextPage,
           pageSize: pageSize
         )

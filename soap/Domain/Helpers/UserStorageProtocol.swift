@@ -8,8 +8,8 @@
 import Foundation
 
 protocol UserStorageProtocol: Actor {
-  func setAraUser(_ user: AraMe?)
+  func setAraUser(_ user: AraUser?)
   func setTaxiUser(_ user: TaxiUser?)
-  func getAraUser() -> AraMe?
+  func getAraUser() -> AraUser?
   func getTaxiUser() -> TaxiUser?
 }

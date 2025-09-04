@@ -23,7 +23,7 @@ enum AraBoardTarget {
     case topic(topicID: String)
   }
   case fetchPost(origin: PostOrigin?, postID: Int)
-  case fetchScraps(page: Int, pageSize: Int)
+  case fetchBookmarks(page: Int, pageSize: Int)
   case uploadImage(imageData: Data)
   case writePost(_ request: AraPostRequestDTO)
   case upvote(postID: Int)
@@ -46,7 +46,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/articles/"
     case .fetchPost(_, let postID):
       "/articles/\(postID)/"
-    case .fetchScraps:
+    case .fetchBookmarks:
       "/scraps/"
     case .upvote(let postID):
       "/articles/\(postID)/vote_positive/"
@@ -65,7 +65,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
 
   var method: Moya.Method {
     switch self {
-    case .fetchBoards, .fetchPosts, .fetchPost, .fetchScraps:
+    case .fetchBoards, .fetchPosts, .fetchPost, .fetchBookmarks:
       .get
     case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage:
       .post
@@ -116,7 +116,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       }
 
       return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
-    case .fetchScraps(let page, let pageSize):
+    case .fetchBookmarks(let page, let pageSize):
       return .requestParameters(parameters: ["page": page, "page_size": pageSize], encoding: URLEncoding.queryString)
     case .uploadImage(let imageData):
       let imageMultipart = MultipartFormData(

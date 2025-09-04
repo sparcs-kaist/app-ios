@@ -1,5 +1,5 @@
 //
-//  AraScrapPageDTO.swift
+//  AraBookmarkDTO.swift
 //  soap
 //
 //  Created by 하정우 on 8/28/25.
@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct AraScrapPageDTO: Codable {
+struct AraBookmarkDTO: Codable {
   let pages: Int
   let items: Int
   let currentPage: Int
-  let results: [AraScrapPostDTO]
+  let results: [AraBookmarkPostDTO]
 
   enum CodingKeys: String, CodingKey {
     case pages = "num_pages"
@@ -22,7 +22,7 @@ struct AraScrapPageDTO: Codable {
 }
 
 
-extension AraScrapPageDTO {
+extension AraBookmarkDTO {
   func toModel() -> AraPostPage {
     AraPostPage(pages: pages, items: items, currentPage: currentPage, results: results.compactMap { $0.toModel() })
   }

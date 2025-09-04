@@ -11,7 +11,7 @@ struct AraMyPostView: View {
   @State private var vm: AraMyPostViewModelProtocol
   @State private var loadedInitialPosts: Bool = false
   
-  init(user: AraMe?, type: AraMyPostViewModel.PostType = .all) {
+  init(user: AraUser?, type: AraMyPostViewModel.PostType = .all) {
     _vm = State(initialValue: AraMyPostViewModel(user: user, type: type))
   }
   

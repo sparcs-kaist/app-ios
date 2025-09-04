@@ -12,7 +12,7 @@ import Factory
 
 @MainActor
 protocol AraSettingsViewModelProtocol: Observable {
-  var user: AraMe? { get }
+  var user: AraUser? { get }
   var allowNSFW: Bool { get set }
   var allowPolitical: Bool { get set }
   var nickname: String { get set }
@@ -38,7 +38,7 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
   @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol
 
   // MARK: - Properties
-  var user: AraMe?
+  var user: AraUser?
   var allowNSFW: Bool = false
   var allowPolitical: Bool = false
   var nickname: String = ""

@@ -8,7 +8,7 @@
 import Foundation
 
 protocol UserUseCaseProtocol: Sendable {
-  var araUser: AraMe? { get async }
+  var araUser: AraUser? { get async }
   var taxiUser: TaxiUser? { get async }
 
   func fetchUsers() async
