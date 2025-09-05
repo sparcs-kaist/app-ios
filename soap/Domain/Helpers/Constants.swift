@@ -19,6 +19,9 @@ enum Constants {
   // MARK: Ara
   static let araBackendURL = URL(string: "https://newara.dev.sparcs.org/api")!
 
+  // MARK: Feed
+  static let feedBackendURL = URL(string: "https://app.dev.sparcs.org/v1")!
+
   static let taxiBankNameList: [String] = [
     "NH농협",
     "KB국민",

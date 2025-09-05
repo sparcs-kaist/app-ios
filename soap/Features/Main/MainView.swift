@@ -13,9 +13,13 @@ struct MainView: View {
 
   var body: some View {
     TabView {
-      Tab("My", systemImage: "person") {
-        HomeView()
+      Tab("Feed", systemImage: "text.rectangle.page") {
+        FeedView()
       }
+
+//      Tab("My", systemImage: "person") {
+//        HomeView()
+//      }
 
       Tab("Boards", systemImage: "tray.full") {
         BoardListView()
