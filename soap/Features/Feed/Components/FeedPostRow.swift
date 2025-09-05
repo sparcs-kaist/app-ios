@@ -118,6 +118,7 @@ struct FeedPostRow: View {
 
       PostCommentButton(commentCount: post.commentCount) {
       }
+      .allowsHitTesting(false)
 
       Spacer()
 
