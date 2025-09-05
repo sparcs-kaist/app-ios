@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 extension UIImage {
-  func compressForUpload(maxSizeMB: Double = 1.0, maxDimension: CGFloat = 1000) -> Data? {
+  func compressForUpload(maxSizeMB: Double = 1.0, maxDimension: CGFloat = 1024) -> Data? {
     let maxBytes = Int(maxSizeMB * 1024 * 1024)
 
     // Step 1: Reduce resolution

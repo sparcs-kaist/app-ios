@@ -71,14 +71,10 @@ struct PostCommentCell: View {
           myVote: comment.myVote,
           votes: comment.upvotes - comment.downvotes,
           onDownvote: {
-            Task {
-              await downvote()
-            }
+            await downvote()
           },
           onUpvote: {
-            Task {
-              await upvote()
-            }
+            await upvote()
           }
         )
         .disabled(comment.isMine ?? false)
@@ -98,7 +94,7 @@ struct PostCommentCell: View {
       Text(comment.author.profile.nickname)
         .fontWeight(.medium)
 
-      Text(comment.createdAt.relativeTimeString)
+      Text(comment.createdAt.timeAgoDisplay)
         .font(.caption)
         .foregroundStyle(.secondary)
 

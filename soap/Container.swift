@@ -73,6 +73,39 @@ extension Container {
     }
   }
 
+  // MARK: Feed
+  var feedUserRepository: Factory<FeedUserRepositoryProtocol> {
+    self {
+      FeedUserRepository(provider: MoyaProvider<FeedUserTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  var feedPostRepository: Factory<FeedPostRepositoryProtocol> {
+    self {
+      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  var feedCommentRepository: Factory<FeedCommentRepositoryProtocol> {
+    self {
+      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  var feedImageRepository: Factory<FeedImageRepositoryProtocol> {
+    self {
+      FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -95,7 +128,8 @@ extension Container {
       @MainActor in AuthUseCase(
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve(),
-        araUserRepository: self.araUserRepository.resolve()
+        araUserRepository: self.araUserRepository.resolve(),
+        feedUserRepository: self.feedUserRepository.resolve()
       )
     }.singleton
   }
@@ -105,6 +139,7 @@ extension Container {
       UserUseCase(
         araUserRepository: self.araUserRepository.resolve(),
         taxiUserRepository: self.taxiUserRepository.resolve(),
+        feedUserRepository: self.feedUserRepository.resolve(),
         userStorage: self.userStorage.resolve()
       )
     }.singleton

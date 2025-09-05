@@ -12,4 +12,7 @@ protocol UserStorageProtocol: Actor {
   func setTaxiUser(_ user: TaxiUser?)
   func getAraUser() -> AraUser?
   func getTaxiUser() -> TaxiUser?
+
+  func setFeedUser(_ user: FeedUser?)
+  func getFeedUser() -> FeedUser?
 }

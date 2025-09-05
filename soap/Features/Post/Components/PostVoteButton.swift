@@ -10,14 +10,14 @@ import SwiftUI
 struct PostVoteButton: View {
   let myVote: Bool?
   let votes: Int
-  let onDownvote: () -> Void
-  let onUpvote: () -> Void
+  let onDownvote: () async -> Void
+  let onUpvote: () async -> Void
 
   var body: some View {
     HStack {
       Button(action: {
-        withAnimation {
-          onUpvote()
+        Task {
+          await onUpvote()
         }
       }, label: {
         HStack {
@@ -34,8 +34,8 @@ struct PostVoteButton: View {
       Divider()
 
       Button("downvote", systemImage: downvoteImage) {
-        withAnimation {
-          onDownvote()
+        Task {
+          await onDownvote()
         }
       }
       .labelStyle(.iconOnly)

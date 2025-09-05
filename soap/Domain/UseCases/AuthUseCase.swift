@@ -14,6 +14,7 @@ class AuthUseCase: AuthUseCaseProtocol {
   private let authenticationService: AuthenticationServiceProtocol
   private let tokenStorage: TokenStorageProtocol
   private let araUserRepository: AraUserRepositoryProtocol
+  private let feedUserRepository: FeedUserRepositoryProtocol
 
   private let _isAuthenticatedSubject = CurrentValueSubject<Bool, Never>(false)
   var isAuthenticatedPublisher: AnyPublisher<Bool, Never> {
@@ -28,11 +29,13 @@ class AuthUseCase: AuthUseCaseProtocol {
   init(
     authenticationService: AuthenticationServiceProtocol,
     tokenStorage: TokenStorageProtocol,
-    araUserRepository: AraUserRepositoryProtocol
+    araUserRepository: AraUserRepositoryProtocol,
+    feedUserRepository: FeedUserRepositoryProtocol
   ) {
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
     self.araUserRepository = araUserRepository
+    self.feedUserRepository = feedUserRepository
 
     _isAuthenticatedSubject.value = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
     scheduleRefreshTimer()
@@ -135,8 +138,12 @@ class AuthUseCase: AuthUseCaseProtocol {
       tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
 
+      // MARK: Sign up Ara
       let userInfo: AraSignInResponseDTO = try await self.araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
       try? await self.araUserRepository.agreeTOS(userID: userInfo.userID)
+
+      // MARK: Sign up Feed
+      try await self.feedUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
       _isAuthenticatedSubject.value = true
       logger.info("[AuthUseCase] Signed In")
