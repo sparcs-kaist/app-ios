@@ -11,8 +11,10 @@ import Factory
 
 struct FeedPostView: View {
   @Binding var post: FeedPost
+  let onDelete: (() -> Void)?
 
-  @Environment(\.keyboardShowing) var keyboardShowing
+  @Environment(\.keyboardShowing) private var keyboardShowing
+  @Environment(\.dismiss) private var dismiss
 
   @State private var showDeleteConfirmation: Bool = false
 
@@ -59,7 +61,8 @@ struct FeedPostView: View {
           }
           .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
-
+              onDelete?()
+              dismiss()
             }
             Button("Cancel", role: .cancel) { }
           } message: {
@@ -220,5 +223,5 @@ struct FeedPostView: View {
 }
 
 #Preview {
-  FeedPostView(post: .constant(FeedPost.mock))
+  FeedPostView(post: .constant(FeedPost.mock), onDelete: nil)
 }

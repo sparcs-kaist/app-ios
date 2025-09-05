@@ -37,9 +37,16 @@ struct FeedView: View {
           case .loaded:
             ForEach($viewModel.posts) { $post in
               NavigationLink(destination: {
-                FeedPostView(post: $post)
-                  .addKeyboardVisibilityToEnvironment()
-                  .navigationTransition(.zoom(sourceID: post.id, in: namespace))
+                FeedPostView(post: $post, onDelete: {
+                  if let idx = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
+                    Task {
+                      try? await viewModel.deletePost(postID: post.id)
+                      viewModel.posts.remove(at: idx)
+                    }
+                  }
+                })
+                .addKeyboardVisibilityToEnvironment()
+                .navigationTransition(.zoom(sourceID: post.id, in: namespace))
               }, label: {
                 FeedPostRow(post: $post, onPostDeleted: { postID in
                   Task {
