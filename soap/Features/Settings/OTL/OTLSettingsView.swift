@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct OTLSettingsView: View {
-  @Binding var vm: SettingsViewModelProtocol
+  @State private var vm: OTLSettingsViewModelProtocol
+  
+  init(vm: OTLSettingsViewModelProtocol = OTLSettingsViewModel()) {
+    _vm = State(initialValue: vm)
+  }
   
   var body: some View {
     List {
@@ -25,6 +29,6 @@ struct OTLSettingsView: View {
 
 #Preview {
   NavigationStack {
-    OTLSettingsView(vm: .constant(SettingsViewModel()))
+    OTLSettingsView()
   }
 }

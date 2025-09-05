@@ -137,6 +137,7 @@ extension Container {
   var userUseCase: Factory<UserUseCaseProtocol> {
     self {
       UserUseCase(
+        araUserRepository: self.araUserRepository.resolve(),
         taxiUserRepository: self.taxiUserRepository.resolve(),
         feedUserRepository: self.feedUserRepository.resolve(),
         userStorage: self.userStorage.resolve()

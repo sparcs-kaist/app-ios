@@ -8,31 +8,38 @@
 import SwiftUI
 
 struct TaxiSettingsView: View {
-  @Binding var vm: SettingsViewModelProtocol
+  @State private var vm: TaxiSettingsViewModelProtocol
   @State private var safariURL: URL?
+  @State private var isValid: Bool = false
   
   @Environment(\.dismiss) var dismiss
   
+  init(vm: TaxiSettingsViewModelProtocol = TaxiSettingsViewModel()) {
+    _vm = State(initialValue: vm)
+  }
+  
   var body: some View {
-    List {
-      switch vm.taxiState {
+    Group {
+      switch vm.state {
       case .loading:
         loadingView
           .redacted(reason: .placeholder)
       case .loaded:
         loadedView
+      case .error(let message):
+        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .task {
-      await vm.fetchTaxiUser()
+      await vm.fetchUser()
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Button("Done", systemImage: "checkmark", role: .confirm) {
           dismiss()
           Task {
-            guard let bankName = vm.taxiBankName else { return }
-            await vm.taxiEditBankAccount(account: "\(bankName) \(vm.taxiBankNumber)")
+            guard let bankName = vm.bankName else { return }
+            await vm.editBankAccount(account: "\(bankName) \(vm.bankNumber)")
           }
         }
         .disabled(!isValid)
@@ -42,11 +49,14 @@ struct TaxiSettingsView: View {
     .fullScreenCover(item: $safariURL) {
       SafariViewWrapper(url: $0)
     }
+    .onChange(of: [vm.bankName, vm.bankNumber]) {
+      isValid = vm.bankName != nil && !vm.bankNumber.isEmpty && (vm.user?.account != "\(vm.bankName ?? "") \(vm.bankNumber)")
+    }
   }
   
   @ViewBuilder
   var loadingView: some View {
-    Group {
+    List {
       RowElementView(title: "Nickname", content: "Unknown")
       RowElementView(title: "Bank Account", content: "Unknown")
     }
@@ -54,32 +64,30 @@ struct TaxiSettingsView: View {
   
   @ViewBuilder
   var loadedView: some View {
-    Section(header: Text("Profile")) {
-      RowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
-      Picker("Bank Name", selection: $vm.taxiBankName) {
-        Text("Select Bank").tag(Optional<String>(nil))
-        ForEach(Constants.taxiBankNameList, id: \.self) {
-          Text($0).tag($0)
+    List {
+      Section(header: Text("Profile")) {
+        RowElementView(title: "Nickname", content: vm.user?.nickname ?? "Unknown")
+        Picker("Bank Name", selection: $vm.bankName) {
+          Text("Select Bank").tag(Optional<String>(nil))
+          ForEach(Constants.taxiBankNameList, id: \.self) {
+            Text($0).tag($0)
+          }
+        }
+        HStack {
+          Text("Bank Number")
+          Spacer()
+          TextField("Enter Bank Number", text: $vm.bankNumber)
+            .multilineTextAlignment(.trailing)
+            .foregroundStyle(.secondary)
         }
       }
-      HStack {
-        Text("Bank Number")
-        Spacer()
-        TextField("Enter Bank Number", text: $vm.taxiBankNumber)
-          .multilineTextAlignment(.trailing)
-          .foregroundStyle(.secondary)
+      
+      Section(header: Text("Service")) {
+        navigationLinkWithIcon(destination: TaxiReportListView(), text: "Report Details", systemImage: "exclamationmark.bubble")
+        webViewButton("list.bullet.clipboard", text: "Terms of Service", url: URL(string: "https://sparcs.org")!)
+        webViewButton("list.bullet.clipboard", text: "Privacy Policy", url: URL(string: "https://sparcs.org")!)
       }
     }
-    
-    Section(header: Text("Service")) {
-      navigationLinkWithIcon(destination: TaxiReportListView(), text: "Report Details", systemImage: "exclamationmark.bubble")
-      webViewButton("list.bullet.clipboard", text: "Terms of Service", url: URL(string: "https://sparcs.org")!)
-      webViewButton("list.bullet.clipboard", text: "Privacy Policy", url: URL(string: "https://sparcs.org")!)
-    }
-  }
-  
-  var isValid: Bool {
-    return vm.taxiBankName != nil && !vm.taxiBankNumber.isEmpty && (vm.taxiUser?.account != "\(vm.taxiBankName ?? "") \(vm.taxiBankNumber)")
   }
   
   fileprivate func navigationLinkWithIcon(destination: some View, text: String, systemImage: String) -> some View {
@@ -103,22 +111,30 @@ struct TaxiSettingsView: View {
 }
 
 #Preview("Loading State") {
-  let vm = MockSettingsViewModel()
-  vm.taxiState = .loading
+  let vm = MockTaxiSettingsViewModel()
+  vm.state = .loading
   
   return NavigationStack {
-    TaxiSettingsView(vm: .constant(vm))
+    TaxiSettingsView(vm: vm)
   }
 }
 
 #Preview("Loaded State") {
-  let vm = MockSettingsViewModel()
-  vm.taxiState = .loaded
-  vm.taxiUser = .mock
-  vm.taxiBankName = String(vm.taxiUser!.account.split(separator: " ").first!)
-  vm.taxiBankNumber = String(vm.taxiUser!.account.split(separator: " ").last!)
+  let vm = MockTaxiSettingsViewModel()
+  vm.state = .loaded
+  vm.bankName = String(vm.user!.account.split(separator: " ").first!)
+  vm.bankNumber = String(vm.user!.account.split(separator: " ").last!)
   
   return NavigationStack {
-    TaxiSettingsView(vm: .constant(vm))
+    TaxiSettingsView(vm: vm)
+  }
+}
+
+#Preview("Error State") {
+  let vm = MockTaxiSettingsViewModel()
+  vm.state = .error(message: "Network error")
+  
+  return NavigationStack {
+    TaxiSettingsView(vm: vm)
   }
 }
