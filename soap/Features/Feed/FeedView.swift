@@ -27,7 +27,7 @@ struct FeedView: View {
           switch viewModel.state {
           case .loading:
             ForEach(.constant(FeedPost.mockList)) { $post in
-              FeedPostRow(post: $post, onPostDeleted: nil)
+              FeedPostRow(post: $post, onPostDeleted: nil, onComment: nil)
                 .padding(.vertical)
 
               Divider()
@@ -49,7 +49,7 @@ struct FeedView: View {
                       showAlert(title: "Error", message: "Failed to delete a post. Please try again later.")
                     }
                   }
-                })
+                }, onComment: nil)
                 .contentShape(.rect)
               })
               .padding(.vertical)

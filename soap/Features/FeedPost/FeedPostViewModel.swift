@@ -19,6 +19,7 @@ protocol FeedPostViewModelProtocol: Observable {
 
   func fetchComments(postID: String) async
   func writeComment(postID: String) async throws -> FeedComment
+  func writeReply(commentID: String) async throws -> FeedComment
 }
 
 @Observable
@@ -62,6 +63,33 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
     let comment: FeedComment = try await feedCommentRepository.writeComment(postID: postID, request: request)
 
     self.comments.append(comment)
+
+    return comment
+  }
+
+  private func insertReply(into comments: inout [FeedComment], comment: FeedComment) -> Bool {
+    for idx in comments.indices {
+      guard let parentCommentID = comment.parentCommentID else {
+        return false
+      }
+
+      if comments[idx].id == parentCommentID {
+        comments[idx].replies.append(comment)
+
+        return true
+      }
+    }
+
+    return false
+  }
+
+  func writeReply(commentID: String) async throws -> FeedComment {
+    let request = FeedCreateComment(content: text, isAnonymous: isAnonymous, image: nil)
+    let comment: FeedComment = try await feedCommentRepository.writeReply(commentID: commentID, request: request)
+
+    var comments: [FeedComment] = self.comments
+    _ = insertReply(into: &comments, comment: comment)
+    self.comments = comments
 
     return comment
   }

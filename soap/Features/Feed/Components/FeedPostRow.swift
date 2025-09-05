@@ -12,6 +12,7 @@ import Factory
 struct FeedPostRow: View {
   @Binding var post: FeedPost
   let onPostDeleted: ((String) -> Void)?
+  let onComment: (() -> Void)?
 
   @State private var showDeleteConfirmation: Bool = false
 
@@ -117,8 +118,9 @@ struct FeedPostRow: View {
       )
 
       PostCommentButton(commentCount: post.commentCount) {
+        onComment?()
       }
-      .allowsHitTesting(false)
+      .allowsHitTesting(onComment != nil)
 
       Spacer()
 
@@ -187,5 +189,5 @@ struct FeedPostRow: View {
 }
 
 #Preview {
-  FeedPostRow(post: .constant(FeedPost.mock), onPostDeleted: nil)
+  FeedPostRow(post: .constant(FeedPost.mock), onPostDeleted: nil, onComment: nil)
 }

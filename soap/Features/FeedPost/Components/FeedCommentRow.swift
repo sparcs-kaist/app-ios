@@ -12,6 +12,7 @@ import Factory
 struct FeedCommentRow: View {
   @Binding var comment: FeedComment
   let isReply: Bool
+  let onReply: (() -> Void)?
 
   // MARK: - Dependencies
   @Injected(
@@ -101,6 +102,7 @@ struct FeedCommentRow: View {
 
       if comment.parentCommentID == nil {
         PostCommentButton(commentCount: comment.replyCount) {
+          onReply?()
         }
       }
 
@@ -188,5 +190,5 @@ struct FeedCommentRow: View {
 }
 
 #Preview {
-  FeedCommentRow(comment: .constant(FeedComment.mock), isReply: false)
+  FeedCommentRow(comment: .constant(FeedComment.mock), isReply: false, onReply: nil)
 }

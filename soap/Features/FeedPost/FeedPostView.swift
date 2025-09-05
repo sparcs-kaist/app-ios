@@ -33,7 +33,10 @@ struct FeedPostView: View {
     ScrollViewReader { proxy in
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          FeedPostRow(post: $post, onPostDeleted: nil)
+          FeedPostRow(post: $post, onPostDeleted: nil, onComment: {
+            targetComment = nil
+            isWritingCommentFocusState = true
+          })
 
           comments
         }
@@ -78,9 +81,12 @@ struct FeedPostView: View {
         // maybe some images and anonymous selector
         TextField(
           text: $viewModel.text,
-          prompt: Text("Write a comment"),
+          prompt: Text(
+            targetComment != nil ? "Write a reply to \(targetComment?.authorName ?? "unknown")" : "Write a comment"
+          ),
           axis: .vertical,
-          label: { }
+          label: {
+ }
         )
         .focused($isWritingCommentFocusState)
 
@@ -107,7 +113,7 @@ struct FeedPostView: View {
             do {
               var uploadedComment: FeedComment? = nil
               if let targetComment {
-//                uploadedComment = try await viewModel.writeThreadedComment(commentID: targetComment.id, content: comment)
+                uploadedComment = try await viewModel.writeReply(commentID: targetComment.id)
               } else {
                 uploadedComment = try await viewModel.writeComment(postID: post.id)
               }
@@ -163,7 +169,7 @@ struct FeedPostView: View {
             .padding(.horizontal)
 
           ForEach(FeedComment.mockList.prefix(4)) { comment in
-            FeedCommentRow(comment: .constant(comment), isReply: false)
+            FeedCommentRow(comment: .constant(comment), isReply: false, onReply: nil)
               .padding(.horizontal)
               .redacted(reason: .placeholder)
 
@@ -183,14 +189,17 @@ struct FeedPostView: View {
             .animation(.spring, value: post.commentCount)
 
           ForEach($viewModel.comments) { $comment in
-            FeedCommentRow(comment: $comment, isReply: false)
-              .padding(.horizontal)
-              .id(comment.id)
+            FeedCommentRow(comment: $comment, isReply: false, onReply: {
+              targetComment = comment
+              isWritingCommentFocusState = true
+            })
+            .padding(.horizontal)
+            .id(comment.id)
 
             if !comment.replies.isEmpty {
               VStack(spacing: 12) {
                 ForEach($comment.replies) { $reply in
-                  FeedCommentRow(comment: $reply, isReply: true)
+                  FeedCommentRow(comment: $reply, isReply: true, onReply: nil)
                     .padding(.horizontal)
                     .id(reply.id)
                 }
