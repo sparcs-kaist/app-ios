@@ -5,7 +5,6 @@
 //  Created by Soongyu Kwon on 28/12/2024.
 //
 
-#if DEBUG
 import Foundation
 
 extension Timetable: Mockable {
@@ -107,4 +106,3 @@ extension Timetable: Mockable {
         ]
     }
 }
-#endif

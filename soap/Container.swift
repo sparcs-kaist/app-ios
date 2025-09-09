@@ -73,6 +73,47 @@ extension Container {
     }
   }
 
+  var araCommentRepository: Factory<AraCommentRepositoryProtocol> {
+    self {
+      AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  // MARK: Feed
+  var feedUserRepository: Factory<FeedUserRepositoryProtocol> {
+    self {
+      FeedUserRepository(provider: MoyaProvider<FeedUserTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  var feedPostRepository: Factory<FeedPostRepositoryProtocol> {
+    self {
+      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  var feedCommentRepository: Factory<FeedCommentRepositoryProtocol> {
+    self {
+      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  var feedImageRepository: Factory<FeedImageRepositoryProtocol> {
+    self {
+      FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -95,7 +136,8 @@ extension Container {
       @MainActor in AuthUseCase(
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve(),
-        araUserRepository: self.araUserRepository.resolve()
+        araUserRepository: self.araUserRepository.resolve(),
+        feedUserRepository: self.feedUserRepository.resolve()
       )
     }.singleton
   }
@@ -104,6 +146,8 @@ extension Container {
     self {
       UserUseCase(
         taxiUserRepository: self.taxiUserRepository.resolve(),
+        feedUserRepository: self.feedUserRepository.resolve(),
+        araUserRepository: self.araUserRepository.resolve(),
         userStorage: self.userStorage.resolve()
       )
     }.singleton
@@ -119,6 +163,13 @@ extension Container {
         taxiRoomRepository: self.taxiRoomRepository.resolve(),
         room: $0
       )
+    }
+  }
+
+  @MainActor
+  var foundationModelsUseCase: Factory<FoundationModelsUseCaseProtocol> {
+    self {
+      @MainActor in FoundationModelsUseCase()
     }
   }
 }

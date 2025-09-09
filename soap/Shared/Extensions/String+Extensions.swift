@@ -29,3 +29,34 @@ extension String {
   }
 }
 
+extension String {
+  func toHTMLParagraphs() -> String {
+    self
+      .components(separatedBy: "\n") // split by newlines
+      .map { "<p>\($0)</p>" }        // wrap each in <p>
+      .joined()                      // join them back
+  }
+}
+
+extension String {
+  func convertFromHTML() -> String {
+    guard let data = self.data(using: .utf8) else {
+      return ""
+    }
+
+    do {
+      let attributedString = try NSAttributedString(
+        data: data,
+        options: [
+          .documentType: NSAttributedString.DocumentType.html,
+          .characterEncoding: String.Encoding.utf8.rawValue
+        ],
+        documentAttributes: nil
+      )
+      return attributedString.string
+    } catch {
+      logger.error("Error converting HTML: \(error)")
+      return ""
+    }
+  }
+}

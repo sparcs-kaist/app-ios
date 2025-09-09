@@ -1,5 +1,5 @@
 //
-//  AraPostHeader.swift
+//  AraPost.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 06/08/2025.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AraPostHeader: Identifiable, Hashable {
+struct AraPost: Identifiable, Hashable, Sendable {
   enum AttachmentType: String {
     case none = "NONE"
     case image = "IMAGE"
@@ -26,6 +26,7 @@ struct AraPostHeader: Identifiable, Hashable {
   let hiddenReason: [String]
   let overrideHidden: Bool?
   let topic: AraBoardTopic?
+  let board: AraBoard?
   let title: String?
   let author: AraPostAuthor
   let attachmentType: AttachmentType
@@ -34,7 +35,16 @@ struct AraPostHeader: Identifiable, Hashable {
   let isNSFW: Bool
   let isPolitical: Bool
   let views: Int
-  let commentCount: Int
-  let positiveVoteCount: Int
-  let negativeVoteCount: Int
+  var commentCount: Int
+  var upvotes: Int
+  var downvotes: Int
+
+  // for detailed
+  let attachments: [AraPostAttachment]?
+  let myCommentProfile: AraPostAuthor?
+  let isMine: Bool?
+  var comments: [AraPostComment]
+  let content: String?
+  var myVote: Bool?
+  var myScrap: Bool?
 }

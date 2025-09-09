@@ -4,7 +4,6 @@
 //  Created by Soongyu Kwon on 04/01/2025.
 //
 
-#if DEBUG
 import Foundation
 
 extension Semester: Mockable {
@@ -114,4 +113,3 @@ extension Semester: Mockable {
         ]
     }
 }
-#endif

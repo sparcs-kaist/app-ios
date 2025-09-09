@@ -13,11 +13,14 @@ enum Constants {
 
   // MARK: Taxi
   static let taxiBackendURL = URL(string: "https://taxi.dev.sparcs.org/api")!
-  static let taxiSocketURL = URL(string: "https://taxi.dev.sparcs.org")!
+  static let taxiSocketURL = URL(string: "https://taxi.dev.sparcs.org/")!
   static let taxiChatImageURL = URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
 
   // MARK: Ara
   static let araBackendURL = URL(string: "https://newara.dev.sparcs.org/api")!
+
+  // MARK: Feed
+  static let feedBackendURL = URL(string: "https://app.dev.sparcs.org/v1")!
 
   static let taxiBankNameList: [String] = [
     "NH농협",

@@ -6,11 +6,8 @@
 //
 
 import SwiftUI
-import NukeUI
 
 struct SettingsView: View {
-  @State private var vm: SettingsViewModel = .init()
-  
   var body: some View {
     NavigationStack {
       List {
@@ -19,89 +16,18 @@ struct SettingsView: View {
         }
         
         Section(header: Text("Services")) {
-          NavigationLink("Ara") { araSettings }
-          NavigationLink("Taxi") { taxiSettings }
-          NavigationLink("OTL") { otlSettings }
+          NavigationLink("Ara") { AraSettingsView().navigationTitle("Ara Settings") }
+          NavigationLink("Taxi") { TaxiSettingsView().navigationTitle("Taxi Settings") }
+          NavigationLink("OTL") { OTLSettingsView().navigationTitle("OTL Settings") }
         }
       }
       .navigationTitle(Text("Settings"))
-    }
-    .task {
-      await vm.fetchTaxiUser()
     }
   }
   
   private var appSettings: some View {
     Button("Change Language", systemImage: "globe") {
       UIApplication.shared.open(URL(string: "App-prefs:org.sparcs.soap")!)
-    }
-  }
-  
-  private var araSettings: some View {
-    List {
-      Section(header: Text("Profile")) {
-        rowElementView(title: "Nickname", content: "오열하는 운영체제 및 실험_2f94d")
-      }
-
-      Section(header: Text("Posts")) {
-        Toggle("Allow NSFW", isOn: $vm.araAllowNSFWPosts)
-        Toggle("Allow Political", isOn: $vm.araAllowPoliticalPosts)
-      }
-
-      Section {
-        NavigationLink {
-          AraBlockedUsersView(blockedUsers: vm.araBlockedUsers)
-        } label: {
-          rowElementView(title: "Blocked Users", content: "\(vm.araBlockedUsers.count)")
-        }
-      }
-    }
-    .navigationTitle("Ara Settings")
-  }
-  
-  private var taxiSettings: some View {
-    List {
-      Section(header: Text("Profile")) {
-        rowElementView(title: "Nickname", content: vm.taxiUser?.nickname ?? "Unknown")
-      }
-
-      Section {
-        HStack(alignment: .top) {
-          VStack(alignment: .trailing) {
-            Picker("Bank Account", selection: $vm.taxiBankName) {
-              ForEach(Constants.taxiBankNameList, id: \.self) {
-                Text($0)
-              }
-            }
-            Spacer()
-            TextField("", text: $vm.taxiBankNumber)
-              .multilineTextAlignment(.trailing)
-              .foregroundStyle(.secondary)
-          }
-        }
-      }
-    }
-    .navigationTitle("Taxi Settings")
-  }
-  
-  private var otlSettings: some View {
-    List {
-      HStack(alignment: .center) {
-        Picker("Major", selection: $vm.otlMajor) {
-          ForEach(vm.otlMajorList, id: \.self) {
-            Text($0)
-          }
-        }
-      }
-    }.navigationTitle("OTL Settings")
-  }
-  
-  func rowElementView(title: String, content: String) -> some View {
-    HStack {
-      Text(title)
-      Spacer()
-      Text(content)
-        .foregroundStyle(.secondary)
     }
   }
 }

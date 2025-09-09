@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct AraPostPage {
+struct AraPostPage: Sendable {
   let pages: Int
   let items: Int
   let currentPage: Int
-  let results: [AraPostHeader]
+  let results: [AraPost]
 }

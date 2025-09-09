@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct PostListRow: View {
-  let post: AraPostHeader
+  let post: AraPost
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      HStack {
+      HStack(spacing: 4) {
         if let topic = post.topic {
           Text("[\(topic.name.localized())]")
             .font(.subheadline)
@@ -41,7 +41,7 @@ struct PostListRow: View {
       }
 
       HStack(spacing: 12) {
-        let voteCount: Int = post.positiveVoteCount - post.negativeVoteCount
+        let voteCount: Int = post.upvotes - post.downvotes
         if voteCount != 0 || post.commentCount > 0 {
           HStack(spacing: 4) {
             PostListRowVoteLabel(voteCount: voteCount)
@@ -54,7 +54,10 @@ struct PostListRow: View {
         Spacer()
         Text("\(post.views) views")
 
-        Text(post.createdAt.timeAgoDisplay())
+        Text(post.createdAt.timeAgoDisplay)
+
+        Image(systemName: "chevron.right")
+          .opacity(post.isHidden ? 0 : 1)
       }
       .font(.caption)
       .foregroundStyle(.secondary)

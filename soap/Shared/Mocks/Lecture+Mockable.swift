@@ -5,7 +5,6 @@
 //  Created by Soongyu Kwon on 28/12/2024.
 //
 
-#if DEBUG
 extension Lecture: Mockable {
     static var mock: Lecture {
         Lecture(
@@ -333,4 +332,3 @@ extension Lecture: Mockable {
     }
 }
 
-#endif

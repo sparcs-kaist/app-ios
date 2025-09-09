@@ -12,8 +12,8 @@ struct AraBoard: Identifiable, Hashable {
   let slug: String
   let name: LocalizedString
   let group: AraBoardGroup
-  let topics: [AraBoardTopic]
+  let topics: [AraBoardTopic]?
   let isReadOnly: Bool
-  let userReadable: Bool
-  let userWritable: Bool
+  let userReadable: Bool?
+  let userWritable: Bool?
 }

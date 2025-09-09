@@ -6,31 +6,40 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct PostComposeView: View {
+  @State private var viewModel: PostComposeViewModelProtocol
+
   @Environment(\.dismiss) private var dismiss
 
   @FocusState private var isTitleFocused
   @FocusState private var isDescriptionFocused
-
-  @State private var selectedFlair = "No flair"
-  @State private var title = ""
-  @State private var description = ""
-
-  @State private var writeAsAnonymous = true
-  @State private var isNSFW = false
-  @State private var isPolitical = false
   
   @State private var isShowingCancelDialog = false
+  @State private var showPhotosPicker: Bool = false
+
+  @State private var showErrorAlert: Bool = false
+  @State private var errorMessage: String = ""
+
+  @State private var isUploading: Bool = false
+
+  init(board: AraBoard) {
+    _viewModel = State(initialValue: PostComposeViewModel(board: board))
+  }
 
   var body: some View {
     NavigationView {
       ScrollView {
         VStack(alignment: .leading) {
-          flairSelector
+          topicSelector
+            .padding(.horizontal)
+            .disabled(isUploading)
+
           Spacer()
             .frame(maxHeight: 16)
-          TextField("Please enter the title", text: $title)
+
+          TextField("Please enter the title", text: $viewModel.title)
             .font(.title3)
             .focused($isTitleFocused)
             .submitLabel(.next)
@@ -38,21 +47,46 @@ struct PostComposeView: View {
               isDescriptionFocused = true
             }
             .writingToolsBehavior(.disabled)
+            .padding(.horizontal)
+            .disabled(isUploading)
+
           Divider()
-          TextField("What's happening?", text: $description, axis: .vertical)
+            .padding(.horizontal)
+
+          TextField("What's happening?", text: $viewModel.content, axis: .vertical)
             .focused($isDescriptionFocused)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
+            .padding(.horizontal)
+            .disabled(isUploading)
+
+          if !viewModel.selectedImages.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+              HStack {
+                ForEach(viewModel.selectedImages, id: \.self) { image in
+                  Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 120, height: 120)
+                    .clipShape(.rect(cornerRadius: 8))
+                }
+              }
+              .padding()
+            }
+          }
 
           termsOfUseButton
+            .padding(.horizontal)
 
           Spacer()
         }
-        .padding()
+        .padding(.vertical)
       }
+      .scrollDismissesKeyboard(.interactively)
       .navigationTitle("Write")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
+        // Top tool bar
         ToolbarItem(placement: .topBarLeading) {
           Button("Cancel", systemImage: "xmark", role: .close) {
             isShowingCancelDialog = true
@@ -66,55 +100,91 @@ struct PostComposeView: View {
               dismiss()
             }
           }
+          .disabled(isUploading)
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Done", systemImage: "arrow.up", role: .confirm) {
-            dismiss()
-          }
-          .disabled(title.isEmpty || description.isEmpty)
+          Button(
+            role: .confirm,
+            action: {
+              Task {
+                isUploading = true
+                defer { isUploading = false }
+                do {
+                  try await viewModel.writePost()
+                  dismiss()
+                } catch {
+                  errorMessage = "Failed to write post. Please try again later."
+                  showErrorAlert = true
+                }
+              }
+            },
+            label: {
+              if isUploading {
+                ProgressView()
+              } else {
+                Label("Done", systemImage: "arrow.up")
+              }
+            }
+          )
+          .disabled(viewModel.title.isEmpty)
+          .disabled(viewModel.content.isEmpty)
+          .disabled(isUploading)
         }
       }
       .toolbar {
+        // Bottom tool bar
         ToolbarSpacer(.flexible, placement: .bottomBar)
 
         ToolbarItem(placement: .bottomBar) {
-          Button("Photo Library", systemImage: "photo.on.rectangle") { }
-        }
-
-        ToolbarItem(placement: .bottomBar) {
-          Button("Attach File", systemImage: "paperclip") { }
+          Button("Photo Library", systemImage: "photo.on.rectangle") {
+            showPhotosPicker = true
+          }
+          .disabled(isUploading)
         }
 
         ToolbarItem(placement: .bottomBar) {
           Menu("More", systemImage: "ellipsis") {
             Button(action: {
-              writeAsAnonymous.toggle()
+              viewModel.writeAsAnonymous.toggle()
             }, label: {
-              if writeAsAnonymous {
+              if viewModel.writeAsAnonymous {
                 Image(systemName: "checkmark")
               }
               Text("Anonymous")
             })
             Button(action: {
-              isNSFW.toggle()
+              viewModel.isNSFW.toggle()
             }, label: {
-              if isNSFW {
+              if viewModel.isNSFW {
                 Image(systemName: "checkmark")
               }
               Text("NSFW")
             })
             Button(action: {
-              isPolitical.toggle()
+              viewModel.isPolitical.toggle()
             }, label: {
-              if isPolitical {
+              if viewModel.isPolitical {
                 Image(systemName: "checkmark")
               }
               Text("Political")
             })
           }
+          .disabled(isUploading)
         }
       }
+      .photosPicker(
+        isPresented: $showPhotosPicker,
+        selection: $viewModel.selectedItems,
+        maxSelectionCount: 10,
+        matching: .images,
+        photoLibrary: .shared()
+      )
+      .alert("Error", isPresented: $showErrorAlert, actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(errorMessage)
+      })
     }
   }
 
@@ -131,37 +201,22 @@ struct PostComposeView: View {
     }
   }
 
-  private var flairSelector: some View {
-    Menu {
-      Button("No flair") {
-        withAnimation(.spring()) { selectedFlair = "No flair" }
-      }
-//      ForEach(viewModel.flairList, id: \.self) { flair in
-//        Button(flair) {
-//          withAnimation(.spring()) { selectedFlair = flair }
-//        }
-//      }
-    } label: {
-      HStack {
-        Text(selectedFlair)
-          .contentTransition(.numericText())
-        Image(systemName: "chevron.down")
-      }
-      .padding(8)
-      .padding(.horizontal, 4)
-      .background {
-        Capsule()
-          .fill(Color(uiColor: UIColor.systemGray6))
+  private var topicSelector: some View {
+    Picker(selection: $viewModel.selectedTopic, label: EmptyView()) {
+      Text("No topic")
+        .tag(nil as AraBoardTopic?)
+
+      ForEach(viewModel.board.topics ?? []) { topic in
+        Text(topic.name.localized())
+          .tag(topic)
       }
     }
-//    .buttonStyle(.bordered)
-//    .buttonBorderShape(.capsule)
-    .foregroundStyle(.primary)
-    .font(.subheadline)
-    .fontWeight(.semibold)
+    .pickerStyle(.menu)
+    .tint(.primary)
+    .buttonStyle(.glass)
   }
 }
 
 #Preview {
-  PostComposeView()
+  PostComposeView(board: AraBoard.mockList[1])
 }

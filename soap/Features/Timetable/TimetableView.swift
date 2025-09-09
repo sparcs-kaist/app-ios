@@ -38,6 +38,7 @@ struct TimetableView: View {
         .padding()
       }
       .navigationTitle("Timetable")
+      .toolbarTitleDisplayMode(.inlineLarge)
       .background(Color.secondarySystemBackground)
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {

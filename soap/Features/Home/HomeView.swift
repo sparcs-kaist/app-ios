@@ -8,10 +8,6 @@
 import SwiftUI
 import Factory
 
-#if DEBUG
-import FLEX
-#endif
-
 struct HomeView: View {
   @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
   @State private var showSettingsSheet: Bool = false
@@ -32,8 +28,8 @@ struct HomeView: View {
         }
         .padding(.vertical)
       }
-      .navigationTitle(Text("Home"))
-      .navigationBarTitleDisplayMode(.large)
+      .navigationTitle("My")
+      .toolbarTitleDisplayMode(.inlineLarge)
       .toolbar {
         ToolbarItem {
           Button("Notifications", systemImage: "bell") { }
@@ -43,12 +39,6 @@ struct HomeView: View {
 
         ToolbarItem {
           Menu("More", systemImage: "ellipsis") {
-            #if DEBUG
-            Button("FLEX (Debug)", systemImage: "hammer") {
-              FLEXManager.shared.showExplorer()
-            }
-            #endif
-
             Button("Settings", systemImage: "gear") {
                 showSettingsSheet = true
             }

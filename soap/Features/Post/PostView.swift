@@ -6,15 +6,45 @@
 //
 
 import SwiftUI
+import NukeUI
+import WebKit
 
 struct PostView: View {
+  @State private var viewModel: PostViewModelProtocol
+  @Environment(\.dismiss) private var dismiss
+
+  @Environment(\.keyboardShowing) var keyboardShowing
+
   @State private var htmlHeight: CGFloat = .zero
+  @State private var tappedURL: URL?
+
   @State private var comment: String = ""
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var isWritingComment: Bool = false
+  @State private var targetComment: AraPostComment? = nil
+  @State private var commentOnEdit: AraPostComment? = nil
+  @State private var isUploadingComment: Bool = false
+
+  @State private var selectedAuthor: AraPostAuthor? = nil
+
+  @State private var showTranslationView: Bool = false
+  @State private var showDeleteConfirmation: Bool = false
+
+  @State private var summarisedContent: String? = nil
+
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
+
+  let onPostDeleted: ((Int) -> Void)?
+
+  init(post: AraPost, onPostDeleted: ((Int) -> Void)? = nil) {
+    _viewModel = State(initialValue: PostViewModel(post: post))
+    self.onPostDeleted = onPostDeleted
+  }
 
   var body: some View {
-    ZStack(alignment: .bottom) {
+    ScrollViewReader { proxy in
       ScrollView {
         Group {
           header
@@ -26,213 +56,212 @@ struct PostView: View {
           comments
         }
         .padding()
+        .animation(.spring(), value: summarisedContent)
+      }
+      .scrollDismissesKeyboard(.interactively)
+      .onKeyboardDismiss {
+        if comment.isEmpty {
+          targetComment = nil
+        }
       }
       .contentMargins(.bottom, 64)
-
-      HStack {
-        HStack {
-          if !isWritingComment && comment.isEmpty {
-            Circle()
-              .frame(width: 21, height: 21)
-              .transition(.move(edge: .leading).combined(with: .opacity))
-          }
-
-          TextField(text: $comment, prompt: Text("reply as anonymous"), label: {})
-            .focused($isWritingCommentFocusState)
-        }
-        .padding(12)
-        .clipped()
-        .background {
-          Capsule()
-            .stroke(Color(UIColor.systemGray5), lineWidth: 1)
-            .fill(.regularMaterial)
-        }
-        .tint(.primary)
-        .shadow(color: .black.opacity(0.16), radius: 12)
-
-        if !comment.isEmpty {
-          Button("send", systemImage: "paperplane") { }
-            .fontWeight(.medium)
-            .labelStyle(.iconOnly)
-            .tint(.white)
-            .padding(12)
-            .background {
-              Circle()
+      .navigationTitle(viewModel.post.board?.name.localized() ?? "")
+      .safeAreaBar(edge: .bottom) {
+        inputBar(proxy: proxy)
+      }
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          actionsMenu
+            .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+              Button("Delete", role: .destructive) {
+                Task {
+                  do {
+                    try await viewModel.deletePost()
+                    onPostDeleted?(viewModel.post.id)
+                    dismiss()
+                  } catch {
+                    showAlert(title: "Error", message: "Failed to delete a post. Please try again later.")
+                  }
+                }
+              }
+              Button("Cancel", role: .cancel) { }
+            } message: {
+              Text("Are you sure you want to delete this post?")
             }
-            .disabled(comment.isEmpty)
-            .transition(.move(edge: .trailing).combined(with: .opacity))
         }
       }
-      .padding()
-      .animation(
-        .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
-        value: comment.isEmpty
-      )
-      .animation(
-        .spring(duration: 0.2, bounce: 0.2, blendDuration: 0.1),
-        value: isWritingComment
-      )
+      .alert(alertTitle, isPresented: $showAlert, actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(alertMessage)
+      })
+      .sheet(item: $tappedURL) { url in
+        SafariViewWrapper(url: url)
+      }
+      .sheet(isPresented: $showTranslationView) {
+        PostTranslationView(post: viewModel.post)
+      }
+      .navigationDestination(item: $selectedAuthor) { author in
+        UserPostListView(user: author)
+      }
+      .task {
+        await viewModel.fetchPost()
+      }
+      .refreshable {
+        await viewModel.fetchPost()
+      }
     }
-    .onChange(of: isWritingCommentFocusState) {
-      isWritingComment = isWritingCommentFocusState
+  }
+
+  private var actionsMenu: some View {
+    Menu("More", systemImage: "ellipsis") {
+      if viewModel.post.isMine == false {
+        // show report and block menus
+        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+          Button("Hate Speech") {
+            Task {
+              try? await viewModel.report(type: .hateSpeech)
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+            }
+          }
+          Button("Unauthorized Sales") {
+            Task {
+              try? await viewModel.report(type: .unauthorizedSales)
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+            }
+          }
+          Button("Spam") {
+            Task {
+              try? await viewModel.report(type: .spam)
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+            }
+          }
+          Button("False Information") {
+            Task {
+              try? await viewModel.report(type: .falseInformation)
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+            }
+          }
+          Button("Defamation") {
+            Task {
+              try? await viewModel.report(type: .defamation)
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+            }
+          }
+          Button("Other") {
+            Task {
+              try? await viewModel.report(type: .other)
+              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+            }
+          }
+        }
+      }
+
+      if viewModel.post.isMine == false { Divider () }
+
+      Button("Translate", systemImage: "translate") {
+        showTranslationView = true
+      }
+
+      if viewModel.isFoundationModelsAvailable {
+        Button("Summarise", systemImage: "text.append") {
+          summarisedContent = ""
+          Task {
+            summarisedContent = await viewModel.summarisedContent()
+          }
+        }
+        .disabled(summarisedContent != nil)
+      }
+
+      if viewModel.post.isMine == true { Divider () }
+
+      if viewModel.post.isMine == true {
+        Button("Delete", systemImage: "trash", role: .destructive) {
+          showDeleteConfirmation = true
+        }
+      }
     }
   }
 
   private var comments: some View {
     VStack(spacing: 16) {
       // Main comment
-      VStack(alignment: .leading, spacing: 8) {
+      if viewModel.post.comments.isEmpty {
         Divider()
+        ContentUnavailableView("No one has commented yet.", systemImage: "text.bubble", description: Text("Be the first one to share your thoughts."))
+          .scaleEffect(0.8)
+      } else {
+        ForEach($viewModel.post.comments) { $comment in
+          VStack(spacing: 12) {
+            PostCommentCell(
+              comment: $comment,
+              isThreaded: false,
+              onComment: {
+                targetComment = comment
+                isWritingCommentFocusState = true
+              },
+              onDelete: {
+                viewModel.post.commentCount -= 1
+              },
+              onEdit: {
+                withAnimation(.spring) {
+                  self.comment = comment.content ?? ""
+                  targetComment = nil
+                  commentOnEdit = comment
+                }
+                isWritingCommentFocusState = true
+              }
+            )
+            .id(comment.id)
 
-        HStack {
-          Circle()
-            .frame(width: 21, height: 21)
-
-          Text("anonymous")
-            .fontWeight(.medium)
-
-          Text("22 May 17:44")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-          Spacer()
-
-          Button("more", systemImage: "ellipsis") { }
-            .labelStyle(.iconOnly)
-        }
-        .font(.callout)
-
-        Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
-          .font(.callout)
-
-        HStack {
-          Spacer()
-
-          PostCommentButton()
-            .fixedSize()
-
-          PostVoteButton()
-            .fixedSize()
-        }
-        .font(.caption)
-
-        // Threads
-        HStack(alignment: .top, spacing: 8) {
-          Image(systemName: "arrow.turn.down.right")
-
-          VStack(alignment: .leading, spacing: 8) {
-            HStack {
-              Circle()
-                .frame(width: 21, height: 21)
-
-              Text("anonymous")
-                .fontWeight(.medium)
-
-              Text("22 May 17:44")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-              Spacer()
-
-              Button("more", systemImage: "ellipsis") { }
-                .labelStyle(.iconOnly)
+            // Threads
+            ForEach($comment.comments) { $thread in
+              PostCommentCell(
+                comment: $thread,
+                isThreaded: true,
+                onComment: {
+                  targetComment = thread
+                  isWritingCommentFocusState = true
+                },
+                onDelete: {
+                  viewModel.post.commentCount -= 1
+                },
+                onEdit: {
+                  withAnimation(.spring) {
+                    self.comment = thread.content ?? ""
+                    targetComment = nil
+                    commentOnEdit = thread
+                  }
+                  isWritingCommentFocusState = true
+                }
+              )
+              .id(thread.id)
             }
-            .font(.callout)
-
-            Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
-              .font(.callout)
-
-            HStack {
-              Spacer()
-
-              PostVoteButton()
-                .fixedSize()
-            }
-            .font(.caption)
           }
         }
-
-        HStack(alignment: .top, spacing: 8) {
-          Image(systemName: "arrow.turn.down.right")
-
-          VStack(alignment: .leading, spacing: 8) {
-            HStack {
-              Circle()
-                .frame(width: 21, height: 21)
-
-              Text("anonymous")
-                .fontWeight(.medium)
-
-              Text("22 May 17:44")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-              Spacer()
-
-              Button("more", systemImage: "ellipsis") { }
-                .labelStyle(.iconOnly)
-            }
-            .font(.callout)
-
-            Text("aaaa")
-              .font(.callout)
-
-            HStack {
-              Spacer()
-
-              PostVoteButton()
-                .fixedSize()
-            }
-            .font(.caption)
-          }
-        }
-      }
-
-      // Main comment
-      VStack(alignment: .leading, spacing: 8) {
-        Divider()
-
-        HStack {
-          Circle()
-            .frame(width: 21, height: 21)
-
-          Text("anonymous")
-            .fontWeight(.medium)
-
-          Text("22 May 17:44")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-          Spacer()
-
-          Button("more", systemImage: "ellipsis") { }
-            .labelStyle(.iconOnly)
-        }
-        .font(.callout)
-
-        Text("배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 배고픈데 뭐먹을지 추천 좀 ")
-          .font(.callout)
-
-        HStack {
-          Spacer()
-
-          PostCommentButton()
-            .fixedSize()
-
-          PostVoteButton()
-            .fixedSize()
-        }
-        .font(.caption)
       }
     }
     .padding(.top, 4)
+    .animation(.spring, value: viewModel.post.comments)
   }
 
   private var footer: some View {
     HStack {
-      PostVoteButton()
+      PostVoteButton(
+        myVote: viewModel.post.myVote,
+        votes: viewModel.post.upvotes - viewModel.post.downvotes,
+        onDownvote: {
+          await viewModel.downvote()
+        }, onUpvote: {
+          await viewModel.upvote()
+        }
+      )
+      .disabled(viewModel.post.isMine ?? false)
 
-      PostCommentButton()
+      PostCommentButton(commentCount: viewModel.post.commentCount) {
+        targetComment = nil
+        isWritingCommentFocusState = true
+      }
 
       Spacer()
 
@@ -245,45 +274,243 @@ struct PostView: View {
 
   @ViewBuilder
   private var content: some View {
-    let contentString = """
-    <p>안녕하세요! 기계동 정문 왼편에서 4년째 사랑받아 온 ‘오샐러드’입니다.<br>우리가게 오늘도 정상 영업 중입니다.<br>새롭게 선보이는 사이드 메뉴와 풍성한 할인 이벤트로 여러분을 찾아갑니다!<br><br>🎉세트 메뉴로 더 푸짐하고, 더 건강하게! 오샐러드 세트 할인 이벤트🎉<br><br>건강한 한 끼, 오샐러드에서 든든하게 즐기세요!<br>이제, 더 많은 메뉴를 더 저렴하게 즐길 수 있는 기회!<br>세트 할인 메뉴로 더욱 푸짐하고, 알차게 챙기세요! 🥑<br><br>🎁 [오샐러드] 세트 할인 메뉴 및 영양성분<br><br>닭가슴살 샐러드 세트 (칼로리: 592.7 kcal, 단백질: 31.8 g, 탄수화물: 111.4 g, 지방: 4.55 g / 파스타 기준, 쿠키 제외)<br>• 닭가슴살 샐러드(곡물 or 파스타) +단백질쿠키(더블초코 or 피넛버터) 택 1 +제로아이스티(복숭아 or 자몽) 택 1 = 정가 10,000원 할인가 7,000원<br><br>단호박 샐러드 세트 (칼로리: 661.0 kcal, 단백질: 22.2 g, 탄수화물: 120.0 g, 지방: 14.3 g / 파스타 기준)<br>• 단호박 샐러드(곡물 or 파스타) +단백질쿠키(더블초코 or 피넛버터) 택 1 +제로아이스티(복숭아 or 자몽) 택 1 = 정가 10,300원 할인가 7,300원<br><br>두부 샐러드 세트 (771.8 kcal, 단백질: 38.0 g, 탄수화물: 116.7 g, 지방: 21.7 g / 파스타 기준)<br>• 두부 샐러드(곡물 or 파스타) +단백질쿠키(더블초코 or 피넛버터) 택 1 +제로아이스티(복숭아 or 자몽) 택 1 = 정가 10,400원 할인가 7400원<br><br>콥 샐러드 세트 (803.0 kcal, 단백질: 33.9 g, 탄수화물: 114.8 g, 지방: 25.9 g / 파스타 기준)<br>• 콥 샐러드(곡물 or 파스타) +단백질쿠키(더블초코 or 피넛버터) 택 1 +제로아이스티(복숭아 or 자몽) 택 1 = 정가 10,600원 할인가 7,600원<br><br>밸런스 세트 (776.3 kcal, 단백질: 36.2 g, 탄수화물: 129.8 g, 지방: 15.8 g / 파스타 기준)<br>• 밸런스 샐러드(곡물 or 파스타) +단백질쿠키(더블초코 or 피넛버터) 택 1 +제로아이스티(복숭아 or 자몽) 택 1 = 정가 11,500원 할인가 8,500원<br><br>단백질 쿠키<br>• 더블초코 : (175kcal, 단백질 : 7g, 탄수화물 : 20g, 지방 : 8g)<br>• 피넛버터 : (165kcal, 단백질 : 9g, 탄수화물 : 20g, 지방 : 6g)<br><br>📍 위치: [대전광역시 유성구 대학로 291 N7-1, 1층 ]<br>📞 문의: [0507-1336-3599]<br>🛵 단체 주문 가능 (전화 문의)<br>건강하게, 맛있게, 부담 없이!<br>지금 바로 오샐러드에서 세트 할인 메뉴로 더욱 맛있는 한 끼를 즐겨보세요.💚<br><br>※ 본 영양성분은 샐러드 정량과 fatsecret 의 표기를 따랐으며 오차가 있을 수 있습니다.<img src=\"https://sparcs-newara.s3.amazonaws.com/files/2_sjYcz0g.png\" width=\"500\" data-attachment=\"160726\"><img src=\"https://sparcs-newara.s3.amazonaws.com/files/3_AWZYwn6.png\" width=\"500\" data-attachment=\"160729\"><img src=\"https://sparcs-newara.s3.amazonaws.com/files/4_1jTOofj.jpg\" width=\"500\" data-attachment=\"160727\"><img src=\"https://sparcs-newara.s3.amazonaws.com/files/5_WvjnOsH.jpg\" width=\"500\" data-attachment=\"160728\"></p>
-    """
+    if let summarisedContent {
+      SummarisationView(text: summarisedContent)
+        .padding(.bottom)
+        .transition(.asymmetric(
+          insertion: .offset(y: -10).combined(with: .opacity),
+          removal: .opacity
+        ))
+    }
 
-    HTMLView(contentHeight: $htmlHeight, htmlString: contentString)
+    if let content = viewModel.post.content {
+      DynamicHeightWebView(
+        htmlString: content,
+        dynamicHeight: $htmlHeight,
+        onLinkTapped: { url in
+          self.tappedURL = url
+        }
+      )
       .frame(height: htmlHeight)
+    } else {
+      ProgressView()
+    }
   }
 
   private var header: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text("[대학원 동아리 연합회] 대학원 동아리 연합회 소속이 되실 동아리를 모집합니다! (feat. 2022년 하반기 동아리 등록 심사 위원회)")
-        .font(.headline)
+      Text(title)
 
       HStack {
-        Text("22 May 2025 16:22")
-        Text("485 views")
+        Text(viewModel.post.createdAt.formattedString)
+        Text("\(viewModel.post.views) views")
       }
       .font(.caption)
       .foregroundStyle(.secondary)
 
-      HStack {
-        Circle()
-          .frame(width: 28, height: 28)
+      Button(action: {
+        selectedAuthor = viewModel.post.author
+      }, label: {
+        HStack {
+          if let url = viewModel.post.author.profile.profilePictureURL {
+            LazyImage(url: url) { state in
+              if let image = state.image {
+                image
+                  .resizable()
+                  .aspectRatio(contentMode: .fill)
+              } else {
+                Circle()
+                  .fill(Color.secondarySystemBackground)
+              }
+            }
+            .frame(width: 28, height: 28)
+            .clipShape(.circle)
+          } else {
+            Circle()
+              .fill(Color.secondarySystemBackground)
+              .frame(width: 28, height: 28)
+          }
 
-        Text("류형욱(전산학부)")
-          .fontWeight(.medium)
+          Text(viewModel.post.author.profile.nickname)
+            .fontWeight(.medium)
 
-        Image(systemName: "chevron.right")
-      }
-      .font(.subheadline)
+          if viewModel.post.author.username != "anonymous" {
+            Image(systemName: "chevron.right")
+          }
+        }
+        .font(.subheadline)
+      })
+      .tint(.primary)
+      .disabled(viewModel.post.author.username == "anonymous")
 
       Divider()
         .padding(.vertical, 4)
     }
   }
+
+  private func inputBar(proxy: ScrollViewProxy) -> some View {
+    HStack(alignment: .bottom) {
+      // comment textfield
+      VStack(alignment: .leading) {
+        if commentOnEdit != nil {
+          HStack {
+            Text("Editing")
+              .textCase(.uppercase)
+              .font(.footnote)
+              .fontWeight(.semibold)
+              .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Button("Cancel", systemImage: "xmark") {
+              withAnimation(.spring) {
+                comment = ""
+                commentOnEdit = nil
+              }
+            }
+            .font(.caption)
+            .labelStyle(.iconOnly)
+          }
+        }
+
+        HStack {
+          if !isWritingComment && comment.isEmpty {
+            profilePicture
+              .transition(.move(edge: .leading).combined(with: .opacity))
+          }
+
+          TextField(text: $comment, prompt: Text(placeholder), axis: .vertical, label: {})
+            .focused($isWritingCommentFocusState)
+            .onChange(of: isWritingCommentFocusState) {
+              print(isWritingCommentFocusState)
+              isWritingComment = isWritingCommentFocusState
+            }
+        }
+      }
+      .padding(12)
+      .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24))
+      .tint(.primary)
+
+      // write comment button
+      if !comment.isEmpty {
+        Button(action: {
+          guard !comment.isEmpty else { return }
+
+          Task {
+            isUploadingComment = true
+            defer { isUploadingComment = false }
+            do {
+              var uploadedComment: AraPostComment? = nil
+              if let commentOnEdit = commentOnEdit {
+                uploadedComment = try await viewModel.editComment(commentID: commentOnEdit.id, content: comment)
+              } else if let targetComment = targetComment {
+                uploadedComment = try await viewModel.writeThreadedComment(commentID: targetComment.id, content: comment)
+              } else {
+                uploadedComment = try await viewModel.writeComment(content: comment)
+              }
+              targetComment = nil
+              commentOnEdit = nil
+              comment = ""
+              isWritingCommentFocusState = false
+
+              withAnimation(.spring) {
+                proxy.scrollTo(uploadedComment?.id, anchor: .center)
+              }
+            } catch {
+              logger.error(error)
+              // TODO: handle error here
+            }
+          }
+        }, label: {
+          if isUploadingComment {
+            ProgressView()
+              .tint(.white)
+          } else {
+            Label("Send", systemImage: "paperplane")
+              .labelStyle(.iconOnly)
+              .tint(.white)
+          }
+        })
+        .fontWeight(.medium)
+        .padding(12)
+        .glassEffect(.regular.tint(.accent).interactive(), in: .circle)
+        .disabled(comment.isEmpty)
+        .transition(.move(edge: .trailing).combined(with: .opacity))
+        .disabled(isUploadingComment)
+      }
+    }
+    .padding(keyboardShowing ? [.horizontal, .vertical] : [.horizontal])
+    .animation(.spring, value: keyboardShowing)
+    .animation(
+      .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
+      value: comment.isEmpty
+    )
+    .animation(
+      .spring(duration: 0.2, bounce: 0.2, blendDuration: 0.1),
+      value: isWritingComment
+    )
+  }
+
+  var profilePicture: some View {
+    Group {
+      if let url = viewModel.post.myCommentProfile?.profile.profilePictureURL {
+        LazyImage(url: url) { state in
+          if let image = state.image {
+            image
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+          } else {
+            Circle()
+              .fill(Color.secondarySystemBackground)
+          }
+        }
+        .frame(width: 21, height: 21)
+        .clipShape(.circle)
+      } else {
+        Circle()
+          .fill(Color.secondarySystemBackground)
+          .frame(width: 21, height: 21)
+      }
+    }
+  }
+
+  var placeholder: String {
+    if let targetComment = targetComment {
+      return "reply to \(targetComment.author.profile.nickname)"
+    }
+
+    if let commentOnEdit = commentOnEdit {
+      return commentOnEdit.content ?? ""
+    }
+
+    return "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")"
+  }
+
+  var title: AttributedString {
+    var result = AttributedString()
+
+    if let topicName = viewModel.post.topic?.name.localized() {
+      var topicAttr = AttributedString("[\(topicName)] ")
+      topicAttr.font = .headline
+      topicAttr.foregroundColor = .accentColor
+      result.append(topicAttr)
+    }
+
+    var titleAttr = AttributedString(viewModel.post.title ?? "Untitled")
+    titleAttr.font = .headline
+    titleAttr.foregroundColor = .primary
+    result.append(titleAttr)
+
+    return result
+  }
+
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
+  }
 }
 
 #Preview {
-  NavigationStack {
-    PostView()
-  }
+  PostView(post: AraPost.mock, onPostDeleted: nil)
 }

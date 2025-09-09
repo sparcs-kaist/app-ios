@@ -8,7 +8,7 @@
 import Foundation
 
 extension Date {
-  func timeAgoDisplay() -> String {
+  var timeAgoDisplay: String {
     let calendar = Calendar.current
     let now = Date()
 
@@ -53,7 +53,7 @@ extension Date {
   var formattedString: String {
     let formatter = DateFormatter()
     formatter.locale = Locale.current
-    formatter.setLocalizedDateFormatFromTemplate("MMMM d, EEE, jm")
+    formatter.setLocalizedDateFormatFromTemplate("yMMMMdEEEjm")
     return formatter.string(from: self)
   }
 
@@ -83,7 +83,7 @@ extension Date {
     } else {
       let formatter = DateFormatter()
       formatter.locale = Locale.current
-      formatter.setLocalizedDateFormatFromTemplate("MMM d 'at' jm")
+      formatter.setLocalizedDateFormatFromTemplate("yMMM d 'at' jm")
       return formatter.string(from: self)
     }
   }
