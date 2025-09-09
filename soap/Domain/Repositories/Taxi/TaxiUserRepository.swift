@@ -13,7 +13,6 @@ import Moya
 protocol TaxiUserRepositoryProtocol: Sendable {
   func fetchUser() async throws -> TaxiUser
   func editBankAccount(account: String) async throws
-  func fetchReports() async throws -> (reported: [TaxiReport], reporting: [TaxiReport])
 }
 
 enum TaxiUserErrorCode: Int {
@@ -44,23 +43,5 @@ final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
         userInfo: [NSLocalizedDescriptionKey : "Failed to edit bank account"]
       )
     }
-  }
-  
-  func fetchReports() async throws -> (reported: [TaxiReport], reporting: [TaxiReport]) {
-    let response = try await provider.request(.fetchReports)
-    let result = try response.map(TaxiReportDTO.self)
-    
-    var reported: [TaxiReport] = []
-    var reporting: [TaxiReport] = []
-    
-    for report in result.reported {
-      try reported.append(report.toModel(reportType: .reported))
-    }
-    
-    for report in result.reporting {
-      try reporting.append(report.toModel(reportType: .reporting))
-    }
-    
-    return (reported: reported, reporting: reporting)
   }
 }

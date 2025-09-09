@@ -11,7 +11,7 @@ import Factory
 @MainActor
 protocol TaxiReportListViewModelProtocol: Observable {
   var state: TaxiReportListViewModel.ViewState { get set }
-  var reports: (reported: [TaxiReport], reporting: [TaxiReport]) { get set }
+  var reports: (incoming: [TaxiReport], outgoing: [TaxiReport]) { get set }
   
   func fetchReports() async
 }
@@ -26,15 +26,15 @@ class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
   
   // MARK: - Properties
   var state: ViewState = .loading
-  var reports: (reported: [TaxiReport], reporting: [TaxiReport]) = (reported: [], reporting: [])
+  var reports: (incoming: [TaxiReport], outgoing: [TaxiReport]) = (incoming: [], outgoing: [])
   
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
+  @ObservationIgnored @Injected(\.taxiReportRepository) private var taxiReportRepository: TaxiReportRepositoryProtocol
   
   // MARK: - Functions
   func fetchReports() async {
     do {
-      reports = try await taxiUserRepository.fetchReports()
+      reports = try await taxiReportRepository.fetchMyReports()
       state = .loaded
     } catch {
       logger.debug(error)

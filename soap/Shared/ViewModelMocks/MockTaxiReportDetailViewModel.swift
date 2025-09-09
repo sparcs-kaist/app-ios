@@ -10,7 +10,7 @@ import Foundation
 @MainActor
 class MockTaxiReportDetailViewModel: TaxiReportListViewModelProtocol, Observable {
   var state: TaxiReportListViewModel.ViewState = .loading
-  var reports: (reported: [TaxiReport], reporting: [TaxiReport]) = (reported: [], reporting: [])
+  var reports: (incoming: [TaxiReport], outgoing: [TaxiReport]) = (incoming: [], outgoing: [])
   
   func fetchReports() async {
     // Mock implementation
