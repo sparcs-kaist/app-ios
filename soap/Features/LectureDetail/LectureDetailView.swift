@@ -256,7 +256,9 @@ struct LectureDetailView: View {
       lectureDetailRow(title: "Capacity", description: String(lecture.capacity))
       lectureDetailRow(
         title: "Exams",
-        description: lecture.examTimes.isEmpty ? "Unknown" : lecture.examTimes.map { $0.str.localized() }.joined(separator: "\n")
+        description: lecture.examTimes.isEmpty ? "Unknown" : lecture.examTimes
+          .map { $0.description.localized() }
+          .joined(separator: "\n")
       )
 
       // Lecture Action Buttons

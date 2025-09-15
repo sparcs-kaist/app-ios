@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ClassTime {
+  let buildingCode: String
   let classroomName: LocalizedString
   let classroomNameShort: LocalizedString
   let roomName: String

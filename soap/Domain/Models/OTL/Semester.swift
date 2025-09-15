@@ -33,8 +33,8 @@ struct Semester: Identifiable, Comparable, Equatable, Hashable {
 }
 
 struct SemesterEventDate: Hashable {
-    let registerationPeriodStartDate: Date?
-    let registerationPeriodEndDate: Date?
+    let registrationPeriodStartDate: Date?
+    let registrationPeriodEndDate: Date?
     let addDropPeriodEndDate: Date?
     let dropDeadlineDate: Date?
     let evaluationDeadlineDate: Date?

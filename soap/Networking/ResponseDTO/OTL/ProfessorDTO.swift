@@ -20,3 +20,13 @@ struct ProfessorDTO: Codable {
     case reviewTotalWeight = "review_total_weight"
   }
 }
+
+
+extension ProfessorDTO {
+  func toModel() -> Professor {
+    Professor(id: id, name: LocalizedString([
+      "ko": name,
+      "en": enName
+    ]), reviewTotalWeight: reviewTotalWeight)
+  }
+}

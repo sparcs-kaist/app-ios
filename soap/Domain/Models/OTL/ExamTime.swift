@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ExamTime {
-  let str: LocalizedString
+  let description: LocalizedString
   let day: DayType
   let begin: Int
   let end: Int

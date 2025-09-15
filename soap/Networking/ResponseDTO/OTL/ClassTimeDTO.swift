@@ -1,5 +1,5 @@
 //
-//  ClasstimeDTO.swift
+//  ClassTimeDTO.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 15/09/2025.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ClasstimeDTO: Codable {
+struct ClassTimeDTO: Codable {
   let buildingCode: String
   let classroom: String
   let enClassroom: String
@@ -28,5 +28,26 @@ struct ClasstimeDTO: Codable {
     case day
     case begin
     case end
+  }
+}
+
+
+extension ClassTimeDTO {
+  func toModel() -> ClassTime {
+    ClassTime(
+      buildingCode: buildingCode,
+      classroomName: LocalizedString([
+        "ko": classroom,
+        "en": enClassroom
+      ]),
+      classroomNameShort: LocalizedString([
+        "ko": classroomShort,
+        "en": enClassroomShort
+      ]),
+      roomName: roomName,
+      day: DayType(rawValue: day) ?? .sun,
+      begin: begin,
+      end: end
+    )
   }
 }

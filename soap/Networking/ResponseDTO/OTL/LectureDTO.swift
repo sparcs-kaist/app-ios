@@ -37,8 +37,8 @@ struct LectureDTO: Codable {
   let load: Double
   let speech: Double
   let professors: [ProfessorDTO]
-  let classtimes: [ClasstimeDTO]
-  let examtimes: [ExamtimeDTO]?
+  let classtimes: [ClassTimeDTO]
+  let examtimes: [ExamTimeDTO]?
 
   enum CodingKeys: String, CodingKey {
     case id

@@ -31,3 +31,20 @@ enum SemesterType: String, Comparable {
   }
 }
 
+
+extension SemesterType {
+  static func fromRawValue(_ rawValue: Int) -> SemesterType {
+    switch rawValue {
+    case 1:
+      .spring
+    case 2:
+      .summer
+    case 3:
+      .autumn
+    case 4:
+      .winter
+    default:
+      .spring
+    }
+  }
+}
