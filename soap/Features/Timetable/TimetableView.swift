@@ -27,7 +27,7 @@ struct TimetableView: View {
             .padding()
             .background(.background)
             .clipShape(.rect(cornerRadius: 28))
-            .frame(height: .screenHeight * 0.50)
+            .frame(height: .screenHeight * 0.55)
 
           // Timetable Summary View
           TimetableSummary()
