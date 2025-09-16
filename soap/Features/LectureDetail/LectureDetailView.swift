@@ -244,7 +244,7 @@ struct LectureDetailView: View {
 
       lectureDetailRow(title: "Code", description: lecture.code)
       lectureDetailRow(title: "Type", description: lecture.typeDetail.localized())
-      lectureDetailRow(title: "Department", description: lecture.department.localized())
+      lectureDetailRow(title: "Department", description: lecture.department.name.localized())
       lectureDetailRow(
         title: "Professor",
         description: lecture.professors.isEmpty ? "Unknown" : lecture.professors.map { $0.name.localized() }.joined(separator: "\n")

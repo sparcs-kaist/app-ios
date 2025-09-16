@@ -20,3 +20,13 @@ struct DepartmentDTO: Codable {
     case code
   }
 }
+
+
+extension DepartmentDTO {
+  func toModel() -> Department {
+    Department(id: id, name: LocalizedString([
+      "ko": name,
+      "en": enName
+    ]), code: code)
+  }
+}

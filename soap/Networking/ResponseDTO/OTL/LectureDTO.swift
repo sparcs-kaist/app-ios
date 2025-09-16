@@ -37,8 +37,8 @@ struct LectureDTO: Codable {
   let load: Double
   let speech: Double
   let professors: [ProfessorDTO]
-  let classtimes: [ClassTimeDTO]
-  let examtimes: [ExamTimeDTO]?
+  let classTimes: [ClassTimeDTO]
+  let examTimes: [ExamTimeDTO]?
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -70,7 +70,46 @@ struct LectureDTO: Codable {
     case load
     case speech
     case professors
-    case classtimes
-    case examtimes
+    case classTimes = "classtimes"
+    case examTimes = "examtimes"
+  }
+}
+
+
+extension LectureDTO {
+  func toModel() -> Lecture {
+    Lecture(
+      id: id,
+      course: course,
+      code: code,
+      section: classNumber,
+      year: year,
+      semester: SemesterType.fromRawValue(semester),
+      title: LocalizedString([
+        "ko": title,
+        "en": enTitle
+      ]),
+      department: Department(id: department, name: LocalizedString([
+        "ko": departmentName,
+        "en": departmentEnName
+      ]), code: code),
+      isEnglish: isEnglish,
+      credit: credit,
+      creditAu: creditAu,
+      capacity: limit,
+      numberOfPeople: numPeople,
+      grade: grade,
+      load: load,
+      speech: speech,
+      reviewTotalWeight: reviewTotalWeight,
+      type: LectureType.fromRawValue(enType),
+      typeDetail: LocalizedString([
+        "ko": type,
+        "en": enType
+      ]),
+      professors: professors.compactMap { $0.toModel() },
+      classTimes: classTimes.compactMap { $0.toModel() },
+      examTimes: examTimes?.compactMap { $0.toModel() } ?? []
+    )
   }
 }
