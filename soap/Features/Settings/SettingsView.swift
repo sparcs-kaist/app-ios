@@ -27,7 +27,7 @@ struct SettingsView: View {
   
   private var appSettings: some View {
     Button("Change Language", systemImage: "globe") {
-      UIApplication.shared.open(URL(string: "App-prefs:org.sparcs.soap")!)
+      UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
     }
   }
 }
