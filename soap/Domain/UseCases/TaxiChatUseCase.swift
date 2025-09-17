@@ -10,6 +10,19 @@ import UIKit
 import Combine
 import SocketIO
 
+
+@MainActor
+protocol TaxiChatUseCaseProtocol {
+  var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
+  var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> { get }
+
+  func fetchInitialChats() async
+  func fetchChats(before date: Date) async
+  func sendChat(_ content: String?, type: TaxiChat.ChatType) async
+  func sendImage(_ content: UIImage) async throws
+}
+
+
 final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Publishers
   private var groupedChatsSubject = CurrentValueSubject<[TaxiChatGroup], Never>([])

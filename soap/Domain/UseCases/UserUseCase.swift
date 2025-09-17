@@ -8,6 +8,19 @@
 import Foundation
 import Factory
 
+protocol UserUseCaseProtocol: Sendable {
+  var araUser: AraUser? { get async }
+  var taxiUser: TaxiUser? { get async }
+  var feedUser: FeedUser? { get async }
+
+  func fetchUsers() async
+  func fetchAraUser() async throws
+  func fetchTaxiUser() async throws
+  func updateAraUser(params: [String: Any]) async throws
+  func fetchFeedUser() async throws
+}
+
+
 final class UserUseCase: UserUseCaseProtocol {
   private let araUserRepository: AraUserRepositoryProtocol
   private let taxiUserRepository: TaxiUserRepositoryProtocol
