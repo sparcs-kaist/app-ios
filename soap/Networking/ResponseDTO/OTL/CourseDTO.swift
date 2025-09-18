@@ -30,3 +30,24 @@ struct CourseDTO: Codable {
     case reviewTotalWeight
   }
 }
+
+
+extension CourseDTO {
+  func toModel() -> Course {
+    Course(
+      id: id,
+      code: code,
+      department: department.toModel(),
+      type: LocalizedString([
+        "ko": type,
+        "en": enType
+      ]),
+      title: LocalizedString([
+        "ko": title,
+        "en": enTitle
+      ]),
+      summary: summary,
+      reviewTotalWeight: reviewTotalWeight
+    )
+  }
+}
