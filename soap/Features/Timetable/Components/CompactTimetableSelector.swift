@@ -12,14 +12,12 @@ struct CompactTimetableSelector: View {
 
   var body: some View {
     ZStack {
-      if let selectedTimetable = timetableViewModel.selectedTimetable {
-        HStack {
-          semesterSelector(selectedTimetable: selectedTimetable)
+      HStack {
+        semesterSelector
 
-          Spacer()
+        Spacer()
 
-          tableSelector
-        }
+        tableSelector
       }
     }
     .frame(height: 30)
@@ -45,7 +43,7 @@ struct CompactTimetableSelector: View {
     .glassEffect(.regular.interactive())
   }
 
-  func semesterSelector(selectedTimetable: Timetable) -> some View {
+  private var semesterSelector: some View {
     HStack {
       Button(action: {
         withAnimation(.spring) {
@@ -55,11 +53,11 @@ struct CompactTimetableSelector: View {
         Image(systemName: "chevron.left")
       })
       .tint(.black)
-      .disabled(timetableViewModel.semesters.first == selectedTimetable.semester)
+      .disabled(timetableViewModel.semesters.first == timetableViewModel.selectedSemester)
 
       Spacer()
 
-      Text(selectedTimetable.semester.description)
+      Text(timetableViewModel.selectedSemester?.description ?? "Unknown")
         .contentTransition(.numericText())
 
       Spacer()
@@ -72,7 +70,7 @@ struct CompactTimetableSelector: View {
         Image(systemName: "chevron.right")
       })
       .tint(.black)
-      .disabled(timetableViewModel.semesters.last == selectedTimetable.semester)
+      .disabled(timetableViewModel.semesters.last == timetableViewModel.selectedSemester)
     }
     .frame(maxWidth: 160)
     .fontWeight(.semibold)

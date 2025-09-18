@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-struct Timetable: Identifiable, Comparable, Equatable {
+struct Timetable: Identifiable {
   let id: Int
   var lectures: [Lecture]
-  let semester: Semester
 
   private let defaultMinMinutes = 540 // 9:00 AM
   private let defaultMaxMinutes = 1080 // 6:00 PM
@@ -19,15 +18,6 @@ struct Timetable: Identifiable, Comparable, Equatable {
     "?", "F", "F", "F", "D-", "D", "D+", "C-", "C", "C+",
     "B-", "B", "B+", "A-", "A", "A+"
   ]
-
-  // Comparable
-  static func < (lhs: Timetable, rhs: Timetable) -> Bool {
-    return (lhs.semester == rhs.semester) ? lhs.id < rhs.id : lhs.semester < rhs.semester
-  }
-
-  static func == (lhs: Timetable, rhs: Timetable) -> Bool {
-    return lhs.id == rhs.id && lhs.semester == rhs.semester
-  }
 }
 
 extension Timetable {

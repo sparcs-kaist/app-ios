@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MainView: View {
-  private var timetableViewModel = TimetableViewModel()
   @State private var taxiInviteId: String?
   @State private var searchText: String = ""
   @State private var selectedTab: TabSelection = .feed
@@ -29,7 +28,6 @@ struct MainView: View {
 
       Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
         TimetableView()
-          .environment(timetableViewModel)
       }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {

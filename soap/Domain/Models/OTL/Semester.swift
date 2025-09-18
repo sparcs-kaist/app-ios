@@ -18,7 +18,7 @@ struct Semester: Identifiable, Comparable, Equatable, Hashable {
     let eventDate: SemesterEventDate
 
     var description: String {
-        "\(semesterType.rawValue) \(year)"
+        "\(year) \(semesterType.rawValue)"
     }
 
     // Comparable
