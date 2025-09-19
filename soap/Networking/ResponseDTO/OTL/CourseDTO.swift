@@ -23,11 +23,11 @@ struct CourseDTO: Codable {
     case code = "old_code"
     case department
     case type
-    case enType
+    case enType = "type_en"
     case title
-    case enTitle
+    case enTitle = "title_en"
     case summary
-    case reviewTotalWeight
+    case reviewTotalWeight = "review_total_weight"
   }
 }
 
