@@ -45,9 +45,8 @@ extension Timetable {
   // Return visible days. Return all weekdays by default, and check for the need of weekends inclusion.
   var visibleDays: [DayType] {
     let classDays = lectures.flatMap { $0.classTimes.map { $0.day } }
-    let examDays = lectures.flatMap { $0.examTimes.map { $0.day } }
 
-    let combinedDays = Array(Set(classDays + examDays + DayType.weekdays))
+    let combinedDays = Array(Set(classDays + DayType.weekdays))
 
     return combinedDays.sorted()
   }

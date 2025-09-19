@@ -6,13 +6,13 @@
 //
 
 enum DayType: Int, Identifiable, CaseIterable, Comparable {
-    case sun = 0
-    case mon = 1
-    case tue = 2
-    case wed = 3
-    case thu = 4
-    case fri = 5
-    case sat = 6
+    case sun = 6
+    case mon = 0
+    case tue = 1
+    case wed = 2
+    case thu = 3
+    case fri = 4
+    case sat = 5
 
     var id: String { stringValue }
     
