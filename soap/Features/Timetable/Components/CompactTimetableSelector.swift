@@ -27,8 +27,12 @@ struct CompactTimetableSelector: View {
   }
 
   var tableSelector: some View {
-    Button(action: {
+    Menu(content: {
+      Divider()
 
+      Button("New Table", systemImage: "plus") { }
+      Button("Delete", systemImage: "trash", role: .destructive) { }
+        .tint(nil)
     }, label: {
       HStack(spacing: 16) {
         Text("My Table")
@@ -36,10 +40,11 @@ struct CompactTimetableSelector: View {
 
         Image(systemName: "ellipsis")
       }
+      .padding(12)
+      .padding(.horizontal, 4)
+      .contentShape(.rect)
     })
     .tint(.primary)
-    .padding(12)
-    .padding(.horizontal, 4)
     .glassEffect(.regular.interactive())
   }
 

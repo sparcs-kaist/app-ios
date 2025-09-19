@@ -12,12 +12,14 @@ protocol UserUseCaseProtocol: Sendable {
   var araUser: AraUser? { get async }
   var taxiUser: TaxiUser? { get async }
   var feedUser: FeedUser? { get async }
+  var otlUser: OTLUser? { get async }
 
   func fetchUsers() async
   func fetchAraUser() async throws
   func fetchTaxiUser() async throws
-  func updateAraUser(params: [String: Any]) async throws
   func fetchFeedUser() async throws
+  func fetchOTLUser() async throws
+  func updateAraUser(params: [String: Any]) async throws
 }
 
 
@@ -55,12 +57,17 @@ final class UserUseCase: UserUseCaseProtocol {
     get async { await userStorage.getFeedUser() }
   }
 
+  var otlUser: OTLUser? {
+    get async { await userStorage.getOTLUser() }
+  }
+
   func fetchUsers() async {
     do {
       async let taxiUserTask: () = fetchTaxiUser()
       async let feedUserTask: () = fetchFeedUser()
       async let araUserTask: () = fetchAraUser()
-      _ = try await (taxiUserTask, feedUserTask, araUserTask)
+      async let otlUserTask: () = fetchOTLUser()
+      _ = try await (taxiUserTask, feedUserTask, araUserTask, otlUserTask)
     } catch {
       logger.error(error)
     }
@@ -80,6 +87,20 @@ final class UserUseCase: UserUseCaseProtocol {
     logger.debug(user)
   }
 
+  func fetchFeedUser() async throws {
+    logger.debug("Fetching Feed User")
+    let user = try await feedUserRepository.getUser()
+    await userStorage.setFeedUser(user)
+    logger.debug(user)
+  }
+
+  func fetchOTLUser() async throws {
+    logger.debug("Fetching OTL User")
+    let user = OTLUser.mock
+    await userStorage.setOTLUser(user)
+    logger.debug(user)
+  }
+
   func updateAraUser(params: [String: Any]) async throws {
     logger.debug("Updating Ara User Information: \(params)")
     guard let araUser = await araUser else {
@@ -88,12 +109,5 @@ final class UserUseCase: UserUseCaseProtocol {
     }
     try await araUserRepository.updateMe(id: araUser.id, params: params)
     try await fetchAraUser()
-  }
-
-  func fetchFeedUser() async throws {
-    logger.debug("Fetching Feed User")
-    let user = try await feedUserRepository.getUser()
-    await userStorage.setFeedUser(user)
-    logger.debug(user)
   }
 }

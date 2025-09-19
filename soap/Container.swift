@@ -176,7 +176,7 @@ extension Container {
   @MainActor
   var timetableUseCase: Factory<TimetableUseCaseProtocol> {
     self {
-      @MainActor in TimetableUseCase()
+      @MainActor in TimetableUseCase(userUseCase: self.userUseCase.resolve())
     }.singleton
   }
 }

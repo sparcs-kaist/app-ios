@@ -10,7 +10,7 @@ import Foundation
 extension Timetable: Mockable {
     static var mock: Timetable {
         Timetable(
-            id: 0,
+            id: "0",
             lectures: Lecture.mockList
         )
     }
@@ -18,19 +18,19 @@ extension Timetable: Mockable {
     static var mockList: [Timetable] {
         [
             Timetable(
-                id: 0,
+                id: "0",
                 lectures: Array(Lecture.mockList.prefix(2))
             ),
             Timetable(
-                id: 1,
+                id: "1",
                 lectures: Array(Lecture.mockList.prefix(4))
             ),
             Timetable(
-                id: 2,
+                id: "2",
                 lectures: Array(Lecture.mockList.prefix(1))
             ),
             Timetable(
-                id: 0,
+                id: "3",
                 lectures: Array(Lecture.mockList.prefix(5))
             )
         ]

@@ -9,7 +9,7 @@ import Foundation
 import Observation
 
 @MainActor
-protocol TimetableUseCaseProtocol {
+protocol TimetableUseCaseProtocol: Observable {
   var semesters: [Semester] { get }
 
   var selectedSemesterID: Semester.ID? { get set }
@@ -23,11 +23,26 @@ protocol TimetableUseCaseProtocol {
 
 @Observable
 final class TimetableUseCase: TimetableUseCaseProtocol {
+  // MARK: - Properties
   private var store: [Semester.ID: [Timetable]] = [:]
   private(set) var semesters: [Semester] = []
 
-  var selectedSemesterID: Semester.ID? = nil
+  var selectedSemesterID: Semester.ID? = nil {
+    didSet {
+      if let selectedSemesterID {
+        selectedTimetableID = "\(selectedSemesterID)-myTable"
+      }
+    }
+  }
   var selectedTimetableID: Timetable.ID? = nil
+
+  // MARK: - Dependencies
+  private let userUseCase: UserUseCaseProtocol
+
+  // MARK: - Initialiser
+  init(userUseCase: UserUseCaseProtocol) {
+    self.userUseCase = userUseCase
+  }
 
   var selectedSemester: Semester? {
     guard let id = selectedSemesterID else { return nil }
@@ -36,16 +51,26 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
 
   var selectedTimetable: Timetable? {
     guard let sid = selectedSemesterID,
-          let tid = selectedTimetableID else {
-      return nil
-    }
+          let tid = selectedTimetableID else { return nil }
     return store[sid]?.first(where: { $0.id == tid })
   }
 
   func load() async throws {
-    semesters = Semester.mockList
-    store = Dictionary(uniqueKeysWithValues: semesters.map { ($0.id, []) })
+    semesters = Semester.mockList // TODO: Fetch semesters
+    let user: OTLUser? = await userUseCase.otlUser
+    store = Dictionary(
+      uniqueKeysWithValues: semesters.map { semester in
+        let lectures = user?.myTimetableLectures.filter {
+          $0.year == semester.year && $0.semester == semester.semesterType
+        } ?? []
+
+        return (semester.id, [Timetable(id: "\(semester.id)-myTable", lectures: lectures)])
+      }
+    )
 
     selectedSemesterID = semesters.last?.id
+    if let selectedSemesterID {
+      selectedTimetableID = "\(selectedSemesterID)-myTable"
+    }
   }
 }

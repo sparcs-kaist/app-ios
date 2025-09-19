@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct Timetable: Identifiable {
-  let id: Int
+  let id: String
   var lectures: [Lecture]
 
   private let defaultMinMinutes = 540 // 9:00 AM

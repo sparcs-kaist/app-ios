@@ -29,6 +29,8 @@ final class TimetableViewModel {
     \.timetableUseCase
   ) private var timetableUseCase: TimetableUseCaseProtocol
 
+  // MARK: - Functions
+
   func fetchData() async {
     isLoading = true
     defer { isLoading = false }

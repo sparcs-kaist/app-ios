@@ -9,35 +9,44 @@ import Foundation
 
 protocol UserStorageProtocol: Actor {
   func setAraUser(_ user: AraUser?)
-  func setTaxiUser(_ user: TaxiUser?)
   func getAraUser() -> AraUser?
+
+  func setTaxiUser(_ user: TaxiUser?)
   func getTaxiUser() -> TaxiUser?
 
   func setFeedUser(_ user: FeedUser?)
   func getFeedUser() -> FeedUser?
+
+  func setOTLUser(_ user: OTLUser?)
+  func getOTLUser() -> OTLUser?
 }
 
 
 actor UserStorage: UserStorageProtocol {
+  // MARK: - Ara User
   private var araUser: AraUser?
-  private var taxiUser: TaxiUser?
-  private var feedUser: FeedUser?
 
   func setAraUser(_ user: AraUser?) {
     self.araUser = user
-  }
-  
-  func setTaxiUser(_ user: TaxiUser?) {
-    self.taxiUser = user
   }
 
   func getAraUser() -> AraUser? {
     return araUser
   }
+
+  // MARK: - Taxi User
+  private var taxiUser: TaxiUser?
+
+  func setTaxiUser(_ user: TaxiUser?) {
+    self.taxiUser = user
+  }
   
   func getTaxiUser() -> TaxiUser? {
     return taxiUser
   }
+
+  // MARK: - Feed User
+  private var feedUser: FeedUser?
 
   func setFeedUser(_ user: FeedUser?) {
     self.feedUser = user
@@ -45,5 +54,16 @@ actor UserStorage: UserStorageProtocol {
 
   func getFeedUser() -> FeedUser? {
     return feedUser
+  }
+
+  // MARK: - OTL User
+  private var otlUser: OTLUser?
+
+  func setOTLUser(_ user: OTLUser?) {
+    self.otlUser = user
+  }
+
+  func getOTLUser() -> OTLUser? {
+    return otlUser
   }
 }
