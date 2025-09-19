@@ -8,6 +8,16 @@
 import Foundation
 import KeychainSwift
 
+protocol TokenStorageProtocol {
+  func save(accessToken: String, refreshToken: String)
+  func getAccessToken() -> String?
+  func getRefreshToken() -> String?
+  func isTokenExpired() -> Bool
+  func getTokenExpirationDate() -> Date?
+  func clearTokens()
+}
+
+
 class TokenStorage: TokenStorageProtocol {
   private let keychain = KeychainSwift()
   private static let acessTokenKey = "accessToken"
