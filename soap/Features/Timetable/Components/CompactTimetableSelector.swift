@@ -28,6 +28,8 @@ struct CompactTimetableSelector: View {
 
   var tableSelector: some View {
     Menu(content: {
+      Button("My Table", systemImage: "checkmark") { }
+
       Divider()
 
       Button("New Table", systemImage: "plus") { }

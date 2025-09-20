@@ -56,6 +56,8 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
   }
 
   func load() async throws {
+    guard store.isEmpty || semesters.isEmpty else { return }
+
     semesters = Semester.mockList // TODO: Fetch semesters
     let user: OTLUser? = await userUseCase.otlUser
     store = Dictionary(
