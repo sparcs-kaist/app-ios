@@ -6,59 +6,17 @@
 //
 
 import SwiftUI
-import Shimmer
 
 struct TimetableSummary: View {
   @Environment(TimetableViewModel.self) private var timetableViewModel
 
   var body: some View {
     Group {
-      if timetableViewModel.isLoading {
-        placeholder
-          .transition(.opacity)
-          .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
-      } else {
-        content
-          .transition(.opacity)
-          .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
-      }
+      content
+        .transition(.opacity)
+        .redacted(reason: timetableViewModel.isLoading ? .placeholder : [])
+        .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
     }
-  }
-
-  private var placeholder: some View {
-    HStack {
-      VStack {
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-      }
-      VStack {
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-      }
-      VStack {
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-      }
-
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-    }
-    .foregroundStyle(.placeholder)
-    .shimmering()
   }
 
   private var content: some View {

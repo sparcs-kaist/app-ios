@@ -24,7 +24,6 @@
 		8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */; };
 		8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E42E1DAEEB00DB2D21 /* Moya */; };
 		8BD3045B2E26392300B17695 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 8BD3045A2E26392300B17695 /* SocketIO */; };
-		8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE2ECBB2D2429D900847F47 /* Shimmer */; };
 		8BE804172E49EE3A00904AC6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
@@ -99,7 +98,6 @@
 				8B6B2B512E2878CD00D13D50 /* NukeVideo in Frameworks */,
 				8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */,
 				8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */,
-				8BE2ECBC2D2429D900847F47 /* Shimmer in Frameworks */,
 				8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */,
 				8B5073E32E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
 				8B5073E72E851F79007E9C27 /* FirebaseCrashlytics in Frameworks */,
@@ -167,7 +165,6 @@
 			);
 			name = soap;
 			packageProductDependencies = (
-				8BE2ECBB2D2429D900847F47 /* Shimmer */,
 				8B7C19DB2E1DAE8900DB2D21 /* Factory */,
 				8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */,
 				8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */,
@@ -269,7 +266,6 @@
 			mainGroup = 8B8DFBDD2CCF771700AB82CC;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */,
 				8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */,
 				8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */,
 				8B2AF35B2E1DB57800648F86 /* XCRemoteSwiftPackageReference "keychain-swift" */,
@@ -722,14 +718,6 @@
 				kind = branch;
 			};
 		};
-		8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/markiv/SwiftUI-Shimmer";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.5.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -817,11 +805,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8BD304592E26392300B17695 /* XCRemoteSwiftPackageReference "socket" */;
 			productName = SocketIO;
-		};
-		8BE2ECBB2D2429D900847F47 /* Shimmer */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8BE2ECBA2D2429D900847F47 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */;
-			productName = Shimmer;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
