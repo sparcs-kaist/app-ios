@@ -34,7 +34,7 @@ struct TimetableCreditGraph: View {
     }
     .chartXScale(domain: 0...max((timetableViewModel.selectedTimetable?.credits ?? 1), 1))
     .chartLegend(position: .bottom)
-    .frame(height: 69)
+    .frame(height: 60)
   }
 }
 
