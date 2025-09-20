@@ -32,6 +32,12 @@ struct TimetableView: View {
           .frame(height: .screenHeight * 0.65)
           .environment(viewModel)
 
+          TimetableCreditGraph()
+            .padding()
+            .background(.background)
+            .clipShape(.rect(cornerRadius: 28))
+            .environment(viewModel)
+
           // Timetable Summary View
           TimetableSummary()
             .padding()
