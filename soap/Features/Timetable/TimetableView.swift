@@ -10,7 +10,7 @@ import SwiftUI
 struct TimetableView: View {
   @State private var viewModel = TimetableViewModel()
 
-  @State private var searchText: String = ""
+  @State private var showSearchSheet: Bool = false
   @State private var selectedLecture: Lecture? = nil
   @FocusState private var isFocused: Bool
 
@@ -52,13 +52,19 @@ struct TimetableView: View {
       .background(Color.secondarySystemBackground)
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Add Lecture", systemImage: "plus") { }
+          Button("Add Lecture", systemImage: "plus") {
+            showSearchSheet = true
+          }
         }
       }
       .sheet(item: $selectedLecture) { (item: Lecture) in
         LectureDetailView(lecture: item)
           .presentationDragIndicator(.visible)
           .presentationDetents([.medium, .large])
+      }
+      .sheet(isPresented: $showSearchSheet) {
+        LectureSearchView()
+          .presentationDetents([.medium, .large, .height(100)])
       }
       .task {
         // fetch data
