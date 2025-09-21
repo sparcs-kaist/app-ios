@@ -12,10 +12,57 @@ struct LectureSearchView: View {
   @State private var isFiltered: Bool = false
 
   var body: some View {
+    let groupedByCourse = Dictionary(grouping: Lecture.mockList, by: { $0.course })
+    // Preserve the order of first appearance from the original list
+    let orderedCourses: [Int] = {
+      var seen = Set<Int>()
+      var result: [Int] = []
+      for lecture in Lecture.mockList {
+        if seen.insert(lecture.course).inserted {
+          result.append(lecture.course)
+        }
+      }
+      return result
+    }()
+
     NavigationStack {
       List {
-        Text("test")
+        ForEach(orderedCourses, id: \.self) { course in
+          Section {
+            if let firstItem = groupedByCourse[course]?.first {
+              HStack {
+                Text(firstItem.title.localized())
+                  .font(.callout)
+
+                Spacer()
+
+                VStack(alignment: .trailing) {
+                  Text(firstItem.code)
+                  Text(firstItem.typeDetail.localized())
+                }
+                .foregroundStyle(.secondary)
+                .font(.footnote)
+              }
+            }
+            ForEach(groupedByCourse[course] ?? []) { lecture in
+              HStack {
+                Text(lecture.section ?? "A")
+                  .fontDesign(.rounded)
+                  .foregroundStyle(.secondary)
+
+                Text(lecture.professors.first?.name.localized() ?? "Unknown")
+
+                Spacer()
+
+                Button("Details", systemImage: "info.circle") { }
+                  .labelStyle(.iconOnly)
+              }
+              .font(.callout)
+            }
+          }
+        }
       }
+      .navigationTitle("Add to \"My Table\"")
       .navigationBarTitleDisplayMode(.inline)
       .searchable(text: $searchText, prompt: Text("Search courses, codes or professors"))
     }
@@ -23,16 +70,6 @@ struct LectureSearchView: View {
 }
 
 #Preview {
-  @Previewable @State var showSheet: Bool = true
-  ZStack {
-    Button("test") {
-      showSheet = true
-    }
-  }
-  .sheet(isPresented: $showSheet) {
-    LectureSearchView()
-      .presentationDetents([.medium, .large, .height(100)])
-  }
+  LectureSearchView()
 }
-
 
