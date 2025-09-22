@@ -40,7 +40,7 @@ extension Lecture: Mockable {
           classroomName: LocalizedString(["ko": "(0) 서울캠퍼스기타(기타) 성남 킨스타워 (18F Lecture Room)", "en": "(0) 서울캠퍼스기타(기타) 성남 킨스타워 (18F Lecture Room)"]),
           classroomNameShort: LocalizedString(["ko": "(0) 성남 킨스타워 (18F Lecture Room)", "en": "(0) 성남 킨스타워 (18F Lecture Room)"]),
           roomName: "성남 킨스타워 (18F Lecture Room)",
-          day: .mon,
+          day: .tue,
           begin: 630,
           end: 720
         ),
@@ -49,7 +49,7 @@ extension Lecture: Mockable {
           classroomName: LocalizedString(["ko": "(0) 서울캠퍼스기타(기타) 성남 킨스타워 (18F Lecture Room)", "en": "(0) 서울캠퍼스기타(기타) 성남 킨스타워 (18F Lecture Room)"]),
           classroomNameShort: LocalizedString(["ko": "(0) 성남 킨스타워 (18F Lecture Room)", "en": "(0) 성남 킨스타워 (18F Lecture Room)"]),
           roomName: "성남 킨스타워 (18F Lecture Room)",
-          day: .wed,
+          day: .thu,
           begin: 630,
           end: 720
         )
@@ -93,7 +93,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(0) 서울캠퍼스기타(기타) 성남 킨스타워 (18F Lecture Room)", "en": "(0) 서울캠퍼스기타(기타) 성남 킨스타워 (18F Lecture Room)"]),
             classroomNameShort: LocalizedString(["ko": "(0) 성남 킨스타워 (18F Lecture Room)", "en": "(0) 성남 킨스타워 (18F Lecture Room)"]),
             roomName: "성남 킨스타워 (18F Lecture Room)",
-            day: .mon,
+            day: .tue,
             begin: 630,
             end: 720
           ),
@@ -102,7 +102,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(0) 서울캠퍼스기타(기타) 성남 킨스타워 (18F Lecture Room)", "en": "(0) 서울캠퍼스기타(기타) 성남 킨스타워 (18F Lecture Room)"]),
             classroomNameShort: LocalizedString(["ko": "(0) 성남 킨스타워 (18F Lecture Room)", "en": "(0) 성남 킨스타워 (18F Lecture Room)"]),
             roomName: "성남 킨스타워 (18F Lecture Room)",
-            day: .wed,
+            day: .thu,
             begin: 630,
             end: 720
           )
@@ -142,7 +142,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (304호)강의실", "en": "(E11) Creative Learning B/D (304호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (304호)강의실", "en": "(E11) (304호)강의실"]),
             roomName: "(304호)강의실",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -151,7 +151,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (307호)강의실", "en": "(E11) Creative Learning B/D (307호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (307호)강의실", "en": "(E11) (307호)강의실"]),
             roomName: "(307호)강의실",
-            day: .sun,
+            day: .mon,
             begin: 780,
             end: 960
           )
@@ -191,7 +191,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (308호)강의실", "en": "(E11) Creative Learning B/D (308호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (308호)강의실", "en": "(E11) (308호)강의실"]),
             roomName: "(308호)강의실",
-            day: .sun,
+            day: .mon,
             begin: 780,
             end: 960
           ),
@@ -200,7 +200,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (304호)강의실", "en": "(E11) Creative Learning B/D (304호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (304호)강의실", "en": "(E11) (304호)강의실"]),
             roomName: "(304호)강의실",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           )
@@ -240,7 +240,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (304호)강의실", "en": "(E11) Creative Learning B/D (304호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (304호)강의실", "en": "(E11) (304호)강의실"]),
             roomName: "(304호)강의실",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -249,7 +249,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (307호)강의실", "en": "(E11) Creative Learning B/D (307호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (307호)강의실", "en": "(E11) (307호)강의실"]),
             roomName: "(307호)강의실",
-            day: .mon,
+            day: .tue,
             begin: 540,
             end: 720
           )
@@ -289,7 +289,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (304호)강의실", "en": "(E11) Creative Learning B/D (304호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (304호)강의실", "en": "(E11) (304호)강의실"]),
             roomName: "(304호)강의실",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -298,7 +298,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (308호)강의실", "en": "(E11) Creative Learning B/D (308호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (308호)강의실", "en": "(E11) (308호)강의실"]),
             roomName: "(308호)강의실",
-            day: .mon,
+            day: .tue,
             begin: 540,
             end: 720
           )
@@ -338,7 +338,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (304호)강의실", "en": "(E11) Creative Learning B/D (304호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (304호)강의실", "en": "(E11) (304호)강의실"]),
             roomName: "(304호)강의실",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -347,7 +347,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (307호)강의실", "en": "(E11) Creative Learning B/D (307호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (307호)강의실", "en": "(E11) (307호)강의실"]),
             roomName: "(307호)강의실",
-            day: .tue,
+            day: .wed,
             begin: 780,
             end: 960
           )
@@ -387,7 +387,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (104호)강의실-터만홀", "en": "(E11) Creative Learning B/D (104호)강의실-터만홀"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (104호)강의실-터만홀", "en": "(E11) (104호)강의실-터만홀"]),
             roomName: "(104호)강의실-터만홀",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -396,7 +396,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (308호)강의실", "en": "(E11) Creative Learning B/D (308호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (308호)강의실", "en": "(E11) (308호)강의실"]),
             roomName: "(308호)강의실",
-            day: .tue,
+            day: .wed,
             begin: 780,
             end: 960
           )
@@ -436,7 +436,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (104호)강의실-터만홀", "en": "(E11) Creative Learning B/D (104호)강의실-터만홀"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (104호)강의실-터만홀", "en": "(E11) (104호)강의실-터만홀"]),
             roomName: "(104호)강의실-터만홀",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -445,7 +445,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (307호)강의실", "en": "(E11) Creative Learning B/D (307호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (307호)강의실", "en": "(E11) (307호)강의실"]),
             roomName: "(307호)강의실",
-            day: .wed,
+            day: .thu,
             begin: 540,
             end: 720
           )
@@ -485,7 +485,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (104호)강의실-터만홀", "en": "(E11) Creative Learning B/D (104호)강의실-터만홀"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (104호)강의실-터만홀", "en": "(E11) (104호)강의실-터만홀"]),
             roomName: "(104호)강의실-터만홀",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -494,7 +494,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (308호)강의실", "en": "(E11) Creative Learning B/D (308호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (308호)강의실", "en": "(E11) (308호)강의실"]),
             roomName: "(308호)강의실",
-            day: .wed,
+            day: .thu,
             begin: 540,
             end: 720
           )
@@ -534,7 +534,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (104호)강의실-터만홀", "en": "(E11) Creative Learning B/D (104호)강의실-터만홀"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (104호)강의실-터만홀", "en": "(E11) (104호)강의실-터만홀"]),
             roomName: "(104호)강의실-터만홀",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -543,7 +543,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (307호)강의실", "en": "(E11) Creative Learning B/D (307호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (307호)강의실", "en": "(E11) (307호)강의실"]),
             roomName: "(307호)강의실",
-            day: .thu,
+            day: .fri,
             begin: 540,
             end: 720
           )
@@ -583,7 +583,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (104호)강의실-터만홀", "en": "(E11) Creative Learning B/D (104호)강의실-터만홀"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (104호)강의실-터만홀", "en": "(E11) (104호)강의실-터만홀"]),
             roomName: "(104호)강의실-터만홀",
-            day: .sun,
+            day: .mon,
             begin: 630,
             end: 750
           ),
@@ -592,7 +592,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (308호)강의실", "en": "(E11) Creative Learning B/D (308호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (308호)강의실", "en": "(E11) (308호)강의실"]),
             roomName: "(308호)강의실",
-            day: .thu,
+            day: .fri,
             begin: 540,
             end: 720
           )
@@ -632,7 +632,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E3-5) 크래프톤 (210호)대형강의실", "en": "(E3-5) KRAFTON SoC (210호)대형강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E3-5) (210호)대형강의실", "en": "(E3-5) (210호)대형강의실"]),
             roomName: "(210호)대형강의실",
-            day: .mon,
+            day: .tue,
             begin: 630,
             end: 690
           ),
@@ -641,7 +641,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E3-5) 크래프톤 (210호)대형강의실", "en": "(E3-5) KRAFTON SoC (210호)대형강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E3-5) (210호)대형강의실", "en": "(E3-5) (210호)대형강의실"]),
             roomName: "(210호)대형강의실",
-            day: .wed,
+            day: .thu,
             begin: 630,
             end: 690
           )
@@ -681,7 +681,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(501) 본원캠퍼스기타(기타) 비대면강의(시험장소 별도)", "en": "(501) 본원캠퍼스기타(기타) 비대면강의(시험장소 별도)"]),
             classroomNameShort: LocalizedString(["ko": "(501) 비대면강의(시험장소 별도)", "en": "(501) 비대면강의(시험장소 별도)"]),
             roomName: "비대면강의(시험장소 별도)",
-            day: .mon,
+            day: .tue,
             begin: 870,
             end: 960
           ),
@@ -690,7 +690,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(501) 본원캠퍼스기타(기타) 비대면강의(시험장소 별도)", "en": "(501) 본원캠퍼스기타(기타) 비대면강의(시험장소 별도)"]),
             classroomNameShort: LocalizedString(["ko": "(501) 비대면강의(시험장소 별도)", "en": "(501) 비대면강의(시험장소 별도)"]),
             roomName: "비대면강의(시험장소 별도)",
-            day: .wed,
+            day: .thu,
             begin: 870,
             end: 960
           )
@@ -730,7 +730,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E3-1) 정보전자공학동 (1501호)강의실-제1공동강의실", "en": "(E3-1) Information & Electronics B/D (1501호)강의실-제1공동강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E3-1) (1501호)강의실-제1공동강의실", "en": "(E3-1) (1501호)강의실-제1공동강의실"]),
             roomName: "(1501호)강의실-제1공동강의실",
-            day: .sun,
+            day: .mon,
             begin: 870,
             end: 960
           ),
@@ -739,7 +739,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E3-1) 정보전자공학동 (1501호)강의실-제1공동강의실", "en": "(E3-1) Information & Electronics B/D (1501호)강의실-제1공동강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E3-1) (1501호)강의실-제1공동강의실", "en": "(E3-1) (1501호)강의실-제1공동강의실"]),
             roomName: "(1501호)강의실-제1공동강의실",
-            day: .tue,
+            day: .wed,
             begin: 870,
             end: 960
           )
@@ -779,7 +779,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E3-1) 정보전자공학동 (2445호)강의실-4강의실", "en": "(E3-1) Information & Electronics B/D (2445호)강의실-4강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E3-1) (2445호)강의실-4강의실", "en": "(E3-1) (2445호)강의실-4강의실"]),
             roomName: "(2445호)강의실-4강의실",
-            day: .mon,
+            day: .tue,
             begin: 870,
             end: 960
           ),
@@ -788,7 +788,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E3-1) 정보전자공학동 (2445호)강의실-4강의실", "en": "(E3-1) Information & Electronics B/D (2445호)강의실-4강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E3-1) (2445호)강의실-4강의실", "en": "(E3-1) (2445호)강의실-4강의실"]),
             roomName: "(2445호)강의실-4강의실",
-            day: .wed,
+            day: .thu,
             begin: 870,
             end: 960
           )
@@ -838,7 +838,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (403호)강의실", "en": "(E11) Creative Learning B/D (403호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (403호)강의실", "en": "(E11) (403호)강의실"]),
             roomName: "(403호)강의실",
-            day: .sun,
+            day: .mon,
             begin: 870,
             end: 960
           ),
@@ -847,7 +847,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(E11) 창의학습관 (403호)강의실", "en": "(E11) Creative Learning B/D (403호)강의실"]),
             classroomNameShort: LocalizedString(["ko": "(E11) (403호)강의실", "en": "(E11) (403호)강의실"]),
             roomName: "(403호)강의실",
-            day: .tue,
+            day: .wed,
             begin: 870,
             end: 960
           )
@@ -887,7 +887,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N1) 김병호김삼열IT융합빌딩 (117호) 다목적홀", "en": "(N1) Kim Beang-Ho & Kim Sam-Youl ITC Building (117호) 다목적홀"]),
             classroomNameShort: LocalizedString(["ko": "(N1) (117호) 다목적홀", "en": "(N1) (117호) 다목적홀"]),
             roomName: "(117호) 다목적홀",
-            day: .sun,
+            day: .mon,
             begin: 870,
             end: 960
           ),
@@ -896,7 +896,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N1) 김병호김삼열IT융합빌딩 (117호) 다목적홀", "en": "(N1) Kim Beang-Ho & Kim Sam-Youl ITC Building (117호) 다목적홀"]),
             classroomNameShort: LocalizedString(["ko": "(N1) (117호) 다목적홀", "en": "(N1) (117호) 다목적홀"]),
             roomName: "(117호) 다목적홀",
-            day: .tue,
+            day: .wed,
             begin: 870,
             end: 960
           )
@@ -936,7 +936,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N1) 김병호김삼열IT융합빌딩 (111호)강의실-강의실5", "en": "(N1) Kim Beang-Ho & Kim Sam-Youl ITC Building (111호)강의실-강의실5"]),
             classroomNameShort: LocalizedString(["ko": "(N1) (111호)강의실-강의실5", "en": "(N1) (111호)강의실-강의실5"]),
             roomName: "(111호)강의실-강의실5",
-            day: .mon,
+            day: .tue,
             begin: 540,
             end: 630
           ),
@@ -945,7 +945,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N1) 김병호김삼열IT융합빌딩 (111호)강의실-강의실5", "en": "(N1) Kim Beang-Ho & Kim Sam-Youl ITC Building (111호)강의실-강의실5"]),
             classroomNameShort: LocalizedString(["ko": "(N1) (111호)강의실-강의실5", "en": "(N1) (111호)강의실-강의실5"]),
             roomName: "(111호)강의실-강의실5",
-            day: .wed,
+            day: .thu,
             begin: 540,
             end: 630
           )
@@ -985,7 +985,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N1) 김병호김삼열IT융합빌딩 (102호)강의실-대강의실", "en": "(N1) Kim Beang-Ho & Kim Sam-Youl ITC Building (102호)강의실-대강의실"]),
             classroomNameShort: LocalizedString(["ko": "(N1) (102호)강의실-대강의실", "en": "(N1) (102호)강의실-대강의실"]),
             roomName: "(102호)강의실-대강의실",
-            day: .sun,
+            day: .mon,
             begin: 870,
             end: 960
           ),
@@ -994,7 +994,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N1) 김병호김삼열IT융합빌딩 (102호)강의실-대강의실", "en": "(N1) Kim Beang-Ho & Kim Sam-Youl ITC Building (102호)강의실-대강의실"]),
             classroomNameShort: LocalizedString(["ko": "(N1) (102호)강의실-대강의실", "en": "(N1) (102호)강의실-대강의실"]),
             roomName: "(102호)강의실-대강의실",
-            day: .tue,
+            day: .wed,
             begin: 870,
             end: 960
           )
@@ -1034,7 +1034,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N4) 인문사회과학부동 (1309호)강의실-대학원생 세미나실", "en": "(N4) School of Humanities & Social Science Buildiing (1309호)강의실-대학원생 세미나실"]),
             classroomNameShort: LocalizedString(["ko": "(N4) (1309호)강의실-대학원생 세미나실", "en": "(N4) (1309호)강의실-대학원생 세미나실"]),
             roomName: "(1309호)강의실-대학원생 세미나실",
-            day: .mon,
+            day: .tue,
             begin: 630,
             end: 720
           ),
@@ -1043,7 +1043,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N4) 인문사회과학부동 (1309호)강의실-대학원생 세미나실", "en": "(N4) School of Humanities & Social Science Buildiing (1309호)강의실-대학원생 세미나실"]),
             classroomNameShort: LocalizedString(["ko": "(N4) (1309호)강의실-대학원생 세미나실", "en": "(N4) (1309호)강의실-대학원생 세미나실"]),
             roomName: "(1309호)강의실-대학원생 세미나실",
-            day: .wed,
+            day: .thu,
             begin: 630,
             end: 720
           )
@@ -1083,7 +1083,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N7-4) 기계공학동 (4102호)강의실-Edu 3.0 강의실", "en": "(N7-4) Mechanical Engineering B/D (4102호)강의실-Edu 3.0 강의실"]),
             classroomNameShort: LocalizedString(["ko": "(N7-4) (4102호)강의실-Edu 3.0 강의실", "en": "(N7-4) (4102호)강의실-Edu 3.0 강의실"]),
             roomName: "(4102호)강의실-Edu 3.0 강의실",
-            day: .sun,
+            day: .mon,
             begin: 960,
             end: 1080
           ),
@@ -1092,7 +1092,7 @@ extension Lecture: Mockable {
             classroomName: LocalizedString(["ko": "(N7-4) 기계공학동 (4102호)강의실-Edu 3.0 강의실", "en": "(N7-4) Mechanical Engineering B/D (4102호)강의실-Edu 3.0 강의실"]),
             classroomNameShort: LocalizedString(["ko": "(N7-4) (4102호)강의실-Edu 3.0 강의실", "en": "(N7-4) (4102호)강의실-Edu 3.0 강의실"]),
             roomName: "(4102호)강의실-Edu 3.0 강의실",
-            day: .tue,
+            day: .wed,
             begin: 960,
             end: 1140
           )
