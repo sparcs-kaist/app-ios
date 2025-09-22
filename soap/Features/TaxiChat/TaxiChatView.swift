@@ -264,7 +264,7 @@ struct TaxiChatView: View {
           .frame(width: 48, height: 48)
           .contentShape(.circle)
       }
-      .glassEffect(.clear.interactive(), in: .circle)
+      .glassEffect(.regular.interactive(), in: .circle)
 
       HStack(alignment: .bottom) {
         if let image = selectedImage {
@@ -281,7 +281,7 @@ struct TaxiChatView: View {
               .labelStyle(.iconOnly)
               .padding(4)
               .font(.caption2)
-              .glassEffect(.clear.interactive(), in: .circle)
+              .glassEffect(.regular.interactive(), in: .circle)
               .padding(8)
             }
 
@@ -328,7 +328,7 @@ struct TaxiChatView: View {
       }
       .padding(8)
       .frame(maxWidth: .infinity)
-      .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24))
+      .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
     }
     .padding(isFocused ? [.horizontal, .vertical] : [.horizontal])
   }
