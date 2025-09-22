@@ -17,12 +17,23 @@ final class TimetableViewModel {
   var semesters: [Semester] {
     timetableUseCase.semesters
   }
+
   var selectedSemester: Semester? {
     timetableUseCase.selectedSemester
   }
+
   var selectedTimetable: Timetable? {
-    timetableUseCase.selectedTimetable
+    if let candidateLecture,
+       var timetable = timetableUseCase.selectedTimetable {
+      timetable.lectures.append(candidateLecture)
+
+      return timetable
+    }
+
+    return timetableUseCase.selectedTimetable
   }
+
+  var candidateLecture: Lecture? = nil
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LectureSearchView: View {
+  @Environment(TimetableViewModel.self) private var timetableViewModel: TimetableViewModel
   @State private var searchText: String = ""
   @State private var isFiltered: Bool = false
 
@@ -45,19 +46,28 @@ struct LectureSearchView: View {
               }
             }
             ForEach(groupedByCourse[course] ?? []) { lecture in
-              HStack {
-                Text(lecture.section ?? "A")
-                  .fontDesign(.rounded)
-                  .foregroundStyle(.secondary)
+              NavigationLink(destination: {
+                LectureDetailView(lecture: lecture, onAdd: {
 
-                Text(lecture.professors.first?.name.localized() ?? "Unknown")
+                })
+                  .onAppear {
+                    timetableViewModel.candidateLecture = lecture
+                  }
+                  .onDisappear {
+                    timetableViewModel.candidateLecture = nil
+                  }
+              }, label: {
+                HStack {
+                  Text(lecture.section ?? "A")
+                    .fontDesign(.rounded)
+                    .foregroundStyle(.secondary)
 
-                Spacer()
+                  Text(lecture.professors.first?.name.localized() ?? "Unknown")
 
-                Button("Details", systemImage: "info.circle") { }
-                  .labelStyle(.iconOnly)
-              }
-              .font(.callout)
+                  Spacer()
+                }
+                .font(.callout)
+              })
             }
           }
         }

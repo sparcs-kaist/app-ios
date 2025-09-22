@@ -58,13 +58,16 @@ struct TimetableView: View {
         }
       }
       .sheet(item: $selectedLecture) { (item: Lecture) in
-        LectureDetailView(lecture: item)
-          .presentationDragIndicator(.visible)
-          .presentationDetents([.medium, .large])
+        NavigationStack {
+          LectureDetailView(lecture: item, onAdd: nil)
+            .presentationDragIndicator(.visible)
+            .presentationDetents([.medium, .large])
+        }
       }
       .sheet(isPresented: $showSearchSheet) {
         LectureSearchView()
-          .presentationDetents([.medium, .large, .height(100)])
+          .presentationDetents([.height(130), .medium, .large])
+          .environment(viewModel)
       }
       .task {
         // fetch data

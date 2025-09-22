@@ -26,13 +26,16 @@ struct TimetableGrid: View {
               .foregroundStyle(.separator)
             if let selectedTimetable = timetableViewModel.selectedTimetable {
               ForEach(selectedTimetable.getLectures(day: day)) { item in
-                TimetableGridCell(lecture: item.lecture)
-                  .frame(height: TimetableConstructor.getCellHeight(for: item, in: geometry.size, of: selectedTimetable.duration))
-                  .offset(y: TimetableConstructor.getCellOffset(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.duration))
-                  .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
-                  .onTapGesture {
-                    selectedLecture?(item.lecture)
-                  }
+                TimetableGridCell(
+                  lecture: item.lecture,
+                  isCandidate: item.lecture.id == timetableViewModel.candidateLecture?.id
+                )
+                .frame(height: TimetableConstructor.getCellHeight(for: item, in: geometry.size, of: selectedTimetable.duration))
+                .offset(y: TimetableConstructor.getCellOffset(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.duration))
+                .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
+                .onTapGesture {
+                  selectedLecture?(item.lecture)
+                }
               }
             }
           }

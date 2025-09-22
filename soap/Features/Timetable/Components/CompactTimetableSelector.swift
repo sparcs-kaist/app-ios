@@ -30,11 +30,12 @@ struct CompactTimetableSelector: View {
     Menu(content: {
       Button("My Table", systemImage: "checkmark") { }
 
-      Divider()
-
       Button("New Table", systemImage: "plus") { }
+
+      Divider()
       Button("Delete", systemImage: "trash", role: .destructive) { }
         .tint(nil)
+        .disabled(true)
     }, label: {
       HStack(spacing: 16) {
         Text("My Table")
