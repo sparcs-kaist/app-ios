@@ -103,6 +103,11 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       do {
         let room: TaxiRoom = try await taxiRoomRepository.commitSettlement(id: room.id)
         self.room = room
+
+        guard let account = taxiUser?.account, !account.isEmpty else {
+          return
+        }
+        await taxiChatUseCase.sendChat(account, type: .account)
       } catch {
         logger.debug(error)
       }

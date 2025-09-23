@@ -7,24 +7,32 @@
 
 import SwiftUI
 import NukeUI
+import Factory
 
 struct TaxiReportView: View {
   var room: TaxiRoom
   
   @State private var viewModel = TaxiReportViewModel()
+  @State private var taxiUser: TaxiUser? = nil
   @Environment(\.dismiss) private var dismiss
+  
+  // MARK: - Dependencies
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   
   var body: some View {
     NavigationView {
       Form {
         Section("Who?") {
           Picker("Select", selection: $viewModel.selectedUser) {
-            ForEach(room.participants) { part in
-              TaxiReportUser(user: part).tag(part) // TODO: Exclude myself
+            ForEach(room.participants.filter { $0.id != taxiUser?.oid }) { part in
+              TaxiReportUser(user: part).tag(part)
             }
           }
           .pickerStyle(.inline)
           .labelsHidden()
+        }
+        .task {
+          self.taxiUser = await userUseCase.taxiUser
         }
         
         Section {

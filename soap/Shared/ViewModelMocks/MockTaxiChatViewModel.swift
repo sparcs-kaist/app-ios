@@ -53,6 +53,6 @@ class MockTaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func sendImage(_ image: UIImage) async throws {
-    
+    // Mock implementation - no actual sending
   }
 }

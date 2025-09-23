@@ -250,7 +250,6 @@ struct TaxiChatView: View {
         }
         .disabled(!viewModel.isCommitPaymentAvailable)
         Button("Request Settlement", systemImage: "square.and.pencil") {
-          // TODO: 계좌번호 확인
           viewModel.commitSettlement()
         }
         .disabled(!viewModel.isCommitSettlementAvailable)
@@ -346,6 +345,7 @@ struct TaxiChatView: View {
           Button("Report", systemImage: "exclamationmark.triangle.fill") {
             showReportSheet = true
           }
+          .disabled(viewModel.room.participants.count <= 1)
         }
 
         Divider()
