@@ -14,8 +14,8 @@ struct TimetableGridCell: View {
   var body: some View {
     GeometryReader { geometry in
       ZStack(alignment: .topLeading) {
-        RoundedRectangle(cornerRadius: 4)
-          .fill(isCandidate ? .accent : lecture.backgroundColor)
+        RoundedRectangle(cornerRadius: 4) // this feels unnecessary but removing it breaks the whole view
+          .fill(.clear)
 
         VStack(alignment: .leading, spacing: 4) {
           Text(lecture.title)
@@ -27,6 +27,18 @@ struct TimetableGridCell: View {
         }
         .foregroundStyle(isCandidate ? .white : lecture.textColor)
         .padding(6)
+      }
+      .glassEffect(
+        isCandidate ? .regular
+          .tint(.accent) : .regular
+          .tint(lecture.backgroundColor)
+          .interactive(),
+        in: .rect(cornerRadius: 4)
+      )
+      .contextMenu {
+        Button("Remove from Table", systemImage: "trash", role: .destructive) {
+
+        }
       }
     }
   }
