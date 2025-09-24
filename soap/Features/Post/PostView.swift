@@ -267,7 +267,7 @@ struct PostView: View {
 
       PostBookmarkButton()
 
-      PostShareButton()
+      PostShareButton(url: URL(string: "https://newara.dev.sparcs.org/post/\(viewModel.post.id)")!)
     }
     .font(.callout)
   }

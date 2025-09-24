@@ -124,9 +124,9 @@ struct FeedPostRow: View {
 
       Spacer()
 
-      if onPostDeleted == nil {
-        PostShareButton()
-      }
+//      if onPostDeleted == nil {
+//        PostShareButton(url: URL(string: "https://sparcs.org")!) // FIXME: Feed URL Placeholder
+//      }
     }
     .padding(.horizontal)
     .padding(.top, 4)

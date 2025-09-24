@@ -338,7 +338,9 @@ struct TaxiChatView: View {
     ToolbarItem(placement: .topBarTrailing) {
       Menu("More", systemImage: "ellipsis") {
         ControlGroup {
-          Button("Share", systemImage: "square.and.arrow.up") { }
+          ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + viewModel.room.id)!, message: Text(LocalizedStringResource("🚕 Looking for someone to ride with on \(viewModel.room.departAt.formattedString) from \(viewModel.room.source.title) to \(viewModel.room.destination.title)! 🚕"))) {
+            Label("Share", systemImage: "square.and.arrow.up")
+          }
           Button("Call Taxi", systemImage: "car.fill") {
             showCallTaxiAlert = true
           }

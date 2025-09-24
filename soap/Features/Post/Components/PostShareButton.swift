@@ -9,9 +9,11 @@ import SwiftUI
 
 
 struct PostShareButton: View {
+  let url: URL
+  
   var body: some View {
-    Button("share", systemImage: "square.and.arrow.up") {
-
+    ShareLink(item: url) {
+      Label("share", systemImage: "square.and.arrow.up")
     }
     .labelStyle(.iconOnly)
     .foregroundStyle(.primary)
