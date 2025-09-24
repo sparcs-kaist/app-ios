@@ -9,6 +9,6 @@ import SwiftUI
 
 extension Text {
     init(_ localizedString: LocalizedString) {
-        self.init(localizedString.description)
+      self.init(localizedString.localizedStringResource)
     }
 }
