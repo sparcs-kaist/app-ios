@@ -92,23 +92,23 @@ struct TaxiChatView: View {
       }
     )
     .alert(
-      "Pay Money",
+      "Send Payment",
       isPresented: $showPayMoneyAlert,
       actions: {
         Button("Open Kakao Pay", role: .confirm) {
           openKakaoPay()
         }
         Button("Open Toss", role: .confirm) {
-          openToss()
+          openToss(account: viewModel.account)
         }
-        Button("I sent", role: .confirm) {
+        Button("Already Sent", role: .confirm) {
           viewModel.commitPayment()
         }
         Button("Cancel", role: .cancel) { }
       },
       message: {
         Text(
-          "You can launch the banking app. After sending money, press \"I sent\" button to notify the other participants."
+          "Select the app to send your payment. Tap Already Sent once you've completed the transfer."
         )
       }
     )
@@ -421,11 +421,14 @@ struct TaxiChatView: View {
     }
   }
 
-  private func openToss() {
-    // TODO: amount, bankCode, accountNo
+  private func openToss(account: String?) {
+    let bankName = String(account?.split(separator: " ").first ?? "")
+    let bankCode = Constants.taxiBankCodeMap[bankName] ?? ""
+    let accountNo = String(account?.split(separator: " ").last ?? "")
+
     if let url = URL(
       string:
-        "supertoss://send"
+        "supertoss://send?bankCode=\(bankCode)&accountNo=\(accountNo)"
     ) {
       openURL(url)
     }

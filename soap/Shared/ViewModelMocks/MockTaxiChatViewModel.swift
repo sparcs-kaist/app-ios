@@ -22,6 +22,7 @@ class MockTaxiChatViewModel: TaxiChatViewModelProtocol {
   var isLeaveRoomAvailable: Bool = true
   var isCommitSettlementAvailable: Bool = false
   var isCommitPaymentAvailable: Bool = false
+  var account: String? = nil
 
   // MARK: - Functions
   func setup() async {

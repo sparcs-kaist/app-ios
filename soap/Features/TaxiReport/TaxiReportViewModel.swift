@@ -16,6 +16,7 @@ class TaxiReportViewModel {
   var selectedUser: TaxiParticipant?
   var selectedReason: TaxiReport.Reason?
   var etcDetails: String = ""
+  let maxEtcDetailsLength = 30 // Restricted by Taxi backend
   
   // MARK: - Dependency
   @ObservationIgnored @Injected(\.taxiReportRepository) private var taxiReportRepository: TaxiReportRepositoryProtocol

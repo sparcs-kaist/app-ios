@@ -52,8 +52,8 @@ struct TaxiReportView: View {
           if viewModel.selectedReason == .etcReason {
             HStack {
               TextField("Details", text: $viewModel.etcDetails)
-              Text("\(viewModel.etcDetails.count)/30")
-                .foregroundStyle(viewModel.etcDetails.count > 30 ? .orange : .secondary)
+              Text("\(viewModel.etcDetails.count)/\(viewModel.maxEtcDetailsLength)")
+                .foregroundStyle(viewModel.etcDetails.count > viewModel.maxEtcDetailsLength ? .orange : .secondary)
             }
           }
         } header: {
@@ -98,7 +98,7 @@ struct TaxiReportView: View {
   var isValid: Bool {
     return (
       viewModel.selectedUser != nil && viewModel.selectedReason != nil &&
-      (viewModel.selectedReason != .etcReason || (1...30).contains(viewModel.etcDetails.count))
+      (viewModel.selectedReason != .etcReason || (1...viewModel.maxEtcDetailsLength).contains(viewModel.etcDetails.count))
     )
   }
 }

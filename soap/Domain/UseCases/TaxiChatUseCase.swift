@@ -34,6 +34,9 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
 
   private var cancellables = Set<AnyCancellable>()
 
+  // MARK: - Computed Properties
+  var accountChats: [TaxiChat] = []
+
   // MARK: - Dependency
   private let taxiChatService: TaxiChatServiceProtocol
   private let userUseCase: UserUseCaseProtocol
@@ -115,6 +118,7 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
 
           self.groupedChats = groupedChats
+          self.accountChats = chats.filter { $0.type == .account }
         }
       }
       .store(in: &cancellables)

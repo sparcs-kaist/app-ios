@@ -137,6 +137,14 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     )
   }
 
+  var account: String? {
+    guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }) else {
+      return nil
+    }
+
+    return taxiChatUseCase.accountChats.last(where: { $0.authorID == paidParticiapnt.id })?.content
+  }
+
   func sendImage(_ image: UIImage) async throws {
     isUploading = true
     defer { isUploading = false }
