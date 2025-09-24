@@ -14,8 +14,17 @@ struct TaxiReportUser: View {
   var body: some View {
     HStack {
       userProfileImage
-      Text(user.nickname)
-      // TODO: 정산 상태
+      VStack(alignment: .leading) {
+        Text(user.nickname)
+        if user.isSettlement != .notDeparted {
+          Text(
+            user.isSettlement == .requestedSettlement ? "Requested settlement" :
+            user.isSettlement == .paymentSent ? "Paid" : "Not paid"
+          )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+      }
     }
   }
   

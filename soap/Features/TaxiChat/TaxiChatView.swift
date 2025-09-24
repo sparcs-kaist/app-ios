@@ -201,7 +201,7 @@ struct TaxiChatView: View {
                     TaxiChatPaymentBubble()
                   case .account:
                     TaxiChatAccountBubble(content: chat.content, isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable) {
-                      viewModel.commitPayment()
+                      showPayMoneyAlert = true
                     }
                   case .share:
                     TaxiChatShareBubble() { }

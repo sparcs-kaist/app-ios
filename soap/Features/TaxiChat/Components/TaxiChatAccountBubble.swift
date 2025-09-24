@@ -40,8 +40,13 @@ struct TaxiChatAccountBubble: View {
       Button(action: {
         markAsSent()
       }, label: {
-        Label("Mark as Sent", systemImage: "checkmark")
-          .frame(maxWidth: .infinity)
+        if isCommitPaymentAvailable {
+          Label("Send Payment", systemImage: "wonsign.circle")
+            .frame(maxWidth: .infinity)
+        } else {
+          Label("Already Sent", systemImage: "checkmark")
+            .frame(maxWidth: .infinity)
+        }
       })
       .fontWeight(.medium)
       .buttonStyle(.glassProminent)
