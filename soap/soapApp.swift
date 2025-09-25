@@ -7,10 +7,23 @@
 
 import SwiftUI
 import SwiftyBeaver
+import FirebaseCore
+
 let logger = SwiftyBeaver.self
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+
+    return true
+  }
+}
 
 @main
 struct soapApp: App {
+  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
   init() {
     // Initialise Console Logger (SwiftyBeaver)
     let console = ConsoleDestination()
