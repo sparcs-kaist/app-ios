@@ -21,6 +21,7 @@ final class MockTaxiListViewModel: TaxiListViewModelProtocol, Sendable {
   }
   var rooms: [TaxiRoom] = TaxiRoom.mockList
   var locations: [TaxiLocation] = TaxiLocation.mockList
+  var invitedRoom: TaxiRoom?
 
   var source: TaxiLocation? = nil
   var destination: TaxiLocation? = nil
@@ -35,5 +36,9 @@ final class MockTaxiListViewModel: TaxiListViewModelProtocol, Sendable {
 
   func createRoom(title: String) async throws {
 
+  }
+  
+  func fetchData(inviteId: String?) async {
+    
   }
 }

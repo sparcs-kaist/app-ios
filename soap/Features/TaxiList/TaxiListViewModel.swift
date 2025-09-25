@@ -29,6 +29,7 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   }
   public var rooms: [TaxiRoom] = []
   public var locations: [TaxiLocation] = []
+  public var invitedRoom: TaxiRoom?
 
   // MARK: - View Properties
   public var source: TaxiLocation?
@@ -43,13 +44,18 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
 
   // MARK: - Functions
-  public func fetchData() async {
+  public func fetchData(inviteId: String? = nil) async {
     logger.debug("[TaxiListViewModel] fetching data")
     do {
       let repo = taxiRoomRepository
       async let roomsTask: [TaxiRoom] = repo.fetchRooms()
       async let locationsTask: [TaxiLocation] = repo.fetchLocations()
       (rooms, locations) = try await (roomsTask, locationsTask)
+      
+      if let inviteId = inviteId {
+        logger.debug("[TaxiListViewModel] invitation id: \(inviteId)")
+        invitedRoom = rooms.first(where: { $0.id == inviteId })
+      }
 
       withAnimation(.spring) {
         if rooms.isEmpty {

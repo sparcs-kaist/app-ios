@@ -14,6 +14,7 @@ public protocol TaxiListViewModelProtocol: Observable {
   var week: [Date] { get }
   var rooms: [TaxiRoom] { get }
   var locations: [TaxiLocation] { get }
+  var invitedRoom: TaxiRoom? { get set }
 
   // MARK: - View Properties
   var source: TaxiLocation? { get set }
@@ -24,6 +25,6 @@ public protocol TaxiListViewModelProtocol: Observable {
   var roomCapacity: Int { get set }
 
   // MARK: - Functions
-  func fetchData() async
+  func fetchData(inviteId: String?) async
   func createRoom(title: String) async throws
 }
