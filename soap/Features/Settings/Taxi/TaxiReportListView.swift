@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TaxiReportListView: View {
-  @State private var taxiReportType: TaxiReport.ReportType = .reported
+  @State private var taxiReportType: TaxiReportType = .incoming
   @State private var vm: TaxiReportListViewModelProtocol
   
   init(vm: TaxiReportListViewModelProtocol = TaxiReportListViewModel()) {
@@ -18,7 +18,7 @@ struct TaxiReportListView: View {
   var body: some View {
     ScrollView {
       Picker("Report Type", selection: $taxiReportType) {
-        ForEach(TaxiReport.ReportType.allCases, id: \.rawValue) { item in
+        ForEach(TaxiReportType.allCases, id: \.rawValue) { item in
           Text(item.rawValue).tag(item)
         }
       }
@@ -44,8 +44,8 @@ struct TaxiReportListView: View {
   
   private var loadingView: some View {
     Group {
-      TaxiReportDetailRow(report: TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()))
-      TaxiReportDetailRow(report: TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()))
+      TaxiReportDetailRow(report: .mock, reportType: .incoming)
+      TaxiReportDetailRow(report: .mock, reportType: .incoming)
     }
     .redacted(reason: .placeholder)
   }
@@ -53,10 +53,10 @@ struct TaxiReportListView: View {
   private var loadedView: some View {
     Group {
       switch taxiReportType {
-        case .reported:
-          reportViewList(reports: vm.reports.reported)
-        case .reporting:
-          reportViewList(reports: vm.reports.reporting)
+      case .incoming:
+        reportViewList(reports: vm.reports.incoming)
+      case .outgoing:
+        reportViewList(reports: vm.reports.outgoing)
       }
     }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
   }
@@ -67,7 +67,7 @@ struct TaxiReportListView: View {
         ContentUnavailableView("No Reports", systemImage: "list.bullet.clipboard")
       }
       ForEach(reports) {
-        TaxiReportDetailRow(report: $0)
+        TaxiReportDetailRow(report: $0, reportType: taxiReportType)
       }
     }
   }
@@ -82,7 +82,7 @@ struct TaxiReportListView: View {
 
 #Preview("Loaded State") {
   let vm = MockTaxiReportDetailViewModel()
-  vm.reports = (reported: [TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date())], reporting: [TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()), TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date())])
+  vm.reports = (incoming: TaxiReport.mockList, outgoing: TaxiReport.mockList)
   vm.state = .loaded
   
   return TaxiReportListView(vm: vm)

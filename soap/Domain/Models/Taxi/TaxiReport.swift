@@ -2,27 +2,31 @@
 //  TaxiReport.swift
 //  soap
 //
-//  Created by 하정우 on 8/12/25.
+//  Created by 김민찬 on 8/11/25.
 //
 
 import Foundation
 
-public struct TaxiReport: Identifiable {
-  enum ReportType: String, CaseIterable {
-    case reported = "Received"
-    case reporting = "Submitted"
-  }
-  
-  enum ReportReason: String {
+struct TaxiReportedUser: Identifiable, Hashable {
+  let id: String
+  let oid: String
+  let nickname: String
+  let profileImageURL: URL?
+  let withdraw: Bool
+}
+
+struct TaxiReport: Identifiable, Hashable {
+  enum Reason: String {
     case noSettlement = "no-settlement"
     case noShow = "no-show"
-    case etc = "etc-reason"
+    case etcReason = "etc-reason"
   }
   
-  public let id: String
-  let nickname: String?
-  let reportType: ReportType
-  let reason: ReportReason
-  let etcDetail: String
-  let reportedAt: Date
+  let id: String
+  let creatorID: String
+  let reportedUser: TaxiReportedUser
+  let reason: Reason
+  let etcDetails: String
+  let time: Date
+  let roomID: String?
 }

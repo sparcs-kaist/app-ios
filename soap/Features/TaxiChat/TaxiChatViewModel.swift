@@ -103,6 +103,11 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       do {
         let room: TaxiRoom = try await taxiRoomRepository.commitSettlement(id: room.id)
         self.room = room
+
+        guard let account = taxiUser?.account, !account.isEmpty else {
+          return
+        }
+        await taxiChatUseCase.sendChat(account, type: .account)
       } catch {
         logger.debug(error)
       }
@@ -130,6 +135,14 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     return room.isDeparted && room.settlementTotal != 0 && (
       me?.isSettlement == .paymentRequired
     )
+  }
+
+  var account: String? {
+    guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }) else {
+      return nil
+    }
+
+    return taxiChatUseCase.accountChats.last(where: { $0.authorID == paidParticiapnt.id })?.content
   }
 
   func sendImage(_ image: UIImage) async throws {

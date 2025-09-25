@@ -22,6 +22,7 @@ protocol TaxiChatViewModelProtocol: Observable {
   var isLeaveRoomAvailable: Bool { get }
   var isCommitSettlementAvailable: Bool { get }
   var isCommitPaymentAvailable: Bool { get }
+  var account: String? { get }
 
   // MARK: - Functions
   func setup() async

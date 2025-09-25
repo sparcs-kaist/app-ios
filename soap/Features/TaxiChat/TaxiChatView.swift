@@ -20,6 +20,8 @@ struct TaxiChatView: View {
   @State private var isLoadingMore: Bool = false
 
   @State private var showCallTaxiAlert: Bool = false
+  @State private var showPayMoneyAlert: Bool = false
+  @State private var showReportSheet: Bool = false
   @State private var showErrorAlert: Bool = false
   @State private var errorMessage: String = ""
 
@@ -89,11 +91,37 @@ struct TaxiChatView: View {
         )
       }
     )
+    .alert(
+      "Send Payment",
+      isPresented: $showPayMoneyAlert,
+      actions: {
+        Button("Open Kakao Pay", role: .confirm) {
+          openKakaoPay()
+        }
+        Button("Open Toss", role: .confirm) {
+          openToss(account: viewModel.account)
+        }
+        Button("Already Sent", role: .confirm) {
+          viewModel.commitPayment()
+        }
+        Button("Cancel", role: .cancel) { }
+      },
+      message: {
+        Text(
+          "Select the app to send your payment. Tap Already Sent once you've completed the transfer."
+        )
+      }
+    )
     .alert("Error", isPresented: $showErrorAlert, actions: {
       Button("Okay", role: .close) { }
     }, message: {
       Text(errorMessage)
     })
+    .sheet(isPresented: $showReportSheet) {
+      TaxiReportView(room: viewModel.room)
+        .presentationDragIndicator(.visible)
+        .presentationDetents([.height(450)])
+    }
     .task {
       await viewModel.setup()
       await viewModel.fetchInitialChats()
@@ -173,7 +201,7 @@ struct TaxiChatView: View {
                     TaxiChatPaymentBubble()
                   case .account:
                     TaxiChatAccountBubble(content: chat.content, isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable) {
-                      viewModel.commitPayment()
+                      showPayMoneyAlert = true
                     }
                   case .share:
                     TaxiChatShareBubble() { }
@@ -218,7 +246,7 @@ struct TaxiChatView: View {
     HStack(alignment: .bottom) {
       Menu {
         Button("Send Payment", systemImage: "wonsign.circle") {
-          viewModel.commitPayment()
+          showPayMoneyAlert = true
         }
         .disabled(!viewModel.isCommitPaymentAvailable)
         Button("Request Settlement", systemImage: "square.and.pencil") {
@@ -314,7 +342,10 @@ struct TaxiChatView: View {
           Button("Call Taxi", systemImage: "car.fill") {
             showCallTaxiAlert = true
           }
-          Button("Report", systemImage: "exclamationmark.triangle.fill") { }
+          Button("Report", systemImage: "exclamationmark.triangle.fill") {
+            showReportSheet = true
+          }
+          .disabled(viewModel.room.participants.count <= 1)
         }
 
         Divider()
@@ -376,6 +407,28 @@ struct TaxiChatView: View {
   private func openUber() {
     if let url = URL(
       string: "uber://?action=setPickup&client_id=a&&pickup[latitude]=\(viewModel.room.source.latitude)&pickup[longitude]=\(viewModel.room.source.longitude)&&dropoff[latitude]=\(viewModel.room.destination.latitude)&dropoff[longitude]=\(viewModel.room.destination.longitude)"
+    ) {
+      openURL(url)
+    }
+  }
+
+  private func openKakaoPay() {
+    if let url = URL(
+      string:
+        "kakaotalk://kakaopay/money/to/bank"
+    ) {
+      openURL(url)
+    }
+  }
+
+  private func openToss(account: String?) {
+    let bankName = String(account?.split(separator: " ").first ?? "")
+    let bankCode = Constants.taxiBankCodeMap[bankName] ?? ""
+    let accountNo = String(account?.split(separator: " ").last ?? "")
+
+    if let url = URL(
+      string:
+        "supertoss://send?bankCode=\(bankCode)&accountNo=\(accountNo)"
     ) {
       openURL(url)
     }

@@ -9,11 +9,12 @@ import SwiftUI
 
 struct TaxiReportDetailRow: View {
   var report: TaxiReport
+  var reportType: TaxiReportType
   
   var body: some View {
     VStack {
       switch report.reason {
-      case .etc:
+      case .etcReason:
         RowElementView(title: "Reason", content: "Other reasons")
       case .noShow:
         RowElementView(title: "Reason", content: "Not showing up")
@@ -21,15 +22,15 @@ struct TaxiReportDetailRow: View {
         RowElementView(title: "Reason", content: "No settlement")
       }
       Divider().padding(.vertical, 4)
-      if (report.nickname != nil) && report.reportType == .reporting {
-        RowElementView(title: "Nickname", content: report.nickname!).padding(.bottom, 4)
+      if reportType == .outgoing {
+        RowElementView(title: "Nickname", content: report.reportedUser.nickname).padding(.bottom, 4)
       }
-      RowElementView(title: "Date", content: report.reportedAt.formattedString).padding(.bottom, 4)
-      if report.reason == .etc {
+      RowElementView(title: "Date", content: report.time.formattedString).padding(.bottom, 4)
+      if report.reason == .etcReason {
         HStack(alignment: .top) {
           Text("Other reasons")
           Spacer()
-          Text(report.etcDetail)
+          Text(report.etcDetails)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.trailing)
         }
@@ -45,9 +46,9 @@ struct TaxiReportDetailRow: View {
   ZStack {
     Color.secondarySystemBackground
     VStack {
-      TaxiReportDetailRow(report: TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reporting, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()))
+      TaxiReportDetailRow(report: .mock, reportType: .incoming)
         .padding(.horizontal)
-      TaxiReportDetailRow(report: TaxiReport(id: UUID().uuidString, nickname: "자신감 있는 유체역학_8c249", reportType: .reported, reason: .etc, etcDetail: "Not showing up at the scheduled time", reportedAt: Date()))
+      TaxiReportDetailRow(report: .mock, reportType: .outgoing)
         .padding(.horizontal)
     }
   }
