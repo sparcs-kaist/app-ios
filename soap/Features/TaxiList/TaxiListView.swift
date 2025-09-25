@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TaxiListView: View {  
+struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
 
   // view properties
@@ -127,7 +127,6 @@ struct TaxiListView: View {
           .onDisappear {
             Task {
               await viewModel.fetchData(inviteId: nil)
-              taxiInviteId = nil
               viewModel.invitedRoom = nil
             }
           }
@@ -144,10 +143,11 @@ struct TaxiListView: View {
       await viewModel.fetchData(inviteId: taxiInviteId)
       if viewModel.invitedRoom == nil && taxiInviteId != nil {
         showInvalidInviteIdAlert = true
-        taxiInviteId = nil
       }
+      taxiInviteId = nil
     }
     .onChange(of: viewModel.invitedRoom) {
+      if viewModel.invitedRoom == nil { return }
       selectedRoom = viewModel.invitedRoom
     }
   }
