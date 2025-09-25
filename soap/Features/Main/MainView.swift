@@ -46,13 +46,13 @@ struct MainView: View {
     }
     .tabBarMinimizeBehavior(.onScrollDown)
     .onOpenURL { url in
-      if url.absoluteString.contains("taxi") {
+      logger.debug(url.pathComponents)
+      if let host = url.host, host.contains("taxi") {
         logger.debug("App started with taxi deeplink")
         selectedTab = .taxi
         
-        guard let roomId = url.absoluteString.split(separator: "/").last else { return } // TODO: invalid invitation handling
-        taxiInviteId = String(roomId)
-        logger.debug("Taxi Invitation Id: \(roomId)")
+        taxiInviteId = String(url.lastPathComponent)
+        logger.debug("Taxi Invitation Id: \(taxiInviteId ?? "nil")")
       }
     }
   }

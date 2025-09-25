@@ -4,8 +4,8 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:taxi.dev.sparcs.org</string>
-		<string>applinks:newara.dev.sparcs.org</string>
+		<string>applinks:taxi.dev.sparcs.org/invite</string>
+		<string>applinks:newara.dev.sparcs.org/post</string>
 	</array>
 </dict>
 </plist>
