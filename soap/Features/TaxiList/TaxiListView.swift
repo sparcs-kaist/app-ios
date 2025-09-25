@@ -126,6 +126,7 @@ struct TaxiListView: View {
           .onDisappear {
             Task {
               await viewModel.fetchData(inviteId: nil)
+              taxiInviteId = nil
               viewModel.invitedRoom = nil
             }
           }
