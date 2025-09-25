@@ -13,6 +13,7 @@ struct TaxiListView: View {
   // view properties
   @State private var scrollTarget: String? = nil
   @Binding var taxiInviteId: String?
+  @State private var showInvalidInviteIdAlert: Bool = false
 
   // show taxi room preview
   @State private var showRoomCreationSheet: Bool = false
@@ -134,12 +135,20 @@ struct TaxiListView: View {
           .presentationDetents([.height(400), .height(500)])
       }
     }
+    .alert("Invalid Invitation", isPresented: $showInvalidInviteIdAlert, actions: {
+      Button(role: .confirm) { }
+    }, message: {
+      Text("The link you followed is invalid. Please try again.")
+    })
     .task(id: taxiInviteId) {
       await viewModel.fetchData(inviteId: taxiInviteId)
+      if viewModel.invitedRoom == nil && taxiInviteId != nil {
+        showInvalidInviteIdAlert = true
+        taxiInviteId = nil
+      }
     }
     .onChange(of: viewModel.invitedRoom) {
-      guard let invitedRoom = viewModel.invitedRoom else { return }
-      selectedRoom = invitedRoom
+      selectedRoom = viewModel.invitedRoom
     }
   }
 
@@ -221,7 +230,7 @@ struct TaxiListView: View {
       actions: {
         Button("Try Again") {
           Task {
-            await viewModel.fetchData(inviteId: nil) // TODO: better handling when invalid inviteId was given
+            await viewModel.fetchData(inviteId: taxiInviteId) 
           }
         }
       }
