@@ -81,9 +81,7 @@ struct TaxiPreviewView: View {
         Spacer()
 
         HStack {
-          Button(action: {
-            // Share action
-          }) {
+          ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + room.id)!, message: Text(LocalizedStringResource("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕"))) {
             Label("Share", systemImage: "square.and.arrow.up")
               .labelStyle(.iconOnly)
               .frame(width: 44, height: 44)

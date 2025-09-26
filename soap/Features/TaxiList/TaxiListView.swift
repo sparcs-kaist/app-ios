@@ -12,6 +12,8 @@ struct TaxiListView: View {
 
   // view properties
   @State private var scrollTarget: String? = nil
+  @Binding var taxiInviteId: String?
+  @State private var showInvalidInviteIdAlert: Bool = false
 
   // show taxi room preview
   @State private var showRoomCreationSheet: Bool = false
@@ -20,7 +22,8 @@ struct TaxiListView: View {
   // show taxi chats
   @State private var showChat: Bool = false
 
-  init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
+  init(taxiInviteId: Binding<String?> = .constant(nil), viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
+    _taxiInviteId = taxiInviteId
     _viewModel = State(initialValue: viewModel)
   }
 
@@ -123,15 +126,29 @@ struct TaxiListView: View {
         TaxiPreviewView(room: room)
           .onDisappear {
             Task {
-              await viewModel.fetchData()
+              await viewModel.fetchData(inviteId: nil)
+              viewModel.invitedRoom = nil
             }
           }
           .presentationDragIndicator(.visible)
           .presentationDetents([.height(400), .height(500)])
       }
     }
-    .task {
-      await viewModel.fetchData()
+    .alert("Invalid Invitation", isPresented: $showInvalidInviteIdAlert, actions: {
+      Button(role: .confirm) { }
+    }, message: {
+      Text("The link you followed is invalid. Please try again.")
+    })
+    .task(id: taxiInviteId) {
+      await viewModel.fetchData(inviteId: taxiInviteId)
+      if viewModel.invitedRoom == nil && taxiInviteId != nil {
+        showInvalidInviteIdAlert = true
+      }
+      taxiInviteId = nil
+    }
+    .onChange(of: viewModel.invitedRoom) {
+      if viewModel.invitedRoom == nil { return }
+      selectedRoom = viewModel.invitedRoom
     }
   }
 
@@ -213,7 +230,7 @@ struct TaxiListView: View {
       actions: {
         Button("Try Again") {
           Task {
-            await viewModel.fetchData()
+            await viewModel.fetchData(inviteId: taxiInviteId) 
           }
         }
       }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct LocalizedString: CustomStringConvertible, Hashable {
+struct LocalizedString: CustomLocalizedStringResourceConvertible, Hashable {
     private let translations: [String: String]
     
     init(_ translations: [String: String]) {
@@ -20,9 +20,9 @@ struct LocalizedString: CustomStringConvertible, Hashable {
         return translations[localeLanguageCode] ?? translations["ko"] ?? "Untitled"
     }
     
-    // Conforming to CustomStringConvertible
-    var description: String {
-        return localized()
+    // Conforming to CustomLocalizedStringResourceConvertible
+    var localizedStringResource: LocalizedStringResource {
+        return LocalizedStringResource(stringLiteral: localized())
     }
 }
 

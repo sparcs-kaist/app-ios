@@ -9,11 +9,13 @@ import SwiftUI
 
 struct MainView: View {
   private var timetableViewModel = TimetableViewModel()
+  @State private var taxiInviteId: String?
   @State private var searchText: String = ""
+  @State private var selectedTab: TabSelection = .feed
 
   var body: some View {
-    TabView {
-      Tab("Feed", systemImage: "text.rectangle.page") {
+    TabView(selection: $selectedTab) {
+      Tab("Feed", systemImage: "text.rectangle.page", value: .feed) {
         FeedView()
       }
 
@@ -21,20 +23,20 @@ struct MainView: View {
 //        HomeView()
 //      }
 
-      Tab("Boards", systemImage: "tray.full") {
+      Tab("Boards", systemImage: "tray.full", value: .board) {
         BoardListView()
       }
 
-      Tab("Timetable", systemImage: "square.grid.2x2") {
+      Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
         TimetableView()
           .environment(timetableViewModel)
       }
 
-      Tab("Taxi", systemImage: "car") {
-        TaxiListView()
+      Tab("Taxi", systemImage: "car", value: .taxi) {
+        TaxiListView(taxiInviteId: $taxiInviteId)
       }
 
-      Tab(role: .search) {
+      Tab(value: .search, role: .search) {
         NavigationStack {
           ContentUnavailableView.search
             .navigationTitle("Search")
@@ -43,6 +45,16 @@ struct MainView: View {
       }
     }
     .tabBarMinimizeBehavior(.onScrollDown)
+    .onOpenURL { url in
+      logger.debug(url.pathComponents)
+      if let host = url.host, host.contains("taxi") {
+        logger.debug("App started with taxi deeplink")
+        selectedTab = .taxi
+        
+        taxiInviteId = String(url.lastPathComponent)
+        logger.debug("Taxi Invitation Id: \(taxiInviteId ?? "nil")")
+      }
+    }
   }
 }
 

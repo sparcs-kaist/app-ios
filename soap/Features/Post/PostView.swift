@@ -267,7 +267,7 @@ struct PostView: View {
 
       PostBookmarkButton()
 
-      PostShareButton()
+      PostShareButton(url: URL(string: "https://newara.dev.sparcs.org/post/\(viewModel.post.id)")!)
     }
     .font(.callout)
   }
@@ -388,7 +388,7 @@ struct PostView: View {
         }
       }
       .padding(12)
-      .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 24))
+      .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
       .tint(.primary)
 
       // write comment button
