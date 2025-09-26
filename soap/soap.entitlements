@@ -7,5 +7,7 @@
 		<string>applinks:taxi.dev.sparcs.org/invite</string>
 		<string>applinks:newara.dev.sparcs.org/post</string>
 	</array>
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>
