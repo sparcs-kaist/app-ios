@@ -15,6 +15,7 @@ import SocketIO
 protocol TaxiChatUseCaseProtocol {
   var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
   var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> { get }
+  var accountChats: [TaxiChat] { get }
 
   func fetchInitialChats() async
   func fetchChats(before date: Date) async
