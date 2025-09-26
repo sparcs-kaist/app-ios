@@ -172,4 +172,11 @@ extension Container {
       @MainActor in FoundationModelsUseCase()
     }
   }
+  
+  @MainActor
+  var timetableUseCase: Factory<TimetableUseCaseProtocol> {
+    self {
+      @MainActor in TimetableUseCase(userUseCase: self.userUseCase.resolve())
+    }.singleton
+  }
 }

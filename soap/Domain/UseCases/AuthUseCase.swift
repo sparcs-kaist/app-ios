@@ -9,6 +9,17 @@ import Foundation
 import Combine
 import Observation
 
+@MainActor
+protocol AuthUseCaseProtocol {
+  var isAuthenticatedPublisher: AnyPublisher<Bool, Never> { get }
+  func signIn() async throws
+  func signOut() async throws
+  func getAccessToken() -> String?
+  func getValidAccessToken() async throws -> String
+  func refreshAccessTokenIfNeeded() async throws
+}
+
+
 @Observable
 class AuthUseCase: AuthUseCaseProtocol {
   private let authenticationService: AuthenticationServiceProtocol

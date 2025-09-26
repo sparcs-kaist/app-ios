@@ -32,18 +32,18 @@ struct LectureDTO: Codable {
   let commonEnTitle: String
   let classTitle: String
   let classEnTitle: String
-  let reviewTotalWeight: Double
-  let grade: Double
-  let load: Double
-  let speech: Double
+  let reviewTotalWeight: Double?
+  let grade: Double?
+  let load: Double?
+  let speech: Double?
   let professors: [ProfessorDTO]
-  let classTimes: [ClassTimeDTO]
+  let classTimes: [ClassTimeDTO]?
   let examTimes: [ExamTimeDTO]?
 
   enum CodingKeys: String, CodingKey {
     case id
     case title
-    case enTitle
+    case enTitle = "title_en"
     case course
     case oldCode = "old_code"
     case classNumber = "class_no"
@@ -98,17 +98,17 @@ extension LectureDTO {
       creditAu: creditAu,
       capacity: limit,
       numberOfPeople: numPeople,
-      grade: grade,
-      load: load,
-      speech: speech,
-      reviewTotalWeight: reviewTotalWeight,
+      grade: grade ?? 0.0,
+      load: load ?? 0.0,
+      speech: speech ?? 0.0,
+      reviewTotalWeight: reviewTotalWeight ?? 0.0,
       type: LectureType.fromRawValue(enType),
       typeDetail: LocalizedString([
         "ko": type,
         "en": enType
       ]),
       professors: professors.compactMap { $0.toModel() },
-      classTimes: classTimes.compactMap { $0.toModel() },
+      classTimes: classTimes?.compactMap { $0.toModel() } ?? [],
       examTimes: examTimes?.compactMap { $0.toModel() } ?? []
     )
   }

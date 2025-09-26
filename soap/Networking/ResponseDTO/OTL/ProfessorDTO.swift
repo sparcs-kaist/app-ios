@@ -16,7 +16,7 @@ struct ProfessorDTO: Codable {
   enum CodingKeys: String, CodingKey {
     case id = "professor_id"
     case name
-    case enName
+    case enName = "name_en"
     case reviewTotalWeight = "review_total_weight"
   }
 }

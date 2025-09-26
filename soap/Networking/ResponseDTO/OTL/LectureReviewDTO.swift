@@ -30,3 +30,20 @@ struct LectureReviewDTO: Codable {
     case isLiked = "userspecific_is_liked"
   }
 }
+
+
+extension LectureReviewDTO {
+  func toModel() -> LectureReview {
+    LectureReview(
+      id: id,
+      course: course.toModel(),
+      lecture: lecture.toModel(),
+      content: content,
+      like: like,
+      grade: grade,
+      load: load,
+      speech: speech,
+      isLiked: isLiked
+    )
+  }
+}

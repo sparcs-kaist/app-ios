@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct TimetableView: View {
-  @Environment(TimetableViewModel.self) private var viewModel
+  @State private var viewModel = TimetableViewModel()
 
-  @State private var searchText: String = ""
+  @State private var showSearchSheet: Bool = false
+  @State private var selectedLecture: Lecture? = nil
+
+  @State private var selectedDetent: PresentationDetent = .height(130)
   @FocusState private var isFocused: Bool
 
   var body: some View {
@@ -19,21 +22,30 @@ struct TimetableView: View {
         VStack(spacing: 28) {
           // Timetable Selector
           CompactTimetableSelector()
+            .environment(viewModel)
 
           // Timetable Gird View
-          TimetableGrid() { selectedLecture in
-            viewModel.selectedLecture = selectedLecture
+          TimetableGrid() { lecture in
+            selectedLecture = lecture
           }
+          .padding()
+          .background(.background)
+          .clipShape(.rect(cornerRadius: 28))
+          .frame(height: .screenHeight * 0.65)
+          .environment(viewModel)
+
+          TimetableCreditGraph()
             .padding()
             .background(.background)
             .clipShape(.rect(cornerRadius: 28))
-            .frame(height: .screenHeight * 0.55)
+            .environment(viewModel)
 
           // Timetable Summary View
           TimetableSummary()
             .padding()
             .background(.background)
             .clipShape(.rect(cornerRadius: 28))
+            .environment(viewModel)
         }
         .padding()
       }
@@ -42,16 +54,22 @@ struct TimetableView: View {
       .background(Color.secondarySystemBackground)
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Add Lecture", systemImage: "plus") { }
+          Button("Add Lecture", systemImage: "plus") {
+            showSearchSheet = true
+          }
         }
       }
-      .sheet(item: Binding(
-        get: { viewModel.selectedLecture },
-        set: { viewModel.selectedLecture = $0 }
-      )) { (item: Lecture) in
-        LectureDetailView(lecture: item)
-          .presentationDragIndicator(.visible)
-          .presentationDetents([.medium, .large])
+      .sheet(item: $selectedLecture) { (item: Lecture) in
+        NavigationStack {
+          LectureDetailView(lecture: item, onAdd: nil)
+            .presentationDragIndicator(.visible)
+            .presentationDetents([.medium, .large])
+        }
+      }
+      .sheet(isPresented: $showSearchSheet) {
+        LectureSearchView(detent: $selectedDetent)
+          .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
+          .environment(viewModel)
       }
       .task {
         // fetch data
@@ -63,5 +81,4 @@ struct TimetableView: View {
 
 #Preview {
   TimetableView()
-    .environment(TimetableViewModel())
 }

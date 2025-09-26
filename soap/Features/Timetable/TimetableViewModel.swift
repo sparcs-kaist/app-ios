@@ -7,67 +7,68 @@
 
 import SwiftUI
 import Observation
+import Factory
 
 @MainActor
 @Observable
 final class TimetableViewModel {
-  var isLoading: Bool = true
-
-  // Needs to be fetched
-  var timetables: [Timetable] = [Timetable]()
-  var selectedTimetable: Timetable?
-  var semesters: [Semester] = [Semester]()
-  var selectedSemester: Semester? {
-    didSet {
-      updateTimetablesForSelectedSemester()
-    }
+  var isLoading: Bool = false
+  
+  var semesters: [Semester] {
+    timetableUseCase.semesters
   }
-  var selectedLecture: Lecture?
-  var timetablesForSelectedSemester: [Timetable] = [Timetable]()
+
+  var selectedSemester: Semester? {
+    timetableUseCase.selectedSemester
+  }
+
+  var selectedTimetable: Timetable? {
+    if let candidateLecture,
+       var timetable = timetableUseCase.selectedTimetable {
+      timetable.lectures.append(candidateLecture)
+
+      return timetable
+    }
+
+    return timetableUseCase.selectedTimetable
+  }
+
+  var candidateLecture: Lecture? = nil
+
+  // MARK: - Dependencies
+  @ObservationIgnored @Injected(
+    \.timetableUseCase
+  ) private var timetableUseCase: TimetableUseCaseProtocol
+
+  // MARK: - Functions
 
   func fetchData() async {
-    //    do {
-    //            try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
-    timetables = Timetable.mockList
-    semesters = Array(Set(timetables.map(\.semester))).sorted()
+    isLoading = true
+    defer { isLoading = false }
 
-    if let firstTimetable = timetables.first {
-      selectedTimetable = firstTimetable
-      selectedSemester = firstTimetable.semester
+    do {
+      try await timetableUseCase.load()
+    } catch {
+      // TODO: Handle error
     }
-    isLoading = false
-    //    } catch {
-    //      print("[TimetableViewModel] fetchData failed.")
-    //    }
   }
 
   func selectPreviousSemester() {
-    guard let selectedSemester = selectedSemester,
-          let currentIndex = semesters.firstIndex(of: selectedSemester),
+    guard let selectedSemesterID = timetableUseCase.selectedSemesterID,
+          let currentIndex = timetableUseCase.semesters.firstIndex(where: { $0.id == selectedSemesterID }),
           currentIndex >= 0 else {
       return
     }
-    self.selectedSemester = semesters[currentIndex - 1]
+    timetableUseCase.selectedSemesterID = timetableUseCase.semesters[currentIndex - 1].id
   }
 
   func selectNextSemester() {
-    guard let selectedSemester = selectedSemester,
-          let currentIndex = semesters.firstIndex(of: selectedSemester),
+    guard let selectedSemesterID = timetableUseCase.selectedSemesterID,
+          let currentIndex = timetableUseCase.semesters.firstIndex(where: { $0.id == selectedSemesterID }),
           currentIndex >= 0 else {
       return
     }
-    self.selectedSemester = semesters[currentIndex + 1]
-  }
-
-  // MARK: - Private Functions
-  private func updateTimetablesForSelectedSemester() {
-    if let selectedSemester = selectedSemester {
-      timetablesForSelectedSemester = timetables.filter { $0.semester == selectedSemester }
-      selectedTimetable = timetablesForSelectedSemester.first
-    } else {
-      timetablesForSelectedSemester = [Timetable]()
-      selectedTimetable = nil
-    }
+    timetableUseCase.selectedSemesterID = timetableUseCase.semesters[currentIndex + 1].id
   }
 }
 

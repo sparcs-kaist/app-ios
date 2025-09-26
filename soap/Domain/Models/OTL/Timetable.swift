@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-struct Timetable: Identifiable, Comparable, Equatable {
-  let id: Int
+struct Timetable: Identifiable {
+  let id: String
   var lectures: [Lecture]
-  let semester: Semester
 
   private let defaultMinMinutes = 540 // 9:00 AM
   private let defaultMaxMinutes = 1080 // 6:00 PM
@@ -19,15 +18,6 @@ struct Timetable: Identifiable, Comparable, Equatable {
     "?", "F", "F", "F", "D-", "D", "D+", "C-", "C", "C+",
     "B-", "B", "B+", "A-", "A", "A+"
   ]
-
-  // Comparable
-  static func < (lhs: Timetable, rhs: Timetable) -> Bool {
-    return (lhs.semester == rhs.semester) ? lhs.id < rhs.id : lhs.semester < rhs.semester
-  }
-
-  static func == (lhs: Timetable, rhs: Timetable) -> Bool {
-    return lhs.id == rhs.id && lhs.semester == rhs.semester
-  }
 }
 
 extension Timetable {
@@ -55,9 +45,8 @@ extension Timetable {
   // Return visible days. Return all weekdays by default, and check for the need of weekends inclusion.
   var visibleDays: [DayType] {
     let classDays = lectures.flatMap { $0.classTimes.map { $0.day } }
-    let examDays = lectures.flatMap { $0.examTimes.map { $0.day } }
 
-    let combinedDays = Array(Set(classDays + examDays + DayType.weekdays))
+    let combinedDays = Array(Set(classDays + DayType.weekdays))
 
     return combinedDays.sorted()
   }

@@ -6,97 +6,34 @@
 //
 
 import SwiftUI
-import Shimmer
+import Charts
 
 struct TimetableSummary: View {
   @Environment(TimetableViewModel.self) private var timetableViewModel
 
   var body: some View {
     Group {
-      if timetableViewModel.isLoading {
-        placeholder
-          .transition(.opacity)
-          .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
-      } else {
-        content
-          .transition(.opacity)
-          .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
-      }
+      content
+        .transition(.opacity)
+        .redacted(reason: timetableViewModel.isLoading ? .placeholder : [])
+        .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
     }
-  }
-
-  private var placeholder: some View {
-    HStack {
-      VStack {
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-      }
-      VStack {
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-      }
-      VStack {
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-        RoundedRectangle(cornerRadius: 4)
-          .frame(width: 40, height: 12)
-      }
-
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-      RoundedRectangle(cornerRadius: 4)
-        .frame(width: 30, height: 34)
-    }
-    .foregroundStyle(.placeholder)
-    .shimmering()
   }
 
   private var content: some View {
     HStack {
-      VStack(alignment: .leading) {
-        SmallSummary(type: "BR", count: timetableViewModel.selectedTimetable?.getCreditsFor(.br) ?? 0)
-        SmallSummary(type: "BE", count: timetableViewModel.selectedTimetable?.getCreditsFor(.be) ?? 0)
-      }
-      VStack(alignment: .leading) {
-        SmallSummary(type: "MR", count: timetableViewModel.selectedTimetable?.getCreditsFor(.mr) ?? 0)
-        SmallSummary(type: "ME", count: timetableViewModel.selectedTimetable?.getCreditsFor(.me) ?? 0)
-      }
-      VStack(alignment: .leading) {
-        SmallSummary(type: "HSE", count: timetableViewModel.selectedTimetable?.getCreditsFor(.hse) ?? 0)
-        SmallSummary(type: "ETC", count: timetableViewModel.selectedTimetable?.getCreditsFor(.etc) ?? 0)
-      }
-
+      Spacer()
       BigSummary(label: "Credit", grade: "\(timetableViewModel.selectedTimetable?.credits ?? 0)")
+      Spacer()
       BigSummary(label: "AU", grade: "\(timetableViewModel.selectedTimetable?.creditAUs ?? 0)")
+      Spacer()
       BigSummary(label: "Grade", grade: timetableViewModel.selectedTimetable?.gradeLetter ?? "?")
+      Spacer()
       BigSummary(label: "Load", grade: timetableViewModel.selectedTimetable?.loadLetter ?? "?")
+      Spacer()
       BigSummary(label: "Speech", grade: timetableViewModel.selectedTimetable?.speechLetter ?? "?")
+      Spacer()
     }
-  }
-}
-
-fileprivate struct SmallSummary: View {
-  let type: String
-  let count: Int
-
-  var body: some View {
-    HStack(spacing: 0) {
-      Text(type)
-        .fontWeight(.semibold)
-        .frame(width: type.count == 2 ? 24 : 26, alignment: .leading)
-      Text("\(count)")
-        .frame(width: 16, alignment: .leading)
-    }.font(.caption)
   }
 }
 

@@ -9,24 +9,35 @@ import SwiftUI
 
 struct LectureDetailView: View {
   let lecture: Lecture
+  let onAdd: (() -> Void)?
+
+  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
-    NavigationView {
-      ScrollView {
-        LazyVStack(spacing: 20) {
-          // Lecture Summary
-          lectureSummary
+    ScrollView {
+      LazyVStack(spacing: 20) {
+        // Lecture Summary
+        lectureSummary
 
-          // Lecture Information
-          lectureInformation
+        // Lecture Information
+        lectureInformation
 
-          // Lecture Reviews
-          lectureReviews
-        }
-        .padding([.horizontal, .bottom])
+        // Lecture Reviews
+        lectureReviews
       }
-      .navigationTitle(lecture.title.localized())
-      .navigationBarTitleDisplayMode(.inline)
+      .padding([.horizontal, .bottom])
+    }
+    .navigationTitle(lecture.title.localized())
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      if onAdd != nil {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button("Add", systemImage: "plus", role: .confirm) {
+            dismiss()
+            onAdd?()
+          }
+        }
+      }
     }
   }
 
@@ -343,5 +354,5 @@ struct LectureDetailView: View {
 }
 
 #Preview {
-  LectureDetailView(lecture: Lecture.mock)
+  LectureDetailView(lecture: Lecture.mock, onAdd: nil)
 }

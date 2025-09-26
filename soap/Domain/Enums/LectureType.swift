@@ -5,13 +5,30 @@
 //  Created by Soongyu Kwon on 29/12/2024.
 //
 
-enum LectureType: Equatable {
-  case br         // Basic Required
-  case be         // Basic Elective
-  case mr         // Major Required
-  case me         // Major Elective
-  case hse        // Humanities and Social Elective
-  case etc
+enum LectureType: String, Equatable {
+  case br = "BR"
+  case be = "BE"
+  case mr = "MR"
+  case me = "ME"
+  case hse = "HSE"
+  case etc = "ETC"
+
+  var displayName: LocalizedString {
+    switch self {
+    case .br:
+      LocalizedString(["en": "Basic Required", "ko": "기초필수"])
+    case .be:
+      LocalizedString(["en": "Basic Elective", "ko": "기초선택"])
+    case .mr:
+      LocalizedString(["en": "Major Required", "ko": "전공필수"])
+    case .me:
+      LocalizedString(["en": "Major Elective", "ko": "전공선택"])
+    case .hse:
+      LocalizedString(["en": "Humanities and Social Elective", "ko": "인문사회선택"])
+    case .etc:
+      LocalizedString(["en": "ETC", "ko": "기타"])
+    }
+  }
 }
 
 extension LectureType {
