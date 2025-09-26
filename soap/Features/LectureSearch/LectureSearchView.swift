@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct LectureSearchView: View {
+  @Binding var detent: PresentationDetent
+
   @Environment(TimetableViewModel.self) private var timetableViewModel: TimetableViewModel
   @State private var searchText: String = ""
   @State private var isFiltered: Bool = false
@@ -48,13 +50,15 @@ struct LectureSearchView: View {
             ForEach(groupedByCourse[course] ?? []) { lecture in
               NavigationLink(destination: {
                 LectureDetailView(lecture: lecture, onAdd: {
-
+                  
                 })
                   .onAppear {
                     timetableViewModel.candidateLecture = lecture
+                    detent = .height(130)
                   }
                   .onDisappear {
                     timetableViewModel.candidateLecture = nil
+                    detent = .large
                   }
               }, label: {
                 HStack {
@@ -80,6 +84,6 @@ struct LectureSearchView: View {
 }
 
 #Preview {
-  LectureSearchView()
+  LectureSearchView(detent: .constant(.medium))
 }
 

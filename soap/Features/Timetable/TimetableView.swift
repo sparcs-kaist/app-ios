@@ -12,6 +12,8 @@ struct TimetableView: View {
 
   @State private var showSearchSheet: Bool = false
   @State private var selectedLecture: Lecture? = nil
+
+  @State private var selectedDetent: PresentationDetent = .height(130)
   @FocusState private var isFocused: Bool
 
   var body: some View {
@@ -65,8 +67,8 @@ struct TimetableView: View {
         }
       }
       .sheet(isPresented: $showSearchSheet) {
-        LectureSearchView()
-          .presentationDetents([.height(130), .medium, .large])
+        LectureSearchView(detent: $selectedDetent)
+          .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
           .environment(viewModel)
       }
       .task {
