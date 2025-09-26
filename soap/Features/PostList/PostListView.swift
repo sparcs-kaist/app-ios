@@ -14,7 +14,6 @@ struct PostListView: View {
   @Namespace private var namespace
 
   @State private var loadedInitialPost: Bool = false
-  @State private var searchText: String = ""
 
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostListViewModel(board: board))

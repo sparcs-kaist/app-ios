@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MainView: View {
   @State private var taxiInviteId: String?
-  @State private var searchText: String = ""
   @State private var selectedTab: TabSelection = .feed
 
   var body: some View {
@@ -35,11 +34,7 @@ struct MainView: View {
       }
 
       Tab(value: .search, role: .search) {
-        NavigationStack {
-          ContentUnavailableView.search
-            .navigationTitle("Search")
-        }
-        .searchable(text: $searchText)
+        SearchView()
       }
     }
     .tabBarMinimizeBehavior(.onScrollDown)
