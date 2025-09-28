@@ -192,7 +192,8 @@ extension AraPost: Mockable {
       ],
       content: "<p>안녕하세요, KAIST 학부 총학생회 산하 특별기구 SPARCS의&nbsp;Ara팀입니다.</p><p>딱, 오늘 하루, 아라앱만 깔아도 상품을 드립니다!</p><p><strong>📅 이벤트 기간</strong></p><ul><li><p>진행: 2025년 8월 14일 (목) 23:59</p></li><li><p>상품 지급: 2025년 8월 15일 (금)</p></li></ul><p><strong>👥 참여 대상</strong></p><ul><li><p>Ara를 사용하는 KAIST 구성원 전부</p></li></ul><p><strong>🖋 참여 방법</strong></p><ol><li><p>구글 플레이스토어 또는 앱스토어 에서 \"<strong>Ara for KAIST</strong>\"를 검색해서 설치해 주세요.</p></li><li><p><strong>KAIST IAM</strong>으로 Ara 앱에 로그인해 주세요.</p></li><li><p>Ara에 게시글을 작성하면 추첨을 통해 30분께 커피쿠폰을 드립니다!</p></li></ol><p><strong>🏆 상품</strong></p><ul><li><p><strong>참가상 (30명) </strong>: 스타벅스 아메리카노(R) 기프티콘</p></li></ul><p>앞으로 있을 다양한 이벤트에도 많은 관심 부탁드립니다.</p><p><br>카이스트만의 커뮤니티, Ara에 대한 많은 관심과 이용 부탁드립니다<br>Ara가 여러분의 일상을 함께 할 수 있는 서비스가 될 수 있도록 최선을 다하겠습니다!</p><p>감사합니다.</p><p>SPARCS&nbsp;Ara팀 드림</p>",
       myVote: nil,
-      myScrap: nil
+      myScrap: false,
+      scrapId: nil
     )
   }
 
@@ -233,7 +234,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12327,
@@ -270,7 +272,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12326,
@@ -307,7 +310,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12325,
@@ -344,7 +348,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12318,
@@ -381,7 +386,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12317,
@@ -425,7 +431,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12316,
@@ -462,7 +469,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12315,
@@ -499,7 +507,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12250,
@@ -536,7 +545,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12240,
@@ -573,7 +583,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12239,
@@ -610,7 +621,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12235,
@@ -647,7 +659,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12233,
@@ -691,7 +704,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12079,
@@ -735,7 +749,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       ),
       AraPost(
         id: 12043,
@@ -779,7 +794,8 @@ extension AraPost: Mockable {
         comments: [],
         content: nil,
         myVote: nil,
-        myScrap: nil
+        myScrap: false,
+        scrapId: nil
       )
     ]
   }

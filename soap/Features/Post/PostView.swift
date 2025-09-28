@@ -265,7 +265,12 @@ struct PostView: View {
 
       Spacer()
 
-      PostBookmarkButton()
+      PostBookmarkButton(
+        isBookmarked: viewModel.post.myScrap,
+        onToggleBookmark: {
+          await viewModel.toggleBookmark()
+        }
+      )
 
       PostShareButton(url: URL(string: "https://newara.dev.sparcs.org/post/\(viewModel.post.id)")!)
     }

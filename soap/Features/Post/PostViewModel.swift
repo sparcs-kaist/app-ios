@@ -23,6 +23,7 @@ protocol PostViewModelProtocol: Observable {
   func report(type: AraContentReportType) async throws
   func summarisedContent() async -> String
   func deletePost() async throws
+  func toggleBookmark() async
 }
 
 @Observable
@@ -194,5 +195,24 @@ class PostViewModel: PostViewModelProtocol {
 
   func deletePost() async throws {
     try await araBoardRepository.deletePost(postID: post.id)
+  }
+  
+  func toggleBookmark() async {
+    let previousBookmarkStatus: Bool = post.myScrap
+    
+    do {
+      if previousBookmarkStatus == true {
+        guard let scrapId = post.scrapId else { return }
+        
+        post.myScrap = false
+        try await araBoardRepository.removeBookmark(bookmarkID: scrapId)
+      } else {
+        post.myScrap = true
+        try await araBoardRepository.addBookmark(postID: post.id)
+      }
+    } catch {
+      logger.error(error)
+      post.myScrap = previousBookmarkStatus
+    }
   }
 }

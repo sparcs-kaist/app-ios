@@ -9,9 +9,14 @@ import SwiftUI
 
 
 struct PostBookmarkButton: View {
+  let isBookmarked: Bool
+  let onToggleBookmark: () async -> Void
+  
   var body: some View {
-    Button("bookmark", systemImage: "bookmark") {
-
+    Button("bookmark", systemImage: isBookmarked ? "bookmark.fill" : "bookmark") {
+      Task {
+        await onToggleBookmark()
+      }
     }
     .labelStyle(.iconOnly)
     .foregroundStyle(.primary)
