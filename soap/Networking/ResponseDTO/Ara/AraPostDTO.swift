@@ -95,7 +95,7 @@ extension AraPostDTO {
       content: content,
       myVote: myVote,
       myScrap: (myScrap != nil),
-      scrapId: myScrap?.id ?? nil
+      scrapId: myScrap?.id
     )
   }
 }
