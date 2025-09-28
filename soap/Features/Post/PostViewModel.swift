@@ -201,7 +201,7 @@ class PostViewModel: PostViewModelProtocol {
     let previousBookmarkStatus: Bool = post.myScrap
     
     do {
-      if previousBookmarkStatus == true {
+      if previousBookmarkStatus {
         guard let scrapId = post.scrapId else { return }
         
         post.myScrap = false
