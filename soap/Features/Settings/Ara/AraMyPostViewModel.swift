@@ -83,7 +83,6 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   
   func fetchInitialPosts() async {
     guard let user = user else { return }
-    state = .loading
     
     do {
       var page: AraPostPage
@@ -116,7 +115,6 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
     guard !isLoadingMore && hasMorePages else { return }
     
     isLoadingMore = true
-    state = .loading
     
     do {
       let nextPage = currentPage + 1

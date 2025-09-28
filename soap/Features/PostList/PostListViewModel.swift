@@ -80,8 +80,6 @@ class PostListViewModel: PostListViewModelProtocol {
   }
 
   func fetchInitialPosts() async {
-    state = .loading
-    
     do {
       let page = try await araBoardRepository.fetchPosts(
         type: .board(boardID: board.id),
@@ -104,7 +102,6 @@ class PostListViewModel: PostListViewModelProtocol {
     guard !isLoadingMore && hasMorePages else { return }
     
     isLoadingMore = true
-    state = .loading
     
     do {
       let nextPage = currentPage + 1
