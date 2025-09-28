@@ -8,17 +8,16 @@
 import SwiftUI
 
 struct TaxiChatShareBubble: View {
+  let room: TaxiRoom
   let share: (() -> Void)
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       Text("Share now and create a pleasant taxi-sharing experience!")
-      Button(action: {
-        share()
-      }, label: {
+      ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + room.id)!, message: Text(LocalizedStringResource("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕"))) {
         Label("Share", systemImage: "square.and.arrow.up")
           .frame(maxWidth: .infinity)
-      })
+      }
       .fontWeight(.medium)
       .buttonStyle(.glassProminent)
     }
@@ -37,7 +36,7 @@ struct TaxiChatShareBubble: View {
     isGeneral: false,
     isWithdrawn: false
   ) {
-    TaxiChatShareBubble() {
+    TaxiChatShareBubble(room: TaxiRoom.mock) {
       logger.debug("share sheet goes here")
     }
   }
