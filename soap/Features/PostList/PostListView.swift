@@ -31,24 +31,29 @@ struct PostListView: View {
           }
         )
       case .loaded(let posts):
-        PostList(
-          posts: posts,
-          destination: { post in
-            PostView(post: post)
-              .addKeyboardVisibilityToEnvironment()
-              .onDisappear {
-                viewModel.refreshItem(postID: post.id)
-              }
-          }, onRefresh: {
-            await viewModel.fetchInitialPosts()
-          }, onLoadMore: {
-            await viewModel.loadNextPage()
-          }
-        )
+        if viewModel.posts.isEmpty && !viewModel.searchKeyword.isEmpty {
+          ContentUnavailableView.search(text: viewModel.searchKeyword)
+        } else {
+          PostList(
+            posts: posts,
+            destination: { post in
+              PostView(post: post)
+                .addKeyboardVisibilityToEnvironment()
+                .onDisappear {
+                  viewModel.refreshItem(postID: post.id)
+                }
+            }, onRefresh: {
+              await viewModel.fetchInitialPosts()
+            }, onLoadMore: {
+              await viewModel.loadNextPage()
+            }
+          )
+        }
       case .error(let message):
         ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .disabled(viewModel.state == .loading)
     .navigationTitle(viewModel.board.name.localized())
     .navigationSubtitle(viewModel.board.group.name.localized())
@@ -84,11 +89,6 @@ struct PostListView: View {
       }
     }
     .searchable(text: $viewModel.searchKeyword)
-    .overlay(alignment: .center) {
-      if !viewModel.searchKeyword.isEmpty && viewModel.posts.isEmpty {
-        ContentUnavailableView.search(text: viewModel.searchKeyword)
-      }
-    }
   }
 }
 
