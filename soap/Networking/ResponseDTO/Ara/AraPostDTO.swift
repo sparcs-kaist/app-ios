@@ -34,7 +34,7 @@ struct AraPostDTO: Codable {
   let comments: [AraPostCommentDTO]?
   let content: String?
   let myVote: Bool?
-  let myScrap: Bool?
+  let myScrap: AraScrapDTO?
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -94,7 +94,8 @@ extension AraPostDTO {
       comments: comments?.compactMap { $0.toModel() } ?? [],
       content: content,
       myVote: myVote,
-      myScrap: myScrap
+      myScrap: (myScrap != nil),
+      scrapId: myScrap?.id
     )
   }
 }

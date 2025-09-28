@@ -46,5 +46,6 @@ struct AraPost: Identifiable, Hashable, Sendable {
   var comments: [AraPostComment]
   let content: String?
   var myVote: Bool?
-  var myScrap: Bool?
+  var myScrap: Bool
+  let scrapId: Int?
 }

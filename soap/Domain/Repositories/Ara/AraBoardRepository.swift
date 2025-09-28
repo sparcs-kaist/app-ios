@@ -23,6 +23,8 @@ protocol AraBoardRepositoryProtocol: Sendable {
   func cancelVote(postID: Int) async throws
   func reportPost(postID: Int, type: AraContentReportType) async throws
   func deletePost(postID: Int) async throws
+  func addBookmark(postID: Int) async throws
+  func removeBookmark(bookmarkID: Int) async throws
 }
 
 actor AraBoardRepository: AraBoardRepositoryProtocol {
@@ -108,6 +110,16 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
 
   func deletePost(postID: Int) async throws {
     let response = try await provider.request(.delete(postID: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+  
+  func addBookmark(postID: Int) async throws {
+    let response = try await provider.request(.addBookmark(postId: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+  
+  func removeBookmark(bookmarkID: Int) async throws {
+    let response = try await provider.request(.removeBookmark(scrapId: bookmarkID))
     _ = try response.filterSuccessfulStatusCodes()
   }
 }

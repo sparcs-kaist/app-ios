@@ -31,6 +31,8 @@ enum AraBoardTarget {
   case cancelVote(postID: Int)
   case report(postID: Int, type: AraContentReportType)
   case delete(postID: Int)
+  case addBookmark(postId: Int)
+  case removeBookmark(scrapId: Int)
 }
 
 extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
@@ -46,7 +48,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/articles/"
     case .fetchPost(_, let postID):
       "/articles/\(postID)/"
-    case .fetchBookmarks:
+    case .fetchBookmarks, .addBookmark:
       "/scraps/"
     case .upvote(let postID):
       "/articles/\(postID)/vote_positive/"
@@ -60,6 +62,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/attachments/"
     case .delete(let postID):
       "/articles/\(postID)/"
+    case .removeBookmark(let scrapId):
+      "/scraps/\(scrapId)/"
     }
   }
 
@@ -67,9 +71,9 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards, .fetchPosts, .fetchPost, .fetchBookmarks:
       .get
-    case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage:
+    case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage, .addBookmark:
       .post
-    case .delete:
+    case .delete, .removeBookmark:
       .delete
     }
   }
@@ -134,8 +138,10 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
         "type": "others",
         "content": type.rawValue
       ], encoding: JSONEncoding.default)
-    case .delete:
+    case .delete, .removeBookmark:
       return .requestPlain
+    case .addBookmark(let postId):
+      return .requestParameters(parameters: ["parent_article": postId], encoding: JSONEncoding.default)
     }
   }
 
