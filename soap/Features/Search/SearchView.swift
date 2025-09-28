@@ -18,11 +18,12 @@ struct SearchView: View {
         if viewModel.searchText.isEmpty {
           ContentUnavailableView("Search Anything", systemImage: "magnifyingglass", description: Text("Find courses, posts, rides and more."))
         } else {
-          Text(viewModel.searchScope.rawValue)
+          ZStack {
+            Color.secondarySystemBackground.ignoresSafeArea()
+            resultView
+          }
         }
       }
-      .navigationTitle("Search")
-      .toolbarTitleDisplayMode(.inlineLarge)
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search"))
     .searchScopes($viewModel.searchScope, scopes: {
@@ -32,6 +33,32 @@ struct SearchView: View {
       }
     })
     .searchFocused($isFocused)
+  }
+  
+  private var resultView: some View {
+    ScrollView {
+      // TODO: Courses Search
+      
+      SearchSection(title: "Posts", content: {
+        SearchContent(results: AraPost.mockList[..<3]) {
+          PostListRow(post: $0)
+            .padding()
+        }
+      }, destination: {
+      })
+      
+      SearchSection(title: "Rides", content: {
+        SearchContent(results: TaxiRoom.mockList[..<3]) {
+          TaxiRoomCell(room: $0)
+        }
+      }, destination: {
+        TaxiListView()
+      })
+      
+      Spacer()
+    }
+    .navigationTitle("Search")
+    .toolbarTitleDisplayMode(.inlineLarge)
   }
 }
 
