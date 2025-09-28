@@ -26,19 +26,20 @@ struct AraMyPostView: View {
   
   private var myPostView: some View {
     Group {
-      if !vm.searchKeyword.isEmpty && vm.posts.isEmpty {
-        ContentUnavailableView.search(text: vm.searchKeyword)
-      } else {
-        switch vm.state {
-        case .loading:
-          loadingView
-        case .loaded:
+      switch vm.state {
+      case .loading:
+        loadingView
+      case .loaded:
+        if !vm.searchKeyword.isEmpty && vm.posts.isEmpty {
+          ContentUnavailableView.search(text: vm.searchKeyword)
+        } else {
           loadedView
-        case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
         }
+      case .error(let message):
+        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .task {
       if !loadedInitialPosts {
         vm.bind()
