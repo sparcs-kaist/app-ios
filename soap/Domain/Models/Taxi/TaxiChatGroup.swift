@@ -9,7 +9,7 @@ import Foundation
 
 struct TaxiChatGroup: Identifiable, Hashable, Sendable {
   let id: String
-  let chats: [TaxiChat]
+  var chats: [TaxiChat]
   let lastChatID: UUID?
   let authorID: String?
   let authorName: String?
