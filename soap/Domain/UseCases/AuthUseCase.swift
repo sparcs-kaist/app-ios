@@ -26,6 +26,7 @@ class AuthUseCase: AuthUseCaseProtocol {
   private let tokenStorage: TokenStorageProtocol
   private let araUserRepository: AraUserRepositoryProtocol
   private let feedUserRepository: FeedUserRepositoryProtocol
+  private let otlUserRepository: OTLUserRepositoryProtocol
 
   private let _isAuthenticatedSubject = CurrentValueSubject<Bool, Never>(false)
   var isAuthenticatedPublisher: AnyPublisher<Bool, Never> {
@@ -41,12 +42,14 @@ class AuthUseCase: AuthUseCaseProtocol {
     authenticationService: AuthenticationServiceProtocol,
     tokenStorage: TokenStorageProtocol,
     araUserRepository: AraUserRepositoryProtocol,
-    feedUserRepository: FeedUserRepositoryProtocol
+    feedUserRepository: FeedUserRepositoryProtocol,
+    otlUserRepository: OTLUserRepositoryProtocol
   ) {
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
     self.araUserRepository = araUserRepository
     self.feedUserRepository = feedUserRepository
+    self.otlUserRepository = otlUserRepository
 
     _isAuthenticatedSubject.value = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
     scheduleRefreshTimer()
@@ -155,6 +158,9 @@ class AuthUseCase: AuthUseCaseProtocol {
 
       // MARK: Sign up Feed
       try await self.feedUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
+
+      // MARK: Sign up OTL
+      try await self.otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
       _isAuthenticatedSubject.value = true
       logger.info("[AuthUseCase] Signed In")

@@ -13,7 +13,7 @@ struct OTLUser: Identifiable {
   let studentID: String
   let firstName: String
   let lastName: String
-  let department: Department
+  let department: Department?
   let majors: [Department]
   let reviewWritableLectures: [Lecture]
   let myTimetableLectures: [Lecture]

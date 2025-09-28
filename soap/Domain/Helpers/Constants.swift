@@ -51,4 +51,7 @@ enum Constants {
 
   // MARK: Feed
   static let feedBackendURL = URL(string: "https://app.dev.sparcs.org/v1")!
+
+  // MARK: OTL
+  static let otlBackendURL = URL(string: "https://api.otl.dev.sparcs.org")!
 }
