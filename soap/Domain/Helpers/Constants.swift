@@ -43,6 +43,8 @@ enum Constants {
     "산림": "064"
   ]
   static let taxiBankNameList = Array(taxiBankCodeMap.keys)
+  
+  static let taxiInviteURL = URL(string: "https://taxi.dev.sparcs.org/invite/")!
 
   // MARK: Ara
   static let araBackendURL = URL(string: "https://newara.dev.sparcs.org/api")!
