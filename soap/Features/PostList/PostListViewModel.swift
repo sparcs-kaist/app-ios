@@ -66,9 +66,18 @@ class PostListViewModel: PostListViewModelProtocol {
   func bind() {
     cancellables.removeAll()
 
-    searchKeywordSubject
+    let searchPublisher = searchKeywordSubject
       .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
       .removeDuplicates()
+    
+    searchPublisher
+      .sink { [weak self] _ in
+        guard let self else { return }
+        self.state = .loading
+      }
+      .store(in: &cancellables)
+    
+    searchPublisher
       .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         guard let self else { return }
