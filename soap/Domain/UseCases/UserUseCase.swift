@@ -27,17 +27,20 @@ final class UserUseCase: UserUseCaseProtocol {
   private let araUserRepository: AraUserRepositoryProtocol
   private let taxiUserRepository: TaxiUserRepositoryProtocol
   private let feedUserRepository: FeedUserRepositoryProtocol
+  private let otlUserRepository: OTLUserRepositoryProtocol
   private let userStorage: UserStorageProtocol
 
   init(
     taxiUserRepository: TaxiUserRepositoryProtocol,
     feedUserRepository: FeedUserRepositoryProtocol,
     araUserRepository: AraUserRepositoryProtocol,
+    otlUserRepository: OTLUserRepositoryProtocol,
     userStorage: UserStorageProtocol
   ) {
     self.taxiUserRepository = taxiUserRepository
     self.feedUserRepository = feedUserRepository
     self.araUserRepository = araUserRepository
+    self.otlUserRepository = otlUserRepository
     self.userStorage = userStorage
     logger.debug("Fetching Users")
     Task {
@@ -89,14 +92,14 @@ final class UserUseCase: UserUseCaseProtocol {
 
   func fetchFeedUser() async throws {
     logger.debug("Fetching Feed User")
-    let user = try await feedUserRepository.getUser()
+    let user = try await feedUserRepository.fetchUser()
     await userStorage.setFeedUser(user)
     logger.debug(user)
   }
 
   func fetchOTLUser() async throws {
     logger.debug("Fetching OTL User")
-    let user = OTLUser.mock
+    let user = try await otlUserRepository.fetchUser()
     await userStorage.setOTLUser(user)
     logger.debug(user)
   }

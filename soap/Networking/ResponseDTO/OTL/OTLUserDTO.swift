@@ -13,7 +13,7 @@ struct OTLUserDTO: Codable {
   let studentID: String
   let firstName: String
   let lastName: String
-  let department: DepartmentDTO
+  let department: DepartmentDTO?
   let majors: [DepartmentDTO]
   let reviewWritableLectures: [LectureDTO]
   let myTimetableLectures: [LectureDTO]
@@ -42,7 +42,7 @@ extension OTLUserDTO {
       studentID: studentID,
       firstName: firstName,
       lastName: lastName,
-      department: department.toModel(),
+      department: department?.toModel(),
       majors: majors.compactMap { $0.toModel() },
       reviewWritableLectures: reviewWritableLectures.compactMap { $0.toModel() },
       myTimetableLectures: myTimetableLectures.compactMap { $0.toModel() },

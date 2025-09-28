@@ -12,7 +12,7 @@ import Moya
 
 protocol FeedUserRepositoryProtocol: Sendable {
   func register(ssoInfo: String) async throws
-  func getUser() async throws -> FeedUser
+  func fetchUser() async throws -> FeedUser
 }
 
 final class FeedUserRepository: FeedUserRepositoryProtocol {
@@ -27,7 +27,7 @@ final class FeedUserRepository: FeedUserRepositoryProtocol {
     _ = try response.filterSuccessfulStatusCodes()
   }
 
-  func getUser() async throws -> FeedUser {
+  func fetchUser() async throws -> FeedUser {
     let response = try await provider.request(.getUser)
     _ = try response.filterSuccessfulStatusCodes()
 

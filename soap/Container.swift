@@ -114,6 +114,15 @@ extension Container {
     }
   }
 
+  // MARK: OTL
+  var otlUserRepository: Factory<OTLUserRepositoryProtocol> {
+    self {
+      OTLUserRepository(provider: MoyaProvider<OTLUserTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -137,7 +146,8 @@ extension Container {
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve(),
         araUserRepository: self.araUserRepository.resolve(),
-        feedUserRepository: self.feedUserRepository.resolve()
+        feedUserRepository: self.feedUserRepository.resolve(),
+        otlUserRepository: self.otlUserRepository.resolve()
       )
     }.singleton
   }
@@ -148,6 +158,7 @@ extension Container {
         taxiUserRepository: self.taxiUserRepository.resolve(),
         feedUserRepository: self.feedUserRepository.resolve(),
         araUserRepository: self.araUserRepository.resolve(),
+        otlUserRepository: self.otlUserRepository.resolve(),
         userStorage: self.userStorage.resolve()
       )
     }.singleton
