@@ -9,7 +9,6 @@ import SwiftUI
 
 struct TaxiChatShareBubble: View {
   let room: TaxiRoom
-  let share: (() -> Void)
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
@@ -36,9 +35,7 @@ struct TaxiChatShareBubble: View {
     isGeneral: false,
     isWithdrawn: false
   ) {
-    TaxiChatShareBubble(room: TaxiRoom.mock) {
-      logger.debug("share sheet goes here")
-    }
+    TaxiChatShareBubble(room: TaxiRoom.mock)
   }
   .padding()
 }

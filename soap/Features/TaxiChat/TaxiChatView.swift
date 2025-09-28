@@ -204,7 +204,7 @@ struct TaxiChatView: View {
                       showPayMoneyAlert = true
                     }
                   case .share:
-                    TaxiChatShareBubble(room: viewModel.room) { }
+                    TaxiChatShareBubble(room: viewModel.room)
                   default:
                     Text(chat.type.rawValue)
                   }
@@ -491,7 +491,7 @@ struct TaxiChatView: View {
                   case .account:
                     TaxiChatAccountBubble(content: "BANK NUMBER", isCommitPaymentAvailable: true) { }
                   case .share:
-                    TaxiChatShareBubble(room: TaxiRoom.mock) { }
+                    TaxiChatShareBubble(room: TaxiRoom.mock)
                   default:
                     Text(chat.type.rawValue)
                   }
