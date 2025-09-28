@@ -13,7 +13,7 @@ struct TaxiChatShareBubble: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       Text("Share now and create a pleasant taxi-sharing experience!")
-      ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + room.id)!, message: Text(LocalizedStringResource("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕"))) {
+      ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text(LocalizedStringResource("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕"))) {
         Label("Share", systemImage: "square.and.arrow.up")
           .frame(maxWidth: .infinity)
       }
