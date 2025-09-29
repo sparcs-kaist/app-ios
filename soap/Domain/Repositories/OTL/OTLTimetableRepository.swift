@@ -13,6 +13,8 @@ import Moya
 protocol OTLTimetableRepositoryProtocol: Sendable {
   func getTables(userID: Int, year: Int, semester: SemesterType) async throws -> [Timetable]
   func createTable(userID: Int, year: Int, semester: SemesterType) async throws -> Timetable
+  func getSemesters() async throws -> [Semester]
+  func getCurrentSemester() async throws -> Semester
 }
 
 final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Sendable {
@@ -34,6 +36,20 @@ final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Sendable {
       .createTable(userID: userID, year: year, semester: semester.intValue)
     )
     let result = try response.map(TimetableDTO.self).toModel()
+
+    return result
+  }
+
+  func getSemesters() async throws -> [Semester] {
+    let response = try await self.provider.request(.fetchSemesters)
+    let result = try response.map([SemesterDTO].self).compactMap { $0.toModel() }
+
+    return result
+  }
+
+  func getCurrentSemester() async throws -> Semester {
+    let response = try await self.provider.request(.fetchCurrentSemester)
+    let result = try response.map(SemesterDTO.self).toModel()
 
     return result
   }

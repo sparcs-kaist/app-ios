@@ -60,7 +60,17 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
   func load() async throws {
     guard store.isEmpty || semesters.isEmpty else { return }
 
-    semesters = Semester.mockList // TODO: Fetch semesters
+    async let fetchSemesters = otlTimetableRepository.getSemesters()
+    async let fetchCurrentSemesters = otlTimetableRepository.getCurrentSemester()
+
+    let (fetchedSemesters, fetchedCurrentSemester) = try await (
+      fetchSemesters,
+      fetchCurrentSemesters
+    )
+
+    semesters = fetchedSemesters
+
+    // Put lectures user took into a My Table
     let user: OTLUser? = await userUseCase.otlUser
     store = Dictionary(
       uniqueKeysWithValues: semesters.map { semester in
@@ -72,12 +82,19 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
       }
     )
 
-    // select the last semester -- this should be cached later
-    selectedSemesterID = semesters.last?.id
+    // Select current semester if it exists in fetchedSemesters
+    if let matchedSemester = semesters.first(where: {
+      $0.year == fetchedCurrentSemester.year && $0.semesterType == fetchedCurrentSemester.semesterType
+    }) {
+      selectedSemesterID = matchedSemester.id
+    } else {
+      selectedSemesterID = semesters.last?.id
+    }
 
-    // select My Table from the semester. -- this also should be cached later
+    // Select My Table for that semester
     if let selectedSemesterID {
       selectedTimetableID = "\(selectedSemesterID)-myTable"
     }
   }
 }
+
