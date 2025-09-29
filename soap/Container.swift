@@ -123,6 +123,14 @@ extension Container {
     }
   }
 
+  var otlTimetableRepository: Factory<OTLTimetableRepositoryProtocol> {
+    self {
+      OTLTimetableRepository(provider: MoyaProvider<OTLTimetableTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
