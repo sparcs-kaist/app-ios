@@ -32,7 +32,7 @@ struct SearchSection<Content: View, Destination: View>: View {
         .foregroundStyle(.secondary)
         Spacer()
       }
-      VStack(alignment: .leading, spacing: 0) {
+      LazyVStack(alignment: .leading, spacing: 0) {
         content()
       }
       .background(Color.systemBackground)

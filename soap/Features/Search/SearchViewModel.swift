@@ -115,8 +115,6 @@ class SearchViewModel {
   func loadAraNextPage() async {
     guard !isLoadingMore && hasMorePages else { return }
     
-    self.state = .loading
-    
     isLoadingMore = true
     
     do {
