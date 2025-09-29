@@ -8,20 +8,27 @@
 import SwiftUI
 
 struct SearchContent<Element: Identifiable, Cell: View>: View {
-  let results: ArraySlice<Element>
+  let results: [Element]
   @ViewBuilder let cell: (Element) -> Cell
   
   var body: some View {
-    ForEach(results) {
-      cell($0)
-      Divider()
+    if results.count == 0 {
+      Text("No results")
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, minHeight: 100)
+    }
+    else {
+      ForEach(results) {
+        cell($0)
+        Divider()
+      }
     }
   }
 }
 
 #Preview {
   VStack(alignment: .leading, spacing: 0.0) {
-    SearchContent(results: TaxiRoom.mockList[..<3]) {
+    SearchContent(results: Array(TaxiRoom.mockList[..<3])) {
       TaxiRoomCell(room: $0)
     }
   }

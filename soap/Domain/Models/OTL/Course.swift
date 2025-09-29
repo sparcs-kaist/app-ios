@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Course: Identifiable {
+struct Course: Identifiable, Equatable, Sendable {
   let id: Int
   let code: String
   let department: Department

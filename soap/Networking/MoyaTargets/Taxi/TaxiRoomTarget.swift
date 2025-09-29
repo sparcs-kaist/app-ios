@@ -10,6 +10,7 @@ import Moya
 
 enum TaxiRoomTarget {
   case fetchRooms
+  case fetchRoomsByName(name: String)
   case fetchMyRooms
   case fetchLocations
   case createRoom(with: TaxiCreateRoomRequestDTO)
@@ -27,7 +28,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var path: String {
     switch self {
-    case .fetchRooms:
+    case .fetchRooms, .fetchRoomsByName:
       "/rooms/search"
     case .fetchMyRooms:
       "/rooms/searchByUser"
@@ -50,7 +51,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var method: Moya.Method {
     switch self {
-    case .fetchRooms, .fetchMyRooms, .getRoom, .fetchLocations:
+    case .fetchRooms, .fetchRoomsByName, .fetchMyRooms, .getRoom, .fetchLocations:
       .get
     case .createRoom, .joinRoom, .leaveRoom, .commitSettlement, .commitPayment:
       .post
@@ -61,6 +62,8 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchRooms, .fetchMyRooms, .fetchLocations:
       .requestPlain
+    case .fetchRoomsByName(let name):
+        .requestParameters(parameters: ["name": name], encoding: URLEncoding.default)
     case .createRoom(let request):
       .requestJSONEncodable(request)
     case .joinRoom(let roomID):

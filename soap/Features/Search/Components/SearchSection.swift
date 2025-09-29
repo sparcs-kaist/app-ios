@@ -43,15 +43,27 @@ struct SearchSection<Content: View, Destination: View>: View {
 }
 
 #Preview {
+  let rooms: [TaxiRoom] = []
+  
   ZStack {
     Color.secondarySystemBackground
     
-    SearchSection<SearchContent, TaxiListView>(title: "Rides") {
-      SearchContent(results: TaxiRoom.mockList[..<3]) {
-        TaxiRoomCell(room: $0)
+    VStack {
+      SearchSection<SearchContent, TaxiListView>(title: "Rides") {
+        SearchContent(results: Array(TaxiRoom.mockList[..<3])) {
+          TaxiRoomCell(room: $0)
+        }
+      } destination: {
+        TaxiListView()
       }
-    } destination: {
-      TaxiListView()
+      
+      SearchSection<SearchContent<TaxiRoom, TaxiRoomCell>, TaxiListView>(title: "Rides") {
+        SearchContent<TaxiRoom, TaxiRoomCell>(results: rooms) {
+          TaxiRoomCell(room: $0)
+        }
+      } destination: {
+        TaxiListView()
+      }
     }
   }
   .ignoresSafeArea()

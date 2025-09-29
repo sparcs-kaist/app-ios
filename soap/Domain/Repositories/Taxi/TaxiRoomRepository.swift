@@ -6,11 +6,14 @@
 //
 
 import Foundation
+
+@preconcurrency
 import Moya
 
 protocol TaxiRoomRepositoryProtocol: Sendable {
   func fetchRooms() async throws -> [TaxiRoom]
   func fetchMyRooms() async throws -> (onGoing: [TaxiRoom], done: [TaxiRoom])
+  func searchRooms(name: String) async throws -> [TaxiRoom]
   func fetchLocations() async throws -> [TaxiLocation]
   func createRoom(with: TaxiCreateRoom) async throws -> TaxiRoom
   func joinRoom(id: String) async throws -> TaxiRoom
@@ -20,7 +23,7 @@ protocol TaxiRoomRepositoryProtocol: Sendable {
   func commitPayment(id: String) async throws -> TaxiRoom
 }
 
-final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, @unchecked Sendable {
+final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<TaxiRoomTarget>
 
   init(provider: MoyaProvider<TaxiRoomTarget>) {
@@ -51,6 +54,21 @@ final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, @unchecked Sendable 
       let doneRooms: [TaxiRoom] = result.done.compactMap { $0.toModel() }
 
       return (onGoing: onGoingRooms, done: doneRooms)
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
+    }
+  }
+  
+  func searchRooms(name: String) async throws -> [TaxiRoom] {
+    do {
+      let response = try await provider.request(.fetchRoomsByName(name: name))
+      let result = try response.map([TaxiRoomDTO].self)
+        .compactMap { $0.toModel() }
+      
+      return result
     } catch let moyaError as MoyaError {
       let body = try moyaError.response!.map(APIErrorResponse.self)
       throw body

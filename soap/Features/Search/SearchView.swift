@@ -14,15 +14,22 @@ struct SearchView: View {
 
   var body: some View {
     NavigationStack {
-      Group {
-        if !viewModel.searchText.isEmpty {
-          ContentUnavailableView("Search Anything", systemImage: "magnifyingglass", description: Text("Find courses, posts, rides and more."))
-        } else {
-          ZStack {
-            Color.secondarySystemBackground.ignoresSafeArea()
-            resultView
+      switch viewModel.state {
+      case .loading:
+        ProgressView()
+      case .loaded(let courses, let posts, let rooms):
+        Group {
+          if viewModel.searchText.isEmpty {
+            ContentUnavailableView("Search Anything", systemImage: "magnifyingglass", description: Text("Find courses, posts, rides and more."))
+          } else {
+            ZStack {
+              Color.secondarySystemBackground.ignoresSafeArea()
+              resultView(courses: courses, posts: posts, rooms: rooms)
+            }
           }
         }
+      case .error(let message):
+        ContentUnavailableView(message, systemImage: "exclamationmark.circle", description: Text("Please try again later."))
       }
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search"))
@@ -33,36 +40,72 @@ struct SearchView: View {
       }
     })
     .searchFocused($isFocused)
+    .task {
+      viewModel.bind()
+    }
   }
   
-  private var resultView: some View {
+  private func courseSection(courses: [Course]) -> some View {
+    SearchSection(title: "Courses", content: {
+      SearchContent(results: courses) {
+        CourseCell(course: $0)
+      }
+    }, destination: {
+      
+    })
+  }
+  
+  private func postSection(posts: [AraPost]) -> some View {
+    SearchSection(title: "Posts", content: {
+      SearchContent(results: posts) {
+        PostListRow(post: $0)
+          .padding()
+      }
+    }, destination: {
+    })
+  }
+  
+  private func taxiSection(rooms: [TaxiRoom]) -> some View {
+    SearchSection(title: "Rides", content: {
+      SearchContent(results: rooms) {
+        TaxiRoomCell(room: $0)
+      }
+    }, destination: {
+      TaxiListView()
+    })
+  }
+  
+  private func resultView(courses: [Course], posts: [AraPost], rooms: [TaxiRoom]) -> some View {
     ScrollView {
-      SearchSection(title: "Courses", content: {
-        SearchContent(results: Course.mockList[..<3]) {
-          CourseCell(course: $0)
-        }
-      }, destination: {
-        
-      })
-      
-      SearchSection(title: "Posts", content: {
-        SearchContent(results: AraPost.mockList[..<3]) {
-          PostListRow(post: $0)
-            .padding()
-        }
-      }, destination: {
-      })
-      
-      SearchSection(title: "Rides", content: {
-        SearchContent(results: TaxiRoom.mockList[..<3]) {
-          TaxiRoomCell(room: $0)
-        }
-      }, destination: {
-        TaxiListView()
-      })
+      if viewModel.searchScope == .all || viewModel.searchScope == .courses {
+        courseSection(courses: courses)
+      }
+      if viewModel.searchScope == .all || viewModel.searchScope == .posts {
+        postSection(posts: posts)
+      }
+      if viewModel.searchScope == .all || viewModel.searchScope == .taxi {
+        taxiSection(rooms: rooms)
+      }
     }
     .navigationTitle("Search")
     .toolbarTitleDisplayMode(.inlineLarge)
+    .onChange(of: viewModel.searchScope) {
+      switch viewModel.searchScope {
+      case .all:
+        if viewModel.searchText.isEmpty {
+          return
+        }
+        Task {
+          await viewModel.fetchInitialData()
+        }
+      case .taxi:
+        Task {
+          await viewModel.fetchTaxiAll()
+        }
+      default:
+        break
+      }
+    }
   }
 }
 

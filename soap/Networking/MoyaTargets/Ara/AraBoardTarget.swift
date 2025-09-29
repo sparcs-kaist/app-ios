@@ -12,6 +12,7 @@ enum AraBoardTarget {
   case fetchBoards
 
   enum PostListType {
+    case all
     case board(boardID: Int)
     case user(userID: Int)
   }
@@ -89,6 +90,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       ]
 
       switch type {
+      case .all:
+        break // pass
       case .board(let boardID):
         parameters["parent_board"] = boardID
       case .user(let userID):
