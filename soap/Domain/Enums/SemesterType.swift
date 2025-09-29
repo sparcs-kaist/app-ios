@@ -29,6 +29,19 @@ enum SemesterType: String, Comparable {
       "W"
     }
   }
+
+  var intValue: Int {
+    switch self {
+    case .spring:
+      1
+    case .summer:
+      2
+    case .autumn:
+      3
+    case .winter:
+      4
+    }
+  }
 }
 
 
