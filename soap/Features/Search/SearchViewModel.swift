@@ -72,7 +72,7 @@ class SearchViewModel {
           case .courses:
             break
           case .posts:
-            break
+            await self.fetchInitialData(araFullData: true)
           case .taxi:
             await self.fetchTaxiAll()
           }
@@ -81,33 +81,67 @@ class SearchViewModel {
       .store(in: &cancellables)
   }
   
-  func fetchInitialData() async {
+  func fetchInitialData(araFullData: Bool = false) async {
+    state = .loading
+    
     do {
       let postPage = try await araBoardRepository.fetchPosts(
         type: .all,
         page: 1,
-        pageSize: 3,
+        pageSize: pageSize,
         searchKeyword: searchText
       )
+      self.totalPages = postPage.pages
+      self.currentPage = postPage.currentPage
       self.posts = postPage.results
+      self.hasMorePages = currentPage < totalPages
       self.taxiRooms = try await taxiRoomRepository.searchRooms(name: searchText)
+      
+      let posts: [AraPost]
+      if araFullData { posts = self.posts }
+      else { posts = Array(self.posts.prefix(self.posts.count > 3 ? 3 : self.posts.count)) }
       let rooms = Array(self.taxiRooms.prefix(self.taxiRooms.count > 3 ? 3 : self.taxiRooms.count))
       
       // TODO: OTL API CALL
       self.courses = Course.mockList
       
-      logger.debug("Courses: \(self.courses), Posts: \(self.posts), Taxi Rooms: \(rooms)")
+      logger.debug("Courses: \(self.courses), Posts: \(posts), Taxi Rooms: \(rooms)")
       
-      self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: rooms)
+      self.state = .loaded(courses: self.courses, posts: posts, taxiRooms: rooms)
     } catch {
       state = .error(message: error.localizedDescription)
       logger.error(error)
     }
   }
   
-  func fetchTaxiAll() async {
+  func loadAraNextPage() async {
+    guard !isLoadingMore && hasMorePages else { return }
+    
     self.state = .loading
     
+    isLoadingMore = true
+    
+    do {
+      let nextPage = currentPage + 1
+      let page = try await araBoardRepository.fetchPosts(
+        type: .all,
+        page: nextPage,
+        pageSize: pageSize,
+        searchKeyword: searchText
+      )
+      self.currentPage = page.currentPage
+      self.posts.append(contentsOf: page.results)
+      self.hasMorePages = currentPage < totalPages
+      self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: self.taxiRooms)
+      self.isLoadingMore = true
+    } catch {
+      logger.error(error)
+      self.state = .error(message: error.localizedDescription)
+      self.isLoadingMore = false
+    }
+  }
+  
+  func fetchTaxiAll() async {
     self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: self.taxiRooms)
   }
 }

@@ -60,6 +60,12 @@ struct SearchView: View {
       SearchContent(results: posts) {
         PostListRow(post: $0)
           .padding()
+      } onLoadMore: {
+        if viewModel.searchScope == .posts {
+          Task {
+            await viewModel.loadAraNextPage()
+          }
+        }
       }
     }, destination: {
     })
@@ -97,6 +103,10 @@ struct SearchView: View {
         }
         Task {
           await viewModel.fetchInitialData()
+        }
+      case .posts:
+        Task {
+          await viewModel.fetchInitialData(araFullData: true)
         }
       case .taxi:
         Task {

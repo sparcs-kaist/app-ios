@@ -10,6 +10,8 @@ import SwiftUI
 struct SearchContent<Element: Identifiable, Cell: View>: View {
   let results: [Element]
   @ViewBuilder let cell: (Element) -> Cell
+  @State private var isLoadingMore: Bool = false
+  var onLoadMore: (() async -> Void)? = nil
   
   var body: some View {
     if results.count == 0 {
@@ -18,9 +20,29 @@ struct SearchContent<Element: Identifiable, Cell: View>: View {
         .frame(maxWidth: .infinity, minHeight: 100)
     }
     else {
-      ForEach(results) {
-        cell($0)
-        Divider()
+      ForEach(Array(results.enumerated()), id: \.element.id) { index, data in
+        Group {
+          cell(data)
+          Divider()
+        }
+        .onAppear {
+          let thresholdIndex = Int(Double(results.count) * 0.6)
+          if index >= thresholdIndex {
+            Task {
+              isLoadingMore = true
+              await onLoadMore?()
+              isLoadingMore = false
+            }
+          }
+        }
+      }
+      
+      if isLoadingMore {
+        HStack {
+          Spacer()
+          ProgressView().padding()
+          Spacer()
+        }
       }
     }
   }
