@@ -69,12 +69,8 @@ class SearchViewModel {
           switch searchScope {
           case .all:
             await self.fetchInitialData()
-          case .courses:
-            self.fetchCourseAll()
-          case .posts:
-            await self.fetchPostAll()
-          case .taxi:
-            await self.fetchTaxiAll()
+          default:
+            self.loadFull()
           }
         }
       }
@@ -102,8 +98,6 @@ class SearchViewModel {
       
       // TODO: OTL API CALL
       self.courses = Course.mockList
-      
-      logger.debug("Courses: \(self.courses), Posts: \(posts), Taxi Rooms: \(rooms)")
       
       self.state = .loaded(courses: self.courses, posts: posts, taxiRooms: rooms)
     } catch {
@@ -137,15 +131,7 @@ class SearchViewModel {
     }
   }
   
-  func fetchPostAll() async {
-    self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: self.taxiRooms)
-  }
-  
-  func fetchTaxiAll() async {
-    self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: self.taxiRooms)
-  }
-  
-  func fetchCourseAll() {
+  func loadFull() {
     self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: self.taxiRooms)
   }
 }

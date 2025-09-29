@@ -119,16 +119,8 @@ struct SearchView: View {
         Task {
           await viewModel.fetchInitialData()
         }
-      case .courses:
-        viewModel.fetchCourseAll()
-      case .posts:
-        Task {
-          await viewModel.fetchPostAll()
-        }
-      case .taxi:
-        Task {
-          await viewModel.fetchTaxiAll()
-        }
+      default:
+        viewModel.loadFull()
       }
     }
   }
