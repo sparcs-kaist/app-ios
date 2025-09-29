@@ -70,6 +70,10 @@ final class TimetableViewModel {
     }
     timetableUseCase.selectedSemesterID = timetableUseCase.semesters[currentIndex + 1].id
   }
+
+  func createTable() async throws {
+    try await timetableUseCase.createTable()
+  }
 }
 
 

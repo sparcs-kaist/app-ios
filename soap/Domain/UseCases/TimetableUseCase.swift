@@ -19,6 +19,7 @@ protocol TimetableUseCaseProtocol: Observable {
   var selectedTimetable: Timetable? { get }
 
   func load() async throws
+  func createTable() async throws
 }
 
 @Observable
@@ -95,6 +96,50 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
     if let selectedSemesterID {
       selectedTimetableID = "\(selectedSemesterID)-myTable"
     }
+
+    if let user = user,
+       let selectedSemester = selectedSemester {
+      let tables: [Timetable] = try await otlTimetableRepository.getTables(
+        userID: user.id,
+        year: selectedSemester.year,
+        semester: selectedSemester.semesterType
+      )
+      logger.debug(tables)
+    }
+  }
+
+  func createTable() async throws {
+    guard
+      let user: OTLUser = await userUseCase.otlUser,
+      let selectedSemester
+    else { return }
+
+    // Create on server
+    let newTable: Timetable = try await otlTimetableRepository.createTable(
+      userID: user.id,
+      year: selectedSemester.year,
+      semester: selectedSemester.semesterType
+    )
+
+    // Insert into local store for the semester
+    let sid = selectedSemester.id
+    var tables = store[sid] ?? []
+
+    // Avoid duplicates
+    if !tables.contains(where: { $0.id == newTable.id }) {
+      // Keep "myTable" first if present; append others after it
+      if let myIdx = tables.firstIndex(where: { $0.id.hasSuffix("-myTable") }) {
+        let head = tables[..<tables.index(after: myIdx)]
+        let tail = tables[tables.index(after: myIdx)...]
+        tables = Array(head) + [newTable] + Array(tail)
+      } else {
+        tables.append(newTable)
+      }
+    }
+
+    store[sid] = tables
+    selectedTimetableID = newTable.id
+    logger.debug("Added table \(newTable.id) to semester \(sid). Total: \(tables.count)")
   }
 }
 
