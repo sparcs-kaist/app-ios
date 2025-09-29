@@ -5,6 +5,13 @@
 //  Created by Soongyu Kwon on 17/09/2025.
 //
 
+//
+//  TimetableUseCase.swift
+//  soap
+//
+//  Created by Soongyu Kwon on 17/09/2025.
+//
+
 import Foundation
 import Observation
 
@@ -18,6 +25,9 @@ protocol TimetableUseCaseProtocol: Observable {
   var selectedSemester: Semester? { get }
   var selectedTimetable: Timetable? { get }
 
+  var timetableIDsForSelectedSemester: [String] { get }
+  var selectedTimetableDisplayName: String { get }
+
   func load() async throws
   func createTable() async throws
 }
@@ -28,13 +38,22 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
   private var store: [Semester.ID: [Timetable]] = [:]
   private(set) var semesters: [Semester] = []
 
+  /// Prevent overlapping fetches per semester when the user switches quickly.
+  private var fetchingSemesters = Set<Semester.ID>()
+
   var selectedSemesterID: Semester.ID? = nil {
     didSet {
-      if let selectedSemesterID {
-        selectedTimetableID = "\(selectedSemesterID)-myTable"
+      guard let selectedSemesterID else { return }
+      // Always default-select My Table of the chosen semester
+      selectedTimetableID = "\(selectedSemesterID)-myTable"
+
+      // Refresh tables for the newly selected semester
+      Task { [weak self] in
+        await self?.refreshTablesForSelectedSemester()
       }
     }
   }
+
   var selectedTimetableID: Timetable.ID? = nil
 
   // MARK: - Dependencies
@@ -47,6 +66,7 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
     self.otlTimetableRepository = otlTimetableRepository
   }
 
+  // MARK: - Computed
   var selectedSemester: Semester? {
     guard let id = selectedSemesterID else { return nil }
     return semesters.first(where: { $0.id == id })
@@ -58,54 +78,66 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
     return store[sid]?.first(where: { $0.id == tid })
   }
 
+  var timetableIDsForSelectedSemester: [String] {
+    guard let sid = selectedSemesterID else { return [] }
+    return store[sid]?.map(\.id) ?? []
+  }
+
+  /// Human-friendly display name for the selected timetable.
+  /// - "My Table" for the local user table
+  /// - "Table N" for the Nth server table (1-based index)
+  /// - "Unknown" as a safe fallback
+  var selectedTimetableDisplayName: String {
+    guard let selectedTimetableID = selectedTimetableID else { return "Unknown" }
+
+    if selectedTimetableID.hasSuffix("-myTable") {
+      return "My Table"
+    }
+
+    if let index = timetableIDsForSelectedSemester.firstIndex(of: selectedTimetableID) {
+      return "Table \(index)"
+    } else {
+      return "Unknown"
+    }
+  }
+
+  // MARK: - API
   func load() async throws {
+    // Avoid re-loading if already populated
     guard store.isEmpty || semesters.isEmpty else { return }
 
     async let fetchSemesters = otlTimetableRepository.getSemesters()
-    async let fetchCurrentSemesters = otlTimetableRepository.getCurrentSemester()
+    async let fetchCurrentSemester = otlTimetableRepository.getCurrentSemester()
 
-    let (fetchedSemesters, fetchedCurrentSemester) = try await (
-      fetchSemesters,
-      fetchCurrentSemesters
-    )
+    let (fetchedSemesters, fetchedCurrentSemester) = try await (fetchSemesters, fetchCurrentSemester)
 
+    // Persist semesters
     semesters = fetchedSemesters
 
-    // Put lectures user took into a My Table
+    // Seed each semester with a local "My Table" derived from user lectures
     let user: OTLUser? = await userUseCase.otlUser
     store = Dictionary(
       uniqueKeysWithValues: semesters.map { semester in
-        let lectures = user?.myTimetableLectures.filter {
-          $0.year == semester.year && $0.semester == semester.semesterType
-        } ?? []
-
-        return (semester.id, [Timetable(id: "\(semester.id)-myTable", lectures: lectures)])
+        (semester.id, [makeMyTable(for: semester, user: user)])
       }
     )
 
-    // Select current semester if it exists in fetchedSemesters
-    if let matchedSemester = semesters.first(where: {
+    // Select the current semester if it exists; otherwise last
+    if let matched = semesters.first(where: {
       $0.year == fetchedCurrentSemester.year && $0.semesterType == fetchedCurrentSemester.semesterType
     }) {
-      selectedSemesterID = matchedSemester.id
+      selectedSemesterID = matched.id
     } else {
       selectedSemesterID = semesters.last?.id
     }
 
-    // Select My Table for that semester
-    if let selectedSemesterID {
-      selectedTimetableID = "\(selectedSemesterID)-myTable"
+    // Ensure a selected timetable for the chosen semester
+    if let sid = selectedSemesterID {
+      selectedTimetableID = "\(sid)-myTable"
     }
 
-    if let user = user,
-       let selectedSemester = selectedSemester {
-      let tables: [Timetable] = try await otlTimetableRepository.getTables(
-        userID: user.id,
-        year: selectedSemester.year,
-        semester: selectedSemester.semesterType
-      )
-      logger.debug(tables)
-    }
+    // Fetch remote tables for the selected semester and merge
+    await refreshTablesForSelectedSemester()
   }
 
   func createTable() async throws {
@@ -121,25 +153,106 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
       semester: selectedSemester.semesterType
     )
 
-    // Insert into local store for the semester
+    // Insert into local store for the semester (dedup & keep myTable first)
     let sid = selectedSemester.id
-    var tables = store[sid] ?? []
+    let existing = store[sid] ?? []
+    let merged = mergeKeepingMyTableFirst(existing: existing, incoming: [newTable])
+    store[sid] = merged
 
-    // Avoid duplicates
-    if !tables.contains(where: { $0.id == newTable.id }) {
-      // Keep "myTable" first if present; append others after it
-      if let myIdx = tables.firstIndex(where: { $0.id.hasSuffix("-myTable") }) {
-        let head = tables[..<tables.index(after: myIdx)]
-        let tail = tables[tables.index(after: myIdx)...]
-        tables = Array(head) + [newTable] + Array(tail)
-      } else {
-        tables.append(newTable)
+    // Select the newly created table
+    selectedTimetableID = newTable.id
+#if DEBUG
+    print("Added table \(newTable.id) to semester \(sid). Total: \(merged.count)")
+#endif
+  }
+
+  // MARK: - Helpers
+
+  /// Refresh tables for `selectedSemesterID`, seeding My Table if needed and merging server tables (deduped).
+  @MainActor
+  private func refreshTablesForSelectedSemester() async {
+    guard
+      let sid = selectedSemesterID,
+      let semester = semesters.first(where: { $0.id == sid })
+    else { return }
+
+    // Seed myTable if missing
+    let otlUser: OTLUser? = await userUseCase.otlUser
+    seedMyTableIfNeeded(semester: semester, user: otlUser)
+
+    // Avoid concurrent fetches for the same semester
+    guard !fetchingSemesters.contains(sid) else { return }
+    fetchingSemesters.insert(sid)
+    defer { fetchingSemesters.remove(sid) }
+
+    guard let user = otlUser else { return }
+
+    do {
+      let fetched = try await otlTimetableRepository.getTables(
+        userID: user.id,
+        year: semester.year,
+        semester: semester.semesterType
+      )
+
+      let existing = store[sid] ?? []
+      let merged = mergeKeepingMyTableFirst(existing: existing, incoming: fetched)
+      store[sid] = merged
+
+      // If current selection disappeared, fall back to myTable
+      if let tid = selectedTimetableID, !merged.contains(where: { $0.id == tid }) {
+        selectedTimetableID = "\(sid)-myTable"
       }
+    } catch {
+#if DEBUG
+      print("Failed to refresh tables for semester \(sid): \(error)")
+#endif
+    }
+  }
+
+  /// Ensures there is a `-myTable` entry for the given semester,
+  /// filled with the user's lectures for that semester.
+  @MainActor
+  private func seedMyTableIfNeeded(semester: Semester, user: OTLUser?) {
+    let sid = semester.id
+    if let existing = store[sid], existing.contains(where: { $0.id.hasSuffix("-myTable") }) {
+      return
+    }
+    let my = makeMyTable(for: semester, user: user)
+    var tables = store[sid] ?? []
+    // Pin myTable to the front, then append the rest
+    tables.removeAll(where: { $0.id.hasSuffix("-myTable") })
+    tables.insert(my, at: 0)
+    store[sid] = tables
+  }
+
+  /// Creates the local "My Table" for a semester using user's lectures.
+  private func makeMyTable(for semester: Semester, user: OTLUser?) -> Timetable {
+    let lectures = user?.myTimetableLectures.filter {
+      $0.year == semester.year && $0.semester == semester.semesterType
+    } ?? []
+    return Timetable(id: "\(semester.id)-myTable", lectures: lectures)
+  }
+
+  /// Merge helper that:
+  /// - keeps order of existing tables
+  /// - appends any new ones not present (by id)
+  /// - keeps `-myTable` as the first element if present
+  @MainActor
+  private func mergeKeepingMyTableFirst(existing: [Timetable], incoming: [Timetable]) -> [Timetable] {
+    var seen = Set(existing.map { $0.id })
+    var result = existing
+    for t in incoming where !seen.contains(t.id) {
+      result.append(t)
+      seen.insert(t.id)
     }
 
-    store[sid] = tables
-    selectedTimetableID = newTable.id
-    logger.debug("Added table \(newTable.id) to semester \(sid). Total: \(tables.count)")
+    // Ensure -myTable is at index 0 if present
+    if let myIdx = result.firstIndex(where: { $0.id.hasSuffix("-myTable") }), myIdx != 0 {
+      var copy = result
+      let my = copy.remove(at: myIdx)
+      copy.insert(my, at: 0)
+      return copy
+    }
+    return result
   }
 }
-

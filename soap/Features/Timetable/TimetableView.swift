@@ -57,6 +57,7 @@ struct TimetableView: View {
           Button("Add Lecture", systemImage: "plus") {
             showSearchSheet = true
           }
+          .disabled(!viewModel.isEditable)
         }
       }
       .sheet(item: $selectedLecture) { (item: Lecture) in

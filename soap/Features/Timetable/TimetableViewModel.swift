@@ -33,7 +33,23 @@ final class TimetableViewModel {
     return timetableUseCase.selectedTimetable
   }
 
+  var timetableIDsForSelectedSemester: [String] {
+    timetableUseCase.timetableIDsForSelectedSemester
+  }
+
+  var selectedTimetableDisplayName: String {
+    timetableUseCase.selectedTimetableDisplayName
+  }
+
   var candidateLecture: Lecture? = nil
+
+  var isEditable: Bool {
+    if let selectedTimetable = selectedTimetable {
+      return selectedTimetable.id.contains("myTable") ? false : true
+    }
+
+    return false
+  }
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -69,6 +85,10 @@ final class TimetableViewModel {
       return
     }
     timetableUseCase.selectedSemesterID = timetableUseCase.semesters[currentIndex + 1].id
+  }
+
+  func selectTimetable(id: String) {
+    timetableUseCase.selectedTimetableID = id
   }
 
   func createTable() async throws {
