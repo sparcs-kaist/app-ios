@@ -14,22 +14,35 @@ struct SearchView: View {
 
   var body: some View {
     NavigationStack {
-      switch viewModel.state {
-      case .loading:
-        ProgressView()
-      case .loaded(let courses, let posts, let rooms):
+      ZStack {
+        Color.secondarySystemBackground.ignoresSafeArea()
+        
         Group {
-          if viewModel.searchText.isEmpty {
-            ContentUnavailableView("Search Anything", systemImage: "magnifyingglass", description: Text("Find courses, posts, rides and more."))
-          } else {
-            ZStack {
-              Color.secondarySystemBackground.ignoresSafeArea()
-              resultView(courses: courses, posts: posts, rooms: rooms)
+          switch viewModel.state {
+          case .loading:
+            VStack {
+              SearchSection(title: "Courses", content: {
+                SearchContent(results: Course.mockList) {
+                  CourseCell(course: $0)
+                }
+              }, destination: {
+                
+              })
+              Spacer()
             }
+            .redacted(reason: .placeholder)
+          case .loaded(let courses, let posts, let rooms):
+            Group {
+              if viewModel.searchText.isEmpty {
+                ContentUnavailableView("Search Anything", systemImage: "magnifyingglass", description: Text("Find courses, posts, rides and more."))
+              } else {
+                resultView(courses: courses, posts: posts, rooms: rooms)
+              }
+            }
+          case .error(let message):
+            ContentUnavailableView(message, systemImage: "exclamationmark.circle", description: Text("Please try again later."))
           }
-        }
-      case .error(let message):
-        ContentUnavailableView(message, systemImage: "exclamationmark.circle", description: Text("Please try again later."))
+        }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search"))
@@ -96,6 +109,8 @@ struct SearchView: View {
     .navigationTitle("Search")
     .toolbarTitleDisplayMode(.inlineLarge)
     .onChange(of: viewModel.searchScope) {
+      viewModel.state = .loading
+      
       switch viewModel.searchScope {
       case .all:
         if viewModel.searchText.isEmpty {
@@ -104,16 +119,16 @@ struct SearchView: View {
         Task {
           await viewModel.fetchInitialData()
         }
+      case .courses:
+        viewModel.fetchCourseAll()
       case .posts:
         Task {
-          await viewModel.fetchInitialData(araFullData: true)
+          await viewModel.fetchPostAll()
         }
       case .taxi:
         Task {
           await viewModel.fetchTaxiAll()
         }
-      default:
-        break
       }
     }
   }
