@@ -15,7 +15,7 @@ struct SearchView: View {
   var body: some View {
     NavigationStack {
       Group {
-        if viewModel.searchText.isEmpty {
+        if !viewModel.searchText.isEmpty {
           ContentUnavailableView("Search Anything", systemImage: "magnifyingglass", description: Text("Find courses, posts, rides and more."))
         } else {
           ZStack {
@@ -37,7 +37,13 @@ struct SearchView: View {
   
   private var resultView: some View {
     ScrollView {
-      // TODO: Courses Search
+      SearchSection(title: "Courses", content: {
+        SearchContent(results: Course.mockList[..<3]) {
+          CourseCell(course: $0)
+        }
+      }, destination: {
+        
+      })
       
       SearchSection(title: "Posts", content: {
         SearchContent(results: AraPost.mockList[..<3]) {
@@ -54,8 +60,6 @@ struct SearchView: View {
       }, destination: {
         TaxiListView()
       })
-      
-      Spacer()
     }
     .navigationTitle("Search")
     .toolbarTitleDisplayMode(.inlineLarge)
