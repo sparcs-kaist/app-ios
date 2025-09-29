@@ -38,10 +38,12 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
 
   // MARK: - Dependencies
   private let userUseCase: UserUseCaseProtocol
+  private let otlTimetableRepository: OTLTimetableRepositoryProtocol
 
   // MARK: - Initialiser
-  init(userUseCase: UserUseCaseProtocol) {
+  init(userUseCase: UserUseCaseProtocol, otlTimetableRepository: OTLTimetableRepositoryProtocol) {
     self.userUseCase = userUseCase
+    self.otlTimetableRepository = otlTimetableRepository
   }
 
   var selectedSemester: Semester? {
@@ -70,7 +72,10 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
       }
     )
 
+    // select the last semester -- this should be cached later
     selectedSemesterID = semesters.last?.id
+
+    // select My Table from the semester. -- this also should be cached later
     if let selectedSemesterID {
       selectedTimetableID = "\(selectedSemesterID)-myTable"
     }

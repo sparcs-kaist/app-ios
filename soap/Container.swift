@@ -195,7 +195,10 @@ extension Container {
   @MainActor
   var timetableUseCase: Factory<TimetableUseCaseProtocol> {
     self {
-      @MainActor in TimetableUseCase(userUseCase: self.userUseCase.resolve())
+      @MainActor in TimetableUseCase(
+        userUseCase: self.userUseCase.resolve(),
+        otlTimetableRepository: self.otlTimetableRepository.resolve()
+      )
     }.singleton
   }
 }
