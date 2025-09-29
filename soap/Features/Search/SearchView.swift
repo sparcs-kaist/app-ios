@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
   @State private var viewModel = SearchViewModel()
-
+  @State private var selectedRoom: TaxiRoom? = nil
   @FocusState private var isFocused
 
   var body: some View {
@@ -21,13 +21,11 @@ struct SearchView: View {
           switch viewModel.state {
           case .loading:
             VStack {
-              SearchSection(title: "Courses", content: {
+              SearchSection(title: "Courses", searchScope: $viewModel.searchScope, targetScope: .taxi) {
                 SearchContent(results: Course.mockList) {
                   CourseCell(course: $0)
                 }
-              }, destination: {
-                
-              })
+              }
               Spacer()
             }
             .redacted(reason: .placeholder)
@@ -59,20 +57,23 @@ struct SearchView: View {
   }
   
   private func courseSection(courses: [Course]) -> some View {
-    SearchSection(title: "Courses", content: {
+    SearchSection(title: "Courses", searchScope: $viewModel.searchScope, targetScope: .courses) {
       SearchContent(results: courses) {
         CourseCell(course: $0)
       }
-    }, destination: {
-      
-    })
+    }
   }
   
   private func postSection(posts: [AraPost]) -> some View {
-    SearchSection(title: "Posts", content: {
-      SearchContent(results: posts) {
-        PostListRow(post: $0)
-          .padding()
+    SearchSection(title: "Posts", searchScope: $viewModel.searchScope, targetScope: .posts) {
+      SearchContent(results: posts) { post in
+        NavigationLink(destination: {
+          PostView(post: post)
+        }) {
+          PostListRow(post: post)
+        }
+        .foregroundStyle(.primary)
+        .padding()
       } onLoadMore: {
         if viewModel.searchScope == .posts {
           Task {
@@ -80,18 +81,27 @@ struct SearchView: View {
           }
         }
       }
-    }, destination: {
-    })
+    }
   }
   
   private func taxiSection(rooms: [TaxiRoom]) -> some View {
-    SearchSection(title: "Rides", content: {
-      SearchContent(results: rooms) {
-        TaxiRoomCell(room: $0)
+    SearchSection(title: "Rides", searchScope: $viewModel.searchScope, targetScope: .taxi) {
+      SearchContent(results: rooms) { room in
+        TaxiRoomCell(room: room)
+          .onTapGesture {
+            selectedRoom = room
+          }
       }
-    }, destination: {
-      TaxiListView()
-    })
+    }
+    .sheet(item: $selectedRoom) {
+      Task {
+        await viewModel.scopedFetch()
+      }
+    } content: {
+      TaxiPreviewView(room: $0)
+        .presentationDragIndicator(.visible)
+        .presentationDetents([.height(400), .height(500)])
+    }
   }
   
   private func resultView(courses: [Course], posts: [AraPost], rooms: [TaxiRoom]) -> some View {

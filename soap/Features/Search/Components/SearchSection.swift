@@ -7,10 +7,13 @@
 
 import SwiftUI
 
-struct SearchSection<Content: View, Destination: View>: View {
+struct SearchSection<Content: View>: View {
   let title: String
+  
+  @Binding var searchScope: SearchScope
+  let targetScope: SearchScope
+  
   @ViewBuilder let content: () -> Content
-  @ViewBuilder let destination: () -> Destination
   
   var body: some View {
     VStack(alignment: .leading) {
@@ -18,8 +21,8 @@ struct SearchSection<Content: View, Destination: View>: View {
         Text(title)
           .font(.title2)
           .fontWeight(.bold)
-        NavigationLink {
-          destination()
+        Button {
+          searchScope = targetScope
         } label: {
           Image(systemName: "chevron.right")
             .font(.caption)
@@ -49,20 +52,16 @@ struct SearchSection<Content: View, Destination: View>: View {
     Color.secondarySystemBackground
     
     VStack {
-      SearchSection<SearchContent, TaxiListView>(title: "Rides") {
+      SearchSection(title: "Rides", searchScope: .constant(.all), targetScope: .taxi) {
         SearchContent(results: Array(TaxiRoom.mockList[..<3])) {
           TaxiRoomCell(room: $0)
         }
-      } destination: {
-        TaxiListView()
       }
       
-      SearchSection<SearchContent<TaxiRoom, TaxiRoomCell>, TaxiListView>(title: "Rides") {
+      SearchSection(title: "Rides", searchScope: .constant(.all), targetScope: .taxi) {
         SearchContent<TaxiRoom, TaxiRoomCell>(results: rooms) {
           TaxiRoomCell(room: $0)
         }
-      } destination: {
-        TaxiListView()
       }
     }
   }

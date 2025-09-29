@@ -66,12 +66,7 @@ class SearchViewModel {
         guard let self else { return }
         guard !searchText.isEmpty else { return }
         Task {
-          switch searchScope {
-          case .all:
-            await self.fetchInitialData()
-          default:
-            self.loadFull()
-          }
+          await scopedFetch()
         }
       }
       .store(in: &cancellables)
@@ -133,5 +128,12 @@ class SearchViewModel {
   
   func loadFull() {
     self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: self.taxiRooms)
+  }
+  
+  func scopedFetch() async {
+    await self.fetchInitialData()
+    if searchScope != .all {
+      self.loadFull()
+    }
   }
 }
