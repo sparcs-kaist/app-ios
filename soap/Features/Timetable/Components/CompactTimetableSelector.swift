@@ -21,9 +21,6 @@ struct CompactTimetableSelector: View {
       }
     }
     .frame(height: 30)
-    .task {
-      await timetableViewModel.fetchData()
-    }
   }
 
   var tableSelector: some View {
