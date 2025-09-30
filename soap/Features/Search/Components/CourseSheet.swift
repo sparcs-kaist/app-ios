@@ -61,13 +61,17 @@ struct CourseSheet: View {
         LectureDetailRow(title: "Code", description: course.code)
         LectureDetailRow(title: "Type", description: course.type.localized())
         LectureDetailRow(title: "Department", description: course.department.name.localized())
-        Text("Summary")
-          .foregroundStyle(.secondary)
-          .font(.callout)
-          .padding(.vertical, 4)
-        Text(course.summary)
-          .font(.footnote)
-          .multilineTextAlignment(.leading)
+        
+        if course.summary != "" {
+          Text("Summary")
+            .foregroundStyle(.secondary)
+            .font(.callout)
+            .padding(.vertical, 4)
+          
+          Text(course.summary)
+            .font(.footnote)
+            .multilineTextAlignment(.leading)
+        }
       }
     }
   }
