@@ -69,6 +69,7 @@ struct SearchView: View {
       SearchContent(results: posts) { post in
         NavigationLink(destination: {
           PostView(post: post)
+            .toolbar(.hidden, for: .tabBar)
         }) {
           PostListRow(post: post)
         }
