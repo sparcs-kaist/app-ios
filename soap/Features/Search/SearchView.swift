@@ -23,6 +23,7 @@ struct SearchView: View {
           switch viewModel.state {
           case .loading:
             VStack {
+              Spacer().frame(height: 50)
               SearchSection(title: "Courses", searchScope: $viewModel.searchScope, targetScope: .taxi) {
                 SearchContent(results: Course.mockList) {
                   CourseCell(course: $0)
@@ -41,20 +42,31 @@ struct SearchView: View {
             }
           case .error(let message):
             ContentUnavailableView(message, systemImage: "exclamationmark.circle", description: Text("Please try again later."))
+              
           }
-        }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
+        }
+        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search"))
-    .searchScopes($viewModel.searchScope, scopes: {
-      ForEach(SearchScope.allCases) { scope in
-        Text(scope.rawValue)
-          .tag(scope)
-      }
-    })
     .searchFocused($isFocused)
     .task {
       viewModel.bind()
+    }
+    .overlay {
+      VStack {
+        Picker("Search Scope", selection: $viewModel.searchScope) {
+          ForEach(SearchScope.allCases) { scope in
+            Text(scope.rawValue).tag(scope)
+          }
+        }
+        .pickerStyle(.segmented)
+        .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
+        .padding(.horizontal)
+        Spacer()
+      }
+      .opacity(hideScopeBar ? 0 : 1)
+      .disabled(hideScopeBar)
     }
   }
   
@@ -117,17 +129,20 @@ struct SearchView: View {
   
   private func resultView(courses: [Course], posts: [AraPost], rooms: [TaxiRoom]) -> some View {
     ScrollView {
-      if viewModel.searchScope == .all || viewModel.searchScope == .courses {
-        courseSection(courses: courses)
+      Spacer().frame(height: 50)
+      Group {
+        if viewModel.searchScope == .all || viewModel.searchScope == .courses {
+          courseSection(courses: courses)
+        }
+        if viewModel.searchScope == .all || viewModel.searchScope == .posts {
+          postSection(posts: posts)
+        }
+        if viewModel.searchScope == .all || viewModel.searchScope == .taxi {
+          taxiSection(rooms: rooms)
+        }
       }
-      if viewModel.searchScope == .all || viewModel.searchScope == .posts {
-        postSection(posts: posts)
-      }
-      if viewModel.searchScope == .all || viewModel.searchScope == .taxi {
-        taxiSection(rooms: rooms)
-      }
+      .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
-    .navigationTitle("Search")
     .toolbarTitleDisplayMode(.inlineLarge)
     .onChange(of: viewModel.searchScope) {
       viewModel.state = .loading
@@ -144,6 +159,10 @@ struct SearchView: View {
         viewModel.loadFull()
       }
     }
+  }
+  
+  private var hideScopeBar: Bool {
+    return viewModel.searchText.isEmpty
   }
 }
 

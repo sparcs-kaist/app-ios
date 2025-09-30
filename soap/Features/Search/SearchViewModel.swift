@@ -92,9 +92,7 @@ class SearchViewModel {
       
       try await taxiLocationUseCase.fetchLocations()
       let matchedLocations = taxiLocationUseCase.queryLocation(searchText)
-      
-      logger.debug("[SearchViewModel] matchedLocations: \(matchedLocations)")
-      
+            
       for location in matchedLocations {
         self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.source.id == location.id && !self.taxiRooms.contains($0) })
         self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.destination.id == location.id && !self.taxiRooms.contains($0) })
