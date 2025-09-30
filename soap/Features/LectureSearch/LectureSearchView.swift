@@ -75,7 +75,7 @@ struct LectureSearchView: View {
           }
         }
       }
-      .navigationTitle("Add to \"My Table\"")
+      .navigationTitle("Add to \"\(timetableViewModel.selectedTimetableDisplayName)\"")
       .navigationBarTitleDisplayMode(.inline)
       .searchable(text: $viewModel.searchKeyword, prompt: Text("Search courses, codes or professors."))
       .onAppear {
