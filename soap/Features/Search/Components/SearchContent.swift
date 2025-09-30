@@ -26,7 +26,7 @@ struct SearchContent<Element: Identifiable, Cell: View>: View {
           if index != results.count - 1 { Divider() }
         }
         .onAppear {
-          let thresholdIndex = Int(Double(results.count) * 0.6)
+          let thresholdIndex = Int(Double(results.count) * Constants.loadMoreThreshold)
           if index >= thresholdIndex {
             Task {
               isLoadingMore = true

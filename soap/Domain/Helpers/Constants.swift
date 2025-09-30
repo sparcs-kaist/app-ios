@@ -11,6 +11,9 @@ enum Constants {
   // MARK: Authorisation
   static let authorisationURL = URL(string: "https://taxi.dev.sparcs.org/api/auth/sparcsapp/login")
 
+  // MARK: Infinite Scroll Constants
+  static let loadMoreThreshold = 0.6
+  
   // MARK: Taxi
   static let taxiBackendURL = URL(string: "https://taxi.dev.sparcs.org/api")!
   static let taxiSocketURL = URL(string: "https://taxi.dev.sparcs.org/")!
