@@ -45,6 +45,7 @@ class SearchViewModel {
   @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol
   @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
+  @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol
   
   func bind() {
     cancellables.removeAll()
@@ -99,14 +100,13 @@ class SearchViewModel {
       }
       
       self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.title.contains(searchText) && !self.taxiRooms.contains($0) })
+      self.courses = try await otlCourseRepository.searchCourse(name: searchText, offset: 0, limit: 150)
       
       let posts = Array(self.posts.prefix(self.posts.count > 3 ? 3 : self.posts.count))
       let rooms = Array(self.taxiRooms.prefix(self.taxiRooms.count > 3 ? 3 : self.taxiRooms.count))
-      
-      // TODO: OTL API CALL
-      self.courses = Course.mockList
-      
-      self.state = .loaded(courses: self.courses, posts: posts, taxiRooms: rooms)
+      let courses = Array(self.courses.prefix(self.courses.count > 3 ? 3 : self.courses.count))
+
+      self.state = .loaded(courses: courses, posts: posts, taxiRooms: rooms)
     } catch {
       state = .error(message: error.localizedDescription)
       logger.error(error)

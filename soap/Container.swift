@@ -138,6 +138,12 @@ extension Container {
       ]))
     }
   }
+  
+  var otlCourseRepository: Factory<OTLCourseRepositoryProtocol> {
+    self {
+      OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>())
+    }
+  }
 
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
