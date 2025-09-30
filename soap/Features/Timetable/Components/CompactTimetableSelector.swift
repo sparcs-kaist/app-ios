@@ -48,9 +48,17 @@ struct CompactTimetableSelector: View {
       }
 
       Divider()
-      Button("Delete", systemImage: "trash", role: .destructive) { }
-        .tint(nil)
-        .disabled(!timetableViewModel.isEditable)
+      Button("Delete", systemImage: "trash", role: .destructive) {
+        Task {
+          do {
+            try await timetableViewModel.deleteTable()
+          } catch {
+            // TODO: Handle error
+          }
+        }
+      }
+      .tint(nil)
+      .disabled(!timetableViewModel.isEditable)
     }, label: {
       HStack(spacing: 16) {
         Text(timetableViewModel.selectedTimetableDisplayName)

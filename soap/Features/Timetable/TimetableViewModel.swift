@@ -44,11 +44,7 @@ final class TimetableViewModel {
   var candidateLecture: Lecture? = nil
 
   var isEditable: Bool {
-    if let selectedTimetable = selectedTimetable {
-      return selectedTimetable.id.contains("myTable") ? false : true
-    }
-
-    return false
+    return timetableUseCase.isEditable
   }
 
   // MARK: - Dependencies
@@ -93,6 +89,10 @@ final class TimetableViewModel {
 
   func createTable() async throws {
     try await timetableUseCase.createTable()
+  }
+
+  func deleteTable() async throws {
+    try await timetableUseCase.deleteTable()
   }
 }
 

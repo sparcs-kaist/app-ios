@@ -28,8 +28,11 @@ protocol TimetableUseCaseProtocol: Observable {
   var timetableIDsForSelectedSemester: [String] { get }
   var selectedTimetableDisplayName: String { get }
 
+  var isEditable: Bool { get }
+
   func load() async throws
   func createTable() async throws
+  func deleteTable() async throws
 }
 
 @Observable
@@ -101,6 +104,14 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
     }
   }
 
+  var isEditable: Bool {
+    if let selectedTimetable = selectedTimetable {
+      return selectedTimetable.id.contains("myTable") ? false : true
+    }
+
+    return false
+  }
+
   // MARK: - API
   func load() async throws {
     // Avoid re-loading if already populated
@@ -161,6 +172,26 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
 
     // Select the newly created table
     selectedTimetableID = newTable.id
+  }
+
+  func deleteTable() async throws {
+    guard isEditable,
+          let sid = selectedSemesterID,
+          let tid = selectedTimetableID,
+          let user = await userUseCase.otlUser,
+          let timetableID = Int(tid)
+    else { return }
+
+    // Delete on server
+    try await otlTimetableRepository.deleteTable(userID: user.id, timetableID: timetableID)
+
+    // Update local store
+    var tables = store[sid] ?? []
+    tables.removeAll { $0.id == tid }
+    store[sid] = tables
+
+    // Select the last timetable if available
+    selectedTimetableID = tables.last?.id
   }
 
   // MARK: - Helpers
