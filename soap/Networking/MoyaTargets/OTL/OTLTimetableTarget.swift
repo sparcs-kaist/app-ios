@@ -11,6 +11,7 @@ import Moya
 enum OTLTimetableTarget {
   case fetchTables(userID: Int, year: Int, semester: Int)
   case createTable(userID: Int, year: Int, semester: Int)
+  case deleteTable(userID: Int, timetableID: Int)
   case fetchSemesters
   case fetchCurrentSemester
 }
@@ -26,6 +27,8 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
       "/api/users/\(userID)/timetables"
     case .createTable(let userID, _, _):
       "/api/users/\(userID)/timetables"
+    case .deleteTable(let userID, let timetableID):
+      "/api/users/\(userID)/timetables/\(timetableID)"
     case .fetchSemesters:
       "/api/semesters"
     case .fetchCurrentSemester:
@@ -39,6 +42,8 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
         .get
     case .createTable:
         .post
+    case .deleteTable:
+        .delete
     }
   }
 
@@ -56,9 +61,7 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
           "semester": semester,
           "lectures": []
         ], encoding: JSONEncoding.default)
-    case .fetchSemesters:
-        .requestPlain
-    case .fetchCurrentSemester:
+    case .fetchSemesters, .fetchCurrentSemester, .deleteTable:
         .requestPlain
     }
   }

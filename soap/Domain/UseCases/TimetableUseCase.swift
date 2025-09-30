@@ -161,9 +161,6 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
 
     // Select the newly created table
     selectedTimetableID = newTable.id
-#if DEBUG
-    print("Added table \(newTable.id) to semester \(sid). Total: \(merged.count)")
-#endif
   }
 
   // MARK: - Helpers
@@ -203,9 +200,6 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
         selectedTimetableID = "\(sid)-myTable"
       }
     } catch {
-#if DEBUG
-      print("Failed to refresh tables for semester \(sid): \(error)")
-#endif
     }
   }
 

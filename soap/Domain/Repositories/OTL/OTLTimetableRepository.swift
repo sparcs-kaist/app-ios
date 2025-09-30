@@ -13,6 +13,7 @@ import Moya
 protocol OTLTimetableRepositoryProtocol: Sendable {
   func getTables(userID: Int, year: Int, semester: SemesterType) async throws -> [Timetable]
   func createTable(userID: Int, year: Int, semester: SemesterType) async throws -> Timetable
+  func deleteTable(userID: Int, timetableID: Int) async throws
   func getSemesters() async throws -> [Semester]
   func getCurrentSemester() async throws -> Semester
 }
@@ -38,6 +39,13 @@ final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Sendable {
     let result = try response.map(TimetableDTO.self).toModel()
 
     return result
+  }
+
+  func deleteTable(userID: Int, timetableID: Int) async throws {
+    let response = try await self.provider.request(
+      .deleteTable(userID: userID, timetableID: timetableID)
+    )
+    _ = try response.filterSuccessfulStatusCodes()
   }
 
   func getSemesters() async throws -> [Semester] {
