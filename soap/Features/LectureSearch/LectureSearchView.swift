@@ -11,16 +11,15 @@ struct LectureSearchView: View {
   @Binding var detent: PresentationDetent
 
   @Environment(TimetableViewModel.self) private var timetableViewModel: TimetableViewModel
-  @State private var searchText: String = ""
-  @State private var isFiltered: Bool = false
+  @State private var viewModel = LectureSearchViewModel()
 
   var body: some View {
-    let groupedByCourse = Dictionary(grouping: Lecture.mockList, by: { $0.course })
+    let groupedByCourse = Dictionary(grouping: viewModel.lectures, by: { $0.course })
     // Preserve the order of first appearance from the original list
     let orderedCourses: [Int] = {
       var seen = Set<Int>()
       var result: [Int] = []
-      for lecture in Lecture.mockList {
+      for lecture in viewModel.lectures {
         if seen.insert(lecture.course).inserted {
           result.append(lecture.course)
         }
@@ -78,7 +77,10 @@ struct LectureSearchView: View {
       }
       .navigationTitle("Add to \"My Table\"")
       .navigationBarTitleDisplayMode(.inline)
-      .searchable(text: $searchText, prompt: Text("Search courses, codes or professors"))
+      .searchable(text: $viewModel.searchKeyword, prompt: Text("Search courses, codes or professors."))
+      .onAppear {
+        viewModel.bind()
+      }
     }
   }
 }

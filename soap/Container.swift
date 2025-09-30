@@ -131,6 +131,14 @@ extension Container {
     }
   }
 
+  var otlLectureRepository: Factory<OTLLectureRepositoryProtocol> {
+    self {
+      OTLLectureRepository(provider: MoyaProvider<OTLLectureTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
