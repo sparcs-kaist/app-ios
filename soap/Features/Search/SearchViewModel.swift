@@ -94,12 +94,19 @@ class SearchViewModel {
       try await taxiLocationUseCase.fetchLocations()
       let matchedLocations = taxiLocationUseCase.queryLocation(searchText)
             
-      for location in matchedLocations {
-        self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.source.id == location.id && !self.taxiRooms.contains($0) })
-        self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.destination.id == location.id && !self.taxiRooms.contains($0) })
+      var added: Set<TaxiRoom> = []
+      
+      for room in fetchedRooms {
+        for location in matchedLocations {
+          if (room.source.id == location.id || room.destination.id == location.id) && added.insert(room).inserted {
+            self.taxiRooms.append(room)
+          }
+        }
+        if room.title.lowercased().contains(searchText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)) && added.insert(room).inserted {
+          self.taxiRooms.append(room)
+        }
       }
       
-      self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.title.contains(searchText) && !self.taxiRooms.contains($0) })
       self.courses = try await otlCourseRepository.searchCourse(name: searchText, offset: 0, limit: 150)
       
       let posts = Array(self.posts.prefix(self.posts.count > 3 ? 3 : self.posts.count))
