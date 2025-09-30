@@ -10,6 +10,7 @@ import Moya
 
 enum OTLCourseTarget{
   case searchCourse(name: String, offset: Int, limit: Int)
+  case getCourseReview(courseId: Int, offset: Int, limit: Int)
 }
 
 extension OTLCourseTarget: TargetType {
@@ -21,12 +22,14 @@ extension OTLCourseTarget: TargetType {
     switch self {
     case .searchCourse:
       "/api/courses"
+    case .getCourseReview(let courseId, _, _):
+      "/api/courses/\(courseId)/reviews"
     }
   }
   
   var method: Moya.Method {
     switch self {
-    case .searchCourse:
+    case .searchCourse, .getCourseReview:
       .get
     }
   }
@@ -35,6 +38,8 @@ extension OTLCourseTarget: TargetType {
     switch self {
     case .searchCourse(let name, let offset, let limit):
       .requestParameters(parameters: ["keyword": name, "offset": offset, "limit": limit], encoding: URLEncoding.default)
+    case .getCourseReview(_, let offset, let limit):
+      .requestParameters(parameters: ["offset": offset, "limit": limit], encoding: URLEncoding.default)
     }
   }
   

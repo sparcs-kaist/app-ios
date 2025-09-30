@@ -47,42 +47,39 @@ struct SearchView: View {
         }
         .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
+      .overlay {
+        VStack {
+          Picker("Search Scope", selection: $viewModel.searchScope) {
+            ForEach(SearchScope.allCases) { scope in
+              Text(scope.rawValue).tag(scope)
+            }
+          }
+          .pickerStyle(.segmented)
+          .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
+          .padding(.horizontal)
+          Spacer()
+        }
+        .opacity(hideScopeBar ? 0 : 1)
+        .disabled(hideScopeBar)
+      }
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search"))
     .searchFocused($isFocused)
     .task {
       viewModel.bind()
     }
-    .overlay {
-      VStack {
-        Picker("Search Scope", selection: $viewModel.searchScope) {
-          ForEach(SearchScope.allCases) { scope in
-            Text(scope.rawValue).tag(scope)
-          }
-        }
-        .pickerStyle(.segmented)
-        .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
-        .padding(.horizontal)
-        Spacer()
-      }
-      .opacity(hideScopeBar ? 0 : 1)
-      .disabled(hideScopeBar)
-    }
   }
   
   private func courseSection(courses: [Course]) -> some View {
     SearchSection(title: "Courses", searchScope: $viewModel.searchScope, targetScope: .courses) {
       SearchContent(results: courses) { course in
-        CourseCell(course: course)
-          .onTapGesture {
-            selectedCourse = course
-          }
+        NavigationLink {
+          CourseView(course: course)
+        } label: {
+          CourseCell(course: course)
+        }
+        .foregroundStyle(.primary)
       }
-    }
-    .sheet(item: $selectedCourse) {
-      CourseSheet(sheetDetent: $courseSheetDetent, course: $0)
-        .presentationDetents([.height(200), .large], selection: $courseSheetDetent)
-        .presentationDragIndicator(.visible)
     }
   }
   

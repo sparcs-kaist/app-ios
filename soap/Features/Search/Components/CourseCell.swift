@@ -14,23 +14,29 @@ struct CourseCell: View {
     VStack(alignment: .leading) {
       HStack(alignment: .top) {
         Text(course.title.localized())
+          .lineLimit(2)
+          .multilineTextAlignment(.leading)
           .font(.callout)
           .fontWeight(.bold)
+          .frame(width: 200, alignment: .leading)
         Spacer()
         VStack(alignment: .trailing) {
           Text(course.code)
           Text(course.type.localized())
         }
+        .lineLimit(1)
         .font(.subheadline)
         .foregroundStyle(.secondary)
+        .frame(width: 170, alignment: .trailing)
       }
       if course.summary != "" {
         Spacer()
           .frame(height: 16)
         Text(course.summary)
+          .lineLimit(3)
+          .multilineTextAlignment(.leading)
           .font(.footnote)
           .foregroundStyle(.secondary)
-          .lineLimit(3)
       }
     }
     .padding()

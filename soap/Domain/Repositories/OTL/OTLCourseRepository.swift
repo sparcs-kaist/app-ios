@@ -12,6 +12,7 @@ import Moya
 
 protocol OTLCourseRepositoryProtocol: Sendable {
   func searchCourse(name: String, offset: Int, limit: Int) async throws -> [Course]
+  func getCourseReview(courseId: Int, offset: Int, limit: Int) async throws -> [CourseReview]
 }
 
 final class OTLCourseRepository: OTLCourseRepositoryProtocol, Sendable {
@@ -26,6 +27,15 @@ final class OTLCourseRepository: OTLCourseRepositoryProtocol, Sendable {
       .searchCourse(name: name, offset: offset, limit: limit)
     )
     let result = try response.map([CourseDTO].self).compactMap { $0.toModel() }
+    
+    return result
+  }
+  
+  func getCourseReview(courseId: Int, offset: Int, limit: Int) async throws -> [CourseReview] {
+    let response = try await self.provider.request(
+      .getCourseReview(courseId: courseId, offset: offset, limit: limit)
+    )
+    let result = try response.map([CourseReviewDTO].self).compactMap { $0.toModel() }
     
     return result
   }
