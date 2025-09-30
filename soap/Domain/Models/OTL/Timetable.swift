@@ -132,4 +132,20 @@ extension Timetable {
       .map { $0.credit + $0.creditAu }
       .reduce(0, +)
   }
+
+  func hasCollision(with newLecture: Lecture) -> Bool {
+    for existingLecture in lectures {
+      for existingTime in existingLecture.classTimes {
+        for newTime in newLecture.classTimes {
+          if existingTime.day == newTime.day {
+            // Overlap occurs if start < other.end && end > other.start
+            if newTime.begin < existingTime.end && newTime.end > existingTime.begin {
+              return true
+            }
+          }
+        }
+      }
+    }
+    return false
+  }
 }

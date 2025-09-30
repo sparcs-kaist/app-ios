@@ -50,15 +50,15 @@ struct LectureSearchView: View {
               NavigationLink(destination: {
                 LectureDetailView(lecture: lecture, onAdd: {
                   
-                })
-                  .onAppear {
-                    timetableViewModel.candidateLecture = lecture
-                    detent = .height(130)
-                  }
-                  .onDisappear {
-                    timetableViewModel.candidateLecture = nil
-                    detent = .large
-                  }
+                }, isOverlapping: timetableViewModel.isCandidateOverlapping)
+                .onAppear {
+                  timetableViewModel.candidateLecture = lecture
+                  detent = .height(130)
+                }
+                .onDisappear {
+                  timetableViewModel.candidateLecture = nil
+                  detent = .large
+                }
               }, label: {
                 HStack {
                   Text(lecture.section ?? "A")

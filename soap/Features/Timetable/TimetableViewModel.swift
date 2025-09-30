@@ -42,6 +42,12 @@ final class TimetableViewModel {
   }
 
   var candidateLecture: Lecture? = nil
+  var isCandidateOverlapping: Bool {
+    guard let timetable = timetableUseCase.selectedTimetable,
+          let candidateLecture = candidateLecture else { return false }
+
+    return timetable.hasCollision(with: candidateLecture)
+  }
 
   var isEditable: Bool {
     return timetableUseCase.isEditable
