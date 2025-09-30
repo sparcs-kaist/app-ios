@@ -10,6 +10,7 @@ import SwiftUI
 struct TimetableGridCell: View {
   let lecture: Lecture
   let isCandidate: Bool
+  let onDeletion: (() -> Void)?
 
   var body: some View {
     GeometryReader { geometry in
@@ -37,7 +38,7 @@ struct TimetableGridCell: View {
       )
       .contextMenu {
         Button("Remove from Table", systemImage: "trash", role: .destructive) {
-
+          onDeletion?()
         }
       }
     }
@@ -45,17 +46,17 @@ struct TimetableGridCell: View {
 }
 
 #Preview(traits: .fixedLayout(width: 88, height: 105)) {
-  TimetableGridCell(lecture: Lecture.mockList[0], isCandidate: false)
+  TimetableGridCell(lecture: Lecture.mockList[0], isCandidate: false, onDeletion: nil)
 }
 
 #Preview(traits: .fixedLayout(width: 88, height: 105)) {
-  TimetableGridCell(lecture: Lecture.mockList[1], isCandidate: false)
+  TimetableGridCell(lecture: Lecture.mockList[1], isCandidate: false, onDeletion: nil)
 }
 
 #Preview(traits: .fixedLayout(width: 88, height: 105)) {
-  TimetableGridCell(lecture: Lecture.mockList[2], isCandidate: false)
+  TimetableGridCell(lecture: Lecture.mockList[2], isCandidate: false, onDeletion: nil)
 }
 
 #Preview(traits: .fixedLayout(width: 88, height: 105)) {
-  TimetableGridCell(lecture: Lecture.mockList[3], isCandidate: false)
+  TimetableGridCell(lecture: Lecture.mockList[3], isCandidate: false, onDeletion: nil)
 }

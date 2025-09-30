@@ -21,24 +21,47 @@ struct CompactTimetableSelector: View {
       }
     }
     .frame(height: 30)
-    .task {
-      await timetableViewModel.fetchData()
-    }
   }
 
   var tableSelector: some View {
     Menu(content: {
-      Button("My Table", systemImage: "checkmark") { }
+      ForEach(timetableViewModel.timetableIDsForSelectedSemester.enumerated(), id: \.element) { offset, id in
+        if id.contains("myTable") {
+          Button("My Table", systemImage: id == timetableViewModel.selectedTimetable?.id ? "checkmark" : "") {
+            timetableViewModel.selectTimetable(id: id)
+          }
+        } else {
+          Button("Table \(offset)", systemImage: id == timetableViewModel.selectedTimetable?.id ? "checkmark" : "") {
+            timetableViewModel.selectTimetable(id: id)
+          }
+        }
+      }
 
-      Button("New Table", systemImage: "plus") { }
+      Button("New Table", systemImage: "plus") {
+        Task {
+          do {
+            try await timetableViewModel.createTable()
+          } catch {
+            // TODO: Handle error
+          }
+        }
+      }
 
       Divider()
-      Button("Delete", systemImage: "trash", role: .destructive) { }
-        .tint(nil)
-        .disabled(true)
+      Button("Delete", systemImage: "trash", role: .destructive) {
+        Task {
+          do {
+            try await timetableViewModel.deleteTable()
+          } catch {
+            // TODO: Handle error
+          }
+        }
+      }
+      .tint(nil)
+      .disabled(!timetableViewModel.isEditable)
     }, label: {
       HStack(spacing: 16) {
-        Text("My Table")
+        Text(timetableViewModel.selectedTimetableDisplayName)
           .fontWeight(.semibold)
 
         Image(systemName: "ellipsis")

@@ -123,6 +123,22 @@ extension Container {
     }
   }
 
+  var otlTimetableRepository: Factory<OTLTimetableRepositoryProtocol> {
+    self {
+      OTLTimetableRepository(provider: MoyaProvider<OTLTimetableTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  var otlLectureRepository: Factory<OTLLectureRepositoryProtocol> {
+    self {
+      OTLLectureRepository(provider: MoyaProvider<OTLLectureTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -187,7 +203,10 @@ extension Container {
   @MainActor
   var timetableUseCase: Factory<TimetableUseCaseProtocol> {
     self {
-      @MainActor in TimetableUseCase(userUseCase: self.userUseCase.resolve())
+      @MainActor in TimetableUseCase(
+        userUseCase: self.userUseCase.resolve(),
+        otlTimetableRepository: self.otlTimetableRepository.resolve()
+      )
     }.singleton
   }
 }

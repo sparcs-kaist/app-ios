@@ -33,7 +33,25 @@ final class TimetableViewModel {
     return timetableUseCase.selectedTimetable
   }
 
+  var timetableIDsForSelectedSemester: [String] {
+    timetableUseCase.timetableIDsForSelectedSemester
+  }
+
+  var selectedTimetableDisplayName: String {
+    timetableUseCase.selectedTimetableDisplayName
+  }
+
   var candidateLecture: Lecture? = nil
+  var isCandidateOverlapping: Bool {
+    guard let timetable = timetableUseCase.selectedTimetable,
+          let candidateLecture = candidateLecture else { return false }
+
+    return timetable.hasCollision(with: candidateLecture)
+  }
+
+  var isEditable: Bool {
+    return timetableUseCase.isEditable
+  }
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -69,6 +87,26 @@ final class TimetableViewModel {
       return
     }
     timetableUseCase.selectedSemesterID = timetableUseCase.semesters[currentIndex + 1].id
+  }
+
+  func selectTimetable(id: String) {
+    timetableUseCase.selectedTimetableID = id
+  }
+
+  func createTable() async throws {
+    try await timetableUseCase.createTable()
+  }
+
+  func deleteTable() async throws {
+    try await timetableUseCase.deleteTable()
+  }
+
+  func addLecture(lecture: Lecture) async throws {
+    try await timetableUseCase.addLecture(lecture: lecture)
+  }
+
+  func deleteLecture(lecture: Lecture) async throws {
+    try await timetableUseCase.deleteLecture(lecture: lecture)
   }
 }
 

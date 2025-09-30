@@ -10,6 +10,7 @@ import SwiftUI
 struct LectureDetailView: View {
   let lecture: Lecture
   let onAdd: (() -> Void)?
+  let isOverlapping: Bool
 
   @Environment(\.dismiss) private var dismiss
 
@@ -36,6 +37,7 @@ struct LectureDetailView: View {
             dismiss()
             onAdd?()
           }
+          .disabled(isOverlapping)
         }
       }
     }
@@ -354,5 +356,5 @@ struct LectureDetailView: View {
 }
 
 #Preview {
-  LectureDetailView(lecture: Lecture.mock, onAdd: nil)
+  LectureDetailView(lecture: Lecture.mock, onAdd: nil, isOverlapping: false)
 }
