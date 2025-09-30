@@ -23,7 +23,7 @@ struct SearchContent<Element: Identifiable, Cell: View>: View {
       ForEach(Array(results.enumerated()), id: \.element.id) { index, data in
         Group {
           cell(data)
-          Divider()
+          if index != results.count - 1 { Divider() }
         }
         .onAppear {
           let thresholdIndex = Int(Double(results.count) * 0.6)

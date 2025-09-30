@@ -17,7 +17,7 @@ struct LectureDetailView: View {
     ScrollView {
       LazyVStack(spacing: 20) {
         // Lecture Summary
-        lectureSummary
+        LectureSummary(lecture: lecture)
 
         // Lecture Information
         lectureInformation
@@ -51,11 +51,11 @@ struct LectureDetailView: View {
       }
 
       HStack {
-        lectureSummaryRow(title: "Grade", description: lecture.gradeLetter)
+        LectureSummaryRow(title: "Grade", description: lecture.gradeLetter)
         Spacer()
-        lectureSummaryRow(title: "Load", description: lecture.loadLetter)
+        LectureSummaryRow(title: "Load", description: lecture.loadLetter)
         Spacer()
-        lectureSummaryRow(title: "Speech", description: lecture.speechLetter)
+        LectureSummaryRow(title: "Speech", description: lecture.speechLetter)
         Spacer()
 
         Button(action: { }, label: {
@@ -253,19 +253,19 @@ struct LectureDetailView: View {
         Spacer()
       }
 
-      lectureDetailRow(title: "Code", description: lecture.code)
-      lectureDetailRow(title: "Type", description: lecture.typeDetail.localized())
-      lectureDetailRow(title: "Department", description: lecture.department.name.localized())
-      lectureDetailRow(
+      LectureDetailRow(title: "Code", description: lecture.code)
+      LectureDetailRow(title: "Type", description: lecture.typeDetail.localized())
+      LectureDetailRow(title: "Department", description: lecture.department.name.localized())
+      LectureDetailRow(
         title: "Professor",
         description: lecture.professors.isEmpty ? "Unknown" : lecture.professors.map { $0.name.localized() }.joined(separator: "\n")
       )
-      lectureDetailRow(
+      LectureDetailRow(
         title: "Classroom",
         description: lecture.classTimes.first?.classroomNameShort.localized() ?? "Unknown"
       )
-      lectureDetailRow(title: "Capacity", description: String(lecture.capacity))
-      lectureDetailRow(
+      LectureDetailRow(title: "Capacity", description: String(lecture.capacity))
+      LectureDetailRow(
         title: "Exams",
         description: lecture.examTimes.isEmpty ? "Unknown" : lecture.examTimes
           .map { $0.description.localized() }
@@ -295,61 +295,6 @@ struct LectureDetailView: View {
       .padding(.vertical, 4)
       Divider()
     }
-  }
-
-  var lectureSummary: some View {
-    HStack {
-      Spacer()
-      lectureSummaryRow(title: "Language", description: lecture.isEnglish ? "EN" : "한")
-      Spacer()
-      lectureSummaryRow(
-        title: "Credits",
-        description: String(lecture.credit + lecture.creditAu)
-      )
-      Spacer()
-      lectureSummaryRow(
-        title: "Competition",
-        description: (lecture.capacity == 0 || lecture.numberOfPeople == 0)
-        ?
-        "0.0:1"
-        :
-          String(
-            format: "%.1f",
-            Float(lecture.numberOfPeople) / Float(lecture.capacity)
-          ) + ":1"
-      )
-      Spacer()
-    }
-  }
-
-  func lectureSummaryRow(title: String, description: String) -> some View {
-    VStack(spacing: 8) {
-      Text(title)
-        .foregroundStyle(.tertiary)
-        .font(.caption2)
-        .fontWeight(.medium)
-        .textCase(.uppercase)
-
-      Text(description)
-        .foregroundStyle(.secondary)
-        .fontDesign(.rounded)
-        .fontWeight(.semibold)
-    }
-  }
-
-  @ViewBuilder
-  func lectureDetailRow(title: String, description: String) -> some View {
-    HStack {
-      Text(title)
-        .foregroundStyle(.secondary)
-        .font(.callout)
-      Spacer()
-      Text(description)
-        .font(.callout)
-        .multilineTextAlignment(.trailing)
-    }
-    .padding(.vertical, 4)
-    Divider()
   }
 }
 

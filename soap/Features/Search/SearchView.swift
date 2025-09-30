@@ -10,6 +10,8 @@ import SwiftUI
 struct SearchView: View {
   @State private var viewModel = SearchViewModel()
   @State private var selectedRoom: TaxiRoom? = nil
+  @State private var selectedCourse: Course? = nil
+  @State private var courseSheetDetent: PresentationDetent = .height(200)
   @FocusState private var isFocused
 
   var body: some View {
@@ -58,9 +60,17 @@ struct SearchView: View {
   
   private func courseSection(courses: [Course]) -> some View {
     SearchSection(title: "Courses", searchScope: $viewModel.searchScope, targetScope: .courses) {
-      SearchContent(results: courses) {
-        CourseCell(course: $0)
+      SearchContent(results: courses) { course in
+        CourseCell(course: course)
+          .onTapGesture {
+            selectedCourse = course
+          }
       }
+    }
+    .sheet(item: $selectedCourse) {
+      CourseSheet(sheetDetent: $courseSheetDetent, course: $0)
+        .presentationDetents([.height(200), .large], selection: $courseSheetDetent)
+        .presentationDragIndicator(.visible)
     }
   }
   
