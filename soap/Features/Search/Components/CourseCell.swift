@@ -30,6 +30,7 @@ struct CourseCell: View {
         Text(course.summary)
           .font(.footnote)
           .foregroundStyle(.secondary)
+          .lineLimit(3)
       }
     }
     .padding()
