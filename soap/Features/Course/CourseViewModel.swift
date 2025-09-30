@@ -20,6 +20,7 @@ class CourseViewModel {
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol
+  @ObservationIgnored @Injected(\.foundationModelsUseCase) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
   
   // MARK: - Properties
   var reviews: [CourseReview] = []
@@ -35,6 +36,14 @@ class CourseViewModel {
       logger.error(error)
       self.state = .error(message: error.localizedDescription)
     }
+  }
+  
+  var foundationModelsAvailable: Bool {
+    foundationModelsUseCase.isAvailable
+  }
+  
+  func summarise(_ text: String) async -> String {
+    await foundationModelsUseCase.summarise(text, maxWords: 50, tone: "concise")
   }
   
   func likeReview(reviewId: Int) async throws {

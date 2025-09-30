@@ -7,9 +7,16 @@
 
 import SwiftUI
 
+@preconcurrency
+import Translation
+
 struct ReviewCell: View {
   @Binding var review: CourseReview
   @Environment(CourseViewModel.self) private var viewModel: CourseViewModel
+  @State private var summarisedContent: String? = nil
+  @State private var isTranslating: Bool = false
+  @State private var translatedContent: String? = nil
+  @State private var configuration: TranslationSession.Configuration?
   
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
@@ -31,8 +38,17 @@ struct ReviewCell: View {
         Spacer()
         
         Menu {
-          Button("Translate", systemImage: "translate") { }
-          Button("Summarise", systemImage: "text.append") { }
+          Button("Translate", systemImage: "translate") {
+            triggerTranslation()
+          }
+          if viewModel.foundationModelsAvailable {
+            Button("Summarise", systemImage: "text.append") {
+              summarisedContent = ""
+              Task {
+                summarisedContent = await viewModel.summarise(review.content)
+              }
+            }.disabled(summarisedContent != nil)
+          }
           Divider()
           Button("Report", systemImage: "exclamationmark.triangle.fill") { }
         } label: {
@@ -43,8 +59,25 @@ struct ReviewCell: View {
         .labelStyle(.iconOnly)
       }
       
-      Text(review.content)
-        .truncationMode(.head)
+      if let summarisedContent {
+        SummarisationView(text: summarisedContent)
+          .padding(.bottom)
+          .transition(.asymmetric(
+            insertion: .offset(y: -10).combined(with: .opacity),
+            removal: .opacity
+          ))
+      }
+      
+      Group {
+        if let translatedContent, !isTranslating {
+          Text(translatedContent)
+        }
+        else {
+          Text(review.content)
+            .redacted(reason: isTranslating ? [.placeholder] : [])
+        }
+      }
+      .truncationMode(.head)
       
       HStack(alignment: .bottom) {
         HStack(spacing: 4) {
@@ -105,6 +138,18 @@ struct ReviewCell: View {
     .background(.white)
     .clipShape(.rect(cornerRadius: 26))
     .shadow(color: .black.opacity(0.1), radius: 8)
+    .translationTask(configuration) { session in
+      isTranslating = true
+      defer { isTranslating = false }
+      
+      do {
+        let response = try await session.translate(review.content)
+        
+        translatedContent = response.targetText
+      } catch {
+        
+      }
+    }
   }
   
   private func toggleLike() async {
@@ -125,5 +170,14 @@ struct ReviewCell: View {
       review.isLiked = prevLiked
       review.like = prevLikeCount
     }
+  }
+  
+  private func triggerTranslation() {
+    if configuration != nil {
+      configuration?.invalidate()
+      return
+    }
+    
+    configuration = .init()
   }
 }
