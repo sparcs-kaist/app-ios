@@ -48,9 +48,13 @@ struct LectureSearchView: View {
             }
             ForEach(groupedByCourse[course] ?? []) { lecture in
               NavigationLink(destination: {
-                LectureDetailView(lecture: lecture, onAdd: {
-                  
-                }, isOverlapping: timetableViewModel.isCandidateOverlapping)
+                LectureDetailView(
+                  lecture: lecture,
+                  onAdd: {
+
+                  },
+                  isOverlapping: timetableViewModel.isCandidateOverlapping
+                )
                 .onAppear {
                   timetableViewModel.candidateLecture = lecture
                   detent = .height(130)
