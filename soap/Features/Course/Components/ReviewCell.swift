@@ -188,7 +188,7 @@ struct ReviewCell: View {
   }
   
   private func triggerTranslation() {
-    if configuration != nil {
+    guard configuration == nil else {
       configuration?.invalidate()
       return
     }

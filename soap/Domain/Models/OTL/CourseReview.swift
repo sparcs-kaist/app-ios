@@ -32,13 +32,13 @@ extension CourseReview {
 
   // Letter grade for the load
   var loadLetter: String {
-    if grade > CourseReview.letters.count { return "?" }
+    if load > CourseReview.letters.count { return "?" }
     return CourseReview.letters[load]
   }
 
   // Letter grade for the speech
   var speechLetter: String {
-    if grade > CourseReview.letters.count { return "?" }
+    if speech > CourseReview.letters.count { return "?" }
     return CourseReview.letters[speech]
   }
 }
