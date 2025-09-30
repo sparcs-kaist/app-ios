@@ -5,13 +5,6 @@
 //  Created by Soongyu Kwon on 17/09/2025.
 //
 
-//
-//  TimetableUseCase.swift
-//  soap
-//
-//  Created by Soongyu Kwon on 17/09/2025.
-//
-
 import Foundation
 import Observation
 
