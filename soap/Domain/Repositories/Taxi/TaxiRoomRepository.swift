@@ -12,9 +12,7 @@ import Moya
 
 protocol TaxiRoomRepositoryProtocol: Sendable {
   func fetchRooms() async throws -> [TaxiRoom]
-  func fetchRooms(from: String?, to: String?) async throws -> [TaxiRoom]
   func fetchMyRooms() async throws -> (onGoing: [TaxiRoom], done: [TaxiRoom])
-  func searchRooms(name: String) async throws -> [TaxiRoom]
   func fetchLocations() async throws -> [TaxiLocation]
   func createRoom(with: TaxiCreateRoom) async throws -> TaxiRoom
   func joinRoom(id: String) async throws -> TaxiRoom
@@ -33,22 +31,7 @@ final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
   
   func fetchRooms() async throws -> [TaxiRoom] {
     do {
-      let response = try await provider.request(.fetchRooms(from: nil, to: nil))
-      let result = try response.map([TaxiRoomDTO].self)
-        .compactMap { $0.toModel() }
-
-      return result
-    } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
-    } catch {
-      throw error
-    }
-  }
-
-  func fetchRooms(from: String?, to: String?) async throws -> [TaxiRoom] {
-    do {
-      let response = try await provider.request(.fetchRooms(from: from, to: to))
+      let response = try await provider.request(.fetchRooms)
       let result = try response.map([TaxiRoomDTO].self)
         .compactMap { $0.toModel() }
 
@@ -70,21 +53,6 @@ final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
       let doneRooms: [TaxiRoom] = result.done.compactMap { $0.toModel() }
 
       return (onGoing: onGoingRooms, done: doneRooms)
-    } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
-    } catch {
-      throw error
-    }
-  }
-  
-  func searchRooms(name: String) async throws -> [TaxiRoom] {
-    do {
-      let response = try await provider.request(.fetchRoomsByName(name: name))
-      let result = try response.map([TaxiRoomDTO].self)
-        .compactMap { $0.toModel() }
-      
-      return result
     } catch let moyaError as MoyaError {
       let body = try moyaError.response!.map(APIErrorResponse.self)
       throw body

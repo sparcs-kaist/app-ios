@@ -9,8 +9,7 @@ import Foundation
 import Moya
 
 enum TaxiRoomTarget {
-  case fetchRooms(from: String?, to: String?)
-  case fetchRoomsByName(name: String)
+  case fetchRooms
   case fetchMyRooms
   case fetchLocations
   case createRoom(with: TaxiCreateRoomRequestDTO)
@@ -28,7 +27,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var path: String {
     switch self {
-    case .fetchRooms, .fetchRoomsByName:
+    case .fetchRooms:
       "/rooms/search"
     case .fetchMyRooms:
       "/rooms/searchByUser"
@@ -51,7 +50,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var method: Moya.Method {
     switch self {
-    case .fetchRooms, .fetchRoomsByName, .fetchMyRooms, .getRoom, .fetchLocations:
+    case .fetchRooms, .fetchMyRooms, .getRoom, .fetchLocations:
       .get
     case .createRoom, .joinRoom, .leaveRoom, .commitSettlement, .commitPayment:
       .post
@@ -60,32 +59,22 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var task: Moya.Task {
     switch self {
-    case .fetchRooms(let from, let to):
-      var params: [String: Any] = [:]
-      if let from {
-        params["from"] = from
-      }
-      if let to {
-        params["to"] = to
-      }
-      return .requestParameters(
-        parameters: params, encoding: URLEncoding.default)
+    case .fetchRooms:
+      .requestPlain
     case .fetchMyRooms, .fetchLocations:
-      return .requestPlain
-    case .fetchRoomsByName(let name):
-      return .requestParameters(parameters: ["name": name], encoding: URLEncoding.default)
+      .requestPlain
     case .createRoom(let request):
-      return .requestJSONEncodable(request)
+      .requestJSONEncodable(request)
     case .joinRoom(let roomID):
-      return .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .leaveRoom(let roomID):
-      return .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .getRoom(let roomID):
-      return .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
+      .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
     case .commitSettlement(let roomID):
-      return.requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .commitPayment(let roomID):
-      return.requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     }
   }
 
