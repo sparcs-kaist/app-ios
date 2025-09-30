@@ -9,7 +9,7 @@ import Foundation
 import Moya
 
 enum TaxiRoomTarget {
-  case fetchRooms
+  case fetchRooms(from: String?, to: String?)
   case fetchRoomsByName(name: String)
   case fetchMyRooms
   case fetchLocations
@@ -60,22 +60,32 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var task: Moya.Task {
     switch self {
-    case .fetchRooms, .fetchMyRooms, .fetchLocations:
-      .requestPlain
+    case .fetchRooms(let from, let to):
+      var params: [String: Any] = [:]
+      if let from {
+        params["from"] = from
+      }
+      if let to {
+        params["to"] = to
+      }
+      return .requestParameters(
+        parameters: params, encoding: URLEncoding.default)
+    case .fetchMyRooms, .fetchLocations:
+      return .requestPlain
     case .fetchRoomsByName(let name):
-        .requestParameters(parameters: ["name": name], encoding: URLEncoding.default)
+      return .requestParameters(parameters: ["name": name], encoding: URLEncoding.default)
     case .createRoom(let request):
-      .requestJSONEncodable(request)
+      return .requestJSONEncodable(request)
     case .joinRoom(let roomID):
-        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      return .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .leaveRoom(let roomID):
-        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      return .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .getRoom(let roomID):
-        .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
+      return .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
     case .commitSettlement(let roomID):
-        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      return.requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .commitPayment(let roomID):
-        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      return.requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     }
   }
 

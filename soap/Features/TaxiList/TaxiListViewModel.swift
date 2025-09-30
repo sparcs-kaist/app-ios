@@ -42,16 +42,16 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
 
   // MARK: - Dependency
   @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
 
   // MARK: - Functions
   public func fetchData(inviteId: String? = nil) async {
     logger.debug("[TaxiListViewModel] fetching data")
     do {
       let repo = taxiRoomRepository
-      async let roomsTask: [TaxiRoom] = repo.fetchRooms()
-      async let locationsTask: [TaxiLocation] = repo.fetchLocations()
-      (rooms, locations) = try await (roomsTask, locationsTask)
-      
+      self.rooms = try await repo.fetchRooms()
+      try await taxiLocationUseCase.fetchLocations()
+      self.locations = taxiLocationUseCase.locations
       if let inviteId = inviteId {
         logger.debug("[TaxiListViewModel] invitation id: \(inviteId)")
         invitedRoom = rooms.first(where: { $0.id == inviteId })
@@ -59,11 +59,11 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
 
       withAnimation(.spring) {
         if rooms.isEmpty {
-          state = .empty(locations: locations)
+          state = .empty(locations: taxiLocationUseCase.locations)
           return
         }
 
-        state = .loaded(rooms: rooms, locations: locations)
+        state = .loaded(rooms: rooms, locations: taxiLocationUseCase.locations)
       }
     } catch {
       logger.error("[TaxiListViewModel] fetch data failed: \(error.localizedDescription)")

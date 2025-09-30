@@ -44,6 +44,7 @@ class SearchViewModel {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol
   @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
   
   func bind() {
     cancellables.removeAll()
@@ -86,7 +87,20 @@ class SearchViewModel {
       self.currentPage = postPage.currentPage
       self.posts = postPage.results
       self.hasMorePages = currentPage < totalPages
-      self.taxiRooms = try await taxiRoomRepository.searchRooms(name: searchText)
+      self.taxiRooms = []
+      let fetchedRooms = try await taxiRoomRepository.fetchRooms()
+      
+      try await taxiLocationUseCase.fetchLocations()
+      let matchedLocations = taxiLocationUseCase.queryLocation(searchText)
+      
+      logger.debug("[SearchViewModel] matchedLocations: \(matchedLocations)")
+      
+      for location in matchedLocations {
+        self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.source.id == location.id && !self.taxiRooms.contains($0) })
+        self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.destination.id == location.id && !self.taxiRooms.contains($0) })
+      }
+      
+      self.taxiRooms.append(contentsOf: fetchedRooms.filter { $0.title.contains(searchText) && !self.taxiRooms.contains($0) })
       
       let posts = Array(self.posts.prefix(self.posts.count > 3 ? 3 : self.posts.count))
       let rooms = Array(self.taxiRooms.prefix(self.taxiRooms.count > 3 ? 3 : self.taxiRooms.count))

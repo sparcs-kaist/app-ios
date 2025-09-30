@@ -176,6 +176,13 @@ extension Container {
       )
     }
   }
+  
+  @MainActor
+  var taxiLocationUseCase: Factory<TaxiLocationUseCaseProtocol> {
+    self {
+      @MainActor in TaxiLocationUseCase(taxiRoomRepository: self.taxiRoomRepository.resolve())
+    }
+  }
 
   @MainActor
   var foundationModelsUseCase: Factory<FoundationModelsUseCaseProtocol> {

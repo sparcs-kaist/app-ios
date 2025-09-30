@@ -12,6 +12,7 @@ import Moya
 
 protocol TaxiRoomRepositoryProtocol: Sendable {
   func fetchRooms() async throws -> [TaxiRoom]
+  func fetchRooms(from: String?, to: String?) async throws -> [TaxiRoom]
   func fetchMyRooms() async throws -> (onGoing: [TaxiRoom], done: [TaxiRoom])
   func searchRooms(name: String) async throws -> [TaxiRoom]
   func fetchLocations() async throws -> [TaxiLocation]
@@ -29,10 +30,25 @@ final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
   init(provider: MoyaProvider<TaxiRoomTarget>) {
     self.provider = provider
   }
-
+  
   func fetchRooms() async throws -> [TaxiRoom] {
     do {
-      let response = try await provider.request(.fetchRooms)
+      let response = try await provider.request(.fetchRooms(from: nil, to: nil))
+      let result = try response.map([TaxiRoomDTO].self)
+        .compactMap { $0.toModel() }
+
+      return result
+    } catch let moyaError as MoyaError {
+      let body = try moyaError.response!.map(APIErrorResponse.self)
+      throw body
+    } catch {
+      throw error
+    }
+  }
+
+  func fetchRooms(from: String?, to: String?) async throws -> [TaxiRoom] {
+    do {
+      let response = try await provider.request(.fetchRooms(from: from, to: to))
       let result = try response.map([TaxiRoomDTO].self)
         .compactMap { $0.toModel() }
 
