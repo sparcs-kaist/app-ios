@@ -13,10 +13,13 @@ import Translation
 struct ReviewCell: View {
   @Binding var review: CourseReview
   @Environment(CourseViewModel.self) private var viewModel: CourseViewModel
+  @Environment(\.openURL) private var openURL
   @State private var summarisedContent: String? = nil
   @State private var isTranslating: Bool = false
   @State private var translatedContent: String? = nil
   @State private var configuration: TranslationSession.Configuration?
+  let title: String
+  let code: String
   
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
@@ -50,7 +53,19 @@ struct ReviewCell: View {
             }.disabled(summarisedContent != nil)
           }
           Divider()
-          Button("Report", systemImage: "exclamationmark.triangle.fill") { }
+          Button("Report", systemImage: "exclamationmark.triangle.fill") {
+            if let urlString = ReportMailComposer.compose(
+              title: title,
+              code: code,
+              year: review.year,
+              semester: review.semester,
+              professorName: review.professor?.localized() ?? "",
+              content: review.content
+            ), let url = URL(string: urlString), UIApplication.shared.canOpenURL(url) {
+              openURL(url) // NOTE: Does not work on Simulator since it does not have Mail app
+            }
+          }
+          
         } label: {
           Label("More", systemImage: "ellipsis")
             .padding(8)
@@ -147,7 +162,7 @@ struct ReviewCell: View {
         
         translatedContent = response.targetText
       } catch {
-        
+        logger.error(error)
       }
     }
   }

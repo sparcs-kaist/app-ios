@@ -96,7 +96,7 @@ struct CourseView: View {
       
       LazyVStack(spacing: 16) {
         ForEach($viewModel.reviews) { review in
-          ReviewCell(review: review)
+          ReviewCell(review: review, title: course.title.localized(), code: course.code)
             .environment(viewModel)
         }
       }
