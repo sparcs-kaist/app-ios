@@ -57,11 +57,12 @@ struct TimetableView: View {
           Button("Add Lecture", systemImage: "plus") {
             showSearchSheet = true
           }
+          .disabled(!viewModel.isEditable)
         }
       }
       .sheet(item: $selectedLecture) { (item: Lecture) in
         NavigationStack {
-          LectureDetailView(lecture: item, onAdd: nil)
+          LectureDetailView(lecture: item, onAdd: nil, isOverlapping: false)
             .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])
         }

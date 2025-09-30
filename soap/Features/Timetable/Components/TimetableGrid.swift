@@ -28,7 +28,16 @@ struct TimetableGrid: View {
               ForEach(selectedTimetable.getLectures(day: day)) { item in
                 TimetableGridCell(
                   lecture: item.lecture,
-                  isCandidate: item.lecture.id == timetableViewModel.candidateLecture?.id
+                  isCandidate: item.lecture.id == timetableViewModel.candidateLecture?.id,
+                  onDeletion: {
+                    Task {
+                      do {
+                        try await timetableViewModel.deleteLecture(lecture: item.lecture)
+                      } catch {
+                        // TODO: Handle error
+                      }
+                    }
+                  }
                 )
                 .frame(height: TimetableConstructor.getCellHeight(for: item, in: geometry.size, of: selectedTimetable.duration))
                 .offset(y: TimetableConstructor.getCellOffset(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.duration))
