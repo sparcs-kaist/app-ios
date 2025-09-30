@@ -14,6 +14,8 @@ protocol OTLTimetableRepositoryProtocol: Sendable {
   func getTables(userID: Int, year: Int, semester: SemesterType) async throws -> [Timetable]
   func createTable(userID: Int, year: Int, semester: SemesterType) async throws -> Timetable
   func deleteTable(userID: Int, timetableID: Int) async throws
+  func addLecture(userID: Int, timetableID: Int, lectureID: Int) async throws -> Timetable
+  func deleteLecture(userID: Int, timetableID: Int, lectureID: Int) async throws -> Timetable
   func getSemesters() async throws -> [Semester]
   func getCurrentSemester() async throws -> Semester
 }
@@ -46,6 +48,24 @@ final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Sendable {
       .deleteTable(userID: userID, timetableID: timetableID)
     )
     _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  func addLecture(userID: Int, timetableID: Int, lectureID: Int) async throws -> Timetable {
+    let response = try await self.provider.request(
+      .addLecture(userID: userID, timetableID: timetableID, lectureID: lectureID)
+    )
+    let result = try response.map(TimetableDTO.self).toModel()
+
+    return result
+  }
+
+  func deleteLecture(userID: Int, timetableID: Int, lectureID: Int) async throws -> Timetable {
+    let response = try await self.provider.request(
+      .deleteLecture(userID: userID, timetableID: timetableID, lectureID: lectureID)
+    )
+    let result = try response.map(TimetableDTO.self).toModel()
+
+    return result
   }
 
   func getSemesters() async throws -> [Semester] {

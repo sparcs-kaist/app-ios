@@ -12,6 +12,8 @@ enum OTLTimetableTarget {
   case fetchTables(userID: Int, year: Int, semester: Int)
   case createTable(userID: Int, year: Int, semester: Int)
   case deleteTable(userID: Int, timetableID: Int)
+  case addLecture(userID: Int, timetableID: Int, lectureID: Int)
+  case deleteLecture(userID: Int, timetableID: Int, lectureID: Int)
   case fetchSemesters
   case fetchCurrentSemester
 }
@@ -29,6 +31,10 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
       "/api/users/\(userID)/timetables"
     case .deleteTable(let userID, let timetableID):
       "/api/users/\(userID)/timetables/\(timetableID)"
+    case .addLecture(let userID, let timetableID, _):
+      "/api/users/\(userID)/timetables/\(timetableID)/add-lecture"
+    case .deleteLecture(let userID, let timetableID, _):
+      "/api/users/\(userID)/timetables/\(timetableID)/remove-lecture"
     case .fetchSemesters:
       "/api/semesters"
     case .fetchCurrentSemester:
@@ -40,7 +46,7 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchTables, .fetchSemesters, .fetchCurrentSemester:
         .get
-    case .createTable:
+    case .createTable, .addLecture, .deleteLecture:
         .post
     case .deleteTable:
         .delete
@@ -61,6 +67,10 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
           "semester": semester,
           "lectures": []
         ], encoding: JSONEncoding.default)
+    case .addLecture(_, _, let lectureID):
+        .requestParameters(parameters: ["lecture": lectureID], encoding: JSONEncoding.default)
+    case .deleteLecture(_, _, let lectureID):
+        .requestParameters(parameters: ["lecture": lectureID], encoding: JSONEncoding.default)
     case .fetchSemesters, .fetchCurrentSemester, .deleteTable:
         .requestPlain
     }

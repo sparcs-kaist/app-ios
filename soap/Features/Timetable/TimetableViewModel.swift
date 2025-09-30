@@ -100,6 +100,14 @@ final class TimetableViewModel {
   func deleteTable() async throws {
     try await timetableUseCase.deleteTable()
   }
+
+  func addLecture(lecture: Lecture) async throws {
+    try await timetableUseCase.addLecture(lecture: lecture)
+  }
+
+  func deleteLecture(lecture: Lecture) async throws {
+    try await timetableUseCase.deleteLecture(lecture: lecture)
+  }
 }
 
 

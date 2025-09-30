@@ -51,7 +51,13 @@ struct LectureSearchView: View {
                 LectureDetailView(
                   lecture: lecture,
                   onAdd: {
-
+                    Task {
+                      do {
+                        try await timetableViewModel.addLecture(lecture: lecture)
+                      } catch {
+                        // TODO: - Handle error
+                      }
+                    }
                   },
                   isOverlapping: timetableViewModel.isCandidateOverlapping
                 )

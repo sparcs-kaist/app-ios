@@ -33,6 +33,8 @@ protocol TimetableUseCaseProtocol: Observable {
   func load() async throws
   func createTable() async throws
   func deleteTable() async throws
+  func addLecture(lecture: Lecture) async throws
+  func deleteLecture(lecture: Lecture) async throws
 }
 
 @Observable
@@ -192,6 +194,64 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
 
     // Select the last timetable if available
     selectedTimetableID = tables.last?.id
+  }
+
+  func addLecture(lecture: Lecture) async throws {
+    guard isEditable,
+          let sid = selectedSemesterID,
+          let tid = selectedTimetableID,
+          let user = await userUseCase.otlUser,
+          let timetableID = Int(tid)
+    else { return }
+
+    let updatedTable: Timetable = try await otlTimetableRepository.addLecture(
+      userID: user.id,
+      timetableID: timetableID,
+      lectureID: lecture.id
+    )
+
+    // Patch local store
+    var tables = store[sid] ?? []
+    if let idx = tables.firstIndex(where: { $0.id == tid }) {
+      tables[idx] = updatedTable
+    } else {
+      tables.append(updatedTable)
+    }
+
+    // Keep -myTable (if any) at the front
+    store[sid] = mergeKeepingMyTableFirst(existing: tables, incoming: [])
+
+    // Ensure selection still points to the edited table
+    selectedTimetableID = updatedTable.id
+  }
+
+  func deleteLecture(lecture: Lecture) async throws {
+    guard isEditable,
+          let sid = selectedSemesterID,
+          let tid = selectedTimetableID,
+          let user = await userUseCase.otlUser,
+          let timetableID = Int(tid)
+    else { return }
+
+    let updatedTable: Timetable = try await otlTimetableRepository.deleteLecture(
+      userID: user.id,
+      timetableID: timetableID,
+      lectureID: lecture.id
+    )
+
+    // Patch local store
+    var tables = store[sid] ?? []
+    if let idx = tables.firstIndex(where: { $0.id == tid }) {
+      tables[idx] = updatedTable
+    } else {
+      tables.append(updatedTable)
+    }
+
+    // Keep -myTable (if any) at the front
+    store[sid] = mergeKeepingMyTableFirst(existing: tables, incoming: [])
+
+    // Ensure selection still points to the edited table
+    selectedTimetableID = updatedTable.id
   }
 
   // MARK: - Helpers
