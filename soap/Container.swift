@@ -141,7 +141,9 @@ extension Container {
   
   var otlCourseRepository: Factory<OTLCourseRepositoryProtocol> {
     self {
-      OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>())
+      OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
     }
   }
 

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CourseView: View {
   @State private var viewModel: CourseViewModel
-  let course: Course
+  @State private var course: Course
   
   init(course: Course, viewModel: CourseViewModel = .init()) {
     self.viewModel = viewModel
@@ -22,9 +22,9 @@ struct CourseView: View {
       case .loading:
         courseSummary
           .redacted(reason: .placeholder)
-      case .loaded(let reviews):
+      case .loaded:
         courseSummary
-        courseReview(reviews: reviews)
+        courseReview
       case .error(let message):
         ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
@@ -82,7 +82,7 @@ struct CourseView: View {
     .padding(.bottom)
   }
   
-  private func courseReview(reviews: [CourseReview]) -> some View {
+  private var courseReview: some View {
     VStack {
       HStack {
         Text("Reviews")
@@ -95,103 +95,12 @@ struct CourseView: View {
         .frame(height: 16)
       
       LazyVStack(spacing: 16) {
-        ForEach(reviews) { review in
-          reviewCell(review: review)
+        ForEach($viewModel.reviews) { review in
+          ReviewCell(review: review)
+            .environment(viewModel)
         }
       }
     }
-  }
-  
-  private func reviewCell(review: CourseReview) -> some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack {
-        Group {
-          if let professor = review.professor, !professor.localized().isEmpty {
-            Text(professor.localized())
-          } else {
-            Text("Unknown")
-          }
-        }
-        .font(.headline)
-        
-        Text(String(review.year).suffix(2) + review.semester.shortCode)
-          .foregroundStyle(.secondary)
-          .fontDesign(.rounded)
-          .fontWeight(.semibold)
-        
-        Spacer()
-        
-        Menu {
-          Button("Translate", systemImage: "translate") { }
-          Button("Summarise", systemImage: "text.append") { }
-          Divider()
-          Button("Report", systemImage: "exclamationmark.triangle.fill") { }
-        } label: {
-          Label("More", systemImage: "ellipsis")
-            .padding(8)
-            .contentShape(.rect)
-        }
-        .labelStyle(.iconOnly)
-      }
-      
-      Text(review.content)
-        .truncationMode(.head)
-      
-      HStack(alignment: .bottom) {
-        HStack(spacing: 4) {
-          Text("Grade")
-            .foregroundStyle(.tertiary)
-            .fontWeight(.medium)
-            .textCase(.uppercase)
-          
-          Text(review.gradeLetter)
-            .foregroundStyle(.secondary)
-            .fontDesign(.rounded)
-            .fontWeight(.semibold)
-        }
-        .font(.footnote)
-        
-        HStack(spacing: 4) {
-          Text("Load")
-            .foregroundStyle(.tertiary)
-            .fontWeight(.medium)
-            .textCase(.uppercase)
-          
-          Text(review.loadLetter)
-            .foregroundStyle(.secondary)
-            .fontDesign(.rounded)
-            .fontWeight(.semibold)
-        }
-        .font(.footnote)
-        
-        HStack(spacing: 4) {
-          Text("Speech")
-            .foregroundStyle(.tertiary)
-            .fontWeight(.medium)
-            .textCase(.uppercase)
-          
-          Text(review.speechLetter)
-            .foregroundStyle(.secondary)
-            .fontDesign(.rounded)
-            .fontWeight(.semibold)
-        }
-        .font(.footnote)
-        
-        Spacer()
-        
-        Button(action: { }, label: {
-          HStack {
-            Text("\(review.like)")
-            Image(systemName: review.isLiked ? "arrowshape.up.fill" : "arrowshape.up")
-          }
-        })
-        .tint(.primary)
-      }
-    }
-    .padding()
-    .background(.white)
-    .clipShape(.rect(cornerRadius: 26))
-    .shadow(color: .black.opacity(0.1), radius: 8)
   }
   
   func lectureSummaryRowWrapper(title: String, description: String) -> some View {

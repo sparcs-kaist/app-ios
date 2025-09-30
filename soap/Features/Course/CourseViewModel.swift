@@ -14,7 +14,7 @@ import SwiftyBeaver
 class CourseViewModel {
   enum ViewState: Equatable {
     case loading
-    case loaded(reviews: [CourseReview])
+    case loaded
     case error(message: String)
   }
   
@@ -30,10 +30,18 @@ class CourseViewModel {
     do {
       self.state = .loading
       self.reviews = try await otlCourseRepository.getCourseReview(courseId: courseId, offset: 0, limit: 100)
-      self.state = .loaded(reviews: self.reviews)
+      self.state = .loaded
     } catch {
       logger.error(error)
       self.state = .error(message: error.localizedDescription)
     }
+  }
+  
+  func likeReview(reviewId: Int) async throws {
+    try await otlCourseRepository.likeReview(reviewId: reviewId)
+  }
+  
+  func unlikeReview(reviewId: Int) async throws {
+    try await otlCourseRepository.unlikeReview(reviewId: reviewId)
   }
 }

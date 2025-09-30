@@ -16,11 +16,11 @@ struct CourseReview: Sendable, Identifiable, Equatable {
   let year: Int
   let semester: SemesterType
   let grade: Int
-  let like: Int
+  var like: Int
   let load: Int
   let speech: Int
   let isDeleted: Bool
-  let isLiked: Bool
+  var isLiked: Bool
 }
 
 extension CourseReview {

@@ -11,9 +11,11 @@ import Moya
 enum OTLCourseTarget{
   case searchCourse(name: String, offset: Int, limit: Int)
   case getCourseReview(courseId: Int, offset: Int, limit: Int)
+  case likeReview(reviewId: Int)
+  case unlikeReview(reviewId: Int)
 }
 
-extension OTLCourseTarget: TargetType {
+extension OTLCourseTarget: TargetType, AccessTokenAuthorizable {
   var baseURL: URL {
     Constants.otlBackendURL
   }
@@ -24,6 +26,8 @@ extension OTLCourseTarget: TargetType {
       "/api/courses"
     case .getCourseReview(let courseId, _, _):
       "/api/courses/\(courseId)/reviews"
+    case .likeReview(let reviewId), .unlikeReview(let reviewId):
+      "/api/reviews/\(reviewId)/like"
     }
   }
   
@@ -31,6 +35,10 @@ extension OTLCourseTarget: TargetType {
     switch self {
     case .searchCourse, .getCourseReview:
       .get
+    case .likeReview:
+      .post
+    case .unlikeReview:
+      .delete
     }
   }
   
@@ -40,6 +48,8 @@ extension OTLCourseTarget: TargetType {
       .requestParameters(parameters: ["keyword": name, "offset": offset, "limit": limit], encoding: URLEncoding.default)
     case .getCourseReview(_, let offset, let limit):
       .requestParameters(parameters: ["offset": offset, "limit": limit], encoding: URLEncoding.default)
+    case .likeReview, .unlikeReview:
+      .requestPlain
     }
   }
   
@@ -47,5 +57,9 @@ extension OTLCourseTarget: TargetType {
     [
       "Content-Type": "application/json"
     ]
+  }
+  
+  var authorizationType: AuthorizationType? {
+    .bearer
   }
 }
