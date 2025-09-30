@@ -18,7 +18,7 @@ struct CourseCell: View {
           .multilineTextAlignment(.leading)
           .font(.callout)
           .fontWeight(.bold)
-          .frame(width: 200, alignment: .leading)
+          .frame(width: 150, alignment: .leading)
         Spacer()
         VStack(alignment: .trailing) {
           Text(course.code)
@@ -27,7 +27,7 @@ struct CourseCell: View {
         .lineLimit(1)
         .font(.subheadline)
         .foregroundStyle(.secondary)
-        .frame(width: 170, alignment: .trailing)
+        .frame(width: 150, alignment: .trailing)
       }
       if course.summary != "" {
         Spacer()
@@ -47,6 +47,10 @@ struct CourseCell: View {
 #Preview {
   ZStack {
     Color.secondarySystemBackground.ignoresSafeArea()
-    CourseCell(course: Course.mock)
+    SearchSection(title: "Courses", searchScope: .constant(.all), targetScope: .courses) {
+      SearchContent<Course, CourseCell>(results: Course.mockList) {
+        CourseCell(course: $0)
+      }
+    }
   }
 }

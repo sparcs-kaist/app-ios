@@ -47,23 +47,23 @@ struct SearchSection<Content: View>: View {
 
 #Preview {
   let rooms: [TaxiRoom] = []
+  let course: [Course] = Course.mockList
   
   ZStack {
-    Color.secondarySystemBackground
+    Color.secondarySystemBackground.ignoresSafeArea()
     
-    VStack {
+    ScrollView {
       SearchSection(title: "Rides", searchScope: .constant(.all), targetScope: .taxi) {
         SearchContent(results: Array(TaxiRoom.mockList[..<3])) {
           TaxiRoomCell(room: $0)
         }
       }
       
-      SearchSection(title: "Rides", searchScope: .constant(.all), targetScope: .taxi) {
-        SearchContent<TaxiRoom, TaxiRoomCell>(results: rooms) {
-          TaxiRoomCell(room: $0)
+      SearchSection(title: "Courses", searchScope: .constant(.all), targetScope: .courses) {
+        SearchContent<Course, CourseCell>(results: course) {
+          CourseCell(course: $0)
         }
       }
     }
   }
-  .ignoresSafeArea()
 }
