@@ -67,7 +67,7 @@ struct FeedCommentRow: View {
 
       Group {
         if comment.isAuthor {
-          Text(comment.authorName + " (Author)")
+          Text(comment.authorName + " (\(authorTag.localized()))")
             .foregroundStyle(.accent)
         } else {
           Text(comment.authorName)
@@ -194,31 +194,14 @@ struct FeedCommentRow: View {
       comment.isDeleted = false
     }
   }
+  
+  private let authorTag = LocalizedString(["en": "Author", "ko": "작성자"])
 }
 
 #Preview {
-  var authorComment = FeedComment(
-    id: FeedComment.mock.id,
-    postID: FeedComment.mock.postID,
-    parentCommentID: FeedComment.mock.parentCommentID,
-    content: FeedComment.mock.content,
-    isDeleted: FeedComment.mock.isDeleted,
-    isAnonymous: FeedComment.mock.isAnonymous,
-    authorName: FeedComment.mock.authorName,
-    isAuthor: true,
-    isMyComment: FeedComment.mock.isMyComment,
-    profileImageURL: FeedComment.mock.profileImageURL,
-    createdAt: FeedComment.mock.createdAt,
-    upvotes: FeedComment.mock.upvotes,
-    downvotes: FeedComment.mock.downvotes,
-    image: FeedComment.mock.image,
-    replyCount: FeedComment.mock.replyCount,
-    replies: FeedComment.mock.replies
-  )
-  
   return LazyVStack {
     FeedCommentRow(comment: .constant(FeedComment.mock), isReply: false, onReply: nil)
-    FeedCommentRow(comment: .constant(authorComment), isReply: false, onReply: nil)
+    FeedCommentRow(comment: .constant(FeedComment.mockList[7]), isReply: false, onReply: nil)
   }
     .padding()
 }

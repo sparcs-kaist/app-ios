@@ -242,7 +242,28 @@ extension FeedComment: Mockable {
             replies: []
           )
         ]
-      )
+      ),
+      
+      // 익명 댓글 (글 작성자의 댓글)
+      FeedComment(
+        id: "395749fe-6e1f-48cb-a144-a906992e34a6",
+        postID: "4680556d-5db8-46ed-bc52-8fb859885bd6",
+        parentCommentID: nil,
+        content: "test comments",
+        isDeleted: false,
+        isAnonymous: true,
+        authorName: "Anonymous 1",
+        isAuthor: true,
+        isMyComment: true,
+        profileImageURL: URL(string: "https://dlnutnvhcnj0u.cloudfront.net/imgs/CatOTL.png"),
+        createdAt: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
+        upvotes: 0,
+        downvotes: 0,
+        myVote: nil,
+        image: nil,
+        replyCount: 0,
+        replies: []
+      ),
     ]
   }
 }
