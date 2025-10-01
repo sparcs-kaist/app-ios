@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Course: Identifiable {
+struct Course: Identifiable, Equatable, Sendable, CourseRepresentable {
   let id: Int
   let code: String
   let department: Department
@@ -15,4 +15,11 @@ struct Course: Identifiable {
   let title: LocalizedString
   let summary: String
   let reviewTotalWeight: Double
+  let grade: Double
+  let load: Double
+  let speech: Double
+  let credit: Int
+  let creditAu: Int
+  let numClasses: Int
+  let numLabs: Int
 }

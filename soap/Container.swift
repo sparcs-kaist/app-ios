@@ -138,6 +138,14 @@ extension Container {
       ]))
     }
   }
+  
+  var otlCourseRepository: Factory<OTLCourseRepositoryProtocol> {
+    self {
+      OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
 
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
@@ -190,6 +198,13 @@ extension Container {
         taxiRoomRepository: self.taxiRoomRepository.resolve(),
         room: $0
       )
+    }
+  }
+  
+  @MainActor
+  var taxiLocationUseCase: Factory<TaxiLocationUseCaseProtocol> {
+    self {
+      @MainActor in TaxiLocationUseCase(taxiRoomRepository: self.taxiRoomRepository.resolve())
     }
   }
 

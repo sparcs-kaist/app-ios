@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+@preconcurrency
 import Moya
 
 protocol TaxiRoomRepositoryProtocol: Sendable {
@@ -20,13 +22,13 @@ protocol TaxiRoomRepositoryProtocol: Sendable {
   func commitPayment(id: String) async throws -> TaxiRoom
 }
 
-final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, @unchecked Sendable {
+final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<TaxiRoomTarget>
 
   init(provider: MoyaProvider<TaxiRoomTarget>) {
     self.provider = provider
   }
-
+  
   func fetchRooms() async throws -> [TaxiRoom] {
     do {
       let response = try await provider.request(.fetchRooms)

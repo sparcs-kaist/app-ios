@@ -54,7 +54,7 @@ struct PostList<Destination: View>: View {
         }
         .onAppear {
           // loads more contents on 60% scroll
-          let thresholdIndex = Int(Double(posts.count) * 0.6)
+          let thresholdIndex = Int(Double(posts.count) * Constants.loadMoreThreshold)
           if index >= thresholdIndex {
             Task {
               isLoadingMore = true

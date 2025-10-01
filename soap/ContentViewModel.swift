@@ -19,6 +19,7 @@ class ContentViewModel {
 
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
 
   init() {
     authUseCase.isAuthenticatedPublisher
@@ -39,5 +40,13 @@ class ContentViewModel {
       logger.error(error)
     }
     isLoading = false
+  }
+  
+  func fetchTaxiLocations() async {
+    do {
+      try await taxiLocationUseCase.fetchLocations()
+    } catch {
+      logger.error(error)
+    }
   }
 }

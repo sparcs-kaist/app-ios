@@ -9,9 +9,6 @@ import SwiftUI
 import Factory
 
 struct HomeView: View {
-  @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
-  @State private var showSettingsSheet: Bool = false
-
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -28,38 +25,7 @@ struct HomeView: View {
         }
         .padding(.vertical)
       }
-      .navigationTitle("My")
-      .toolbarTitleDisplayMode(.inlineLarge)
-      .toolbar {
-        ToolbarItem {
-          Button("Notifications", systemImage: "bell") { }
-        }
-
-        ToolbarSpacer(.fixed)
-
-        ToolbarItem {
-          Menu("More", systemImage: "ellipsis") {
-            Button("Settings", systemImage: "gear") {
-                showSettingsSheet = true
-            }
-
-            Button(
-              "Sign Out",
-              systemImage: "rectangle.portrait.and.arrow.right",
-              role: .destructive
-            ) {
-              Task {
-                try await authUseCase.signOut()
-              }
-            }
-          }
-        }
-      }
       .background(Color.secondarySystemBackground)
-      .sheet(isPresented: $showSettingsSheet) {
-        SettingsView()
-          .presentationDragIndicator(.visible)
-      }
     }
   }
 }

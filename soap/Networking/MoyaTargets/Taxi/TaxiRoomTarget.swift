@@ -59,20 +59,22 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   var task: Moya.Task {
     switch self {
-    case .fetchRooms, .fetchMyRooms, .fetchLocations:
+    case .fetchRooms:
+      .requestPlain
+    case .fetchMyRooms, .fetchLocations:
       .requestPlain
     case .createRoom(let request):
       .requestJSONEncodable(request)
     case .joinRoom(let roomID):
-        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .leaveRoom(let roomID):
-        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .getRoom(let roomID):
-        .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
+      .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
     case .commitSettlement(let roomID):
-        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .commitPayment(let roomID):
-        .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     }
   }
 
