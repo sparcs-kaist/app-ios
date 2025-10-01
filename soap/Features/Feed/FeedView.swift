@@ -97,24 +97,8 @@ struct FeedView: View {
         ToolbarSpacer(.fixed)
         
         ToolbarItem {
-          Menu("More", systemImage: "ellipsis") {
-            Button("Notifications", systemImage: "bell") { }
-
-            Button("Settings", systemImage: "gear") {
-              showSettingsSheet = true
-            }
-
-            Divider()
-
-            Button(
-              "Sign Out",
-              systemImage: "rectangle.portrait.and.arrow.right",
-              role: .destructive
-            ) {
-              Task {
-                try await viewModel.signOut()
-              }
-            }
+          Button("Settings", systemImage: "gear") {
+            showSettingsSheet = true
           }
         }
       }

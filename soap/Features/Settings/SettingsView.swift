@@ -9,6 +9,11 @@ import SwiftUI
 
 struct SettingsView: View {
   @Environment(\.openURL) private var openURL
+  @State private var viewModel: SettingsViewModel
+  
+  init(_ viewModel: SettingsViewModel = .init()) {
+    self.viewModel = viewModel
+  }
   
   var body: some View {
     NavigationStack {
@@ -20,6 +25,15 @@ struct SettingsView: View {
         Section(header: Text("Services")) {
           NavigationLink("Ara") { AraSettingsView().navigationTitle("Ara Settings") }
           NavigationLink("Taxi") { TaxiSettingsView().navigationTitle("Taxi Settings") }
+        }
+        
+        Section() {
+          Button("Sign Out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
+            Task {
+              try await viewModel.signOut()
+            }
+          }
+          .foregroundStyle(.red)
         }
       }
       .navigationTitle(Text("Settings"))
