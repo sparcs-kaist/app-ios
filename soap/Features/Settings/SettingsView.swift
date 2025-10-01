@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+  @Environment(\.openURL) private var openURL
+  
   var body: some View {
     NavigationStack {
       List {
@@ -18,7 +20,6 @@ struct SettingsView: View {
         Section(header: Text("Services")) {
           NavigationLink("Ara") { AraSettingsView().navigationTitle("Ara Settings") }
           NavigationLink("Taxi") { TaxiSettingsView().navigationTitle("Taxi Settings") }
-          NavigationLink("OTL") { OTLSettingsView().navigationTitle("OTL Settings") }
         }
       }
       .navigationTitle(Text("Settings"))
@@ -26,8 +27,15 @@ struct SettingsView: View {
   }
   
   private var appSettings: some View {
-    Button("Change Language", systemImage: "globe") {
-      UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+    Group {
+      Button("Change Language", systemImage: "globe") {
+        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+      }
+      Button("Send Feedback", systemImage: "exclamationmark.bubble") {
+        if let url = URL(string: "mailto:app@sparcs.org"), UIApplication.shared.canOpenURL(url) {
+          openURL(url)
+        }
+      }
     }
   }
 }
