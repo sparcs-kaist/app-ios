@@ -13,6 +13,7 @@ struct PostImagesStrip: View {
   private let hPadding: CGFloat = 16 // match your .padding(.horizontal, 16)
 
   @State private var parentWidth: CGFloat = 0
+  @State private var hideSpoilerContent: Bool = true
 
   var body: some View {
     // Fallback to screen width until we read the actual width
@@ -40,6 +41,21 @@ struct PostImagesStrip: View {
                   .aspectRatio(contentMode: shouldFill ? .fill : .fit)
                   .frame(width: clampedWidth, height: height)
                   .clipped()
+                  .overlay {
+                    if item.spoiler == true && hideSpoilerContent {
+                      VStack {
+                        Image(systemName: "eye.slash")
+                        Text("Spoiler")
+                        Text("Tap to reveal")
+                      }
+                      .frame(maxWidth: .infinity, maxHeight: .infinity)
+                      .background(.ultraThinMaterial)
+                      .onTapGesture {
+                        hideSpoilerContent = false
+                      }
+                      .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+                    }
+                  }
               } else if state.error != nil {
                 Placeholder(width: minW, height: height, systemImage: "exclamationmark.triangle")
               } else {
