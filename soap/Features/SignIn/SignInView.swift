@@ -48,7 +48,7 @@ struct SignInView: View {
             ProgressView()
               .tint(.white)
           } else {
-            Text("Sign In with SPARCS SSO")
+            Text("Continue with SPARCS SSO")
               .fontWeight(.medium)
           }
         }

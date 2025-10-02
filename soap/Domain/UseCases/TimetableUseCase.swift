@@ -86,16 +86,16 @@ final class TimetableUseCase: TimetableUseCaseProtocol {
   /// - "Table N" for the Nth server table (1-based index)
   /// - "Unknown" as a safe fallback
   var selectedTimetableDisplayName: String {
-    guard let selectedTimetableID = selectedTimetableID else { return "Unknown" }
+    guard let selectedTimetableID = selectedTimetableID else { return String(localized: "Unknown") }
 
     if selectedTimetableID.hasSuffix("-myTable") {
-      return "My Table"
+      return String(localized: "My Table")
     }
 
     if let index = timetableIDsForSelectedSemester.firstIndex(of: selectedTimetableID) {
-      return "Table \(index)"
+      return String(localized: "Table \(index)")
     } else {
-      return "Unknown"
+      return String(localized: "Unknown")
     }
   }
 

@@ -1,0 +1,2048 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+      "shouldTranslate" : false
+    },
+    "[%@]" : {
+      "shouldTranslate" : false
+    },
+    "**Note:** May contain errors, please double-check facts." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**참고**: 오류가 포함될 수 있음, 사실을 재확인하세요."
+          }
+        }
+      }
+    },
+    "%@" : {
+      "shouldTranslate" : false
+    },
+    "%@ → %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ → %2$@"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "%@ has joined" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@님이 참여했습니다."
+          }
+        }
+      }
+    },
+    "%@ has left" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@님이 나갔습니다."
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "shouldTranslate" : false
+    },
+    "%lld comments" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개의 댓글"
+          }
+        }
+      }
+    },
+    "%lld people" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld명"
+          }
+        }
+      }
+    },
+    "%lld views" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld회"
+          }
+        }
+      }
+    },
+    "%lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "%lld/280" : {
+      "shouldTranslate" : false
+    },
+    "⏰ It's 15 minutes before your taxi leaves! If everyone's gathered, go ahead and call the taxi to head out together." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⏰ 택시 출발 15분 전 입니다. 동승자들이 모두 모였다면 택시를 호출한 후 출발하세요."
+          }
+        }
+      }
+    },
+    "👻" : {
+      "shouldTranslate" : false
+    },
+    "🤖" : {
+      "shouldTranslate" : false
+    },
+    "😀" : {
+      "shouldTranslate" : false
+    },
+    "🚕 Looking for someone to ride with on %@ from %@ to %@! 🚕" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "🚕 Looking for someone to ride with on %1$@ from %2$@ to %3$@! 🚕"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🚕 %1$@ %2$@ → %3$@ 택시팟 구합니다! 🚕"
+          }
+        }
+      }
+    },
+    "3" : {
+      "shouldTranslate" : false
+    },
+    "A" : {
+      "shouldTranslate" : false
+    },
+    "Active Rooms" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "참여 중인 방"
+          }
+        }
+      }
+    },
+    "Add" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추가"
+          }
+        }
+      }
+    },
+    "Add Lecture" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수업 추가"
+          }
+        }
+      }
+    },
+    "Add to \"%@\"" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”에 추가"
+          }
+        }
+      }
+    },
+    "Allow NSFW" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NSFW글 허용"
+          }
+        }
+      }
+    },
+    "Allow Political" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정치글 허용"
+          }
+        }
+      }
+    },
+    "Already Sent" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 송금함"
+          }
+        }
+      }
+    },
+    "An email will be sent asking them to send you the money." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고하기 시 해당 사용자에게 방 정보와 함께 송금을 재촉하는 메일이 자동으로 보내집니다."
+          }
+        }
+      }
+    },
+    "An error occurred while signing out. Please try again later." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그아웃 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "Anonymous" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "익명"
+          }
+        }
+      }
+    },
+    "Ara" : {
+      "shouldTranslate" : false
+    },
+    "Ara Feedback" : {
+      "shouldTranslate" : false
+    },
+    "Ara Settings" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ara 설정"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete this post?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 게시물을 삭제하시겠습니까?"
+          }
+        }
+      }
+    },
+    "Are you sure you want to discard this post?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 게시글 작성을 취소하시겠습니까?"
+          }
+        }
+      }
+    },
+    "Autumn" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가을"
+          }
+        }
+      }
+    },
+    "B" : {
+      "shouldTranslate" : false
+    },
+    "Bank Name" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "은행"
+          }
+        }
+      }
+    },
+    "Bank Number" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계좌 번호"
+          }
+        }
+      }
+    },
+    "Be the first one to share your thoughts." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 먼저 당신의 생각을 나눠보세요."
+          }
+        }
+      }
+    },
+    "Board" : {
+      "shouldTranslate" : false
+    },
+    "Boards" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시판"
+          }
+        }
+      }
+    },
+    "bookmark" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "북마크"
+          }
+        }
+      }
+    },
+    "Bookmarked Posts" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "북마크한 게시글"
+          }
+        }
+      }
+    },
+    "By continuing, you agree to our Terms of Use and Privacy Policy." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계속 진행하면 이용약관 및 개인정보 처리방침에 동의하는 것으로 간주됩니다."
+          }
+        }
+      }
+    },
+    "C" : {
+      "shouldTranslate" : false
+    },
+    "Call Taxi" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "택시 호출하기"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소"
+          }
+        }
+      }
+    },
+    "Capacity" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정원"
+          }
+        }
+      }
+    },
+    "Change Language" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "언어 변경"
+          }
+        }
+      }
+    },
+    "Chat as %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@로 대화하기"
+          }
+        }
+      }
+    },
+    "Chats" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅"
+          }
+        }
+      }
+    },
+    "Clear Selection" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택 취소"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닫기"
+          }
+        }
+      }
+    },
+    "Club" : {
+      "shouldTranslate" : false
+    },
+    "Communication" : {
+      "shouldTranslate" : false
+    },
+    "Content Preferences" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글 설정"
+          }
+        }
+      }
+    },
+    "Continue with SPARCS SSO" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SPARCS SSO로 계속"
+          }
+        }
+      }
+    },
+    "Copy" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복사"
+          }
+        }
+      }
+    },
+    "Copy Account Info" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계좌 복사하기"
+          }
+        }
+      }
+    },
+    "Create" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "만들기"
+          }
+        }
+      }
+    },
+    "Create a New Room" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신규 방 개설"
+          }
+        }
+      }
+    },
+    "Credits" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "학점"
+          }
+        }
+      }
+    },
+    "D" : {
+      "shouldTranslate" : false
+    },
+    "Defamation" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "명예훼손"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제"
+          }
+        }
+      }
+    },
+    "Delete Post" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글 삭제"
+          }
+        }
+      }
+    },
+    "Departure Time" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출발 시각"
+          }
+        }
+      }
+    },
+    "Details" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상세 내용"
+          }
+        }
+      }
+    },
+    "Didn't come on time!" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "택시에 동승하지 않음"
+          }
+        }
+      }
+    },
+    "Didn't send money!" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "송금을 하지 않음"
+          }
+        }
+      }
+    },
+    "Discard Post" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작성 취소"
+          }
+        }
+      }
+    },
+    "Dismiss" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닫기"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
+    "downvote" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비추천"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수정"
+          }
+        }
+      }
+    },
+    "Editing" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수정 중"
+          }
+        }
+      }
+    },
+    "Enter Bank Number" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계좌 번호 입력"
+          }
+        }
+      }
+    },
+    "Error" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오류"
+          }
+        }
+      }
+    },
+    "Etc" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기타"
+          }
+        }
+      }
+    },
+    "External Company Advertisement" : {
+      "shouldTranslate" : false
+    },
+    "F" : {
+      "shouldTranslate" : false
+    },
+    "Facility Feedback" : {
+      "shouldTranslate" : false
+    },
+    "Facility Notice" : {
+      "shouldTranslate" : false
+    },
+    "Failed to load content" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컨텐츠 로드 실패"
+          }
+        }
+      }
+    },
+    "Failed to parse account information." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계좌 번호를 불러오는 데 실패했습니다."
+          }
+        }
+      }
+    },
+    "False Information" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "거짓 정보"
+          }
+        }
+      }
+    },
+    "Feed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타임라인"
+          }
+        }
+      }
+    },
+    "Find courses, posts, rides and more." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의, 게시물, 택시 등 다양한 정보를 찾아보세요."
+          }
+        }
+      }
+    },
+    "General" : {
+      "shouldTranslate" : false
+    },
+    "Grade" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "성적"
+          }
+        }
+      }
+    },
+    "Hate Speech" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "혐오 발언"
+          }
+        }
+      }
+    },
+    "I paid for the taxi!" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제가 택시비를 결제했어요!"
+          }
+        }
+      }
+    },
+    "I sent the money!" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "결제자에게 송금했어요!"
+          }
+        }
+      }
+    },
+    "Information" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정보"
+          }
+        }
+      }
+    },
+    "Invalid Invitation" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "유효하지 않은 초대"
+          }
+        }
+      }
+    },
+    "It looks like there are no posts on this page right now." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 이 페이지에 게시물이 존재하지 않습니다."
+          }
+        }
+      }
+    },
+    "Join" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "참여하기"
+          }
+        }
+      }
+    },
+    "Joined" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "참여함"
+          }
+        }
+      }
+    },
+    "KAIST News" : {
+      "shouldTranslate" : false
+    },
+    "Leave" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나가기"
+          }
+        }
+      }
+    },
+    "LectureType" : {
+      "shouldTranslate" : false
+    },
+    "Load" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "널널"
+          }
+        }
+      }
+    },
+    "Looks like there are no rooms scheduled for this week. Be the first to create one!" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이번 주엔 아직 방이 없네요. 첫 방을 만들어 보세요!"
+          }
+        }
+      }
+    },
+    "Lorem ipsum\t13 min ago" : {
+      "shouldTranslate" : false
+    },
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit" : {
+      "shouldTranslate" : false
+    },
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus." : {
+      "shouldTranslate" : false
+    },
+    "Major" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전공"
+          }
+        }
+      }
+    },
+    "Market" : {
+      "shouldTranslate" : false
+    },
+    "Messages to the School" : {
+      "shouldTranslate" : false
+    },
+    "Miscellaneous" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기타"
+          }
+        }
+      }
+    },
+    "More" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더보기"
+          }
+        }
+      }
+    },
+    "My Posts" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 게시글"
+          }
+        }
+      }
+    },
+    "My Table" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 시간표"
+          }
+        }
+      }
+    },
+    "Navigate" : {
+      "shouldTranslate" : false
+    },
+    "New Room" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신규 방"
+          }
+        }
+      }
+    },
+    "New Table" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 시간표"
+          }
+        }
+      }
+    },
+    "Nickname" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닉네임"
+          }
+        }
+      }
+    },
+    "Nicknames can only be changed every 3 months." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닉네임은 3개월에 한 번만 변경할 수 있습니다."
+          }
+        }
+      }
+    },
+    "Nicknames can only be changed every 3 months. Change nickname to %@?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닉네임은 3개월에 한 번만 변경할 수 있습니다. 닉네임을 %@로 변경하시겠습니까?"
+          }
+        }
+      }
+    },
+    "No one has commented yet." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 댓글이 없습니다."
+          }
+        }
+      }
+    },
+    "No Reports" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고 내역 없음"
+          }
+        }
+      }
+    },
+    "No results" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색 결과 없음"
+          }
+        }
+      }
+    },
+    "No Rides Found" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "택시가 없습니다."
+          }
+        }
+      }
+    },
+    "No Rides This Week" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이번주 택시가 없습니다."
+          }
+        }
+      }
+    },
+    "No topic" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주제 없음"
+          }
+        }
+      }
+    },
+    "Not paid" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산 미완료"
+          }
+        }
+      }
+    },
+    "Nothing Here Yet" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 표시할 내용이 없습니다."
+          }
+        }
+      }
+    },
+    "Notice" : {
+      "shouldTranslate" : false
+    },
+    "NSFW" : {
+      "shouldTranslate" : false
+    },
+    "Okay" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
+    "Open Kakao Pay" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카카오페이 열기"
+          }
+        }
+      }
+    },
+    "Open Kakao T" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카카오 T 열기"
+          }
+        }
+      }
+    },
+    "Open Toss" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "토스 열기"
+          }
+        }
+      }
+    },
+    "Open Uber" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uber 열기"
+          }
+        }
+      }
+    },
+    "Organisations and Clubs" : {
+      "shouldTranslate" : false
+    },
+    "Other" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기타"
+          }
+        }
+      }
+    },
+    "Other reasons" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기타 사유"
+          }
+        }
+      }
+    },
+    "Paid" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산 완료"
+          }
+        }
+      }
+    },
+    "Participants %lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Participants %1$lld/%2$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "참여 %1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "Past Rooms" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "과거 참여 방"
+          }
+        }
+      }
+    },
+    "Payment Required" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "송금 필요"
+          }
+        }
+      }
+    },
+    "Payment Settled" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "송금 완료"
+          }
+        }
+      }
+    },
+    "Photo Library" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 보관함"
+          }
+        }
+      }
+    },
+    "Please enter the title" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목을 입력해 주세요"
+          }
+        }
+      }
+    },
+    "Please try again later." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그아웃 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "Political" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정치"
+          }
+        }
+      }
+    },
+    "Portal Notice" : {
+      "shouldTranslate" : false
+    },
+    "Post" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글"
+          }
+        }
+      }
+    },
+    "Posts" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글"
+          }
+        }
+      }
+    },
+    "Privacy Policy" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개인정보 처리방침"
+          }
+        }
+      }
+    },
+    "Profile" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필"
+          }
+        }
+      }
+    },
+    "Real Estate" : {
+      "shouldTranslate" : false
+    },
+    "Reason" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이유"
+          }
+        }
+      }
+    },
+    "Remove" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제"
+          }
+        }
+      }
+    },
+    "Remove from Table" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표에서 삭제"
+          }
+        }
+      }
+    },
+    "Report" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고"
+          }
+        }
+      }
+    },
+    "Report Submitted" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고 제출됨"
+          }
+        }
+      }
+    },
+    "Report Type" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고 유형"
+          }
+        }
+      }
+    },
+    "Reports for unsettled payments and no-shows can only be submitted after the departure time." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "결제 미정산 및 노쇼 신고는 출발 후에만 가능합니다."
+          }
+        }
+      }
+    },
+    "Request Settlement" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산 요청"
+          }
+        }
+      }
+    },
+    "Requested settlement" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산 요청됨"
+          }
+        }
+      }
+    },
+    "Reviews" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "평가"
+          }
+        }
+      }
+    },
+    "Search" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색"
+          }
+        }
+      }
+    },
+    "Search Anything" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무엇이든 검색하세요"
+          }
+        }
+      }
+    },
+    "Search courses, codes or professors." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의명, 코드, 교수 검색"
+          }
+        }
+      }
+    },
+    "Search Scope" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색 범위"
+          }
+        }
+      }
+    },
+    "Select" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택"
+          }
+        }
+      }
+    },
+    "Select Bank" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "은행 선택"
+          }
+        }
+      }
+    },
+    "Select the app to send your payment. Tap Already Sent once you've completed the transfer." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "결제 앱을 선택하고, 송금 후 이미 송금함을 눌러 주세요."
+          }
+        }
+      }
+    },
+    "Send" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보내기"
+          }
+        }
+      }
+    },
+    "Send Feedback" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "피드백 보내기"
+          }
+        }
+      }
+    },
+    "Send Payment" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "송금하기"
+          }
+        }
+      }
+    },
+    "Service" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서비스"
+          }
+        }
+      }
+    },
+    "Services" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서비스"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정"
+          }
+        }
+      }
+    },
+    "Settlement" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산"
+          }
+        }
+      }
+    },
+    "Settlement Completed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산 완료됨"
+          }
+        }
+      }
+    },
+    "Settlement Requested" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산 요청됨"
+          }
+        }
+      }
+    },
+    "Settlement Required" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산 필요"
+          }
+        }
+      }
+    },
+    "share" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유"
+          }
+        }
+      }
+    },
+    "Share now and create a pleasant taxi-sharing experience!" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금 공유하고 즐거운 택시 동승 경험을 만들어 보세요!"
+          }
+        }
+      }
+    },
+    "Share your thoughts on %@..." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 대한 생각을 공유해 보세요..."
+          }
+        }
+      }
+    },
+    "Sign Out" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그 아웃"
+          }
+        }
+      }
+    },
+    "Spam" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스팸"
+          }
+        }
+      }
+    },
+    "SPARCS APP INTERNAL" : {
+      "shouldTranslate" : false
+    },
+    "Speech" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의"
+          }
+        }
+      }
+    },
+    "Spoiler" : {
+      "shouldTranslate" : false
+    },
+    "Spring" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "봄"
+          }
+        }
+      }
+    },
+    "Staff Notice" : {
+      "shouldTranslate" : false
+    },
+    "Students Group" : {
+      "shouldTranslate" : false
+    },
+    "Summarise" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요약"
+          }
+        }
+      }
+    },
+    "Summarising..." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요약중…"
+          }
+        }
+      }
+    },
+    "Summary" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요약"
+          }
+        }
+      }
+    },
+    "Summer" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여름"
+          }
+        }
+      }
+    },
+    "swap" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전환"
+          }
+        }
+      }
+    },
+    "Table %lld" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표 %lld"
+          }
+        }
+      }
+    },
+    "Talk" : {
+      "shouldTranslate" : false
+    },
+    "Tap to reveal" : {
+      "shouldTranslate" : false
+    },
+    "Taxi" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "택시"
+          }
+        }
+      }
+    },
+    "Taxi Bot" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxi 봇"
+          }
+        }
+      }
+    },
+    "Taxi Settings" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxi 설정"
+          }
+        }
+      }
+    },
+    "terms of use" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이용 약관"
+          }
+        }
+      }
+    },
+    "Terms of Use" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이용 약관"
+          }
+        }
+      }
+    },
+    "The link you followed is invalid. Please try again." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "유효하지 않은 링크입니다. 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 정산을 시작하지 않았거나 송금을 완료하지 않은 사용자가 있습니다.\\n\\n좌측 하단의 **+ 버튼**을 눌러 뜨는 **정산하기** 또는 **송금하기** 버튼을 눌러 정산 요청 또는 송금을 완료해주세요."
+          }
+        }
+      }
+    },
+    "There was an error. Please try again later." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오류가 발생했습니다. 나중에 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "This room is full" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정원 초과"
+          }
+        }
+      }
+    },
+    "Timetable" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표"
+          }
+        }
+      }
+    },
+    "Title" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목"
+          }
+        }
+      }
+    },
+    "Toggle Spoiler" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스포일러 전환"
+          }
+        }
+      }
+    },
+    "Trade" : {
+      "shouldTranslate" : false
+    },
+    "Translate" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "번역"
+          }
+        }
+      }
+    },
+    "Try Again" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
+          }
+        }
+      }
+    },
+    "Unauthorized Sales" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허가되지 않은 판매글"
+          }
+        }
+      }
+    },
+    "Unknown" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알 수 없음"
+          }
+        }
+      }
+    },
+    "View Dictionary" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "과목 사전 보기"
+          }
+        }
+      }
+    },
+    "View Syllabus" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실라버스 보기"
+          }
+        }
+      }
+    },
+    "Wanted" : {
+      "shouldTranslate" : false
+    },
+    "Warning" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주의"
+          }
+        }
+      }
+    },
+    "What's happening?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무슨 일이 일어나고 있나요?"
+          }
+        }
+      }
+    },
+    "Who?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고 대상"
+          }
+        }
+      }
+    },
+    "Why?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고 이유"
+          }
+        }
+      }
+    },
+    "Winter" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "겨울"
+          }
+        }
+      }
+    },
+    "Write" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작성"
+          }
+        }
+      }
+    },
+    "Write a comment" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글 쓰기"
+          }
+        }
+      }
+    },
+    "Write a reply to %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@님에게 답글 쓰기"
+          }
+        }
+      }
+    },
+    "Write a Review" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "평가 작성"
+          }
+        }
+      }
+    },
+    "Write Anonymously" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "익명으로 쓰기"
+          }
+        }
+      }
+    },
+    "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from %@ to %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from %1$@ to %2$@."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출발지와 도착지가 이미 설정된 상태로 택시 호출 앱을 실행할 수 있습니다. 동승 인원과 출발지에서 모였다면, 버튼을 눌러 %1$@에서 %2$@로 가는 택시를 호출하세요."
+          }
+        }
+      }
+    },
+    "You can't change nickname until %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@까지 닉네임을 변경할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Your report has been submitted successfully." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고가 성공적으로 접수되었습니다."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}
