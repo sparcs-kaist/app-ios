@@ -27,6 +27,7 @@ class ContentViewModel {
       .sink { [weak self] newValue in
         guard let self = self else { return }
         self.isAuthenticated = newValue
+        isLoading = false
       }
       .store(in: &cancellables)
   }
