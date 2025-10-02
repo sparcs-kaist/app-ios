@@ -31,7 +31,11 @@ struct SettingsView: View {
         Section() {
           Button("Sign Out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
             Task {
-              try await viewModel.signOut()
+              do {
+                try await viewModel.signOut()
+              } catch {
+                showLogoutError = true
+              }
             }
           }
           .foregroundStyle(.red)

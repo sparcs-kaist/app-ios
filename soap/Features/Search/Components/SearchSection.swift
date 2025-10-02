@@ -46,7 +46,6 @@ struct SearchSection<Content: View>: View {
 }
 
 #Preview {
-  let rooms: [TaxiRoom] = []
   let course: [Course] = Course.mockList
   
   ZStack {
