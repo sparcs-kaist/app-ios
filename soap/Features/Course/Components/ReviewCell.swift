@@ -11,7 +11,7 @@ import SwiftUI
 import Translation
 
 struct ReviewCell: View {
-  @Binding var review: CourseReview
+  @Binding var review: LectureReview
   @Environment(CourseViewModel.self) private var viewModel: CourseViewModel
   @Environment(\.openURL) private var openURL
   @State private var summarisedContent: String? = nil
@@ -25,15 +25,15 @@ struct ReviewCell: View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
         Group {
-          if let professor = review.professor, !professor.localized().isEmpty {
-            Text(professor.localized())
+          if let professor = review.lecture.professors.first, !professor.name.localized().isEmpty {
+            Text(professor.name.localized())
           } else {
             Text("Unknown")
           }
         }
         .font(.headline)
         
-        Text(String(review.year).suffix(2) + review.semester.shortCode)
+        Text(String(review.lecture.year).suffix(2) + review.lecture.semester.shortCode)
           .foregroundStyle(.secondary)
           .fontDesign(.rounded)
           .fontWeight(.semibold)
@@ -57,9 +57,9 @@ struct ReviewCell: View {
             if let urlString = ReportMailComposer.compose(
               title: title,
               code: code,
-              year: review.year,
-              semester: review.semester,
-              professorName: review.professor?.localized() ?? "",
+              year: review.lecture.year,
+              semester: review.lecture.semester,
+              professorName: review.lecture.professors.first?.name.localized() ?? "",
               content: review.content
             ), let url = URL(string: urlString), UIApplication.shared.canOpenURL(url) {
               openURL(url) // NOTE: Does not work on Simulator since it does not have Mail app

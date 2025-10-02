@@ -23,14 +23,14 @@ class CourseViewModel {
   @ObservationIgnored @Injected(\.foundationModelsUseCase) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
   
   // MARK: - Properties
-  var reviews: [CourseReview] = []
+  var reviews: [LectureReview] = []
   var state: ViewState = .loading
   
   // MARK: - Functions
   func fetchReviews(courseId: Int) async {
     do {
       self.state = .loading
-      self.reviews = try await otlCourseRepository.getCourseReview(courseId: courseId, offset: 0, limit: 100)
+      self.reviews = try await otlCourseRepository.fetchReviews(courseId: courseId, offset: 0, limit: 100)
       self.state = .loaded
     } catch {
       logger.error(error)

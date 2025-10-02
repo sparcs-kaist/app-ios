@@ -16,6 +16,7 @@ struct LectureReviewDTO: Codable {
   let grade: Int
   let load: Int
   let speech: Int
+  let isDeleted: Int
   let isLiked: Bool
 
   enum CodingKeys: String, CodingKey {
@@ -27,6 +28,7 @@ struct LectureReviewDTO: Codable {
     case grade
     case load
     case speech
+    case isDeleted = "is_deleted"
     case isLiked = "userspecific_is_liked"
   }
 }
@@ -43,6 +45,7 @@ extension LectureReviewDTO {
       grade: grade,
       load: load,
       speech: speech,
+      isDeleted: isDeleted != 0,
       isLiked: isLiked
     )
   }

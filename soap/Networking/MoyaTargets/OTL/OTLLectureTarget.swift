@@ -10,6 +10,7 @@ import Moya
 
 enum OTLLectureTarget {
   case searchLecture(request: LectureSearchRequestDTO)
+  case fetchReviews(lectureID: Int)
 }
 
 extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
@@ -21,12 +22,14 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .searchLecture:
       "/api/lectures"
+    case .fetchReviews(let lectureID):
+      "/api/lectures/\(lectureID)/related-reviews"
     }
   }
 
   var method: Moya.Method {
     switch self {
-    case .searchLecture:
+    case .searchLecture, .fetchReviews:
         .get
     }
   }
@@ -43,6 +46,11 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
           "level": request.level,
           "limit": request.limit,
           "offset": request.offset
+        ], encoding: URLEncoding.default)
+    case .fetchReviews:
+        .requestParameters(parameters: [
+          "order": "-written_datetime",
+          "limit": 150
         ], encoding: URLEncoding.default)
     }
   }

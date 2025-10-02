@@ -10,7 +10,7 @@ import Moya
 
 enum OTLCourseTarget{
   case searchCourse(name: String, offset: Int, limit: Int)
-  case getCourseReview(courseId: Int, offset: Int, limit: Int)
+  case fetchReviews(courseId: Int, offset: Int, limit: Int)
   case likeReview(reviewId: Int)
   case unlikeReview(reviewId: Int)
 }
@@ -24,7 +24,7 @@ extension OTLCourseTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .searchCourse:
       "/api/courses"
-    case .getCourseReview(let courseId, _, _):
+    case .fetchReviews(let courseId, _, _):
       "/api/courses/\(courseId)/reviews"
     case .likeReview(let reviewId), .unlikeReview(let reviewId):
       "/api/reviews/\(reviewId)/like"
@@ -33,7 +33,7 @@ extension OTLCourseTarget: TargetType, AccessTokenAuthorizable {
   
   var method: Moya.Method {
     switch self {
-    case .searchCourse, .getCourseReview:
+    case .searchCourse, .fetchReviews:
       .get
     case .likeReview:
       .post
@@ -46,7 +46,7 @@ extension OTLCourseTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .searchCourse(let name, let offset, let limit):
       .requestParameters(parameters: ["keyword": name, "offset": offset, "limit": limit], encoding: URLEncoding.default)
-    case .getCourseReview(_, let offset, let limit):
+    case .fetchReviews(_, let offset, let limit):
       .requestParameters(parameters: ["offset": offset, "limit": limit], encoding: URLEncoding.default)
     case .likeReview, .unlikeReview:
       .requestPlain
