@@ -65,7 +65,14 @@ struct FeedCommentRow: View {
     HStack {
       profileImage
 
-      Text(comment.authorName)
+      Group {
+        if comment.isAuthor {
+          Text(comment.authorName + " (\(authorTag.localized()))")
+            .foregroundStyle(.accent)
+        } else {
+          Text(comment.authorName)
+        }
+      }
         .fontWeight(.semibold)
         .font(.callout)
 
@@ -187,8 +194,14 @@ struct FeedCommentRow: View {
       comment.isDeleted = false
     }
   }
+  
+  private let authorTag = LocalizedString(["en": "Author", "ko": "작성자"])
 }
 
 #Preview {
-  FeedCommentRow(comment: .constant(FeedComment.mock), isReply: false, onReply: nil)
+  return LazyVStack {
+    FeedCommentRow(comment: .constant(FeedComment.mock), isReply: false, onReply: nil)
+    FeedCommentRow(comment: .constant(FeedComment.mockList[7]), isReply: false, onReply: nil)
+  }
+    .padding()
 }

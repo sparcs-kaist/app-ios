@@ -19,6 +19,8 @@ struct FeedView: View {
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
   @State private var showAlert: Bool = false
+  
+  @State private var spoilerContents = SpoilerContents()
 
   var body: some View {
     NavigationStack {
@@ -28,6 +30,7 @@ struct FeedView: View {
           case .loading:
             ForEach(.constant(FeedPost.mockList)) { $post in
               FeedPostRow(post: $post, onPostDeleted: nil, onComment: nil)
+                .environment(spoilerContents)
                 .padding(.vertical)
 
               Divider()
@@ -45,6 +48,7 @@ struct FeedView: View {
                     }
                   }
                 })
+                .environment(spoilerContents)
                 .addKeyboardVisibilityToEnvironment()
                 .navigationTransition(.zoom(sourceID: post.id, in: namespace))
               }, label: {
@@ -57,6 +61,7 @@ struct FeedView: View {
                     }
                   }
                 }, onComment: nil)
+                .environment(spoilerContents)
                 .contentShape(.rect)
               })
               .padding(.vertical)
@@ -97,24 +102,8 @@ struct FeedView: View {
         ToolbarSpacer(.fixed)
         
         ToolbarItem {
-          Menu("More", systemImage: "ellipsis") {
-            Button("Notifications", systemImage: "bell") { }
-
-            Button("Settings", systemImage: "gear") {
-              showSettingsSheet = true
-            }
-
-            Divider()
-
-            Button(
-              "Sign Out",
-              systemImage: "rectangle.portrait.and.arrow.right",
-              role: .destructive
-            ) {
-              Task {
-                try await viewModel.signOut()
-              }
-            }
+          Button("Settings", systemImage: "gear") {
+            showSettingsSheet = true
           }
         }
       }

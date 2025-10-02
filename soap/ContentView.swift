@@ -17,13 +17,11 @@ struct ContentView: View {
     ZStack {
       if viewModel.isAuthenticated {
         MainView()
-          .transition(.opacity)
-      } else if !viewModel.isLoading {
+      } else {
         SignInView()
-          .transition(.opacity)
       }
     }
-    .animation(.easeInOut(duration: 0.3), value: viewModel.isAuthenticated)
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .onChange(of: scenePhase) {
       if scenePhase == .active {
         Task {

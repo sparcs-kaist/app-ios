@@ -42,7 +42,7 @@ extension TaxiChatDTO {
       authorName: authorName,
       authorProfileURL: URL(string: authorProfileURL ?? ""),
       authorIsWithdrew: authorIsWithdrew,
-      content: content,
+      content: content.trimmingCharacters(in: .whitespacesAndNewlines),
       time: time.toDate() ?? Date(),
       isValid: isValid,
       inOutNames: inOutNames

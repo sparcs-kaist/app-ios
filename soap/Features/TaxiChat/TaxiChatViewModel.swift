@@ -55,8 +55,14 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       .sink { [weak self] groupedChats in
         guard let self = self else { return }
         self.groupedChats = groupedChats
+        self.groupedChats = self.groupedChats.map { groupedChat in
+          var newGroupedChat = groupedChat
+          
+          newGroupedChat.chats = groupedChat.chats.filter { $0.roomID == self.room.id }
+          return newGroupedChat
+        }
         withAnimation(.spring) {
-          self.state = .loaded(groupedChats: groupedChats)
+          self.state = .loaded(groupedChats: self.groupedChats)
         }
       }
       .store(in: &cancellables)

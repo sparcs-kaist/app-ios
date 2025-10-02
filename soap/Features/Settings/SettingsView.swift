@@ -8,6 +8,14 @@
 import SwiftUI
 
 struct SettingsView: View {
+  @Environment(\.openURL) private var openURL
+  @State private var viewModel: SettingsViewModel
+  @State private var showLogoutError: Bool = false
+  
+  init(_ viewModel: SettingsViewModel = .init()) {
+    self.viewModel = viewModel
+  }
+  
   var body: some View {
     NavigationStack {
       List {
@@ -18,16 +26,42 @@ struct SettingsView: View {
         Section(header: Text("Services")) {
           NavigationLink("Ara") { AraSettingsView().navigationTitle("Ara Settings") }
           NavigationLink("Taxi") { TaxiSettingsView().navigationTitle("Taxi Settings") }
-          NavigationLink("OTL") { OTLSettingsView().navigationTitle("OTL Settings") }
+        }
+        
+        Section() {
+          Button("Sign Out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
+            Task {
+              do {
+                try await viewModel.signOut()
+              } catch {
+                showLogoutError = true
+              }
+            }
+          }
+          .foregroundStyle(.red)
         }
       }
       .navigationTitle(Text("Settings"))
+      .alert("Error", isPresented: $showLogoutError) {
+        Button(role: .confirm) { }
+      } message: {
+        Text("An error occurred while signing out. Please try again later.")
+      }
     }
   }
   
   private var appSettings: some View {
-    Button("Change Language", systemImage: "globe") {
-      UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+    Group {
+      Button("Change Language", systemImage: "globe") {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+          openURL(url)
+        }
+      }
+      Button("Send Feedback", systemImage: "exclamationmark.bubble") {
+        if let url = URL(string: "mailto:app@sparcs.org"), UIApplication.shared.canOpenURL(url) {
+          openURL(url)
+        }
+      }
     }
   }
 }
