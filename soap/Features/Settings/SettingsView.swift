@@ -29,6 +29,7 @@ struct SettingsView: View {
         }
         
         Section() {
+          terms
           Button("Sign Out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
             Task {
               do {
@@ -63,6 +64,18 @@ struct SettingsView: View {
         }
       }
     }
+  }
+  
+  private var terms: some View {
+    Group {
+      Button("Privacy Policy", systemImage: "list.bullet.clipboard") {
+        openURL(Constants.privacyPolicyURL)
+      }
+      Button("Terms of Use", systemImage: "list.bullet.clipboard") {
+        openURL(Constants.termsOfUseURL)
+      }
+    }
+    .foregroundStyle(.primary)
   }
 }
 

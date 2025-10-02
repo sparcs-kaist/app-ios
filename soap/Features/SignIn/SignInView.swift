@@ -21,7 +21,18 @@ struct SignInView: View {
         .fontDesign(.monospaced)
         .font(.title2)
       Spacer()
-
+      
+      Group {
+        if let attributed = try? AttributedString(markdown: "By continuing, you agree to our [Terms of Use](\(Constants.termsOfUseURL.absoluteString)) and [Privacy Policy](\(Constants.privacyPolicyURL.absoluteString)).") {
+          Text(attributed)
+        } else {
+          Text("By continuing, you agree to our Terms of Use and Privacy Policy.")
+        }
+      }
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+        .font(.caption)
+      
       Button(action: {
         Task {
           do {

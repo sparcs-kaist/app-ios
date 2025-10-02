@@ -14,6 +14,10 @@ enum Constants {
   // MARK: Infinite Scroll Constants
   static let loadMoreThreshold = 0.6
   
+  // MARK: Terms
+  static let privacyPolicyURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/Privacy.md")!
+  static let termsOfUseURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/TermsOfUse.md")!
+  
   // MARK: Taxi
   static let taxiBackendURL = URL(string: "https://taxi.dev.sparcs.org/api")!
   static let taxiSocketURL = URL(string: "https://taxi.dev.sparcs.org/")!
