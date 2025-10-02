@@ -17,14 +17,14 @@ class SearchViewModel {
   // MARK: - Properties
   enum ViewState: Equatable {
     case loading
-    case loaded(courses: [Course], posts: [AraPost], taxiRooms: [TaxiRoom])
+    case loaded
     case error(message: String)
   }
   var courses: [Course] = []
   var posts: [AraPost] = []
   var taxiRooms: [TaxiRoom] = []
   
-  var state: ViewState = .loaded(courses: [], posts: [], taxiRooms: [])
+  var state: ViewState = .loaded
   
   // Infinite Scroll Properties
   var isLoadingMore: Bool = false
@@ -67,6 +67,9 @@ class SearchViewModel {
       .sink { [weak self] _ in
         guard let self else { return }
         guard !searchText.isEmpty else { return }
+        self.courses.removeAll()
+        self.posts.removeAll()
+        self.taxiRooms.removeAll()
         Task {
           await scopedFetch()
         }
@@ -108,12 +111,8 @@ class SearchViewModel {
       }
       
       self.courses = try await otlCourseRepository.searchCourse(name: searchText, offset: 0, limit: 150)
-      
-      let posts = Array(self.posts.prefix(self.posts.count > 3 ? 3 : self.posts.count))
-      let rooms = Array(self.taxiRooms.prefix(self.taxiRooms.count > 3 ? 3 : self.taxiRooms.count))
-      let courses = Array(self.courses.prefix(self.courses.count > 3 ? 3 : self.courses.count))
 
-      self.state = .loaded(courses: courses, posts: posts, taxiRooms: rooms)
+      self.state = .loaded
     } catch {
       state = .error(message: error.localizedDescription)
       logger.error(error)
@@ -136,7 +135,7 @@ class SearchViewModel {
       self.currentPage = page.currentPage
       self.posts.append(contentsOf: page.results)
       self.hasMorePages = currentPage < totalPages
-      self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: self.taxiRooms)
+      self.state = .loaded
       self.isLoadingMore = false
     } catch {
       logger.error(error)
@@ -146,7 +145,7 @@ class SearchViewModel {
   }
   
   func loadFull() {
-    self.state = .loaded(courses: self.courses, posts: self.posts, taxiRooms: self.taxiRooms)
+    self.state = .loaded
   }
   
   func scopedFetch() async {

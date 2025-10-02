@@ -12,6 +12,8 @@ import Moya
 
 protocol OTLLectureRepositoryProtocol: Sendable {
   func searchLectures(request: LectureSearchRequest) async throws -> [Lecture]
+  func fetchLectures(lectureID: Int) async throws -> [LectureReview]
+  func writeReview(lectureID: Int, content: String, grade: Int, load: Int, speech: Int) async throws -> LectureReview
 }
 
 final class OTLLectureRepository: OTLLectureRepositoryProtocol, Sendable {
@@ -26,6 +28,22 @@ final class OTLLectureRepository: OTLLectureRepositoryProtocol, Sendable {
       .searchLecture(request: LectureSearchRequestDTO.fromModel(model: request))
     )
     let result = try response.map([LectureDTO].self).compactMap { $0.toModel() }
+
+    return result
+  }
+
+  func fetchLectures(lectureID: Int) async throws -> [LectureReview] {
+    let response = try await self.provider.request(.fetchReviews(lectureID: lectureID))
+    let result = try response.map([LectureReviewDTO].self).compactMap { $0.toModel() }
+
+    return result
+  }
+
+  func writeReview(lectureID: Int, content: String, grade: Int, load: Int, speech: Int) async throws -> LectureReview {
+    let response = try await self.provider.request(
+      .writeReview(lectureID: lectureID, content: content, grade: grade, load: load, speech: speech)
+    )
+    let result = try response.map(LectureReviewDTO.self).toModel()
 
     return result
   }

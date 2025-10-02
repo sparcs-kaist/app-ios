@@ -6,13 +6,19 @@
 //
 
 import SwiftUI
+import Factory
 
 struct LectureDetailView: View {
   let lecture: Lecture
   let onAdd: (() -> Void)?
   let isOverlapping: Bool
 
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+
   @Environment(\.dismiss) private var dismiss
+  @State private var viewModel = LectureDetailViewModel()
+  @State private var showReviewComposeView: Bool = false
+  @State private var canWriteReview: Bool = false
 
   var body: some View {
     ScrollView {
@@ -28,6 +34,11 @@ struct LectureDetailView: View {
       }
       .padding([.horizontal, .bottom])
     }
+    .task {
+      await viewModel.fetchReviews(lectureID: lecture.id)
+      let otl = await userUseCase.otlUser
+      canWriteReview = otl?.reviewWritableLectures.contains { $0.id == lecture.id } ?? false
+    }
     .navigationTitle(lecture.title.localized())
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
@@ -40,6 +51,12 @@ struct LectureDetailView: View {
           .disabled(isOverlapping)
         }
       }
+    }
+    .sheet(isPresented: $showReviewComposeView) {
+      ReviewComposeView(lecture: lecture, onWrite: { review in
+        viewModel.reviews.insert(review, at: 0)
+      })
+      .presentationDragIndicator(.visible)
     }
   }
 
@@ -60,14 +77,18 @@ struct LectureDetailView: View {
         LectureSummaryRow(title: "Speech", description: lecture.speechLetter)
         Spacer()
 
-        Button(action: { }, label: {
+        Button(action: {
+          showReviewComposeView = true
+        }, label: {
           Label("Write a Review", systemImage: "square.and.pencil")
+            .foregroundStyle(canWriteReview ? .primary : .secondary)
             .padding(8)
         })
-          .font(.callout)
-          .buttonStyle(.glassProminent)
-          .tint(Color.secondarySystemBackground)
-          .foregroundStyle(.primary)
+        .font(.callout)
+        .buttonStyle(.glassProminent)
+        .tint(Color.secondarySystemBackground)
+        .foregroundStyle(.primary)
+        .disabled(!canWriteReview)
       }
       .padding(.vertical, 4)
 
@@ -75,173 +96,16 @@ struct LectureDetailView: View {
         .frame(height: 16)
 
       LazyVStack(spacing: 16) {
-        VStack(alignment: .leading, spacing: 8) {
-          HStack {
-            Text(lecture.professors.first?.name.localized() ?? "Unknown")
-              .font(.headline)
-
-            Text(String(lecture.year).suffix(2) + lecture.semester.shortCode)
-              .foregroundStyle(.secondary)
-              .fontDesign(.rounded)
-              .fontWeight(.semibold)
-
-            Spacer()
-
-            Menu {
-              Button("Translate", systemImage: "translate") { }
-              Button("Summarise", systemImage: "text.append") { }
-              Divider()
-              Button("Report", systemImage: "exclamationmark.triangle.fill") { }
-            } label: {
-              Label("More", systemImage: "ellipsis")
-                .padding(8)
-                .contentShape(.rect)
-            }
-            .labelStyle(.iconOnly)
+        if viewModel.state == .loading {
+          ForEach(LectureReview.mockList.prefix(2)) { review in
+            LectureReviewCell(review: .constant(review))
+              .redacted(reason: .placeholder)
           }
-
-          Text("재수강할 각오로 기말 던지고 나왔는데 교수님이 B0를 주신 ㅎㅎ...\n\n수업 잘하시는데, 개인적으로 못 따라가서 좀 아쉽네요\n\n밑 글처럼 전산쪽 베이스 부족하면 좀 힘들 것 같습니다\n\n왜 전산을 하고 싶으면 시프를 들으라는지 알 수 있었네요")
-            .truncationMode(.head)
-
-          HStack(alignment: .bottom) {
-            HStack(spacing: 4) {
-              Text("Grade")
-                .foregroundStyle(.tertiary)
-                .fontWeight(.medium)
-                .textCase(.uppercase)
-
-              Text("A+")
-                .foregroundStyle(.secondary)
-                .fontDesign(.rounded)
-                .fontWeight(.semibold)
-            }
-            .font(.footnote)
-
-            HStack(spacing: 4) {
-              Text("Load")
-                .foregroundStyle(.tertiary)
-                .fontWeight(.medium)
-                .textCase(.uppercase)
-
-              Text("A+")
-                .foregroundStyle(.secondary)
-                .fontDesign(.rounded)
-                .fontWeight(.semibold)
-            }
-            .font(.footnote)
-
-            HStack(spacing: 4) {
-              Text("Speech")
-                .foregroundStyle(.tertiary)
-                .fontWeight(.medium)
-                .textCase(.uppercase)
-
-              Text("A")
-                .foregroundStyle(.secondary)
-                .fontDesign(.rounded)
-                .fontWeight(.semibold)
-            }
-            .font(.footnote)
-
-            Spacer()
-
-            Button(action: { }, label: {
-              HStack {
-                Text("20")
-                Image(systemName: "arrowshape.up")
-              }
-            })
-            .tint(.primary)
+        } else {
+          ForEach($viewModel.reviews) { $review in
+            LectureReviewCell(review: $review)
           }
         }
-        .padding()
-        .background(.white)
-        .clipShape(.rect(cornerRadius: 26))
-        .shadow(color: .black.opacity(0.1), radius: 8)
-
-        VStack(alignment: .leading, spacing: 8) {
-          HStack {
-            Text(lecture.professors.first?.name.localized() ?? "Unknown")
-              .font(.headline)
-
-            Text(String(lecture.year).suffix(2) + lecture.semester.shortCode)
-              .foregroundStyle(.secondary)
-              .fontDesign(.rounded)
-              .fontWeight(.semibold)
-
-            Spacer()
-
-            Menu {
-              Button("Translate", systemImage: "translate") { }
-              Button("Summarise", systemImage: "text.append") { }
-              Divider()
-              Button("Report", systemImage: "exclamationmark.triangle.fill") { }
-            } label: {
-              Label("More", systemImage: "ellipsis")
-                .padding(8)
-                .contentShape(.rect)
-            }
-            .labelStyle(.iconOnly)
-          }
-
-          Text("재수강할 각오로 기말 던지고 나왔는데 교수님이 B0를 주신 ㅎㅎ...\n\n수업 잘하시는데, 개인적으로 못 따라가서 좀 아쉽네요\n\n밑 글처럼 전산쪽 베이스 부족하면 좀 힘들 것 같습니다\n\n왜 전산을 하고 싶으면 시프를 들으라는지 알 수 있었네요")
-            .truncationMode(.head)
-
-          HStack(alignment: .bottom) {
-            HStack(spacing: 4) {
-              Text("Grade")
-                .foregroundStyle(.tertiary)
-                .fontWeight(.medium)
-                .textCase(.uppercase)
-
-              Text("A+")
-                .foregroundStyle(.secondary)
-                .fontDesign(.rounded)
-                .fontWeight(.semibold)
-            }
-            .font(.footnote)
-
-            HStack(spacing: 4) {
-              Text("Load")
-                .foregroundStyle(.tertiary)
-                .fontWeight(.medium)
-                .textCase(.uppercase)
-
-              Text("A+")
-                .foregroundStyle(.secondary)
-                .fontDesign(.rounded)
-                .fontWeight(.semibold)
-            }
-            .font(.footnote)
-
-            HStack(spacing: 4) {
-              Text("Speech")
-                .foregroundStyle(.tertiary)
-                .fontWeight(.medium)
-                .textCase(.uppercase)
-
-              Text("A")
-                .foregroundStyle(.secondary)
-                .fontDesign(.rounded)
-                .fontWeight(.semibold)
-            }
-            .font(.footnote)
-
-            Spacer()
-
-            Button(action: { }, label: {
-              HStack {
-                Text("20")
-                Image(systemName: "arrowshape.up")
-              }
-            })
-            .tint(.primary)
-          }
-        }
-        .padding()
-        .background(.white)
-        .clipShape(.rect(cornerRadius: 26))
-        .shadow(color: .black.opacity(0.1), radius: 8)
       }
     }
   }

@@ -8,13 +8,36 @@
 import Foundation
 
 struct LectureReview: Identifiable {
+  static let letters: [String] = ["?", "F", "D", "C", "B", "A"]
+
   let id: Int
-  let course: Course
   let lecture: Lecture
   let content: String
-  let like: Int
+  var like: Int
   let grade: Int
   let load: Int
   let speech: Int
-  let isLiked: Bool
+  var isDeleted: Bool
+  var isLiked: Bool
+}
+
+
+extension LectureReview {
+  // Letter grade for the grade
+  var gradeLetter: String {
+    if grade > LectureReview.letters.count { return "?" }
+    return LectureReview.letters[grade]
+  }
+
+  // Letter grade for the load
+  var loadLetter: String {
+    if load > LectureReview.letters.count { return "?" }
+    return LectureReview.letters[load]
+  }
+
+  // Letter grade for the speech
+  var speechLetter: String {
+    if speech > LectureReview.letters.count { return "?" }
+    return LectureReview.letters[speech]
+  }
 }

@@ -20,45 +20,33 @@ struct SearchView: View {
         Color.secondarySystemBackground.ignoresSafeArea()
         
         Group {
-          switch viewModel.state {
-          case .loading:
-            VStack {
-              Spacer().frame(height: 50)
-              SearchSection(title: "Courses", searchScope: $viewModel.searchScope, targetScope: .taxi) {
-                SearchContent(results: Course.mockList) {
-                  CourseCell(course: $0)
-                }
-              }
-              Spacer()
-            }
-            .redacted(reason: .placeholder)
-          case .loaded(let courses, let posts, let rooms):
-            Group {
-              if viewModel.searchText.isEmpty {
-                ContentUnavailableView("Search Anything", systemImage: "magnifyingglass", description: Text("Find courses, posts, rides and more."))
-              } else {
-                resultView(courses: courses, posts: posts, rooms: rooms)
-              }
-            }
-          case .error(let message):
-            ContentUnavailableView(message, systemImage: "exclamationmark.circle", description: Text("Please try again later."))
-              
+          if case let .error(message) = viewModel.state {
+            ContentUnavailableView(
+              message,
+              systemImage: "exclamationmark.circle",
+              description: Text("Please try again later.")
+            )
+          } else if viewModel.searchText.isEmpty {
+            ContentUnavailableView(
+              "Search Anything",
+              systemImage: "magnifyingglass",
+              description: Text("Find courses, posts, rides and more.")
+            )
+          } else {
+            resultView
           }
         }
         .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
-      .overlay {
-        VStack {
-          Picker("Search Scope", selection: $viewModel.searchScope) {
-            ForEach(SearchScope.allCases) { scope in
-              Text(scope.rawValue).tag(scope)
-            }
+      .safeAreaBar(edge: .top) {
+        Picker("Search Scope", selection: $viewModel.searchScope) {
+          ForEach(SearchScope.allCases) { scope in
+            Text(scope.rawValue).tag(scope)
           }
-          .pickerStyle(.segmented)
-          .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
-          .padding(.horizontal)
-          Spacer()
         }
+        .pickerStyle(.segmented)
+        .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
+        .padding(.horizontal)
         .opacity(hideScopeBar ? 0 : 1)
         .disabled(hideScopeBar)
       }
@@ -79,6 +67,8 @@ struct SearchView: View {
           CourseCell(course: course)
         }
         .foregroundStyle(.primary)
+        .redacted(reason: viewModel.state == .loading ? .placeholder : [])
+        .disabled(viewModel.state == .loading)
       }
     }
   }
@@ -94,6 +84,8 @@ struct SearchView: View {
         }
         .foregroundStyle(.primary)
         .padding()
+        .redacted(reason: viewModel.state == .loading ? .placeholder : [])
+        .disabled(viewModel.state == .loading)
       } onLoadMore: {
         if viewModel.searchScope == .posts {
           Task {
@@ -111,6 +103,8 @@ struct SearchView: View {
           .onTapGesture {
             selectedRoom = room
           }
+          .redacted(reason: viewModel.state == .loading ? .placeholder : [])
+          .disabled(viewModel.state == .loading)
       }
     }
     .sheet(item: $selectedRoom) {
@@ -124,20 +118,28 @@ struct SearchView: View {
     }
   }
   
-  private func resultView(courses: [Course], posts: [AraPost], rooms: [TaxiRoom]) -> some View {
+  private var resultView: some View {
     ScrollView {
-      Spacer().frame(height: 50)
       Group {
         if viewModel.searchScope == .all || viewModel.searchScope == .courses {
-          courseSection(courses: courses)
+          courseSection(courses: viewModel.state == .loading ? Array(Course.mockList.prefix(3)) : Array(viewModel.courses.prefix(3)))
         }
         if viewModel.searchScope == .all || viewModel.searchScope == .posts {
-          postSection(posts: posts)
+          postSection(
+            posts: viewModel.state == .loading ? Array(AraPost.mockList.prefix(3)) : Array(
+              viewModel.posts.prefix(3)
+            )
+          )
         }
         if viewModel.searchScope == .all || viewModel.searchScope == .taxi {
-          taxiSection(rooms: rooms)
+          taxiSection(
+            rooms: viewModel.state == .loading ? Array(TaxiRoom.mockList
+              .prefix(3)) : Array(viewModel.taxiRooms
+              .prefix(3))
+          )
         }
       }
+      .padding(.top)
       .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
     .toolbarTitleDisplayMode(.inlineLarge)

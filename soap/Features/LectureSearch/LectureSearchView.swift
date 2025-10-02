@@ -34,7 +34,10 @@ struct LectureSearchView: View {
             if let firstItem = groupedByCourse[course]?.first {
               HStack {
                 Text(firstItem.title.localized())
+                  .lineLimit(2)
+                  .multilineTextAlignment(.leading)
                   .font(.callout)
+                  .fontWeight(.semibold)
 
                 Spacer()
 

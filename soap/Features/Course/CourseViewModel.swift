@@ -7,7 +7,6 @@
 
 import Foundation
 import Factory
-import SwiftyBeaver
 
 @MainActor
 @Observable
@@ -20,37 +19,20 @@ class CourseViewModel {
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol
-  @ObservationIgnored @Injected(\.foundationModelsUseCase) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
   
   // MARK: - Properties
-  var reviews: [CourseReview] = []
+  var reviews: [LectureReview] = []
   var state: ViewState = .loading
   
   // MARK: - Functions
   func fetchReviews(courseId: Int) async {
     do {
       self.state = .loading
-      self.reviews = try await otlCourseRepository.getCourseReview(courseId: courseId, offset: 0, limit: 100)
+      self.reviews = try await otlCourseRepository.fetchReviews(courseId: courseId, offset: 0, limit: 100)
       self.state = .loaded
     } catch {
       logger.error(error)
       self.state = .error(message: error.localizedDescription)
     }
-  }
-  
-  var foundationModelsAvailable: Bool {
-    foundationModelsUseCase.isAvailable
-  }
-  
-  func summarise(_ text: String) async -> String {
-    await foundationModelsUseCase.summarise(text, maxWords: 50, tone: "concise")
-  }
-  
-  func likeReview(reviewId: Int) async throws {
-    try await otlCourseRepository.likeReview(reviewId: reviewId)
-  }
-  
-  func unlikeReview(reviewId: Int) async throws {
-    try await otlCourseRepository.unlikeReview(reviewId: reviewId)
   }
 }

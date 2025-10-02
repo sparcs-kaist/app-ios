@@ -17,6 +17,8 @@ struct ContentView: View {
     ZStack {
       if viewModel.isAuthenticated {
         MainView()
+      } else if viewModel.isLoading {
+        // MARK: THIS PLAYS CRUCIAL ROLE HIDING SIGN IN VIEW ON LOADING
       } else {
         SignInView()
       }

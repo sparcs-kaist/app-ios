@@ -9,24 +9,24 @@ import Foundation
 
 struct LectureReviewDTO: Codable {
   let id: Int
-  let course: CourseDTO
   let lecture: LectureDTO
   let content: String
   let like: Int
   let grade: Int
   let load: Int
   let speech: Int
+  let isDeleted: Int
   let isLiked: Bool
 
   enum CodingKeys: String, CodingKey {
     case id
-    case course
     case lecture
     case content
     case like
     case grade
     case load
     case speech
+    case isDeleted = "is_deleted"
     case isLiked = "userspecific_is_liked"
   }
 }
@@ -36,13 +36,13 @@ extension LectureReviewDTO {
   func toModel() -> LectureReview {
     LectureReview(
       id: id,
-      course: course.toModel(),
       lecture: lecture.toModel(),
       content: content,
       like: like,
       grade: grade,
       load: load,
       speech: speech,
+      isDeleted: isDeleted != 0,
       isLiked: isLiked
     )
   }

@@ -18,18 +18,19 @@ struct CourseView: View {
   
   var body: some View {
     ScrollView {
-      switch viewModel.state {
-      case .loading:
-        courseSummary
-          .redacted(reason: .placeholder)
-      case .loaded:
-        courseSummary
-        courseReview
-      case .error(let message):
-        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+      Group {
+        switch viewModel.state {
+        case .loading, .loaded:
+          courseSummary
+          courseReview
+        case .error(let message):
+          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        }
       }
+      .padding(.horizontal)
     }
-    .padding()
+    .navigationTitle(course.title.localized())
+    .navigationBarTitleDisplayMode(.inline)
     .task {
       await viewModel.fetchReviews(courseId: course.id)
     }
@@ -39,43 +40,37 @@ struct CourseView: View {
     Group {
       VStack(spacing: 20) {
         HStack {
-          Text(course.title)
-            .font(.title3)
-            .fontWeight(.bold)
-          Spacer()
-        }
-        VStack(alignment: .center) {
-          HStack {
-            lectureSummaryRowWrapper(title: "Lec. Hours", description: String(course.numClasses))
-            lectureSummaryRowWrapper(title: "Lab Hours", description: String(course.numLabs))
-            if course.credit == 0 {
-              lectureSummaryRowWrapper(title: "AU", description: String(course.creditAu))
-            } else {
-              lectureSummaryRowWrapper(title: "Credit", description: String(course.credit))
-            }
-          }
-          Divider()
-          HStack {
-            lectureSummaryRowWrapper(title: "Grade", description: course.gradeLetter)
-            lectureSummaryRowWrapper(title: "Load", description: course.loadLetter)
-            lectureSummaryRowWrapper(title: "Speech", description: course.speechLetter)
+          lectureSummaryRowWrapper(title: "Hours", description: String(course.numClasses))
+          lectureSummaryRowWrapper(title: "Lab", description: String(course.numLabs))
+          if course.credit == 0 {
+            lectureSummaryRowWrapper(title: "AU", description: String(course.creditAu))
+          } else {
+            lectureSummaryRowWrapper(title: "Credit", description: String(course.credit))
           }
         }
-      }
-      VStack (alignment: .leading){
-        LectureDetailRow(title: "Code", description: course.code)
-        LectureDetailRow(title: "Type", description: course.type.localized())
-        LectureDetailRow(title: "Department", description: course.department.name.localized())
-        
-        if course.summary != "" {
-          Text("Summary")
-            .foregroundStyle(.secondary)
-            .font(.callout)
-            .padding(.vertical, 4)
-          
-          Text(course.summary)
-            .font(.footnote)
-            .multilineTextAlignment(.leading)
+
+        VStack(alignment: .leading) {
+          HStack {
+            Text("Information")
+              .font(.title3)
+              .fontWeight(.bold)
+            Spacer()
+          }
+
+          LectureDetailRow(title: "Code", description: course.code)
+          LectureDetailRow(title: "Type", description: course.type.localized())
+          LectureDetailRow(title: "Department", description: course.department.name.localized())
+
+          if course.summary != "" {
+            Text("Summary")
+              .foregroundStyle(.secondary)
+              .font(.callout)
+              .padding(.vertical, 4)
+
+            Text(course.summary)
+              .font(.footnote)
+              .multilineTextAlignment(.leading)
+          }
         }
       }
     }
@@ -89,15 +84,25 @@ struct CourseView: View {
           .font(.title3)
           .fontWeight(.bold)
         Spacer()
+
+        lectureSummaryRowWrapper(title: "Grade", description: course.gradeLetter)
+        lectureSummaryRowWrapper(title: "Load", description: course.loadLetter)
+        lectureSummaryRowWrapper(title: "Speech", description: course.speechLetter)
       }
       
       Spacer()
         .frame(height: 16)
-      
+
       LazyVStack(spacing: 16) {
-        ForEach($viewModel.reviews) { review in
-          ReviewCell(review: review, title: course.title.localized(), code: course.code)
-            .environment(viewModel)
+        if viewModel.state == .loaded {
+          ForEach($viewModel.reviews) { $review in
+            LectureReviewCell(review: $review)
+          }
+        } else {
+          ForEach(LectureReview.mockList.prefix(3)) { review in
+            LectureReviewCell(review: .constant(review))
+              .redacted(reason: .placeholder)
+          }
         }
       }
     }
