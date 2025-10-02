@@ -21,20 +21,25 @@ struct SearchSection<Content: View>: View {
         Text(title)
           .font(.title2)
           .fontWeight(.bold)
-        Button {
-          searchScope = targetScope
-        } label: {
-          Image(systemName: "chevron.right")
-            .font(.caption)
-            .labelStyle(.iconOnly)
-            .foregroundStyle(.primary)
+
+        if searchScope != targetScope {
+          Button {
+            searchScope = targetScope
+          } label: {
+            Image(systemName: "chevron.right")
+              .font(.caption)
+              .labelStyle(.iconOnly)
+              .foregroundStyle(.primary)
+          }
+          .buttonStyle(.borderedProminent)
+          .buttonBorderShape(.circle)
+          .tint(Color.systemBackground)
+          .foregroundStyle(.secondary)
         }
-        .buttonStyle(.borderedProminent)
-        .buttonBorderShape(.circle)
-        .tint(Color.systemBackground)
-        .foregroundStyle(.secondary)
+
         Spacer()
       }
+
       LazyVStack(alignment: .leading, spacing: 0) {
         content()
       }
