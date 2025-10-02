@@ -46,6 +46,7 @@ struct AraSettingsView: View {
     } message: {
       Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?")
     }
+    .navigationTitle("Ara")
   }
   
   private var loadingView: some View {

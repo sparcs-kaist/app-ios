@@ -52,6 +52,7 @@ struct TaxiSettingsView: View {
     .onChange(of: [vm.bankName, vm.bankNumber]) {
       isValid = vm.bankName != nil && !vm.bankNumber.isEmpty && (vm.user?.account != "\(vm.bankName ?? "") \(vm.bankNumber)")
     }
+    .navigationTitle("Taxi")
   }
   
   @ViewBuilder
@@ -66,7 +67,7 @@ struct TaxiSettingsView: View {
   var loadedView: some View {
     List {
       Section(header: Text("Profile")) {
-        RowElementView(title: "Nickname", content: vm.user?.nickname ?? String(localized: "Unknown"))
+        RowElementView(title: String(localized: "Nickname"), content: vm.user?.nickname ?? String(localized: "Unknown"))
         Picker("Bank Name", selection: $vm.bankName) {
           Text("Select Bank").tag(Optional<String>(nil))
           ForEach(Constants.taxiBankNameList, id: \.self) {
@@ -83,7 +84,8 @@ struct TaxiSettingsView: View {
       }
       
       Section(header: Text("Service")) {
-        navigationLinkWithIcon(destination: TaxiReportListView(), text: "Report Details", systemImage: "exclamationmark.bubble")      }
+        navigationLinkWithIcon(destination: TaxiReportListView(), text: String(localized: "Report Details"), systemImage: "exclamationmark.bubble")
+      }
     }
   }
   

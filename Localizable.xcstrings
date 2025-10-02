@@ -313,16 +313,6 @@
     "Ara Feedback" : {
       "shouldTranslate" : false
     },
-    "Ara Settings" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ara 설정"
-          }
-        }
-      }
-    },
     "Are you sure you want to delete this post?" : {
       "localizations" : {
         "ko" : {
@@ -418,6 +408,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "북마크한 게시글"
+          }
+        }
+      }
+    },
+    "By continuing, you agree to our [Terms of Use](%@) and [Privacy Policy](%@)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "By continuing, you agree to our [Terms of Use](%1$@) and [Privacy Policy](%2$@)."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계속 진행하면 [이용약관](%1$@) 및 [개인정보 처리방침](%2$@)에 동의하는 것으로 간주됩니다."
           }
         }
       }
@@ -644,6 +650,16 @@
     "D" : {
       "shouldTranslate" : false
     },
+    "Date" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "날짜"
+          }
+        }
+      }
+    },
     "Defamation" : {
       "localizations" : {
         "ko" : {
@@ -714,7 +730,7 @@
         }
       }
     },
-    "Didn't come on time!" : {
+    "Didn't come on time" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -724,7 +740,7 @@
         }
       }
     },
-    "Didn't send money!" : {
+    "Didn't send money" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -814,7 +830,7 @@
         }
       }
     },
-    "Etc" : {
+    "ETC" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -1534,6 +1550,16 @@
         }
       }
     },
+    "Received" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고받은 내역"
+          }
+        }
+      }
+    },
     "Remove" : {
       "localizations" : {
         "ko" : {
@@ -1580,6 +1606,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "신고"
+          }
+        }
+      }
+    },
+    "Report Details" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고 내역"
           }
         }
       }
@@ -1923,6 +1959,16 @@
     "Students Group" : {
       "shouldTranslate" : false
     },
+    "Submitted" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고한 내역"
+          }
+        }
+      }
+    },
     "Summarise" : {
       "localizations" : {
         "ko" : {
@@ -2028,16 +2074,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Taxi 봇"
-          }
-        }
-      }
-    },
-    "Taxi Settings" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taxi 설정"
           }
         }
       }

@@ -24,8 +24,8 @@ struct SettingsView: View {
         }
         
         Section(header: Text("Services")) {
-          NavigationLink("Ara") { AraSettingsView().navigationTitle("Ara Settings") }
-          NavigationLink("Taxi") { TaxiSettingsView().navigationTitle("Taxi Settings") }
+          NavigationLink("Ara") { AraSettingsView() }
+          NavigationLink("Taxi") { TaxiSettingsView() }
         }
         
         Section() {

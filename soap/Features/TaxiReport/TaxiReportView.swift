@@ -40,13 +40,13 @@ struct TaxiReportView: View {
             Text("Select")
               .tag(TaxiReport.Reason?.none)
               .selectionDisabled()
-            Text("Didn't send money!")
+            Text("Didn't send money")
               .tag(TaxiReport.Reason.noSettlement)
               .selectionDisabled(!room.isDeparted)
-            Text("Didn't come on time!")
+            Text("Didn't come on time")
               .tag(TaxiReport.Reason.noShow)
               .selectionDisabled(!room.isDeparted)
-            Text("Etc").tag(TaxiReport.Reason.etcReason)
+            Text("ETC").tag(TaxiReport.Reason.etcReason)
           }
           
           if viewModel.selectedReason == .etcReason {
