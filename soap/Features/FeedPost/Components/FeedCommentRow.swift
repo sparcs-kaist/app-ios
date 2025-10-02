@@ -17,7 +17,6 @@ struct FeedCommentRow: View {
   @State private var showAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
-  @State private var animationDone: Bool = false
   
   // MARK: - Dependencies
   @Injected(
@@ -109,7 +108,6 @@ struct FeedCommentRow: View {
             }
           }
         }
-        .disabled(!animationDone)
       }
     }
     .alert(alertTitle, isPresented: $showAlert, actions: {
