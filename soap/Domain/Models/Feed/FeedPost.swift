@@ -20,6 +20,6 @@ struct FeedPost: Identifiable, Hashable {
   var downvotes: Int
   var myVote: FeedVoteType?
   let isAuthor: Bool
-  var images: [FeedImage]
+  let images: [FeedImage]
 }
 
