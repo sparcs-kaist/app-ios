@@ -15,6 +15,7 @@ struct FeedPostRow: View {
   let onComment: (() -> Void)?
 
   @State private var showDeleteConfirmation: Bool = false
+  @State private var showReportSheet: Bool = false
 
   // MARK: - Dependencies
   @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol
@@ -79,6 +80,9 @@ struct FeedPostRow: View {
               showDeleteConfirmation = true
             }
           }
+          Button("Report", systemImage: "exclamationmark.triangle") {
+            showReportSheet = true
+          }
         }
         .labelStyle(.iconOnly)
         .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
@@ -94,6 +98,12 @@ struct FeedPostRow: View {
       }
     }
     .padding(.horizontal)
+    .sheet(isPresented: $showReportSheet) {
+      NavigationStack {
+        FeedReportView(id: post.id, onReport: feedPostRepository.reportPost)
+          .interactiveDismissDisabled()
+      }
+    }
   }
 
   @ViewBuilder

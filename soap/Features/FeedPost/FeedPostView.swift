@@ -17,6 +17,7 @@ struct FeedPostView: View {
   @Environment(\.dismiss) private var dismiss
 
   @State private var showDeleteConfirmation: Bool = false
+  @State private var showReportSheet: Bool = false
 
   @State private var feedUser: FeedUser? = nil
 
@@ -58,6 +59,9 @@ struct FeedPostView: View {
                 showDeleteConfirmation = true
               }
             }
+            Button("Report", systemImage: "exclamationmark.triangle") {
+              showReportSheet = true
+            }
           }
           .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
@@ -73,6 +77,12 @@ struct FeedPostView: View {
       .scrollDismissesKeyboard(.interactively)
       .safeAreaBar(edge: .bottom) {
         inputBar(proxy: proxy)
+      }
+      .sheet(isPresented: $showReportSheet) {
+        NavigationStack {
+          FeedReportView(id: post.id, onReport: feedPostRepository.reportPost)
+            .interactiveDismissDisabled()
+        }
       }
     }
   }

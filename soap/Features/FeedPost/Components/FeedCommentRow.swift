@@ -14,6 +14,8 @@ struct FeedCommentRow: View {
   let isReply: Bool
   let onReply: (() -> Void)?
 
+  @State private var showReportSheet: Bool = false
+  
   // MARK: - Dependencies
   @Injected(
     \.feedCommentRepository
@@ -31,6 +33,12 @@ struct FeedCommentRow: View {
         content
         
         footer
+      }
+    }
+    .sheet(isPresented: $showReportSheet) {
+      NavigationStack {
+        FeedReportView(id: comment.id, onReport: feedCommentRepository.reportComment)
+          .interactiveDismissDisabled()
       }
     }
   }
@@ -89,6 +97,9 @@ struct FeedCommentRow: View {
               await delete()
             }
           }
+        }
+        Button("Report", systemImage: "exclamationmark.triangle") {
+          showReportSheet = true
         }
       }
         .labelStyle(.iconOnly)
