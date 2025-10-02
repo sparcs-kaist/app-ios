@@ -62,7 +62,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
           return newGroupedChat
         }
         withAnimation(.spring) {
-          self.state = .loaded(groupedChats: groupedChats)
+          self.state = .loaded(groupedChats: self.groupedChats)
         }
       }
       .store(in: &cancellables)
