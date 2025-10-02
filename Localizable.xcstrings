@@ -674,6 +674,16 @@
         }
       }
     },
+    "Depart at" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출발 시각"
+          }
+        }
+      }
+    },
     "Department" : {
       "localizations" : {
         "ko" : {
@@ -852,6 +862,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "계좌 번호를 불러오는 데 실패했습니다."
+          }
+        }
+      }
+    },
+    "Failed to summarise text. Please try again later." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "텍스트 요약에 실패했습니다. 나중에 다시 시도해 주세요."
           }
         }
       }
@@ -1086,6 +1106,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기타"
+          }
+        }
+      }
+    },
+    "Model is currently unavailable. Please try again later." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 모델을 사용할 수 없습니다. 나중에 다시 시도해 주세요."
           }
         }
       }
@@ -1903,6 +1933,22 @@
         }
       }
     },
+    "Summarise the following content in a %@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %lld words.\n\nContent:\n%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Summarise the following content in a %1$@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %2$lld words.\n\nContent:\n%3$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 내용을 %1$@ 스타일로 요약하되, 주요 사실과 주제, 이름, 날짜, 숫자는 반드시 유지하세요.\\n인사가 주요 주제가 아닐 경우 무시하세요.\\n요약은 %2$lld 단어로 제한하세요.\\n\\n내용:\\n%3$@"
+          }
+        }
+      }
+    },
     "Summarising..." : {
       "localizations" : {
         "ko" : {
@@ -2042,6 +2088,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "오류가 발생했습니다. 나중에 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "This content is too short to summarize." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내용이 너무 짧아 요약할 수 없습니다."
           }
         }
       }

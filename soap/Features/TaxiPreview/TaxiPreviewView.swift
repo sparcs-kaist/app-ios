@@ -73,7 +73,7 @@ struct TaxiPreviewView: View {
 
         TaxiInfoSection(items: [
           .plain(
-            label: "Depart at",
+            label: String(localized: "Depart at"),
             value: room.departAt.formattedString
           ),
         ])
