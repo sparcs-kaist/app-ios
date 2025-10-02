@@ -11,27 +11,26 @@ struct CourseCell: View {
   let course: Course
   
   var body: some View {
-    VStack(alignment: .leading) {
-      HStack(alignment: .top) {
+    VStack(alignment: .leading, spacing: 16) {
+      HStack {
         Text(course.title.localized())
           .lineLimit(2)
           .multilineTextAlignment(.leading)
           .font(.callout)
-          .fontWeight(.bold)
-          .frame(width: 150, alignment: .leading)
+          .fontWeight(.semibold)
+
         Spacer()
+
         VStack(alignment: .trailing) {
           Text(course.code)
           Text(course.type.localized())
         }
         .lineLimit(1)
-        .font(.subheadline)
+        .font(.footnote)
         .foregroundStyle(.secondary)
-        .frame(width: 150, alignment: .trailing)
       }
-      if course.summary != "" {
-        Spacer()
-          .frame(height: 16)
+
+      if !course.summary.isEmpty {
         Text(course.summary)
           .lineLimit(3)
           .multilineTextAlignment(.leading)
