@@ -6,15 +6,19 @@
 //
 
 import SwiftUI
+import Factory
 
 struct LectureDetailView: View {
   let lecture: Lecture
   let onAdd: (() -> Void)?
   let isOverlapping: Bool
 
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+
   @Environment(\.dismiss) private var dismiss
   @State private var viewModel = LectureDetailViewModel()
   @State private var showReviewComposeView: Bool = false
+  @State private var canWriteReview: Bool = false
 
   var body: some View {
     ScrollView {
@@ -32,6 +36,8 @@ struct LectureDetailView: View {
     }
     .task {
       await viewModel.fetchReviews(lectureID: lecture.id)
+      let otl = await userUseCase.otlUser
+      canWriteReview = otl?.reviewWritableLectures.contains { $0.id == lecture.id } ?? false
     }
     .navigationTitle(lecture.title.localized())
     .navigationBarTitleDisplayMode(.inline)
@@ -75,12 +81,14 @@ struct LectureDetailView: View {
           showReviewComposeView = true
         }, label: {
           Label("Write a Review", systemImage: "square.and.pencil")
+            .foregroundStyle(canWriteReview ? .primary : .secondary)
             .padding(8)
         })
         .font(.callout)
         .buttonStyle(.glassProminent)
         .tint(Color.secondarySystemBackground)
         .foregroundStyle(.primary)
+        .disabled(!canWriteReview)
       }
       .padding(.vertical, 4)
 
