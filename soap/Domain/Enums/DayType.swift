@@ -18,13 +18,13 @@ enum DayType: Int, Identifiable, CaseIterable, Comparable {
     
     var stringValue: String {
         switch self {
-        case .sun: return "Sun"
-        case .mon: return "Mon"
-        case .tue: return "Tue"
-        case .wed: return "Wed"
-        case .thu: return "Thu"
-        case .fri: return "Fri"
-        case .sat: return "Sat"
+        case .sun: return String(localized: "Sun")
+        case .mon: return String(localized: "Mon")
+        case .tue: return String(localized: "Tue")
+        case .wed: return String(localized: "Wed")
+        case .thu: return String(localized: "Thu")
+        case .fri: return String(localized: "Fri")
+        case .sat: return String(localized: "Sat")
         }
     }
 

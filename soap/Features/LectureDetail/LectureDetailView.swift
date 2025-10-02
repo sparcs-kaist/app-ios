@@ -70,11 +70,11 @@ struct LectureDetailView: View {
       }
 
       HStack {
-        LectureSummaryRow(title: "Grade", description: lecture.gradeLetter)
+        LectureSummaryRow(title: String(localized: "Grade"), description: lecture.gradeLetter)
         Spacer()
-        LectureSummaryRow(title: "Load", description: lecture.loadLetter)
+        LectureSummaryRow(title: String(localized: "Load"), description: lecture.loadLetter)
         Spacer()
-        LectureSummaryRow(title: "Speech", description: lecture.speechLetter)
+        LectureSummaryRow(title: String(localized: "Speech"), description: lecture.speechLetter)
         Spacer()
 
         Button(action: {
@@ -119,21 +119,21 @@ struct LectureDetailView: View {
         Spacer()
       }
 
-      LectureDetailRow(title: "Code", description: lecture.code)
-      LectureDetailRow(title: "Type", description: lecture.typeDetail.localized())
-      LectureDetailRow(title: "Department", description: lecture.department.name.localized())
+      LectureDetailRow(title: String(localized: "Code"), description: lecture.code)
+      LectureDetailRow(title: String(localized: "Type"), description: lecture.typeDetail.localized())
+      LectureDetailRow(title: String(localized: "Department"), description: lecture.department.name.localized())
       LectureDetailRow(
-        title: "Professor",
-        description: lecture.professors.isEmpty ? "Unknown" : lecture.professors.map { $0.name.localized() }.joined(separator: "\n")
+        title: String(localized: "Professor"),
+        description: lecture.professors.isEmpty ? String(localized: "Unknown") : lecture.professors.map { $0.name.localized() }.joined(separator: "\n")
       )
       LectureDetailRow(
-        title: "Classroom",
-        description: lecture.classTimes.first?.classroomNameShort.localized() ?? "Unknown"
+        title: String(localized: "Classroom"),
+        description: lecture.classTimes.first?.classroomNameShort.localized() ?? String(localized: "Unknown")
       )
-      LectureDetailRow(title: "Capacity", description: String(lecture.capacity))
+      LectureDetailRow(title: String(localized: "Capacity"), description: String(lecture.capacity))
       LectureDetailRow(
-        title: "Exams",
-        description: lecture.examTimes.isEmpty ? "Unknown" : lecture.examTimes
+        title: String(localized: "Exams"),
+        description: lecture.examTimes.isEmpty ? String(localized: "Unknown") : lecture.examTimes
           .map { $0.description.localized() }
           .joined(separator: "\n")
       )

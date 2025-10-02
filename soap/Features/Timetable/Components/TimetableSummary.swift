@@ -23,15 +23,15 @@ struct TimetableSummary: View {
   private var content: some View {
     HStack {
       Spacer()
-      BigSummary(label: "Credit", grade: "\(timetableViewModel.selectedTimetable?.credits ?? 0)")
+      BigSummary(label: String(localized: "Credit"), grade: "\(timetableViewModel.selectedTimetable?.credits ?? 0)")
       Spacer()
-      BigSummary(label: "AU", grade: "\(timetableViewModel.selectedTimetable?.creditAUs ?? 0)")
+      BigSummary(label: String(localized: "AU"), grade: "\(timetableViewModel.selectedTimetable?.creditAUs ?? 0)")
       Spacer()
-      BigSummary(label: "Grade", grade: timetableViewModel.selectedTimetable?.gradeLetter ?? "?")
+      BigSummary(label: String(localized: "Grade"), grade: timetableViewModel.selectedTimetable?.gradeLetter ?? "?")
       Spacer()
-      BigSummary(label: "Load", grade: timetableViewModel.selectedTimetable?.loadLetter ?? "?")
+      BigSummary(label: String(localized: "Load"), grade: timetableViewModel.selectedTimetable?.loadLetter ?? "?")
       Spacer()
-      BigSummary(label: "Speech", grade: timetableViewModel.selectedTimetable?.speechLetter ?? "?")
+      BigSummary(label: String(localized: "Speech"), grade: timetableViewModel.selectedTimetable?.speechLetter ?? "?")
       Spacer()
     }
   }

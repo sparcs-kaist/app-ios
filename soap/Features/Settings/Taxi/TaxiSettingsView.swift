@@ -66,7 +66,7 @@ struct TaxiSettingsView: View {
   var loadedView: some View {
     List {
       Section(header: Text("Profile")) {
-        RowElementView(title: "Nickname", content: vm.user?.nickname ?? "Unknown")
+        RowElementView(title: "Nickname", content: vm.user?.nickname ?? String(localized: "Unknown"))
         Picker("Bank Name", selection: $vm.bankName) {
           Text("Select Bank").tag(Optional<String>(nil))
           ForEach(Constants.taxiBankNameList, id: \.self) {

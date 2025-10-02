@@ -112,7 +112,7 @@ struct FeedPostView: View {
           ),
           axis: .vertical,
           label: {
- }
+          }
         )
         .focused($isWritingCommentFocusState)
 

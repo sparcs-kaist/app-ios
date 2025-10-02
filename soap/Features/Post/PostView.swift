@@ -481,14 +481,14 @@ struct PostView: View {
 
   var placeholder: String {
     if let targetComment = targetComment {
-      return "reply to \(targetComment.author.profile.nickname)"
+      return String(localized: "reply to \(targetComment.author.profile.nickname)")
     }
 
     if let commentOnEdit = commentOnEdit {
       return commentOnEdit.content ?? ""
     }
 
-    return "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")"
+    return String(localized: "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")")
   }
 
   var title: AttributedString {
@@ -501,7 +501,7 @@ struct PostView: View {
       result.append(topicAttr)
     }
 
-    var titleAttr = AttributedString(viewModel.post.title ?? "Untitled")
+    var titleAttr = AttributedString(viewModel.post.title ?? String(localized: "Untitled"))
     titleAttr.font = .headline
     titleAttr.foregroundColor = .primary
     result.append(titleAttr)

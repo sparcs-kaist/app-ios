@@ -31,6 +31,22 @@
       },
       "shouldTranslate" : false
     },
+    "%@ at %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ at %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
     "%@ has joined" : {
       "localizations" : {
         "ko" : {
@@ -60,6 +76,48 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld개의 댓글"
+          }
+        }
+      }
+    },
+    "%lld day%@ ago" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld day%2$@ ago"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld일 전"
+          }
+        }
+      }
+    },
+    "%lld hour%@ ago" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld hour%2$@ ago"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld시간 전"
+          }
+        }
+      }
+    },
+    "%lld min ago" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld분 전"
           }
         }
       }
@@ -179,6 +237,16 @@
         }
       }
     },
+    "All" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체"
+          }
+        }
+      }
+    },
     "Allow NSFW" : {
       "localizations" : {
         "ko" : {
@@ -274,6 +342,9 @@
           }
         }
       }
+    },
+    "AU" : {
+      "shouldTranslate" : false
     },
     "Autumn" : {
       "localizations" : {
@@ -424,6 +495,16 @@
         }
       }
     },
+    "Classroom" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의실"
+          }
+        }
+      }
+    },
     "Clear Selection" : {
       "localizations" : {
         "ko" : {
@@ -447,8 +528,28 @@
     "Club" : {
       "shouldTranslate" : false
     },
+    "Code" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "코드"
+          }
+        }
+      }
+    },
     "Communication" : {
       "shouldTranslate" : false
+    },
+    "Competition" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "경쟁률"
+          }
+        }
+      }
     },
     "Content Preferences" : {
       "localizations" : {
@@ -490,6 +591,16 @@
         }
       }
     },
+    "Courses" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의"
+          }
+        }
+      }
+    },
     "Create" : {
       "localizations" : {
         "ko" : {
@@ -506,6 +617,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "신규 방 개설"
+          }
+        }
+      }
+    },
+    "Credit" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "학점"
           }
         }
       }
@@ -549,6 +670,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "게시글 삭제"
+          }
+        }
+      }
+    },
+    "Department" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "학과"
           }
         }
       }
@@ -683,6 +814,16 @@
         }
       }
     },
+    "Exams" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시험"
+          }
+        }
+      }
+    },
     "External Company Advertisement" : {
       "shouldTranslate" : false
     },
@@ -741,6 +882,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "강의, 게시물, 택시 등 다양한 정보를 찾아보세요."
+          }
+        }
+      }
+    },
+    "Fri" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "금"
           }
         }
       }
@@ -838,8 +989,28 @@
         }
       }
     },
+    "just now" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "방금"
+          }
+        }
+      }
+    },
     "KAIST News" : {
       "shouldTranslate" : false
+    },
+    "Language" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "언어"
+          }
+        }
+      }
     },
     "Leave" : {
       "localizations" : {
@@ -896,6 +1067,16 @@
     "Market" : {
       "shouldTranslate" : false
     },
+    "meeting point" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출발지"
+          }
+        }
+      }
+    },
     "Messages to the School" : {
       "shouldTranslate" : false
     },
@@ -905,6 +1086,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기타"
+          }
+        }
+      }
+    },
+    "Mon" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "월"
           }
         }
       }
@@ -1280,6 +1471,16 @@
         }
       }
     },
+    "Professor" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "교수"
+          }
+        }
+      }
+    },
     "Profile" : {
       "localizations" : {
         "ko" : {
@@ -1319,6 +1520,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시간표에서 삭제"
+          }
+        }
+      }
+    },
+    "reply as %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@로 댓글 쓰기"
+          }
+        }
+      }
+    },
+    "reply to %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에게 답글 쓰기"
           }
         }
       }
@@ -1388,7 +1609,27 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "평가"
+            "value" : "후기"
+          }
+        }
+      }
+    },
+    "Rides" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "택시"
+          }
+        }
+      }
+    },
+    "Sat" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "토"
           }
         }
       }
@@ -1636,9 +1877,6 @@
         }
       }
     },
-    "Spoiler" : {
-      "shouldTranslate" : false
-    },
     "Spring" : {
       "localizations" : {
         "ko" : {
@@ -1695,6 +1933,16 @@
         }
       }
     },
+    "Sun" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일"
+          }
+        }
+      }
+    },
     "swap" : {
       "localizations" : {
         "ko" : {
@@ -1716,9 +1964,6 @@
       }
     },
     "Talk" : {
-      "shouldTranslate" : false
-    },
-    "Tap to reveal" : {
       "shouldTranslate" : false
     },
     "Taxi" : {
@@ -1811,6 +2056,16 @@
         }
       }
     },
+    "Thu" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목"
+          }
+        }
+      }
+    },
     "Timetable" : {
       "localizations" : {
         "ko" : {
@@ -1831,12 +2086,32 @@
         }
       }
     },
+    "Today at %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 %@"
+          }
+        }
+      }
+    },
     "Toggle Spoiler" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "스포일러 전환"
+          }
+        }
+      }
+    },
+    "Tomorrow at %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내일 %@"
           }
         }
       }
@@ -1864,6 +2139,26 @@
         }
       }
     },
+    "Tue" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "화"
+          }
+        }
+      }
+    },
+    "Type" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구분"
+          }
+        }
+      }
+    },
     "Unauthorized Sales" : {
       "localizations" : {
         "ko" : {
@@ -1880,6 +2175,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "알 수 없음"
+          }
+        }
+      }
+    },
+    "Untitled" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무제"
           }
         }
       }
@@ -1917,12 +2222,32 @@
         }
       }
     },
+    "Wed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수"
+          }
+        }
+      }
+    },
     "What's happening?" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "무슨 일이 일어나고 있나요?"
+          }
+        }
+      }
+    },
+    "where to?" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어디로 갈까요?"
           }
         }
       }
@@ -1982,7 +2307,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@님에게 답글 쓰기"
+            "value" : "%@에게 답글 쓰기"
           }
         }
       }
@@ -1992,7 +2317,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "평가 작성"
+            "value" : "후기 작성"
           }
         }
       }
