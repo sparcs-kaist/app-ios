@@ -14,6 +14,7 @@ struct LectureDetailView: View {
 
   @Environment(\.dismiss) private var dismiss
   @State private var viewModel = LectureDetailViewModel()
+  @State private var showReviewComposeView: Bool = false
 
   var body: some View {
     ScrollView {
@@ -45,6 +46,12 @@ struct LectureDetailView: View {
         }
       }
     }
+    .sheet(isPresented: $showReviewComposeView) {
+      ReviewComposeView(lecture: lecture, onWrite: { review in
+        viewModel.reviews.insert(review, at: 0)
+      })
+      .presentationDragIndicator(.visible)
+    }
   }
 
   var lectureReviews: some View {
@@ -64,7 +71,9 @@ struct LectureDetailView: View {
         LectureSummaryRow(title: "Speech", description: lecture.speechLetter)
         Spacer()
 
-        Button(action: { }, label: {
+        Button(action: {
+          showReviewComposeView = true
+        }, label: {
           Label("Write a Review", systemImage: "square.and.pencil")
             .padding(8)
         })
