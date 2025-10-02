@@ -16,28 +16,25 @@ struct SearchView: View {
 
   var body: some View {
     NavigationStack {
-      ZStack {
-        Color.secondarySystemBackground.ignoresSafeArea()
-        
-        Group {
-          if case let .error(message) = viewModel.state {
-            ContentUnavailableView(
-              message,
-              systemImage: "exclamationmark.circle",
-              description: Text("Please try again later.")
-            )
-          } else if viewModel.searchText.isEmpty {
-            ContentUnavailableView(
-              "Search Anything",
-              systemImage: "magnifyingglass",
-              description: Text("Find courses, posts, rides and more.")
-            )
-          } else {
-            resultView
-          }
+      Group {
+        if case let .error(message) = viewModel.state {
+          ContentUnavailableView(
+            message,
+            systemImage: "exclamationmark.circle",
+            description: Text("Please try again later.")
+          )
+        } else if viewModel.searchText.isEmpty {
+          ContentUnavailableView(
+            "Search Anything",
+            systemImage: "magnifyingglass",
+            description: Text("Find courses, posts, rides and more.")
+          )
+        } else {
+          resultView
         }
-        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
+      .background(Color.systemGroupedBackground)
+      .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       .safeAreaBar(edge: .top) {
         Picker("Search Scope", selection: $viewModel.searchScope) {
           ForEach(SearchScope.allCases) { scope in
@@ -120,23 +117,31 @@ struct SearchView: View {
   
   private var resultView: some View {
     ScrollView {
-      Group {
-        if viewModel.searchScope == .all || viewModel.searchScope == .courses {
+      LazyVStack(spacing: 16) {
+        if viewModel.searchScope == .all {
           courseSection(courses: viewModel.state == .loading ? Array(Course.mockList.prefix(3)) : Array(viewModel.courses.prefix(3)))
+        } else if viewModel.searchScope == .courses {
+          courseSection(courses: viewModel.state == .loading ? Course.mockList : viewModel.courses)
         }
-        if viewModel.searchScope == .all || viewModel.searchScope == .posts {
+
+        if viewModel.searchScope == .all {
           postSection(
             posts: viewModel.state == .loading ? Array(AraPost.mockList.prefix(3)) : Array(
               viewModel.posts.prefix(3)
             )
           )
+        } else if viewModel.searchScope == .posts {
+          postSection(posts: viewModel.state == .loading ? AraPost.mockList : viewModel.posts)
         }
-        if viewModel.searchScope == .all || viewModel.searchScope == .taxi {
+
+        if viewModel.searchScope == .all {
           taxiSection(
             rooms: viewModel.state == .loading ? Array(TaxiRoom.mockList
               .prefix(3)) : Array(viewModel.taxiRooms
               .prefix(3))
           )
+        } else if viewModel.searchScope == .taxi {
+          taxiSection(rooms: viewModel.state == .loading ? TaxiRoom.mockList : viewModel.taxiRooms)
         }
       }
       .padding(.top)

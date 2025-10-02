@@ -33,7 +33,7 @@ struct SearchSection<Content: View>: View {
           }
           .buttonStyle(.borderedProminent)
           .buttonBorderShape(.circle)
-          .tint(Color.systemBackground)
+          .tint(Color.secondarySystemGroupedBackground)
           .foregroundStyle(.secondary)
         }
 
@@ -43,8 +43,7 @@ struct SearchSection<Content: View>: View {
       LazyVStack(alignment: .leading, spacing: 0) {
         content()
       }
-      .background(Color.systemBackground)
-      .clipShape(.rect(cornerRadius: 28.0))
+      .background(Color.secondarySystemGroupedBackground, in: .rect(cornerRadius: 28))
     }
     .padding(.horizontal)
   }

@@ -71,13 +71,7 @@ struct TaxiReportView: View {
       }
       .navigationTitle("Report")
       .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
-          Button("Cancel", systemImage: "xmark", role: .close) {
-            dismiss()
-          }
-        }
-        
+      .toolbar {        
         ToolbarItem(placement: .topBarTrailing) {
           Button("Done", systemImage: "arrow.up", role: .confirm) {
             Task {

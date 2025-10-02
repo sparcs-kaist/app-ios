@@ -29,21 +29,21 @@ struct TimetableView: View {
             selectedLecture = lecture
           }
           .padding()
-          .background(.background)
+          .background(Color.secondarySystemGroupedBackground)
           .clipShape(.rect(cornerRadius: 28))
           .frame(height: .screenHeight * 0.65)
           .environment(viewModel)
 
           TimetableCreditGraph()
             .padding()
-            .background(.background)
+            .background(Color.secondarySystemGroupedBackground)
             .clipShape(.rect(cornerRadius: 28))
             .environment(viewModel)
 
           // Timetable Summary View
           TimetableSummary()
             .padding()
-            .background(.background)
+            .background(Color.secondarySystemGroupedBackground)
             .clipShape(.rect(cornerRadius: 28))
             .environment(viewModel)
         }
@@ -51,7 +51,7 @@ struct TimetableView: View {
       }
       .navigationTitle("Timetable")
       .toolbarTitleDisplayMode(.inlineLarge)
-      .background(Color.secondarySystemBackground)
+      .background(Color.systemGroupedBackground)
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
           Button("Add Lecture", systemImage: "plus") {

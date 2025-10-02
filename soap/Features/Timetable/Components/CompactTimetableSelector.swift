@@ -83,7 +83,7 @@ struct CompactTimetableSelector: View {
       }, label: {
         Image(systemName: "chevron.left")
       })
-      .tint(.black)
+      .tint(.primary)
       .disabled(timetableViewModel.semesters.first == timetableViewModel.selectedSemester)
 
       Spacer()
@@ -100,7 +100,7 @@ struct CompactTimetableSelector: View {
       }, label: {
         Image(systemName: "chevron.right")
       })
-      .tint(.black)
+      .tint(.primary)
       .disabled(timetableViewModel.semesters.last == timetableViewModel.selectedSemester)
     }
     .frame(maxWidth: 160)
@@ -115,7 +115,7 @@ struct CompactTimetableSelector: View {
   CompactTimetableSelector()
     .environment(TimetableViewModel())
     .background(
-      Color(UIColor.secondarySystemBackground)
+      Color(UIColor.systemGroupedBackground)
     )
 }
 

@@ -46,14 +46,14 @@ struct TaxiRoomCell: View {
       .foregroundStyle(.secondary)
     }
     .padding()
-    .background(Color.systemBackground, in: .rect(cornerRadius: 28))
+    .background(Color.secondarySystemGroupedBackground, in: .rect(cornerRadius: 28))
   }
 }
 
 #Preview {
   let room: TaxiRoom = TaxiRoom.mock
   ZStack {
-    Color.secondarySystemBackground
+    Color.systemGroupedBackground
     TaxiRoomCell(room: room)
       .padding()
   }
