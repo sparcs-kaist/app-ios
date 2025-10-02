@@ -11,7 +11,6 @@ import NukeUI
 struct FeedLazyImage: View {
   private let hPadding: CGFloat = 16 // match your .padding(.horizontal, 16)
   @State private var parentWidth: CGFloat = 0
-  @State private var showSpoilerContent: Bool = false
 
   let item: FeedImage
   @Environment(SpoilerContents.self) private var spoilerContents
