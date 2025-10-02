@@ -32,7 +32,7 @@ extension FeedReportType {
     case .impersonationFraud:
       "Impersonation or Fraud"
     case .commercialAd:
-      "Commercial AD"
+      "Commercial Ad"
     }
   }
 }
