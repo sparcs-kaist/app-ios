@@ -12,6 +12,7 @@ struct PostComposeView: View {
   @State private var viewModel: PostComposeViewModelProtocol
 
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.openURL) private var openURL
 
   @FocusState private var isTitleFocused
   @FocusState private var isDescriptionFocused
@@ -192,7 +193,7 @@ struct PostComposeView: View {
     HStack {
       Spacer()
       Button {
-
+        openURL(Constants.termsOfUseURL)
       } label: {
         Text("terms of use")
           .underline()

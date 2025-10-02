@@ -12,6 +12,7 @@ import PhotosUI
 struct FeedPostComposeView: View {
   @State private var viewModel: FeedPostComposeViewModelProtocol = FeedPostComposeViewModel()
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.openURL) private var openURL
 
   @State private var showPhotosPicker: Bool = false
   @State private var isUploading: Bool = false
@@ -125,6 +126,14 @@ struct FeedPostComposeView: View {
       .buttonStyle(.glass)
 
       Spacer()
+      
+      Button {
+        openURL(Constants.termsOfUseURL)
+      } label: {
+        Text("terms of use")
+          .underline()
+      }
+      .tint(.secondary)
     }
   }
 

@@ -21,7 +21,12 @@ struct SignInView: View {
         .fontDesign(.monospaced)
         .font(.title2)
       Spacer()
-
+      
+      Text(try! AttributedString(markdown: "By continuing, you agree to our [Terms of Use](\(Constants.termsOfUseURL.absoluteString)) and [Privacy Policy](\(Constants.privacyPolicyURL.absoluteString)).")) // can be force unwrapped since it will not throw
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+        .font(.caption)
+      
       Button(action: {
         Task {
           do {
