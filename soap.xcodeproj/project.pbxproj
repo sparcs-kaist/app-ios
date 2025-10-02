@@ -260,12 +260,13 @@
 				};
 			};
 			buildConfigurationList = 8B8DFBE12CCF771700AB82CC /* Build configuration list for PBXProject "soap" */;
-			developmentRegion = en;
+			developmentRegion = "en-GB";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 				ko,
+				"en-GB",
 			);
 			mainGroup = 8B8DFBDD2CCF771700AB82CC;
 			minimizedProjectReferenceProxies = 1;

@@ -46,7 +46,7 @@ struct TaxiRoomCreationView: View {
           }
         }
       }
-      .navigationTitle("New Room")
+      .navigationTitle("New Group")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {

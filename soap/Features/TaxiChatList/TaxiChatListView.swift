@@ -48,7 +48,7 @@ struct TaxiChatListView: View {
   private var loadingView: some View {
     LazyVStack(spacing: 12) {
       HStack {
-        Text("Active Rooms")
+        Text("Active Groups")
           .font(.title3)
           .fontWeight(.bold)
 
@@ -63,7 +63,7 @@ struct TaxiChatListView: View {
 
     LazyVStack(spacing: 12) {
       HStack {
-        Text("Past Rooms")
+        Text("Past Groups")
           .font(.title3)
           .fontWeight(.bold)
 
@@ -81,7 +81,7 @@ struct TaxiChatListView: View {
   private func loadedView(onGoing: [TaxiRoom], done: [TaxiRoom]) -> some View {
     LazyVStack(spacing: 12) {
       HStack {
-        Text("Active Rooms")
+        Text("Active Groups")
           .font(.title3)
           .fontWeight(.bold)
 
@@ -99,7 +99,7 @@ struct TaxiChatListView: View {
 
     LazyVStack(spacing: 12) {
       HStack {
-        Text("Past Rooms")
+        Text("Past Groups")
           .font(.title3)
           .fontWeight(.bold)
 

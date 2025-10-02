@@ -216,7 +216,7 @@ struct TaxiListView: View {
   }
 
   private func emptyView(locations: [TaxiLocation]) -> some View {
-    ContentUnavailableView("No Rides This Week", systemImage: "car.2.fill", description: Text("Looks like there are no rooms scheduled for this week. Be the first to create one!"))
+    ContentUnavailableView("No Rides This Week", systemImage: "car.2.fill", description: Text("Looks like there are no groups scheduled for this week. Be the first to create one!"))
   }
 
   private func errorView(errorMessage: String) -> some View {
@@ -246,7 +246,7 @@ struct TaxiListView: View {
         Text(description)
       },
       actions: {
-        Button("Create a New Room") {
+        Button("Create a New Group") {
           showRoomCreationSheet = true
         }
 

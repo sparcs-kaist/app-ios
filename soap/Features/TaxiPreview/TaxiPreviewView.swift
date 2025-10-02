@@ -105,7 +105,7 @@ struct TaxiPreviewView: View {
                 .isJoined(participants: room.participants) {
                 Label("Joined", systemImage: "car.2.fill")
               } else if room.participants.count >= room.capacity || viewModel.isJoined(participants: room.participants) {
-                Label("This room is full", systemImage: "car.2.fill")
+                Label("This group is full", systemImage: "car.2.fill")
               } else {
                 Label("Join", systemImage: "car.2.fill")
               }
