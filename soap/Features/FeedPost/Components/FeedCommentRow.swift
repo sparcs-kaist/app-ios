@@ -17,7 +17,6 @@ struct FeedCommentRow: View {
   @State private var showAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
-  @State private var animationDone: Bool = false
   
   @State private var showFullContent: Bool = false
   @State private var canBeExpnaded: Bool = false
@@ -112,7 +111,6 @@ struct FeedCommentRow: View {
             }
           }
         }
-        .disabled(!animationDone)
       }
     }
     .alert(alertTitle, isPresented: $showAlert, actions: {
