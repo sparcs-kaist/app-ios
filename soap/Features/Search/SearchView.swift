@@ -47,18 +47,15 @@ struct SearchView: View {
         }
         .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
-      .overlay {
-        VStack {
-          Picker("Search Scope", selection: $viewModel.searchScope) {
-            ForEach(SearchScope.allCases) { scope in
-              Text(scope.rawValue).tag(scope)
-            }
+      .safeAreaBar(edge: .top) {
+        Picker("Search Scope", selection: $viewModel.searchScope) {
+          ForEach(SearchScope.allCases) { scope in
+            Text(scope.rawValue).tag(scope)
           }
-          .pickerStyle(.segmented)
-          .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
-          .padding(.horizontal)
-          Spacer()
         }
+        .pickerStyle(.segmented)
+        .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
+        .padding(.horizontal)
         .opacity(hideScopeBar ? 0 : 1)
         .disabled(hideScopeBar)
       }
