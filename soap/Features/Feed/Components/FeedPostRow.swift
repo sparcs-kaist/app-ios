@@ -14,8 +14,11 @@ struct FeedPostRow: View {
   let onPostDeleted: ((String) -> Void)?
   let onComment: (() -> Void)?
 
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
+  
   @State private var showDeleteConfirmation: Bool = false
-  @State private var showReportSheet: Bool = false
 
   // MARK: - Dependencies
   @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol
@@ -80,8 +83,19 @@ struct FeedPostRow: View {
               showDeleteConfirmation = true
             }
           }
-          Button("Report", systemImage: "exclamationmark.triangle") {
-            showReportSheet = true
+          Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+            ForEach(FeedReportType.allCases) { reason in
+              Button(reason.prettyString) {
+                Task {
+                  do {
+                    try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
+                    showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+                  } catch {
+                    // TODO: error handling
+                  }
+                }
+              }
+            }
           }
         }
         .labelStyle(.iconOnly)
@@ -95,15 +109,14 @@ struct FeedPostRow: View {
         } message: {
           Text("Are you sure you want to delete this post?")
         }
+        .alert(alertTitle, isPresented: $showAlert, actions: {
+          Button("Okay", role: .close) { }
+        }, message: {
+          Text(alertMessage)
+        })
       }
     }
     .padding(.horizontal)
-    .sheet(isPresented: $showReportSheet) {
-      NavigationStack {
-        FeedReportView(id: post.id, onReport: feedPostRepository.reportPost)
-          .interactiveDismissDisabled()
-      }
-    }
   }
 
   @ViewBuilder
@@ -195,6 +208,12 @@ struct FeedPostRow: View {
       post.myVote = previousMyVote
       post.downvotes = previousDownvotes
     }
+  }
+  
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
   }
 }
 
