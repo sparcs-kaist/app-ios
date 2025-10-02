@@ -39,7 +39,6 @@ struct CourseCell: View {
       }
     }
     .padding()
-    .background(Color.systemBackground, in: .rect(cornerRadius: 28.0))
   }
 }
 

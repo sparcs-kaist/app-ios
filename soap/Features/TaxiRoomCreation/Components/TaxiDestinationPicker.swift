@@ -78,7 +78,7 @@ fileprivate struct LocationMenu: View {
   LazyVStack {
     TaxiDestinationPicker(source: $source, destination: $destination, locations: locations)
       .padding()
-      .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 28))
+      .background(Color.secondarySystemGroupedBackground, in: .rect(cornerRadius: 28))
       .padding(.horizontal)
   }
 }

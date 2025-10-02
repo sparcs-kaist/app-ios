@@ -34,7 +34,7 @@ struct TaxiChatListView: View {
       .padding()
     }
     .navigationTitle(Text("Chats"))
-    .background(Color.secondarySystemBackground)
+    .background(Color.systemGroupedBackground)
     .toolbar(.hidden, for: .tabBar)
     .navigationDestination(item: $selectedRoom) { room in
       TaxiChatView(room: room)

@@ -60,7 +60,7 @@ struct TaxiListView: View {
               locations: viewModel.locations
             )
             .padding()
-            .background(Color.systemBackground, in: .rect(cornerRadius: 28))
+            .background(Color.secondarySystemGroupedBackground, in: .rect(cornerRadius: 28))
             .padding(.horizontal)
             .redacted(reason: isInteractable ? [] : .placeholder)
             .disabled(!isInteractable)
@@ -114,7 +114,7 @@ struct TaxiListView: View {
       }
       .navigationTitle("Taxi")
       .toolbarTitleDisplayMode(.inlineLarge)
-      .background(Color.secondarySystemBackground)
+      .background(Color.systemGroupedBackground)
       .navigationDestination(isPresented: $showChat) {
         TaxiChatListView()
       }

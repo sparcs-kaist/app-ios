@@ -17,6 +17,7 @@ struct LectureReviewCell: View {
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
 
+  @Environment(\.colorScheme) var colorScheme
   @Environment(\.openURL) private var openURL
   @State private var showTranslateSheet: Bool = false
   @State private var summarisedContent: String? = nil
@@ -97,7 +98,7 @@ struct LectureReviewCell: View {
       }
     }
     .padding()
-    .background(.white)
+    .background(colorScheme == .dark ? Color.secondarySystemGroupedBackground : .white)
     .clipShape(.rect(cornerRadius: 26))
     .shadow(color: .black.opacity(0.1), radius: 8)
     .translationPresentation(isPresented: $showTranslateSheet, text: review.content)
