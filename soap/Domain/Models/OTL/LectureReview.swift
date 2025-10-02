@@ -11,7 +11,6 @@ struct LectureReview: Identifiable {
   static let letters: [String] = ["?", "F", "D", "C", "B", "A"]
 
   let id: Int
-  let course: Course
   let lecture: Lecture
   let content: String
   var like: Int

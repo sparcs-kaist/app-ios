@@ -9,7 +9,6 @@ import Foundation
 
 struct LectureReviewDTO: Codable {
   let id: Int
-  let course: CourseDTO
   let lecture: LectureDTO
   let content: String
   let like: Int
@@ -21,7 +20,6 @@ struct LectureReviewDTO: Codable {
 
   enum CodingKeys: String, CodingKey {
     case id
-    case course
     case lecture
     case content
     case like
@@ -38,7 +36,6 @@ extension LectureReviewDTO {
   func toModel() -> LectureReview {
     LectureReview(
       id: id,
-      course: course.toModel(),
       lecture: lecture.toModel(),
       content: content,
       like: like,

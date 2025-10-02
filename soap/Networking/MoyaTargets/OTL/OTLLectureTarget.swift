@@ -50,7 +50,7 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
     case .fetchReviews:
         .requestParameters(parameters: [
           "order": "-written_datetime",
-          "limit": 150
+          "limit": 100
         ], encoding: URLEncoding.default)
     }
   }
