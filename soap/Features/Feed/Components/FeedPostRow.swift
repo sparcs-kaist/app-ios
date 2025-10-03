@@ -17,6 +17,8 @@ struct FeedPostRow: View {
   @State private var showAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
+  @State private var showFullContent: Bool = false
+  @State private var canBeExpanded: Bool = false
   
   @State private var showDeleteConfirmation: Bool = false
 
@@ -123,6 +125,25 @@ struct FeedPostRow: View {
   var content: some View {
     Text(post.content)
       .padding(.horizontal)
+      .lineLimit(showFullContent ? nil : 5)
+      .background {
+        ViewThatFits(in: .vertical) {
+          Text(post.content)
+            .hidden()
+          Color.clear.onAppear {
+            canBeExpanded = true
+          }
+        }
+      }
+    if canBeExpanded {
+      Button(showFullContent ? "Less" : "More...") {
+        withAnimation {
+          showFullContent.toggle()
+        }
+      }
+      .padding(.horizontal)
+      .foregroundStyle(.secondary)
+    }
     if !post.images.isEmpty {
       PostImagesStrip(images: post.images)
     }
@@ -151,6 +172,7 @@ struct FeedPostRow: View {
 //        PostShareButton(url: URL(string: "https://sparcs.org")!) // FIXME: Feed URL Placeholder
 //      }
     }
+    .frame(height: 20)
     .padding(.horizontal)
     .padding(.top, 4)
   }
