@@ -80,7 +80,7 @@ struct PostView: View {
                     onPostDeleted?(viewModel.post.id)
                     dismiss()
                   } catch {
-                    showAlert(title: "Error", message: "Failed to delete a post. Please try again later.")
+                    showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
                   }
                 }
               }
@@ -121,37 +121,37 @@ struct PostView: View {
           Button("Hate Speech") {
             Task {
               try? await viewModel.report(type: .hateSpeech)
-              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
             }
           }
           Button("Unauthorized Sales") {
             Task {
               try? await viewModel.report(type: .unauthorizedSales)
-              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
             }
           }
           Button("Spam") {
             Task {
               try? await viewModel.report(type: .spam)
-              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
             }
           }
           Button("False Information") {
             Task {
               try? await viewModel.report(type: .falseInformation)
-              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
             }
           }
           Button("Defamation") {
             Task {
               try? await viewModel.report(type: .defamation)
-              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
             }
           }
           Button("Other") {
             Task {
               try? await viewModel.report(type: .other)
-              showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
             }
           }
         }

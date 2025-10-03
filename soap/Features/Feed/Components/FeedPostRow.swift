@@ -87,11 +87,11 @@ struct FeedPostRow: View {
           }
           Menu("Report", systemImage: "exclamationmark.triangle.fill") {
             ForEach(FeedReportType.allCases) { reason in
-              Button(reason.prettyString) {
+              Button(reason.description) {
                 Task {
                   do {
                     try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
-                    showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+                    showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                   } catch {
                     // TODO: error handling
                   }

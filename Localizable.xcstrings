@@ -399,6 +399,22 @@
         }
       }
     },
+    "Advertisement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advertisement"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "광고"
+          }
+        }
+      }
+    },
     "All" : {
       "localizations" : {
         "en" : {
@@ -1441,6 +1457,22 @@
     "External Company Advertisement" : {
       "shouldTranslate" : false
     },
+    "Extreme Politics" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extreme Politics"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "극단적 정치"
+          }
+        }
+      }
+    },
     "F" : {
       "shouldTranslate" : false
     },
@@ -1449,6 +1481,28 @@
     },
     "Facility Notice" : {
       "shouldTranslate" : false
+    },
+    "Failed to delete a post. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to delete a post. Please try again later."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to delete a post. Please try again shortly."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글 삭제를 실패했습니다. 나중에 다시 시도해 주세요."
+          }
+        }
+      }
     },
     "Failed to load content" : {
       "localizations" : {
@@ -1637,6 +1691,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "결제자에게 송금했어요!"
+          }
+        }
+      }
+    },
+    "Impersonation/Fraud" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impersonation/Fraud"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사칭/사기"
           }
         }
       }
@@ -2184,6 +2254,22 @@
     },
     "NSFW" : {
       "shouldTranslate" : false
+    },
+    "Offensive Language" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offensive Language"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "심한 욕설"
+          }
+        }
+      }
     },
     "Okay" : {
       "localizations" : {
@@ -3072,6 +3158,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정산 필요"
+          }
+        }
+      }
+    },
+    "Sexually Explicit Content" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sexually Explicit Content"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "성인 컨텐츠"
           }
         }
       }
