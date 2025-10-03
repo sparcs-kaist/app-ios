@@ -14,6 +14,10 @@ struct FeedPostRow: View {
   let onPostDeleted: ((String) -> Void)?
   let onComment: (() -> Void)?
 
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
+  
   @State private var showDeleteConfirmation: Bool = false
 
   // MARK: - Dependencies
@@ -79,6 +83,20 @@ struct FeedPostRow: View {
               showDeleteConfirmation = true
             }
           }
+          Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+            ForEach(FeedReportType.allCases) { reason in
+              Button(reason.prettyString) {
+                Task {
+                  do {
+                    try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
+                    showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+                  } catch {
+                    // TODO: error handling
+                  }
+                }
+              }
+            }
+          }
         }
         .labelStyle(.iconOnly)
         .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
@@ -91,6 +109,11 @@ struct FeedPostRow: View {
         } message: {
           Text("Are you sure you want to delete this post?")
         }
+        .alert(alertTitle, isPresented: $showAlert, actions: {
+          Button("Okay", role: .close) { }
+        }, message: {
+          Text(alertMessage)
+        })
       }
     }
     .padding(.horizontal)
@@ -185,6 +208,12 @@ struct FeedPostRow: View {
       post.myVote = previousMyVote
       post.downvotes = previousDownvotes
     }
+  }
+  
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
   }
 }
 

@@ -13,7 +13,12 @@ struct FeedCommentRow: View {
   @Binding var comment: FeedComment
   let isReply: Bool
   let onReply: (() -> Void)?
-
+  
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
+  @State private var animationDone: Bool = false
+  
   // MARK: - Dependencies
   @Injected(
     \.feedCommentRepository
@@ -90,9 +95,29 @@ struct FeedCommentRow: View {
             }
           }
         }
+        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+          ForEach(FeedReportType.allCases) { reason in
+            Button(reason.prettyString) {
+              Task {
+                do {
+                  try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
+                  showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+                } catch {
+                  // TODO: error handling
+                }
+              }
+            }
+          }
+        }
+        .disabled(!animationDone)
       }
-        .labelStyle(.iconOnly)
     }
+    .alert(alertTitle, isPresented: $showAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(alertMessage)
+    })
+    .labelStyle(.iconOnly)
   }
 
   @ViewBuilder
@@ -196,12 +221,20 @@ struct FeedCommentRow: View {
   }
   
   private let authorTag = LocalizedString(["en": "Author", "ko": "작성자"])
+  
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
+  }
 }
 
 #Preview {
-  return LazyVStack {
-    FeedCommentRow(comment: .constant(FeedComment.mock), isReply: false, onReply: nil)
-    FeedCommentRow(comment: .constant(FeedComment.mockList[7]), isReply: false, onReply: nil)
-  }
+  return
+    LazyVStack {
+      ForEach(.constant(FeedComment.mockList)) {
+        FeedCommentRow(comment: $0, isReply: false, onReply: nil)
+      }
+    }
     .padding()
 }

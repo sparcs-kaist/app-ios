@@ -15,6 +15,7 @@ enum FeedCommentTarget {
   case delete(commentID: String)
   case vote(commentID: String, type: FeedVoteType)
   case deleteVote(commentID: String)
+  case reportComment(commentID: String, reason: String, detail: String)
 }
 
 extension FeedCommentTarget: TargetType, AccessTokenAuthorizable {
@@ -36,6 +37,8 @@ extension FeedCommentTarget: TargetType, AccessTokenAuthorizable {
       "/comments/\(commentID)/vote"
     case .deleteVote(let commentID):
       "/comments/\(commentID)/vote"
+    case .reportComment(let commentID, _, _):
+      "/comments/\(commentID)/report"
     }
   }
 
@@ -43,7 +46,7 @@ extension FeedCommentTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchComments:
       .get
-    case .writeComment, .writeReply, .vote:
+    case .writeComment, .writeReply, .vote, .reportComment:
       .post
     case .delete, .deleteVote:
       .delete
@@ -64,6 +67,8 @@ extension FeedCommentTarget: TargetType, AccessTokenAuthorizable {
       .requestParameters(parameters: ["vote": type.rawValue], encoding: JSONEncoding.default)
     case .deleteVote:
       .requestPlain
+    case .reportComment(_, let reason, let detail):
+      .requestParameters(parameters: ["reason": reason, "detail": detail], encoding: JSONEncoding.default)
     }
   }
 

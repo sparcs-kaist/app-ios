@@ -14,6 +14,7 @@ enum FeedPostTarget {
   case delete(postID: String)
   case vote(postID: String, type: FeedVoteType)
   case deleteVote(postID: String)
+  case reportPost(postID: String, reason: String, detail: String)
 }
 
 extension FeedPostTarget: TargetType, AccessTokenAuthorizable {
@@ -31,6 +32,8 @@ extension FeedPostTarget: TargetType, AccessTokenAuthorizable {
       "/posts/\(postID)/vote"
     case .deleteVote(let postID):
       "/posts/\(postID)/vote"
+    case .reportPost(let postID, _, _):
+      "/posts/\(postID)/report"
     }
   }
 
@@ -38,7 +41,7 @@ extension FeedPostTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchPosts:
       .get
-    case .writePost, .vote:
+    case .writePost, .vote, .reportPost:
       .post
     case .delete, .deleteVote:
       .delete
@@ -62,6 +65,8 @@ extension FeedPostTarget: TargetType, AccessTokenAuthorizable {
       return .requestParameters(parameters: ["vote": type.rawValue], encoding: JSONEncoding.default)
     case .deleteVote(_):
       return .requestPlain
+    case .reportPost(_, let reason, let detail):
+      return .requestParameters(parameters: ["reason": reason, "detail": detail], encoding: JSONEncoding.default)
     }
   }
 

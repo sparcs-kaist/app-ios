@@ -16,6 +16,7 @@ protocol FeedPostRepositoryProtocol: Sendable {
   func deletePost(postID: String) async throws
   func vote(postID: String, type: FeedVoteType) async throws
   func deleteVote(postID: String) async throws
+  func reportPost(postID: String, reason: FeedReportType, detail: String) async throws
 }
 
 actor FeedPostRepository: FeedPostRepositoryProtocol {
@@ -49,6 +50,11 @@ actor FeedPostRepository: FeedPostRepositoryProtocol {
 
   func deleteVote(postID: String) async throws {
     let response = try await provider.request(.deleteVote(postID: postID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+  
+  func reportPost(postID: String, reason: FeedReportType, detail: String) async throws {
+    let response = try await provider.request(.reportPost(postID: postID, reason: reason.rawValue, detail: detail))
     _ = try response.filterSuccessfulStatusCodes()
   }
 }

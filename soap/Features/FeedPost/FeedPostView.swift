@@ -23,6 +23,10 @@ struct FeedPostView: View {
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var targetComment: FeedComment? = nil
   @State private var isUploadingComment: Bool = false
+  
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
 
   // MARK: - Dependencies
   @Injected(
@@ -58,6 +62,20 @@ struct FeedPostView: View {
                 showDeleteConfirmation = true
               }
             }
+            Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+              ForEach(FeedReportType.allCases) { reason in
+                Button(reason.prettyString) {
+                  Task {
+                    do {
+                      try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
+                      showAlert(title: "Report Submitted", message: "Your report has been submitted successfully.")
+                    } catch {
+                      // TODO: error handling
+                    }
+                  }
+                }
+              }
+            }
           }
           .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
@@ -74,6 +92,11 @@ struct FeedPostView: View {
       .safeAreaBar(edge: .bottom) {
         inputBar(proxy: proxy)
       }
+      .alert(alertTitle, isPresented: $showAlert, actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(alertMessage)
+      })
     }
   }
 
@@ -219,6 +242,12 @@ struct FeedPostView: View {
           .scaleEffect(0.8)
       }
     }
+  }
+  
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
   }
 }
 
