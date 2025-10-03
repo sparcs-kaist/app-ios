@@ -33,8 +33,6 @@ class ContentViewModel {
   }
 
   func refreshAccessTokenIfNeeded() async {
-    if !isAuthenticated { return }
-    
     isLoading = true
     do {
       try await authUseCase.refreshAccessTokenIfNeeded()
