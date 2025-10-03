@@ -39,13 +39,13 @@ struct TaxiListView: View {
   var description: String {
     switch (viewModel.source, viewModel.destination) {
     case let (source?, destination?):
-      return "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!"
+      return String(localized: "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!")
     case let (source?, nil):
-      return "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!"
+      return String(localized: "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!")
     case let (nil, destination?):
-      return "No rooms found heading to \(destination.title.localized()). Be the first one to create one!"
+      return String(localized: "No rooms found heading to \(destination.title.localized()). Be the first one to create one!")
     case (nil, nil):
-      return "No rooms found for this week. Be the first one to create one!"
+      return String(localized: "No rooms found for this week. Be the first one to create one!")
     }
   }
 
