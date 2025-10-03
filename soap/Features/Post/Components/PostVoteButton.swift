@@ -13,11 +13,16 @@ struct PostVoteButton: View {
   let onDownvote: () async -> Void
   let onUpvote: () async -> Void
 
+  @State private var isRunning: Bool = false
+
   var body: some View {
     HStack {
       Button(action: {
+        guard !isRunning else { return }
+        isRunning = true
         Task {
           await onUpvote()
+          isRunning = false
         }
       }, label: {
         HStack {
@@ -34,14 +39,18 @@ struct PostVoteButton: View {
       Divider()
 
       Button("downvote", systemImage: downvoteImage) {
+        guard !isRunning else { return }
+        isRunning = true
         Task {
           await onDownvote()
+          isRunning = false
         }
       }
       .labelStyle(.iconOnly)
       .foregroundStyle(myVote == false ? Color.downvote : .primary)
     }
     .padding(8)
+    .fixedSize(horizontal: false, vertical: true)
     .glassEffect(.regular.interactive())
   }
 

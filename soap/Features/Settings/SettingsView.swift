@@ -24,8 +24,8 @@ struct SettingsView: View {
         }
         
         Section(header: Text("Services")) {
-          NavigationLink("Ara") { AraSettingsView().navigationTitle("Ara Settings") }
-          NavigationLink("Taxi") { TaxiSettingsView().navigationTitle("Taxi Settings") }
+          NavigationLink("Ara") { AraSettingsView() }
+          NavigationLink("Taxi") { TaxiSettingsView() }
         }
         
         Section() {
@@ -59,7 +59,7 @@ struct SettingsView: View {
         }
       }
       Button("Send Feedback", systemImage: "exclamationmark.bubble") {
-        if let url = URL(string: "mailto:app@sparcs.org"), UIApplication.shared.canOpenURL(url) {
+        if let url = URL(string: "mailto:buddy@sparcs.org"), UIApplication.shared.canOpenURL(url) {
           openURL(url)
         }
       }

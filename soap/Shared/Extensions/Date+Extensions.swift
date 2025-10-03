@@ -21,18 +21,18 @@ extension Date {
     }
 
     if let day = components.day, day > 0 {
-      return "\(day) day\(day > 1 ? "s" : "") ago"
+      return String(localized: "\(day) day\(day > 1 ? "s" : "") ago")
     }
 
     if let hour = components.hour, hour > 0 {
-      return "\(hour) hour\(hour > 1 ? "s" : "") ago"
+      return String(localized: "\(hour) hour\(hour > 1 ? "s" : "") ago")
     }
 
     if let minute = components.minute, minute > 0 {
-      return "\(minute) min ago"
+      return String(localized: "\(minute) min ago")
     }
 
-    return "just now"
+    return String(localized: "just now")
   }
 
   func ceilToNextTenMinutes() -> Date {
@@ -75,17 +75,16 @@ extension Date {
     let calendar = Calendar.current
 
     if calendar.isDateInToday(self) {
-      return "Today at \(self.localizedTime)"
+      return String(localized: "Today at \(self.localizedTime)")
     } else if calendar.isDateInTomorrow(self) {
-      return "Tomorrow at \(self.localizedTime)"
+      return String(localized: "Tomorrow at \(self.localizedTime)")
     } else if let weekday = self.weekdayNameIfWithinAWeek {
-      return "\(weekday) at \(self.localizedTime)"
-    } else {
-      let formatter = DateFormatter()
-      formatter.locale = Locale.current
-      formatter.setLocalizedDateFormatFromTemplate("yMMM d 'at' jm")
-      return formatter.string(from: self)
+      return String(localized: "\(weekday) at \(self.localizedTime)")
     }
+
+    return self.formatted(.dateTime
+      .year().month().day()
+      .hour().minute())
   }
 
   private var localizedTime: String {

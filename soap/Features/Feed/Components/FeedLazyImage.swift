@@ -47,17 +47,14 @@ struct FeedLazyImage: View {
       }
       .overlay {
         if item.spoiler == true && !spoilerContents.contains(item.id) {
-          VStack {
-            Image(systemName: "eye.slash")
-            Text("Spoiler")
-            Text("Tap to reveal")
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .background(.ultraThinMaterial)
-          .onTapGesture {
-            spoilerContents.add(item.id)
-          }
-          .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+          Rectangle()
+            .fill(.ultraThinMaterial)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onTapGesture {
+              withAnimation(.easeInOut(duration: 0.3)) {
+                spoilerContents.add(item.id)
+              }
+            }
         }
       }
     }
@@ -82,3 +79,4 @@ private struct Placeholder: View {
     .frame(width: width, height: height)
   }
 }
+

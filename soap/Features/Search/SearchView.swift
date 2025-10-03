@@ -38,7 +38,7 @@ struct SearchView: View {
       .safeAreaBar(edge: .top) {
         Picker("Search Scope", selection: $viewModel.searchScope) {
           ForEach(SearchScope.allCases) { scope in
-            Text(scope.rawValue).tag(scope)
+            Text(scope.description).tag(scope)
           }
         }
         .pickerStyle(.segmented)
@@ -56,7 +56,7 @@ struct SearchView: View {
   }
   
   private func courseSection(courses: [Course]) -> some View {
-    SearchSection(title: "Courses", searchScope: $viewModel.searchScope, targetScope: .courses) {
+    SearchSection(title: String(localized: "Courses"), searchScope: $viewModel.searchScope, targetScope: .courses) {
       SearchContent(results: courses) { course in
         NavigationLink {
           CourseView(course: course)
@@ -71,7 +71,7 @@ struct SearchView: View {
   }
   
   private func postSection(posts: [AraPost]) -> some View {
-    SearchSection(title: "Posts", searchScope: $viewModel.searchScope, targetScope: .posts) {
+    SearchSection(title: String(localized: "Posts"), searchScope: $viewModel.searchScope, targetScope: .posts) {
       SearchContent(results: posts) { post in
         NavigationLink(destination: {
           PostView(post: post)
@@ -94,7 +94,7 @@ struct SearchView: View {
   }
   
   private func taxiSection(rooms: [TaxiRoom]) -> some View {
-    SearchSection(title: "Rides", searchScope: $viewModel.searchScope, targetScope: .taxi) {
+    SearchSection(title: String(localized: "Rides"), searchScope: $viewModel.searchScope, targetScope: .taxi) {
       SearchContent(results: rooms) { room in
         TaxiRoomCell(room: room)
           .onTapGesture {

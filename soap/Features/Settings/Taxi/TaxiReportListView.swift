@@ -19,7 +19,7 @@ struct TaxiReportListView: View {
     ScrollView {
       Picker("Report Type", selection: $taxiReportType) {
         ForEach(TaxiReportType.allCases, id: \.rawValue) { item in
-          Text(item.rawValue).tag(item)
+          Text(item.description).tag(item)
         }
       }
       .pickerStyle(.segmented)

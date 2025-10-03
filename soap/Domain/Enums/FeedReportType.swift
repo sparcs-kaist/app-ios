@@ -19,20 +19,20 @@ enum FeedReportType: String, CaseIterable, Identifiable {
 }
 
 extension FeedReportType {
-  var prettyString: String {
+  var description: String {
     switch self {
     case .extremePolitics:
-      "Extreme Politics"
+      String(localized: "Extreme Politics")
     case .abusiveLanguage:
-      "Abusive Language"
+      String(localized: "Offensive Language")
     case .pornography:
-      "Pornography"
+      String(localized: "Sexually Explicit Content")
     case .spam:
-      "Spam"
+      String(localized: "Spam")
     case .impersonationFraud:
-      "Impersonation or Fraud"
+      String(localized: "Impersonation/Fraud")
     case .commercialAd:
-      "Commercial Ad"
+      String(localized: "Advertisement")
     }
   }
 }

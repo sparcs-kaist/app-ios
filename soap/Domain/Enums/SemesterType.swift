@@ -42,6 +42,19 @@ enum SemesterType: String, Comparable {
       4
     }
   }
+
+  var description: String {
+    switch self {
+    case .spring:
+      String(localized: "Spring")
+    case .summer:
+      String(localized: "Summer")
+    case .autumn:
+      String(localized: "Autumn")
+    case .winter:
+      String(localized: "Winter")
+    }
+  }
 }
 
 

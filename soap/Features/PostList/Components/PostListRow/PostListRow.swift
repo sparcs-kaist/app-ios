@@ -68,16 +68,16 @@ struct PostListRow: View {
   var title: String {
     if post.isHidden {
       if post.isNSFW {
-        return "This post contains NSFW content"
+        return String(localized: "This post contains NSFW content")
       }
 
       if post.isPolitical {
-        return "This post contains political content"
+        return String(localized: "This post contains political content")
       }
 
-      return "This post is hidden"
+      return String(localized: "This post is hidden")
     }
 
-    return post.title ?? "Untitled"
+    return post.title ?? String(localized: "Untitled")
   }
 }

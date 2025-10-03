@@ -23,7 +23,7 @@ struct SignInView: View {
       Spacer()
       
       Group {
-        if let attributed = try? AttributedString(markdown: "By continuing, you agree to our [Terms of Use](\(Constants.termsOfUseURL.absoluteString)) and [Privacy Policy](\(Constants.privacyPolicyURL.absoluteString)).") {
+        if let attributed = try? AttributedString(markdown: String(localized: "By continuing, you agree to our [Terms of Use](\(Constants.termsOfUseURL.absoluteString)) and [Privacy Policy](\(Constants.privacyPolicyURL.absoluteString)).")) {
           Text(attributed)
         } else {
           Text("By continuing, you agree to our Terms of Use and Privacy Policy.")
@@ -48,7 +48,7 @@ struct SignInView: View {
             ProgressView()
               .tint(.white)
           } else {
-            Text("Sign In with SPARCS SSO")
+            Text("Continue with SPARCS SSO")
               .fontWeight(.medium)
           }
         }

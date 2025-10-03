@@ -57,13 +57,14 @@ struct FeedView: View {
                     do {
                       try await viewModel.deletePost(postID: postID)
                     } catch {
-                      showAlert(title: "Error", message: "Failed to delete a post. Please try again later.")
+                      showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
                     }
                   }
                 }, onComment: nil)
                 .environment(spoilerContents)
                 .contentShape(.rect)
               })
+              .id(post.id)
               .padding(.vertical)
               .navigationLinkIndicatorVisibility(.hidden)
               .buttonStyle(.plain)

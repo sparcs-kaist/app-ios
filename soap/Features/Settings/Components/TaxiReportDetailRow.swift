@@ -15,17 +15,17 @@ struct TaxiReportDetailRow: View {
     VStack {
       switch report.reason {
       case .etcReason:
-        RowElementView(title: "Reason", content: "Other reasons")
+        RowElementView(title: String(localized: "Reason"), content: String(localized: "ETC"))
       case .noShow:
-        RowElementView(title: "Reason", content: "Not showing up")
+        RowElementView(title: String(localized: "Reason"), content: String(localized: "Didn't come on time"))
       case .noSettlement:
-        RowElementView(title: "Reason", content: "No settlement")
+        RowElementView(title: String(localized: "Reason"), content: String(localized: "Didn't send money"))
       }
       Divider().padding(.vertical, 4)
       if reportType == .outgoing {
-        RowElementView(title: "Nickname", content: report.reportedUser.nickname).padding(.bottom, 4)
+        RowElementView(title: String(localized: "Nickname"), content: report.reportedUser.nickname).padding(.bottom, 4)
       }
-      RowElementView(title: "Date", content: report.time.formattedString).padding(.bottom, 4)
+      RowElementView(title: String(localized: "Date"), content: report.time.formattedString).padding(.bottom, 4)
       if report.reason == .etcReason {
         HStack(alignment: .top) {
           Text("Other reasons")

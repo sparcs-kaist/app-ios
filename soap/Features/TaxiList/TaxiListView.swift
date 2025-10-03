@@ -39,13 +39,13 @@ struct TaxiListView: View {
   var description: String {
     switch (viewModel.source, viewModel.destination) {
     case let (source?, destination?):
-      return "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!"
+      return String(localized: "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!")
     case let (source?, nil):
-      return "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!"
+      return String(localized: "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!")
     case let (nil, destination?):
-      return "No rooms found heading to \(destination.title.localized()). Be the first one to create one!"
+      return String(localized: "No rooms found heading to \(destination.title.localized()). Be the first one to create one!")
     case (nil, nil):
-      return "No rooms found for this week. Be the first one to create one!"
+      return String(localized: "No rooms found for this week. Be the first one to create one!")
     }
   }
 
@@ -216,7 +216,7 @@ struct TaxiListView: View {
   }
 
   private func emptyView(locations: [TaxiLocation]) -> some View {
-    ContentUnavailableView("No Rides This Week", systemImage: "car.2.fill", description: Text("Looks like there are no rooms scheduled for this week. Be the first to create one!"))
+    ContentUnavailableView("No Rides This Week", systemImage: "car.2.fill", description: Text("Looks like there are no groups scheduled for this week. Be the first to create one!"))
   }
 
   private func errorView(errorMessage: String) -> some View {
@@ -246,7 +246,7 @@ struct TaxiListView: View {
         Text(description)
       },
       actions: {
-        Button("Create a New Room") {
+        Button("Create a New Group") {
           showRoomCreationSheet = true
         }
 

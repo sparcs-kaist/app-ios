@@ -78,7 +78,7 @@ struct LectureSearchView: View {
                     .fontDesign(.rounded)
                     .foregroundStyle(.secondary)
 
-                  Text(lecture.professors.first?.name.localized() ?? "Unknown")
+                  Text(lecture.professors.first?.name.localized() ?? String(localized: "Unknown"))
 
                   Spacer()
                 }

@@ -26,7 +26,7 @@ struct LectureReviewCell: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
-        Text(review.lecture.professors.first?.name.localized() ?? "Unknown")
+        Text(review.lecture.professors.first?.name.localized() ?? String(localized: "Unknown"))
           .font(.headline)
 
         Text(String(review.lecture.year).suffix(2) + review.lecture.semester.shortCode)
@@ -71,9 +71,9 @@ struct LectureReviewCell: View {
         .truncationMode(.head)
 
       HStack(alignment: .bottom) {
-        reviewRatingLetter(title: "Grade", rating: review.gradeLetter)
-        reviewRatingLetter(title: "Load", rating: review.loadLetter)
-        reviewRatingLetter(title: "Speech", rating: review.speechLetter)
+        reviewRatingLetter(title: String(localized: "Grade"), rating: review.gradeLetter)
+        reviewRatingLetter(title: String(localized: "Load"), rating: review.loadLetter)
+        reviewRatingLetter(title: String(localized: "Speech"), rating: review.speechLetter)
 
         Spacer()
 
@@ -127,7 +127,7 @@ struct LectureReviewCell: View {
       code: review.lecture.code,
       year: review.lecture.year,
       semester: review.lecture.semester,
-      professorName: review.lecture.professors.first?.name.localized() ?? "Unknown",
+      professorName: review.lecture.professors.first?.name.localized() ?? String(localized: "Unknown"),
       content: review.content
     ), let url = URL(string: urlString),
        UIApplication.shared.canOpenURL(url) {

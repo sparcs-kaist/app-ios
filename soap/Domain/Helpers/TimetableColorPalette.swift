@@ -21,7 +21,7 @@ struct TimetableColorPalette {
                     "F06E70",
                     "233575",
                     "63A763",
-                    "D28DD9",
+                    "9D4EDD",
                     "68C2D9",
                     "DD615D",
                     "8F64C5",

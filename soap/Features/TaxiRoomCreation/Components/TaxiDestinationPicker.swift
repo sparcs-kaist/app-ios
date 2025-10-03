@@ -18,11 +18,11 @@ struct TaxiDestinationPicker: View {
   var body: some View {
     HStack {
       VStack(alignment: .leading) {
-        LocationMenu(title: "meeting point", selection: $source, locations: locations)
+        LocationMenu(title: String(localized: "meeting point"), selection: $source, locations: locations)
 
         Divider()
 
-        LocationMenu(title: "where to?", selection: $destination, locations: locations)
+        LocationMenu(title: String(localized: "where to?"), selection: $destination, locations: locations)
       }
 
       Button(action: swapLocations) {
