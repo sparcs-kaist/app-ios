@@ -19,7 +19,7 @@ struct FeedCommentRow: View {
   @State private var alertMessage: String = ""
   
   @State private var showFullContent: Bool = false
-  @State private var canBeExpnaded: Bool = false
+  @State private var canBeExpanded: Bool = false
   
   // MARK: - Dependencies
   @Injected(
@@ -134,12 +134,12 @@ struct FeedCommentRow: View {
             .hidden()
           
           Color.clear.onAppear {
-            canBeExpnaded = true
+            canBeExpanded = true
           }
         }
       }
     
-    if canBeExpnaded {
+    if canBeExpanded {
       Button(showFullContent ? "Less" : "More...") {
         showFullContent.toggle()
       }

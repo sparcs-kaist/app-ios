@@ -18,7 +18,7 @@ struct FeedPostRow: View {
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
   @State private var showFullContent: Bool = false
-  @State private var canBeExpnaded: Bool = false
+  @State private var canBeExpanded: Bool = false
   
   @State private var showDeleteConfirmation: Bool = false
 
@@ -131,11 +131,11 @@ struct FeedPostRow: View {
           Text(post.content)
             .hidden()
           Color.clear.onAppear {
-            canBeExpnaded = true
+            canBeExpanded = true
           }
         }
       }
-    if canBeExpnaded {
+    if canBeExpanded {
       Button(showFullContent ? "Less" : "More...") {
         withAnimation {
           showFullContent.toggle()
