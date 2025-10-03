@@ -19,6 +19,9 @@ struct FeedCommentRow: View {
   @State private var alertMessage: String = ""
   @State private var animationDone: Bool = false
   
+  @State private var showFullContent: Bool = false
+  @State private var canBeExpnaded: Bool = false
+  
   // MARK: - Dependencies
   @Injected(
     \.feedCommentRepository
@@ -123,9 +126,27 @@ struct FeedCommentRow: View {
   @ViewBuilder
   var content: some View {
     Text(comment.isDeleted ? "This comment has been deleted." : comment.content)
+      .lineLimit(showFullContent ? nil : 3)
       .foregroundStyle(comment.isDeleted ? .secondary : .primary)
       .contentTransition(.numericText())
       .animation(.spring, value: comment)
+      .background {
+        ViewThatFits(in: .vertical) {
+          Text(comment.content)
+            .hidden()
+          
+          Color.clear.onAppear {
+            canBeExpnaded = true
+          }
+        }
+      }
+    
+    if canBeExpnaded {
+      Button(showFullContent ? "Less" : "More...") {
+        showFullContent.toggle()
+      }
+      .foregroundStyle(.secondary)
+    }
   }
 
   var footer: some View {
@@ -154,6 +175,7 @@ struct FeedCommentRow: View {
     .font(.caption)
     .transition(.blurReplace)
     .animation(.spring, value: comment)
+    .frame(height: 20)
   }
 
   // MARK: - Functions
