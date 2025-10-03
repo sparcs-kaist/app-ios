@@ -4120,6 +4120,7 @@
       }
     },
     "View Dictionary" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4136,6 +4137,7 @@
       }
     },
     "View Syllabus" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

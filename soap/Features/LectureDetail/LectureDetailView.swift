@@ -139,27 +139,27 @@ struct LectureDetailView: View {
       )
 
       // Lecture Action Buttons
-      Button(action: { }, label: {
-        HStack {
-          Text("View Dictionary")
-          Spacer()
-          Image(systemName: "text.book.closed")
-        }
-      })
-      .font(.callout)
-      .padding(.vertical, 4)
-      Divider()
-
-      Button(action: { }, label: {
-        HStack {
-          Text("View Syllabus")
-          Spacer()
-          Image(systemName: "append.page")
-        }
-      })
-      .font(.callout)
-      .padding(.vertical, 4)
-      Divider()
+//      Button(action: { }, label: {
+//        HStack {
+//          Text("View Dictionary")
+//          Spacer()
+//          Image(systemName: "text.book.closed")
+//        }
+//      })
+//      .font(.callout)
+//      .padding(.vertical, 4)
+//      Divider()
+//
+//      Button(action: { }, label: {
+//        HStack {
+//          Text("View Syllabus")
+//          Spacer()
+//          Image(systemName: "append.page")
+//        }
+//      })
+//      .font(.callout)
+//      .padding(.vertical, 4)
+//      Divider()
     }
   }
 }
