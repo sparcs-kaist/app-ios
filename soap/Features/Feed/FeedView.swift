@@ -64,6 +64,7 @@ struct FeedView: View {
                 .environment(spoilerContents)
                 .contentShape(.rect)
               })
+              .id(post.id)
               .padding(.vertical)
               .navigationLinkIndicatorVisibility(.hidden)
               .buttonStyle(.plain)

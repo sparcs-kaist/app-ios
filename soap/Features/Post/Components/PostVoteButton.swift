@@ -42,6 +42,7 @@ struct PostVoteButton: View {
       .foregroundStyle(myVote == false ? Color.downvote : .primary)
     }
     .padding(8)
+    .fixedSize(horizontal: false, vertical: true)
     .glassEffect(.regular.interactive())
   }
 
