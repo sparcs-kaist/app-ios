@@ -139,9 +139,11 @@ struct FeedCommentRow: View {
         }
       }
     
-    if canBeExpanded {
-      Button(showFullContent ? "Less" : "More...") {
-        showFullContent.toggle()
+    if canBeExpanded && !showFullContent {
+      Button("more") {
+        withAnimation {
+          showFullContent = true
+        }
       }
       .foregroundStyle(.secondary)
     }

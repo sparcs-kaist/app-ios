@@ -13,11 +13,11 @@ struct FeedPostRow: View {
   @Binding var post: FeedPost
   let onPostDeleted: ((String) -> Void)?
   let onComment: (() -> Void)?
+  @State var showFullContent: Bool = false
 
   @State private var showAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
-  @State private var showFullContent: Bool = false
   @State private var canBeExpanded: Bool = false
   
   @State private var showDeleteConfirmation: Bool = false
@@ -135,10 +135,10 @@ struct FeedPostRow: View {
           }
         }
       }
-    if canBeExpanded {
-      Button(showFullContent ? "Less" : "More...") {
+    if canBeExpanded && !showFullContent {
+      Button("more") {
         withAnimation {
-          showFullContent.toggle()
+          showFullContent = true
         }
       }
       .padding(.horizontal)

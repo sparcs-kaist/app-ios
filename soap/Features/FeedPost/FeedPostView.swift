@@ -42,7 +42,7 @@ struct FeedPostView: View {
           FeedPostRow(post: $post, onPostDeleted: nil, onComment: {
             targetComment = nil
             isWritingCommentFocusState = true
-          })
+          }, showFullContent: true)
 
           comments
         }
