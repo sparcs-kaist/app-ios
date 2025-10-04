@@ -23,12 +23,20 @@
 		8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */; };
 		8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */; };
 		8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E42E1DAEEB00DB2D21 /* Moya */; };
+		8B83650D2E914F1300892B70 /* WatchBuddy Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8BBA1ADA2E8EBD24009CD124 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
 		8BD3045B2E26392300B17695 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 8BD3045A2E26392300B17695 /* SocketIO */; };
 		8BE804172E49EE3A00904AC6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		8B83650B2E914F1300892B70 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B8DFBDE2CCF771700AB82CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8B8365022E914F1200892B70;
+			remoteInfo = "WatchBuddy Watch App";
+		};
 		8B8DFBF92CCF771800AB82CC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B8DFBDE2CCF771700AB82CC /* Project object */;
@@ -45,7 +53,22 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		8B8365112E914F1300892B70 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				8B83650D2E914F1300892B70 /* WatchBuddy Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WatchBuddy Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFBE62CCF771700AB82CC /* soap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = soap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFBF82CCF771800AB82CC /* soapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFC022CCF771800AB82CC /* soapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,6 +87,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		8B8365042E914F1200892B70 /* WatchBuddy Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "WatchBuddy Watch App";
+			sourceTree = "<group>";
+		};
 		8B8DFBE82CCF771700AB82CC /* soap */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -85,6 +113,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		8B8365002E914F1200892B70 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B8DFBE32CCF771700AB82CC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -133,6 +168,7 @@
 				8B8DFBE82CCF771700AB82CC /* soap */,
 				8B8DFBFB2CCF771800AB82CC /* soapTests */,
 				8B8DFC052CCF771800AB82CC /* soapUITests */,
+				8B8365042E914F1200892B70 /* WatchBuddy Watch App */,
 				8B8DFBE72CCF771700AB82CC /* Products */,
 				8BE804162E49EE3A00904AC6 /* AppIcon.icon */,
 			);
@@ -144,6 +180,7 @@
 				8B8DFBE62CCF771700AB82CC /* soap.app */,
 				8B8DFBF82CCF771800AB82CC /* soapTests.xctest */,
 				8B8DFC022CCF771800AB82CC /* soapUITests.xctest */,
+				8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -151,6 +188,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		8B8365022E914F1200892B70 /* WatchBuddy Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B83650E2E914F1300892B70 /* Build configuration list for PBXNativeTarget "WatchBuddy Watch App" */;
+			buildPhases = (
+				8B8364FF2E914F1200892B70 /* Sources */,
+				8B8365002E914F1200892B70 /* Frameworks */,
+				8B8365012E914F1200892B70 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8B8365042E914F1200892B70 /* WatchBuddy Watch App */,
+			);
+			name = "WatchBuddy Watch App";
+			packageProductDependencies = (
+			);
+			productName = "WatchBuddy Watch App";
+			productReference = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
 		8B8DFBE52CCF771700AB82CC /* soap */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B8DFC0C2CCF771800AB82CC /* Build configuration list for PBXNativeTarget "soap" */;
@@ -158,10 +217,12 @@
 				8B8DFBE22CCF771700AB82CC /* Sources */,
 				8B8DFBE32CCF771700AB82CC /* Frameworks */,
 				8B8DFBE42CCF771700AB82CC /* Resources */,
+				8B8365112E914F1300892B70 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				8B83650C2E914F1300892B70 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8B8DFBE82CCF771700AB82CC /* soap */,
@@ -243,9 +304,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1600;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					8B8365022E914F1200892B70 = {
+						CreatedOnToolsVersion = 26.0;
+					};
 					8B8DFBE52CCF771700AB82CC = {
 						CreatedOnToolsVersion = 16.0;
 					};
@@ -287,11 +351,19 @@
 				8B8DFBE52CCF771700AB82CC /* soap */,
 				8B8DFBF72CCF771800AB82CC /* soapTests */,
 				8B8DFC012CCF771800AB82CC /* soapUITests */,
+				8B8365022E914F1200892B70 /* WatchBuddy Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		8B8365012E914F1200892B70 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B8DFBE42CCF771700AB82CC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -318,6 +390,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		8B8364FF2E914F1200892B70 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8B8DFBE22CCF771700AB82CC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -342,6 +421,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		8B83650C2E914F1300892B70 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8B8365022E914F1200892B70 /* WatchBuddy Watch App */;
+			targetProxy = 8B83650B2E914F1300892B70 /* PBXContainerItemProxy */;
+		};
 		8B8DFBFA2CCF771800AB82CC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8B8DFBE52CCF771700AB82CC /* soap */;
@@ -355,6 +439,74 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		8B83650F2E914F1300892B70 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5V8W52U3U;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = org.sparcs.soap;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		8B8365102E914F1300892B70 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5V8W52U3U;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = org.sparcs.soap;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 		8B8DFC0A2CCF771800AB82CC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -635,6 +787,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		8B83650E2E914F1300892B70 /* Build configuration list for PBXNativeTarget "WatchBuddy Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B83650F2E914F1300892B70 /* Debug */,
+				8B8365102E914F1300892B70 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		8B8DFBE12CCF771700AB82CC /* Build configuration list for PBXProject "soap" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
