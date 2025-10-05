@@ -47,7 +47,7 @@ public enum BackendURL {
   // MARK: Feed
   public static let feedBackendURL = {
     #if DEBUG
-    return URL(string: "https://buddy.dev.sparcs.org/v1")!
+    return URL(string: "https://app.dev.sparcs.org/v1")!
     #else
     return URL(string: "https://buddy.sparcs.org/v1")!
     #endif
