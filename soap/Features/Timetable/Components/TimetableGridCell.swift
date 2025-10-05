@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import BuddyDomain
+import BuddyDataMocks
 
 struct TimetableGridCell: View {
   let lecture: Lecture

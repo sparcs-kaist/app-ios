@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import BuddyDomain
 
 struct TaxiPreviewView: View {
   let room: TaxiRoom

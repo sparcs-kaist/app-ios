@@ -8,6 +8,8 @@
 import SwiftUI
 import NukeUI
 import Factory
+import BuddyDomain
+import BuddyDataMocks
 
 struct TaxiReportView: View {
   var room: TaxiRoom

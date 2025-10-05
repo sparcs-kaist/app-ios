@@ -400,6 +400,7 @@
       }
     },
     "Advertisement" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -416,6 +417,7 @@
       }
     },
     "All" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -548,6 +550,7 @@
       }
     },
     "An unknown authentication error occurred." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -639,6 +642,7 @@
       "shouldTranslate" : false
     },
     "Authentication was cancelled by the user." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -655,6 +659,7 @@
       }
     },
     "Autumn" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1490,6 +1495,7 @@
       "shouldTranslate" : false
     },
     "Extreme Politics" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1537,6 +1543,7 @@
       }
     },
     "Failed to exchange code for tokens: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1585,6 +1592,7 @@
       }
     },
     "Failed to refresh access token: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1601,6 +1609,7 @@
       }
     },
     "Failed to summarise text. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1677,6 +1686,7 @@
       }
     },
     "Fri" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1760,6 +1770,7 @@
       }
     },
     "Impersonation/Fraud" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1792,6 +1803,7 @@
       }
     },
     "Invalid callback URL received." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2022,6 +2034,7 @@
       }
     },
     "Model is currently unavailable. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2044,6 +2057,7 @@
       }
     },
     "Mon" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2207,6 +2221,7 @@
       }
     },
     "No access token." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2239,6 +2254,7 @@
       }
     },
     "No refresh token available." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2455,6 +2471,7 @@
       "shouldTranslate" : false
     },
     "Offensive Language" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2844,6 +2861,7 @@
       }
     },
     "Received" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3074,6 +3092,7 @@
       }
     },
     "Sat" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3362,6 +3381,7 @@
       }
     },
     "Sexually Explicit Content" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3442,6 +3462,7 @@
       }
     },
     "Sign in failed: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3474,6 +3495,7 @@
       }
     },
     "Sign out failed." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3525,6 +3547,7 @@
       }
     },
     "Spring" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3547,6 +3570,7 @@
       "shouldTranslate" : false
     },
     "Submitted" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3579,6 +3603,7 @@
       }
     },
     "Summarise the following content in a %@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %lld words.\n\nContent:\n%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3633,6 +3658,7 @@
       }
     },
     "Summer" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3649,6 +3675,7 @@
       }
     },
     "Sun" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3818,6 +3845,7 @@
       }
     },
     "This content is too short to summarize." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3904,6 +3932,7 @@
       }
     },
     "Thu" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3984,6 +4013,7 @@
       }
     },
     "Token refresh failed: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4051,6 +4081,7 @@
       }
     },
     "Tue" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4190,6 +4221,7 @@
       }
     },
     "Wed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4270,6 +4302,7 @@
       }
     },
     "Winter" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -8,6 +8,7 @@
 import SwiftUI
 import NukeUI
 import Factory
+import BuddyDomain
 
 struct FeedPostView: View {
   @Binding var post: FeedPost

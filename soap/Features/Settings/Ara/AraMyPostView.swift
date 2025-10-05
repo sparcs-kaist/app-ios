@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct AraMyPostView: View {
   @State private var vm: AraMyPostViewModelProtocol
@@ -76,7 +77,7 @@ struct AraMyPostView: View {
       posts: vm.posts,
       destination: { post in
         PostView(post: post)
-          .addKeyboardVisibilityToEnvironment()
+          .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
           .onDisappear() {
             vm.refreshItem(postID: post.id)
           }

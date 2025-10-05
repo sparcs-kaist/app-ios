@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct AraSettingsView: View {
   @State private var vm: AraSettingsViewModelProtocol

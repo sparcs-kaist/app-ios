@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 @MainActor
 public protocol TaxiListViewModelProtocol: Observable {

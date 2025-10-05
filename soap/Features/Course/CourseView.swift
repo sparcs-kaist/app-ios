@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct CourseView: View {
   @State private var viewModel: CourseViewModel

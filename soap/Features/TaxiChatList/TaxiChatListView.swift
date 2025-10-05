@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Factory
+import BuddyDomain
 
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol

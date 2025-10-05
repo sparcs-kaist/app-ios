@@ -7,6 +7,7 @@
 
 import SwiftUI
 import NukeUI
+import BuddyDomain
 
 struct FeedPostPhotoItemStrip: View {
   @Binding var images: [FeedPostPhotoItem]

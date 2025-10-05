@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import BuddyDomain
 
 struct PostComposeView: View {
   @State private var viewModel: PostComposeViewModelProtocol

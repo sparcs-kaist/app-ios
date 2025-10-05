@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import PhotosUI
+import BuddyDomain
 
 @MainActor
 protocol FeedPostComposeViewModelProtocol: Observable {
@@ -20,13 +21,6 @@ protocol FeedPostComposeViewModelProtocol: Observable {
 
   func fetchFeedUser() async
   func writePost() async throws
-}
-
-struct FeedPostPhotoItem: Identifiable, Hashable {
-  let id: String
-  let image: UIImage
-  var spoiler: Bool
-  var description: String
 }
 
 @Observable

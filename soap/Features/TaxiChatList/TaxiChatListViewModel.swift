@@ -8,6 +8,7 @@
 import SwiftUI
 import Observation
 import Factory
+import BuddyDomain
 
 @Observable
 class TaxiChatListViewModel: TaxiChatListViewModelProtocol {

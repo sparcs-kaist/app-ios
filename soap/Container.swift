@@ -8,6 +8,9 @@
 import Foundation
 import Factory
 import Moya
+import BuddyDomain
+import BuddyDataCore
+import BuddyDataiOS
 
 extension Container {
   // MARK: - Storage

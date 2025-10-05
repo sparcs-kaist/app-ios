@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct TaxiReportListView: View {
   @State private var taxiReportType: TaxiReportType = .incoming

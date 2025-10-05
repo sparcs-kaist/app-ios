@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct BoardListView: View {
   @State private var viewModel = BoardListViewModel()

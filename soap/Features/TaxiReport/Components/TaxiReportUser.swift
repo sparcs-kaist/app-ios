@@ -7,6 +7,7 @@
 
 import SwiftUI
 import NukeUI
+import BuddyDomain
 
 struct TaxiReportUser: View {
   var user: TaxiParticipant

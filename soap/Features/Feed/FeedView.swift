@@ -8,7 +8,7 @@
 import SwiftUI
 import Factory
 import NukeUI
-
+import BuddyDomain
 struct FeedView: View {
   @State private var viewModel: FeedViewModelProtocol = FeedViewModel()
   @Namespace private var namespace
@@ -49,7 +49,7 @@ struct FeedView: View {
                   }
                 })
                 .environment(spoilerContents)
-                .addKeyboardVisibilityToEnvironment()
+                .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
                 .navigationTransition(.zoom(sourceID: post.id, in: namespace))
               }, label: {
                 FeedPostRow(post: $post, onPostDeleted: { postID in
