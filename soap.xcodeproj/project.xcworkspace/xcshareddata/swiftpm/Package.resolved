@@ -1,5 +1,5 @@
 {
-  "originHash" : "8d7056d186ef79f1ccdb4547f776e9bcba1e663904653b955c09d791f24d0025",
+  "originHash" : "07df8996af482ae875bf89099f2c1fe9fd8270b42dff17fa82937f35a211085b",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -186,8 +186,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/socketio/socket.io-client-swift",
       "state" : {
-        "branch" : "master",
-        "revision" : "42da871d9369f290d6ec4930636c40672143905b"
+        "revision" : "42da871d9369f290d6ec4930636c40672143905b",
+        "version" : "16.1.1"
       }
     },
     {

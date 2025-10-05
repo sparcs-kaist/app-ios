@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B2AF35D2E1DB57800648F86 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8B2AF35C2E1DB57800648F86 /* KeychainSwift */; };
 		8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */; };
 		8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073DE2E851F79007E9C27 /* FirebaseAnalytics */; };
 		8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E02E851F79007E9C27 /* FirebaseAnalyticsCore */; };
@@ -26,8 +25,11 @@
 		8B83650D2E914F1300892B70 /* WatchBuddy Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8B8368022E9247A900892B70 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8368012E9247A900892B70 /* BuddyDomain */; };
 		8BBA1ADA2E8EBD24009CD124 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
-		8BD3045B2E26392300B17695 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 8BD3045A2E26392300B17695 /* SocketIO */; };
 		8BE804172E49EE3A00904AC6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
+		8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2682E92A3A0005D8639 /* BuddyDataCore */; };
+		8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26C2E92A52D005D8639 /* BuddyDataCore */; };
+		8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26E2E92A52D005D8639 /* BuddyDomain */; };
+		8BFAD2712E92B654005D8639 /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2702E92B654005D8639 /* BuddyDataiOS */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +78,7 @@
 		8B8DFC022CCF771800AB82CC /* soapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		8BE804162E49EE3A00904AC6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		8BFAD2612E927C41005D8639 /* BuddyData */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyData; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -119,6 +122,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */,
+				8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,13 +133,14 @@
 			files = (
 				8B5073E92E851F79007E9C27 /* FirebaseMessaging in Frameworks */,
 				8B8368022E9247A900892B70 /* BuddyDomain in Frameworks */,
-				8B2AF35D2E1DB57800648F86 /* KeychainSwift in Frameworks */,
 				8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */,
 				8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */,
 				8B6B2B4F2E2878CD00D13D50 /* NukeUI in Frameworks */,
 				8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */,
 				8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */,
 				8B5073E52E851F79007E9C27 /* FirebaseCore in Frameworks */,
+				8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */,
+				8BFAD2712E92B654005D8639 /* BuddyDataiOS in Frameworks */,
 				8B6B2B512E2878CD00D13D50 /* NukeVideo in Frameworks */,
 				8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */,
 				8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */,
@@ -142,7 +148,6 @@
 				8B5073E32E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
 				8B5073E72E851F79007E9C27 /* FirebaseCrashlytics in Frameworks */,
 				8B7C19DC2E1DAE8900DB2D21 /* Factory in Frameworks */,
-				8BD3045B2E26392300B17695 /* SocketIO in Frameworks */,
 				8B6B2B4B2E2878CD00D13D50 /* Nuke in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -174,6 +179,7 @@
 		8B8DFBDD2CCF771700AB82CC = {
 			isa = PBXGroup;
 			children = (
+				8BFAD2612E927C41005D8639 /* BuddyData */,
 				8B8367FF2E92461900892B70 /* BuddyDomain */,
 				8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */,
 				8B8DFBE82CCF771700AB82CC /* soap */,
@@ -217,6 +223,8 @@
 			);
 			name = "WatchBuddy Watch App";
 			packageProductDependencies = (
+				8BFAD26C2E92A52D005D8639 /* BuddyDataCore */,
+				8BFAD26E2E92A52D005D8639 /* BuddyDomain */,
 			);
 			productName = "WatchBuddy Watch App";
 			productReference = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */;
@@ -245,9 +253,7 @@
 				8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */,
 				8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */,
 				8B7C19E42E1DAEEB00DB2D21 /* Moya */,
-				8B2AF35C2E1DB57800648F86 /* KeychainSwift */,
 				8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */,
-				8BD3045A2E26392300B17695 /* SocketIO */,
 				8B6B2B4A2E2878CD00D13D50 /* Nuke */,
 				8B6B2B4C2E2878CD00D13D50 /* NukeExtensions */,
 				8B6B2B4E2E2878CD00D13D50 /* NukeUI */,
@@ -259,6 +265,8 @@
 				8B5073E62E851F79007E9C27 /* FirebaseCrashlytics */,
 				8B5073E82E851F79007E9C27 /* FirebaseMessaging */,
 				8B8368012E9247A900892B70 /* BuddyDomain */,
+				8BFAD2682E92A3A0005D8639 /* BuddyDataCore */,
+				8BFAD2702E92B654005D8639 /* BuddyDataiOS */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -350,9 +358,7 @@
 			packageReferences = (
 				8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */,
 				8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */,
-				8B2AF35B2E1DB57800648F86 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
-				8BD304592E26392300B17695 /* XCRemoteSwiftPackageReference "socket" */,
 				8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */,
 				8B5073DD2E851F79007E9C27 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
@@ -457,6 +463,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -491,6 +498,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -525,6 +533,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -590,6 +599,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -848,14 +858,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		8B2AF35B2E1DB57800648F86 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 24.0.0;
-			};
-		};
 		8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver.git";
@@ -896,22 +898,9 @@
 				minimumVersion = 15.0.3;
 			};
 		};
-		8BD304592E26392300B17695 /* XCRemoteSwiftPackageReference "socket" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/socketio/socket.io-client-swift";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8B2AF35C2E1DB57800648F86 /* KeychainSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8B2AF35B2E1DB57800648F86 /* XCRemoteSwiftPackageReference "keychain-swift" */;
-			productName = KeychainSwift;
-		};
 		8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
@@ -991,10 +980,21 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDomain;
 		};
-		8BD3045A2E26392300B17695 /* SocketIO */ = {
+		8BFAD2682E92A3A0005D8639 /* BuddyDataCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8BD304592E26392300B17695 /* XCRemoteSwiftPackageReference "socket" */;
-			productName = SocketIO;
+			productName = BuddyDataCore;
+		};
+		8BFAD26C2E92A52D005D8639 /* BuddyDataCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDataCore;
+		};
+		8BFAD26E2E92A52D005D8639 /* BuddyDomain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDomain;
+		};
+		8BFAD2702E92B654005D8639 /* BuddyDataiOS */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDataiOS;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

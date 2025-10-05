@@ -1609,6 +1609,7 @@
       }
     },
     "Failed to summarise text. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2033,6 +2034,7 @@
       }
     },
     "Model is currently unavailable. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3601,6 +3603,7 @@
       }
     },
     "Summarise the following content in a %@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %lld words.\n\nContent:\n%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3842,6 +3845,7 @@
       }
     },
     "This content is too short to summarize." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
