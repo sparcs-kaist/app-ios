@@ -9,22 +9,56 @@ import Foundation
 
 public enum BackendURL {
   // MARK: Authorisation
-  public static let authorisationURL = URL(string: "https://taxi.dev.sparcs.org/api/auth/sparcsapp/login")
-
-  // MARK: Terms
-  public static let privacyPolicyURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/Privacy.md")!
-  public static let termsOfUseURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/TermsOfUse.md")!
+  public static let authorisationURL: URL? = {
+    #if DEBUG
+    return URL(string: "https://taxi.dev.sparcs.org/api/auth/sparcsapp/login")
+    #else
+    return URL(string: "https://taxi.sparcs.org/api/auth/sparcsapp/login")
+    #endif
+  }()
 
   // MARK: Taxi
-  public static let taxiBackendURL = URL(string: "https://taxi.dev.sparcs.org/api")!
-  public static let taxiSocketURL = URL(string: "https://taxi.dev.sparcs.org/")!
+  public static let taxiBackendURL = {
+    #if DEBUG
+    return URL(string: "https://taxi.dev.sparcs.org/api")!
+    #else
+    return URL(string: "https://taxi.sparcs.org/api")!
+    #endif
+  }()
+
+  public static let taxiSocketURL = {
+    #if DEBUG
+    return URL(string: "https://taxi.dev.sparcs.org/")!
+    #else
+    return URL(string: "https://taxi.sparcs.org/")!
+    #endif
+  }()
+
 
   // MARK: Ara
-  public static let araBackendURL = URL(string: "https://newara.dev.sparcs.org/api")!
+  public static let araBackendURL = {
+    #if DEBUG
+    return URL(string: "https://newara.dev.sparcs.org/api")!
+    #else
+    return URL(string: "https://newara.sparcs.org/api")!
+    #endif
+  }()
 
   // MARK: Feed
-  public static let feedBackendURL = URL(string: "https://app.dev.sparcs.org/v1")!
+  public static let feedBackendURL = {
+    #if DEBUG
+    return URL(string: "https://buddy.dev.sparcs.org/v1")!
+    #else
+    return URL(string: "https://buddy.sparcs.org/v1")!
+    #endif
+  }()
 
   // MARK: OTL
-  public static let otlBackendURL = URL(string: "https://api.otl.dev.sparcs.org")!
+  public static let otlBackendURL = {
+    #if DEBUG
+    return URL(string: "https://api.otl.dev.sparcs.org")!
+    #else
+    return URL(string: "https://otl.sparcs.org")!
+    #endif
+  }()
 }

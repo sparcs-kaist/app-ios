@@ -8,7 +8,13 @@
 import Foundation
 
 enum Constants {
-  public static let taxiChatImageURL = URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
+  static let taxiChatImageURL = {
+    #if DEBUG
+    return URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
+    #else
+    return URL(string: "https://sparcs-taxi-prod.s3.ap-northeast-2.amazonaws.com/chat-img")!
+    #endif
+  }()
 
   // MARK: Infinite Scroll Constants
   static let loadMoreThreshold = 0.6
@@ -44,6 +50,12 @@ enum Constants {
     "산림": "064"
   ]
   static let taxiBankNameList = Array(taxiBankCodeMap.keys)
-  
-  static let taxiInviteURL = URL(string: "https://taxi.dev.sparcs.org/invite/")!
+
+  static let taxiInviteURL = {
+    #if DEBUG
+    return URL(string: "https://taxi.dev.sparcs.org/invite/")!
+    #else
+    return URL(string: "https://taxi.sparcs.org/invite/")!
+    #endif
+  }()
 }
