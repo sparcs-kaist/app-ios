@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import BuddyDomain
+import BuddyDataMocks
 
 @main
 struct WatchBuddy_Watch_AppApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+          ContentView()
         }
     }
 }
