@@ -7,6 +7,7 @@
 
 import Foundation
 import Moya
+import BuddyDomain
 
 protocol TaxiChatRepositoryProtocol: Sendable {
   func fetchChats(roomID: String) async throws

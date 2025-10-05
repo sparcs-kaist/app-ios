@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct TimetableView: View {
   @State private var viewModel = TimetableViewModel()

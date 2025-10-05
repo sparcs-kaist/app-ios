@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 extension Post: Mockable {
   static var mock: Post {

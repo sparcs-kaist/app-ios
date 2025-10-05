@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 class MockTaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   var bankName: String? = "카카오뱅크"

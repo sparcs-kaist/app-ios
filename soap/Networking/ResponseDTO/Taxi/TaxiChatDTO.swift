@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct TaxiChatDTO: Codable {
   let roomID: String

@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import PhotosUI
+import BuddyDomain
 
 @MainActor
 protocol FeedPostComposeViewModelProtocol: Observable {

@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import Observation
 import Factory
+import BuddyDomain
 
 @MainActor
 protocol PostListViewModelProtocol: Observable {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 extension TaxiChat: Mockable {
   static var mock: TaxiChat {

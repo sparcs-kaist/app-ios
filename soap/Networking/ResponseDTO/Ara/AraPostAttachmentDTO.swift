@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct AraPostAttachmentDTO: Codable {
   let id: Int

@@ -7,6 +7,7 @@
 
 import Foundation
 import Moya
+import BuddyDomain
 
 protocol TaxiReportRepositoryProtocol: Sendable {
   func fetchMyReports() async throws -> (incoming: [TaxiReport], outgoing: [TaxiReport])

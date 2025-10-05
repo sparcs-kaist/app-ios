@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct AraMyPostView: View {
   @State private var vm: AraMyPostViewModelProtocol

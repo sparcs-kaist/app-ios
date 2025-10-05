@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 protocol UserStorageProtocol: Actor {
   func setAraUser(_ user: AraUser?)

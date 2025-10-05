@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct AraBoardGroupDTO: Codable {
   let id: Int

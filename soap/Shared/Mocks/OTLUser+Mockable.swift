@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 extension OTLUser: Mockable {
   static var mock: OTLUser {

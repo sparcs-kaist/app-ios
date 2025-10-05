@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct TimetableGrid: View {
   @Environment(TimetableViewModel.self) private var timetableViewModel

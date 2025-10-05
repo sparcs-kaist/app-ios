@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 extension LectureReview: Mockable {
   static var mock: LectureReview {

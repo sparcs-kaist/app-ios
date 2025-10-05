@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct TaxiRoomStatusIndicator: View {
   let settlementType: TaxiParticipant.SettlementType

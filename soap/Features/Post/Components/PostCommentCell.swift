@@ -9,6 +9,7 @@ import SwiftUI
 import NukeUI
 import Factory
 import Translation
+import BuddyDomain
 
 struct PostCommentCell: View {
   @Binding var comment: AraPostComment

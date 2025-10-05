@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct SearchView: View {
   @State private var viewModel = SearchViewModel()

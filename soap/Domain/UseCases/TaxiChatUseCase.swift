@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import Combine
 import SocketIO
-
+import BuddyDomain
 
 @MainActor
 protocol TaxiChatUseCaseProtocol {

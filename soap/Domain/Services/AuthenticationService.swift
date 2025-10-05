@@ -9,6 +9,7 @@ import Foundation
 import Moya
 import AuthenticationServices
 import UIKit
+import BuddyDomain
 
 class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthenticationPresentationContextProviding {
   private let provider: MoyaProvider<AuthTarget>

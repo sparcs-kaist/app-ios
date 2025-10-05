@@ -7,6 +7,7 @@
 
 import Foundation
 import Moya
+import BuddyDomain
 
 enum AraCommentTarget {
   case upvote(commentID: Int)

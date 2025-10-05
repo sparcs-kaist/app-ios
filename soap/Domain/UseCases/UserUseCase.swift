@@ -7,6 +7,7 @@
 
 import Foundation
 import Factory
+import BuddyDomain
 
 protocol UserUseCaseProtocol: Sendable {
   var araUser: AraUser? { get async }

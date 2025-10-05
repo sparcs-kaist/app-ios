@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct AraPostPageDTO: Codable {
   let pages: Int

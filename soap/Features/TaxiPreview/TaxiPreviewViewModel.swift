@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 import Observation
 import Factory
+import BuddyDomain
 
 @MainActor
 @Observable

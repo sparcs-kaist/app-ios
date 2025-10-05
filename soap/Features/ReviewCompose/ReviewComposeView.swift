@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Factory
+import BuddyDomain
 
 struct ReviewComposeView: View {
   let lecture: Lecture

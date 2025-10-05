@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct PostImagesStrip: View {
   let images: [FeedImage]

@@ -8,6 +8,7 @@
 import SwiftUI
 import Translation
 import Factory
+import BuddyDomain
 
 struct LectureReviewCell: View {
   @Binding var review: LectureReview

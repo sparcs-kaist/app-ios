@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct LectureSummary: View {
   let lecture: Lecture

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct LectureSearchRequestDTO: Codable {
   let year: Int

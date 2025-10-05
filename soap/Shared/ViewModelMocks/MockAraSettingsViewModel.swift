@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 @Observable
 class MockAraSettingsViewModel: AraSettingsViewModelProtocol {

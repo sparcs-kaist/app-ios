@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct TaxiUserKey: EnvironmentKey {
   static let defaultValue: TaxiUser? = nil

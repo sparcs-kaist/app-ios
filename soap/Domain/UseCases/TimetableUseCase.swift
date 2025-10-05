@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import BuddyDomain
 
 @MainActor
 protocol TimetableUseCaseProtocol: Observable {

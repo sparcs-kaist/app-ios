@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 @preconcurrency
 import Translation

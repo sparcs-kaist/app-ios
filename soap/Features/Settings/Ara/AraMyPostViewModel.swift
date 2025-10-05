@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import Factory
+import BuddyDomain
 
 @MainActor
 protocol AraMyPostViewModelProtocol: Observable {

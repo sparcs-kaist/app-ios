@@ -7,6 +7,7 @@
 
 import SwiftUI
 import NukeUI
+import BuddyDomain
 
 struct FeedLazyImage: View {
   private let hPadding: CGFloat = 16 // match your .padding(.horizontal, 16)

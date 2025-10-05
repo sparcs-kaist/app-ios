@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct PostListView: View {
   @State private var viewModel: PostListViewModelProtocol

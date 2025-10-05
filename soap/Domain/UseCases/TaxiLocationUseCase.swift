@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyBeaver
+import BuddyDomain
 
 @MainActor
 protocol TaxiLocationUseCaseProtocol: Sendable {

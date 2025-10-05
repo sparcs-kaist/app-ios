@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct ExamTimeDTO: Codable {
   let description: String

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 extension Timetable: Mockable {
     static var mock: Timetable {

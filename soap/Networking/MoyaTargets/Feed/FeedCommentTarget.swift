@@ -7,6 +7,7 @@
 
 import Foundation
 import Moya
+import BuddyDomain
 
 enum FeedCommentTarget {
   case fetchComments(postID: String)

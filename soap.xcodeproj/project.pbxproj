@@ -24,6 +24,7 @@
 		8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */; };
 		8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E42E1DAEEB00DB2D21 /* Moya */; };
 		8B83650D2E914F1300892B70 /* WatchBuddy Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8B8368022E9247A900892B70 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8368012E9247A900892B70 /* BuddyDomain */; };
 		8BBA1ADA2E8EBD24009CD124 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
 		8BD3045B2E26392300B17695 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 8BD3045A2E26392300B17695 /* SocketIO */; };
 		8BE804172E49EE3A00904AC6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
@@ -69,6 +70,7 @@
 
 /* Begin PBXFileReference section */
 		8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WatchBuddy Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B8367FF2E92461900892B70 /* BuddyDomain */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyDomain; sourceTree = "<group>"; };
 		8B8DFBE62CCF771700AB82CC /* soap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = soap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFBF82CCF771800AB82CC /* soapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFC022CCF771800AB82CC /* soapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -125,6 +127,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B5073E92E851F79007E9C27 /* FirebaseMessaging in Frameworks */,
+				8B8368022E9247A900892B70 /* BuddyDomain in Frameworks */,
 				8B2AF35D2E1DB57800648F86 /* KeychainSwift in Frameworks */,
 				8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */,
 				8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */,
@@ -161,9 +164,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8B8368002E9247A900892B70 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		8B8DFBDD2CCF771700AB82CC = {
 			isa = PBXGroup;
 			children = (
+				8B8367FF2E92461900892B70 /* BuddyDomain */,
 				8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */,
 				8B8DFBE82CCF771700AB82CC /* soap */,
 				8B8DFBFB2CCF771800AB82CC /* soapTests */,
@@ -171,6 +182,7 @@
 				8B8365042E914F1200892B70 /* WatchBuddy Watch App */,
 				8B8DFBE72CCF771700AB82CC /* Products */,
 				8BE804162E49EE3A00904AC6 /* AppIcon.icon */,
+				8B8368002E9247A900892B70 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -246,6 +258,7 @@
 				8B5073E42E851F79007E9C27 /* FirebaseCore */,
 				8B5073E62E851F79007E9C27 /* FirebaseCrashlytics */,
 				8B5073E82E851F79007E9C27 /* FirebaseMessaging */,
+				8B8368012E9247A900892B70 /* BuddyDomain */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -973,6 +986,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */;
 			productName = Moya;
+		};
+		8B8368012E9247A900892B70 /* BuddyDomain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDomain;
 		};
 		8BD3045A2E26392300B17695 /* SocketIO */ = {
 			isa = XCSwiftPackageProductDependency;

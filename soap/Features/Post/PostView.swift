@@ -8,6 +8,7 @@
 import SwiftUI
 import NukeUI
 import WebKit
+import BuddyDomain
 
 struct PostView: View {
   @State private var viewModel: PostViewModelProtocol

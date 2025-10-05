@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import SocketIO
+import BuddyDomain
 
 final class TaxiChatService: TaxiChatServiceProtocol {
   // MARK: - Publisher

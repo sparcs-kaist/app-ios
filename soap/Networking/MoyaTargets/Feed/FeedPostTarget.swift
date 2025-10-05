@@ -7,6 +7,7 @@
 
 import Foundation
 import Moya
+import BuddyDomain
 
 enum FeedPostTarget {
   case fetchPosts(cursor: String?, limit: Int)

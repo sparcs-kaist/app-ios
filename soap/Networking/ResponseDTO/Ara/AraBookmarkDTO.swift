@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct AraBookmarkDTO: Codable {
   let pages: Int

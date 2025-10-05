@@ -8,6 +8,7 @@
 import SwiftUI
 import Factory
 import NukeUI
+import BuddyDomain
 
 struct FeedView: View {
   @State private var viewModel: FeedViewModelProtocol = FeedViewModel()

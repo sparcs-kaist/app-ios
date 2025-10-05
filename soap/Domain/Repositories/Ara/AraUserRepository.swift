@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 @preconcurrency
 import Moya

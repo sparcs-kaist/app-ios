@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct MainView: View {
   @State private var taxiInviteId: String?

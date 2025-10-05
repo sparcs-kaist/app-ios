@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import BuddyDomain
 
 protocol TaxiChatServiceProtocol {
   var chatsPublisher: AnyPublisher<[TaxiChat], Never> { get }

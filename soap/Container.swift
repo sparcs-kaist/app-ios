@@ -8,6 +8,7 @@
 import Foundation
 import Factory
 import Moya
+import BuddyDomain
 
 extension Container {
   // MARK: - Storage

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct FeedImageDTO: Codable {
   let id: String

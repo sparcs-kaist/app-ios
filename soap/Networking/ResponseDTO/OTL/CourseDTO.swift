@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct CourseDTO: Codable {
   let id: Int

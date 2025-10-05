@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 extension Text {
     init(_ localizedString: LocalizedString) {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct SearchSection<Content: View>: View {
   let title: String

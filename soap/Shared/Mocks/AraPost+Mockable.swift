@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 extension AraPost: Mockable {
   static var mock: AraPost {

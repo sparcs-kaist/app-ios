@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct OTLUserDTO: Codable {
   let id: Int

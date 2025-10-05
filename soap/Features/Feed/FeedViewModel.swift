@@ -8,6 +8,7 @@
 import Foundation
 import Observation
 import Factory
+import BuddyDomain
 
 @MainActor
 protocol FeedViewModelProtocol: Observable {

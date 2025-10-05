@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct TaxiChatShareBubble: View {
   let room: TaxiRoom

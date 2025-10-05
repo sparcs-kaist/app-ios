@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import BuddyDomain
 
 protocol TaxiLocationStorageProtocol {
   var taxiLocations: [TaxiLocation] { get set }

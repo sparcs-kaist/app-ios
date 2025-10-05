@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import Observation
+import BuddyDomain
 
 @MainActor
 protocol AuthUseCaseProtocol {

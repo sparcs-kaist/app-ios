@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct TaxiCreateRoomRequestDTO: Codable {
   var name: String

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct TaxiCreateReportRequestDTO: Codable {
   var reportedId: String

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 extension AraBoard: Mockable {
   static var mock: AraBoard {

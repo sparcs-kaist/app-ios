@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 extension FeedComment: Mockable {
   static var mock: FeedComment {

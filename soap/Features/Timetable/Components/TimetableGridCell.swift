@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct TimetableGridCell: View {
   let lecture: Lecture

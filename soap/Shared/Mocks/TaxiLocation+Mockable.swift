@@ -7,6 +7,7 @@
 
 import Foundation
 import MapKit
+import BuddyDomain
 
 extension TaxiLocation: Mockable {
   static var mock: TaxiLocation {

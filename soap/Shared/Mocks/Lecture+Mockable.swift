@@ -5,6 +5,9 @@
 //  Created by Soongyu Kwon on 28/12/2024.
 //
 
+import Foundation
+import BuddyDomain
+
 extension Lecture: Mockable {
   static var mock: Lecture {
     Lecture(

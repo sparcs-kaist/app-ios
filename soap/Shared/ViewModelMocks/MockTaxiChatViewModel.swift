@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Observation
+import BuddyDomain
 
 @Observable
 class MockTaxiChatViewModel: TaxiChatViewModelProtocol {

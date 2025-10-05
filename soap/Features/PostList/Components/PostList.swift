@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct PostList<Destination: View>: View {
   let posts: [AraPost]?

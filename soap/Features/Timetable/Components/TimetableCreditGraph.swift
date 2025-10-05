@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Charts
+import BuddyDomain
 
 struct TimetableCreditGraph: View {
   @Environment(TimetableViewModel.self) private var timetableViewModel

@@ -8,6 +8,7 @@
 import SwiftUI
 import Foundation
 import PhotosUI
+import BuddyDomain
 
 struct TaxiChatView: View {
   @State private var viewModel: TaxiChatViewModelProtocol

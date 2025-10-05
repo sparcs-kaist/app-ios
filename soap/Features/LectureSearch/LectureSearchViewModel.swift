@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Combine
 import Factory
+import BuddyDomain
 
 @MainActor
 @Observable

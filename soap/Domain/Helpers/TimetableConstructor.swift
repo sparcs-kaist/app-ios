@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import BuddyDomain
 
 struct TimetableConstructor {
     // The width of the column representing the time at the leftmost of the timetable
