@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */; };
+		8B3914DE2E92E0DF00B7FB6B /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
 		8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073DE2E851F79007E9C27 /* FirebaseAnalytics */; };
 		8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E02E851F79007E9C27 /* FirebaseAnalyticsCore */; };
 		8B5073E32E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E22E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport */; };
@@ -386,6 +387,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B3914DE2E92E0DF00B7FB6B /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,7 +471,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -504,7 +506,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
