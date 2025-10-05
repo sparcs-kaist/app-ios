@@ -8,7 +8,9 @@
 import Foundation
 import BuddyDomain
 
-extension Post: Mockable {
+extension Post: Mockable { }
+
+public extension Post {
   static var mock: Post {
     Post(
       title: "some title",

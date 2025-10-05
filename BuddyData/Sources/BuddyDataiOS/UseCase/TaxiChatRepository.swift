@@ -9,7 +9,6 @@ import Foundation
 import Moya
 import BuddyDomain
 import BuddyDataCore
-import BuddyDataRealtime
 
 public enum TaxiChatErrorCode: Int {
   case fetchChatsFailed = 1001

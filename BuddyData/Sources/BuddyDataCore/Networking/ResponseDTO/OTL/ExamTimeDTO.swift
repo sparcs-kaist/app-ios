@@ -8,12 +8,12 @@
 import Foundation
 import BuddyDomain
 
-struct ExamTimeDTO: Codable {
-  let description: String
-  let enDescription: String
-  let day: Int
-  let begin: Int
-  let end: Int
+public struct ExamTimeDTO: Codable {
+  public let description: String
+  public let enDescription: String
+  public let day: Int
+  public let begin: Int
+  public let end: Int
 
   enum CodingKeys: String, CodingKey {
     case description = "str"
@@ -25,7 +25,7 @@ struct ExamTimeDTO: Codable {
 }
 
 
-extension ExamTimeDTO {
+public extension ExamTimeDTO {
   func toModel() -> ExamTime {
     ExamTime(description: LocalizedString([
       "ko": description,

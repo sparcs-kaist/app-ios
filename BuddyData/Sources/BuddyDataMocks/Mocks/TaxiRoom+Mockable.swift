@@ -8,7 +8,9 @@
 import Foundation
 import BuddyDomain
 
-extension TaxiRoom: Mockable {
+extension TaxiRoom: Mockable { }
+
+public extension TaxiRoom {
   static var mock: TaxiRoom {
     mockList[0]
   }

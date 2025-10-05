@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 import BuddyDomain
+import BuddyDataMocks
 
 struct TaxiDestinationPicker: View {
   @Binding var source: TaxiLocation?

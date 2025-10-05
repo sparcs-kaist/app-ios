@@ -9,7 +9,9 @@ import Foundation
 import BuddyDomain
 import BuddyDataCore
 
-extension TaxiChat: Mockable {
+extension TaxiChat: Mockable { }
+
+public extension TaxiChat {
   static var mock: TaxiChat {
     mockList[0]
   }
@@ -273,7 +275,9 @@ extension TaxiChat: Mockable {
   }
 }
 
-extension TaxiChatGroup: Mockable {
+extension TaxiChatGroup: Mockable { }
+
+public extension TaxiChatGroup {
   static var mock: TaxiChatGroup {
     mockList[0]
   }

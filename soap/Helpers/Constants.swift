@@ -8,8 +8,7 @@
 import Foundation
 
 enum Constants {
-  // MARK: Authorisation
-  static let authorisationURL = URL(string: "https://taxi.dev.sparcs.org/api/auth/sparcsapp/login")
+  public static let taxiChatImageURL = URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
 
   // MARK: Infinite Scroll Constants
   static let loadMoreThreshold = 0.6
@@ -17,11 +16,6 @@ enum Constants {
   // MARK: Terms
   static let privacyPolicyURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/Privacy.md")!
   static let termsOfUseURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/TermsOfUse.md")!
-  
-  // MARK: Taxi
-  static let taxiBackendURL = URL(string: "https://taxi.dev.sparcs.org/api")!
-  static let taxiSocketURL = URL(string: "https://taxi.dev.sparcs.org/")!
-  static let taxiChatImageURL = URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
 
   static let taxiBankCodeMap: [String: String] = [
     "NH농협": "011",
@@ -52,13 +46,4 @@ enum Constants {
   static let taxiBankNameList = Array(taxiBankCodeMap.keys)
   
   static let taxiInviteURL = URL(string: "https://taxi.dev.sparcs.org/invite/")!
-
-  // MARK: Ara
-  static let araBackendURL = URL(string: "https://newara.dev.sparcs.org/api")!
-
-  // MARK: Feed
-  static let feedBackendURL = URL(string: "https://app.dev.sparcs.org/v1")!
-
-  // MARK: OTL
-  static let otlBackendURL = URL(string: "https://api.otl.dev.sparcs.org")!
 }

@@ -9,7 +9,9 @@ import Foundation
 import MapKit
 import BuddyDomain
 
-extension TaxiLocation: Mockable {
+extension TaxiLocation: Mockable { }
+
+public extension TaxiLocation {
   static var mock: TaxiLocation {
     mockList[0]
   }

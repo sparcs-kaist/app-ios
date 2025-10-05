@@ -8,17 +8,17 @@
 import Foundation
 import BuddyDomain
 
-struct OTLUserDTO: Codable {
-  let id: Int
-  let email: String
-  let studentID: String
-  let firstName: String
-  let lastName: String
-  let department: DepartmentDTO?
-  let majors: [DepartmentDTO]
-  let reviewWritableLectures: [LectureDTO]
-  let myTimetableLectures: [LectureDTO]
-  let reviews: [LectureReviewDTO]
+public struct OTLUserDTO: Codable {
+  public let id: Int
+  public let email: String
+  public let studentID: String
+  public let firstName: String
+  public let lastName: String
+  public let department: DepartmentDTO?
+  public let majors: [DepartmentDTO]
+  public let reviewWritableLectures: [LectureDTO]
+  public let myTimetableLectures: [LectureDTO]
+  public let reviews: [LectureReviewDTO]
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -35,7 +35,7 @@ struct OTLUserDTO: Codable {
 }
 
 
-extension OTLUserDTO {
+public extension OTLUserDTO {
   func toModel() -> OTLUser {
     OTLUser(
       id: id,

@@ -18,9 +18,6 @@ public enum BackendURL {
   // MARK: Taxi
   public static let taxiBackendURL = URL(string: "https://taxi.dev.sparcs.org/api")!
   public static let taxiSocketURL = URL(string: "https://taxi.dev.sparcs.org/")!
-  public static let taxiChatImageURL = URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
-
-  public static let taxiInviteURL = URL(string: "https://taxi.dev.sparcs.org/invite/")!
 
   // MARK: Ara
   public static let araBackendURL = URL(string: "https://newara.dev.sparcs.org/api")!

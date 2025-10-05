@@ -8,7 +8,9 @@
 import Foundation
 import BuddyDomain
 
-extension AraPost: Mockable {
+extension AraPost: Mockable { }
+
+public extension AraPost {
   static var mock: AraPost {
     AraPost(
       id: 6176,

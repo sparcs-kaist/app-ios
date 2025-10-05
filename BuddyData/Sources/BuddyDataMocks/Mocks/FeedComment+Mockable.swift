@@ -8,7 +8,9 @@
 import Foundation
 import BuddyDomain
 
-extension FeedComment: Mockable {
+extension FeedComment: Mockable { }
+
+public extension FeedComment {
   static var mock: FeedComment {
     FeedComment(
       id: UUID().uuidString,

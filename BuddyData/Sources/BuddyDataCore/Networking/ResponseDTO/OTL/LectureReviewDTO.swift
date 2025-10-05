@@ -8,16 +8,16 @@
 import Foundation
 import BuddyDomain
 
-struct LectureReviewDTO: Codable {
-  let id: Int
-  let lecture: LectureDTO
-  let content: String
-  let like: Int
-  let grade: Int
-  let load: Int
-  let speech: Int
-  let isDeleted: Int
-  let isLiked: Bool
+public struct LectureReviewDTO: Codable {
+  public let id: Int
+  public let lecture: LectureDTO
+  public let content: String
+  public let like: Int
+  public let grade: Int
+  public let load: Int
+  public let speech: Int
+  public let isDeleted: Int
+  public let isLiked: Bool
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -33,7 +33,7 @@ struct LectureReviewDTO: Codable {
 }
 
 
-extension LectureReviewDTO {
+public extension LectureReviewDTO {
   func toModel() -> LectureReview {
     LectureReview(
       id: id,

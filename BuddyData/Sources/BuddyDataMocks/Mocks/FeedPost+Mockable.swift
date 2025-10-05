@@ -8,7 +8,9 @@
 import Foundation
 import BuddyDomain
 
-extension FeedPost: Mockable {
+extension FeedPost: Mockable { }
+
+public extension FeedPost {
   static var mock: FeedPost {
     FeedPost(
       id: UUID().uuidString,

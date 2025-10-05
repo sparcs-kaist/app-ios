@@ -7,7 +7,9 @@
 import Foundation
 import BuddyDomain
 
-extension Semester: Mockable {
+extension Semester: Mockable { }
+
+public extension Semester {
     static var mock: Semester {
         Semester(
             year: 2025,

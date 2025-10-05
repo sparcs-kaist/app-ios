@@ -7,6 +7,8 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyDataCore
+import BuddyDataMocks
 
 struct SearchContent<Element: Identifiable, Cell: View>: View {
   let results: [Element]

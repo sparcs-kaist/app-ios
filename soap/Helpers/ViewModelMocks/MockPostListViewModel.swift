@@ -8,6 +8,7 @@
 import SwiftUI
 import Observation
 import BuddyDomain
+import BuddyDataMocks
 
 @Observable
 class MockPostListViewModel: PostListViewModelProtocol {

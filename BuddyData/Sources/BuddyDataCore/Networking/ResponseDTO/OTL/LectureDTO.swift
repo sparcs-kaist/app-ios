@@ -8,38 +8,38 @@
 import Foundation
 import BuddyDomain
 
-struct LectureDTO: Codable {
-  let id: Int
-  let title: String
-  let enTitle: String
-  let course: Int
-  let oldCode: String
-  let classNumber: String
-  let year: Int
-  let semester: Int
-  let code: String
-  let department: Int
-  let departmentCode: String
-  let departmentName: String
-  let departmentEnName: String
-  let type: String
-  let enType: String
-  let limit: Int
-  let numPeople: Int
-  let isEnglish: Bool
-  let credit: Int
-  let creditAu: Int
-  let commonTitle: String
-  let commonEnTitle: String
-  let classTitle: String
-  let classEnTitle: String
-  let reviewTotalWeight: Double?
-  let grade: Double?
-  let load: Double?
-  let speech: Double?
-  let professors: [ProfessorDTO]
-  let classTimes: [ClassTimeDTO]?
-  let examTimes: [ExamTimeDTO]?
+public struct LectureDTO: Codable {
+  public let id: Int
+  public let title: String
+  public let enTitle: String
+  public let course: Int
+  public let oldCode: String
+  public let classNumber: String
+  public let year: Int
+  public let semester: Int
+  public let code: String
+  public let department: Int
+  public let departmentCode: String
+  public let departmentName: String
+  public let departmentEnName: String
+  public let type: String
+  public let enType: String
+  public let limit: Int
+  public let numPeople: Int
+  public let isEnglish: Bool
+  public let credit: Int
+  public let creditAu: Int
+  public let commonTitle: String
+  public let commonEnTitle: String
+  public let classTitle: String
+  public let classEnTitle: String
+  public let reviewTotalWeight: Double?
+  public let grade: Double?
+  public let load: Double?
+  public let speech: Double?
+  public let professors: [ProfessorDTO]
+  public let classTimes: [ClassTimeDTO]?
+  public let examTimes: [ExamTimeDTO]?
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -77,7 +77,7 @@ struct LectureDTO: Codable {
 }
 
 
-extension LectureDTO {
+public extension LectureDTO {
   func toModel() -> Lecture {
     Lecture(
       id: id,

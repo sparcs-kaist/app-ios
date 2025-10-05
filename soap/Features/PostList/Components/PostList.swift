@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyDataMocks
 
 struct PostList<Destination: View>: View {
   let posts: [AraPost]?

@@ -8,11 +8,11 @@
 import Foundation
 import BuddyDomain
 
-struct ProfessorDTO: Codable {
-  let id: Int
-  let name: String
-  let enName: String
-  let reviewTotalWeight: Double
+public struct ProfessorDTO: Codable {
+  public let id: Int
+  public let name: String
+  public let enName: String
+  public let reviewTotalWeight: Double
 
   enum CodingKeys: String, CodingKey {
     case id = "professor_id"
@@ -23,7 +23,7 @@ struct ProfessorDTO: Codable {
 }
 
 
-extension ProfessorDTO {
+public extension ProfessorDTO {
   func toModel() -> Professor {
     Professor(id: id, name: LocalizedString([
       "ko": name,

@@ -8,11 +8,11 @@
 import Foundation
 import BuddyDomain
 
-struct DepartmentDTO: Codable {
-  let id: Int
-  let name: String
-  let enName: String
-  let code: String
+public struct DepartmentDTO: Codable {
+  public let id: Int
+  public let name: String
+  public let enName: String
+  public let code: String
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -23,7 +23,7 @@ struct DepartmentDTO: Codable {
 }
 
 
-extension DepartmentDTO {
+public extension DepartmentDTO {
   func toModel() -> Department {
     Department(id: id, name: LocalizedString([
       "ko": name,

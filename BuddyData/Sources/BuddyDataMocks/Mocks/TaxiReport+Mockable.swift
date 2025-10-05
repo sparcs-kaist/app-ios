@@ -8,7 +8,9 @@
 import Foundation
 import BuddyDomain
 
-extension TaxiReport: Mockable {
+extension TaxiReport: Mockable { }
+
+public extension TaxiReport {
   static var mock: TaxiReport {
     TaxiReport(
       id: "689cc4d514a641e076f953c0",

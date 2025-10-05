@@ -8,7 +8,9 @@
 import Foundation
 import BuddyDomain
 
-extension Timetable: Mockable {
+extension Timetable: Mockable { }
+
+public extension Timetable {
     static var mock: Timetable {
         Timetable(
             id: "0",

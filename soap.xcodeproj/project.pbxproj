@@ -30,6 +30,8 @@
 		8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26C2E92A52D005D8639 /* BuddyDataCore */; };
 		8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26E2E92A52D005D8639 /* BuddyDomain */; };
 		8BFAD2712E92B654005D8639 /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2702E92B654005D8639 /* BuddyDataiOS */; };
+		8BFAD2732E92B949005D8639 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2722E92B949005D8639 /* BuddyDataMocks */; };
+		8BFAD2752E92B98A005D8639 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2742E92B98A005D8639 /* BuddyDataMocks */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -122,6 +124,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BFAD2732E92B949005D8639 /* BuddyDataMocks in Frameworks */,
 				8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */,
 				8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */,
 			);
@@ -140,6 +143,7 @@
 				8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */,
 				8B5073E52E851F79007E9C27 /* FirebaseCore in Frameworks */,
 				8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */,
+				8BFAD2752E92B98A005D8639 /* BuddyDataMocks in Frameworks */,
 				8BFAD2712E92B654005D8639 /* BuddyDataiOS in Frameworks */,
 				8B6B2B512E2878CD00D13D50 /* NukeVideo in Frameworks */,
 				8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */,
@@ -225,6 +229,7 @@
 			packageProductDependencies = (
 				8BFAD26C2E92A52D005D8639 /* BuddyDataCore */,
 				8BFAD26E2E92A52D005D8639 /* BuddyDomain */,
+				8BFAD2722E92B949005D8639 /* BuddyDataMocks */,
 			);
 			productName = "WatchBuddy Watch App";
 			productReference = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */;
@@ -267,6 +272,7 @@
 				8B8368012E9247A900892B70 /* BuddyDomain */,
 				8BFAD2682E92A3A0005D8639 /* BuddyDataCore */,
 				8BFAD2702E92B654005D8639 /* BuddyDataiOS */,
+				8BFAD2742E92B98A005D8639 /* BuddyDataMocks */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -995,6 +1001,14 @@
 		8BFAD2702E92B654005D8639 /* BuddyDataiOS */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDataiOS;
+		};
+		8BFAD2722E92B949005D8639 /* BuddyDataMocks */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDataMocks;
+		};
+		8BFAD2742E92B98A005D8639 /* BuddyDataMocks */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDataMocks;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -8,16 +8,16 @@
 import Foundation
 import BuddyDomain
 
-struct ClassTimeDTO: Codable {
-  let buildingCode: String
-  let classroom: String
-  let enClassroom: String
-  let classroomShort: String
-  let enClassroomShort: String
-  let roomName: String
-  let day: Int
-  let begin: Int
-  let end: Int
+public struct ClassTimeDTO: Codable {
+  public let buildingCode: String
+  public let classroom: String
+  public let enClassroom: String
+  public let classroomShort: String
+  public let enClassroomShort: String
+  public let roomName: String
+  public let day: Int
+  public let begin: Int
+  public let end: Int
 
   enum CodingKeys: String, CodingKey {
     case buildingCode = "building_code"
@@ -33,7 +33,7 @@ struct ClassTimeDTO: Codable {
 }
 
 
-extension ClassTimeDTO {
+public extension ClassTimeDTO {
   func toModel() -> ClassTime {
     ClassTime(
       buildingCode: buildingCode,

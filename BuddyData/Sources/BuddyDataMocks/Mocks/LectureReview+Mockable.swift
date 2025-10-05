@@ -8,7 +8,9 @@
 import Foundation
 import BuddyDomain
 
-extension LectureReview: Mockable {
+extension LectureReview: Mockable { }
+
+public extension LectureReview {
   static var mock: LectureReview {
     LectureReview(
       id: 28073,
