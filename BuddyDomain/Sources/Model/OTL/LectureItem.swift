@@ -7,8 +7,15 @@
 
 import SwiftUI
 
+// LectureItem is designed to deliver Lecture with specific ClassTimes index.
+
 public struct LectureItem: Identifiable {
   public let id = UUID()
   public let lecture: Lecture
-  public let index: Int
+  public let index: Int         // Index for ClassTime
+
+  public init(lecture: Lecture, index: Int) {
+    self.lecture = lecture
+    self.index = index
+  }
 }
