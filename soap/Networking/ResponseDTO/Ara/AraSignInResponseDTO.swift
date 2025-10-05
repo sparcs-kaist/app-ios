@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct AraSignInResponseDTO: Codable {
   let uid: String
@@ -16,5 +17,11 @@ struct AraSignInResponseDTO: Codable {
     case uid
     case nickname
     case userID = "user_id"
+  }
+}
+
+extension AraSignInResponseDTO {
+  func toModel() -> AraSignInResponse {
+    AraSignInResponse(uid: uid, nickname: nickname, userID: userID)
   }
 }

@@ -6,9 +6,20 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct TaxiChatPresignedURLDTO: Codable {
   let id: String
   let url: String
   let fields: [String: String]
+}
+
+extension TaxiChatPresignedURLDTO {
+  func toModel() -> TaxiChatPresignedURL {
+    TaxiChatPresignedURL(id: id, url: url, fields: fields)
+  }
+
+  static func fromModel(model: TaxiChatPresignedURL) -> TaxiChatPresignedURLDTO {
+    TaxiChatPresignedURLDTO(id: model.id, url: model.url, fields: model.fields)
+  }
 }

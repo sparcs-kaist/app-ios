@@ -9,17 +9,6 @@ import Foundation
 import Moya
 import BuddyDomain
 
-protocol TaxiChatRepositoryProtocol: Sendable {
-  func fetchChats(roomID: String) async throws
-  func fetchChats(roomID: String, before: Date) async throws
-  func fetchChats(roomID: String, after: Date) async throws
-  func sendChat(_ chat: TaxiChatRequest) async throws
-  func readChats(roomID: String) async throws
-  func getPresignedURL(roomID: String) async throws -> TaxiChatPresignedURLDTO
-  func uploadImage(presignedURL: TaxiChatPresignedURLDTO, imageData: Data) async throws
-  func notifyImageUploadComplete(id: String) async throws
-}
-
 enum TaxiChatErrorCode: Int {
   case fetchChatsFailed = 1001
   case sendChatFailed = 1002
@@ -104,10 +93,10 @@ final class TaxiChatRepository: TaxiChatRepositoryProtocol, @unchecked Sendable 
     }
   }
 
-  func getPresignedURL(roomID: String) async throws -> TaxiChatPresignedURLDTO {
+  func getPresignedURL(roomID: String) async throws -> TaxiChatPresignedURL {
     do {
       let response = try await provider.request(.getPresignedURL(roomID: roomID))
-      let result = try response.map(TaxiChatPresignedURLDTO.self)
+      let result = try response.map(TaxiChatPresignedURLDTO.self).toModel()
 
       return result
     } catch let moyaError as MoyaError {
@@ -118,7 +107,7 @@ final class TaxiChatRepository: TaxiChatRepositoryProtocol, @unchecked Sendable 
     }
   }
 
-  func uploadImage(presignedURL: TaxiChatPresignedURLDTO, imageData: Data) async throws {
+  func uploadImage(presignedURL: TaxiChatPresignedURL, imageData: Data) async throws {
     let _ = try await provider
       .request(
         .uploadImage(url: presignedURL.url, fields: presignedURL.fields, imageData: imageData)

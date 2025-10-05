@@ -6,9 +6,16 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct SignInResponseDTO: Codable {
   let accessToken: String
   let refreshToken: String
   let ssoInfo: String
+}
+
+extension SignInResponseDTO {
+  func toModel() -> SignInResponse {
+    SignInResponse(accessToken: accessToken, refreshToken: refreshToken, ssoInfo: ssoInfo)
+  }
 }

@@ -11,19 +11,7 @@ import BuddyDomain
 
 enum AraBoardTarget {
   case fetchBoards
-
-  enum PostListType {
-    case all
-    case board(boardID: Int)
-    case user(userID: Int)
-  }
   case fetchPosts(type: PostListType, page: Int, pageSize: Int, searchKeyword: String?)
-
-  enum PostOrigin {
-    case all
-    case board
-    case topic(topicID: String)
-  }
   case fetchPost(origin: PostOrigin?, postID: Int)
   case fetchBookmarks(page: Int, pageSize: Int)
   case uploadImage(imageData: Data)

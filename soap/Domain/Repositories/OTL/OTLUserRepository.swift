@@ -11,11 +11,6 @@ import BuddyDomain
 @preconcurrency
 import Moya
 
-protocol OTLUserRepositoryProtocol: Sendable {
-  func register(ssoInfo: String) async throws
-  func fetchUser() async throws -> OTLUser
-}
-
 final class OTLUserRepository: OTLUserRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<OTLUserTarget>
 

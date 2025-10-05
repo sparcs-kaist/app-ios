@@ -9,14 +9,6 @@ import Foundation
 import SwiftyBeaver
 import BuddyDomain
 
-@MainActor
-protocol TaxiLocationUseCaseProtocol: Sendable {
-  var locations: [TaxiLocation] { get }
-  
-  func fetchLocations() async throws
-  func queryLocation(_ query: String) -> [TaxiLocation]
-}
-
 final class TaxiLocationUseCase: TaxiLocationUseCaseProtocol {
   private let taxiRoomRepository: TaxiRoomRepositoryProtocol
   public var locations: [TaxiLocation] = []

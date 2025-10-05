@@ -33,7 +33,7 @@ class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthe
     }
   }
   
-  func authenticate() async throws -> SignInResponseDTO {
+  func authenticate() async throws -> SignInResponse {
     return try await withCheckedThrowingContinuation { continuation in
       guard let authURL = Constants.authorisationURL,
             var urlComponents = URLComponents(url: authURL, resolvingAgainstBaseURL: false) else {
@@ -92,7 +92,7 @@ class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthe
     }
   }
 
-  func exchangeCodeForTokens(_ authorisationCode: String) async throws -> SignInResponseDTO {
+  func exchangeCodeForTokens(_ authorisationCode: String) async throws -> SignInResponse {
     return try await withCheckedThrowingContinuation { continuation in
       provider
         .request(
@@ -104,7 +104,7 @@ class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthe
           switch result {
           case .success(let response):
             do {
-              let tokenResponse = try response.map(SignInResponseDTO.self)
+              let tokenResponse = try response.map(SignInResponseDTO.self).toModel()
               continuation.resume(returning: tokenResponse)
             } catch {
               continuation.resume(throwing: error)
@@ -116,13 +116,13 @@ class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthe
     }
   }
 
-  func refreshAccessToken(refreshToken: String) async throws -> TokenResponseDTO {
+  func refreshAccessToken(refreshToken: String) async throws -> TokenResponse {
     return try await withCheckedThrowingContinuation { continuation in
       provider.request(.refreshTokens(refreshToken: refreshToken)) { result in
         switch result {
         case .success(let response):
           do {
-            let tokenResponse = try response.map(TokenResponseDTO.self)
+            let tokenResponse = try response.map(TokenResponseDTO.self).toModel()
             continuation.resume(returning: tokenResponse)
           } catch {
             continuation.resume(throwing: error)

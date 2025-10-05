@@ -11,11 +11,6 @@ import BuddyDomain
 @preconcurrency
 import Moya
 
-protocol TaxiUserRepositoryProtocol: Sendable {
-  func fetchUser() async throws -> TaxiUser
-  func editBankAccount(account: String) async throws
-}
-
 enum TaxiUserErrorCode: Int {
   case editBankAccountFailed = 2001
 }

@@ -6,8 +6,15 @@
 //
 
 import Foundation
+import BuddyDomain
 
 struct TokenResponseDTO: Codable {
   let accessToken: String
   let refreshToken: String
+}
+
+extension TokenResponseDTO {
+  func toModel() -> TokenResponse {
+    TokenResponse(accessToken: accessToken, refreshToken: refreshToken)
+  }
 }

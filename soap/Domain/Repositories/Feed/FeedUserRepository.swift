@@ -11,11 +11,6 @@ import BuddyDomain
 @preconcurrency
 import Moya
 
-protocol FeedUserRepositoryProtocol: Sendable {
-  func register(ssoInfo: String) async throws
-  func fetchUser() async throws -> FeedUser
-}
-
 final class FeedUserRepository: FeedUserRepositoryProtocol {
   private let provider: MoyaProvider<FeedUserTarget>
 

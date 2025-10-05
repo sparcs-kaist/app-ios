@@ -11,12 +11,6 @@ import BuddyDomain
 @preconcurrency
 import Moya
 
-protocol OTLLectureRepositoryProtocol: Sendable {
-  func searchLectures(request: LectureSearchRequest) async throws -> [Lecture]
-  func fetchLectures(lectureID: Int) async throws -> [LectureReview]
-  func writeReview(lectureID: Int, content: String, grade: Int, load: Int, speech: Int) async throws -> LectureReview
-}
-
 final class OTLLectureRepository: OTLLectureRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<OTLLectureTarget>
 

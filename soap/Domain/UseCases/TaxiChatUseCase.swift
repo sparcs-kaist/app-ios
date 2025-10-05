@@ -11,19 +11,6 @@ import Combine
 import SocketIO
 import BuddyDomain
 
-@MainActor
-protocol TaxiChatUseCaseProtocol {
-  var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
-  var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> { get }
-  var accountChats: [TaxiChat] { get }
-
-  func fetchInitialChats() async
-  func fetchChats(before date: Date) async
-  func sendChat(_ content: String?, type: TaxiChat.ChatType) async
-  func sendImage(_ content: UIImage) async throws
-}
-
-
 final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Publishers
   private var groupedChatsSubject = CurrentValueSubject<[TaxiChatGroup], Never>([])
@@ -107,7 +94,7 @@ final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
       return
     }
 
-    let presignedURL: TaxiChatPresignedURLDTO = try await taxiChatRepository.getPresignedURL(roomID: room.id)
+    let presignedURL: TaxiChatPresignedURL = try await taxiChatRepository.getPresignedURL(roomID: room.id)
     try await taxiChatRepository.uploadImage(presignedURL: presignedURL, imageData: imageData)
     try await taxiChatRepository.notifyImageUploadComplete(id: presignedURL.id)
   }

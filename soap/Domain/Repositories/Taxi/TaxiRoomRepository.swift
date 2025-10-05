@@ -11,18 +11,6 @@ import BuddyDomain
 @preconcurrency
 import Moya
 
-protocol TaxiRoomRepositoryProtocol: Sendable {
-  func fetchRooms() async throws -> [TaxiRoom]
-  func fetchMyRooms() async throws -> (onGoing: [TaxiRoom], done: [TaxiRoom])
-  func fetchLocations() async throws -> [TaxiLocation]
-  func createRoom(with: TaxiCreateRoom) async throws -> TaxiRoom
-  func joinRoom(id: String) async throws -> TaxiRoom
-  func leaveRoom(id: String) async throws -> TaxiRoom
-  func getRoom(id: String) async throws -> TaxiRoom
-  func commitSettlement(id: String) async throws -> TaxiRoom
-  func commitPayment(id: String) async throws -> TaxiRoom
-}
-
 final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<TaxiRoomTarget>
 

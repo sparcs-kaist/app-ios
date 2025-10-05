@@ -12,10 +12,6 @@ import BuddyDomain
 @preconcurrency
 import Moya
 
-protocol FeedImageRepositoryProtocol: Sendable {
-  func uploadPostImage(item: FeedPostPhotoItem) async throws -> FeedImage
-}
-
 final class FeedImageRepository: FeedImageRepositoryProtocol {
   private let provider: MoyaProvider<FeedImageTarget>
 

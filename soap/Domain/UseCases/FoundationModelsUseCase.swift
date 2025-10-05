@@ -7,13 +7,7 @@
 
 import Foundation
 import FoundationModels
-
-@MainActor
-protocol FoundationModelsUseCaseProtocol {
-  var isAvailable: Bool { get }
-
-  func summarise(_ text: String, maxWords: Int, tone: String) async -> String
-}
+import BuddyDomain
 
 class FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
   var isAvailable: Bool {

@@ -9,11 +9,6 @@ import Foundation
 import Moya
 import BuddyDomain
 
-protocol TaxiReportRepositoryProtocol: Sendable {
-  func fetchMyReports() async throws -> (incoming: [TaxiReport], outgoing: [TaxiReport])
-  func createReport(with: TaxiCreateReport) async throws
-}
-
 final class TaxiReportRepository: TaxiReportRepositoryProtocol, @unchecked Sendable {
   private let provider: MoyaProvider<TaxiReportTarget>
   
@@ -42,7 +37,8 @@ final class TaxiReportRepository: TaxiReportRepositoryProtocol, @unchecked Senda
     do {
       let requestDTO = TaxiCreateReportRequestDTO.fromModel(with)
       let response = try await provider.request(.createReport(with: requestDTO))
-      
+      _ = try response.filterSuccessfulStatusCodes()
+
       // TODO: Error Handling
     } catch let moyaError as MoyaError {
       let body = try moyaError.response!.map(APIErrorResponse.self)

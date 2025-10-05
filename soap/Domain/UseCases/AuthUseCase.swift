@@ -10,17 +10,6 @@ import Combine
 import Observation
 import BuddyDomain
 
-@MainActor
-protocol AuthUseCaseProtocol {
-  var isAuthenticatedPublisher: AnyPublisher<Bool, Never> { get }
-  func signIn() async throws
-  func signOut() async throws
-  func getAccessToken() -> String?
-  func getValidAccessToken() async throws -> String
-  func refreshAccessTokenIfNeeded() async throws
-}
-
-
 @Observable
 class AuthUseCase: AuthUseCaseProtocol {
   private let authenticationService: AuthenticationServiceProtocol
@@ -149,12 +138,12 @@ class AuthUseCase: AuthUseCaseProtocol {
 
   func signIn() async throws {
     do {
-      let tokenResponse: SignInResponseDTO = try await authenticationService.authenticate()
+      let tokenResponse: SignInResponse = try await authenticationService.authenticate()
       tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
 
       // MARK: Sign up Ara
-      let userInfo: AraSignInResponseDTO = try await self.araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
+      let userInfo: AraSignInResponse = try await self.araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
       try? await self.araUserRepository.agreeTOS(userID: userInfo.userID)
 
       // MARK: Sign up Feed

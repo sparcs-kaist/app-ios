@@ -12,22 +12,6 @@ import BuddyDomain
 @preconcurrency
 import Moya
 
-protocol AraBoardRepositoryProtocol: Sendable {
-  func fetchBoards() async throws -> [AraBoard]
-  func fetchPosts(type: AraBoardTarget.PostListType, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
-  func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost
-  func fetchBookmarks(page: Int, pageSize: Int) async throws -> AraPostPage
-  func uploadImage(image: UIImage) async throws -> AraAttachment
-  func writePost(request: AraCreatePost) async throws
-  func upvotePost(postID: Int) async throws
-  func downvotePost(postID: Int) async throws
-  func cancelVote(postID: Int) async throws
-  func reportPost(postID: Int, type: AraContentReportType) async throws
-  func deletePost(postID: Int) async throws
-  func addBookmark(postID: Int) async throws
-  func removeBookmark(bookmarkID: Int) async throws
-}
-
 actor AraBoardRepository: AraBoardRepositoryProtocol {
   private let provider: MoyaProvider<AraBoardTarget>
 
@@ -50,7 +34,7 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
     return boards
   }
 
-  func fetchPosts(type: AraBoardTarget.PostListType, page: Int, pageSize: Int, searchKeyword: String? = nil) async throws -> AraPostPage {
+  func fetchPosts(type: PostListType, page: Int, pageSize: Int, searchKeyword: String? = nil) async throws -> AraPostPage {
     let response = try await provider.request(
       .fetchPosts(type: type, page: page, pageSize: pageSize, searchKeyword: searchKeyword)
     )
@@ -59,7 +43,7 @@ actor AraBoardRepository: AraBoardRepositoryProtocol {
     return page
   }
   
-  func fetchPost(origin: AraBoardTarget.PostOrigin?, postID: Int) async throws -> AraPost {
+  func fetchPost(origin: PostOrigin?, postID: Int) async throws -> AraPost {
     let response = try await provider.request(.fetchPost(origin: origin, postID: postID))
     let post: AraPost = try response.map(AraPostDTO.self).toModel()
 

@@ -8,21 +8,6 @@
 import Foundation
 import BuddyDomain
 
-protocol UserStorageProtocol: Actor {
-  func setAraUser(_ user: AraUser?)
-  func getAraUser() -> AraUser?
-
-  func setTaxiUser(_ user: TaxiUser?)
-  func getTaxiUser() -> TaxiUser?
-
-  func setFeedUser(_ user: FeedUser?)
-  func getFeedUser() -> FeedUser?
-
-  func setOTLUser(_ user: OTLUser?)
-  func getOTLUser() -> OTLUser?
-}
-
-
 actor UserStorage: UserStorageProtocol {
   // MARK: - Ara User
   private var araUser: AraUser?

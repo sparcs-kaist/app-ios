@@ -23,13 +23,6 @@ protocol FeedPostComposeViewModelProtocol: Observable {
   func writePost() async throws
 }
 
-struct FeedPostPhotoItem: Identifiable, Hashable {
-  let id: String
-  let image: UIImage
-  var spoiler: Bool
-  var description: String
-}
-
 @Observable
 class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   enum ComposeType: Int, Hashable {
