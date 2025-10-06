@@ -12,7 +12,7 @@ public protocol TokenStorageProtocol {
   var tokenStatePublisher: AnyPublisher<TokenState?, Never> { get }
   var currentTokenState: TokenState? { get }
 
-  func save(accessToken: String, refreshToken: String)
+  func save(accessToken: String, refreshToken: String?)
   func getAccessToken() -> String?
   func getRefreshToken() -> String?
   func isTokenExpired() -> Bool

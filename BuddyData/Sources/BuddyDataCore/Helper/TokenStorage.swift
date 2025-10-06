@@ -10,7 +10,7 @@ import Combine
 import KeychainSwift
 import BuddyDomain
 
-public class TokenStorage: TokenStorageProtocol {
+public final class TokenStorage: TokenStorageProtocol {
   private let keychain = KeychainSwift()
   private static let acessTokenKey = "accessToken"
   private static let refreshTokenKey = "refreshToken"
@@ -33,9 +33,11 @@ public class TokenStorage: TokenStorageProtocol {
     
   }
 
-  public func save(accessToken: String, refreshToken: String) {
+  public func save(accessToken: String, refreshToken: String?) {
     keychain.set(accessToken, forKey: TokenStorage.acessTokenKey)
-    keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey)
+    if let refreshToken {
+      keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey)
+    }
 
     if let expirationDate = extractExpirationDate(from: accessToken) {
       let expirationTimeInterval = expirationDate.timeIntervalSince1970

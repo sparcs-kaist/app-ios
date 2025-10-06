@@ -7,13 +7,23 @@
 
 import SwiftUI
 import BuddyDomain
-import BuddyDataMocks
+import Factory
 
 @main
 struct WatchBuddy_Watch_AppApp: App {
-    var body: some Scene {
-        WindowGroup {
-          ContentView()
-        }
+  @Injected(
+    \.tokenBridgeServiceWatch
+  ) private var tokenBridgeServiceWatch: TokenBridgeServiceWatchProtocol
+
+  init() {
+    // watchOS support
+    tokenBridgeServiceWatch.start()
+  }
+
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
     }
+  }
 }
+

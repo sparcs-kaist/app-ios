@@ -11,6 +11,7 @@
 		8B3914DE2E92E0DF00B7FB6B /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
 		8B3914E02E92F37500B7FB6B /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914DF2E92F37500B7FB6B /* Factory */; };
 		8B3914E22E92F37500B7FB6B /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914E12E92F37500B7FB6B /* FactoryKit */; };
+		8B3914E82E93F4AA00B7FB6B /* BuddyDataWatch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */; };
 		8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073DE2E851F79007E9C27 /* FirebaseAnalytics */; };
 		8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E02E851F79007E9C27 /* FirebaseAnalyticsCore */; };
 		8B5073E32E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E22E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport */; };
@@ -128,6 +129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BFAD2732E92B949005D8639 /* BuddyDataMocks in Frameworks */,
+				8B3914E82E93F4AA00B7FB6B /* BuddyDataWatch in Frameworks */,
 				8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */,
 				8B3914E22E92F37500B7FB6B /* FactoryKit in Frameworks */,
 				8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */,
@@ -237,6 +239,7 @@
 				8BFAD2722E92B949005D8639 /* BuddyDataMocks */,
 				8B3914DF2E92F37500B7FB6B /* Factory */,
 				8B3914E12E92F37500B7FB6B /* FactoryKit */,
+				8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */,
 			);
 			productName = "WatchBuddy Watch App";
 			productReference = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */;
@@ -931,6 +934,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8B7C19DA2E1DAE8900DB2D21 /* XCRemoteSwiftPackageReference "Factory" */;
 			productName = FactoryKit;
+		};
+		8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDataWatch;
 		};
 		8B5073DE2E851F79007E9C27 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;

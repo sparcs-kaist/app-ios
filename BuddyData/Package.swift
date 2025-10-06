@@ -13,6 +13,7 @@ let package = Package(
             targets: ["BuddyDataCore"]
         ),
         .library(name: "BuddyDataiOS", targets: ["BuddyDataiOS"]),
+        .library(name: "BuddyDataWatch", targets: ["BuddyDataWatch"]),
         .library(name: "BuddyDataMocks", targets: ["BuddyDataMocks"])
     ],
     dependencies: [
@@ -35,6 +36,9 @@ let package = Package(
         .target(name: "BuddyDataiOS", dependencies: [
           "BuddyDataCore",
           .product(name: "SocketIO", package: "socket.io-client-swift"),
+        ]),
+        .target(name: "BuddyDataWatch", dependencies: [
+          "BuddyDataCore"
         ]),
         .target(name: "BuddyDataMocks", dependencies: [
           "BuddyDataCore"

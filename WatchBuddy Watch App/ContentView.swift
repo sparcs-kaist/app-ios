@@ -6,19 +6,28 @@
 //
 
 import SwiftUI
+import Factory
+import BuddyDomain
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+  @State private var viewModel = ContentViewModel()
+
+  var body: some View {
+    Group {
+      if viewModel.isAuthenticated {
+        Text("signed in")
+      } else {
+        Text("Please open Buddy on your iPhone to continue.")
+          .multilineTextAlignment(.center)
+      }
     }
+    .onAppear {
+      viewModel.bind()
+    }
+  }
 }
 
 #Preview {
-    ContentView()
+  ContentView()
 }
+
