@@ -25,7 +25,15 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
     _ session: WCSession,
     didReceiveApplicationContext applicationContext: [String: Any]
   ) {
-    
+    guard let data = applicationContext[BridgeKeys.timetable] as? Data else { return }
+    do {
+      _ = try JSONDecoder().decode(Timetable.self, from: data)  // test if timetable is valid
+      UserDefaults.standard.set(data, forKey: "timetableData")
+    } catch {
+      print("Failed to decode:", error)
+      UserDefaults.standard.set(nil, forKey: "timetableData")
+      return
+    }
   }
 
   public func session(

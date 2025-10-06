@@ -9,5 +9,5 @@ import Foundation
 
 public protocol SessionBridgeServiceProtocol {
   func start()
-  func updateAppContext(_ context: [String: Any])
+  func updateTimetable(_ timetable: Timetable)
 }

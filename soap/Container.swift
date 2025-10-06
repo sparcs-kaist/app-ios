@@ -229,7 +229,8 @@ extension Container {
     self {
       @MainActor in TimetableUseCase(
         userUseCase: self.userUseCase.resolve(),
-        otlTimetableRepository: self.otlTimetableRepository.resolve()
+        otlTimetableRepository: self.otlTimetableRepository.resolve(),
+        sessionBridgeService: self.sessionBridgeService.resolve()
       )
     }.singleton
   }

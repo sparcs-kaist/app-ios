@@ -22,12 +22,23 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
     session.activate()
   }
 
-  public func updateAppContext(_ context: [String: Any]) {
+  public func updateTimetable(_ timetable: Timetable) {
     guard WCSession.default.activationState == .activated else {
+      print("[updateTimetable] Session not activated. Skipping update.")
       return
     }
 
-    try? WCSession.default.updateApplicationContext(context)
+    do {
+      print("[updateTimetable] Encoding timetable with id:", timetable.id)
+      let data = try JSONEncoder().encode(timetable)
+      print("[updateTimetable] Encoded timetable size:", data.count, "bytes")
+
+      try WCSession.default.updateApplicationContext([BridgeKeys.timetable: data])
+      print("[updateTimetable] Successfully updated application context.")
+    } catch {
+      print("[updateTimetable] Failed to encode or update context:", error)
+      return
+    }
   }
 
   // MARK: - WCSessionDelegate
