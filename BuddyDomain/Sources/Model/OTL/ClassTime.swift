@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct ClassTime: Sendable {
+public struct ClassTime: Sendable, Codable {
   public let buildingCode: String
   public let classroomName: LocalizedString
   public let classroomNameShort: LocalizedString

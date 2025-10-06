@@ -5,7 +5,7 @@
 //  Created by Soongyu Kwon on 29/12/2024.
 //
 
-public enum LectureType: String, Equatable, Sendable {
+public enum LectureType: String, Equatable, Sendable, Codable {
   case br = "BR"
   case be = "BE"
   case mr = "MR"

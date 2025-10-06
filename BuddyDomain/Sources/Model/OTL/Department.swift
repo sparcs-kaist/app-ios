@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Department: Identifiable, Hashable, Sendable {
+public struct Department: Identifiable, Hashable, Sendable, Codable {
   public let id: Int
   public let name: LocalizedString
   public let code: String

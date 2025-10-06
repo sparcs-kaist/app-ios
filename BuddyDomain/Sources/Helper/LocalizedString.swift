@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct LocalizedString: CustomLocalizedStringResourceConvertible, Hashable, Sendable {
+public struct LocalizedString: CustomLocalizedStringResourceConvertible, Hashable, Sendable, Codable {
     private let translations: [String: String]
     
     public init(_ translations: [String: String]) {

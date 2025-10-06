@@ -5,7 +5,7 @@
 //  Created by Soongyu Kwon on 29/12/2024.
 //
 
-public enum DayType: Int, Identifiable, CaseIterable, Comparable, Sendable {
+public enum DayType: Int, Identifiable, CaseIterable, Comparable, Sendable, Codable {
     case sun = 6
     case mon = 0
     case tue = 1

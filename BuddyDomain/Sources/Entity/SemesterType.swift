@@ -5,7 +5,7 @@
 //  Created by Soongyu Kwon on 04/01/2025.
 //
 
-public enum SemesterType: String, Comparable, Sendable {
+public enum SemesterType: String, Comparable, Sendable, Codable {
   case spring = "Spring"
   case summer = "Summer"
   case autumn = "Autumn"
