@@ -133,7 +133,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
     // update watchOS data
 
     // select my table of current semester in the future
-    if let timetable: Timetable = store["2025-Spring"]?.first {
+    if let timetable: Timetable = store[fetchedCurrentSemester.id]?.first {
       sessionBridgeService.updateTimetable(timetable)
     }
   }
