@@ -165,6 +165,13 @@ extension Container {
     }.singleton
   }
 
+  @MainActor
+  var tokenBridgeService: Factory<TokenBridgeServiceProtocol> {
+    self {
+      @MainActor in TokenBridgeService(tokenStorage: self.tokenStorage.resolve(), authUseCase: self.authUseCase.resolve())
+    }.singleton
+  }
+
   // MARK: - Use Cases
   @MainActor
   var authUseCase: Factory<AuthUseCaseProtocol> {

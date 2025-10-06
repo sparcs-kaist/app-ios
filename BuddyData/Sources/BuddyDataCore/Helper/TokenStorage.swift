@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import KeychainSwift
 import BuddyDomain
 
@@ -14,6 +15,19 @@ public class TokenStorage: TokenStorageProtocol {
   private static let acessTokenKey = "accessToken"
   private static let refreshTokenKey = "refreshToken"
   private static let tokenExpirationKey = "tokenExpiration"
+
+  private let tokenStateSubject = CurrentValueSubject<TokenState?, Never>(nil)
+  public var tokenStatePublisher: AnyPublisher<TokenState?, Never> {
+    tokenStateSubject.eraseToAnyPublisher()
+  }
+
+  public var currentTokenState: TokenState? {
+    guard let at = getAccessToken(),
+          let exp = getTokenExpirationDate()
+    else { return nil }
+
+    return TokenState(accessToken: at, expiresAt: exp)
+  }
 
   public init() {
     
@@ -26,6 +40,7 @@ public class TokenStorage: TokenStorageProtocol {
     if let expirationDate = extractExpirationDate(from: accessToken) {
       let expirationTimeInterval = expirationDate.timeIntervalSince1970
       keychain.set(String(expirationTimeInterval), forKey: TokenStorage.tokenExpirationKey)
+      tokenStateSubject.send(TokenState(accessToken: accessToken, expiresAt: expirationDate))
     }
   }
 
@@ -63,6 +78,7 @@ public class TokenStorage: TokenStorageProtocol {
     keychain.delete(TokenStorage.acessTokenKey)
     keychain.delete(TokenStorage.refreshTokenKey)
     keychain.delete(TokenStorage.tokenExpirationKey)
+    tokenStateSubject.send(nil)
   }
   
   // MARK: - Private Methods
