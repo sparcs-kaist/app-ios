@@ -12,12 +12,12 @@ import Factory
 @main
 struct WatchBuddy_Watch_AppApp: App {
   @Injected(
-    \.tokenBridgeServiceWatch
-  ) private var tokenBridgeServiceWatch: TokenBridgeServiceWatchProtocol
+    \.sessionBridgeServiceWatch
+  ) private var sessionBridgeServiceWatch: SessionBridgeServiceWatchProtocol
 
   init() {
     // watchOS support
-    tokenBridgeServiceWatch.start()
+    sessionBridgeServiceWatch.start()
   }
 
   var body: some Scene {

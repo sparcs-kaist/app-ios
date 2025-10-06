@@ -13,17 +13,6 @@ struct ContentView: View {
   @State private var viewModel = ContentViewModel()
 
   var body: some View {
-    Group {
-      if viewModel.isAuthenticated {
-        Text("signed in")
-      } else {
-        Text("Please open Buddy on your iPhone to continue.")
-          .multilineTextAlignment(.center)
-      }
-    }
-    .onAppear {
-      viewModel.bind()
-    }
   }
 }
 

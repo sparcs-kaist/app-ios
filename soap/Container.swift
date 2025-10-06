@@ -165,10 +165,9 @@ extension Container {
     }.singleton
   }
 
-  @MainActor
-  var tokenBridgeService: Factory<TokenBridgeServiceProtocol> {
+  var sessionBridgeService: Factory<SessionBridgeServiceProtocol> {
     self {
-      @MainActor in TokenBridgeService(tokenStorage: self.tokenStorage.resolve(), authUseCase: self.authUseCase.resolve())
+       SessionBridgeService()
     }.singleton
   }
 

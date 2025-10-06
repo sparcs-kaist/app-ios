@@ -13,21 +13,4 @@ import BuddyDomain
 
 @Observable
 class ContentViewModel {
-  @ObservationIgnored @Injected(
-    \.tokenBridgeServiceWatch
-  ) private var tokenBridgeServiceWatch: TokenBridgeServiceWatchProtocol
-
-  @ObservationIgnored private var cancellables = Set<AnyCancellable>()
-
-  var isAuthenticated: Bool = false
-
-  func bind() {
-    tokenBridgeServiceWatch.tokenStatePublisher
-      .map { $0 != nil }
-      .removeDuplicates()
-      .sink { [weak self] newValue in
-        self?.isAuthenticated = newValue
-      }
-      .store(in: &cancellables)
-  }
 }

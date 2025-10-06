@@ -23,9 +23,9 @@ extension Container {
   }
 
   // MARK: - Services
-  var tokenBridgeServiceWatch: Factory<TokenBridgeServiceWatchProtocol> {
+  var sessionBridgeServiceWatch: Factory<SessionBridgeServiceWatchProtocol> {
     self {
-      TokenBridgeServiceWatch(tokenStorage: self.tokenStorage.resolve())
+      SessionBridgeServiceWatch()
     }.singleton
   }
 

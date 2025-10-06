@@ -83,7 +83,7 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
 @main
 struct soapApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-  @Injected(\.tokenBridgeService) private var tokenBridgeService: TokenBridgeServiceProtocol
+  @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol
 
   init() {
     // Initialise Console Logger (SwiftyBeaver)
@@ -93,7 +93,7 @@ struct soapApp: App {
     logger.addDestination(console)
 
     // watchOS support
-    tokenBridgeService.start()
+    sessionBridgeService.start()
   }
 
   var body: some Scene {
