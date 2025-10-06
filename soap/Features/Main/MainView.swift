@@ -18,10 +18,6 @@ struct MainView: View {
         FeedView()
       }
 
-//      Tab("My", systemImage: "person") {
-//        HomeView()
-//      }
-
       Tab("Boards", systemImage: "tray.full", value: .board) {
         BoardListView()
       }
