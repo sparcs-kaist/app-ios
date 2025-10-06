@@ -10,11 +10,25 @@ import Combine
 import WatchConnectivity
 import BuddyDomain
 
-@MainActor
+public protocol AuthRefresher: Sendable {
+  func refreshAccessToken(force: Bool) async throws
+}
+
+public struct MainActorAuthRefresher: AuthRefresher {
+  private let inner: AuthUseCaseProtocol
+  public init(inner: AuthUseCaseProtocol) {
+    self.inner = inner
+  }
+
+  public func refreshAccessToken(force: Bool) async throws {
+    try await inner.refreshAccessToken(force: force)
+  }
+}
+
 public final class TokenBridgeService: NSObject, WCSessionDelegate, TokenBridgeServiceProtocol {
   private let session = WCSession.isSupported() ? WCSession.default : nil
   private let tokenStorage: TokenStorageProtocol
-  private let authUseCase: AuthUseCaseProtocol
+  private let refresher: AuthRefresher
 
   private var cancellables = Set<AnyCancellable>()
 
@@ -23,7 +37,7 @@ public final class TokenBridgeService: NSObject, WCSessionDelegate, TokenBridgeS
     authUseCase: AuthUseCaseProtocol
   ) {
     self.tokenStorage = tokenStorage
-    self.authUseCase = authUseCase
+    self.refresher = MainActorAuthRefresher(inner: authUseCase)
     super.init()
   }
 
@@ -48,18 +62,33 @@ public final class TokenBridgeService: NSObject, WCSessionDelegate, TokenBridgeS
   private func push(_ state: TokenState) {
     guard let session,
           session.isPaired,
-          session.isWatchAppInstalled else { return }
+          session.isWatchAppInstalled else {
+      #if DEBUG
+      print("[TokenBridgeService] push aborted – session not ready. Paired:", session?.isPaired ?? false, "Installed:", session?.isWatchAppInstalled ?? false)
+      #endif
+      return
+    }
 
-    session.transferUserInfo([
+    let payload: [String: Any] = [
       BridgeKeys.kind: BridgeKeys.kindAuth,
       BridgeKeys.accessToken: state.accessToken,
       BridgeKeys.expiresAt: state.expiresAt.toISO8601
-    ])
+    ]
+
+    #if DEBUG
+    print("[TokenBridgeService] pushing token → expiresAt:", state.expiresAt, "payload:", payload)
+    #endif
+
+    session.transferUserInfo(payload)
+
+    #if DEBUG
+    print("[TokenBridgeService] transferUserInfo queued successfully")
+    #endif
   }
 
   // MARK: - WCSessionDelegate (nonisolated shims)
 
-  public nonisolated func session(
+  public func session(
     _ session: WCSession,
     didReceiveMessage message: [String: Any],
     replyHandler: @escaping ([String: Any]) -> Void
@@ -72,12 +101,13 @@ public final class TokenBridgeService: NSObject, WCSessionDelegate, TokenBridgeS
 
     // Hop to the main actor with only Sendable data.
     guard isAuthRequest else { return }
-    Task { @MainActor in
-      try? await self.authUseCase.refreshAccessToken(force: true)
+    let refresher = self.refresher
+    Task { [refresher] in
+      try? await refresher.refreshAccessToken(force: true)
     }
   }
 
-  public nonisolated func session(
+  public func session(
     _ session: WCSession,
     activationDidCompleteWith activationState: WCSessionActivationState,
     error: (any Error)?
@@ -90,7 +120,7 @@ public final class TokenBridgeService: NSObject, WCSessionDelegate, TokenBridgeS
     }
   }
 
-  public nonisolated func sessionDidBecomeInactive(_ session: WCSession) {
+  public func sessionDidBecomeInactive(_ session: WCSession) {
     Task { @MainActor in
       #if DEBUG
       print("[TokenBridgeService] sessionDidBecomeInactive")
@@ -98,7 +128,7 @@ public final class TokenBridgeService: NSObject, WCSessionDelegate, TokenBridgeS
     }
   }
 
-  public nonisolated func sessionDidDeactivate(_ session: WCSession) {
+  public func sessionDidDeactivate(_ session: WCSession) {
     Task { @MainActor in
       #if DEBUG
       print("[TokenBridgeService] sessionDidDeactivate")

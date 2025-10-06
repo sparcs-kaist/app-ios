@@ -7,7 +7,6 @@
 
 import Foundation
 
-@MainActor
 public protocol TokenBridgeServiceProtocol {
   func start()
 }
