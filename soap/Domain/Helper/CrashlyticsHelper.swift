@@ -8,13 +8,16 @@
 import Foundation
 import FirebaseCrashlytics
 import Moya
+import SwiftyBeaver
 
-protocol CrashlyticsHelperProtocol: Sendable {
-  func recordException(error: Error)
-}
-
-final class CrashlyticsHelper: CrashlyticsHelperProtocol {
+@MainActor
+@Observable
+final class CrashlyticsHelper {
+  var showAlert: Bool = false
+  
   func recordException(error: Error) {
     Crashlytics.crashlytics().record(error: error as NSError)
+    showAlert = true
+    logger.debug("recordException invoked; showAlert: \(showAlert)")
   }
 }

@@ -1156,6 +1156,9 @@
         }
       }
     },
+    "Debug Menu" : {
+
+    },
     "Defamation" : {
       "localizations" : {
         "en" : {
@@ -1733,6 +1736,9 @@
           }
         }
       }
+    },
+    "Invoke Exception" : {
+
     },
     "It looks like there are no posts on this page right now." : {
       "localizations" : {
@@ -3332,6 +3338,26 @@
           }
         }
       }
+    },
+    "Sign out failed." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out failed."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그 아웃 실패"
+          }
+        }
+      }
+    },
+    "Something went wrong. Please try again later." : {
+
     },
     "Spam" : {
       "localizations" : {

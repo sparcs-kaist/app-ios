@@ -43,6 +43,17 @@ struct SettingsView: View {
           }
           .foregroundStyle(.red)
         }
+        
+        Section(header: Text("Debug Menu")) {
+          #if DEBUG
+          Button("Force Crash", systemImage: "exclamationmark.triangle") {
+            fatalError("DEBUG: User forced a crash")
+          }
+          Button("Invoke Exception", systemImage: "exclamationmark.triangle") {
+            viewModel.handleException(NSError(domain: "Test", code: 1001))
+          }
+          #endif
+        }
       }
       .navigationTitle(Text("Settings"))
       .alert("Error", isPresented: $showLogoutError) {
@@ -75,11 +86,6 @@ struct SettingsView: View {
         Label("Send Crash Reports", systemImage: "lightbulb")
       }
       .foregroundStyle(.primary)
-      #if DEBUG
-      Button("Force Crash", systemImage: "exclamationmark.triangle") {
-        fatalError("DEBUG: User forced a crash")
-      }
-      #endif
     }
   }
   

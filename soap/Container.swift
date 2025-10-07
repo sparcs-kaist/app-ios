@@ -23,8 +23,9 @@ extension Container {
   }
   
   // MARK: - Helper
-  var crashlyticsHelper: Factory<CrashlyticsHelperProtocol> {
-    self { CrashlyticsHelper() }.singleton
+  @MainActor
+  var crashlyticsHelper: Factory<CrashlyticsHelper> {
+    self { @MainActor in CrashlyticsHelper() }.singleton
   }
 
   // MARK: - Networking
