@@ -23,6 +23,8 @@ struct TaxiListView: View {
   // show taxi chats
   @State private var showChat: Bool = false
 
+  @Environment(\.colorScheme) private var colorScheme
+
   init(taxiInviteId: Binding<String?> = .constant(nil), viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _taxiInviteId = taxiInviteId
     _viewModel = State(initialValue: viewModel)
@@ -61,7 +63,11 @@ struct TaxiListView: View {
               locations: viewModel.locations
             )
             .padding()
-            .background(Color.secondarySystemGroupedBackground, in: .rect(cornerRadius: 28))
+            .background(
+              colorScheme == .light ? Color.secondarySystemGroupedBackground : Color.clear,
+              in: .rect(cornerRadius: 28)
+            )
+            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
             .padding(.horizontal)
             .redacted(reason: isInteractable ? [] : .placeholder)
             .disabled(!isInteractable)
@@ -115,6 +121,10 @@ struct TaxiListView: View {
       }
       .navigationTitle("Taxi")
       .toolbarTitleDisplayMode(.inlineLarge)
+      .background {
+        BackgroundGradientView(color: .purple)
+          .ignoresSafeArea()
+      }
       .background(Color.systemGroupedBackground)
       .navigationDestination(isPresented: $showChat) {
         TaxiChatListView()

@@ -13,6 +13,7 @@ struct TaxiRoomCell: View {
   let room: TaxiRoom
 
   @Environment(\.taxiUser) private var taxiUser: TaxiUser?
+  @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
@@ -47,7 +48,12 @@ struct TaxiRoomCell: View {
       .foregroundStyle(.secondary)
     }
     .padding()
-    .background(Color.secondarySystemGroupedBackground, in: .rect(cornerRadius: 28))
+    .contentShape(.rect(cornerRadius: 28))
+    .background(
+      colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear,
+      in: .rect(cornerRadius: 28)
+    )
+    .glassEffect(colorScheme == .light ? .identity : .regular.interactive(), in: .rect(cornerRadius: 28))
   }
 }
 
