@@ -12,7 +12,7 @@ import BuddyDomain
 
 public final class TokenStorage: TokenStorageProtocol {
   private let keychain = KeychainSwift()
-  private static let acessTokenKey = "accessToken"
+  private static let accessTokenKey = "accessToken"
   private static let refreshTokenKey = "refreshToken"
   private static let tokenExpirationKey = "tokenExpiration"
 
@@ -34,7 +34,7 @@ public final class TokenStorage: TokenStorageProtocol {
   }
 
   public func save(accessToken: String, refreshToken: String?) {
-    keychain.set(accessToken, forKey: TokenStorage.acessTokenKey)
+    keychain.set(accessToken, forKey: TokenStorage.accessTokenKey)
     if let refreshToken {
       keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey)
     }
@@ -47,7 +47,7 @@ public final class TokenStorage: TokenStorageProtocol {
   }
 
   public func getAccessToken() -> String? {
-    return keychain.get(TokenStorage.acessTokenKey)
+    return keychain.get(TokenStorage.accessTokenKey)
   }
 
   public func getRefreshToken() -> String? {
@@ -77,7 +77,7 @@ public final class TokenStorage: TokenStorageProtocol {
   }
 
   public func clearTokens() {
-    keychain.delete(TokenStorage.acessTokenKey)
+    keychain.delete(TokenStorage.accessTokenKey)
     keychain.delete(TokenStorage.refreshTokenKey)
     keychain.delete(TokenStorage.tokenExpirationKey)
     tokenStateSubject.send(nil)
