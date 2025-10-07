@@ -21,6 +21,7 @@ protocol FeedPostComposeViewModelProtocol: Observable {
 
   func fetchFeedUser() async
   func writePost() async throws
+  func handleException(_ error: Error)
 }
 
 @Observable
@@ -51,6 +52,9 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   @ObservationIgnored @Injected(
     \.feedPostRepository
   ) private var feedPostRepository: FeedPostRepositoryProtocol
+  @ObservationIgnored @Injected(
+    \.crashlyticsHelper
+  ) private var crashlyticsHelper: CrashlyticsHelper
 
   // MARK: - Functions
   func fetchFeedUser() async {
@@ -144,5 +148,9 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
     }
 
     return nil
+  }
+  
+  func handleException(_ error: Error) {
+    crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while uploading a post. Please try again later.")
   }
 }

@@ -69,7 +69,7 @@ struct FeedPostComposeView: View {
                   try await viewModel.writePost()
                   dismiss()
                 } catch {
-                  // TODO: Handle Error here
+                  viewModel.handleException(error)
                 }
               }
             }, label: {

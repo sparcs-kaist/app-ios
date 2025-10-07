@@ -25,6 +25,7 @@ struct FeedPostRow: View {
 
   // MARK: - Dependencies
   @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol
+  @ObservationIgnored @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
 
   var body: some View {
     Group {
@@ -94,7 +95,7 @@ struct FeedPostRow: View {
                     try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
                     showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                   } catch {
-                    // TODO: error handling
+                    crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while reporting a post. Please try again later.")
                   }
                 }
               }

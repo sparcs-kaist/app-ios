@@ -424,7 +424,7 @@ struct PostView: View {
               }
             } catch {
               logger.error(error)
-              // TODO: handle error here
+              viewModel.handleException(error)
             }
           }
         }, label: {

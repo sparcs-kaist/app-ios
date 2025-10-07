@@ -34,6 +34,7 @@ struct FeedPostView: View {
     \.feedPostRepository
   ) private var feedPostRepository: FeedPostRepositoryProtocol
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
   @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
 
   var body: some View {
@@ -71,7 +72,7 @@ struct FeedPostView: View {
                       try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
                       showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                     } catch {
-                      // TODO: error handling
+                      crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while reporting a post. Please try again later.")
                     }
                   }
                 }
@@ -154,7 +155,7 @@ struct FeedPostView: View {
               }
             } catch {
               logger.error(error)
-              // TODO: handle error here
+              crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while uploading a comment. Please try again later.")
             }
           }
         }, label: {

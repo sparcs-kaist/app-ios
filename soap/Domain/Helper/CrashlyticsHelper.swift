@@ -14,10 +14,11 @@ import SwiftyBeaver
 @Observable
 final class CrashlyticsHelper {
   var showAlert: Bool = false
+  var alertMessage: LocalizedStringResource = ""
   
-  func recordException(error: Error) {
+  func recordException(error: Error, showAlert: Bool = true, alertMessage: LocalizedStringResource = "Something went wrong. Please try again later.") {
     Crashlytics.crashlytics().record(error: error as NSError)
-    showAlert = true
-    logger.debug("recordException invoked; showAlert: \(showAlert)")
+    self.showAlert = showAlert
+    self.alertMessage = alertMessage
   }
 }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import Factory
 
 @preconcurrency
 import Translation
@@ -30,7 +31,9 @@ struct PostTranslationView: View {
   @State private var errorMessage: String = ""
 
   @State private var isTranslating: Bool = true
-
+  
+  @ObservationIgnored @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
+  
   init(post: AraPost) {
     self.post = post
   }
@@ -102,7 +105,7 @@ struct PostTranslationView: View {
             content = translatedContent.targetText
           }
         } catch {
-          // TODO: Handle error
+          crashlyticsHelper.recordException(error: error, showAlert: false)
           errorMessage = "Failed to translate. Please try again."
           showErrorAlert = true
         }
