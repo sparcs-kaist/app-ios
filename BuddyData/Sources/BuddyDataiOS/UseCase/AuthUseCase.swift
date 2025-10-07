@@ -55,7 +55,7 @@ public class AuthUseCase: AuthUseCaseProtocol {
     if interval > 0 {
       refreshTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
         Task { [weak self] in
-          try? await self?.refreshAccessTokenIfNeeded()
+          try? await self?.refreshAccessToken(force: true)
         }
       }
     }
@@ -78,7 +78,7 @@ public class AuthUseCase: AuthUseCaseProtocol {
   public func getValidAccessToken() async throws -> String {
     if tokenStorage.isTokenExpired() {
       print("[AuthUseCase] Access token is expired. Refreshing...")
-      try await refreshAccessTokenIfNeeded()
+      try await refreshAccessToken(force: false)
     }
 
     guard let accessToken = tokenStorage.getAccessToken() else {
@@ -88,13 +88,13 @@ public class AuthUseCase: AuthUseCaseProtocol {
     return accessToken
   }
 
-  public func refreshAccessTokenIfNeeded() async throws {
+  public func refreshAccessToken(force: Bool) async throws {
     if isRefreshing {
       print("[AuthUseCase] Already refreshing, skipping duplicate call.")
       return
     }
     isRefreshing = true
-    if let accessToken = tokenStorage.getAccessToken(), !tokenStorage.isTokenExpired() {
+    if let accessToken = tokenStorage.getAccessToken(), !tokenStorage.isTokenExpired(), !force {
       print("[AuthUseCase] Access token is still valid. No refresh needed.")
       print("AccessToken: \(accessToken)")
       scheduleRefreshTimer() // reset timer on valid
@@ -104,6 +104,7 @@ public class AuthUseCase: AuthUseCaseProtocol {
 
     guard let currentRefreshToken = tokenStorage.getRefreshToken() else {
       // No refresh token found, sign out.
+      tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
       cancelRefreshTimer()
       isRefreshing = false

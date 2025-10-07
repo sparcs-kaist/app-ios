@@ -36,7 +36,7 @@ class ContentViewModel {
   func refreshAccessTokenIfNeeded() async {
     isLoading = true
     do {
-      try await authUseCase.refreshAccessTokenIfNeeded()
+      try await authUseCase.refreshAccessToken(force: true)
       await userUseCase.fetchUsers()
     } catch {
       logger.error(error)

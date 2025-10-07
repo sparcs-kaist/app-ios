@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct ExamTime: Sendable {
+public struct ExamTime: Sendable, Codable {
   public let description: LocalizedString
   public let day: DayType
   public let begin: Int

@@ -9,11 +9,11 @@ import Foundation
 import Combine
 
 @MainActor
-public protocol AuthUseCaseProtocol {
+public protocol AuthUseCaseProtocol: Sendable {
   var isAuthenticatedPublisher: AnyPublisher<Bool, Never> { get }
   func signIn() async throws
   func signOut() async throws
   func getAccessToken() -> String?
   func getValidAccessToken() async throws -> String
-  func refreshAccessTokenIfNeeded() async throws
+  func refreshAccessToken(force: Bool) async throws
 }

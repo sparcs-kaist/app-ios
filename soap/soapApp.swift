@@ -10,6 +10,8 @@ import SwiftyBeaver
 import FirebaseCore
 import FirebaseMessaging
 import UserNotifications
+import Factory
+import BuddyDomain
 
 let logger = SwiftyBeaver.self
 
@@ -81,6 +83,7 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
 @main
 struct soapApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+  @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol
 
   init() {
     // Initialise Console Logger (SwiftyBeaver)
@@ -88,6 +91,9 @@ struct soapApp: App {
     console.format = "$DHH:mm:ss$d $L $M"
     console.logPrintWay = .logger(subsystem: "Main", category: "UI")
     logger.addDestination(console)
+
+    // watchOS support
+    sessionBridgeService.start()
   }
 
   var body: some Scene {

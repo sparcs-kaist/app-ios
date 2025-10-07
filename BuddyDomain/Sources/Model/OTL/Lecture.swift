@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct Lecture: Identifiable, CourseRepresentable, Sendable {
+public struct Lecture: Identifiable, CourseRepresentable, Sendable, Codable {
   public let id: Int
   public let course: Int
   public let code: String

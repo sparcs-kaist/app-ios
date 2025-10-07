@@ -5,7 +5,9 @@
 //  Created by Soongyu Kwon on 29/12/2024.
 //
 
-public enum DayType: Int, Identifiable, CaseIterable, Comparable, Sendable {
+import Foundation
+
+public enum DayType: Int, Identifiable, CaseIterable, Comparable, Sendable, Codable {
     case sun = 6
     case mon = 0
     case tue = 1
@@ -36,4 +38,13 @@ public enum DayType: Int, Identifiable, CaseIterable, Comparable, Sendable {
 
 extension DayType {
   public static var weekdays: [DayType] { [.mon, .tue, .wed, .thu, .fri] }
+}
+
+public extension DayType {
+  static func from(date: Date, calendar: Calendar = .current) -> DayType {
+    let weekday = calendar.component(.weekday, from: date) // 1...7
+    // Index 0: Sun, 1: Mon, ..., 6: Sat
+    let map: [DayType] = [.sun, .mon, .tue, .wed, .thu, .fri, .sat]
+    return map[weekday - 1]
+  }
 }

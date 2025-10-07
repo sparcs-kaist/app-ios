@@ -6,31 +6,48 @@
 //
 
 import Foundation
+import Combine
 import KeychainSwift
 import BuddyDomain
 
-public class TokenStorage: TokenStorageProtocol {
+public final class TokenStorage: TokenStorageProtocol {
   private let keychain = KeychainSwift()
-  private static let acessTokenKey = "accessToken"
+  private static let accessTokenKey = "accessToken"
   private static let refreshTokenKey = "refreshToken"
   private static let tokenExpirationKey = "tokenExpiration"
+
+  private let tokenStateSubject = CurrentValueSubject<TokenState?, Never>(nil)
+  public var tokenStatePublisher: AnyPublisher<TokenState?, Never> {
+    tokenStateSubject.eraseToAnyPublisher()
+  }
+
+  public var currentTokenState: TokenState? {
+    guard let at = getAccessToken(),
+          let exp = getTokenExpirationDate()
+    else { return nil }
+
+    return TokenState(accessToken: at, expiresAt: exp)
+  }
 
   public init() {
     
   }
 
-  public func save(accessToken: String, refreshToken: String) {
-    keychain.set(accessToken, forKey: TokenStorage.acessTokenKey)
-    keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey)
+  public func save(accessToken: String, refreshToken: String?) {
+    keychain.set(accessToken, forKey: TokenStorage.accessTokenKey)
+    if let refreshToken {
+      keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey)
+    }
 
     if let expirationDate = extractExpirationDate(from: accessToken) {
       let expirationTimeInterval = expirationDate.timeIntervalSince1970
       keychain.set(String(expirationTimeInterval), forKey: TokenStorage.tokenExpirationKey)
+      tokenStateSubject.send(TokenState(accessToken: accessToken, expiresAt: expirationDate))
     }
   }
 
   public func getAccessToken() -> String? {
-    return keychain.get(TokenStorage.acessTokenKey)
+    return keychain.get(TokenStorage.accessTokenKey)
   }
 
   public func getRefreshToken() -> String? {
@@ -60,9 +77,10 @@ public class TokenStorage: TokenStorageProtocol {
   }
 
   public func clearTokens() {
-    keychain.delete(TokenStorage.acessTokenKey)
+    keychain.delete(TokenStorage.accessTokenKey)
     keychain.delete(TokenStorage.refreshTokenKey)
     keychain.delete(TokenStorage.tokenExpirationKey)
+    tokenStateSubject.send(nil)
   }
   
   // MARK: - Private Methods

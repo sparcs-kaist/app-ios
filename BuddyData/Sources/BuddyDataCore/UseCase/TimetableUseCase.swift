@@ -36,11 +36,17 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
   // MARK: - Dependencies
   private let userUseCase: UserUseCaseProtocol
   private let otlTimetableRepository: OTLTimetableRepositoryProtocol
+  private let sessionBridgeService: SessionBridgeServiceProtocol
 
   // MARK: - Initialiser
-  public init(userUseCase: UserUseCaseProtocol, otlTimetableRepository: OTLTimetableRepositoryProtocol) {
+  public init(
+    userUseCase: UserUseCaseProtocol,
+    otlTimetableRepository: OTLTimetableRepositoryProtocol,
+    sessionBridgeService: SessionBridgeServiceProtocol
+  ) {
     self.userUseCase = userUseCase
     self.otlTimetableRepository = otlTimetableRepository
+    self.sessionBridgeService = sessionBridgeService
   }
 
   // MARK: - Computed
@@ -123,6 +129,13 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
 
     // Fetch remote tables for the selected semester and merge
     await refreshTablesForSelectedSemester()
+
+    // update watchOS data
+
+    // select my table of current semester in the future
+    if let timetable: Timetable = store[fetchedCurrentSemester.id]?.first {
+      sessionBridgeService.updateTimetable(timetable)
+    }
   }
 
   public func createTable() async throws {

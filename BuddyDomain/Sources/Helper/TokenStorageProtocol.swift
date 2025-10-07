@@ -6,9 +6,13 @@
 //
 
 import Foundation
+import Combine
 
 public protocol TokenStorageProtocol {
-  func save(accessToken: String, refreshToken: String)
+  var tokenStatePublisher: AnyPublisher<TokenState?, Never> { get }
+  var currentTokenState: TokenState? { get }
+
+  func save(accessToken: String, refreshToken: String?)
   func getAccessToken() -> String?
   func getRefreshToken() -> String?
   func isTokenExpired() -> Bool

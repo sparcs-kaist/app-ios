@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct Professor: Identifiable, Sendable {
+public struct Professor: Identifiable, Sendable, Codable {
   public let id: Int
   public let name: LocalizedString
   public let reviewTotalWeight: Double

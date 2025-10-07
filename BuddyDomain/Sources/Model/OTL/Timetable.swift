@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-public struct Timetable: Identifiable {
+public struct Timetable: Identifiable, Codable {
   public let id: String
   public var lectures: [Lecture]
 
-  private let defaultMinMinutes = 540 // 9:00 AM
-  private let defaultMaxMinutes = 1080 // 6:00 PM
+  private var defaultMinMinutes = 540 // 9:00 AM
+  private var defaultMaxMinutes = 1080 // 6:00 PM
 
   public static let letters: [String] = [
     "?", "F", "F", "F", "D-", "D", "D+", "C-", "C", "C+",
@@ -152,5 +152,22 @@ public extension Timetable {
       }
     }
     return false
+  }
+
+  func lectureItems(for date: Date = Date()) -> [LectureItem] {
+    let today = DayType.from(date: date, calendar: .current)
+
+    var next: [LectureItem] = []
+    for lecture in self.lectures {
+      for (i, ct) in lecture.classTimes.enumerated() where ct.day == today {
+        next.append(LectureItem(lecture: lecture, index: i))
+      }
+    }
+
+    return next.sorted {
+      let a = $0.lecture.classTimes[$0.index].begin
+      let b = $1.lecture.classTimes[$1.index].begin
+      return a < b
+    }
   }
 }

@@ -6,12 +6,24 @@
 //
 
 import SwiftUI
+import BuddyDomain
+import Factory
 
 @main
 struct WatchBuddy_Watch_AppApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+  @Injected(
+    \.sessionBridgeServiceWatch
+  ) private var sessionBridgeServiceWatch: SessionBridgeServiceWatchProtocol
+
+  init() {
+    // watchOS support
+    sessionBridgeServiceWatch.start()
+  }
+
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
     }
+  }
 }
+

@@ -165,6 +165,12 @@ extension Container {
     }.singleton
   }
 
+  var sessionBridgeService: Factory<SessionBridgeServiceProtocol> {
+    self {
+       SessionBridgeService()
+    }.singleton
+  }
+
   // MARK: - Use Cases
   @MainActor
   var authUseCase: Factory<AuthUseCaseProtocol> {
@@ -223,7 +229,8 @@ extension Container {
     self {
       @MainActor in TimetableUseCase(
         userUseCase: self.userUseCase.resolve(),
-        otlTimetableRepository: self.otlTimetableRepository.resolve()
+        otlTimetableRepository: self.otlTimetableRepository.resolve(),
+        sessionBridgeService: self.sessionBridgeService.resolve()
       )
     }.singleton
   }
