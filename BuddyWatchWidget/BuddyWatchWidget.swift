@@ -90,7 +90,7 @@ struct Provider: TimelineProvider {
 
         // Upcoming Lectures (30 minutes before the start)
         let pre = max(now, start.addingTimeInterval(-30*60))
-        if pre >= now {
+        if pre <= start {
           entries
             .append(
               LectureEntry(
@@ -142,8 +142,6 @@ struct Provider: TimelineProvider {
   }
 }
 
-
-
 struct BuddyWatchWidgetEntryView: View {
   @Environment(\.widgetFamily) private var familiy
   var entry: LectureEntry
@@ -174,7 +172,9 @@ struct BuddyWatchWidget: Widget {
     StaticConfiguration(kind: kind, provider: Provider()) { entry in
       BuddyWatchWidgetEntryView(entry: entry)
     }
-    .supportedFamilies([.accessoryRectangular, .accessoryInline])
+    .supportedFamilies(
+      [.accessoryRectangular, .accessoryInline, .accessoryCircular, .accessoryCorner]
+    )
     .configurationDisplayName("Upcoming Class")
     .description("Check out the next class.")
   }
