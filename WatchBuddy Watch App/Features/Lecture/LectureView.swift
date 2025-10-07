@@ -30,9 +30,11 @@ struct LectureView: View {
 
       Spacer()
 
-      Text(item.lecture.classTimes[item.index].statusString)
-        .foregroundStyle(item.lecture.backgroundColor)
-        .font(.caption)
+      TimelineView(.everyMinute) { context in
+        Text(item.lecture.classTimes[item.index].statusString(at: context.date))
+          .foregroundStyle(item.lecture.backgroundColor)
+          .font(.caption)
+      }
       Text(item.lecture.classTimes[item.index].classroomNameShort.localized())
         .lineLimit(1)
         .minimumScaleFactor(0.8)

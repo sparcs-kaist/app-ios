@@ -29,33 +29,29 @@ public struct ClassTime: Sendable, Codable {
     return "\(formatTime(begin))-\(formatTime(end))"
   }
 
-  public var statusString: String {
+  public func statusString(at now: Date) -> String {
     let calendar = Calendar.current
-    let now = Date()
-    let components = calendar.dateComponents([.hour, .minute], from: now)
-    let currentMinutes = (components.hour ?? 0) * 60 + (components.minute ?? 0)
+    let comps = calendar.dateComponents([.hour, .minute], from: now)
+    let currentMinutes = (comps.hour ?? 0) * 60 + (comps.minute ?? 0)
 
     if currentMinutes < begin {
-      // Class hasn't started yet
       let diff = begin - currentMinutes
       return "in \(formatMinutes(diff))"
     } else if currentMinutes >= end {
-      // Class already ended
       let diff = currentMinutes - end
       return "ended \(formatMinutes(diff)) ago"
     } else {
-      // Class is ongoing
       return "now"
     }
   }
 
   private func formatMinutes(_ minutes: Int) -> String {
-    let hours = minutes / 60
-    let mins = minutes % 60
-    if hours > 0 {
-      return "\(hours)h \(mins)m"
-    } else {
-      return "\(mins)m"
+    let h = minutes / 60
+    let m = minutes % 60
+    switch (h, m) {
+    case (0, let m): return "\(m)m"
+    case (let h, 0): return "\(h)h"
+    default:         return "\(h)h \(m)m"
     }
   }
 
