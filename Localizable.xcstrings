@@ -1651,6 +1651,9 @@
         }
       }
     },
+    "Force Crash" : {
+
+    },
     "Hate Speech" : {
       "localizations" : {
         "en" : {
@@ -3070,6 +3073,9 @@
           }
         }
       }
+    },
+    "Send Crash Reports" : {
+
     },
     "Send Feedback" : {
       "localizations" : {
