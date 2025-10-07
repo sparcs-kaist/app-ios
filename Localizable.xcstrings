@@ -32,6 +32,17 @@
     "%@" : {
       "shouldTranslate" : false
     },
+    "%@ • %@" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ • %2$@"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
     "%@ → %@" : {
       "localizations" : {
         "en-GB" : {
@@ -307,6 +318,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "🚕 %1$@ %2$@ → %3$@ 택시팟 구합니다! 🚕"
+          }
+        }
+      }
+    },
+    "0 left" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0 left"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수업 없음"
           }
         }
       }
@@ -938,6 +965,22 @@
         }
       }
     },
+    "Check out the next class." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check out the next class."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 수업을 확인하세요."
+          }
+        }
+      }
+    },
     "Classroom" : {
       "localizations" : {
         "en" : {
@@ -1423,6 +1466,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "수정 중"
+          }
+        }
+      }
+    },
+    "Enjoy your day" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enjoy your day"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐거운 하루 되세요"
           }
         }
       }
@@ -2237,6 +2296,22 @@
         }
       }
     },
+    "No more classes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No more classes"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 이상 수업 없음"
+          }
+        }
+      }
+    },
     "No one has commented yet." : {
       "localizations" : {
         "en" : {
@@ -2448,6 +2523,22 @@
         }
       }
     },
+    "Not supported" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not supported"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지원 안 됨"
+          }
+        }
+      }
+    },
     "Nothing Here Yet" : {
       "localizations" : {
         "en" : {
@@ -2499,6 +2590,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "확인"
+          }
+        }
+      }
+    },
+    "Open Buddy on your iPhone to continue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Buddy on your iPhone to continue"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 Buddy 앱을 열어 계속"
           }
         }
       }
@@ -2716,6 +2823,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "제목을 입력해 주세요"
+          }
+        }
+      }
+    },
+    "Please open Buddy app on your iPhone to sync your timetable for this semester." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please open Buddy app on your iPhone to sync your timetable for this semester."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 Buddy 앱을 열어 이번 학기 시간표를 동기화 하세요."
           }
         }
       }
@@ -3461,6 +3584,22 @@
         }
       }
     },
+    "Sign in" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그인"
+          }
+        }
+      }
+    },
     "Sign in failed: %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3474,6 +3613,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "로그인 실패: %@"
+          }
+        }
+      }
+    },
+    "Sign in Required" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in Required"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그인 필요"
           }
         }
       }
@@ -3822,6 +3977,22 @@
         }
       }
     },
+    "There is no class today." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is no class today."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 수업이 없습니다."
+          }
+        }
+      }
+    },
     "There was an error. Please try again later." : {
       "localizations" : {
         "en" : {
@@ -4163,6 +4334,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "무제"
+          }
+        }
+      }
+    },
+    "Upcoming Class" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming Class"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다가오는 수업"
           }
         }
       }

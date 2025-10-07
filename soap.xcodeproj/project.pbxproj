@@ -17,6 +17,8 @@
 		8B3FB1292E94F1C400F57FD7 /* BuddyWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8B3FB1312E951D7200F57FD7 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3FB1302E951D7200F57FD7 /* BuddyDataMocks */; };
 		8B3FB1332E951D7200F57FD7 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3FB1322E951D7200F57FD7 /* BuddyDomain */; };
+		8B3FB13D2E953D1500F57FD7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
+		8B3FB13E2E953D1500F57FD7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
 		8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073DE2E851F79007E9C27 /* FirebaseAnalytics */; };
 		8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E02E851F79007E9C27 /* FirebaseAnalyticsCore */; };
 		8B5073E32E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E22E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport */; };
@@ -484,6 +486,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B3FB13E2E953D1500F57FD7 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -492,6 +495,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B3914DE2E92E0DF00B7FB6B /* AppIcon.icon in Resources */,
+				8B3FB13D2E953D1500F57FD7 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
