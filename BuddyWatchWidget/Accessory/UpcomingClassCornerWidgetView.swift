@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import BuddyDomain
+import WidgetKit
 
 struct UpcomingClassCornerWidgetView: View {
   var entry: LectureEntry
