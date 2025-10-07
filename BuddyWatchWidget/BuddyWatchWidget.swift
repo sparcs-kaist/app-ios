@@ -218,24 +218,6 @@ struct UpcomingClassRectangleWidgetView: View {
   }
 }
 
-struct UpcomingClassInlineWidgetView: View {
-  var entry: LectureEntry
-
-  var body: some View {
-    if let lecture = entry.lecture, let start = entry.startDate {
-      Text("\(start, style: .time) • \(lecture.title.localized())")
-    } else if entry.signInRequired {
-      Text("Sign in Required")
-    } else {
-      Text("No more classes")
-    }
-  }
-}
-
-
-
-
-
 struct BuddyWatchWidgetEntryView: View {
   @Environment(\.widgetFamily) private var familiy
   var entry: LectureEntry
