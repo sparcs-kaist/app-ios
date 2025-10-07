@@ -426,46 +426,6 @@
         }
       }
     },
-    "Advertisement" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Advertisement"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "광고"
-          }
-        }
-      }
-    },
-    "All" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "전체"
-          }
-        }
-      }
-    },
     "Allow NSFW" : {
       "localizations" : {
         "en" : {
@@ -576,23 +536,6 @@
         }
       }
     },
-    "An unknown authentication error occurred." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "An unknown authentication error occurred."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인증 도중 알 수 없는 오류가 발생했습니다."
-          }
-        }
-      }
-    },
     "Anonymous" : {
       "localizations" : {
         "en" : {
@@ -667,46 +610,6 @@
     },
     "AU" : {
       "shouldTranslate" : false
-    },
-    "Authentication was cancelled by the user." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentication was cancelled by the user."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인증이 취소되었습니다."
-          }
-        }
-      }
-    },
-    "Autumn" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fall"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Autumn"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "가을"
-          }
-        }
-      }
     },
     "B" : {
       "shouldTranslate" : false
@@ -1616,29 +1519,6 @@
         }
       }
     },
-    "Failed to summarise text. Please try again later." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to summarize text. Please try again later."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to summarise text. Please try again shortly."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "텍스트 요약에 실패했습니다. 나중에 다시 시도해 주세요."
-          }
-        }
-      }
-    },
     "False Information" : {
       "localizations" : {
         "en" : {
@@ -1772,23 +1652,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정보"
-          }
-        }
-      }
-    },
-    "Invalid callback URL received." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invalid callback URL received."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "유효하지 않은 URL를 받았습니다."
           }
         }
       }
@@ -1952,23 +1815,6 @@
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus." : {
       "shouldTranslate" : false
     },
-    "Major" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Major"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "전공"
-          }
-        }
-      }
-    },
     "Market" : {
       "shouldTranslate" : false
     },
@@ -2003,29 +1849,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기타"
-          }
-        }
-      }
-    },
-    "Model is currently unavailable. Please try again later." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Model is currently unavailable. Please try again later."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Model is currently unavailable. Please try again shortly."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "현재 모델을 사용할 수 없습니다. 나중에 다시 시도해 주세요."
           }
         }
       }
@@ -3485,29 +3308,6 @@
         }
       }
     },
-    "Summarise the following content in a %@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %lld words.\n\nContent:\n%@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Summarize the following content in a %1$@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %2$lld words.\n\nContent:\n%3$@"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Summarise the following content in a %1$@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %2$lld words.\n\nContent:\n%3$@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다음 내용을 %1$@ 스타일로 요약하되, 주요 사실과 주제, 이름, 날짜, 숫자는 반드시 유지하세요.\\n인사가 주요 주제가 아닐 경우 무시하세요.\\n요약은 %2$lld 단어로 제한하세요.\\n\\n내용:\\n%3$@"
-          }
-        }
-      }
-    },
     "Summarising..." : {
       "localizations" : {
         "en" : {
@@ -3705,29 +3505,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "오류가 발생했습니다. 나중에 다시 시도해 주세요."
-          }
-        }
-      }
-    },
-    "This content is too short to summarize." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This content is too short to summarize."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This content is too short to summarise."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내용이 너무 짧아 요약할 수 없습니다."
           }
         }
       }

@@ -16,13 +16,16 @@ public class FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
 
   public func summarise(_ text: String, maxWords: Int = 120, tone: String = "concise") async -> String {
     guard case .available = SystemLanguageModel.default.availability else {
-      return String(localized: "Model is currently unavailable. Please try again later.")
+      return String(
+        localized: "Model is currently unavailable. Please try again later.",
+        bundle: .module
+      )
     }
 
     let cleanedText = text.convertFromHTML()
 
     if cleanedText.count <= 20 {
-      return String(localized: "This content is too short to summarize.")
+      return String(localized: "This content is too short to summarize.", bundle: .module)
     }
 
     let session = LanguageModelSession(model: .default)
@@ -35,12 +38,12 @@ public class FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
       
       Content:
       \(cleanedText)
-      """)
+      """, bundle: .module)
     do {
       let response = try await session.respond(to: prompt)
       return response.content.trimmingCharacters(in: .whitespacesAndNewlines)
     } catch {
-      return String(localized: "Failed to summarise text. Please try again later.")
+      return String(localized: "Failed to summarise text. Please try again later.", bundle: .module)
     }
   }
 

@@ -71,16 +71,18 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
   /// - "Table N" for the Nth server table (1-based index)
   /// - "Unknown" as a safe fallback
   public var selectedTimetableDisplayName: String {
-    guard let selectedTimetableID = selectedTimetableID else { return String(localized: "Unknown") }
+    guard let selectedTimetableID = selectedTimetableID else {
+      return String(localized: "Unknown", bundle: .module)
+    }
 
     if selectedTimetableID.hasSuffix("-myTable") {
-      return String(localized: "My Table")
+      return String(localized: "My Table", bundle: .module)
     }
 
     if let index = timetableIDsForSelectedSemester.firstIndex(of: selectedTimetableID) {
-      return String(localized: "Table \(index)")
+      return String(localized: "Table \(index)", bundle: .module)
     } else {
-      return String(localized: "Unknown")
+      return String(localized: "Unknown", bundle: .module)
     }
   }
 
