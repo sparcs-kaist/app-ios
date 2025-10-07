@@ -175,7 +175,7 @@ struct TaxiListView: View {
       .padding(.horizontal)
 
       ForEach(TaxiRoom.mockList.prefix(4)) { room in
-        TaxiRoomCell(room: room)
+        TaxiRoomCell(room: room, withOutBackground: false)
           .padding(.horizontal)
       }
     }
@@ -208,7 +208,7 @@ struct TaxiListView: View {
               .padding(.horizontal)
 
               ForEach(roomsForDay) { room in
-                TaxiRoomCell(room: room)
+                TaxiRoomCell(room: room, withOutBackground: false)
                   .padding(.horizontal)
                   .id(day.weekdaySymbol)
                   .onTapGesture {

@@ -34,7 +34,14 @@ struct SearchView: View {
           resultView
         }
       }
-      .background(Color.systemGroupedBackground)
+      .background {
+        BackgroundGradientView(color: .blue)
+          .ignoresSafeArea()
+      }
+      .background {
+        Color.systemGroupedBackground
+          .ignoresSafeArea()
+      }
       .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       .safeAreaBar(edge: .top) {
         Picker("Search Scope", selection: $viewModel.searchScope) {
@@ -97,7 +104,7 @@ struct SearchView: View {
   private func taxiSection(rooms: [TaxiRoom]) -> some View {
     SearchSection(title: String(localized: "Rides"), searchScope: $viewModel.searchScope, targetScope: .taxi) {
       SearchContent(results: rooms) { room in
-        TaxiRoomCell(room: room)
+        TaxiRoomCell(room: room, withOutBackground: true)
           .onTapGesture {
             selectedRoom = room
           }

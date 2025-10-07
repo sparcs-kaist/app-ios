@@ -57,7 +57,7 @@ struct TaxiChatListView: View {
       }
 
       ForEach(TaxiRoom.mockList.prefix(3)) { room in
-        TaxiRoomCell(room: room)
+        TaxiRoomCell(room: room, withOutBackground: false)
           .redacted(reason: .placeholder)
       }
     }
@@ -72,7 +72,7 @@ struct TaxiChatListView: View {
       }
 
       ForEach(TaxiRoom.mockList.prefix(5)) { room in
-        TaxiRoomCell(room: room)
+        TaxiRoomCell(room: room, withOutBackground: false)
           .redacted(reason: .placeholder)
       }
     }
@@ -90,7 +90,7 @@ struct TaxiChatListView: View {
       }
 
       ForEach(onGoing) { room in
-        TaxiRoomCell(room: room)
+        TaxiRoomCell(room: room, withOutBackground: false)
           .environment(\.taxiUser, viewModel.taxiUser)
           .onTapGesture {
             selectedRoom = room
@@ -108,7 +108,7 @@ struct TaxiChatListView: View {
       }
 
       ForEach(done) { room in
-        TaxiRoomCell(room: room)
+        TaxiRoomCell(room: room, withOutBackground: false)
           .environment(\.taxiUser, viewModel.taxiUser)
           .onTapGesture {
             selectedRoom = room
