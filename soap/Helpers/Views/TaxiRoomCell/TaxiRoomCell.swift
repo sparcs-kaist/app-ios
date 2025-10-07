@@ -11,8 +11,10 @@ import BuddyDomain
 
 struct TaxiRoomCell: View {
   let room: TaxiRoom
+  let withOutBackground: Bool
 
   @Environment(\.taxiUser) private var taxiUser: TaxiUser?
+  @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
@@ -47,7 +49,15 @@ struct TaxiRoomCell: View {
       .foregroundStyle(.secondary)
     }
     .padding()
-    .background(Color.secondarySystemGroupedBackground, in: .rect(cornerRadius: 28))
+    .contentShape(.rect(cornerRadius: 28))
+    .background(
+      colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear,
+      in: .rect(cornerRadius: 28)
+    )
+    .glassEffect(
+      colorScheme == .light || withOutBackground ? .identity : .regular.interactive(),
+      in: .rect(cornerRadius: 28)
+    )
   }
 }
 
@@ -55,7 +65,7 @@ struct TaxiRoomCell: View {
   let room: TaxiRoom = TaxiRoom.mock
   ZStack {
     Color.systemGroupedBackground
-    TaxiRoomCell(room: room)
+    TaxiRoomCell(room: room, withOutBackground: false)
       .padding()
   }
   .ignoresSafeArea()

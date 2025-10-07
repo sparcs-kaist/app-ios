@@ -79,3 +79,18 @@ public extension Color {
   static let upvote = Color(hex: "ff4500")
   static let downvote = Color(hex: "047dff")
 }
+
+public extension Color {
+  /// HSB tweak for dark mode: slightly more saturated, ~20% dimmer.
+  func darkTransformedHSB() -> Color {
+    let ui = UIColor(self)
+    var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+    if ui.getHue(&h, saturation: &s, brightness: &b, alpha: &a) {
+      // Keep 90% of the original brightness
+      let newB = max(min(b * 0.9, 1), 0)
+      let newS = max(min(s * 1.05, 1), 0)  // small saturation bump
+      return Color(UIColor(hue: h, saturation: newS, brightness: newB, alpha: a))
+    }
+    return self
+  }
+}

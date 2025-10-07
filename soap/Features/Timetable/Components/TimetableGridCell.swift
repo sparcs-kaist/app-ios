@@ -14,17 +14,22 @@ struct TimetableGridCell: View {
   let isCandidate: Bool
   let onDeletion: (() -> Void)?
 
+  @Environment(\.colorScheme) private var colorScheme
+
   var body: some View {
     GeometryReader { geometry in
       ZStack(alignment: .topLeading) {
         RoundedRectangle(cornerRadius: 4) // this feels unnecessary but removing it breaks the whole view
-          .fill(.clear)
+          .fill(colorScheme == .light ? .clear : backgroundColor.darkTransformedHSB())
 
         VStack(alignment: .leading, spacing: 4) {
           Text(lecture.title)
             .font(.caption)
             .lineLimit(3)
+
           Text(lecture.classTimes[0].classroomNameShort)
+            .minimumScaleFactor(0.5)
+            .lineLimit(1)
             .font(.caption2)
             .opacity(0.8)
         }
@@ -32,9 +37,9 @@ struct TimetableGridCell: View {
         .padding(6)
       }
       .glassEffect(
-        isCandidate ? .regular
-          .tint(.accent) : .regular
-          .tint(lecture.backgroundColor)
+        colorScheme == .light ? .regular
+          .tint(backgroundColor)
+          .interactive() : .identity
           .interactive(),
         in: .rect(cornerRadius: 4)
       )
@@ -44,6 +49,10 @@ struct TimetableGridCell: View {
         }
       }
     }
+  }
+
+  var backgroundColor: Color {
+    isCandidate ? .accent : lecture.backgroundColor
   }
 }
 

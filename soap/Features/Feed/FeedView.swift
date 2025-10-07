@@ -126,7 +126,10 @@ struct FeedView: View {
       }, message: {
         Text(alertMessage)
       })
-
+      .background {
+        BackgroundGradientView(color: .accentColor)
+          .ignoresSafeArea()
+      }
     }
   }
 

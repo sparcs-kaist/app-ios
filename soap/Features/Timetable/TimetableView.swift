@@ -17,6 +17,8 @@ struct TimetableView: View {
   @State private var selectedDetent: PresentationDetent = .height(130)
   @FocusState private var isFocused: Bool
 
+  @Environment(\.colorScheme) private var colorScheme
+
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -30,25 +32,29 @@ struct TimetableView: View {
             selectedLecture = lecture
           }
           .padding()
-          .background(Color.secondarySystemGroupedBackground)
-          .clipShape(.rect(cornerRadius: 28))
+          .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+          .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
           .frame(height: .screenHeight * 0.65)
           .environment(viewModel)
 
           TimetableCreditGraph()
             .padding()
-            .background(Color.secondarySystemGroupedBackground)
-            .clipShape(.rect(cornerRadius: 28))
+            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
             .environment(viewModel)
 
           // Timetable Summary View
           TimetableSummary()
             .padding()
-            .background(Color.secondarySystemGroupedBackground)
-            .clipShape(.rect(cornerRadius: 28))
+            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
             .environment(viewModel)
         }
         .padding()
+      }
+      .background {
+        BackgroundGradientView(color: .pink)
+          .ignoresSafeArea()
       }
       .navigationTitle("Timetable")
       .toolbarTitleDisplayMode(.inlineLarge)

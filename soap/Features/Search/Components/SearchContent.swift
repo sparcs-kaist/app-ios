@@ -54,7 +54,7 @@ struct SearchContent<Element: Identifiable, Cell: View>: View {
 #Preview {
   VStack(alignment: .leading, spacing: 0.0) {
     SearchContent(results: Array(TaxiRoom.mockList[..<3])) {
-      TaxiRoomCell(room: $0)
+      TaxiRoomCell(room: $0, withOutBackground: false)
     }
   }
 }

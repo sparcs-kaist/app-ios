@@ -89,7 +89,7 @@ struct FeedPostView: View {
           }
         }
       }
-      .scrollDismissesKeyboard(.interactively)
+      .scrollDismissesKeyboard(.immediately)
       .safeAreaBar(edge: .bottom) {
         inputBar(proxy: proxy)
       }

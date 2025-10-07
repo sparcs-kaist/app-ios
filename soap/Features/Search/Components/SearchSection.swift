@@ -15,7 +15,9 @@ struct SearchSection<Content: View>: View {
   let targetScope: SearchScope
   
   @ViewBuilder let content: () -> Content
-  
+
+  @Environment(\.colorScheme) private var colorScheme
+
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
@@ -32,8 +34,10 @@ struct SearchSection<Content: View>: View {
               .labelStyle(.iconOnly)
               .foregroundStyle(.primary)
           }
-          .buttonStyle(.borderedProminent)
           .buttonBorderShape(.circle)
+          .padding(8)
+          .background(colorScheme == .light ? .white : .clear, in: .circle)
+          .glassEffect(colorScheme == .light ? .identity : .regular, in: .circle)
           .tint(Color.secondarySystemGroupedBackground)
           .foregroundStyle(.secondary)
         }
@@ -44,7 +48,11 @@ struct SearchSection<Content: View>: View {
       LazyVStack(alignment: .leading, spacing: 0) {
         content()
       }
-      .background(Color.secondarySystemGroupedBackground, in: .rect(cornerRadius: 28))
+      .background(
+        colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear,
+        in: .rect(cornerRadius: 28)
+      )
+      .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
     }
     .padding(.horizontal)
   }
@@ -59,7 +67,7 @@ struct SearchSection<Content: View>: View {
     ScrollView {
       SearchSection(title: "Rides", searchScope: .constant(.all), targetScope: .taxi) {
         SearchContent(results: Array(TaxiRoom.mockList[..<3])) {
-          TaxiRoomCell(room: $0)
+          TaxiRoomCell(room: $0, withOutBackground: true)
         }
       }
       
