@@ -155,6 +155,7 @@ struct SearchView: View {
       .padding(.top)
       .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
+    .scrollDismissesKeyboard(.immediately)
     .toolbarTitleDisplayMode(.inlineLarge)
     .onChange(of: viewModel.searchScope) {
       viewModel.state = .loading
