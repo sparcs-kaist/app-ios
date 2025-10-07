@@ -19,14 +19,32 @@ struct ContentView: View {
 
   var body: some View {
     Group {
-      if let timetable {
+      if timetable != nil {
         NavigationStack {
-          
+          LectureTabView(items: todayLectureItems())
         }
       } else {
         Text("Please open Buddy app on your iPhone to sync your timetable for this semester.")
           .multilineTextAlignment(.center)
       }
+    }
+  }
+
+  private func todayLectureItems() -> [LectureItem] {
+    guard let timetable else { return [] }
+    let today = DayType.from(date: Date(), calendar: .current)
+
+    var items: [LectureItem] = []
+    for lecture in timetable.lectures {
+      for (i, ct) in lecture.classTimes.enumerated() where ct.day == today {
+        items.append(LectureItem(lecture: lecture, index: i))
+      }
+    }
+
+    return items.sorted {
+      let a = $0.lecture.classTimes[$0.index].begin
+      let b = $1.lecture.classTimes[$1.index].begin
+      return a < b
     }
   }
 }
