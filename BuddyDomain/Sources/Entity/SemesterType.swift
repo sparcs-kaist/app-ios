@@ -46,13 +46,13 @@ public enum SemesterType: String, Comparable, Sendable, Codable {
   public var description: String {
     switch self {
     case .spring:
-      String(localized: "Spring")
+      String(localized: "Spring", bundle: .module)
     case .summer:
-      String(localized: "Summer")
+      String(localized: "Summer", bundle: .module)
     case .autumn:
-      String(localized: "Autumn")
+      String(localized: "Autumn", bundle: .module)
     case .winter:
-      String(localized: "Winter")
+      String(localized: "Winter", bundle: .module)
     }
   }
 }

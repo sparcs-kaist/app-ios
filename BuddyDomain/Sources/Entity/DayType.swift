@@ -20,13 +20,13 @@ public enum DayType: Int, Identifiable, CaseIterable, Comparable, Sendable, Coda
 
     public var stringValue: String {
         switch self {
-        case .sun: return String(localized: "Sun")
-        case .mon: return String(localized: "Mon")
-        case .tue: return String(localized: "Tue")
-        case .wed: return String(localized: "Wed")
-        case .thu: return String(localized: "Thu")
-        case .fri: return String(localized: "Fri")
-        case .sat: return String(localized: "Sat")
+        case .sun: return String(localized: "Sun", bundle: .module)
+        case .mon: return String(localized: "Mon", bundle: .module)
+        case .tue: return String(localized: "Tue", bundle: .module)
+        case .wed: return String(localized: "Wed", bundle: .module)
+        case .thu: return String(localized: "Thu", bundle: .module)
+        case .fri: return String(localized: "Fri", bundle: .module)
+        case .sat: return String(localized: "Sat", bundle: .module)
         }
     }
 

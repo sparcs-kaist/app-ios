@@ -15,10 +15,10 @@ public enum AuthUseCaseError: Error, LocalizedError {
 
   public var errorDescription: String? {
     switch self {
-    case .signInFailed(let error): return String(localized: "Sign in failed: \(error.localizedDescription)")
-    case .signOutFailed: return String(localized: "Sign out failed.")
-    case .refreshFailed(let error): return String(localized: "Token refresh failed: \(error.localizedDescription)")
-    case .noAccessToken: return String(localized: "No access token.")
+    case .signInFailed(let error): return String(localized: "Sign in failed: \(error.localizedDescription)", bundle: .module)
+    case .signOutFailed: return String(localized: "Sign out failed.", bundle: .module)
+    case .refreshFailed(let error): return String(localized: "Token refresh failed: \(error.localizedDescription)", bundle: .module)
+    case .noAccessToken: return String(localized: "No access token.", bundle: .module)
     }
   }
 }

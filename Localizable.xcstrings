@@ -426,46 +426,6 @@
         }
       }
     },
-    "Advertisement" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Advertisement"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "광고"
-          }
-        }
-      }
-    },
-    "All" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "전체"
-          }
-        }
-      }
-    },
     "Allow NSFW" : {
       "localizations" : {
         "en" : {
@@ -576,23 +536,6 @@
         }
       }
     },
-    "An unknown authentication error occurred." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "An unknown authentication error occurred."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인증 도중 알 수 없는 오류가 발생했습니다."
-          }
-        }
-      }
-    },
     "Anonymous" : {
       "localizations" : {
         "en" : {
@@ -667,46 +610,6 @@
     },
     "AU" : {
       "shouldTranslate" : false
-    },
-    "Authentication was cancelled by the user." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentication was cancelled by the user."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인증이 취소되었습니다."
-          }
-        }
-      }
-    },
-    "Autumn" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fall"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Autumn"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "가을"
-          }
-        }
-      }
     },
     "B" : {
       "shouldTranslate" : false
@@ -1553,23 +1456,6 @@
     "External Company Advertisement" : {
       "shouldTranslate" : false
     },
-    "Extreme Politics" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Extreme Politics"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "극단적 정치"
-          }
-        }
-      }
-    },
     "F" : {
       "shouldTranslate" : false
     },
@@ -1597,23 +1483,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "게시글 삭제를 실패했습니다. 나중에 다시 시도해 주세요."
-          }
-        }
-      }
-    },
-    "Failed to exchange code for tokens: %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to exchange code for tokens: %@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "토큰을 위한 코드 교환에 실패했습니다: %@"
           }
         }
       }
@@ -1646,46 +1515,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "계좌 번호를 불러오는 데 실패했습니다."
-          }
-        }
-      }
-    },
-    "Failed to refresh access token: %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to refresh access token: %@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "접근 토큰을 재발급하는 데 실패했습니다: %@"
-          }
-        }
-      }
-    },
-    "Failed to summarise text. Please try again later." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to summarize text. Please try again later."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to summarise text. Please try again shortly."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "텍스트 요약에 실패했습니다. 나중에 다시 시도해 주세요."
           }
         }
       }
@@ -1740,23 +1569,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "강의, 게시물, 택시 등 다양한 정보를 찾아보세요."
-          }
-        }
-      }
-    },
-    "Fri" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fri"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "금"
           }
         }
       }
@@ -1828,23 +1640,6 @@
         }
       }
     },
-    "Impersonation/Fraud" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impersonation/Fraud"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "사칭/사기"
-          }
-        }
-      }
-    },
     "Information" : {
       "localizations" : {
         "en" : {
@@ -1857,23 +1652,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정보"
-          }
-        }
-      }
-    },
-    "Invalid callback URL received." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invalid callback URL received."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "유효하지 않은 URL를 받았습니다."
           }
         }
       }
@@ -2037,23 +1815,6 @@
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus." : {
       "shouldTranslate" : false
     },
-    "Major" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Major"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "전공"
-          }
-        }
-      }
-    },
     "Market" : {
       "shouldTranslate" : false
     },
@@ -2088,46 +1849,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기타"
-          }
-        }
-      }
-    },
-    "Model is currently unavailable. Please try again later." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Model is currently unavailable. Please try again later."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Model is currently unavailable. Please try again shortly."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "현재 모델을 사용할 수 없습니다. 나중에 다시 시도해 주세요."
-          }
-        }
-      }
-    },
-    "Mon" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mon"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "월"
           }
         }
       }
@@ -2279,23 +2000,6 @@
         }
       }
     },
-    "No access token." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No access token."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "접근 토큰 없음."
-          }
-        }
-      }
-    },
     "No more classes" : {
       "localizations" : {
         "en" : {
@@ -2324,23 +2028,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아직 댓글이 없습니다."
-          }
-        }
-      }
-    },
-    "No refresh token available." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No refresh token available."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "리프레시 토큰 없음."
           }
         }
       }
@@ -2560,23 +2247,6 @@
     },
     "NSFW" : {
       "shouldTranslate" : false
-    },
-    "Offensive Language" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Offensive Language"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "심한 욕설"
-          }
-        }
-      }
     },
     "Okay" : {
       "localizations" : {
@@ -2983,23 +2653,6 @@
         }
       }
     },
-    "Received" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Received"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "신고받은 내역"
-          }
-        }
-      }
-    },
     "Remove" : {
       "localizations" : {
         "en" : {
@@ -3210,23 +2863,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "택시"
-          }
-        }
-      }
-    },
-    "Sat" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sat"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "토"
           }
         }
       }
@@ -3503,23 +3139,6 @@
         }
       }
     },
-    "Sexually Explicit Content" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sexually Explicit Content"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "성인 컨텐츠"
-          }
-        }
-      }
-    },
     "share" : {
       "localizations" : {
         "en" : {
@@ -3600,23 +3219,6 @@
         }
       }
     },
-    "Sign in failed: %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in failed: %@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "로그인 실패: %@"
-          }
-        }
-      }
-    },
     "Sign in Required" : {
       "localizations" : {
         "en" : {
@@ -3645,23 +3247,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "로그 아웃"
-          }
-        }
-      }
-    },
-    "Sign out failed." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign out failed."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "로그 아웃 실패"
           }
         }
       }
@@ -3701,45 +3286,11 @@
         }
       }
     },
-    "Spring" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spring"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "봄"
-          }
-        }
-      }
-    },
     "Staff Notice" : {
       "shouldTranslate" : false
     },
     "Students Group" : {
       "shouldTranslate" : false
-    },
-    "Submitted" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Submitted"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "신고한 내역"
-          }
-        }
-      }
     },
     "Summarise" : {
       "localizations" : {
@@ -3753,29 +3304,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약"
-          }
-        }
-      }
-    },
-    "Summarise the following content in a %@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %lld words.\n\nContent:\n%@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Summarize the following content in a %1$@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %2$lld words.\n\nContent:\n%3$@"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Summarise the following content in a %1$@ style, preserving key facts and subjects, names, dates, numbers.\nIgnore greetings if that is not the main topic.\nLimit the summary to %2$lld words.\n\nContent:\n%3$@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다음 내용을 %1$@ 스타일로 요약하되, 주요 사실과 주제, 이름, 날짜, 숫자는 반드시 유지하세요.\\n인사가 주요 주제가 아닐 경우 무시하세요.\\n요약은 %2$lld 단어로 제한하세요.\\n\\n내용:\\n%3$@"
           }
         }
       }
@@ -3808,40 +3336,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약"
-          }
-        }
-      }
-    },
-    "Summer" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Summer"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "여름"
-          }
-        }
-      }
-    },
-    "Sun" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sun"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "일"
           }
         }
       }
@@ -4015,29 +3509,6 @@
         }
       }
     },
-    "This content is too short to summarize." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This content is too short to summarize."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This content is too short to summarise."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내용이 너무 짧아 요약할 수 없습니다."
-          }
-        }
-      }
-    },
     "This group is full" : {
       "localizations" : {
         "en" : {
@@ -4098,23 +3569,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "숨겨진 게시글"
-          }
-        }
-      }
-    },
-    "Thu" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thu"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "목"
           }
         }
       }
@@ -4183,23 +3637,6 @@
         }
       }
     },
-    "Token refresh failed: %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Token refresh failed: %@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "토큰 재발급 실패: %@"
-          }
-        }
-      }
-    },
     "Tomorrow at %@" : {
       "localizations" : {
         "en" : {
@@ -4247,23 +3684,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "다시 시도"
-          }
-        }
-      }
-    },
-    "Tue" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tue"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "화"
           }
         }
       }
@@ -4354,40 +3774,6 @@
         }
       }
     },
-    "View Dictionary" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View Dictionary"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "과목 사전 보기"
-          }
-        }
-      }
-    },
-    "View Syllabus" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View Syllabus"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "실라버스 보기"
-          }
-        }
-      }
-    },
     "Wanted" : {
       "shouldTranslate" : false
     },
@@ -4403,23 +3789,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "주의"
-          }
-        }
-      }
-    },
-    "Wed" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wed"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "수"
           }
         }
       }
@@ -4484,23 +3853,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "신고 이유"
-          }
-        }
-      }
-    },
-    "Winter" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Winter"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "겨울"
           }
         }
       }

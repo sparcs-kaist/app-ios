@@ -12,9 +12,9 @@ public enum TaxiReportType: String, CaseIterable {
   public var description: String {
     switch self {
     case .incoming:
-      String(localized: "Received")
+      String(localized: "Received", bundle: .module)
     case .outgoing:
-      String(localized: "Submitted")
+      String(localized: "Submitted", bundle: .module)
     }
   }
 }

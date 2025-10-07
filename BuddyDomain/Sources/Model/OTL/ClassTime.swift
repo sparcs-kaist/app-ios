@@ -36,12 +36,12 @@ public struct ClassTime: Sendable, Codable {
 
     if currentMinutes < begin {
       let diff = begin - currentMinutes
-      return "in \(formatMinutes(diff))"
+      return String(localized: "in \(formatMinutes(diff))", bundle: .module)
     } else if currentMinutes >= end {
       let diff = currentMinutes - end
-      return "ended \(formatMinutes(diff)) ago"
+      return String(localized: "\(formatMinutes(diff)) ago", bundle: .module)
     } else {
-      return "now"
+      return String(localized: "on going", bundle: .module)
     }
   }
 
@@ -49,9 +49,9 @@ public struct ClassTime: Sendable, Codable {
     let h = minutes / 60
     let m = minutes % 60
     switch (h, m) {
-    case (0, let m): return "\(m)m"
-    case (let h, 0): return "\(h)h"
-    default:         return "\(h)h \(m)m"
+    case (0, let m): return String(localized: "\(m)m", bundle: .module)
+    case (let h, 0): return String(localized: "\(h)h", bundle: .module)
+    default:         return String(localized: "\(h)h \(m)m", bundle: .module)
     }
   }
 
