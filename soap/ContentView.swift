@@ -38,7 +38,7 @@ struct ContentView: View {
     .alert("Error", isPresented: $crashlyticsHelper.showAlert, actions: {
       Button(role: .confirm) { }
     }, message: {
-      Text("Something went wrong. Please try again later.")
+      Text(crashlyticsHelper.alertMessage)
     })
   }
 }

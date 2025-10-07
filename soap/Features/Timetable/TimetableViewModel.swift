@@ -13,6 +13,14 @@ import BuddyDomain
 @MainActor
 @Observable
 final class TimetableViewModel {
+  enum ErrorType: Equatable {
+    case addLecture
+    case createTable
+    case deleteTable
+    case deleteLecture
+    case fetchData
+  }
+  
   var isLoading: Bool = false
   
   var semesters: [Semester] {
@@ -58,6 +66,7 @@ final class TimetableViewModel {
   @ObservationIgnored @Injected(
     \.timetableUseCase
   ) private var timetableUseCase: TimetableUseCaseProtocol
+  @ObservationIgnored @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
 
   // MARK: - Functions
 
@@ -68,7 +77,7 @@ final class TimetableViewModel {
     do {
       try await timetableUseCase.load()
     } catch {
-      // TODO: Handle error
+      handleException(error: error, type: .fetchData) // TODO: Display error in a way other than .alert()
     }
   }
 
@@ -108,6 +117,24 @@ final class TimetableViewModel {
 
   func deleteLecture(lecture: Lecture) async throws {
     try await timetableUseCase.deleteLecture(lecture: lecture)
+  }
+  
+  func handleException(error: Error, type: ErrorType) {
+    var alertMessage: LocalizedStringResource {
+      switch type {
+      case .addLecture:
+        "An unexpected error occurred while adding a lecture. Please try again later."
+      case .createTable:
+        "An unexpected error occurred while creating a new timetable. Please try again later."
+      case .deleteLecture:
+        "An unexpected error occurred while removing a lecture. Please try again later."
+      case .deleteTable:
+        "An unexpected error occurred while deleting a timetable. Please try again later."
+      case .fetchData:
+        "An unexpected error occurred while loading timetables. Please try again later."
+      }
+    }
+    crashlyticsHelper.recordException(error: error, alertMessage: alertMessage)
   }
 }
 

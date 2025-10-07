@@ -536,6 +536,53 @@
         }
       }
     },
+    "An unexpected error occurred while adding a lecture. Please try again later." : {
+
+    },
+    "An unexpected error occurred while creating a new timetable. Please try again later." : {
+
+    },
+    "An unexpected error occurred while deleting a timetable. Please try again later." : {
+
+    },
+    "An unexpected error occurred while loading timetables. Please try again later." : {
+
+    },
+    "An unexpected error occurred while removing a lecture. Please try again later." : {
+
+    },
+    "An unexpected error occurred while reporting a comment. Please try again later." : {
+
+    },
+    "An unexpected error occurred while reporting a post. Please try again later." : {
+
+    },
+    "An unexpected error occurred while reporting a user. Please try again later." : {
+
+    },
+    "An unexpected error occurred while uploading a comment. Please try again later." : {
+
+    },
+    "An unexpected error occurred while uploading a post. Please try again later." : {
+
+    },
+    "An unknown authentication error occurred." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unknown authentication error occurred."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인증 도중 알 수 없는 오류가 발생했습니다."
+          }
+        }
+      }
+    },
     "Anonymous" : {
       "localizations" : {
         "en" : {

@@ -36,7 +36,7 @@ struct TimetableGrid: View {
                       do {
                         try await timetableViewModel.deleteLecture(lecture: item.lecture)
                       } catch {
-                        // TODO: Handle error
+                        timetableViewModel.handleException(error: error, type: .deleteLecture)
                       }
                     }
                   }

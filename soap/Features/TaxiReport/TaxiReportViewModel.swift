@@ -43,6 +43,6 @@ class TaxiReportViewModel {
   
   public func handleException(_ error: Error) {
     logger.error("[TaxiReportViewModel] failed to create a report: \(error)")
-    crashlyticsHelper.recordException(error: error)
+    crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while reporting a user. Please try again later.")
   }
 }
