@@ -10,7 +10,7 @@ import Factory
 import BuddyDomain
 
 struct ContentView: View {
-  @AppStorage("timetableData") private var timetableData: Data = .init()
+  @AppStorage("timetableData", store: UserDefaults(suiteName: "group.org.sparcs.soap")!) private var timetableData: Data = .init()
   @Environment(\.scenePhase) private var scenePhase
 
   @State private var items: [LectureItem] = []
@@ -43,23 +43,8 @@ struct ContentView: View {
   }
 
   private func recomputeItems(date: Date = Date()) {
-    guard let timetable else {
-      items = []
-      return
-    }
-    let today = DayType.from(date: date, calendar: .current)
-
-    var next: [LectureItem] = []
-    for lecture in timetable.lectures {
-      for (i, ct) in lecture.classTimes.enumerated() where ct.day == today {
-        next.append(LectureItem(lecture: lecture, index: i))
-      }
-    }
-
-    items = next.sorted {
-      let a = $0.lecture.classTimes[$0.index].begin
-      let b = $1.lecture.classTimes[$1.index].begin
-      return a < b
+    if let timetable {
+      items = timetable.lectureItems(for: date)
     }
   }
 }
