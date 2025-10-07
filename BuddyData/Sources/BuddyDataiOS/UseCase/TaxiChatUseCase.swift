@@ -10,7 +10,6 @@ import UIKit
 import Combine
 import SocketIO
 import BuddyDomain
-import BuddyDataiOS
 
 public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Publishers
