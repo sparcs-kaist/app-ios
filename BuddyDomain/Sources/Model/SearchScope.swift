@@ -17,13 +17,13 @@ public enum SearchScope: String, Codable, CaseIterable, Identifiable, Hashable {
   public var description: String {
     switch self {
     case .all:
-      String(localized: "All")
+      String(localized: "All", bundle: .module)
     case .courses:
-      String(localized: "Courses")
+      String(localized: "Courses", bundle: .module)
     case .posts:
-      String(localized: "Posts")
+      String(localized: "Posts", bundle: .module)
     case .taxi:
-      String(localized: "Rides")
+      String(localized: "Rides", bundle: .module)
     }
   }
 }

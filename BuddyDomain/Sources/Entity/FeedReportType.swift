@@ -22,17 +22,17 @@ extension FeedReportType {
   public var description: String {
     switch self {
     case .extremePolitics:
-      String(localized: "Extreme Politics")
+      String(localized: "Extreme Politics", bundle: .module)
     case .abusiveLanguage:
-      String(localized: "Offensive Language")
+      String(localized: "Offensive Language", bundle: .module)
     case .pornography:
-      String(localized: "Sexually Explicit Content")
+      String(localized: "Sexually Explicit Content", bundle: .module)
     case .spam:
-      String(localized: "Spam")
+      String(localized: "Spam", bundle: .module)
     case .impersonationFraud:
-      String(localized: "Impersonation/Fraud")
+      String(localized: "Impersonation/Fraud", bundle: .module)
     case .commercialAd:
-      String(localized: "Advertisement")
+      String(localized: "Advertisement", bundle: .module)
     }
   }
 }

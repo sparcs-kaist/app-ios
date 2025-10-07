@@ -17,12 +17,12 @@ public enum AuthenticationServiceError: Error, LocalizedError {
 
   public var errorDescription: String? {
     switch self {
-    case .userCancelled: return String(localized: "Authentication was cancelled by the user.")
-    case .invalidCallbackURL: return String(localized: "Invalid callback URL received.")
-    case .tokenExchangeFailed(let error): return String(localized: "Failed to exchange code for tokens: \(error.localizedDescription)")
-    case .tokenRefreshFailed(let error): return String(localized: "Failed to refresh access token: \(error.localizedDescription)")
-    case .noRefreshTokenAvailable: return String(localized: "No refresh token available.")
-    case .unknown: return String(localized: "An unknown authentication error occurred.")
+    case .userCancelled: return String(localized: "Authentication was cancelled by the user.", bundle: .module)
+    case .invalidCallbackURL: return String(localized: "Invalid callback URL received.", bundle: .module)
+    case .tokenExchangeFailed(let error): return String(localized: "Failed to exchange code for tokens: \(error.localizedDescription)", bundle: .module)
+    case .tokenRefreshFailed(let error): return String(localized: "Failed to refresh access token: \(error.localizedDescription)", bundle: .module)
+    case .noRefreshTokenAvailable: return String(localized: "No refresh token available.", bundle: .module)
+    case .unknown: return String(localized: "An unknown authentication error occurred.", bundle: .module)
     }
   }
 }
