@@ -55,6 +55,7 @@ struct WeekDaySelector: View {
               .matchedGeometryEffect(id: "selectedDay", in: selectionNamespace)
           }
         }
+        .contentShape(.rect(cornerRadius: 24))
         .onTapGesture {
           withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) { // 3. Animate selection change
             selectedDate = day
@@ -64,6 +65,7 @@ struct WeekDaySelector: View {
       }
     }
     .padding(4)
+    .contentShape(.rect(cornerRadius: 28))
     .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 28))
   }
 
