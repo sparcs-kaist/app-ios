@@ -1685,6 +1685,9 @@
         }
       }
     },
+    "Force Crash" : {
+
+    },
     "Fri" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3235,6 +3238,9 @@
           }
         }
       }
+    },
+    "Send Crash Reports" : {
+
     },
     "Send Feedback" : {
       "localizations" : {
