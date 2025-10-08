@@ -1,5 +1,5 @@
 //
-//  BuddyiOSAppIntents.swift
+//  NextClassAppIntents.swift
 //  BuddyiOSAppIntents
 //
 //  Created by Soongyu Kwon on 09/10/2025.
@@ -9,10 +9,10 @@ import AppIntents
 import BuddyDomain
 import BuddyDataCore
 
-struct BuddyiOSAppIntents: AppIntent {
+struct NextClassAppIntents: AppIntent {
   static var title: LocalizedStringResource { "Get Next Class" }
   static var description: IntentDescription = IntentDescription(
-    "Get your next class from this semester.",
+    "Get your next class for this semester.",
     categoryName: "Buddy"
   )
   static var supportedModes: IntentModes = [.background]
@@ -44,7 +44,7 @@ struct BuddyiOSAppIntents: AppIntent {
         location: classtime.classroomName.localized()
       )
 
-      return .result(value: value, dialog: "Your next class is \(lectureTitle), starting in \(relativeString).")
+      return .result(value: value, dialog: "Your next class is \"\(lectureTitle)\", starts in \(relativeString).")
     }
 
     return .result(
