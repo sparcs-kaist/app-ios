@@ -30,7 +30,8 @@ struct NextClassAppIntents: AppIntent {
     }
 
     let now = Date()
-    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Autumn")
+    let currentSemester = await timetableUseCase.currentSemester
+    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
     let items: [LectureItem] = timetable.lectureItems(for: now)
 
     if let nextItem: LectureItem = defaultSelection(items: items) {
