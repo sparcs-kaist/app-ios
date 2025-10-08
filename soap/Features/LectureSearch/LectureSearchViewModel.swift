@@ -64,7 +64,8 @@ class LectureSearchViewModel {
 
   func fetchLectures() async {
     guard !isLastPage,
-          let selectedSemester = timetableUseCase.selectedSemester else { return }
+          let selectedSemester = timetableUseCase.selectedSemester,
+          !searchKeyword.isEmpty else { return }
 
     do {
       let request = LectureSearchRequest(
