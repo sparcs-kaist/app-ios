@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct Timetable: Identifiable, Codable {
+public struct Timetable: Identifiable, Codable, Sendable {
   public let id: String
   public var lectures: [Lecture]
 
