@@ -78,6 +78,9 @@ struct TimetableView: View {
         LectureSearchView(detent: $selectedDetent)
           .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
           .environment(viewModel)
+          .onAppear {
+            selectedDetent = .medium
+          }
       }
       .task {
         // fetch data
