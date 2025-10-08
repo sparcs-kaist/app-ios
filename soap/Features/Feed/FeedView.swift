@@ -9,6 +9,7 @@ import SwiftUI
 import Factory
 import NukeUI
 import BuddyDomain
+
 struct FeedView: View {
   @State private var viewModel: FeedViewModelProtocol = FeedViewModel()
   @Namespace private var namespace
@@ -21,6 +22,8 @@ struct FeedView: View {
   @State private var showAlert: Bool = false
   
   @State private var spoilerContents = SpoilerContents()
+
+  @State private var allowDismissalGesture: AllowedNavigationDismissalGestures = .none
 
   var body: some View {
     NavigationStack {
@@ -51,6 +54,13 @@ struct FeedView: View {
                 .environment(spoilerContents)
                 .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
                 .navigationTransition(.zoom(sourceID: post.id, in: namespace))
+                .navigationAllowDismissalGestures(allowDismissalGesture) // TODO: This should be removed later when Apple solve zoomTransition issue.
+                .task {
+                  Task {
+                    try? await Task.sleep(for: .seconds(1))
+                    allowDismissalGesture = .all
+                  }
+                }
               }, label: {
                 FeedPostRow(post: $post, onPostDeleted: { postID in
                   Task {
