@@ -90,7 +90,16 @@ public final class TokenStorage: TokenStorageProtocol {
     guard components.count == 3 else { return nil }
     
     let payload = components[1]
-    guard let data = Data(base64Encoded: payload.padding(toLength: ((payload.count + 3) / 4) * 4, withPad: "=", startingAt: 0)),
+    // JWT uses base64url encoding. Convert to standard Base64 before decoding.
+    let base64Payload = payload
+      .replacingOccurrences(of: "-", with: "+")
+      .replacingOccurrences(of: "_", with: "/")
+    let paddedPayload: String = {
+      let remainder = base64Payload.count % 4
+      if remainder == 0 { return base64Payload }
+      return base64Payload.padding(toLength: base64Payload.count + (4 - remainder), withPad: "=", startingAt: 0)
+    }()
+    guard let data = Data(base64Encoded: paddedPayload),
           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
           let exp = json["exp"] as? TimeInterval else {
       return nil
