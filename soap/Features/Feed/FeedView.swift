@@ -23,8 +23,6 @@ struct FeedView: View {
   
   @State private var spoilerContents = SpoilerContents()
 
-  @State private var allowDismissalGesture: AllowedNavigationDismissalGestures = .none
-
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -53,14 +51,7 @@ struct FeedView: View {
                 })
                 .environment(spoilerContents)
                 .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-                .navigationTransition(.zoom(sourceID: post.id, in: namespace))
-                .navigationAllowDismissalGestures(allowDismissalGesture) // TODO: This should be removed later when Apple solve zoomTransition issue.
-                .task {
-                  Task {
-                    try? await Task.sleep(for: .seconds(1))
-                    allowDismissalGesture = .all
-                  }
-                }
+//                .navigationTransition(.zoom(sourceID: post.id, in: namespace))
               }, label: {
                 FeedPostRow(post: $post, onPostDeleted: { postID in
                   Task {
