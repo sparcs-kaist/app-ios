@@ -30,13 +30,13 @@ public final class TokenStorage: TokenStorageProtocol {
   }
 
   public init() {
-    
+    keychain.accessGroup = "N5V8W52U3U.org.sparcs.soap"
   }
 
   public func save(accessToken: String, refreshToken: String?) {
-    keychain.set(accessToken, forKey: TokenStorage.accessTokenKey)
+    keychain.set(accessToken, forKey: TokenStorage.accessTokenKey, withAccess: .none)
     if let refreshToken {
-      keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey)
+      keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey, withAccess: .none)
     }
 
     if let expirationDate = extractExpirationDate(from: accessToken) {
