@@ -728,6 +728,9 @@
         }
       }
     },
+    "Buddy" : {
+
+    },
     "By continuing, you agree to our [Terms of Use](%@) and [Privacy Policy](%@)." : {
       "localizations" : {
         "en" : {
@@ -1469,6 +1472,9 @@
         }
       }
     },
+    "Failed to load classes for this semester" : {
+
+    },
     "Failed to load content" : {
       "localizations" : {
         "en" : {
@@ -1554,6 +1560,12 @@
           }
         }
       }
+    },
+    "Get Next Class" : {
+
+    },
+    "Get your next class for this semester." : {
+
     },
     "Grade" : {
       "localizations" : {
@@ -1921,6 +1933,9 @@
           }
         }
       }
+    },
+    "Next Class" : {
+
     },
     "Nickname" : {
       "localizations" : {
@@ -3410,6 +3425,9 @@
         }
       }
     },
+    "There are no more classes today." : {
+
+    },
     "There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment." : {
       "localizations" : {
         "en" : {
@@ -3920,6 +3938,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@까지 닉네임을 변경할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Your next class is \"%@\", starts in %@." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your next class is \"%1$@\", starts in %2$@."
           }
         }
       }

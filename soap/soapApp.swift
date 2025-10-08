@@ -12,6 +12,7 @@ import FirebaseMessaging
 import UserNotifications
 import Factory
 import BuddyDomain
+import AppIntents
 
 let logger = SwiftyBeaver.self
 
@@ -94,6 +95,9 @@ struct soapApp: App {
 
     // watchOS support
     sessionBridgeService.start()
+
+    // App Intents
+    BuddyShortcuts.updateAppShortcutParameters()
   }
 
   var body: some Scene {

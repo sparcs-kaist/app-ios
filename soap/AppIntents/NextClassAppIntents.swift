@@ -11,11 +11,11 @@ import BuddyDataCore
 
 struct NextClassAppIntents: AppIntent {
   static var title: LocalizedStringResource { "Get Next Class" }
-  static var description: IntentDescription = IntentDescription(
+  static let description: IntentDescription = IntentDescription(
     "Get your next class for this semester.",
     categoryName: "Buddy"
   )
-  static var supportedModes: IntentModes = [.background]
+  static let supportedModes: IntentModes = [.background]
 
   func perform() async throws -> some ProvidesDialog & ReturnsValue<NextClassResult?> {
     let timetableService = TimetableService()
@@ -68,7 +68,7 @@ struct NextClassAppIntents: AppIntent {
 }
 
 struct NextClassResult: TransientAppEntity {
-  static var typeDisplayRepresentation: TypeDisplayRepresentation = TypeDisplayRepresentation(
+  static let typeDisplayRepresentation: TypeDisplayRepresentation = TypeDisplayRepresentation(
     name: "Next Class"
   )
 

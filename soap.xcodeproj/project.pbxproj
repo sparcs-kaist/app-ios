@@ -43,9 +43,6 @@
 		8BFAD2712E92B654005D8639 /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2702E92B654005D8639 /* BuddyDataiOS */; };
 		8BFAD2732E92B949005D8639 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2722E92B949005D8639 /* BuddyDataMocks */; };
 		8BFAD2752E92B98A005D8639 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2742E92B98A005D8639 /* BuddyDataMocks */; };
-		8BFCD16C2E96BB4000FBF53A /* BuddyiOSAppIntents.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 8BFCD1632E96BB4000FBF53A /* BuddyiOSAppIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		8BFCD1742E96BB8300FBF53A /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFCD1732E96BB8300FBF53A /* BuddyDataCore */; };
-		8BFCD1762E96BB8300FBF53A /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFCD1752E96BB8300FBF53A /* BuddyDomain */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,13 +73,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 8B8DFBE52CCF771700AB82CC;
 			remoteInfo = soap;
-		};
-		8BFCD16A2E96BB4000FBF53A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8B8DFBDE2CCF771700AB82CC /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8BFCD1622E96BB4000FBF53A;
-			remoteInfo = BuddyiOSAppIntents;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -115,7 +105,6 @@
 			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
 			dstSubfolderSpec = 16;
 			files = (
-				8BFCD16C2E96BB4000FBF53A /* BuddyiOSAppIntents.appex in Embed ExtensionKit Extensions */,
 			);
 			name = "Embed ExtensionKit Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -135,7 +124,6 @@
 		8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		8BE804162E49EE3A00904AC6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		8BFAD2612E927C41005D8639 /* BuddyData */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyData; sourceTree = "<group>"; };
-		8BFCD1632E96BB4000FBF53A /* BuddyiOSAppIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = BuddyiOSAppIntents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -152,13 +140,6 @@
 				Info.plist,
 			);
 			target = 8B3FB1192E94F1C200F57FD7 /* BuddyWatchWidgetExtension */;
-		};
-		8BFCD1712E96BB4000FBF53A /* Exceptions for "BuddyiOSAppIntents" folder in "BuddyiOSAppIntents" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 8BFCD1622E96BB4000FBF53A /* BuddyiOSAppIntents */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -192,14 +173,6 @@
 		8B8DFC052CCF771800AB82CC /* soapUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = soapUITests;
-			sourceTree = "<group>";
-		};
-		8BFCD1642E96BB4000FBF53A /* BuddyiOSAppIntents */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				8BFCD1712E96BB4000FBF53A /* Exceptions for "BuddyiOSAppIntents" folder in "BuddyiOSAppIntents" target */,
-			);
-			path = BuddyiOSAppIntents;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -269,15 +242,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8BFCD1602E96BB4000FBF53A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				8BFCD1742E96BB8300FBF53A /* BuddyDataCore in Frameworks */,
-				8BFCD1762E96BB8300FBF53A /* BuddyDomain in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -302,7 +266,6 @@
 				8B8DFC052CCF771800AB82CC /* soapUITests */,
 				8B8365042E914F1200892B70 /* WatchBuddy Watch App */,
 				8B3FB11F2E94F1C200F57FD7 /* BuddyWatchWidget */,
-				8BFCD1642E96BB4000FBF53A /* BuddyiOSAppIntents */,
 				8B8DFBE72CCF771700AB82CC /* Products */,
 				8BE804162E49EE3A00904AC6 /* AppIcon.icon */,
 				8B8368002E9247A900892B70 /* Frameworks */,
@@ -317,7 +280,6 @@
 				8B8DFC022CCF771800AB82CC /* soapUITests.xctest */,
 				8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */,
 				8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */,
-				8BFCD1632E96BB4000FBF53A /* BuddyiOSAppIntents.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -393,7 +355,6 @@
 			);
 			dependencies = (
 				8B83650C2E914F1300892B70 /* PBXTargetDependency */,
-				8BFCD16B2E96BB4000FBF53A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8B8DFBE82CCF771700AB82CC /* soap */,
@@ -470,30 +431,6 @@
 			productReference = 8B8DFC022CCF771800AB82CC /* soapUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		8BFCD1622E96BB4000FBF53A /* BuddyiOSAppIntents */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 8BFCD1702E96BB4000FBF53A /* Build configuration list for PBXNativeTarget "BuddyiOSAppIntents" */;
-			buildPhases = (
-				8BFCD15F2E96BB4000FBF53A /* Sources */,
-				8BFCD1602E96BB4000FBF53A /* Frameworks */,
-				8BFCD1612E96BB4000FBF53A /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				8BFCD1642E96BB4000FBF53A /* BuddyiOSAppIntents */,
-			);
-			name = BuddyiOSAppIntents;
-			packageProductDependencies = (
-				8BFCD1732E96BB8300FBF53A /* BuddyDataCore */,
-				8BFCD1752E96BB8300FBF53A /* BuddyDomain */,
-			);
-			productName = BuddyiOSAppIntents;
-			productReference = 8BFCD1632E96BB4000FBF53A /* BuddyiOSAppIntents.appex */;
-			productType = "com.apple.product-type.extensionkit-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -520,9 +457,6 @@
 					8B8DFC012CCF771800AB82CC = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 8B8DFBE52CCF771700AB82CC;
-					};
-					8BFCD1622E96BB4000FBF53A = {
-						CreatedOnToolsVersion = 26.0;
 					};
 				};
 			};
@@ -554,7 +488,6 @@
 				8B8DFC012CCF771800AB82CC /* soapUITests */,
 				8B8365022E914F1200892B70 /* WatchBuddy Watch App */,
 				8B3FB1192E94F1C200F57FD7 /* BuddyWatchWidgetExtension */,
-				8BFCD1622E96BB4000FBF53A /* BuddyiOSAppIntents */,
 			);
 		};
 /* End PBXProject section */
@@ -600,13 +533,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8BFCD1612E96BB4000FBF53A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -645,13 +571,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8BFCD15F2E96BB4000FBF53A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -674,11 +593,6 @@
 			isa = PBXTargetDependency;
 			target = 8B8DFBE52CCF771700AB82CC /* soap */;
 			targetProxy = 8B8DFC032CCF771800AB82CC /* PBXContainerItemProxy */;
-		};
-		8BFCD16B2E96BB4000FBF53A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8BFCD1622E96BB4000FBF53A /* BuddyiOSAppIntents */;
-			targetProxy = 8BFCD16A2E96BB4000FBF53A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1112,68 +1026,6 @@
 			};
 			name = Release;
 		};
-		8BFCD16E2E96BB4000FBF53A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = BuddyiOSAppIntents/BuddyiOSAppIntents.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = N5V8W52U3U;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = BuddyiOSAppIntents/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BuddyiOSAppIntents;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.BuddyiOSAppIntents;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		8BFCD16F2E96BB4000FBF53A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = BuddyiOSAppIntents/BuddyiOSAppIntents.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = N5V8W52U3U;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = BuddyiOSAppIntents/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BuddyiOSAppIntents;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.BuddyiOSAppIntents;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1227,15 +1079,6 @@
 			buildConfigurations = (
 				8B8DFC132CCF771800AB82CC /* Debug */,
 				8B8DFC142CCF771800AB82CC /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		8BFCD1702E96BB4000FBF53A /* Build configuration list for PBXNativeTarget "BuddyiOSAppIntents" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				8BFCD16E2E96BB4000FBF53A /* Debug */,
-				8BFCD16F2E96BB4000FBF53A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1410,14 +1253,6 @@
 		8BFAD2742E92B98A005D8639 /* BuddyDataMocks */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDataMocks;
-		};
-		8BFCD1732E96BB8300FBF53A /* BuddyDataCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BuddyDataCore;
-		};
-		8BFCD1752E96BB8300FBF53A /* BuddyDomain */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BuddyDomain;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
