@@ -34,6 +34,10 @@ extension Container {
 
   // MARK: - Repositories
 
+  var authRepository: Factory<AuthRepositoryProtocol> {
+    self { AuthRepository(provider: MoyaProvider<AuthTarget>()) }
+  }
+
   // MARK: Taxi
   var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol> {
     self { TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [self.authPlugin.resolve()])) }
@@ -154,7 +158,7 @@ extension Container {
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
       MainActor.assumeIsolated {
-        AuthenticationService(provider: MoyaProvider<AuthTarget>())
+        AuthenticationService(authRepository: self.authRepository.resolve())
       }
     }.singleton
   }

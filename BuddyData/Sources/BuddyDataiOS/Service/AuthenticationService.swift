@@ -13,12 +13,11 @@ import BuddyDomain
 import BuddyDataCore
 
 public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthenticationPresentationContextProviding {
-  private let provider: MoyaProvider<AuthTarget>
+  private let authRepository: AuthRepositoryProtocol
   private let codeVerifier: String
 
-  public init(provider: MoyaProvider<AuthTarget>) {
-    self.provider = provider
-    
+  public init(authRepository: AuthRepositoryProtocol) {
+    self.authRepository = authRepository
     self.codeVerifier = UUID().uuidString.replacingOccurrences(of: "-", with: "")
   }
   
@@ -94,44 +93,11 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
   }
 
   public func exchangeCodeForTokens(_ authorisationCode: String) async throws -> SignInResponse {
-    return try await withCheckedThrowingContinuation { continuation in
-      provider
-        .request(
-          .requestTokens(
-            authorisationCode: authorisationCode,
-            codeVerifier: Data(codeVerifier.utf8).base64URLEncodedString()
-          )
-        ) { result in
-          switch result {
-          case .success(let response):
-            do {
-              let tokenResponse = try response.map(SignInResponseDTO.self).toModel()
-              continuation.resume(returning: tokenResponse)
-            } catch {
-              continuation.resume(throwing: error)
-            }
-          case .failure(let error):
-            continuation.resume(throwing: AuthenticationServiceError.tokenExchangeFailed(error))
-          }
-        }
-    }
+    try await authRepository
+      .requestToken(authorisationCode: authorisationCode, codeVerifier: self.codeVerifier)
   }
 
   public func refreshAccessToken(refreshToken: String) async throws -> TokenResponse {
-    return try await withCheckedThrowingContinuation { continuation in
-      provider.request(.refreshTokens(refreshToken: refreshToken)) { result in
-        switch result {
-        case .success(let response):
-          do {
-            let tokenResponse = try response.map(TokenResponseDTO.self).toModel()
-            continuation.resume(returning: tokenResponse)
-          } catch {
-            continuation.resume(throwing: error)
-          }
-        case .failure(let error):
-          continuation.resume(throwing: AuthenticationServiceError.tokenRefreshFailed(error))
-        }
-      }
-    }
+    try await authRepository.refreshToken(refreshToken: refreshToken)
   }
 }
