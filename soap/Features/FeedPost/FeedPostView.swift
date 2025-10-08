@@ -52,6 +52,9 @@ struct FeedPostView: View {
         await viewModel.fetchComments(postID: post.id)
         self.feedUser = await userUseCase.feedUser
       }
+      .refreshable {
+        await viewModel.fetchComments(postID: post.id)
+      }
       .navigationTitle("Post")
       .navigationBarTitleDisplayMode(.inline)
       .toolbarVisibility(.hidden, for: .tabBar)
