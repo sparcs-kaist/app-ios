@@ -36,13 +36,13 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
   // MARK: - Dependencies
   private let userUseCase: UserUseCaseProtocol
   private let otlTimetableRepository: OTLTimetableRepositoryProtocol
-  private let sessionBridgeService: SessionBridgeServiceProtocol
+  private let sessionBridgeService: SessionBridgeServiceProtocol?
 
   // MARK: - Initialiser
   public init(
     userUseCase: UserUseCaseProtocol,
     otlTimetableRepository: OTLTimetableRepositoryProtocol,
-    sessionBridgeService: SessionBridgeServiceProtocol
+    sessionBridgeService: SessionBridgeServiceProtocol? = nil
   ) {
     self.userUseCase = userUseCase
     self.otlTimetableRepository = otlTimetableRepository
@@ -133,10 +133,8 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
     await refreshTablesForSelectedSemester()
 
     // update watchOS data
-
-    // select my table of current semester in the future
     if let timetable: Timetable = store[fetchedCurrentSemester.id]?.first {
-      sessionBridgeService.updateTimetable(timetable)
+      sessionBridgeService?.updateTimetable(timetable)
     }
   }
 
