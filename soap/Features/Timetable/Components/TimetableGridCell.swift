@@ -28,8 +28,8 @@ struct TimetableGridCell: View {
             .lineLimit(3)
 
           Text(lecture.classTimes[0].classroomNameShort)
-            .minimumScaleFactor(0.5)
-            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .lineLimit(2)
             .font(.caption2)
             .opacity(0.8)
         }
