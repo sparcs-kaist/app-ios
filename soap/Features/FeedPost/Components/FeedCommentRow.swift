@@ -148,7 +148,7 @@ struct FeedCommentRow: View {
         }
       }
     
-    if canBeExpanded && !showFullContent {
+    if canBeExpanded && !showFullContent && !comment.isDeleted {
       Button("more") {
         withAnimation {
           showFullContent = true
