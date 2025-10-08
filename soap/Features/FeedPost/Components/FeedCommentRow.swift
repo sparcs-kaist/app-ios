@@ -85,8 +85,8 @@ struct FeedCommentRow: View {
           Text(comment.authorName)
         }
       }
-        .fontWeight(.semibold)
-        .font(.callout)
+      .fontWeight(.semibold)
+      .font(.callout)
 
       Text(comment.createdAt.timeAgoDisplay)
         .foregroundStyle(.secondary)
@@ -133,6 +133,7 @@ struct FeedCommentRow: View {
   var content: some View {
     Text(comment.isDeleted ? "This comment has been deleted." : comment.content)
       .lineLimit(showFullContent ? nil : 3)
+      .textSelection(.enabled)
       .foregroundStyle(comment.isDeleted ? .secondary : .primary)
       .contentTransition(.numericText())
       .animation(.spring, value: comment)

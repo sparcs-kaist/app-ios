@@ -130,6 +130,7 @@ struct FeedPostRow: View {
   @ViewBuilder
   var content: some View {
     Text(post.content)
+      .textSelection(.enabled)
       .padding(.horizontal)
       .lineLimit(showFullContent ? nil : 5)
       .background {
