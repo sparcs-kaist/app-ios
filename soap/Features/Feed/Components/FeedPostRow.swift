@@ -85,16 +85,17 @@ struct FeedPostRow: View {
             Button("Delete", systemImage: "trash", role: .destructive) {
               showDeleteConfirmation = true
             }
-          }
-          Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-            ForEach(FeedReportType.allCases) { reason in
-              Button(reason.description) {
-                Task {
-                  do {
-                    try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
-                    showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-                  } catch {
-                    // TODO: error handling
+          } else {
+            Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+              ForEach(FeedReportType.allCases) { reason in
+                Button(reason.description) {
+                  Task {
+                    do {
+                      try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
+                      showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                    } catch {
+                      // TODO: error handling
+                    }
                   }
                 }
               }
