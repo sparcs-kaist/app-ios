@@ -54,7 +54,6 @@ class LectureSearchViewModel {
       .sink { [weak self] _ in
         guard let self else { return }
         Task {
-          self.lectures.removeAll()
           self.state = .loaded
           self.currentPage = 0
           await fetchLectures()
@@ -76,7 +75,7 @@ class LectureSearchViewModel {
       )
       let page: [Lecture] = try await otlLectureRepository.searchLectures(request: request)
 
-      self.lectures.append(contentsOf: page)
+      self.lectures = page
       self.currentPage += 1
     } catch {
       logger.error(error)
