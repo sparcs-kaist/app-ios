@@ -70,6 +70,7 @@ struct LectureReviewCell: View {
 
       Text(review.content)
         .truncationMode(.head)
+        .textSelection(.enabled)
 
       HStack(alignment: .bottom) {
         reviewRatingLetter(title: String(localized: "Grade"), rating: review.gradeLetter)

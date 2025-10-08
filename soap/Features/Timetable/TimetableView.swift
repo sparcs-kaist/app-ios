@@ -14,7 +14,7 @@ struct TimetableView: View {
   @State private var showSearchSheet: Bool = false
   @State private var selectedLecture: Lecture? = nil
 
-  @State private var selectedDetent: PresentationDetent = .height(130)
+  @State private var selectedDetent: PresentationDetent = .medium
   @FocusState private var isFocused: Bool
 
   @Environment(\.colorScheme) private var colorScheme
@@ -78,6 +78,9 @@ struct TimetableView: View {
         LectureSearchView(detent: $selectedDetent)
           .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
           .environment(viewModel)
+          .onAppear {
+            selectedDetent = .medium
+          }
       }
       .task {
         // fetch data

@@ -29,6 +29,8 @@ struct FeedPostView: View {
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
 
+  @State private var showTranslateSheet: Bool = false
+
   // MARK: - Dependencies
   @Injected(
     \.feedPostRepository
@@ -52,26 +54,32 @@ struct FeedPostView: View {
         await viewModel.fetchComments(postID: post.id)
         self.feedUser = await userUseCase.feedUser
       }
+      .refreshable {
+        await viewModel.fetchComments(postID: post.id)
+      }
       .navigationTitle("Post")
       .navigationBarTitleDisplayMode(.inline)
       .toolbarVisibility(.hidden, for: .tabBar)
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
           Menu("More", systemImage: "ellipsis") {
+            Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+            Divider()
             if post.isAuthor {
               Button("Delete", systemImage: "trash", role: .destructive) {
                 showDeleteConfirmation = true
               }
-            }
-            Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-              ForEach(FeedReportType.allCases) { reason in
-                Button(reason.description) {
-                  Task {
-                    do {
-                      try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
-                      showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-                    } catch {
-                      // TODO: error handling
+            } else {
+              Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+                ForEach(FeedReportType.allCases) { reason in
+                  Button(reason.description) {
+                    Task {
+                      do {
+                        try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
+                        showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                      } catch {
+                        // TODO: error handling
+                      }
                     }
                   }
                 }
@@ -89,6 +97,7 @@ struct FeedPostView: View {
           }
         }
       }
+      .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
       .scrollDismissesKeyboard(.immediately)
       .safeAreaBar(edge: .bottom) {
         inputBar(proxy: proxy)

@@ -97,8 +97,10 @@ struct BoardListView: View {
             }
           })
           .tint(.primary)
+          .id(board.id)
         }
       }
+      .id(group.id)
     }
   }
 

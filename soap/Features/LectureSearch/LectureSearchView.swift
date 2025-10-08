@@ -14,6 +14,34 @@ struct LectureSearchView: View {
   @State private var viewModel = LectureSearchViewModel()
 
   var body: some View {
+    NavigationStack {
+      List {
+        if viewModel.searchKeyword.isEmpty {
+          ContentUnavailableView(
+            "Search",
+            systemImage: "magnifyingglass",
+            description: Text("Search courses, codes or professors.")
+          )
+        } else if viewModel.lectures.isEmpty && viewModel.state != .loading {
+          ContentUnavailableView.search(text: viewModel.searchKeyword)
+        } else if viewModel.state == .loading {
+          ProgressView()
+        } else {
+          searchResultView
+        }
+      }
+      .navigationTitle("Add to \"\(timetableViewModel.selectedTimetableDisplayName)\"")
+      .navigationBarTitleDisplayMode(.inline)
+      .searchable(text: $viewModel.searchKeyword)
+      .scrollDismissesKeyboard(.immediately)
+      .onAppear {
+        viewModel.bind()
+      }
+    }
+  }
+
+  @ViewBuilder
+  var searchResultView: some View {
     let groupedByCourse = Dictionary(grouping: viewModel.lectures, by: { $0.course })
     // Preserve the order of first appearance from the original list
     let orderedCourses: [Int] = {
@@ -27,72 +55,62 @@ struct LectureSearchView: View {
       return result
     }()
 
-    NavigationStack {
-      List {
-        ForEach(orderedCourses, id: \.self) { course in
-          Section {
-            if let firstItem = groupedByCourse[course]?.first {
-              HStack {
-                Text(firstItem.title.localized())
-                  .lineLimit(2)
-                  .multilineTextAlignment(.leading)
-                  .font(.callout)
-                  .fontWeight(.semibold)
+    ForEach(orderedCourses, id: \.self) { course in
+      Section {
+        if let firstItem = groupedByCourse[course]?.first {
+          HStack {
+            Text(firstItem.title.localized())
+              .lineLimit(2)
+              .multilineTextAlignment(.leading)
+              .font(.callout)
+              .fontWeight(.semibold)
 
-                Spacer()
+            Spacer()
 
-                VStack(alignment: .trailing) {
-                  Text(firstItem.code)
-                  Text(firstItem.typeDetail.localized())
-                }
-                .foregroundStyle(.secondary)
-                .font(.footnote)
-              }
+            VStack(alignment: .trailing) {
+              Text(firstItem.code)
+              Text(firstItem.typeDetail.localized())
             }
-            ForEach(groupedByCourse[course] ?? []) { lecture in
-              NavigationLink(destination: {
-                LectureDetailView(
-                  lecture: lecture,
-                  onAdd: {
-                    Task {
-                      do {
-                        try await timetableViewModel.addLecture(lecture: lecture)
-                      } catch {
-                        // TODO: - Handle error
-                      }
-                    }
-                  },
-                  isOverlapping: timetableViewModel.isCandidateOverlapping
-                )
-                .onAppear {
-                  timetableViewModel.candidateLecture = lecture
-                  detent = .height(130)
-                }
-                .onDisappear {
-                  timetableViewModel.candidateLecture = nil
-                  detent = .large
-                }
-              }, label: {
-                HStack {
-                  Text(lecture.section ?? "A")
-                    .fontDesign(.rounded)
-                    .foregroundStyle(.secondary)
-
-                  Text(lecture.professors.first?.name.localized() ?? String(localized: "Unknown"))
-
-                  Spacer()
-                }
-                .font(.callout)
-              })
-            }
+            .foregroundStyle(.secondary)
+            .font(.footnote)
           }
         }
-      }
-      .navigationTitle("Add to \"\(timetableViewModel.selectedTimetableDisplayName)\"")
-      .navigationBarTitleDisplayMode(.inline)
-      .searchable(text: $viewModel.searchKeyword, prompt: Text("Search courses, codes or professors."))
-      .onAppear {
-        viewModel.bind()
+        ForEach(groupedByCourse[course] ?? []) { lecture in
+          NavigationLink(destination: {
+            LectureDetailView(
+              lecture: lecture,
+              onAdd: {
+                Task {
+                  do {
+                    try await timetableViewModel.addLecture(lecture: lecture)
+                  } catch {
+                    // TODO: - Handle error
+                  }
+                }
+              },
+              isOverlapping: timetableViewModel.isCandidateOverlapping
+            )
+            .onAppear {
+              timetableViewModel.candidateLecture = lecture
+              detent = .height(130)
+            }
+            .onDisappear {
+              timetableViewModel.candidateLecture = nil
+              detent = .large
+            }
+          }, label: {
+            HStack {
+              Text(lecture.section ?? "A")
+                .fontDesign(.rounded)
+                .foregroundStyle(.secondary)
+
+              Text(lecture.professors.first?.name.localized() ?? String(localized: "Unknown"))
+
+              Spacer()
+            }
+            .font(.callout)
+          })
+        }
       }
     }
   }

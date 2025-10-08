@@ -8,6 +8,7 @@
 import SwiftUI
 import NukeUI
 import Factory
+import Translation
 import BuddyDomain
 
 struct FeedCommentRow: View {
@@ -21,7 +22,9 @@ struct FeedCommentRow: View {
   
   @State private var showFullContent: Bool = false
   @State private var canBeExpanded: Bool = false
-  
+
+  @State private var showTranslateSheet: Bool = false
+
   // MARK: - Dependencies
   @Injected(
     \.feedCommentRepository
@@ -41,6 +44,7 @@ struct FeedCommentRow: View {
         footer
       }
     }
+    .translationPresentation(isPresented: $showTranslateSheet, text: comment.content)
   }
 
   @ViewBuilder
@@ -81,8 +85,8 @@ struct FeedCommentRow: View {
           Text(comment.authorName)
         }
       }
-        .fontWeight(.semibold)
-        .font(.callout)
+      .fontWeight(.semibold)
+      .font(.callout)
 
       Text(comment.createdAt.timeAgoDisplay)
         .foregroundStyle(.secondary)
@@ -91,22 +95,25 @@ struct FeedCommentRow: View {
       Spacer()
 
       Menu("More", systemImage: "ellipsis") {
+        Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+        Divider()
         if comment.isMyComment {
           Button("Delete", systemImage: "trash", role: .destructive) {
             Task {
               await delete()
             }
           }
-        }
-        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-          ForEach(FeedReportType.allCases) { reason in
-            Button(reason.description) {
-              Task {
-                do {
-                  try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
-                  showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-                } catch {
-                  // TODO: error handling
+        } else {
+          Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+            ForEach(FeedReportType.allCases) { reason in
+              Button(reason.description) {
+                Task {
+                  do {
+                    try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
+                    showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                  } catch {
+                    // TODO: error handling
+                  }
                 }
               }
             }
@@ -126,6 +133,7 @@ struct FeedCommentRow: View {
   var content: some View {
     Text(comment.isDeleted ? "This comment has been deleted." : comment.content)
       .lineLimit(showFullContent ? nil : 3)
+      .textSelection(.enabled)
       .foregroundStyle(comment.isDeleted ? .secondary : .primary)
       .contentTransition(.numericText())
       .animation(.spring, value: comment)
