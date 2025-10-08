@@ -8,6 +8,7 @@
 import SwiftUI
 import NukeUI
 import Factory
+import Translation
 import BuddyDomain
 
 struct FeedCommentRow: View {
@@ -21,7 +22,9 @@ struct FeedCommentRow: View {
   
   @State private var showFullContent: Bool = false
   @State private var canBeExpanded: Bool = false
-  
+
+  @State private var showTranslateSheet: Bool = false
+
   // MARK: - Dependencies
   @Injected(
     \.feedCommentRepository
@@ -41,6 +44,7 @@ struct FeedCommentRow: View {
         footer
       }
     }
+    .translationPresentation(isPresented: $showTranslateSheet, text: comment.content)
   }
 
   @ViewBuilder
@@ -91,6 +95,8 @@ struct FeedCommentRow: View {
       Spacer()
 
       Menu("More", systemImage: "ellipsis") {
+        Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+        Divider()
         if comment.isMyComment {
           Button("Delete", systemImage: "trash", role: .destructive) {
             Task {

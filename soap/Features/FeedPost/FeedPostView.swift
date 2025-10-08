@@ -29,6 +29,8 @@ struct FeedPostView: View {
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
 
+  @State private var showTranslateSheet: Bool = false
+
   // MARK: - Dependencies
   @Injected(
     \.feedPostRepository
@@ -61,6 +63,8 @@ struct FeedPostView: View {
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
           Menu("More", systemImage: "ellipsis") {
+            Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+            Divider()
             if post.isAuthor {
               Button("Delete", systemImage: "trash", role: .destructive) {
                 showDeleteConfirmation = true
@@ -93,6 +97,7 @@ struct FeedPostView: View {
           }
         }
       }
+      .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
       .scrollDismissesKeyboard(.immediately)
       .safeAreaBar(edge: .bottom) {
         inputBar(proxy: proxy)

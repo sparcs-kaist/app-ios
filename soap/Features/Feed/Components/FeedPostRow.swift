@@ -22,6 +22,7 @@ struct FeedPostRow: View {
   @State private var canBeExpanded: Bool = false
   
   @State private var showDeleteConfirmation: Bool = false
+  @State private var showTranslateSheet: Bool = false
 
   // MARK: - Dependencies
   @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol
@@ -36,6 +37,7 @@ struct FeedPostRow: View {
         footer
       }
     }
+    .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
   }
 
   @ViewBuilder
@@ -81,6 +83,8 @@ struct FeedPostRow: View {
 
       if onPostDeleted != nil {
         Menu("More", systemImage: "ellipsis") {
+          Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+          Divider()
           if post.isAuthor {
             Button("Delete", systemImage: "trash", role: .destructive) {
               showDeleteConfirmation = true
