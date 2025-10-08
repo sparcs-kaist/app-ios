@@ -16,19 +16,17 @@ import BuddyDomain
 class LectureSearchViewModel {
   // MARK: - Properties
   enum ViewState: Equatable {
+    case loading
     case loaded
     case error(message: String)
   }
-  var state: ViewState = .loaded
+  var state: ViewState = .loading
   var lectures: [Lecture] = []
   var searchKeyword: String = "" {
     didSet { searchKeywordSubject.send(searchKeyword) }
   }
   @ObservationIgnored private var cancellables = Set<AnyCancellable>()
   @ObservationIgnored private let searchKeywordSubject = PassthroughSubject<String, Never>()
-
-  let itemsPerPage: Int = 50
-  var currentPage: Int = 0
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -37,10 +35,6 @@ class LectureSearchViewModel {
   @ObservationIgnored @Injected(
     \.timetableUseCase
   ) private var timetableUseCase: TimetableUseCaseProtocol
-
-  var isLastPage: Bool {
-    return currentPage * itemsPerPage > lectures.count
-  }
 
   func bind() {
     cancellables.removeAll()
@@ -53,9 +47,13 @@ class LectureSearchViewModel {
       .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         guard let self else { return }
+        guard !searchKeyword.isEmpty else {
+          self.state = .loading
+          self.lectures.removeAll()
+          return
+        }
+
         Task {
-          self.state = .loaded
-          self.currentPage = 0
           await fetchLectures()
         }
       }
@@ -63,21 +61,20 @@ class LectureSearchViewModel {
   }
 
   func fetchLectures() async {
-    guard !isLastPage,
-          let selectedSemester = timetableUseCase.selectedSemester,
+    guard let selectedSemester = timetableUseCase.selectedSemester,
           !searchKeyword.isEmpty else { return }
 
     do {
       let request = LectureSearchRequest(
         semester: selectedSemester,
         keyword: searchKeyword,
-        limit: itemsPerPage,
-        offset: currentPage * itemsPerPage
+        limit: 100,
+        offset: 0
       )
       let page: [Lecture] = try await otlLectureRepository.searchLectures(request: request)
 
       self.lectures = page
-      self.currentPage += 1
+      self.state = .loaded
     } catch {
       logger.error(error)
       state = .error(message: error.localizedDescription)

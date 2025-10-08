@@ -22,8 +22,10 @@ struct LectureSearchView: View {
             systemImage: "magnifyingglass",
             description: Text("Search courses, codes or professors.")
           )
-        } else if viewModel.lectures.isEmpty {
+        } else if viewModel.lectures.isEmpty && viewModel.state != .loading {
           ContentUnavailableView.search(text: viewModel.searchKeyword)
+        } else if viewModel.state == .loading {
+          ProgressView()
         } else {
           searchResultView
         }
