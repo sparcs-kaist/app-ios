@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Semester: Identifiable, Comparable, Equatable, Hashable {
+public struct Semester: Identifiable, Comparable, Equatable, Hashable, Sendable {
   public var id: String {
     "\(year)-\(semesterType.rawValue)"
   }
@@ -46,7 +46,7 @@ public struct Semester: Identifiable, Comparable, Equatable, Hashable {
   }
 }
 
-public struct SemesterEventDate: Hashable {
+public struct SemesterEventDate: Hashable, Sendable {
   public let registrationPeriodStartDate: Date?
   public let registrationPeriodEndDate: Date?
   public let addDropPeriodEndDate: Date?
