@@ -1,0 +1,41 @@
+{
+  "sourceLanguage" : "en-GB",
+  "strings" : {
+    "What is my next class in ${applicationName}?" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "What is my next class in ${applicationName}?",
+              "What's the next class in ${applicationName}?",
+              "Next class in ${applicationName}."
+            ]
+          }
+        },
+        "en-GB" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "What is my next class in ${applicationName}?",
+              "What's the next class in ${applicationName}?",
+              "Next class in ${applicationName}."
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "다음 수업이 뭐야, ${applicationName}?",
+              "다음 수업 알려줘, ${applicationName}?",
+              "다음 수업, ${applicationName}."
+            ]
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

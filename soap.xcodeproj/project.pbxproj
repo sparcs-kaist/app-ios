@@ -99,6 +99,16 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8BFCD16D2E96BB4000FBF53A /* Embed ExtensionKit Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed ExtensionKit Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -339,6 +349,7 @@
 				8B8DFBE32CCF771700AB82CC /* Frameworks */,
 				8B8DFBE42CCF771700AB82CC /* Resources */,
 				8B8365112E914F1300892B70 /* Embed Watch Content */,
+				8BFCD16D2E96BB4000FBF53A /* Embed ExtensionKit Extensions */,
 			);
 			buildRules = (
 			);

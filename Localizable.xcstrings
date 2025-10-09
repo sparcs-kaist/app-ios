@@ -728,6 +728,22 @@
         }
       }
     },
+    "Buddy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buddy"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buddy"
+          }
+        }
+      }
+    },
     "By continuing, you agree to our [Terms of Use](%@) and [Privacy Policy](%@)." : {
       "localizations" : {
         "en" : {
@@ -1469,6 +1485,22 @@
         }
       }
     },
+    "Failed to load classes for this semester." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load classes for this semester."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이번 학기 수업을 불러오는 데 실패했습니다."
+          }
+        }
+      }
+    },
     "Failed to load content" : {
       "localizations" : {
         "en" : {
@@ -1551,6 +1583,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "강의, 게시물, 택시 등 다양한 정보를 찾아보세요."
+          }
+        }
+      }
+    },
+    "Get Next Class" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Next Class"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 수업 가져오기"
+          }
+        }
+      }
+    },
+    "Get your next class for this semester." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get your next class for this semester."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다가오는 수업을 가져옵니다."
           }
         }
       }
@@ -1918,6 +1982,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "새 시간표"
+          }
+        }
+      }
+    },
+    "Next Class" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Class"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 수업"
           }
         }
       }
@@ -3410,6 +3490,22 @@
         }
       }
     },
+    "There are no more classes today." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no more classes today."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 더 이상 수업이 없습니다."
+          }
+        }
+      }
+    },
     "There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment." : {
       "localizations" : {
         "en" : {
@@ -3920,6 +4016,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@까지 닉네임을 변경할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Your next class is \"%@\", starts %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your next class is \"%1$@\", starts %2$@."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your next class is \"%1$@\", starts %2$@."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 수업은 %2$@에 시작하는 “%1$@” 입니다."
           }
         }
       }

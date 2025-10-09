@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import AppIntents
 
 struct TimetableView: View {
   @State private var viewModel = TimetableViewModel()
@@ -19,10 +20,14 @@ struct TimetableView: View {
 
   @Environment(\.colorScheme) private var colorScheme
 
+  @AppStorage("NextClassAppIntentsSuggestion") private var siriSuggestion: Bool = true
+
   var body: some View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 28) {
+          SiriTipView(intent: NextClassAppIntents(), isVisible: $siriSuggestion)
+
           // Timetable Selector
           CompactTimetableSelector()
             .environment(viewModel)

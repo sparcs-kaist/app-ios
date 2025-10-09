@@ -7,7 +7,6 @@
 
 import Foundation
 import Moya
-import BuddyDataCore
 
 public enum AuthTarget {
   case requestTokens(authorisationCode: String, codeVerifier: String)
