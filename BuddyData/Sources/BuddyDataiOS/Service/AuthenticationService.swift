@@ -94,7 +94,7 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
 
   public func exchangeCodeForTokens(_ authorisationCode: String) async throws -> SignInResponse {
     try await authRepository
-      .requestToken(authorisationCode: authorisationCode, codeVerifier: self.codeVerifier)
+      .requestToken(authorisationCode: authorisationCode, codeVerifier: Data(self.codeVerifier.utf8).base64URLEncodedString())
   }
 
   public func refreshAccessToken(refreshToken: String) async throws -> TokenResponse {
