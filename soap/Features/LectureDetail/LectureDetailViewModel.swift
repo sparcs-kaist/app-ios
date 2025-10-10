@@ -16,6 +16,7 @@ class LectureDetailViewModel {
   enum ViewState: Equatable {
     case loading
     case loaded
+    case error(message: String)
   }
   var state: ViewState = .loading
   var reviews: [LectureReview] = []
@@ -30,9 +31,10 @@ class LectureDetailViewModel {
   func fetchReviews(lectureID: Int) async {
     do {
       self.reviews = try await otlLectureRepository.fetchLectures(lectureID: lectureID)
+      self.state = .loaded
     } catch {
+      self.state = .error(message: error.localizedDescription)
       logger.error(error)
     }
-    self.state = .loaded
   }
 }

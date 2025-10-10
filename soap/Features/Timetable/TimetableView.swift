@@ -23,73 +23,75 @@ struct TimetableView: View {
   @AppStorage("NextClassAppIntentsSuggestion") private var siriSuggestion: Bool = true
 
   var body: some View {
-    NavigationStack {
-      ScrollView {
-        VStack(spacing: 28) {
-          SiriTipView(intent: NextClassAppIntents(), isVisible: $siriSuggestion)
+    GeometryReader { proxy in
+      NavigationStack {
+        ScrollView {
+          VStack(spacing: 28) {
+            SiriTipView(intent: NextClassAppIntents(), isVisible: $siriSuggestion)
 
-          // Timetable Selector
-          CompactTimetableSelector()
+            // Timetable Selector
+            CompactTimetableSelector()
+              .environment(viewModel)
+
+            // Timetable Gird View
+            TimetableGrid() { lecture in
+              selectedLecture = lecture
+            }
+            .padding()
+            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+            .frame(height: proxy.size.height * 0.8)
             .environment(viewModel)
 
-          // Timetable Gird View
-          TimetableGrid() { lecture in
-            selectedLecture = lecture
+            TimetableCreditGraph()
+              .padding()
+              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+              .environment(viewModel)
+
+            // Timetable Summary View
+            TimetableSummary()
+              .padding()
+              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+              .environment(viewModel)
           }
           .padding()
-          .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-          .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-          .frame(height: .screenHeight * 0.65)
-          .environment(viewModel)
-
-          TimetableCreditGraph()
-            .padding()
-            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-            .environment(viewModel)
-
-          // Timetable Summary View
-          TimetableSummary()
-            .padding()
-            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-            .environment(viewModel)
         }
-        .padding()
-      }
-      .background {
-        BackgroundGradientView(color: .pink)
-          .ignoresSafeArea()
-      }
-      .navigationTitle("Timetable")
-      .toolbarTitleDisplayMode(.inlineLarge)
-      .background(Color.systemGroupedBackground)
-      .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
-          Button("Add Lecture", systemImage: "plus") {
-            showSearchSheet = true
+        .background {
+          BackgroundGradientView(color: .pink)
+            .ignoresSafeArea()
+        }
+        .navigationTitle("Timetable")
+        .toolbarTitleDisplayMode(.inlineLarge)
+        .background(Color.systemGroupedBackground)
+        .toolbar {
+          ToolbarItem(placement: .topBarTrailing) {
+            Button("Add Lecture", systemImage: "plus") {
+              showSearchSheet = true
+            }
+            .disabled(!viewModel.isEditable)
           }
-          .disabled(!viewModel.isEditable)
         }
-      }
-      .sheet(item: $selectedLecture) { (item: Lecture) in
-        NavigationStack {
-          LectureDetailView(lecture: item, onAdd: nil, isOverlapping: false)
-            .presentationDragIndicator(.visible)
-            .presentationDetents([.medium, .large])
-        }
-      }
-      .sheet(isPresented: $showSearchSheet) {
-        LectureSearchView(detent: $selectedDetent)
-          .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
-          .environment(viewModel)
-          .onAppear {
-            selectedDetent = .medium
+        .sheet(item: $selectedLecture) { (item: Lecture) in
+          NavigationStack {
+            LectureDetailView(lecture: item, onAdd: nil, isOverlapping: false)
+              .presentationDragIndicator(.visible)
+              .presentationDetents([.medium, .large])
           }
-      }
-      .task {
-        // fetch data
-        await viewModel.fetchData()
+        }
+        .sheet(isPresented: $showSearchSheet) {
+          LectureSearchView(detent: $selectedDetent)
+            .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
+            .environment(viewModel)
+            .onAppear {
+              selectedDetent = .medium
+            }
+        }
+        .task {
+          // fetch data
+          await viewModel.fetchData()
+        }
       }
     }
   }

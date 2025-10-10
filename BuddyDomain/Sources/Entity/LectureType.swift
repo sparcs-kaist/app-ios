@@ -29,6 +29,23 @@ public enum LectureType: String, Equatable, Sendable, Codable {
       LocalizedString(["en": "ETC", "ko": "기타"])
     }
   }
+
+  public var shortCode: String {
+    switch self {
+    case .br:
+      String(localized: "BR", bundle: .module)
+    case .be:
+      String(localized: "BE", bundle: .module)
+    case .mr:
+      String(localized: "MR", bundle: .module)
+    case .me:
+      String(localized: "ME", bundle: .module)
+    case .hse:
+      String(localized: "HSE", bundle: .module)
+    case .etc:
+      String(localized: "ETC", bundle: .module)
+    }
+  }
 }
 
 extension LectureType {

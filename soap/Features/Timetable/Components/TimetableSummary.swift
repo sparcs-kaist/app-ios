@@ -42,11 +42,16 @@ fileprivate struct BigSummary: View {
   let grade: String
 
   var body: some View {
-    VStack {
+    VStack(spacing: 8) {
       Text(grade)
+        .foregroundStyle(.secondary)
+        .fontDesign(.rounded)
         .fontWeight(.semibold)
       Text(label)
-        .font(.caption)
+        .foregroundStyle(.tertiary)
+        .font(.caption2)
+        .fontWeight(.medium)
+        .textCase(.uppercase)
     }
   }
 }

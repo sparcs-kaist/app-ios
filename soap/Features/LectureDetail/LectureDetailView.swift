@@ -21,6 +21,8 @@ struct LectureDetailView: View {
   @State private var showReviewComposeView: Bool = false
   @State private var canWriteReview: Bool = false
 
+  @State private var showCannotAddLectureAlert: Bool = false
+
   var body: some View {
     ScrollView {
       LazyVStack(spacing: 20) {
@@ -45,14 +47,22 @@ struct LectureDetailView: View {
     .toolbar {
       if onAdd != nil {
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Add", systemImage: "plus", role: .confirm) {
-            dismiss()
-            onAdd?()
+          Button("Add", systemImage: "plus", role: isOverlapping ? .close : .confirm) {
+            if isOverlapping {
+              showCannotAddLectureAlert = true
+            } else {
+              dismiss()
+              onAdd?()
+            }
           }
-          .disabled(isOverlapping)
         }
       }
     }
+    .alert("Cannot Add Lecture", isPresented: $showCannotAddLectureAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text("This lecture collides with an existing lecture in your timetable.")
+    })
     .sheet(isPresented: $showReviewComposeView) {
       ReviewComposeView(lecture: lecture, onWrite: { review in
         viewModel.reviews.insert(review, at: 0)
@@ -97,15 +107,23 @@ struct LectureDetailView: View {
         .frame(height: 16)
 
       LazyVStack(spacing: 16) {
-        if viewModel.state == .loading {
+        switch viewModel.state {
+        case .loading:
           ForEach(LectureReview.mockList.prefix(2)) { review in
             LectureReviewCell(review: .constant(review))
               .redacted(reason: .placeholder)
           }
-        } else {
-          ForEach($viewModel.reviews) { $review in
-            LectureReviewCell(review: $review)
+        case .loaded:
+          if viewModel.reviews.isEmpty {
+            // loaded but empty
+            ContentUnavailableView("No Reviews", systemImage: "text.book.closed", description: Text("There are no reviews for this lecture yet."))
+          } else {
+            ForEach($viewModel.reviews) { $review in
+              LectureReviewCell(review: $review)
+            }
           }
+        case .error(let message):
+          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
     }

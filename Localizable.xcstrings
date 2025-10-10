@@ -817,6 +817,22 @@
         }
       }
     },
+    "Cannot Add Lecture" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot Add Lecture"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의를 추가할 수 없음"
+          }
+        }
+      }
+    },
     "Capacity" : {
       "localizations" : {
         "en" : {
@@ -2110,6 +2126,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "검색 결과 없음"
+          }
+        }
+      }
+    },
+    "No Reviews" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Reviews"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "평가 없음"
           }
         }
       }
@@ -3506,6 +3538,22 @@
         }
       }
     },
+    "There are no reviews for this lecture yet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no reviews for this lecture yet."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 이 강의에 대한 평가가 없습니다."
+          }
+        }
+      }
+    },
     "There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment." : {
       "localizations" : {
         "en" : {
@@ -3572,6 +3620,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정원 초과"
+          }
+        }
+      }
+    },
+    "This lecture collides with an existing lecture in your timetable." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This lecture collides with an existing lecture in your timetable."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 시간표에 있는 강의와 시간이 겹칩니다."
           }
         }
       }

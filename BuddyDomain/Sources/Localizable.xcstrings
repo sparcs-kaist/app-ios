@@ -151,6 +151,38 @@
         }
       }
     },
+    "BE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BE"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기선"
+          }
+        }
+      }
+    },
+    "BR" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BR"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기필"
+          }
+        }
+      }
+    },
     "Courses" : {
       "localizations" : {
         "en" : {
@@ -163,6 +195,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "강의"
+          }
+        }
+      }
+    },
+    "ETC" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ETC"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기타"
           }
         }
       }
@@ -231,6 +279,22 @@
         }
       }
     },
+    "HSE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HSE"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인선"
+          }
+        }
+      }
+    },
     "Impersonation/Fraud" : {
       "localizations" : {
         "en" : {
@@ -279,6 +343,22 @@
         }
       }
     },
+    "ME" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ME"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전선"
+          }
+        }
+      }
+    },
     "Mon" : {
       "localizations" : {
         "en" : {
@@ -291,6 +371,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "월"
+          }
+        }
+      }
+    },
+    "MR" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MR"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전필"
           }
         }
       }
