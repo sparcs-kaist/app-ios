@@ -2114,6 +2114,22 @@
         }
       }
     },
+    "No Reviews" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Reviews"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "평가 없음"
+          }
+        }
+      }
+    },
     "No Rides Found" : {
       "localizations" : {
         "en" : {
@@ -3502,6 +3518,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "오늘 더 이상 수업이 없습니다."
+          }
+        }
+      }
+    },
+    "There are no reviews for this lecture yet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no reviews for this lecture yet."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 이 강의에 대한 평가가 없습니다."
           }
         }
       }

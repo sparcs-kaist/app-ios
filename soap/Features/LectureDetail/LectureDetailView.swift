@@ -97,15 +97,23 @@ struct LectureDetailView: View {
         .frame(height: 16)
 
       LazyVStack(spacing: 16) {
-        if viewModel.state == .loading {
+        switch viewModel.state {
+        case .loading:
           ForEach(LectureReview.mockList.prefix(2)) { review in
             LectureReviewCell(review: .constant(review))
               .redacted(reason: .placeholder)
           }
-        } else {
-          ForEach($viewModel.reviews) { $review in
-            LectureReviewCell(review: $review)
+        case .loaded:
+          if viewModel.reviews.isEmpty {
+            // loaded but empty
+            ContentUnavailableView("No Reviews", systemImage: "text.book.closed", description: Text("There are no reviews for this lecture yet."))
+          } else {
+            ForEach($viewModel.reviews) { $review in
+              LectureReviewCell(review: $review)
+            }
           }
+        case .error(let message):
+          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
     }
