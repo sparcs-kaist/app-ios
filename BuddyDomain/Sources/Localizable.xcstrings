@@ -162,7 +162,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "기초선택"
+            "value" : "기선"
           }
         }
       }
@@ -178,7 +178,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "기초필수"
+            "value" : "기필"
           }
         }
       }
@@ -354,7 +354,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "전공선택"
+            "value" : "전선"
           }
         }
       }
@@ -386,7 +386,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "전공필수"
+            "value" : "전필"
           }
         }
       }

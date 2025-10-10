@@ -25,7 +25,9 @@ struct TimetableCreditGraph: View {
     ]) { element in
       Plot {
         BarMark(x: .value("Credits", element.credits))
-          .foregroundStyle(by: .value("LectureType", element.lectureType.shortCode))
+          .foregroundStyle(
+            by: .value("LectureType", "\(element.lectureType.shortCode)(\(element.credits))")
+          )
       }
     }
     .chartPlotStyle { plotArea in
