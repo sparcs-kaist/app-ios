@@ -21,6 +21,8 @@ struct LectureDetailView: View {
   @State private var showReviewComposeView: Bool = false
   @State private var canWriteReview: Bool = false
 
+  @State private var showCannotAddLectureAlert: Bool = false
+
   var body: some View {
     ScrollView {
       LazyVStack(spacing: 20) {
@@ -45,14 +47,22 @@ struct LectureDetailView: View {
     .toolbar {
       if onAdd != nil {
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Add", systemImage: "plus", role: .confirm) {
-            dismiss()
-            onAdd?()
+          Button("Add", systemImage: "plus", role: isOverlapping ? .close : .confirm) {
+            if isOverlapping {
+              showCannotAddLectureAlert = true
+            } else {
+              dismiss()
+              onAdd?()
+            }
           }
-          .disabled(isOverlapping)
         }
       }
     }
+    .alert("Cannot Add Lecture", isPresented: $showCannotAddLectureAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text("This lecture collides with an existing lecture in your timetable.")
+    })
     .sheet(isPresented: $showReviewComposeView) {
       ReviewComposeView(lecture: lecture, onWrite: { review in
         viewModel.reviews.insert(review, at: 0)

@@ -817,6 +817,22 @@
         }
       }
     },
+    "Cannot Add Lecture" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot Add Lecture"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의를 추가할 수 없음"
+          }
+        }
+      }
+    },
     "Capacity" : {
       "localizations" : {
         "en" : {
@@ -3604,6 +3620,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정원 초과"
+          }
+        }
+      }
+    },
+    "This lecture collides with an existing lecture in your timetable." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This lecture collides with an existing lecture in your timetable."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 시간표에 있는 강의와 시간이 겹칩니다."
           }
         }
       }
