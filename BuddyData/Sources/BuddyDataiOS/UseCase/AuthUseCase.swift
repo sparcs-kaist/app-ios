@@ -41,7 +41,9 @@ public class AuthUseCase: AuthUseCaseProtocol {
     self.feedUserRepository = feedUserRepository
     self.otlUserRepository = otlUserRepository
 
-    _isAuthenticatedSubject.value = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
+    let hasValidAccessToken = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
+    let hasRefreshToken = tokenStorage.getRefreshToken() != nil
+    _isAuthenticatedSubject.value = hasValidAccessToken || hasRefreshToken
     scheduleRefreshTimer()
   }
 

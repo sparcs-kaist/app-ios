@@ -23,6 +23,9 @@ struct ContentView: View {
         SignInView()
       }
     }
+    .task {
+      await viewModel.refreshAccessTokenIfNeeded()
+    }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .onChange(of: scenePhase) {
       if scenePhase == .active {
