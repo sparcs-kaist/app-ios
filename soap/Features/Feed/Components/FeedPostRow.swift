@@ -100,7 +100,7 @@ struct FeedPostRow: View {
                       showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                     } catch {
                       crashlyticsHelper.recordException(error: error, showAlert: false)
-                      showAlert(title: "Error", message: "An unexpected error occurred while reporting a post. Please try again later.")
+                      showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
                     }
                   }
                 }

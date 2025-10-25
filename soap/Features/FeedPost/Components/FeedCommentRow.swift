@@ -114,9 +114,7 @@ struct FeedCommentRow: View {
                     showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                   } catch {
                     crashlyticsHelper.recordException(error: error, showAlert: false)
-                    alertTitle = "Error"
-                    alertMessage = "An unexpected error occurred while reporting a comment. Please try again later."
-                    showAlert = true
+                    showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
                   }
                 }
               }
