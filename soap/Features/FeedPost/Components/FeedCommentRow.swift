@@ -113,7 +113,10 @@ struct FeedCommentRow: View {
                     try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
                     showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                   } catch {
-                    crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while reporting a comment. Please try again later.")
+                    crashlyticsHelper.recordException(error: error, showAlert: false)
+                    alertTitle = "Error"
+                    alertMessage = "An unexpected error occurred while reporting a comment. Please try again later."
+                    showAlert = true
                   }
                 }
               }

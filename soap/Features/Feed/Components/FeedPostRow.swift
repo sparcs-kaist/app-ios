@@ -99,7 +99,8 @@ struct FeedPostRow: View {
                       try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
                       showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                     } catch {
-                      crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while reporting a post. Please try again later.")
+                      crashlyticsHelper.recordException(error: error, showAlert: false)
+                      showAlert(title: "Error", message: "An unexpected error occurred while reporting a post. Please try again later.")
                     }
                   }
                 }

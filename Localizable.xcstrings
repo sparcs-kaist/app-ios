@@ -551,12 +551,6 @@
     "An unexpected error occurred while removing a lecture. Please try again later." : {
 
     },
-    "An unexpected error occurred while reporting a comment. Please try again later." : {
-
-    },
-    "An unexpected error occurred while reporting a post. Please try again later." : {
-
-    },
     "An unexpected error occurred while reporting a user. Please try again later." : {
 
     },
@@ -1653,6 +1647,9 @@
         }
       }
     },
+    "Force Crash" : {
+
+    },
     "Get Next Class" : {
       "localizations" : {
         "en" : {
@@ -1700,9 +1697,6 @@
           }
         }
       }
-    },
-    "Force Crash" : {
-
     },
     "Hate Speech" : {
       "localizations" : {
