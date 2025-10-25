@@ -1,0 +1,24 @@
+//
+//  CrashlyticsHelper.swift
+//  soap
+//
+//  Created by 하정우 on 10/7/25.
+//
+
+import Foundation
+import FirebaseCrashlytics
+import Moya
+import SwiftyBeaver
+
+@MainActor
+@Observable
+final class CrashlyticsHelper {
+  var showAlert: Bool = false
+  var alertMessage: LocalizedStringResource = ""
+  
+  func recordException(error: Error, showAlert: Bool = true, alertMessage: LocalizedStringResource = "Something went wrong. Please try again later.") {
+    Crashlytics.crashlytics().record(error: error as NSError)
+    self.showAlert = showAlert
+    self.alertMessage = alertMessage
+  }
+}

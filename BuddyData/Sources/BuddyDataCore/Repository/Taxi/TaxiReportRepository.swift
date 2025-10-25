@@ -34,17 +34,8 @@ public final class TaxiReportRepository: TaxiReportRepositoryProtocol, @unchecke
   }
   
   public func createReport(with: TaxiCreateReport) async throws {
-    do {
-      let requestDTO = TaxiCreateReportRequestDTO.fromModel(with)
-      let response = try await provider.request(.createReport(with: requestDTO))
-      _ = try response.filterSuccessfulStatusCodes()
-
-      // TODO: Error Handling
-    } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
-    } catch {
-      throw error
-    }
+    let requestDTO = TaxiCreateReportRequestDTO.fromModel(with)
+    let response = try await provider.request(.createReport(with: requestDTO))
+    _ = try response.filterSuccessfulStatusCodes()
   }
 }

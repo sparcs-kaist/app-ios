@@ -42,7 +42,7 @@ struct CompactTimetableSelector: View {
           do {
             try await timetableViewModel.createTable()
           } catch {
-            // TODO: Handle error
+            timetableViewModel.handleException(error: error, type: .createTable)
           }
         }
       }
@@ -53,7 +53,7 @@ struct CompactTimetableSelector: View {
           do {
             try await timetableViewModel.deleteTable()
           } catch {
-            // TODO: Handle error
+            timetableViewModel.handleException(error: error, type: .deleteTable)
           }
         }
       }

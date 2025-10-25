@@ -21,6 +21,12 @@ extension Container {
   private var userStorage: Factory<UserStorageProtocol> {
     self { UserStorage() }.singleton
   }
+  
+  // MARK: - Helper
+  @MainActor
+  var crashlyticsHelper: Factory<CrashlyticsHelper> {
+    self { @MainActor in CrashlyticsHelper() }.singleton
+  }
 
   // MARK: - Networking
   private var authPlugin: Factory<AccessTokenPlugin> {

@@ -16,6 +16,7 @@ struct TaxiReportView: View {
   
   @State private var viewModel = TaxiReportViewModel()
   @State private var taxiUser: TaxiUser? = nil
+  @State private var isUploading: Bool = false
   @Environment(\.dismiss) private var dismiss
   
   // MARK: - Dependencies
@@ -75,17 +76,29 @@ struct TaxiReportView: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {        
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Done", systemImage: "arrow.up", role: .confirm) {
-            Task {
-              do {
-                try await viewModel.createReport(roomID: room.id)
-                dismiss()
-              } catch {
-                // TODO: Error Handling
+          Button(
+            role: .confirm,
+            action: {
+              Task {
+                do {
+                  isUploading = true
+                  defer { isUploading = false }
+                  try await viewModel.createReport(roomID: room.id)
+                  dismiss()
+                } catch {
+                  viewModel.handleException(error)
+                }
+              }
+            }, label: {
+              if isUploading {
+                ProgressView()
+                  .tint(.white)
+              } else {
+                Label("Done", systemImage: "arrow.up")
               }
             }
-          }
-          .disabled(!isValid)
+          )
+          .disabled(!isValid || isUploading)
         }
       }
     }
