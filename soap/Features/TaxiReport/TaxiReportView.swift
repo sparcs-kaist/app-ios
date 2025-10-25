@@ -98,8 +98,7 @@ struct TaxiReportView: View {
               }
             }
           )
-          .disabled(!isValid)
-          .disabled(isUploading)
+          .disabled(!isValid || isUploading)
         }
       }
     }
