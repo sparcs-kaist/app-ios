@@ -84,39 +84,43 @@ struct TaxiChatListView: View {
 
   @ViewBuilder
   private func loadedView(onGoing: [TaxiRoom], done: [TaxiRoom]) -> some View {
-    LazyVStack(spacing: 12) {
-      HStack {
-        Text("Active Groups")
-          .font(.title3)
-          .fontWeight(.bold)
+    if !onGoing.isEmpty {
+      LazyVStack(spacing: 12) {
+        HStack {
+          Text("Active Groups")
+            .font(.title3)
+            .fontWeight(.bold)
 
-        Spacer()
-      }
+          Spacer()
+        }
 
-      ForEach(onGoing) { room in
-        TaxiRoomCell(room: room, withOutBackground: false)
-          .environment(\.taxiUser, viewModel.taxiUser)
-          .onTapGesture {
-            selectedRoom = room
-          }
+        ForEach(onGoing) { room in
+          TaxiRoomCell(room: room, withOutBackground: false)
+            .environment(\.taxiUser, viewModel.taxiUser)
+            .onTapGesture {
+              selectedRoom = room
+            }
+        }
       }
     }
 
-    LazyVStack(spacing: 12) {
-      HStack {
-        Text("Past Groups")
-          .font(.title3)
-          .fontWeight(.bold)
+    if !done.isEmpty {
+      LazyVStack(spacing: 12) {
+        HStack {
+          Text("Past Groups")
+            .font(.title3)
+            .fontWeight(.bold)
 
-        Spacer()
-      }
+          Spacer()
+        }
 
-      ForEach(done) { room in
-        TaxiRoomCell(room: room, withOutBackground: false)
-          .environment(\.taxiUser, viewModel.taxiUser)
-          .onTapGesture {
-            selectedRoom = room
-          }
+        ForEach(done) { room in
+          TaxiRoomCell(room: room, withOutBackground: false)
+            .environment(\.taxiUser, viewModel.taxiUser)
+            .onTapGesture {
+              selectedRoom = room
+            }
+        }
       }
     }
   }
