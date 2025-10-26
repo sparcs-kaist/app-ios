@@ -244,7 +244,7 @@ struct PostCommentCell: View {
   private func report(type: AraContentReportType) async {
     do {
       try await araCommentRepository
-        .reportComment(commentID: comment.id, type: .defamation)
+        .reportComment(commentID: comment.id, type: type)
       showAlert(title: String(localized: "Report Submitted"), content: String(localized: "Your report has been submitted successfully."))
     } catch {
       crashlyticsHelper.recordException(error: error, showAlert: false)

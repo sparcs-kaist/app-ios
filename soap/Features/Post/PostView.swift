@@ -490,7 +490,7 @@ struct PostView: View {
   
   private func report(type: AraContentReportType) async {
     do {
-      try await viewModel.report(type: .hateSpeech)
+      try await viewModel.report(type: type)
       showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
     } catch {
       viewModel.handleException(error)
