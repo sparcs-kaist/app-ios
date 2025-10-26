@@ -84,7 +84,7 @@ struct LectureSearchView: View {
                   do {
                     try await timetableViewModel.addLecture(lecture: lecture)
                   } catch {
-                    // TODO: - Handle error
+                    timetableViewModel.handleException(error: error, type: .addLecture)
                   }
                 }
               },

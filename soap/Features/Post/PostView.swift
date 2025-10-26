@@ -119,40 +119,11 @@ struct PostView: View {
       if viewModel.post.isMine == false {
         // show report and block menus
         Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-          Button("Hate Speech") {
-            Task {
-              try? await viewModel.report(type: .hateSpeech)
-              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-            }
-          }
-          Button("Unauthorized Sales") {
-            Task {
-              try? await viewModel.report(type: .unauthorizedSales)
-              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-            }
-          }
-          Button("Spam") {
-            Task {
-              try? await viewModel.report(type: .spam)
-              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-            }
-          }
-          Button("False Information") {
-            Task {
-              try? await viewModel.report(type: .falseInformation)
-              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-            }
-          }
-          Button("Defamation") {
-            Task {
-              try? await viewModel.report(type: .defamation)
-              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-            }
-          }
-          Button("Other") {
-            Task {
-              try? await viewModel.report(type: .other)
-              showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+          ForEach(AraContentReportType.allCases, id: \.self) { type in
+            Button(type.prettyString) {
+              Task {
+                await report(type: type)
+              }
             }
           }
         }
@@ -424,7 +395,8 @@ struct PostView: View {
               }
             } catch {
               logger.error(error)
-              // TODO: handle error here
+              viewModel.handleException(error)
+              showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a comment. Please try again later."))
             }
           }
         }, label: {
@@ -514,6 +486,16 @@ struct PostView: View {
     alertTitle = title
     alertMessage = message
     showAlert = true
+  }
+  
+  private func report(type: AraContentReportType) async {
+    do {
+      try await viewModel.report(type: type)
+      showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+    } catch {
+      viewModel.handleException(error)
+      showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
+    }
   }
 }
 

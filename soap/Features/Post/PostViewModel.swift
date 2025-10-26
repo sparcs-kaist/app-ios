@@ -25,6 +25,7 @@ protocol PostViewModelProtocol: Observable {
   func summarisedContent() async -> String
   func deletePost() async throws
   func toggleBookmark() async
+  func handleException(_ error: Error)
 }
 
 @Observable
@@ -45,6 +46,9 @@ class PostViewModel: PostViewModelProtocol {
   @ObservationIgnored @Injected(
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
+  @ObservationIgnored @Injected(
+    \.crashlyticsHelper
+  ) private var crashlyticsHelper: CrashlyticsHelper
 
   // MARK: - Initialiser
   init(post: AraPost) {
@@ -215,5 +219,9 @@ class PostViewModel: PostViewModelProtocol {
       logger.error(error)
       post.myScrap = previousBookmarkStatus
     }
+  }
+  
+  func handleException(_ error: any Error) {
+    crashlyticsHelper.recordException(error: error, showAlert: false)
   }
 }

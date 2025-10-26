@@ -536,6 +536,183 @@
         }
       }
     },
+    "An unexpected error occurred while adding a lecture. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while adding a lecture. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수업을 추가하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while creating a new timetable. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while creating a new timetable. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표를 추가하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while deleting a timetable. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while deleting a timetable. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표를 삭제하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while loading timetables. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while loading timetables. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표를 불러오는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while removing a lecture. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while removing a lecture. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수업을 제거하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while reporting a comment. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while reporting a comment. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글을 신고하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while reporting a post. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while reporting a post. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글을 신고하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while reporting a user. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while reporting a user. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자를 신고하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while uploading a comment. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while uploading a comment. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글을 업로드하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while uploading a post. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while uploading a post. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글을 업로드하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unknown authentication error occurred." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unknown authentication error occurred."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인증 도중 알 수 없는 오류가 발생했습니다."
+          }
+        }
+      }
+    },
     "Anonymous" : {
       "localizations" : {
         "en" : {
@@ -1156,7 +1333,24 @@
         }
       }
     },
+    "Debug Menu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debug Menu"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디버그 메뉴"
+          }
+        }
+      }
+    },
     "Defamation" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1550,6 +1744,7 @@
       }
     },
     "False Information" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1603,6 +1798,22 @@
         }
       }
     },
+    "Force Crash" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force Crash"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강제로 충돌 발생시키기"
+          }
+        }
+      }
+    },
     "Get Next Class" : {
       "localizations" : {
         "en" : {
@@ -1652,6 +1863,7 @@
       }
     },
     "Hate Speech" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1727,6 +1939,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "유효하지 않은 초대"
+          }
+        }
+      }
+    },
+    "Invoke Exception" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invoke Exception"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강제로 오류 발생시키기"
           }
         }
       }
@@ -2427,6 +2655,7 @@
       }
     },
     "Other" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3071,6 +3300,22 @@
         }
       }
     },
+    "Send Crash Reports" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send Crash Reports"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오류 보고서 전송"
+          }
+        }
+      }
+    },
     "Send Feedback" : {
       "localizations" : {
         "en" : {
@@ -3327,7 +3572,41 @@
         }
       }
     },
+    "Sign out failed." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out failed."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그 아웃 실패"
+          }
+        }
+      }
+    },
+    "Something went wrong. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something went wrong. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
     "Spam" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3817,6 +4096,7 @@
       }
     },
     "Unauthorized Sales" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

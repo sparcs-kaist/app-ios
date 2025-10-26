@@ -29,6 +29,7 @@ struct FeedCommentRow: View {
   @Injected(
     \.feedCommentRepository
   ) private var feedCommentRepository: FeedCommentRepositoryProtocol
+  @ObservationIgnored @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
@@ -112,7 +113,8 @@ struct FeedCommentRow: View {
                     try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
                     showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                   } catch {
-                    // TODO: error handling
+                    crashlyticsHelper.recordException(error: error, showAlert: false)
+                    showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
                   }
                 }
               }

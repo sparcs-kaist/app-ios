@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import FirebaseCrashlytics
 
 struct SettingsView: View {
   @Environment(\.openURL) private var openURL
   @State private var viewModel: SettingsViewModel
   @State private var showLogoutError: Bool = false
+  @State private var isCrashlyticsEnabled: Bool = false
   
   init(_ viewModel: SettingsViewModel = .init()) {
     self.viewModel = viewModel
@@ -41,12 +43,29 @@ struct SettingsView: View {
           }
           .foregroundStyle(.red)
         }
+        
+        Section(header: Text("Debug Menu")) {
+          #if DEBUG
+          Button("Force Crash", systemImage: "exclamationmark.triangle") {
+            fatalError("DEBUG: User forced a crash")
+          }
+          Button("Invoke Exception", systemImage: "exclamationmark.triangle") {
+            viewModel.handleException(NSError(domain: "Test", code: 1001))
+          }
+          #endif
+        }
       }
       .navigationTitle(Text("Settings"))
       .alert("Error", isPresented: $showLogoutError) {
         Button(role: .confirm) { }
       } message: {
         Text("An error occurred while signing out. Please try again later.")
+      }
+      .onAppear {
+        isCrashlyticsEnabled = Crashlytics.crashlytics().isCrashlyticsCollectionEnabled()
+      }
+      .onChange(of: isCrashlyticsEnabled) {
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(isCrashlyticsEnabled)
       }
     }
   }
@@ -63,6 +82,10 @@ struct SettingsView: View {
           openURL(url)
         }
       }
+      Toggle(isOn: $isCrashlyticsEnabled) {
+        Label("Send Crash Reports", systemImage: "lightbulb")
+      }
+      .foregroundStyle(.primary)
     }
   }
   

@@ -199,6 +199,22 @@
         }
       }
     },
+    "Defamation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Defamation"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "명예훼손"
+          }
+        }
+      }
+    },
     "ETC" : {
       "localizations" : {
         "en" : {
@@ -263,6 +279,22 @@
         }
       }
     },
+    "False Information" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "False Information"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "거짓 정보"
+          }
+        }
+      }
+    },
     "Fri" : {
       "localizations" : {
         "en" : {
@@ -275,6 +307,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "금"
+          }
+        }
+      }
+    },
+    "Hate Speech" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hate Speech"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "혐오 발언"
           }
         }
       }
@@ -451,6 +499,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "진행 중"
+          }
+        }
+      }
+    },
+    "Other" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기타"
           }
         }
       }
@@ -697,6 +761,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "화"
+          }
+        }
+      }
+    },
+    "Unauthorized Sales" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unauthorized Sales"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허가되지 않은 판매글"
           }
         }
       }

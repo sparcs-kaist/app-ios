@@ -12,6 +12,7 @@ import Factory
 struct ContentView: View {
   @Bindable private var viewModel = ContentViewModel()
   @Environment(\.scenePhase) private var scenePhase
+  @InjectedObservable(\.crashlyticsHelper) private var crashlyticsHelper
 
   var body: some View {
     ZStack {
@@ -34,6 +35,11 @@ struct ContentView: View {
         }
       }
     }
+    .alert("Error", isPresented: $crashlyticsHelper.showAlert, actions: {
+      Button(role: .confirm) { }
+    }, message: {
+      Text(crashlyticsHelper.alertMessage)
+    })
   }
 }
 

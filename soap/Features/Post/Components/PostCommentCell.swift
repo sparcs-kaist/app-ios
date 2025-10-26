@@ -18,11 +18,14 @@ struct PostCommentCell: View {
   let onDelete: (() -> Void)?
   let onEdit: (() -> Void)?
 
-  @State private var showReportedAlert: Bool = false
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertContent: String = ""
   @State private var showTranslateSheet: Bool = false
 
   // MARK: - Dependencies
   @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol
+  @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
 
   var body: some View {
     // is this comment deleted?
@@ -47,10 +50,10 @@ struct PostCommentCell: View {
         footer
       }
     }
-    .alert("Report Submitted", isPresented: $showReportedAlert, actions: {
+    .alert(alertTitle, isPresented: $showAlert, actions: {
       Button("Okay", role: .close) { }
     }, message: {
-      Text("Your report has been submitted successfully.")
+      Text(alertContent)
     })
     .translationPresentation(isPresented: $showTranslateSheet, text: comment.content ?? "")
   }
@@ -113,40 +116,11 @@ struct PostCommentCell: View {
       if comment.isMine == false {
         // show report menu
         Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-          Button("Hate Speech") {
-            Task {
-              try? await araCommentRepository
-                .reportComment(commentID: comment.id, type: .hateSpeech)
-              showReportedAlert = true
-            }
-          }
-          Button("Unauthorized Sales") {
-            Task {
-              try? await araCommentRepository
-                .reportComment(commentID: comment.id, type: .unauthorizedSales)
-              showReportedAlert = true
-            }
-          }
-          Button("Spam") { }
-          Button("False Information") {
-            Task {
-              try? await araCommentRepository
-                .reportComment(commentID: comment.id, type: .falseInformation)
-              showReportedAlert = true
-            }
-          }
-          Button("Defamation") {
-            Task {
-              try? await araCommentRepository
-                .reportComment(commentID: comment.id, type: .defamation)
-              showReportedAlert = true
-            }
-          }
-          Button("Other") {
-            Task {
-              try? await araCommentRepository
-                .reportComment(commentID: comment.id, type: .other)
-              showReportedAlert = true
+          ForEach(AraContentReportType.allCases, id: \.self) { type in
+            Button(type.prettyString) {
+              Task {
+                await report(type: type)
+              }
             }
           }
         }
@@ -265,6 +239,23 @@ struct PostCommentCell: View {
       comment.downvotes = previousDownvotes
       comment.myVote = previousMyVote
     }
+  }
+  
+  private func report(type: AraContentReportType) async {
+    do {
+      try await araCommentRepository
+        .reportComment(commentID: comment.id, type: type)
+      showAlert(title: String(localized: "Report Submitted"), content: String(localized: "Your report has been submitted successfully."))
+    } catch {
+      crashlyticsHelper.recordException(error: error, showAlert: false)
+      showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
+    }
+  }
+  
+  private func showAlert(title: String, content: String) {
+    alertTitle = title
+    alertContent = content
+    showAlert = true
   }
 }
 
