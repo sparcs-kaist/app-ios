@@ -31,6 +31,7 @@ struct TaxiChatAccountBubble: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .fixedSize()
+            .fontWeight(.semibold)
           Text(bank)
             .fontWeight(.semibold)
           Text(accountNumber)
