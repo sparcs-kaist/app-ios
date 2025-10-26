@@ -34,7 +34,7 @@ struct TaxiChatUserWrapper<Content: View>: View {
           }
         } else {
           // spacer for me
-          Spacer(minLength: 60)
+          Spacer(minLength: 40)
         }
 
         VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
@@ -53,7 +53,7 @@ struct TaxiChatUserWrapper<Content: View>: View {
 
         // spacer for other users
         if !isMe {
-          Spacer(minLength: 60)
+          Spacer(minLength: 40)
         }
       }
     }

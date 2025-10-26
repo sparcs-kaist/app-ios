@@ -161,6 +161,9 @@ struct TaxiListView: View {
       if viewModel.invitedRoom == nil { return }
       selectedRoom = viewModel.invitedRoom
     }
+    .refreshable {
+      await viewModel.fetchData(inviteId: nil)
+    }
   }
 
 

@@ -28,11 +28,17 @@ struct TaxiChatAccountBubble: View {
 
         HStack(spacing: 4) {
           Image(systemName: "wonsign.bank.building")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .fixedSize()
             .fontWeight(.semibold)
           Text(bank)
             .fontWeight(.semibold)
           Text(accountNumber)
         }
+        .lineLimit(1)
+        .minimumScaleFactor(0.75)
+        .scaledToFit()
       } else {
         Text("Failed to parse account information.")
       }
