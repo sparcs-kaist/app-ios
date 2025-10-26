@@ -30,7 +30,7 @@ struct TaxiChatAccountBubble: View {
           Image(systemName: "wonsign.bank.building")
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .fontWeight(.semibold)
+            .fixedSize()
           Text(bank)
             .fontWeight(.semibold)
           Text(accountNumber)
