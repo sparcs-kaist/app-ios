@@ -222,6 +222,6 @@ class PostViewModel: PostViewModelProtocol {
   }
   
   func handleException(_ error: any Error) {
-    crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while uploading a comment. Please try again later.")
+    crashlyticsHelper.recordException(error: error, showAlert: false)
   }
 }

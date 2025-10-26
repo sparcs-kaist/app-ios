@@ -1350,6 +1350,7 @@
       }
     },
     "Defamation" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1743,6 +1744,7 @@
       }
     },
     "False Information" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1861,6 +1863,7 @@
       }
     },
     "Hate Speech" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2652,6 +2655,7 @@
       }
     },
     "Other" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3602,6 +3606,7 @@
       }
     },
     "Spam" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4091,6 +4096,7 @@
       }
     },
     "Unauthorized Sales" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
