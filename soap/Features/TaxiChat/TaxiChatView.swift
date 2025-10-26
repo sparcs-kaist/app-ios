@@ -98,7 +98,7 @@ struct TaxiChatView: View {
       isPresented: $showPayMoneyAlert,
       actions: {
         Button("Open Kakao Pay", role: .confirm) {
-          openKakaoPay()
+          openKakaoPay(account: viewModel.account)
         }
         Button("Open Toss", role: .confirm) {
           openToss(account: viewModel.account)
@@ -416,7 +416,10 @@ struct TaxiChatView: View {
     }
   }
 
-  private func openKakaoPay() {
+  private func openKakaoPay(account: String?) {
+    let accountNo = String(account?.split(separator: " ").last ?? "")
+    UIPasteboard.general.string = String(accountNo)
+    
     if let url = URL(
       string:
         "kakaotalk://kakaopay/money/to/bank"
