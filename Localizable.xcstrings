@@ -470,6 +470,22 @@
         }
       }
     },
+    "Already Departed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already Departed"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 출발함"
+          }
+        }
+      }
+    },
     "Already Sent" : {
       "localizations" : {
         "en" : {
@@ -3168,6 +3184,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "택시"
+          }
+        }
+      }
+    },
+    "Room Limit Reached" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room Limit Reached"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "참여 가능 방 한도 도달"
+          }
+        }
+      }
+    },
+    "Room Settlement Required" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room Settlement Required"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기존 방 정산 미완료"
           }
         }
       }

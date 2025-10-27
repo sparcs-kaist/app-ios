@@ -16,6 +16,8 @@ import BuddyDomain
 class TaxiPreviewViewModel {
   // MARK: - Properties
   var taxiUser: TaxiUser?
+  var taxiRooms: (onGoing: [TaxiRoom], done: [TaxiRoom])?
+  var roomCount: Int?
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -27,9 +29,21 @@ class TaxiPreviewViewModel {
   init() {
     Task {
       await fetchTaxiUser()
+      taxiRooms = try? await taxiRoomRepository.fetchMyRooms()
+      roomCount = taxiRooms?.onGoing.count
     }
   }
 
+  var isNotPaid: Bool {
+    guard let user = taxiUser else { return true }
+    guard let room = taxiRooms else { return true }
+    
+    // room.participants.first(where: { $0.id == taxiUser.oid })?.isSettlement ?? .notDeparted
+    return !(room.onGoing.filter { room in
+      room.participants.first(where: { $0.id == user.oid })?.isSettlement == .paymentRequired
+    }.isEmpty)
+  }
+  
   func isJoined(participants: [TaxiParticipant]) -> Bool {
     return participants.first(where: { $0.id == taxiUser?.oid }) != nil
   }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TaxiRoomCreationView: View {
   @State var viewModel: TaxiListViewModelProtocol
+  @State var roomCreationViewModel: TaxiRoomCreationViewModel = .init()
   @Environment(\.dismiss) private var dismiss
 
   @State private var title: String = ""
@@ -78,11 +79,18 @@ struct TaxiRoomCreationView: View {
       Text(errorMessage)
     })
   }
+  
+  private func isTitleValid(_ title: String) -> Bool {
+    do {
+      let regex = try Regex(Constants.taxiRoomNameRegex)
+      return title.wholeMatch(of: regex) != nil
+    } catch {
+      return false
+    }
+  }
 
   var isValid: Bool {
-    return (
-      viewModel.source != nil && viewModel.destination != nil && !title.isEmpty && viewModel.source != viewModel.destination && viewModel.roomDepartureTime > Date()
-    )
+    return viewModel.source != nil && viewModel.destination != nil && !title.isEmpty && viewModel.source != viewModel.destination && viewModel.roomDepartureTime > Date() && isTitleValid(title) && !roomCreationViewModel.isNotPaid
   }
 }
 
