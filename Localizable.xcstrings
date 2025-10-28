@@ -552,6 +552,22 @@
         }
       }
     },
+    "An unexpected error occurred loading user information. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred loading user information. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 정보를 불러오는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
     "An unexpected error occurred while adding a lecture. Please try again later." : {
       "localizations" : {
         "en" : {

@@ -21,17 +21,14 @@ class TaxiRoomCreationViewModel {
   var taxiRooms: (onGoing: [TaxiRoom], done: [TaxiRoom])?
   
   var hasUserPaid: Bool {
-    guard let user = taxiUser else { return true }
-    guard let room = taxiRooms else { return true }
+    guard let user = taxiUser else { return false }
+    guard let room = taxiRooms else { return false }
     
     return user.hasUserPaid(room)
   }
   
-  // MARK: - Initializer
-  init() {
-    Task {
-      self.taxiUser = await userUseCase.taxiUser
-      self.taxiRooms = try? await taxiRoomRepository.fetchMyRooms()
-    }
+  func fetchRoom() async throws {
+    self.taxiUser = await userUseCase.taxiUser
+    self.taxiRooms = try await taxiRoomRepository.fetchMyRooms()
   }
 }

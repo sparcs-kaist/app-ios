@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TaxiRoomCreationView: View {
   @State var viewModel: TaxiListViewModelProtocol
-  @State var roomCreationViewModel: TaxiRoomCreationViewModel = .init()
+  @State var roomCreationViewModel = TaxiRoomCreationViewModel()
   @Environment(\.dismiss) private var dismiss
 
   @State private var title: String = ""
@@ -78,6 +78,14 @@ struct TaxiRoomCreationView: View {
     }, message: {
       Text(errorMessage)
     })
+    .task {
+      do {
+        try await roomCreationViewModel.fetchRoom()
+      } catch {
+        errorMessage = String(localized: "An unexpected error occurred loading user information. Please try again later.")
+        showErrorAlert = true
+      }
+    }
   }
   
   private func isTitleValid(_ title: String) -> Bool {
