@@ -81,12 +81,8 @@ struct TaxiRoomCreationView: View {
   }
   
   private func isTitleValid(_ title: String) -> Bool {
-    do {
-      let regex = try Regex(Constants.taxiRoomNameRegex)
-      return title.wholeMatch(of: regex) != nil
-    } catch {
-      return false
-    }
+    guard let regex = Constants.taxiRoomNameRegex else { return false }
+    return title.wholeMatch(of: regex) != nil
   }
 
   var isValid: Bool {

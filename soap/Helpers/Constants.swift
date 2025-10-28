@@ -43,7 +43,7 @@ enum Constants {
   ]
   
   // MARK: Taxi
-  static let taxiRoomNameRegex = #"^[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ,.?! _~/#'@="^()+*<>{}\\\[\]\-]{1,50}$"#
+  @MainActor static let taxiRoomNameRegex = try? Regex(#"^[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ,.?! _~/#'@="^()+*<>{}\\\[\]\-]{1,50}$"#)
   
   static let taxiBankNameList = Array(taxiBankCodeMap.keys)
 
