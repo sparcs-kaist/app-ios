@@ -114,7 +114,7 @@ struct TaxiPreviewView: View {
               else if let count = viewModel.roomCount, count >= 5 {
                 Label("Room Limit Reached", systemImage: "car.2.fill")
               }
-              else if viewModel.isNotPaid {
+              else if !viewModel.hasUserPaid {
                 Label("Room Settlement Required", systemImage: "car.2.fill")
               }
               else {
@@ -142,7 +142,7 @@ struct TaxiPreviewView: View {
     // if viewModel.roomCount is nil, fallback to the default value of 5 which disables join button
     room.participants.count >= room.capacity || viewModel
       .isJoined(participants: room.participants) || room
-      .isDeparted || (viewModel.roomCount ?? 5) >= 5 || viewModel.isNotPaid
+      .isDeparted || (viewModel.roomCount ?? 5) >= 5 || !viewModel.hasUserPaid
   }
 }
 

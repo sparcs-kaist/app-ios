@@ -34,11 +34,11 @@ class TaxiPreviewViewModel {
     }
   }
 
-  var isNotPaid: Bool {
-    guard let user = taxiUser else { return true }
-    guard let room = taxiRooms else { return true }
+  var hasUserPaid: Bool {
+    guard let user = taxiUser else { return false }
+    guard let room = taxiRooms else { return false }
         
-    return !user.hasUserPaid(room)
+    return user.hasUserPaid(room)
   }
   
   func isJoined(participants: [TaxiParticipant]) -> Bool {
