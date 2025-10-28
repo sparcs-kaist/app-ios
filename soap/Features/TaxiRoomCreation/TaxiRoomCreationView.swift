@@ -90,7 +90,7 @@ struct TaxiRoomCreationView: View {
   }
 
   var isValid: Bool {
-    return viewModel.source != nil && viewModel.destination != nil && !title.isEmpty && viewModel.source != viewModel.destination && viewModel.roomDepartureTime > Date() && isTitleValid(title) && !roomCreationViewModel.isNotPaid
+    return viewModel.source != nil && viewModel.destination != nil && !title.isEmpty && viewModel.source != viewModel.destination && viewModel.roomDepartureTime > Date() && isTitleValid(title) && roomCreationViewModel.hasUserPaid
   }
 }
 

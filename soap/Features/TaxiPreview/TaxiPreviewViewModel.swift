@@ -37,11 +37,8 @@ class TaxiPreviewViewModel {
   var isNotPaid: Bool {
     guard let user = taxiUser else { return true }
     guard let room = taxiRooms else { return true }
-    
-    // room.participants.first(where: { $0.id == taxiUser.oid })?.isSettlement ?? .notDeparted
-    return !(room.onGoing.filter { room in
-      room.participants.first(where: { $0.id == user.oid })?.isSettlement == .paymentRequired
-    }.isEmpty)
+        
+    return !user.hasUserPaid(room)
   }
   
   func isJoined(participants: [TaxiParticipant]) -> Bool {
