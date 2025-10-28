@@ -139,9 +139,10 @@ struct TaxiPreviewView: View {
   }
   
   private var isJoinButtonDisabled: Bool {
+    // if viewModel.roomCount is nil, fallback to the default value of 5 which disables join button
     room.participants.count >= room.capacity || viewModel
       .isJoined(participants: room.participants) || room
-      .isDeparted || (viewModel.roomCount != nil && viewModel.roomCount! >= 5) || viewModel.isNotPaid
+      .isDeparted || (viewModel.roomCount ?? 5) >= 5 || viewModel.isNotPaid
   }
 }
 
