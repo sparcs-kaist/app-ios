@@ -20,6 +20,8 @@ struct FeedPostComposeView: View {
   @State private var showAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
+  
+  @FocusState private var isFocused: Bool
 
   var body: some View {
     NavigationStack {
@@ -34,6 +36,7 @@ struct FeedPostComposeView: View {
             .writingToolsBehavior(.complete)
             .padding(.horizontal)
             .disabled(isUploading)
+            .focused($isFocused)
 
           HStack {
             Spacer()
@@ -92,9 +95,8 @@ struct FeedPostComposeView: View {
         }
       }
       .toolbar {
-        ToolbarSpacer(.flexible, placement: .bottomBar)
-
-        ToolbarItem(placement: .bottomBar) {
+        ToolbarItemGroup(placement: .keyboard) {
+          Spacer()
           Button("Photo Library", systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
@@ -109,6 +111,9 @@ struct FeedPostComposeView: View {
     })
     .task {
       await viewModel.fetchFeedUser()
+    }
+    .onAppear {
+      isFocused = true
     }
     .photosPicker(
       isPresented: $showPhotosPicker,
