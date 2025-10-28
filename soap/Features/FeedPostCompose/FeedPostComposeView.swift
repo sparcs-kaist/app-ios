@@ -16,6 +16,10 @@ struct FeedPostComposeView: View {
 
   @State private var showPhotosPicker: Bool = false
   @State private var isUploading: Bool = false
+  
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
 
   var body: some View {
     NavigationStack {
@@ -70,6 +74,7 @@ struct FeedPostComposeView: View {
                   dismiss()
                 } catch {
                   viewModel.handleException(error)
+                  showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a post. Please try again later."))
                 }
               }
             }, label: {
@@ -97,6 +102,11 @@ struct FeedPostComposeView: View {
         }
       }
     }
+    .alert(alertTitle, isPresented: $showAlert, actions: {
+      Button("Okay") { }
+    }, message: {
+      Text(alertMessage)
+    })
     .task {
       await viewModel.fetchFeedUser()
     }
@@ -172,6 +182,12 @@ struct FeedPostComposeView: View {
             .font(.caption)
         }
     }
+  }
+  
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
   }
 }
 

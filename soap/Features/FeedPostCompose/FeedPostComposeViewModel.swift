@@ -151,6 +151,6 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   }
   
   func handleException(_ error: Error) {
-    crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while uploading a post. Please try again later.")
+    crashlyticsHelper.recordException(error: error, showAlert: false)
   }
 }
