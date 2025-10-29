@@ -4390,6 +4390,22 @@
         }
       }
     },
+    "You are not connected to the Internet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You are not connected to the Internet."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인터넷에 연결되어 있지 않습니다."
+          }
+        }
+      }
+    },
     "You are participating in more than 5 rooms. To create a room, please settle an existing room." : {
       "localizations" : {
         "en" : {
