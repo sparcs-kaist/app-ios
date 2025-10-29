@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
-    "Failed to load user information. " : {
+    "Failed to load user information." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12,7 +12,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "사용자 정보를 불러올 수 없습니다. "
+            "value" : "사용자 정보를 불러올 수 없습니다."
           }
         }
       }

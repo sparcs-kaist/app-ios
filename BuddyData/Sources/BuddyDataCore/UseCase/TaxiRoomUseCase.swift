@@ -24,7 +24,7 @@ public final class TaxiRoomUseCase: TaxiRoomUseCaseProtocol {
   public func isBlocked() async -> TaxiRoomBlockStatus {
     guard let taxiUser = await userStorage.getTaxiUser(),
           let taxiRooms = try? await taxiRoomRepository.fetchMyRooms().onGoing else {
-      return .error(errorMessage: String(localized: "Failed to load user information. "))
+      return .error(errorMessage: String(localized: "Failed to load user information."))
     }
     
     if !taxiUser.hasUserPaid(taxiRooms) {
