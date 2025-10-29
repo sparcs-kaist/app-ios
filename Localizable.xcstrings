@@ -1350,6 +1350,7 @@
       }
     },
     "Debug Menu" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1815,6 +1816,7 @@
       }
     },
     "Force Crash" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1960,6 +1962,7 @@
       }
     },
     "Invoke Exception" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4386,6 +4389,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "익명으로 쓰기"
+          }
+        }
+      }
+    },
+    "You are not connected to the Internet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You are not connected to the Internet."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인터넷에 연결되어 있지 않습니다."
           }
         }
       }
