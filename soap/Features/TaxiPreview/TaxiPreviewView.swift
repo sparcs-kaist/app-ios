@@ -107,7 +107,17 @@ struct TaxiPreviewView: View {
                 Label("Joined", systemImage: "car.2.fill")
               } else if room.participants.count >= room.capacity || viewModel.isJoined(participants: room.participants) {
                 Label("This group is full", systemImage: "car.2.fill")
-              } else {
+              }
+              else if room.isDeparted {
+                Label("Already Departed", systemImage: "car.2.fill")
+              }
+              else if viewModel.blockStatus == .tooManyRooms {
+                Label("Room Limit Reached", systemImage: "car.2.fill")
+              }
+              else if viewModel.blockStatus == .notPaid {
+                Label("Room Settlement Required", systemImage: "car.2.fill")
+              }
+              else {
                 Label("Join", systemImage: "car.2.fill")
               }
             }
@@ -115,10 +125,7 @@ struct TaxiPreviewView: View {
           }
           .buttonStyle(.glassProminent)
           .buttonBorderShape(.roundedRectangle(radius: 36))
-          .disabled(
-            room.participants.count >= room.capacity || viewModel
-              .isJoined(participants: room.participants)
-          )
+          .disabled(isJoinButtonDisabled)
         }
       }
       .padding()
@@ -129,6 +136,13 @@ struct TaxiPreviewView: View {
       Text(errorMessage)
     })
     .ignoresSafeArea()
+  }
+  
+  private var isJoinButtonDisabled: Bool {
+    room.participants.count >= room.capacity
+    || viewModel.isJoined(participants: room.participants)
+    || room.isDeparted
+    || viewModel.blockStatus != .allow
   }
 }
 

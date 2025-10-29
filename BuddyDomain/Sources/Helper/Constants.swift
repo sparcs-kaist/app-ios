@@ -16,3 +16,8 @@ public func dateOnSameDay(minutes: Int, date: Date, calendar: Calendar) -> Date?
   comps.second = 0
   return calendar.date(from: comps)
 }
+
+public enum Constants {
+  // MARK: - Taxi
+  public static let taxiMaxRoomCount = 5
+}

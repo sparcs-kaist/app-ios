@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Failed to load user information." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load user information."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 정보를 불러올 수 없습니다."
+          }
+        }
+      }
+    },
     "My Table" : {
       "localizations" : {
         "en" : {

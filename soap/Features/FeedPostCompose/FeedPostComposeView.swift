@@ -16,6 +16,12 @@ struct FeedPostComposeView: View {
 
   @State private var showPhotosPicker: Bool = false
   @State private var isUploading: Bool = false
+  
+  @State private var showAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertMessage: String = ""
+  
+  @FocusState private var isFocused: Bool
 
   var body: some View {
     NavigationStack {
@@ -30,6 +36,7 @@ struct FeedPostComposeView: View {
             .writingToolsBehavior(.complete)
             .padding(.horizontal)
             .disabled(isUploading)
+            .focused($isFocused)
 
           HStack {
             Spacer()
@@ -70,6 +77,7 @@ struct FeedPostComposeView: View {
                   dismiss()
                 } catch {
                   viewModel.handleException(error)
+                  showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a post. Please try again later."))
                 }
               }
             }, label: {
@@ -87,9 +95,8 @@ struct FeedPostComposeView: View {
         }
       }
       .toolbar {
-        ToolbarSpacer(.flexible, placement: .bottomBar)
-
-        ToolbarItem(placement: .bottomBar) {
+        ToolbarItemGroup(placement: .keyboard) {
+          Spacer()
           Button("Photo Library", systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
@@ -97,8 +104,16 @@ struct FeedPostComposeView: View {
         }
       }
     }
+    .alert(alertTitle, isPresented: $showAlert, actions: {
+      Button("Okay") { }
+    }, message: {
+      Text(alertMessage)
+    })
     .task {
       await viewModel.fetchFeedUser()
+    }
+    .onAppear {
+      isFocused = true
     }
     .photosPicker(
       isPresented: $showPhotosPicker,
@@ -114,14 +129,17 @@ struct FeedPostComposeView: View {
     HStack {
       profileImage
 
-      Picker(selection: $viewModel.selectedComposeType, label: EmptyView()) {
-        Text(viewModel.feedUser?.nickname ?? "")
-          .tag(FeedPostComposeViewModel.ComposeType.publicly)
-
-        Text("Anonymous")
-          .tag(FeedPostComposeViewModel.ComposeType.anonymously)
+      Menu {
+        Picker(selection: $viewModel.selectedComposeType, label: EmptyView()) {
+          ForEach(FeedPostComposeViewModel.ComposeType.allCases) { type in
+            Text(type.prettyString(nickname: viewModel.feedUser?.nickname))
+              .tag(type)
+          }
+        }
+      } label: {
+        Text(viewModel.selectedComposeType.prettyString(nickname: viewModel.feedUser?.nickname))
+          .lineLimit(1)
       }
-      .pickerStyle(.menu)
       .tint(.primary)
       .buttonStyle(.glass)
 
@@ -172,6 +190,12 @@ struct FeedPostComposeView: View {
             .font(.caption)
         }
     }
+  }
+  
+  private func showAlert(title: String, message: String) {
+    alertTitle = title
+    alertMessage = message
+    showAlert = true
   }
 }
 

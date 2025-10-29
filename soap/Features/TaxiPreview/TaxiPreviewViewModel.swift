@@ -16,20 +16,23 @@ import BuddyDomain
 class TaxiPreviewViewModel {
   // MARK: - Properties
   var taxiUser: TaxiUser?
+  var blockStatus: TaxiRoomBlockStatus = .allow
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiRoomUseCase) private var taxiRoomUseCase: TaxiRoomUseCaseProtocol
 
   //MARK: - Initialiser
   init() {
     Task {
       await fetchTaxiUser()
+      await fetchBlockStatus()
     }
   }
-
+  
   func isJoined(participants: [TaxiParticipant]) -> Bool {
     return participants.first(where: { $0.id == taxiUser?.oid }) != nil
   }
@@ -56,5 +59,9 @@ class TaxiPreviewViewModel {
 
   private func fetchTaxiUser() async {
     self.taxiUser = await userUseCase.taxiUser
+  }
+  
+  private func fetchBlockStatus() async {
+    self.blockStatus = await taxiRoomUseCase.isBlocked()
   }
 }

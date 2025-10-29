@@ -265,5 +265,8 @@ struct FeedPostView: View {
 }
 
 #Preview {
-  FeedPostView(post: .constant(FeedPost.mock), onDelete: nil)
+  NavigationStack {
+    FeedPostView(post: .constant(FeedPost.mock), onDelete: nil)
+      .environment(SpoilerContents())
+  }
 }

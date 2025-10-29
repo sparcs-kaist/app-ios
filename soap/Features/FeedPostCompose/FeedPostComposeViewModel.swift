@@ -26,9 +26,20 @@ protocol FeedPostComposeViewModelProtocol: Observable {
 
 @Observable
 class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
-  enum ComposeType: Int, Hashable {
+  enum ComposeType: Int, Hashable, CaseIterable, Identifiable {
     case publicly = 0
     case anonymously = 1
+    
+    var id: Self { self }
+    
+    func prettyString(nickname: String?) -> String {
+      switch self {
+      case .anonymously:
+        return String(localized: "Anonymous")
+      case .publicly:
+        return nickname ?? ""
+      }
+    }
   }
 
   // MARK: - Properties
@@ -151,6 +162,6 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   }
   
   func handleException(_ error: Error) {
-    crashlyticsHelper.recordException(error: error, alertMessage: "An unexpected error occurred while uploading a post. Please try again later.")
+    crashlyticsHelper.recordException(error: error, showAlert: false)
   }
 }

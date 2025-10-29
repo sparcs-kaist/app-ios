@@ -8,14 +8,6 @@
 import Foundation
 
 enum Constants {
-  static let taxiChatImageURL = {
-    #if DEBUG
-    return URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
-    #else
-    return URL(string: "https://sparcs-taxi-prod.s3.ap-northeast-2.amazonaws.com/chat-img")!
-    #endif
-  }()
-
   // MARK: Infinite Scroll Constants
   static let loadMoreThreshold = 0.6
   
@@ -49,6 +41,10 @@ enum Constants {
     "KDB산업": "002",
     "산림": "064"
   ]
+  
+  // MARK: Taxi
+  @MainActor static let taxiRoomNameRegex = try? Regex(#"^[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ,.?! _~/#'@="^()+*<>{}\\\[\]\-]{1,50}$"#)
+  
   static let taxiBankNameList = Array(taxiBankCodeMap.keys)
 
   static let taxiInviteURL = {
@@ -56,6 +52,14 @@ enum Constants {
     return URL(string: "https://taxi.dev.sparcs.org/invite/")!
     #else
     return URL(string: "https://taxi.sparcs.org/invite/")!
+    #endif
+  }()
+  
+  static let taxiChatImageURL = {
+    #if DEBUG
+    return URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
+    #else
+    return URL(string: "https://sparcs-taxi-prod.s3.ap-northeast-2.amazonaws.com/chat-img")!
     #endif
   }()
 }

@@ -470,6 +470,22 @@
         }
       }
     },
+    "Already Departed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already Departed"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 출발함"
+          }
+        }
+      }
+    },
     "Already Sent" : {
       "localizations" : {
         "en" : {
@@ -3172,6 +3188,38 @@
         }
       }
     },
+    "Room Limit Reached" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room Limit Reached"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "참여 가능 방 한도 도달"
+          }
+        }
+      }
+    },
+    "Room Settlement Required" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room Settlement Required"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기존 방 정산 미완료"
+          }
+        }
+      }
+    },
     "Search" : {
       "localizations" : {
         "en" : {
@@ -3833,6 +3881,22 @@
         }
       }
     },
+    "There are rooms for which settlement has not been completed. To create a room, please settle an existing room." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are rooms for which settlement has not been completed. To create a room, please settle an existing room."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정산이 완료되지 않은 방이 있습니다. 새로운 방을 생성하려면 기존의 방의 정산을 완료해 주세요."
+          }
+        }
+      }
+    },
     "There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment." : {
       "localizations" : {
         "en" : {
@@ -4322,6 +4386,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "익명으로 쓰기"
+          }
+        }
+      }
+    },
+    "You are participating in more than 5 rooms. To create a room, please settle an existing room." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You are participating in more than 5 rooms. To create a room, please settle an existing room."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 5개 이상의 방에 참여하고 있습니다. 새로운 방을 생성하려면 기존의 방의 정산을 완료해 주세요."
           }
         }
       }
