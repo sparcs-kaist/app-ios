@@ -51,8 +51,8 @@ public struct TaxiUser: Identifiable, Hashable, Sendable {
 }
 
 extension TaxiUser {
-  public func hasUserPaid(_ room: (onGoing: [TaxiRoom], done: [TaxiRoom])) -> Bool {
-    return room.onGoing.filter { room in
+  public func hasUserPaid(_ room: [TaxiRoom]) -> Bool {
+    return room.filter { room in
       room.participants.first(where: { $0.id == self.oid })?.isSettlement == .paymentRequired
     }.isEmpty
   }

@@ -13,8 +13,9 @@ struct TaxiRoomCreationView: View {
   @Environment(\.dismiss) private var dismiss
 
   @State private var title: String = ""
-  @State private var showErrorAlert: Bool = false
-  @State private var errorMessage: String = ""
+  @State private var showAlert: Bool = false
+  @State private var alertMessage: String = ""
+  @State private var alertTitle: String = ""
 
   init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(wrappedValue: viewModel)
@@ -64,8 +65,9 @@ struct TaxiRoomCreationView: View {
                 await viewModel.fetchData(inviteId: nil)
                 dismiss()
               } catch {
-                self.errorMessage = error.localizedDescription
-                self.showErrorAlert = true
+                self.alertTitle = String(localized: "Error")
+                self.alertMessage = error.localizedDescription
+                self.showAlert = true
               }
             }
           }
@@ -73,24 +75,34 @@ struct TaxiRoomCreationView: View {
         }
       }
     }
-    .alert("Error", isPresented: $showErrorAlert, actions: {
-      Button("Okay", role: .close) { }
-    }, message: {
-      Text(errorMessage)
-    })
     .task {
-      do {
-        try await roomCreationViewModel.fetchRoom()
-      } catch {
-        errorMessage = String(localized: "An unexpected error occurred loading user information. Please try again later.")
-        showErrorAlert = true
+      await roomCreationViewModel.fetchBlockStatus()
+      switch roomCreationViewModel.blockStatus {
+      case .error(let errorMessage):
+        showAlert(title: String(localized: "Error"), message: errorMessage)
+      case .notPaid:
+        showAlert(title: String(localized: "Notice"), message: String(localized: "There are rooms for which settlement has not been completed. To create a room, please settle an existing room."))
+      case .tooManyRooms:
+        showAlert(title: String(localized: "Notice"), message: String(localized: "You are participating in more than 5 rooms. To create a room, please settle an existing room."))
+      default: break
       }
     }
+    .alert(alertTitle, isPresented: $showAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(alertMessage)
+    })
   }
   
   private func isTitleValid(_ title: String) -> Bool {
     guard let regex = Constants.taxiRoomNameRegex else { return false }
     return title.wholeMatch(of: regex) != nil
+  }
+  
+  private func showAlert(title: String, message: String) {
+    self.alertTitle = title
+    self.alertMessage = message
+    self.showAlert = true
   }
 
   var isValid: Bool {
@@ -100,7 +112,7 @@ struct TaxiRoomCreationView: View {
     && viewModel.source != viewModel.destination
     && viewModel.roomDepartureTime > Date()
     && isTitleValid(title)
-    && roomCreationViewModel.hasUserPaid
+    && (roomCreationViewModel.blockStatus == .allow)
   }
 }
 

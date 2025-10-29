@@ -13,22 +13,13 @@ import BuddyDomain
 @Observable
 class TaxiRoomCreationViewModel {
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiRoomUseCase) private var taxiRoomUseCase: TaxiRoomUseCaseProtocol
   
   // MARK: - Properties
-  var taxiUser: TaxiUser?
-  var taxiRooms: (onGoing: [TaxiRoom], done: [TaxiRoom])?
+  var blockStatus: TaxiRoomBlockStatus = .allow
   
-  var hasUserPaid: Bool {
-    guard let user = taxiUser else { return false }
-    guard let room = taxiRooms else { return false }
-    
-    return user.hasUserPaid(room)
-  }
-  
-  func fetchRoom() async throws {
-    self.taxiUser = await userUseCase.taxiUser
-    self.taxiRooms = try await taxiRoomRepository.fetchMyRooms()
+  // MARK: - Functions
+  func fetchBlockStatus() async {
+    self.blockStatus = await taxiRoomUseCase.isBlocked()
   }
 }

@@ -62,5 +62,4 @@ enum Constants {
     return URL(string: "https://sparcs-taxi-prod.s3.ap-northeast-2.amazonaws.com/chat-img")!
     #endif
   }()
-
 }
