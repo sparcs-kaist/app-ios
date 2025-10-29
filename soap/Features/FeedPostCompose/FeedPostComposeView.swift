@@ -129,14 +129,17 @@ struct FeedPostComposeView: View {
     HStack {
       profileImage
 
-      Picker(selection: $viewModel.selectedComposeType, label: EmptyView()) {
-        Text(viewModel.feedUser?.nickname ?? "")
-          .tag(FeedPostComposeViewModel.ComposeType.publicly)
-
-        Text("Anonymous")
-          .tag(FeedPostComposeViewModel.ComposeType.anonymously)
+      Menu {
+        Picker(selection: $viewModel.selectedComposeType, label: EmptyView()) {
+          ForEach(FeedPostComposeViewModel.ComposeType.allCases) { type in
+            Text(type.prettyString(nickname: viewModel.feedUser?.nickname))
+              .tag(type)
+          }
+        }
+      } label: {
+        Text(viewModel.selectedComposeType.prettyString(nickname: viewModel.feedUser?.nickname))
+          .lineLimit(1)
       }
-      .pickerStyle(.menu)
       .tint(.primary)
       .buttonStyle(.glass)
 
