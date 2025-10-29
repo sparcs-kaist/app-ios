@@ -1350,7 +1350,6 @@
       }
     },
     "Debug Menu" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1816,7 +1815,6 @@
       }
     },
     "Force Crash" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1962,7 +1960,6 @@
       }
     },
     "Invoke Exception" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

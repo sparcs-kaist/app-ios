@@ -14,16 +14,20 @@ import Alamofire
 @Observable
 final class CrashlyticsHelper {
   var showAlert: Bool = false
-  var alertMessage: LocalizedStringResource = ""
+  var alertMessage: LocalizedStringResource = LocalizedStringResource(stringLiteral: "")
   
-  func recordException(error: Error, showAlert: Bool = true, alertMessage: LocalizedStringResource = "Something went wrong. Please try again later.") {
+  func recordException(
+    error: Error,
+    showAlert: Bool = true,
+    alertMessage: LocalizedStringResource = LocalizedStringResource(stringLiteral: "Something went wrong. Please try again later.")
+  ) {
     if let error = error as? MoyaError,
        case .underlying(let afError, _) = error,
        let underlyingError = (afError as? Alamofire.AFError)?.underlyingError,
        [NSURLErrorNotConnectedToInternet, NSURLErrorDataNotAllowed].contains((underlyingError as NSError).code)
     {
       self.showAlert = showAlert
-      self.alertMessage = "You are not connected to the Internet."
+      self.alertMessage = LocalizedStringResource(stringLiteral: "You are not connected to the Internet.")
       return
     }
     
