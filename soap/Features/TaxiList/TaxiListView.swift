@@ -119,7 +119,7 @@ struct TaxiListView: View {
           }
         }
       }
-      .navigationTitle("Taxi")
+      .navigationTitle(UIDevice.current.userInterfaceIdiom != .phone ? "" : "Taxi")
       .toolbarTitleDisplayMode(.inlineLarge)
       .background {
         BackgroundGradientView(color: .purple)

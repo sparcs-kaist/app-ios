@@ -66,7 +66,7 @@ struct BoardListView: View {
         .padding()
       }
       .disabled(viewModel.state == .loading)
-      .navigationTitle("Boards")
+      .navigationTitle(UIDevice.current.userInterfaceIdiom != .phone ? "" : "Boards")
       .toolbarTitleDisplayMode(.inlineLarge)
       .task {
         await viewModel.fetchBoards()

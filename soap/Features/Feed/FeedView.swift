@@ -85,7 +85,7 @@ struct FeedView: View {
         .animation(.spring, value: viewModel.posts)
       }
       .disabled(viewModel.state == .loading)
-      .navigationTitle("Feed")
+      .navigationTitle(UIDevice.current.userInterfaceIdiom != .phone ? "" : "Feed")
       .toolbarTitleDisplayMode(.inlineLarge)
       .task {
         await viewModel.fetchInitialData()

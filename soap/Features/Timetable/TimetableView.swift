@@ -62,7 +62,7 @@ struct TimetableView: View {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
         }
-        .navigationTitle("Timetable")
+        .navigationTitle(UIDevice.current.userInterfaceIdiom != .phone ? "" : "Timetable")
         .toolbarTitleDisplayMode(.inlineLarge)
         .background(Color.systemGroupedBackground)
         .toolbar {
