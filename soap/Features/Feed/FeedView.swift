@@ -23,6 +23,10 @@ struct FeedView: View {
   
   @State private var spoilerContents = SpoilerContents()
 
+  init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
+    self._viewModel = State(initialValue: viewModel)
+  }
+  
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -142,7 +146,21 @@ struct FeedView: View {
 }
 
 
+#Preview("Loading State") {
+  @Previewable @State var viewModel = MockFeedViewModel()
+  viewModel.state = .loading
+  
+  return FeedView(viewModel)
+}
 
-#Preview {
-  FeedView()
+#Preview("Loaded State") {
+  @Previewable @State var viewModel = MockFeedViewModel()
+  FeedView(viewModel)
+}
+
+#Preview("Error State") {
+  @Previewable @State var viewModel = MockFeedViewModel()
+  viewModel.state = .error(message: "Something went wrong")
+  
+  return FeedView(viewModel)
 }

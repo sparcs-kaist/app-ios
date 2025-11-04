@@ -19,6 +19,10 @@ struct PostListView: View {
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostListViewModel(board: board))
   }
+  
+  init(viewModel: PostListViewModelProtocol) {
+    _viewModel = State(initialValue: viewModel)
+  }
 
   var body: some View {
     Group {
@@ -92,11 +96,27 @@ struct PostListView: View {
   }
 }
 
-#Preview {
-  NavigationStack {
-    PostListView(board: AraBoard.mock)
+#Preview("Loading State") {
+  @Previewable @State var viewModel = MockPostListViewModel()
+  viewModel.state = .loading
+  
+  return NavigationStack {
+    PostListView(viewModel: viewModel)
   }
 }
 
+#Preview("Loaded State") {
+  @Previewable @State var viewModel = MockPostListViewModel()
+  NavigationStack {
+    PostListView(viewModel: viewModel)
+  }
+}
 
-
+#Preview("Error State") {
+  @Previewable @State var viewModel = MockPostListViewModel()
+  viewModel.state = .error(message: "Something went wrong")
+  
+  return NavigationStack {
+    PostListView(viewModel: viewModel)
+  }
+}

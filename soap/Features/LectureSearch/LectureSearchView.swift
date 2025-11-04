@@ -118,5 +118,6 @@ struct LectureSearchView: View {
 
 #Preview {
   LectureSearchView(detent: .constant(.medium))
+    .environment(TimetableViewModel())
 }
 

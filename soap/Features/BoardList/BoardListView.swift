@@ -46,8 +46,12 @@ struct ListGlassSection<Content: View>: View {
 }
 
 struct BoardListView: View {
-  @State private var viewModel = BoardListViewModel()
+  @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
 
+  init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel()) {
+    _viewModel = State(initialValue: viewModel)
+  }
+  
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -143,6 +147,21 @@ struct BoardListView: View {
 }
 
 
-#Preview {
-  BoardListView()
+#Preview("Loading State") {
+  @Previewable @State var viewModel = MockBoardListViewModel()
+  viewModel.state = .loading
+  
+  return BoardListView(viewModel)
+}
+
+#Preview("Loaded State") {
+  @Previewable @State var viewModel = MockBoardListViewModel()
+  BoardListView(viewModel)
+}
+
+#Preview("Error State") {
+  @Previewable @State var viewModel = MockBoardListViewModel()
+  viewModel.state = .error(message: "Something went wrong")
+  
+  return BoardListView(viewModel)
 }
