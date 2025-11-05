@@ -19,6 +19,7 @@ struct TimetableView: View {
   @FocusState private var isFocused: Bool
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   @AppStorage("NextClassAppIntentsSuggestion") private var siriSuggestion: Bool = true
 
@@ -62,7 +63,7 @@ struct TimetableView: View {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
         }
-        .navigationTitle(UIDevice.current.userInterfaceIdiom != .phone ? "" : "Timetable")
+        .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Timetable") : "")
         .toolbarTitleDisplayMode(.inlineLarge)
         .background(Color.systemGroupedBackground)
         .toolbar {

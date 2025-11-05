@@ -11,11 +11,12 @@ import BuddyDataMocks
 
 struct PostList<Destination: View>: View {
   let posts: [AraPost]?
-  @ViewBuilder let destination: (AraPost) -> Destination
+  @ViewBuilder let destination: (AraPost) -> Destination // TODO: this parameter is not used internally; should be removed when migration to NavigationSplitView is done
   var onRefresh: (() async -> Void)? = nil
   var onLoadMore: (() async -> Void)? = nil
 
   @State private var isLoadingMore: Bool = false
+  @Binding var selectedPost: AraPost?
 
   var body: some View {
     if let posts, posts.isEmpty {
@@ -25,7 +26,7 @@ struct PostList<Destination: View>: View {
         description: Text("It looks like there are no posts on this page right now.")
       )
     } else {
-      List {
+      List(selection: $selectedPost) {
         if posts == nil {
           loadingView
             .redacted(reason: .placeholder)
@@ -44,16 +45,10 @@ struct PostList<Destination: View>: View {
   func loadedView(_ posts: [AraPost]) -> some View {
     ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
       PostListRow(post: post)
+        .tag(post)
+        .selectionDisabled(post.isHidden)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
-        .background {
-          if !post.isHidden {
-            NavigationLink("", destination: {
-              destination(post)
-            })
-            .opacity(0)
-          }
-        }
         .onAppear {
           // loads more contents on 60% scroll
           let thresholdIndex = Int(Double(posts.count) * Constants.loadMoreThreshold)
@@ -89,21 +84,41 @@ struct PostList<Destination: View>: View {
 
 
 #Preview("Loading") {
-  PostList(posts: nil, destination: { _ in
+  @Previewable @State var selectedPost: AraPost? = nil
+  
+  NavigationSplitView {
+    PostList(posts: nil, destination: { _ in
+      EmptyView()
+    }, selectedPost: $selectedPost)
+  } detail: {
     EmptyView()
-  })
+  }
 }
 
 #Preview("Empty") {
-  PostList(posts: [], destination: { _ in
+  @Previewable @State var selectedPost: AraPost? = nil
+  
+  NavigationSplitView {
+    PostList(posts: [], destination: { _ in
+      EmptyView()
+    }, selectedPost: $selectedPost)
+  } detail: {
     EmptyView()
-  })
+  }
 }
 
 #Preview("Loaded") {
-  NavigationStack {
+  @Previewable @State var selectedPost: AraPost? = nil
+
+  
+  NavigationSplitView {
     PostList(posts: AraPost.mockList, destination: { post in
       PostView(post: post)
-    })
+    }, selectedPost: $selectedPost)
+  } detail: {
+    if let post = selectedPost {
+      PostView(post: post)
+        .id(post.id)
+    }
   }
 }

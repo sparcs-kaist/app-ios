@@ -31,7 +31,7 @@ struct PostComposeView: View {
   }
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       ScrollView {
         VStack(alignment: .leading) {
           topicSelector

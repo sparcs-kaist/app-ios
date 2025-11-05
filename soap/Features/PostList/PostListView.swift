@@ -15,13 +15,16 @@ struct PostListView: View {
   @Namespace private var namespace
 
   @State private var loadedInitialPost: Bool = false
-
-  init(board: AraBoard) {
+  @Binding private var selectedPost: AraPost?
+  
+  init(board: AraBoard, selectedPost: Binding<AraPost?>) {
     _viewModel = State(initialValue: PostListViewModel(board: board))
+    self._selectedPost = selectedPost
   }
   
-  init(viewModel: PostListViewModelProtocol) {
+  init(viewModel: PostListViewModelProtocol, selectedPost: Binding<AraPost?>) {
     _viewModel = State(initialValue: viewModel)
+    self._selectedPost = selectedPost
   }
 
   var body: some View {
@@ -32,7 +35,8 @@ struct PostListView: View {
           posts: nil,
           destination: { _ in
             EmptyView()
-          }
+          },
+          selectedPost: $selectedPost
         )
       case .loaded(let posts):
         if viewModel.posts.isEmpty && !viewModel.searchKeyword.isEmpty {
@@ -50,7 +54,7 @@ struct PostListView: View {
               await viewModel.fetchInitialPosts()
             }, onLoadMore: {
               await viewModel.loadNextPage()
-            }
+            }, selectedPost: $selectedPost
           )
         }
       case .error(let message):
@@ -98,25 +102,26 @@ struct PostListView: View {
 
 #Preview("Loading State") {
   @Previewable @State var viewModel = MockPostListViewModel()
+  @Previewable @State var selectedPost: AraPost? = nil
   viewModel.state = .loading
   
   return NavigationStack {
-    PostListView(viewModel: viewModel)
+    PostListView(viewModel: viewModel, selectedPost: $selectedPost)
   }
 }
 
 #Preview("Loaded State") {
   @Previewable @State var viewModel = MockPostListViewModel()
-  NavigationStack {
-    PostListView(viewModel: viewModel)
-  }
+  @Previewable @State var selectedPost: AraPost? = nil
+  PostListView(viewModel: viewModel, selectedPost: $selectedPost)
 }
 
 #Preview("Error State") {
   @Previewable @State var viewModel = MockPostListViewModel()
+  @Previewable @State var selectedPost: AraPost? = nil
   viewModel.state = .error(message: "Something went wrong")
   
   return NavigationStack {
-    PostListView(viewModel: viewModel)
+    PostListView(viewModel: viewModel, selectedPost: $selectedPost)
   }
 }

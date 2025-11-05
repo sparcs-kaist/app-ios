@@ -24,6 +24,7 @@ struct TaxiListView: View {
   @State private var showChat: Bool = false
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   init(taxiInviteId: Binding<String?> = .constant(nil), viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _taxiInviteId = taxiInviteId
@@ -119,7 +120,7 @@ struct TaxiListView: View {
           }
         }
       }
-      .navigationTitle(UIDevice.current.userInterfaceIdiom != .phone ? "" : "Taxi")
+      .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Taxi") : "")
       .toolbarTitleDisplayMode(.inlineLarge)
       .background {
         BackgroundGradientView(color: .purple)

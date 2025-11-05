@@ -22,6 +22,8 @@ struct FeedView: View {
   @State private var showAlert: Bool = false
   
   @State private var spoilerContents = SpoilerContents()
+  
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
     self._viewModel = State(initialValue: viewModel)
@@ -89,7 +91,7 @@ struct FeedView: View {
         .animation(.spring, value: viewModel.posts)
       }
       .disabled(viewModel.state == .loading)
-      .navigationTitle(UIDevice.current.userInterfaceIdiom != .phone ? "" : "Feed")
+      .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed") : "")
       .toolbarTitleDisplayMode(.inlineLarge)
       .task {
         await viewModel.fetchInitialData()

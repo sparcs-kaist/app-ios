@@ -11,15 +11,23 @@ import BuddyDomain
 struct MainView: View {
   @State private var taxiInviteId: String?
   @State private var selectedTab: TabSelection = .feed
+  
+  private var feedViewModel: FeedViewModelProtocol
+  private var boardListViewModel: BoardListViewModelProtocol
+  
+  init(feedViewModel: FeedViewModelProtocol = FeedViewModel(), boardListViewModel: BoardListViewModelProtocol = BoardListViewModel()) {
+    self.feedViewModel = feedViewModel
+    self.boardListViewModel = boardListViewModel
+  }
 
   var body: some View {
     TabView(selection: $selectedTab) {
       Tab("Feed", systemImage: "text.rectangle.page", value: .feed) {
-        FeedView()
+        FeedView(feedViewModel)
       }
 
       Tab("Boards", systemImage: "tray.full", value: .board) {
-        BoardListView()
+        BoardListView(boardListViewModel)
       }
 
       Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
@@ -50,5 +58,5 @@ struct MainView: View {
 }
 
 #Preview {
-  MainView()
+  MainView(feedViewModel: MockFeedViewModel(), boardListViewModel: MockBoardListViewModel())
 }

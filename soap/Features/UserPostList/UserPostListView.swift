@@ -13,6 +13,7 @@ struct UserPostListView: View {
 
   @State private var loadedInitialPost: Bool = false
   @State private var searchText: String = ""
+  @State private var selectedPost: AraPost?
 
   init(user: AraPostAuthor) {
     _viewModel = State(initialValue: UserPostListViewModel(user: user))
@@ -29,7 +30,8 @@ struct UserPostListView: View {
             posts: nil,
             destination: { _ in
               EmptyView()
-            }
+            },
+            selectedPost: $selectedPost
           )
         case .loaded(let posts):
           PostList(
@@ -44,7 +46,8 @@ struct UserPostListView: View {
               await viewModel.fetchInitialPosts()
             }, onLoadMore: {
               await viewModel.loadNextPage()
-            }
+            },
+            selectedPost: $selectedPost
           )
         case .error(let message):
           ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))

@@ -11,6 +11,7 @@ import BuddyDomain
 struct AraMyPostView: View {
   @State private var vm: AraMyPostViewModelProtocol
   @State private var loadedInitialPosts: Bool = false
+  @State private var selectedPost: AraPost?
   
   init(user: AraUser?, type: AraMyPostViewModel.PostType = .all) {
     _vm = State(initialValue: AraMyPostViewModel(user: user, type: type))
@@ -68,7 +69,7 @@ struct AraMyPostView: View {
   }
   
   private var loadingView: some View {
-    PostList(posts: AraPost.mockList, destination: { _ in EmptyView()})
+    PostList(posts: AraPost.mockList, destination: { _ in EmptyView()}, selectedPost: $selectedPost)
       .redacted(reason: .placeholder)
   }
   
@@ -87,7 +88,8 @@ struct AraMyPostView: View {
       },
       onLoadMore: {
         await vm.loadNextPage()
-      }
+      },
+      selectedPost: $selectedPost
     )
   }
 }

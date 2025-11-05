@@ -23,7 +23,7 @@ struct TaxiReportView: View {
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   
   var body: some View {
-    NavigationView {
+    NavigationStack {
       Form {
         Section("Who?") {
           Picker("Select", selection: $viewModel.selectedUser) {

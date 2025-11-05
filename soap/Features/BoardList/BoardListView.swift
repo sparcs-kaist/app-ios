@@ -37,7 +37,7 @@ struct ListGlassSection<Content: View>: View {
       }
       .padding(.horizontal)
       .glassEffect(
-        colorScheme == .light ? .identity.interactive() : .regular.interactive(),
+        colorScheme == .light ? .identity : .regular.interactive(),
         in: .rect(cornerRadius: 28)
       )
       .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
@@ -47,13 +47,19 @@ struct ListGlassSection<Content: View>: View {
 
 struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
+  @State private var selectedBoard: AraBoard? = nil
+  @State private var selectedPost: AraPost? = nil
+  @State private var columnVisibility: NavigationSplitViewVisibility = .all
+  @State private var preferredCompactColumn: NavigationSplitViewColumn = .sidebar
+  @State private var tabBarVisibility: Visibility = .visible
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel()) {
     _viewModel = State(initialValue: viewModel)
   }
   
   var body: some View {
-    NavigationStack {
+    NavigationSplitView(columnVisibility: $columnVisibility, preferredCompactColumn: $preferredCompactColumn, sidebar: {
       ScrollView {
         LazyVStack(spacing: 20) {
           switch viewModel.state {
@@ -69,17 +75,38 @@ struct BoardListView: View {
         }
         .padding()
       }
-      .disabled(viewModel.state == .loading)
-      .navigationTitle(UIDevice.current.userInterfaceIdiom != .phone ? "" : "Boards")
-      .toolbarTitleDisplayMode(.inlineLarge)
-      .task {
-        await viewModel.fetchBoards()
-      }
       .background {
         BackgroundGradientView(color: .red)
           .ignoresSafeArea()
       }
       .background(Color.systemGroupedBackground)
+      .disabled(viewModel.state == .loading)
+      .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Boards") : "")
+      .toolbarTitleDisplayMode(.inlineLarge)
+      .task {
+        await viewModel.fetchBoards()
+      }
+      .toolbar(tabBarVisibility, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
+    }, content: {
+      if let board = selectedBoard {
+        PostListView(board: board, selectedPost: $selectedPost)
+          .id(board.id)
+      }
+    }, detail: {
+      if let post = selectedPost {
+        PostView(post: post)
+          .id(post.id)
+      }
+    })
+    .onChange(of: columnVisibility) {
+      if columnVisibility == .all {
+        tabBarVisibility = .visible
+      }
+    }
+    .onChange(of: preferredCompactColumn) {
+      if preferredCompactColumn == .sidebar {
+        tabBarVisibility = .visible
+      }
     }
   }
 
@@ -90,11 +117,18 @@ struct BoardListView: View {
         header: Label(group.name.localized(), systemImage: symbol(for: group.slug))
       ) {
         ForEach(boards.filter { $0.group.id == group.id }) { board in
-          NavigationLink(destination: {
-            PostListView(board: board)
+          Button(action: {
+            selectedBoard = board
+            if horizontalSizeClass == .compact {
+              preferredCompactColumn = .content
+              tabBarVisibility = .hidden
+            } else {
+              columnVisibility = .doubleColumn
+            }
           }, label: {
             HStack {
               Text(board.name.localized())
+                .multilineTextAlignment(.leading)
               Spacer()
               Image(systemName: "chevron.right")
                 .opacity(0.3)
