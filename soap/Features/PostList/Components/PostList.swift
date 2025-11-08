@@ -11,12 +11,11 @@ import BuddyDataMocks
 
 struct PostList<Destination: View>: View {
   let posts: [AraPost]?
-  @ViewBuilder let destination: (AraPost) -> Destination // TODO: this parameter is not used internally; should be removed when migration to NavigationSplitView is done
+  @ViewBuilder let destination: (AraPost) -> Destination
   var onRefresh: (() async -> Void)? = nil
   var onLoadMore: (() async -> Void)? = nil
 
   @State private var isLoadingMore: Bool = false
-  @Binding var selectedPost: AraPost?
 
   var body: some View {
     if let posts, posts.isEmpty {
@@ -26,7 +25,7 @@ struct PostList<Destination: View>: View {
         description: Text("It looks like there are no posts on this page right now.")
       )
     } else {
-      List(selection: $selectedPost) {
+      List {
         if posts == nil {
           loadingView
             .redacted(reason: .placeholder)
@@ -60,6 +59,14 @@ struct PostList<Destination: View>: View {
             }
           }
         }
+        .background {
+          NavigationLink {
+            destination(post)
+          } label: {
+            EmptyView()
+          }
+          .opacity(0)
+        }
     }
 
     if isLoadingMore {
@@ -84,41 +91,32 @@ struct PostList<Destination: View>: View {
 
 
 #Preview("Loading") {
-  @Previewable @State var selectedPost: AraPost? = nil
-  
   NavigationSplitView {
     PostList(posts: nil, destination: { _ in
       EmptyView()
-    }, selectedPost: $selectedPost)
+    })
   } detail: {
     EmptyView()
   }
 }
 
 #Preview("Empty") {
-  @Previewable @State var selectedPost: AraPost? = nil
-  
   NavigationSplitView {
     PostList(posts: [], destination: { _ in
       EmptyView()
-    }, selectedPost: $selectedPost)
+    })
   } detail: {
     EmptyView()
   }
 }
 
 #Preview("Loaded") {
-  @Previewable @State var selectedPost: AraPost? = nil
-
-  
   NavigationSplitView {
     PostList(posts: AraPost.mockList, destination: { post in
       PostView(post: post)
-    }, selectedPost: $selectedPost)
-  } detail: {
-    if let post = selectedPost {
-      PostView(post: post)
         .id(post.id)
-    }
+    })
+  } detail: {
+
   }
 }

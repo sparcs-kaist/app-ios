@@ -48,7 +48,6 @@ struct ListGlassSection<Content: View>: View {
 struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @State private var selectedBoard: AraBoard? = nil
-  @State private var selectedPost: AraPost? = nil
   @State private var columnVisibility: NavigationSplitViewVisibility = .all
   @State private var preferredCompactColumn: NavigationSplitViewColumn = .sidebar
   @State private var tabBarVisibility: Visibility = .visible
@@ -89,14 +88,11 @@ struct BoardListView: View {
       .toolbar(tabBarVisibility, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
     }, content: {
       if let board = selectedBoard {
-        PostListView(board: board, selectedPost: $selectedPost)
+        PostListView(board: board)
           .id(board.id)
       }
     }, detail: {
-      if let post = selectedPost {
-        PostView(post: post)
-          .id(post.id)
-      }
+      
     })
     .onChange(of: columnVisibility) {
       if columnVisibility == .all {

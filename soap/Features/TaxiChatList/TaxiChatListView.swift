@@ -12,7 +12,6 @@ import BuddyDomain
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
   @State private var selectedRoom: TaxiRoom?
-  @State private var preferredCompactColumn = NavigationSplitViewColumn.sidebar
   
   private var onBack: (() -> Void)?
 
@@ -22,7 +21,7 @@ struct TaxiChatListView: View {
   }
 
   var body: some View {
-    NavigationSplitView(preferredCompactColumn: $preferredCompactColumn) {
+    NavigationSplitView {
       ScrollView {
         LazyVStack(spacing: 16) {
           Group {
@@ -53,20 +52,16 @@ struct TaxiChatListView: View {
           .ignoresSafeArea()
       }
       .background(Color.systemGroupedBackground)
-    } detail: {
-      if let room = selectedRoom {
+      .navigationDestination(item: $selectedRoom) { room in
         TaxiChatView(room: room)
           .id(room.id)
       }
+    } detail: {
+      
     }
     .toolbar(.hidden, for: .tabBar)
     .task {
       await viewModel.fetchData()
-    }
-    .onChange(of: preferredCompactColumn) {
-      if preferredCompactColumn == .sidebar {
-        selectedRoom = nil
-      }
     }
   }
 
@@ -119,7 +114,7 @@ struct TaxiChatListView: View {
           TaxiRoomCell(room: room, withOutBackground: false)
             .environment(\.taxiUser, viewModel.taxiUser)
             .onTapGesture {
-              onSelection(room)
+              selectedRoom = room
             }
             .overlay(selectedRoom == room ? Color.secondary : Color.clear, in: .rect(cornerRadius: 28))
         }
@@ -140,7 +135,7 @@ struct TaxiChatListView: View {
           TaxiRoomCell(room: room, withOutBackground: false)
             .environment(\.taxiUser, viewModel.taxiUser)
             .onTapGesture {
-              onSelection(room)
+              selectedRoom = room
             }
             .overlay(selectedRoom == room ? Color.secondary : Color.clear, in: .rect(cornerRadius: 28))
         }
@@ -164,11 +159,6 @@ struct TaxiChatListView: View {
         }
       }
     )
-  }
-  
-  private func onSelection(_ room: TaxiRoom) {
-    selectedRoom = room
-    preferredCompactColumn = .detail
   }
 }
 

@@ -69,7 +69,7 @@ struct AraMyPostView: View {
   }
   
   private var loadingView: some View {
-    PostList(posts: AraPost.mockList, destination: { _ in EmptyView()}, selectedPost: $selectedPost)
+    PostList(posts: AraPost.mockList, destination: { _ in EmptyView()})
       .redacted(reason: .placeholder)
   }
   
@@ -88,8 +88,7 @@ struct AraMyPostView: View {
       },
       onLoadMore: {
         await vm.loadNextPage()
-      },
-      selectedPost: $selectedPost
+      }
     )
   }
 }
