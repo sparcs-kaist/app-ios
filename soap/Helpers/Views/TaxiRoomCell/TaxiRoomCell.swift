@@ -44,7 +44,7 @@ struct TaxiRoomCell: View {
         Divider()
         Text(room.title)
       }
-      .fixedSize()
+      .fixedSize(horizontal: false, vertical: true)
       .font(.footnote)
       .foregroundStyle(.secondary)
     }

@@ -12,40 +12,61 @@ import BuddyDomain
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
   @State private var selectedRoom: TaxiRoom?
+  @State private var preferredCompactColumn = NavigationSplitViewColumn.sidebar
+  
+  private var onBack: (() -> Void)?
 
-  init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()) {
+  init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel(), onBack: (() -> Void)? = nil) {
     _viewModel = State(initialValue: viewModel)
+    self.onBack = onBack
   }
 
   var body: some View {
-    ScrollView {
-      LazyVStack(spacing: 16) {
-        Group {
-          switch viewModel.state {
-          case .loading:
-            loadingView
-          case .loaded(let onGoing, let done):
-            loadedView(onGoing: onGoing, done: done)
-          case .error(let message):
-            errorView(errorMessage: message)
+    NavigationSplitView(preferredCompactColumn: $preferredCompactColumn) {
+      ScrollView {
+        LazyVStack(spacing: 16) {
+          Group {
+            switch viewModel.state {
+            case .loading:
+              loadingView
+            case .loaded(let onGoing, let done):
+              loadedView(onGoing: onGoing, done: done)
+            case .error(let message):
+              errorView(errorMessage: message)
+            }
+          }
+          .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+        }
+        .toolbar {
+          ToolbarItem(placement: .topBarLeading) {
+            Button("Back", systemImage: "chevron.left") {
+              onBack?()
+            }
           }
         }
-        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+        .navigationTitle(Text("Chats"))
+        .navigationBarTitleDisplayMode(.inline)
+        .padding()
       }
-      .padding()
+      .background {
+        BackgroundGradientView(color: .purple)
+          .ignoresSafeArea()
+      }
+      .background(Color.systemGroupedBackground)
+    } detail: {
+      if let room = selectedRoom {
+        TaxiChatView(room: room)
+          .id(room.id)
+      }
     }
-    .navigationTitle(Text("Chats"))
-    .background {
-      BackgroundGradientView(color: .purple)
-        .ignoresSafeArea()
-    }
-    .background(Color.systemGroupedBackground)
     .toolbar(.hidden, for: .tabBar)
-    .navigationDestination(item: $selectedRoom) { room in
-      TaxiChatView(room: room)
-    }
     .task {
       await viewModel.fetchData()
+    }
+    .onChange(of: preferredCompactColumn) {
+      if preferredCompactColumn == .sidebar {
+        selectedRoom = nil
+      }
     }
   }
 
@@ -98,8 +119,9 @@ struct TaxiChatListView: View {
           TaxiRoomCell(room: room, withOutBackground: false)
             .environment(\.taxiUser, viewModel.taxiUser)
             .onTapGesture {
-              selectedRoom = room
+              onSelection(room)
             }
+            .overlay(selectedRoom == room ? Color.secondary : Color.clear, in: .rect(cornerRadius: 28))
         }
       }
     }
@@ -118,8 +140,9 @@ struct TaxiChatListView: View {
           TaxiRoomCell(room: room, withOutBackground: false)
             .environment(\.taxiUser, viewModel.taxiUser)
             .onTapGesture {
-              selectedRoom = room
+              onSelection(room)
             }
+            .overlay(selectedRoom == room ? Color.secondary : Color.clear, in: .rect(cornerRadius: 28))
         }
       }
     }
@@ -141,6 +164,11 @@ struct TaxiChatListView: View {
         }
       }
     )
+  }
+  
+  private func onSelection(_ room: TaxiRoom) {
+    selectedRoom = room
+    preferredCompactColumn = .detail
   }
 }
 
