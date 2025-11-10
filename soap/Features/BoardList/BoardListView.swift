@@ -37,7 +37,7 @@ struct ListGlassSection<Content: View>: View {
       }
       .padding(.horizontal)
       .glassEffect(
-        colorScheme == .light ? .identity : .regular.interactive(),
+        colorScheme == .light ? .identity : .regular,
         in: .rect(cornerRadius: 28)
       )
       .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))

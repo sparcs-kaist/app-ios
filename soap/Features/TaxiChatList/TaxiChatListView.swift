@@ -116,7 +116,7 @@ struct TaxiChatListView: View {
             .onTapGesture {
               selectedRoom = room
             }
-            .overlay(selectedRoom == room ? Color.secondary : Color.clear, in: .rect(cornerRadius: 28))
+            .overlay(selectedRoom == room ? Color.secondary.opacity(0.2) : Color.clear, in: .rect(cornerRadius: 28))
         }
       }
     }
@@ -137,7 +137,7 @@ struct TaxiChatListView: View {
             .onTapGesture {
               selectedRoom = room
             }
-            .overlay(selectedRoom == room ? Color.secondary : Color.clear, in: .rect(cornerRadius: 28))
+            .overlay(selectedRoom == room ? Color.secondary.opacity(0.2) : Color.clear, in: .rect(cornerRadius: 28))
         }
       }
     }
