@@ -13,6 +13,14 @@ struct LectureDetailView: View {
   let lecture: Lecture
   let onAdd: (() -> Void)?
   let isOverlapping: Bool
+  let classTime: ClassTime?
+  
+  init(lecture: Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, classTime: ClassTime? = nil) {
+    self.lecture = lecture
+    self.onAdd = onAdd
+    self.isOverlapping = isOverlapping
+    self.classTime = classTime
+  }
 
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
 
@@ -145,10 +153,12 @@ struct LectureDetailView: View {
         title: String(localized: "Professor"),
         description: lecture.professors.isEmpty ? String(localized: "Unknown") : lecture.professors.map { $0.name.localized() }.joined(separator: "\n")
       )
-      LectureDetailRow(
-        title: String(localized: "Classroom"),
-        description: lecture.classTimes.first?.classroomNameShort.localized() ?? String(localized: "Unknown")
-      )
+      if let classTime {
+        LectureDetailRow(
+          title: String(localized: "Classroom"),
+          description: classTime.classroomNameShort.localized()
+        )
+      }
       LectureDetailRow(title: String(localized: "Capacity"), description: String(lecture.capacity))
       LectureDetailRow(
         title: String(localized: "Exams"),

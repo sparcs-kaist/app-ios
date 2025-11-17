@@ -88,7 +88,8 @@ struct LectureSearchView: View {
                   }
                 }
               },
-              isOverlapping: timetableViewModel.isCandidateOverlapping
+              isOverlapping: timetableViewModel.isCandidateOverlapping,
+              classTime: lecture.classTimes.first
             )
             .onAppear {
               timetableViewModel.candidateLecture = lecture
