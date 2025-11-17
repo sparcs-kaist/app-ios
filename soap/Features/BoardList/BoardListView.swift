@@ -92,7 +92,9 @@ struct BoardListView: View {
           .id(board.id)
       }
     }, detail: {
-      
+      NavigationStack {
+        
+      }
     })
     .onChange(of: columnVisibility) {
       if columnVisibility == .all {
@@ -102,6 +104,11 @@ struct BoardListView: View {
     .onChange(of: preferredCompactColumn) {
       if preferredCompactColumn == .sidebar {
         tabBarVisibility = .visible
+      }
+    }
+    .onChange(of: columnVisibility) {
+      if columnVisibility != .all && selectedBoard == nil {
+        columnVisibility = .all
       }
     }
   }
