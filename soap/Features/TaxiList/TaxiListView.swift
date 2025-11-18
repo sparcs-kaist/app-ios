@@ -10,7 +10,6 @@ import BuddyDomain
 
 struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
-  @State private var appScreen: AppScreen = .roomList
 
   // view properties
   @State private var scrollTarget: String? = nil
@@ -20,6 +19,9 @@ struct TaxiListView: View {
   // show taxi room preview
   @State private var showRoomCreationSheet: Bool = false
   @State private var selectedRoom: TaxiRoom? = nil
+
+  // show taxi chats
+  @State private var showChat: Bool = false
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -52,20 +54,6 @@ struct TaxiListView: View {
   }
 
   var body: some View {
-    Group {
-      switch appScreen {
-      case .roomList:
-        roomListView
-      case .chatList:
-        TaxiChatListView() {
-          appScreen = .roomList
-        }
-      }
-    }
-    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-  }
-
-  private var roomListView: some View {
     NavigationStack {
       ScrollViewReader { scrollViewProxy in
         ScrollView {
@@ -128,7 +116,7 @@ struct TaxiListView: View {
 
         ToolbarItem(placement: .topBarTrailing) {
           Button("Chats", systemImage: "bubble.left.and.text.bubble.right") {
-            appScreen = .chatList
+            showChat = true
           }
         }
       }
@@ -139,6 +127,9 @@ struct TaxiListView: View {
           .ignoresSafeArea()
       }
       .background(Color.systemGroupedBackground)
+      .navigationDestination(isPresented: $showChat) {
+        TaxiChatListView()
+      }
       .sheet(isPresented: $showRoomCreationSheet) {
         TaxiRoomCreationView(viewModel: viewModel)
           .presentationDragIndicator(.visible)
@@ -175,7 +166,7 @@ struct TaxiListView: View {
       await viewModel.fetchData(inviteId: nil)
     }
   }
-  
+
 
   private func loadingView() -> some View {
     VStack(spacing: 12) {
@@ -280,11 +271,6 @@ struct TaxiListView: View {
         }
       }
     )
-  }
-  
-  private enum AppScreen: Equatable {
-    case roomList
-    case chatList
   }
 }
 

@@ -12,54 +12,38 @@ import BuddyDomain
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
   @State private var selectedRoom: TaxiRoom?
-  
-  private var onBack: (() -> Void)?
 
-  init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel(), onBack: (() -> Void)? = nil) {
+  init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()) {
     _viewModel = State(initialValue: viewModel)
-    self.onBack = onBack
   }
 
   var body: some View {
-    NavigationSplitView {
-      ScrollView {
-        LazyVStack(spacing: 16) {
-          Group {
-            switch viewModel.state {
-            case .loading:
-              loadingView
-            case .loaded(let onGoing, let done):
-              loadedView(onGoing: onGoing, done: done)
-            case .error(let message):
-              errorView(errorMessage: message)
-            }
-          }
-          .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-        }
-        .toolbar {
-          ToolbarItem(placement: .topBarLeading) {
-            Button("Back", systemImage: "chevron.left") {
-              onBack?()
-            }
+    ScrollView {
+      LazyVStack(spacing: 16) {
+        Group {
+          switch viewModel.state {
+          case .loading:
+            loadingView
+          case .loaded(let onGoing, let done):
+            loadedView(onGoing: onGoing, done: done)
+          case .error(let message):
+            errorView(errorMessage: message)
           }
         }
-        .navigationTitle(Text("Chats"))
-        .navigationBarTitleDisplayMode(.inline)
-        .padding()
+        .transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
-      .background {
-        BackgroundGradientView(color: .purple)
-          .ignoresSafeArea()
-      }
-      .background(Color.systemGroupedBackground)
-      .navigationDestination(item: $selectedRoom) { room in
-        TaxiChatView(room: room)
-          .id(room.id)
-      }
-    } detail: {
-      
+      .padding()
     }
+    .navigationTitle(Text("Chats"))
+    .background {
+      BackgroundGradientView(color: .purple)
+        .ignoresSafeArea()
+    }
+    .background(Color.systemGroupedBackground)
     .toolbar(.hidden, for: .tabBar)
+    .navigationDestination(item: $selectedRoom) { room in
+      TaxiChatView(room: room)
+    }
     .task {
       await viewModel.fetchData()
     }
@@ -116,7 +100,6 @@ struct TaxiChatListView: View {
             .onTapGesture {
               selectedRoom = room
             }
-            .overlay(selectedRoom == room ? Color.secondary.opacity(0.2) : Color.clear, in: .rect(cornerRadius: 28))
         }
       }
     }
@@ -137,7 +120,6 @@ struct TaxiChatListView: View {
             .onTapGesture {
               selectedRoom = room
             }
-            .overlay(selectedRoom == room ? Color.secondary.opacity(0.2) : Color.clear, in: .rect(cornerRadius: 28))
         }
       }
     }

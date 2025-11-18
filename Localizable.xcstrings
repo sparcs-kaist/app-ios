@@ -804,22 +804,6 @@
     "B" : {
       "shouldTranslate" : false
     },
-    "Back" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Back"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "뒤로가기"
-          }
-        }
-      }
-    },
     "Bank Name" : {
       "localizations" : {
         "en" : {
