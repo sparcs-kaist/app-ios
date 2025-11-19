@@ -24,6 +24,8 @@ struct TaxiChatListView: View {
       switch viewModel.state {
       case .loading:
         loadingView
+        .navigationTitle(Text("Chats"))
+        .background(Color.systemGroupedBackground)
       case .loaded(let onGoing, let done):
         if horizontalSizeClass == .compact {
           loadedView(onGoing: onGoing, done: done)
@@ -65,34 +67,39 @@ struct TaxiChatListView: View {
 
   @ViewBuilder
   private var loadingView: some View {
-    LazyVStack(spacing: 12) {
-      HStack {
-        Text("Active Groups")
-          .font(.title3)
-          .fontWeight(.bold)
+    ScrollView {
+      LazyVStack (spacing: 16) {
+        LazyVStack(spacing: 12) {
+          HStack {
+            Text("Active Groups")
+              .font(.title3)
+              .fontWeight(.bold)
 
-        Spacer()
+            Spacer()
+          }
+
+          ForEach(TaxiRoom.mockList.prefix(3)) { room in
+            TaxiRoomCell(room: room, withOutBackground: false)
+              .redacted(reason: .placeholder)
+          }
+        }
+
+        LazyVStack(spacing: 12) {
+          HStack {
+            Text("Past Groups")
+              .font(.title3)
+              .fontWeight(.bold)
+
+            Spacer()
+          }
+
+          ForEach(TaxiRoom.mockList.prefix(5)) { room in
+            TaxiRoomCell(room: room, withOutBackground: false)
+              .redacted(reason: .placeholder)
+          }
+        }
       }
-
-      ForEach(TaxiRoom.mockList.prefix(3)) { room in
-        TaxiRoomCell(room: room, withOutBackground: false)
-          .redacted(reason: .placeholder)
-      }
-    }
-
-    LazyVStack(spacing: 12) {
-      HStack {
-        Text("Past Groups")
-          .font(.title3)
-          .fontWeight(.bold)
-
-        Spacer()
-      }
-
-      ForEach(TaxiRoom.mockList.prefix(5)) { room in
-        TaxiRoomCell(room: room, withOutBackground: false)
-          .redacted(reason: .placeholder)
-      }
+      .padding()
     }
   }
 

@@ -3301,7 +3301,20 @@
       }
     },
     "Select a room" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a room"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅방을 선택하세요"
+          }
+        }
+      }
     },
     "Select Bank" : {
       "localizations" : {
