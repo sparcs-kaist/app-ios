@@ -68,7 +68,7 @@ struct TaxiChatListView: View {
   @ViewBuilder
   private var loadingView: some View {
     ScrollView {
-      LazyVStack (spacing: 16) {
+      LazyVStack(spacing: 16) {
         LazyVStack(spacing: 12) {
           HStack {
             Text("Active Groups")

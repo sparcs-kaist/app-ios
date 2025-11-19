@@ -60,12 +60,14 @@ struct PostList<Destination: View>: View {
           }
         }
         .background {
-          NavigationLink {
-            destination(post)
-          } label: {
-            EmptyView()
+          if !post.isHidden {
+            NavigationLink {
+              destination(post)
+            } label: {
+              EmptyView()
+            }
+            .opacity(0)
           }
-          .opacity(0)
         }
     }
 

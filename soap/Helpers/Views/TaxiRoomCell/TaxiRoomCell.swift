@@ -54,7 +54,7 @@ struct TaxiRoomCell: View {
       colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear,
       in: .rect(cornerRadius: 28)
     )
-    // iOS 26.1 has an issue with .identity.interactive(); temporarily disabled. See  https://www.reddit.com/r/SwiftUI/comments/1osex0x/interactive_glasseffect_bug_flickering_on_ios_261/
+    // iOS 26.1 has an issue with .identity.interactive(); temporarily disabled. See https://www.reddit.com/r/SwiftUI/comments/1osex0x/interactive_glasseffect_bug_flickering_on_ios_261/
     .glassEffect(
       colorScheme == .light || withOutBackground ? .identity : .regular.interactive(),
       in: .rect(cornerRadius: 28)

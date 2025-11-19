@@ -100,15 +100,13 @@ struct BoardListView: View {
       if columnVisibility == .all {
         tabBarVisibility = .visible
       }
+      else if selectedBoard == nil {
+        columnVisibility = .all
+      }
     }
     .onChange(of: preferredCompactColumn) {
       if preferredCompactColumn == .sidebar {
         tabBarVisibility = .visible
-      }
-    }
-    .onChange(of: columnVisibility) {
-      if columnVisibility != .all && selectedBoard == nil {
-        columnVisibility = .all
       }
     }
   }
