@@ -70,6 +70,7 @@ struct PostListRow: View {
       .padding(.top, 1)
       .lineLimit(1)
     }
+    .listRowBackground(Color.clear)
   }
 
   var title: String {

@@ -33,6 +33,7 @@ struct PostList<Destination: View>: View {
           loadedView(posts)
         }
       }
+      .scrollContentBackground(.hidden)
       .listStyle(.plain)
       .refreshable {
         await onRefresh?()
@@ -93,32 +94,20 @@ struct PostList<Destination: View>: View {
 
 
 #Preview("Loading") {
-  NavigationSplitView {
-    PostList(posts: nil, destination: { _ in
-      EmptyView()
-    })
-  } detail: {
+  PostList(posts: nil, destination: { _ in
     EmptyView()
-  }
+  })
 }
 
 #Preview("Empty") {
-  NavigationSplitView {
-    PostList(posts: [], destination: { _ in
-      EmptyView()
-    })
-  } detail: {
+  PostList(posts: [], destination: { _ in
     EmptyView()
-  }
+  })
 }
 
 #Preview("Loaded") {
-  NavigationSplitView {
-    PostList(posts: AraPost.mockList, destination: { post in
-      PostView(post: post)
-        .id(post.id)
-    })
-  } detail: {
-
-  }
+  PostList(posts: AraPost.mockList, destination: { post in
+    PostView(post: post)
+      .id(post.id)
+  })
 }

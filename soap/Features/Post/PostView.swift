@@ -91,6 +91,10 @@ struct PostView: View {
             }
         }
       }
+      .background {
+        BackgroundGradientView(color: .red)
+          .ignoresSafeArea()
+      }
       .alert(alertTitle, isPresented: $showAlert, actions: {
         Button("Okay", role: .close) { }
       }, message: {

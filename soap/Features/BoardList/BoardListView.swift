@@ -75,8 +75,10 @@ struct BoardListView: View {
         .padding()
       }
       .background {
-        BackgroundGradientView(color: .red)
-          .ignoresSafeArea()
+        if horizontalSizeClass == .compact {
+          BackgroundGradientView(color: .red)
+            .ignoresSafeArea()
+        }
       }
       .background(Color.systemGroupedBackground)
       .disabled(viewModel.state == .loading)
@@ -90,10 +92,17 @@ struct BoardListView: View {
       if let board = selectedBoard {
         PostListView(board: board)
           .id(board.id)
+      } else {
+        BackgroundGradientView(color: .red)
+          .ignoresSafeArea()
       }
     }, detail: {
       NavigationStack {
         
+      }
+      .background {
+        BackgroundGradientView(color: .red)
+          .ignoresSafeArea()
       }
     })
     .ignoresSafeArea()

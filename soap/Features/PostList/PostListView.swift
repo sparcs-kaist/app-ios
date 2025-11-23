@@ -94,6 +94,10 @@ struct PostListView: View {
       }
     }
     .searchable(text: $viewModel.searchKeyword)
+    .background {
+      BackgroundGradientView(color: .red)
+        .ignoresSafeArea()
+    }
   }
 }
 
@@ -108,7 +112,9 @@ struct PostListView: View {
 
 #Preview("Loaded State") {
   @Previewable @State var viewModel = MockPostListViewModel()
-  PostListView(viewModel: viewModel)
+  return NavigationStack {
+    PostListView(viewModel: viewModel)
+  }
 }
 
 #Preview("Error State") {
