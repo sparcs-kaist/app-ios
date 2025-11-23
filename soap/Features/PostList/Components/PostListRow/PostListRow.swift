@@ -41,28 +41,34 @@ struct PostListRow: View {
         }
       }
 
-      HStack(spacing: 12) {
+      HStack(spacing: 0) {
         let voteCount: Int = post.upvotes - post.downvotes
-        if voteCount != 0 || post.commentCount > 0 {
-          HStack(spacing: 4) {
-            PostListRowVoteLabel(voteCount: voteCount)
-            PostListRowCommentLabel(commentCount: post.commentCount)
+        HStack(spacing: 12) {
+          if voteCount != 0 || post.commentCount > 0 {
+            HStack(spacing: 4) {
+              PostListRowVoteLabel(voteCount: voteCount)
+              PostListRowCommentLabel(commentCount: post.commentCount)
+            }
           }
+
+          Text(post.author.profile.nickname)
         }
 
-        Text(post.author.profile.nickname)
-
         Spacer()
-        Text("\(post.views) views")
+        
+        HStack(spacing: 12) {
+          Text("\(post.views) views")
 
-        Text(post.createdAt.timeAgoDisplay)
+          Text(post.createdAt.timeAgoDisplay)
 
-        Image(systemName: "chevron.right")
-          .opacity(post.isHidden ? 0 : 1)
+          Image(systemName: "chevron.right")
+            .opacity(post.isHidden ? 0 : 1)
+        }
       }
       .font(.caption)
       .foregroundStyle(.secondary)
       .padding(.top, 1)
+      .lineLimit(1)
     }
   }
 
