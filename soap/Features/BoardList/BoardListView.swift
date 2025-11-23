@@ -96,6 +96,7 @@ struct BoardListView: View {
         
       }
     })
+    .ignoresSafeArea()
     .onChange(of: columnVisibility) {
       if columnVisibility == .all {
         tabBarVisibility = .visible
