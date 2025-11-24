@@ -72,13 +72,6 @@ class PostListViewModel: PostListViewModelProtocol {
       .removeDuplicates()
     
     searchPublisher
-      .sink { [weak self] _ in
-        guard let self else { return }
-        self.state = .loading
-      }
-      .store(in: &cancellables)
-    
-    searchPublisher
       .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         guard let self else { return }

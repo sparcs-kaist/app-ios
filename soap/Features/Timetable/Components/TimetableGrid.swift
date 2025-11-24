@@ -11,7 +11,7 @@ import BuddyDataCore
 
 struct TimetableGrid: View {
   @Environment(TimetableViewModel.self) private var timetableViewModel
-  var selectedLecture: ((Lecture) -> Void)?
+  var selectedLecture: ((LectureItem) -> Void)?
 
   private let defaultMinMinutes: Int = 540       // 8:00 AM
   private let defaultMaxMinutes: Int = 1080      // 6:00 PM
@@ -45,7 +45,7 @@ struct TimetableGrid: View {
                 .offset(y: TimetableConstructor.getCellOffset(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.duration))
                 .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
                 .onTapGesture {
-                  selectedLecture?(item.lecture)
+                  selectedLecture?(item)
                 }
               }
             }

@@ -15,7 +15,7 @@ struct TaxiDepartureBubble: View {
   @State private var showAlert: Bool = false
 
   var body: some View {
-    VStack {
+    VStack(alignment: .leading) {
       Text("⏰ It's 15 minutes before your taxi leaves! If everyone's gathered, go ahead and call the taxi to head out together.")
 
       Button(action: {

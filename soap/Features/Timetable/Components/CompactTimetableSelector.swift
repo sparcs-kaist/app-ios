@@ -27,13 +27,27 @@ struct CompactTimetableSelector: View {
     Menu(content: {
       ForEach(timetableViewModel.timetableIDsForSelectedSemester.enumerated(), id: \.element) { offset, id in
         if id.contains("myTable") {
-          Button("My Table", systemImage: id == timetableViewModel.selectedTimetable?.id ? "checkmark" : "") {
+          Button(action: {
             timetableViewModel.selectTimetable(id: id)
-          }
+          }, label: {
+            HStack {
+              if id == timetableViewModel.selectedTimetable?.id {
+                Image(systemName: "checkmark")
+              }
+              Text("My Table")
+            }
+          })
         } else {
-          Button("Table \(offset)", systemImage: id == timetableViewModel.selectedTimetable?.id ? "checkmark" : "") {
+          Button(action: {
             timetableViewModel.selectTimetable(id: id)
-          }
+          }, label: {
+            HStack {
+              if id == timetableViewModel.selectedTimetable?.id {
+                Image(systemName: "checkmark")
+              }
+              Text("Table \(offset)")
+            }
+          })
         }
       }
 

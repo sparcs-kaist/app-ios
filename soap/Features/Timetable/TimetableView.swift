@@ -13,12 +13,13 @@ struct TimetableView: View {
   @State private var viewModel = TimetableViewModel()
 
   @State private var showSearchSheet: Bool = false
-  @State private var selectedLecture: Lecture? = nil
+  @State private var selectedLecture: LectureItem? = nil
 
   @State private var selectedDetent: PresentationDetent = .medium
   @FocusState private var isFocused: Bool
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   @AppStorage("NextClassAppIntentsSuggestion") private var siriSuggestion: Bool = true
 
@@ -34,8 +35,8 @@ struct TimetableView: View {
               .environment(viewModel)
 
             // Timetable Gird View
-            TimetableGrid() { lecture in
-              selectedLecture = lecture
+            TimetableGrid() { lectureItem in
+              selectedLecture = lectureItem
             }
             .padding()
             .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
@@ -62,7 +63,7 @@ struct TimetableView: View {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
         }
-        .navigationTitle("Timetable")
+        .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Timetable") : "")
         .toolbarTitleDisplayMode(.inlineLarge)
         .background(Color.systemGroupedBackground)
         .toolbar {
@@ -73,9 +74,14 @@ struct TimetableView: View {
             .disabled(!viewModel.isEditable)
           }
         }
-        .sheet(item: $selectedLecture) { (item: Lecture) in
+        .sheet(item: $selectedLecture) { (item: LectureItem) in
           NavigationStack {
-            LectureDetailView(lecture: item, onAdd: nil, isOverlapping: false)
+            LectureDetailView(
+              lecture: item.lecture,
+              onAdd: nil,
+              isOverlapping: false,
+              classTime: item.lecture.classTimes[item.index]
+            )
               .presentationDragIndicator(.visible)
               .presentationDetents([.medium, .large])
           }

@@ -22,7 +22,13 @@ struct FeedView: View {
   @State private var showAlert: Bool = false
   
   @State private var spoilerContents = SpoilerContents()
+  
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
+  init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
+    self._viewModel = State(initialValue: viewModel)
+  }
+  
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -85,7 +91,7 @@ struct FeedView: View {
         .animation(.spring, value: viewModel.posts)
       }
       .disabled(viewModel.state == .loading)
-      .navigationTitle("Feed")
+      .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed") : "")
       .toolbarTitleDisplayMode(.inlineLarge)
       .task {
         await viewModel.fetchInitialData()
@@ -142,7 +148,21 @@ struct FeedView: View {
 }
 
 
+#Preview("Loading State") {
+  @Previewable @State var viewModel = MockFeedViewModel()
+  viewModel.state = .loading
+  
+  return FeedView(viewModel)
+}
 
-#Preview {
-  FeedView()
+#Preview("Loaded State") {
+  @Previewable @State var viewModel = MockFeedViewModel()
+  FeedView(viewModel)
+}
+
+#Preview("Error State") {
+  @Previewable @State var viewModel = MockFeedViewModel()
+  viewModel.state = .error(message: "Something went wrong")
+  
+  return FeedView(viewModel)
 }

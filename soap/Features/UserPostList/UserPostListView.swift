@@ -13,6 +13,7 @@ struct UserPostListView: View {
 
   @State private var loadedInitialPost: Bool = false
   @State private var searchText: String = ""
+  @State private var selectedPost: AraPost?
 
   init(user: AraPostAuthor) {
     _viewModel = State(initialValue: UserPostListViewModel(user: user))

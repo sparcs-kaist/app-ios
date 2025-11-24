@@ -15,9 +15,13 @@ struct PostListView: View {
   @Namespace private var namespace
 
   @State private var loadedInitialPost: Bool = false
-
+  
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostListViewModel(board: board))
+  }
+  
+  init(viewModel: PostListViewModelProtocol) {
+    _viewModel = State(initialValue: viewModel)
   }
 
   var body: some View {
@@ -38,6 +42,7 @@ struct PostListView: View {
             posts: posts,
             destination: { post in
               PostView(post: post)
+                .id(post.id)
                 .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
                 .onDisappear {
                   viewModel.refreshItem(postID: post.id)
@@ -89,14 +94,34 @@ struct PostListView: View {
       }
     }
     .searchable(text: $viewModel.searchKeyword)
+    .background {
+      BackgroundGradientView(color: .red)
+        .ignoresSafeArea()
+    }
   }
 }
 
-#Preview {
-  NavigationStack {
-    PostListView(board: AraBoard.mock)
+#Preview("Loading State") {
+  @Previewable @State var viewModel = MockPostListViewModel()
+  viewModel.state = .loading
+  
+  return NavigationStack {
+    PostListView(viewModel: viewModel)
   }
 }
 
+#Preview("Loaded State") {
+  @Previewable @State var viewModel = MockPostListViewModel()
+  return NavigationStack {
+    PostListView(viewModel: viewModel)
+  }
+}
 
-
+#Preview("Error State") {
+  @Previewable @State var viewModel = MockPostListViewModel()
+  viewModel.state = .error(message: "Something went wrong")
+  
+  return NavigationStack {
+    PostListView(viewModel: viewModel)
+  }
+}

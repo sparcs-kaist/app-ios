@@ -37,7 +37,7 @@ struct ListGlassSection<Content: View>: View {
       }
       .padding(.horizontal)
       .glassEffect(
-        colorScheme == .light ? .identity.interactive() : .regular.interactive(),
+        colorScheme == .light ? .identity : .regular,
         in: .rect(cornerRadius: 28)
       )
       .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
@@ -46,10 +46,19 @@ struct ListGlassSection<Content: View>: View {
 }
 
 struct BoardListView: View {
-  @State private var viewModel = BoardListViewModel()
+  @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
+  @State private var selectedBoard: AraBoard? = nil
+  @State private var columnVisibility: NavigationSplitViewVisibility = .all
+  @State private var preferredCompactColumn: NavigationSplitViewColumn = .sidebar
+  @State private var tabBarVisibility: Visibility = .visible
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
+  init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel()) {
+    _viewModel = State(initialValue: viewModel)
+  }
+  
   var body: some View {
-    NavigationStack {
+    NavigationSplitView(columnVisibility: $columnVisibility, preferredCompactColumn: $preferredCompactColumn, sidebar: {
       ScrollView {
         LazyVStack(spacing: 20) {
           switch viewModel.state {
@@ -65,17 +74,51 @@ struct BoardListView: View {
         }
         .padding()
       }
+      .background {
+        if horizontalSizeClass == .compact {
+          BackgroundGradientView(color: .red)
+            .ignoresSafeArea()
+        }
+      }
+      .background(Color.systemGroupedBackground)
       .disabled(viewModel.state == .loading)
-      .navigationTitle("Boards")
+      .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Boards") : "")
       .toolbarTitleDisplayMode(.inlineLarge)
       .task {
         await viewModel.fetchBoards()
+      }
+      .toolbar(tabBarVisibility, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
+    }, content: {
+      if let board = selectedBoard {
+        PostListView(board: board)
+          .id(board.id)
+          .windowSizeClass(horizontalSizeClass)
+      } else {
+        BackgroundGradientView(color: .red)
+          .ignoresSafeArea()
+      }
+    }, detail: {
+      NavigationStack {
+        
       }
       .background {
         BackgroundGradientView(color: .red)
           .ignoresSafeArea()
       }
-      .background(Color.systemGroupedBackground)
+    })
+    .ignoresSafeArea()
+    .onChange(of: columnVisibility) {
+      if columnVisibility == .all {
+        tabBarVisibility = .visible
+      }
+      else if selectedBoard == nil {
+        columnVisibility = .all
+      }
+    }
+    .onChange(of: preferredCompactColumn) {
+      if preferredCompactColumn == .sidebar {
+        tabBarVisibility = .visible
+      }
     }
   }
 
@@ -86,11 +129,18 @@ struct BoardListView: View {
         header: Label(group.name.localized(), systemImage: symbol(for: group.slug))
       ) {
         ForEach(boards.filter { $0.group.id == group.id }) { board in
-          NavigationLink(destination: {
-            PostListView(board: board)
+          Button(action: {
+            selectedBoard = board
+            if horizontalSizeClass == .compact {
+              preferredCompactColumn = .content
+              tabBarVisibility = .hidden
+            } else {
+              columnVisibility = .doubleColumn
+            }
           }, label: {
             HStack {
               Text(board.name.localized())
+                .multilineTextAlignment(.leading)
               Spacer()
               Image(systemName: "chevron.right")
                 .opacity(0.3)
@@ -143,6 +193,21 @@ struct BoardListView: View {
 }
 
 
-#Preview {
-  BoardListView()
+#Preview("Loading State") {
+  @Previewable @State var viewModel = MockBoardListViewModel()
+  viewModel.state = .loading
+  
+  return BoardListView(viewModel)
+}
+
+#Preview("Loaded State") {
+  @Previewable @State var viewModel = MockBoardListViewModel()
+  BoardListView(viewModel)
+}
+
+#Preview("Error State") {
+  @Previewable @State var viewModel = MockBoardListViewModel()
+  viewModel.state = .error(message: "Something went wrong")
+  
+  return BoardListView(viewModel)
 }
