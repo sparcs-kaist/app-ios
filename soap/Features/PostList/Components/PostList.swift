@@ -14,6 +14,8 @@ struct PostList<Destination: View>: View {
   @ViewBuilder let destination: (AraPost) -> Destination
   var onRefresh: (() async -> Void)? = nil
   var onLoadMore: (() async -> Void)? = nil
+  
+  @Environment(\.windowSizeClass) private var windowSizeClass
 
   @State private var isLoadingMore: Bool = false
 
@@ -34,7 +36,8 @@ struct PostList<Destination: View>: View {
         }
       }
       .scrollContentBackground(.hidden)
-      .listStyle(.plain)
+      .listStyle(.sidebar)
+      .contentMargins(0)
       .refreshable {
         await onRefresh?()
       }
@@ -49,6 +52,7 @@ struct PostList<Destination: View>: View {
         .selectionDisabled(post.isHidden)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
+        .listRowBackground(windowSizeClass == .compact ? Color.clear : nil)
         .onAppear {
           // loads more contents on 60% scroll
           let thresholdIndex = Int(Double(posts.count) * Constants.loadMoreThreshold)
@@ -88,6 +92,7 @@ struct PostList<Destination: View>: View {
       PostListRow(post: post)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
+        .listRowBackground(windowSizeClass == .compact ? Color.clear : nil)
     }
   }
 }

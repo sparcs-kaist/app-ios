@@ -92,6 +92,7 @@ struct BoardListView: View {
       if let board = selectedBoard {
         PostListView(board: board)
           .id(board.id)
+          .windowSizeClass(horizontalSizeClass)
       } else {
         BackgroundGradientView(color: .red)
           .ignoresSafeArea()

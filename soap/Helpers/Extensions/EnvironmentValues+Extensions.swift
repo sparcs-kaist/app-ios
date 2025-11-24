@@ -12,9 +12,18 @@ struct TaxiUserKey: EnvironmentKey {
   static let defaultValue: TaxiUser? = nil
 }
 
+private struct WindowSizeClassKey: EnvironmentKey {
+  static let defaultValue: UserInterfaceSizeClass? = .regular
+}
+
 extension EnvironmentValues {
   var taxiUser: TaxiUser? {
     get { self[TaxiUserKey.self] }
     set { self[TaxiUserKey.self] = newValue }
+  }
+  
+  var windowSizeClass: UserInterfaceSizeClass? {
+    get { self[WindowSizeClassKey.self] }
+    set { self[WindowSizeClassKey.self] = newValue }
   }
 }

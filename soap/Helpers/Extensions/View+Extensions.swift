@@ -22,4 +22,8 @@ extension View {
     )
     .onPreferenceChange(WidthKey.self, perform: onChange)
   }
+  
+  func windowSizeClass(_ sizeClass: UserInterfaceSizeClass?) -> some View {
+    environment(\.windowSizeClass, sizeClass)
+  }
 }
