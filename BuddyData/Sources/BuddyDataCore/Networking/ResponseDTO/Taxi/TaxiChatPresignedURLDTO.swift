@@ -11,15 +11,14 @@ import BuddyDomain
 public struct TaxiChatPresignedURLDTO: Codable {
   let id: String
   let url: String
-  let fields: [String: String]
 }
 
 public extension TaxiChatPresignedURLDTO {
   func toModel() -> TaxiChatPresignedURL {
-    TaxiChatPresignedURL(id: id, url: url, fields: fields)
+    TaxiChatPresignedURL(id: id, url: url)
   }
 
   static func fromModel(model: TaxiChatPresignedURL) -> TaxiChatPresignedURLDTO {
-    TaxiChatPresignedURLDTO(id: model.id, url: model.url, fields: model.fields)
+    TaxiChatPresignedURLDTO(id: model.id, url: model.url)
   }
 }

@@ -14,6 +14,10 @@ import Factory
 import BuddyDomain
 import AppIntents
 
+#if DEBUG
+import FirebaseCrashlytics
+#endif
+
 let logger = SwiftyBeaver.self
 
 // MARK: - Main-actor AppDelegate (no MessagingDelegate here)
@@ -26,6 +30,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
   ) -> Bool {
     FirebaseApp.configure()
+    
+    // Firebase Crashlytics
+    #if DEBUG
+    Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+    #endif
 
     // Ask permission
     let center = UNUserNotificationCenter.current()

@@ -111,7 +111,7 @@ public final class TaxiChatRepository: TaxiChatRepositoryProtocol, @unchecked Se
   public func uploadImage(presignedURL: TaxiChatPresignedURL, imageData: Data) async throws {
     let _ = try await provider
       .request(
-        .uploadImage(url: presignedURL.url, fields: presignedURL.fields, imageData: imageData)
+        .uploadImage(url: presignedURL.url, imageData: imageData)
       )
   }
 
