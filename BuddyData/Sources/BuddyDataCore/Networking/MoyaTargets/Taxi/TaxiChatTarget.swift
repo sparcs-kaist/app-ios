@@ -15,14 +15,14 @@ public enum TaxiChatTarget {
   case sendChat(request: TaxiChatRequestDTO)
   case readChat(roomID: String)
   case getPresignedURL(roomID: String)
-  case uploadImage(url: String, fields: [String: String], imageData: Data)    // this goes to AWS S3
+  case uploadImage(url: String, imageData: Data)    // this goes to AWS S3
   case notifyImageUploadComplete(id: String)
 }
 
 extension TaxiChatTarget: TargetType, AccessTokenAuthorizable {
   public var baseURL: URL {
     switch self {
-    case .uploadImage(let url, _, _):
+    case .uploadImage(let url, _):
       URL(string: url)!
     default:
       BackendURL.taxiBackendURL
@@ -51,7 +51,12 @@ extension TaxiChatTarget: TargetType, AccessTokenAuthorizable {
   }
 
   public var method: Moya.Method {
-    .post
+    switch self {
+    case .uploadImage:
+        .put
+    default:
+        .post
+    }
   }
 
   public var task: Moya.Task {
@@ -68,23 +73,8 @@ extension TaxiChatTarget: TargetType, AccessTokenAuthorizable {
       return .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .getPresignedURL(let roomID):
       return .requestParameters(parameters: ["roomId": roomID, "type": "image/png"], encoding: JSONEncoding.default)
-    case .uploadImage(_, let fields, let imageData):
-      var multipartData: [MultipartFormData] = []
-
-      for (key, value) in fields {
-        let data = MultipartFormData(provider: .data(value.data(using: .utf8)!), name: key)
-        multipartData.append(data)
-      }
-
-      let imageMultipart = MultipartFormData(
-        provider: .data(imageData),
-        name: "file",
-        fileName: "blob",
-        mimeType: "image/png"
-      )
-      multipartData.append(imageMultipart)
-
-      return .uploadMultipart(multipartData)
+    case .uploadImage(_, let imageData):
+      return .requestData(imageData)
     case .notifyImageUploadComplete(let id):
       return .requestParameters(parameters: ["id": id], encoding: JSONEncoding.default)
     }
@@ -93,7 +83,10 @@ extension TaxiChatTarget: TargetType, AccessTokenAuthorizable {
   public var headers: [String: String]? {
     switch self {
     case .uploadImage:
-      nil
+      [
+        "Origin": "sparcsapp",
+        "Content-Type": "image/png"
+      ]
     default:
       [
         "Origin": "sparcsapp",
