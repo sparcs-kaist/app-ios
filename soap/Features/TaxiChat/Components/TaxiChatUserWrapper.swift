@@ -16,7 +16,10 @@ struct TaxiChatUserWrapper<Content: View>: View {
   let isMe: Bool
   let isGeneral: Bool
   let isWithdrawn: Bool
+  let badge: Bool
   @ViewBuilder let content: () -> Content
+  
+  @State private var showPopover: Bool = false
 
   var body: some View {
     if isGeneral {
@@ -40,9 +43,26 @@ struct TaxiChatUserWrapper<Content: View>: View {
         VStack(alignment: isMe ? .trailing : .leading, spacing: 4) {
           // nickname label
           if !isMe {
-            authorNameplace
-              .font(.caption)
-              .fontWeight(.medium)
+            HStack(spacing: 4) {
+              authorNameplace
+                .font(.caption)
+                .fontWeight(.medium)
+              
+              if badge {
+                Image(systemName: "phone.circle.fill")
+                  .foregroundStyle(.accent)
+                  .scaleEffect(0.8)
+                  .onTapGesture {
+                    showPopover.toggle()
+                  }
+                  .popover(isPresented: $showPopover) {
+                    Text("Members with this badge can resolve issues through SPARCS' mediation when they arise.")
+                      .padding()
+                      .frame(width: 250)
+                      .presentationCompactAdaptation(.popover)
+                  }
+              }
+            }
           }
 
           // chat bubbles
@@ -128,7 +148,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       date: Date(),
       isMe: false,
       isGeneral: false,
-      isWithdrawn: false
+      isWithdrawn: false,
+      badge: true
     ) {
       TaxiChatBubble(content: "hey", showTip: true, isMe: false)
     }
@@ -140,7 +161,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       date: Date(),
       isMe: true,
       isGeneral: false,
-      isWithdrawn: false
+      isWithdrawn: false,
+      badge: false
     ) {
       TaxiChatBubble(content: "hey alex!", showTip: true, isMe: true)
     }
@@ -152,7 +174,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       date: Date(),
       isMe: false,
       isGeneral: false,
-      isWithdrawn: false
+      isWithdrawn: false,
+      badge: true
     ) {
       TaxiChatBubble(content: "yo everyone", showTip: false, isMe: false)
       TaxiChatBubble(content: "what's up", showTip: true, isMe: false)
@@ -165,7 +188,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       date: Date(),
       isMe: false,
       isGeneral: false,
-      isWithdrawn: false
+      isWithdrawn: false,
+      badge: false
     ) {
       TaxiChatBubble(content: "how's your day going?", showTip: true, isMe: false)
     }
@@ -177,7 +201,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       date: Date(),
       isMe: false,
       isGeneral: false,
-      isWithdrawn: false
+      isWithdrawn: false,
+      badge: true
     ) {
       TaxiChatBubble(content: "pretty chill", showTip: false, isMe: false)
       TaxiChatBubble(content: "so far", showTip: false, isMe: false)
@@ -191,7 +216,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
       date: Date(),
       isMe: true,
       isGeneral: false,
-      isWithdrawn: false
+      isWithdrawn: false,
+      badge: true
     ) {
       TaxiChatBubble(content: "same here", showTip: false, isMe: true)
       TaxiChatBubble(content: "just working through emails", showTip: true, isMe: true)

@@ -23,7 +23,8 @@ struct TaxiArrivalBubble: View {
     date: Date(),
     isMe: false,
     isGeneral: false,
-    isWithdrawn: false
+    isWithdrawn: false,
+    badge: true
   ) {
     TaxiArrivalBubble()
   }
