@@ -20,6 +20,7 @@ public struct TaxiParticipant: Identifiable, Hashable, Sendable {
   public let nickname: String
   public let profileImageURL: URL?
   public let withdraw: Bool
+  public let badge: Bool
   public let isSettlement: SettlementType?
   public let readAt: Date
 
@@ -29,6 +30,7 @@ public struct TaxiParticipant: Identifiable, Hashable, Sendable {
     nickname: String,
     profileImageURL: URL?,
     withdraw: Bool,
+    badge: Bool,
     isSettlement: SettlementType?,
     readAt: Date
   ) {
@@ -37,6 +39,7 @@ public struct TaxiParticipant: Identifiable, Hashable, Sendable {
     self.nickname = nickname
     self.profileImageURL = profileImageURL
     self.withdraw = withdraw
+    self.badge = badge
     self.isSettlement = isSettlement
     self.readAt = readAt
   }

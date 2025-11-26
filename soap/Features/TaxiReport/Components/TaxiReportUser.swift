@@ -16,7 +16,15 @@ struct TaxiReportUser: View {
     HStack {
       userProfileImage
       VStack(alignment: .leading) {
-        Text(user.nickname)
+        HStack {
+          Text(user.nickname)
+          
+          if user.badge {
+            Image(systemName: "phone.circle.fill")
+              .foregroundStyle(.accent)
+              .scaleEffect(0.8)
+          }
+        }
         if user.isSettlement != .notDeparted {
           Text(
             user.isSettlement == .requestedSettlement ? "Requested settlement" :

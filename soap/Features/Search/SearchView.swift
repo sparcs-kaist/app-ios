@@ -119,7 +119,7 @@ struct SearchView: View {
     } content: {
       TaxiPreviewView(room: $0)
         .presentationDragIndicator(.visible)
-        .presentationDetents([.height(400), .height(500)])
+        .presentationDetents([.height(450), .height(500)])
     }
   }
   

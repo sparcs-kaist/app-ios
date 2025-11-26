@@ -159,6 +159,6 @@ struct TaxiPreviewView: View {
   .sheet(isPresented: $showSheet) {
     TaxiPreviewView(room: TaxiRoom.mockList[6])
       .presentationDragIndicator(.visible)
-      .presentationDetents([.height(400), .height(500)])
+      .presentationDetents([.height(450), .height(500)])
   }
 }

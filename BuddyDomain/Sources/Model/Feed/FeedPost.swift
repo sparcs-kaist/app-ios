@@ -11,6 +11,7 @@ public struct FeedPost: Identifiable, Hashable, Sendable {
   public let id: String
   public let content: String
   public let isAnonymous: Bool
+  public let isKaistIP: Bool
   public let authorName: String
   public let nickname: String?
   public let profileImageURL: URL?
@@ -26,6 +27,7 @@ public struct FeedPost: Identifiable, Hashable, Sendable {
     id: String,
     content: String,
     isAnonymous: Bool,
+    isKaistIP: Bool,
     authorName: String,
     nickname: String?,
     profileImageURL: URL?,
@@ -40,6 +42,7 @@ public struct FeedPost: Identifiable, Hashable, Sendable {
     self.id = id
     self.content = content
     self.isAnonymous = isAnonymous
+    self.isKaistIP = isKaistIP
     self.authorName = authorName
     self.nickname = nickname
     self.profileImageURL = profileImageURL

@@ -74,6 +74,12 @@ struct FeedPostRow: View {
       Text(post.authorName)
         .fontWeight(.semibold)
         .font(.callout)
+      
+      if post.isKaistIP {
+        Image(systemName: "checkmark.seal.fill")
+          .foregroundStyle(Color(.systemBlue))
+          .scaleEffect(0.9)
+      }
 
       // onPostDeleted == nil here means FeedPostRow is in the FeedPostView.
       Text(onPostDeleted != nil ? post.createdAt.timeAgoDisplay : post.createdAt.relativeTimeString)
