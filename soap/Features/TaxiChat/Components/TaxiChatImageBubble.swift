@@ -39,7 +39,8 @@ struct TaxiChatImageBubble: View {
     date: Date(),
     isMe: false,
     isGeneral: false,
-    isWithdrawn: false
+    isWithdrawn: false,
+    badge: true
   ) {
     TaxiChatImageBubble(id: "688714fb95fce20ddc8f19da")
   }

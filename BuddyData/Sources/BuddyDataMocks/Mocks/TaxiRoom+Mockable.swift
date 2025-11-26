@@ -29,6 +29,7 @@ public extension TaxiRoom {
           string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/NupjukOTL.png"
         ),
         withdraw: false,
+        badge: true,
         isSettlement: nil,
         readAt: baseDate
       ),
@@ -40,6 +41,7 @@ public extension TaxiRoom {
           string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/GooseOTL.png"
         ),
         withdraw: false,
+        badge: true,
         isSettlement: nil,
         readAt: baseDate
       )

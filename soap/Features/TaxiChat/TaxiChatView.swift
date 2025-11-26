@@ -144,6 +144,8 @@ struct TaxiChatView: View {
         }
 
         ForEach(viewModel.groupedChats) { groupedChat in
+          let badge = viewModel.room.participants.first(where: { $0.id == groupedChat.authorID })?.badge ?? false
+                    
           TaxiChatUserWrapper(
             authorID: groupedChat.authorID,
             authorName: groupedChat.authorName,
@@ -151,7 +153,8 @@ struct TaxiChatView: View {
             date: groupedChat.time,
             isMe: groupedChat.isMe,
             isGeneral: groupedChat.isGeneral,
-            isWithdrawn: groupedChat.authorIsWithdrew ?? false
+            isWithdrawn: groupedChat.authorIsWithdrew ?? false,
+            badge: badge
           ) {
             ForEach(groupedChat.chats) { chat in
               let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
@@ -469,7 +472,8 @@ struct TaxiChatView: View {
             date: groupedChat.time,
             isMe: false,
             isGeneral: groupedChat.isGeneral,
-            isWithdrawn: groupedChat.authorIsWithdrew ?? false
+            isWithdrawn: groupedChat.authorIsWithdrew ?? false,
+            badge: false
           ) {
             ForEach(groupedChat.chats) { chat in
               let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
