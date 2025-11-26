@@ -44,7 +44,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     UIApplication.shared.registerForRemoteNotifications()
-    UIDevice.current.beginGeneratingDeviceOrientationNotifications()
 
     // FCM
     Messaging.messaging().delegate = pushDelegate

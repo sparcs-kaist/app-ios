@@ -93,7 +93,7 @@ struct FeedView: View {
             if horizontalSizeClass == .compact {
               return length
             }
-            if UIDevice.current.orientation.isPortrait {
+            if isPortrait {
               return length / 1.25
             }
             return length / 1.75
@@ -155,6 +155,22 @@ struct FeedView: View {
     alertTitle = title
     alertMessage = message
     showAlert = true
+  }
+  
+  private var isPortrait: Bool {
+    if UIDevice.current.orientation.isValidInterfaceOrientation {
+      return UIDevice.current.orientation.isPortrait
+    }
+    
+    // fallback to portrait when not available
+    
+    guard let windowScene = UIApplication.shared.connectedScenes
+      .compactMap({ $0 as? UIWindowScene })
+      .first(where: { $0.activationState == .foregroundActive }) else {
+      return true
+    }
+    
+    return ![.landscapeLeft, .landscapeRight].contains(windowScene.effectiveGeometry.interfaceOrientation)
   }
 }
 
