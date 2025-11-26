@@ -143,7 +143,7 @@ struct TaxiListView: View {
             }
           }
           .presentationDragIndicator(.visible)
-          .presentationDetents([.height(400), .height(500)])
+          .presentationDetents([.height(450), .height(500)])
       }
     }
     .alert("Invalid Invitation", isPresented: $showInvalidInviteIdAlert, actions: {
