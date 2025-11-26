@@ -12,6 +12,7 @@ struct FeedPostDTO: Codable {
   let id: String
   let content: String
   let isAnonymous: Bool
+  let isKaistIP: Bool
   let authorName: String
   let nickname: String?
   let profileImageURL: String?
@@ -27,6 +28,7 @@ struct FeedPostDTO: Codable {
     case id
     case content
     case isAnonymous = "is_anonymous"
+    case isKaistIP = "is_kaist_ip"
     case authorName = "author_name"
     case nickname
     case profileImageURL = "profile_image_url"
@@ -47,6 +49,7 @@ extension FeedPostDTO {
       id: id,
       content: content,
       isAnonymous: isAnonymous,
+      isKaistIP: isKaistIP,
       authorName: authorName,
       nickname: nickname,
       profileImageURL: profileImageURL.flatMap(URL.init(string:)),

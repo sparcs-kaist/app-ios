@@ -88,6 +88,12 @@ struct FeedCommentRow: View {
       }
       .fontWeight(.semibold)
       .font(.callout)
+      
+      if comment.isKaistIP {
+        Image(systemName: "checkmark.seal.fill")
+          .foregroundStyle(Color(.systemBlue))
+          .scaleEffect(0.9)
+      }
 
       Text(comment.createdAt.timeAgoDisplay)
         .foregroundStyle(.secondary)
