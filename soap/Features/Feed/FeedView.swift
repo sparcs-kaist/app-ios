@@ -33,60 +33,71 @@ struct FeedView: View {
     NavigationStack {
       ScrollView {
         LazyVStack(spacing: 0) {
-          switch viewModel.state {
-          case .loading:
-            ForEach(.constant(FeedPost.mockList)) { $post in
-              FeedPostRow(post: $post, onPostDeleted: nil, onComment: nil)
-                .environment(spoilerContents)
-                .padding(.vertical)
+          Group {
+            switch viewModel.state {
+            case .loading:
+              ForEach(.constant(FeedPost.mockList)) { $post in
+                FeedPostRow(post: $post, onPostDeleted: nil, onComment: nil)
+                  .environment(spoilerContents)
+                  .padding(.vertical)
 
-              Divider()
-                .padding(.horizontal)
-            }
-            .redacted(reason: .placeholder)
-          case .loaded:
-            ForEach($viewModel.posts) { $post in
-              NavigationLink(destination: {
-                FeedPostView(post: $post, onDelete: {
-                  if let idx = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
+                Divider()
+                  .padding(.horizontal)
+              }
+              .redacted(reason: .placeholder)
+            case .loaded:
+              ForEach($viewModel.posts) { $post in
+                NavigationLink(destination: {
+                  FeedPostView(post: $post, onDelete: {
+                    if let idx = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
+                      Task {
+                        try? await viewModel.deletePost(postID: post.id)
+                        viewModel.posts.remove(at: idx)
+                      }
+                    }
+                  })
+                  .environment(spoilerContents)
+                  .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
+  //                .navigationTransition(.zoom(sourceID: post.id, in: namespace))
+                }, label: {
+                  FeedPostRow(post: $post, onPostDeleted: { postID in
                     Task {
-                      try? await viewModel.deletePost(postID: post.id)
-                      viewModel.posts.remove(at: idx)
+                      do {
+                        try await viewModel.deletePost(postID: postID)
+                      } catch {
+                        showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
+                      }
                     }
-                  }
+                  }, onComment: nil)
+                  .environment(spoilerContents)
+                  .contentShape(.rect)
                 })
-                .environment(spoilerContents)
-                .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-//                .navigationTransition(.zoom(sourceID: post.id, in: namespace))
-              }, label: {
-                FeedPostRow(post: $post, onPostDeleted: { postID in
-                  Task {
-                    do {
-                      try await viewModel.deletePost(postID: postID)
-                    } catch {
-                      showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
-                    }
-                  }
-                }, onComment: nil)
-                .environment(spoilerContents)
-                .contentShape(.rect)
-              })
-              .id(post.id)
-              .padding(.vertical)
-              .navigationLinkIndicatorVisibility(.hidden)
-              .buttonStyle(.plain)
-              .matchedTransitionSource(id: post.id, in: namespace)
+                .id(post.id)
+                .padding(.vertical)
+                .navigationLinkIndicatorVisibility(.hidden)
+                .buttonStyle(.plain)
+                .matchedTransitionSource(id: post.id, in: namespace)
 
-              Divider()
-                .padding(.horizontal)
+                Divider()
+                  .padding(.horizontal)
+              }
+            case .error(let message):
+              ContentUnavailableView(
+                "Error",
+                systemImage: "questionmark.text.page",
+                description: Text(message)
+              )
             }
-          case .error(let message):
-            ContentUnavailableView(
-              "Error",
-              systemImage: "questionmark.text.page",
-              description: Text(message)
-            )
           }
+          .containerRelativeFrame([.horizontal], alignment: .center, { length, _ in
+            if horizontalSizeClass == .compact {
+              return length
+            }
+            if UIDevice.current.orientation.isPortrait {
+              return length / 1.25
+            }
+            return length / 1.75
+          })
         }
         .animation(.spring, value: viewModel.posts)
       }
