@@ -32,7 +32,8 @@ struct TaxiChatSettlementBubble: View {
     date: Date(),
     isMe: false,
     isGeneral: false,
-    isWithdrawn: false
+    isWithdrawn: false,
+    badge: true
   ) {
     TaxiChatSettlementBubble()
   }
