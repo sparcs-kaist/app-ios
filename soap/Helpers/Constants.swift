@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDataCore
 
 enum Constants {
   // MARK: Infinite Scroll Constants
@@ -48,18 +49,18 @@ enum Constants {
   static let taxiBankNameList = Array(taxiBankCodeMap.keys)
 
   static let taxiInviteURL = {
-    #if DEBUG
-    return URL(string: "https://taxi.dev.sparcs.org/invite/")!
-    #else
-    return URL(string: "https://taxi.sparcs.org/invite/")!
-    #endif
+    if Status.isProduction {
+      return URL(string: "https://taxi.sparcs.org/invite/")!
+    } else {
+      return URL(string: "https://taxi.dev.sparcs.org/invite/")!
+    }
   }()
   
   static let taxiChatImageURL = {
-    #if DEBUG
-    return URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
-    #else
-    return URL(string: "https://sparcs-taxi-prod.s3.ap-northeast-2.amazonaws.com/chat-img")!
-    #endif
+    if Status.isProduction {
+      return URL(string: "https://sparcs-taxi-prod.s3.ap-northeast-2.amazonaws.com/chat-img")!
+    } else {
+      return URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
+    }
   }()
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDataCore
 import FirebaseCrashlytics
 
 struct SettingsView: View {
@@ -44,16 +45,16 @@ struct SettingsView: View {
           .foregroundStyle(.red)
         }
         
-        #if DEBUG
-        Section(header: Text("Debug Menu")) {
-          Button("Force Crash", systemImage: "exclamationmark.triangle") {
-            fatalError("DEBUG: User forced a crash")
-          }
-          Button("Invoke Exception", systemImage: "exclamationmark.triangle") {
-            viewModel.handleException(NSError(domain: "Test", code: 1001))
+        if !Status.isProduction {
+          Section(header: Text("Debug Menu")) {
+            Button("Force Crash", systemImage: "exclamationmark.triangle") {
+              fatalError("DEBUG: User forced a crash")
+            }
+            Button("Invoke Exception", systemImage: "exclamationmark.triangle") {
+              viewModel.handleException(NSError(domain: "Test", code: 1001))
+            }
           }
         }
-        #endif
       }
       .navigationTitle(Text("Settings"))
       .alert("Error", isPresented: $showLogoutError) {

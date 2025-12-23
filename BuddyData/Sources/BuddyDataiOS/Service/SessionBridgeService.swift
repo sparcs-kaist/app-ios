@@ -48,21 +48,15 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
     activationDidCompleteWith activationState: WCSessionActivationState,
     error: (any Error)?
   ) {
-    #if DEBUG
     if let error { print("[SessionBridgeService] activation error:", error) }
     else { print("[SessionBridgeService] activated:", activationState.rawValue) }
-    #endif
   }
 
   public func sessionDidBecomeInactive(_ session: WCSession) {
-    #if DEBUG
     print("[SessionBridgeService] sessionDidBecomeInactive")
-    #endif
   }
 
   public func sessionDidDeactivate(_ session: WCSession) {
-    #if DEBUG
     print("[SessionBridgeService] sessionDidDeactivate")
-    #endif
   }
 }

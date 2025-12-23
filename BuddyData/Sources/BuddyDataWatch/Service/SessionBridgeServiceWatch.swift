@@ -41,10 +41,8 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
     activationDidCompleteWith activationState: WCSessionActivationState,
     error: (any Error)?
   ) {
-    #if DEBUG
     if let error { print("[SessionBridgeServiceWatch] activation error:", error) }
     else { print("[SessionBridgeServiceWatch] activated:", activationState.rawValue) }
-    #endif
   }
 
   #if os(iOS)
