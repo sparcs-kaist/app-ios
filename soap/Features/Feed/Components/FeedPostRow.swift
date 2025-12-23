@@ -181,7 +181,7 @@ struct FeedPostRow: View {
 //        PostShareButton(url: URL(string: "https://sparcs.org")!) // FIXME: Feed URL Placeholder
 //      }
     }
-    .frame(height: 20)
+//    .frame(height: 20)
     .padding(.horizontal)
     .padding(.top, 4)
   }
