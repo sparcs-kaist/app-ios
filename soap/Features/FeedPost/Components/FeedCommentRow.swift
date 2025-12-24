@@ -24,6 +24,7 @@ struct FeedCommentRow: View {
   @State private var canBeExpanded: Bool = false
 
   @State private var showTranslateSheet: Bool = false
+  @State private var showPopover: Bool = false
 
   // MARK: - Dependencies
   @Injected(
@@ -93,6 +94,15 @@ struct FeedCommentRow: View {
         Image(systemName: "checkmark.seal.fill")
           .foregroundStyle(Color(.systemBlue))
           .scaleEffect(0.9)
+          .popover(isPresented: $showPopover) {
+            Text("KAIST IP verified")
+              .presentationCompactAdaptation(.popover)
+              .padding()
+          }
+          .onTapGesture {
+            showPopover = true
+          }
+          .accessibilityLabel(Text("KAIST IP verified"))
       }
 
       Text(comment.createdAt.timeAgoDisplay)

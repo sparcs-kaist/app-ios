@@ -23,6 +23,7 @@ struct FeedPostRow: View {
   
   @State private var showDeleteConfirmation: Bool = false
   @State private var showTranslateSheet: Bool = false
+  @State private var showPopover: Bool = false
 
   // MARK: - Dependencies
   @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol
@@ -79,6 +80,15 @@ struct FeedPostRow: View {
         Image(systemName: "checkmark.seal.fill")
           .foregroundStyle(Color(.systemBlue))
           .scaleEffect(0.9)
+          .popover(isPresented: $showPopover) {
+            Text("KAIST IP verified")
+              .presentationCompactAdaptation(.popover)
+              .padding()
+          }
+          .onTapGesture {
+            showPopover = true
+          }
+          .accessibilityLabel(Text("KAIST IP verified"))
       }
 
       // onPostDeleted == nil here means FeedPostRow is in the FeedPostView.
