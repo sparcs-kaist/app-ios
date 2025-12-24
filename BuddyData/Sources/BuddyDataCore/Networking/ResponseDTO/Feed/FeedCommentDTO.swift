@@ -15,6 +15,7 @@ struct FeedCommentDTO: Codable {
   let content: String
   let isDeleted: Bool
   let isAnonymous: Bool
+  let isKaistIP: Bool
   let authorName: String
   let isAuthor: Bool
   let isMyComment: Bool
@@ -34,6 +35,7 @@ struct FeedCommentDTO: Codable {
     case content
     case isDeleted = "is_deleted"
     case isAnonymous = "is_anonymous"
+    case isKaistIP = "is_kaist_ip"
     case authorName = "author_name"
     case isAuthor = "is_author"
     case isMyComment = "is_my_comment"
@@ -57,6 +59,7 @@ extension FeedCommentDTO {
       content: content,
       isDeleted: isDeleted,
       isAnonymous: isAnonymous,
+      isKaistIP: isKaistIP,
       authorName: authorName,
       isAuthor: isAuthor,
       isMyComment: isMyComment,

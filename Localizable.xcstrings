@@ -2039,6 +2039,22 @@
         }
       }
     },
+    "KAIST IP verified" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KAIST IP verified"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KAIST IP 인증됨"
+          }
+        }
+      }
+    },
     "Language" : {
       "localizations" : {
         "en" : {
