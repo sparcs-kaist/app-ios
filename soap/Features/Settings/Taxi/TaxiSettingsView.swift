@@ -11,7 +11,8 @@ import BuddyDomain
 struct TaxiSettingsView: View {
   @State private var vm: TaxiSettingsViewModelProtocol
   @State private var safariURL: URL?
-  @State private var isValid: Bool = false
+  @State private var showAlert: Bool = false
+  @State private var showToggle: Bool = false
   
   @Environment(\.dismiss) var dismiss
   
@@ -33,14 +34,20 @@ struct TaxiSettingsView: View {
     }
     .task {
       await vm.fetchUser()
+      withAnimation {
+        showToggle = hasNumberRegistered
+      }
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Button("Done", systemImage: "checkmark", role: .confirm) {
-          dismiss()
           Task {
-            guard let bankName = vm.bankName else { return }
-            await vm.editBankAccount(account: "\(bankName) \(vm.bankNumber)")
+            if hasNumberChanged {
+              showAlert = true
+              return
+            }
+            await vm.editInformation()
+            dismiss()
           }
         }
         .disabled(!isValid)
@@ -50,10 +57,21 @@ struct TaxiSettingsView: View {
     .fullScreenCover(item: $safariURL) {
       SafariViewWrapper(url: $0)
     }
-    .onChange(of: [vm.bankName, vm.bankNumber]) {
-      isValid = vm.bankName != nil && !vm.bankNumber.isEmpty && (vm.user?.account != "\(vm.bankName ?? "") \(vm.bankNumber)")
-    }
     .navigationTitle("Taxi")
+    .alert("Warning", isPresented: $showAlert, actions: {
+      Button(role: .cancel, action: {
+        
+      })
+      
+      Button(role: .confirm, action: {
+        Task {
+          await vm.editInformation()
+          dismiss()
+        }
+      })
+    }, message: {
+      Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber)")
+    })
   }
   
   @ViewBuilder
@@ -61,6 +79,7 @@ struct TaxiSettingsView: View {
     List {
       RowElementView(title: "Nickname", content: "Unknown")
       RowElementView(title: "Bank Account", content: "Unknown")
+      RowElementView(title: "Phone Number", content: "Unknown")
     }
   }
   
@@ -82,6 +101,28 @@ struct TaxiSettingsView: View {
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
         }
+        HStack {
+          Text("Phone Number")
+          Spacer()
+          TextField("Enter Phone Number", text: $vm.phoneNumber)
+            .multilineTextAlignment(.trailing)
+            .foregroundStyle(.secondary)
+            .onChange(of: vm.phoneNumber) {
+              vm.phoneNumber = vm.phoneNumber.formatPhoneNumber()
+              withAnimation {
+                showToggle = !vm.phoneNumber.isEmpty
+              }
+            }
+            .disabled(hasNumberRegistered)
+        }
+        if showToggle {
+          HStack {
+            Toggle(isOn: $vm.showBadge, label: {
+              Text("Show Badge")
+            })
+          }
+          .transition(.slide.combined(with: .opacity.animation(.easeInOut(duration: 0.3))))
+        }
       }
       
       Section(header: Text("Service")) {
@@ -97,6 +138,30 @@ struct TaxiSettingsView: View {
         Text(text)
       }
     }
+  }
+  
+  private var isValid: Bool {
+    vm.bankName != nil
+    && !vm.bankNumber.isEmpty
+    && (vm.phoneNumber.isEmpty || vm.phoneNumber.count == 13)
+    && (hasNumberChanged || hasBankAccountChanged)
+  }
+  
+  private var hasNumberRegistered: Bool {
+    vm.user?.phoneNumber?.isEmpty == false
+  }
+  
+  private var hasNumberChanged: Bool {
+    vm.user?.phoneNumber == nil
+    && vm.phoneNumber != ""
+  }
+  
+  private var hasBankAccountChanged: Bool {
+    guard let account = vm.user?.account,
+            let name = account.split(separator: " ").first,
+            let number = account.split(separator: " ").last else { return false }
+    
+    return String(name) != vm.bankName || String(number) != vm.bankNumber
   }
 }
 
