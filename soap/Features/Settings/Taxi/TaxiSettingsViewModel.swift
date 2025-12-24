@@ -60,11 +60,13 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   
   func editInformation() async {
     do {
-      if let bankName {
+      if let bankName, !bankNumber.isEmpty {
         try await taxiUserRepository.editBankAccount(account: "\(bankName) \(bankNumber)")
       }
-      if !phoneNumber.isEmpty {
+      if !phoneNumber.isEmpty && user?.phoneNumber != phoneNumber {
         try await taxiUserRepository.registerPhoneNumber(phoneNumber: phoneNumber)
+      }
+      if user?.badge != showBadge {
         try await taxiUserRepository.editBadge(showBadge: showBadge)
       }
       try await userUseCase.fetchTaxiUser()

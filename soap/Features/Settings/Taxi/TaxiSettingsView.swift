@@ -35,10 +35,10 @@ struct TaxiSettingsView: View {
     .task {
       await vm.fetchUser()
       if !hasNumberRegistered {
-        vm.showBadge = true
+        vm.showBadge = true // showBadge defaults to true for users without a registered phone number
       }
       withAnimation {
-        showToggle = hasNumberRegistered
+        showToggle = !vm.phoneNumber.isEmpty
       }
     }
     .toolbar {
@@ -103,6 +103,7 @@ struct TaxiSettingsView: View {
           TextField("Enter Bank Number", text: $vm.bankNumber)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
+            .keyboardType(.numberPad)
         }
         HStack {
           Text("Phone Number")
@@ -116,6 +117,7 @@ struct TaxiSettingsView: View {
                 showToggle = !vm.phoneNumber.isEmpty
               }
             }
+            .keyboardType(.phonePad)
             .disabled(hasNumberRegistered)
         }
         if showToggle {
@@ -144,10 +146,16 @@ struct TaxiSettingsView: View {
   }
   
   private var isValid: Bool {
-    vm.bankName != nil
-    && !vm.bankNumber.isEmpty
-    && (vm.phoneNumber.isEmpty || vm.phoneNumber.count == 13)
-    && (hasNumberChanged || hasBankAccountChanged || hasBadgeChanged)
+    (isBankAccountValid || isPhoneNumberValid)
+    && (hasNumberChanged || hasBankAccountChanged || (hasNumberRegistered && hasBadgeChanged))
+  }
+  
+  private var isBankAccountValid: Bool {
+    vm.bankName != nil && !vm.bankNumber.isEmpty
+  }
+  
+  private var isPhoneNumberValid: Bool {
+    vm.phoneNumber.isEmpty || vm.phoneNumber.count == 13
   }
   
   private var hasNumberRegistered: Bool {
@@ -164,11 +172,12 @@ struct TaxiSettingsView: View {
   }
   
   private var hasBankAccountChanged: Bool {
-    guard let account = vm.user?.account,
-            let name = account.split(separator: " ").first,
-            let number = account.split(separator: " ").last else { return false }
+    guard let account = vm.user?.account else { return false }
+    if let name = account.split(separator: " ").first,
+       let number = account.split(separator: " ").last,
+       (String(name) != vm.bankName) || (String(number) != vm.bankNumber) { return true }
     
-    return String(name) != vm.bankName || String(number) != vm.bankNumber
+    return isBankAccountValid // account was not set before
   }
 }
 
