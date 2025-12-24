@@ -10,6 +10,7 @@ import BuddyDomain
 
 struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
+  @Namespace private var namespace
 
   // view properties
   @State private var scrollTarget: String? = nil
@@ -111,6 +112,7 @@ struct TaxiListView: View {
             showRoomCreationSheet = true
           }
         }
+        .matchedTransitionSource(id: "RoomCreationView", in: namespace)
 
         ToolbarSpacer(.flexible, placement: .topBarTrailing)
 
@@ -132,6 +134,7 @@ struct TaxiListView: View {
       }
       .sheet(isPresented: $showRoomCreationSheet) {
         TaxiRoomCreationView(viewModel: viewModel)
+          .navigationTransition(.zoom(sourceID: "RoomCreationView", in: namespace))
           .presentationDragIndicator(.visible)
       }
       .sheet(item: $selectedRoom) { room in
