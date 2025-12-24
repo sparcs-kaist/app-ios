@@ -78,7 +78,7 @@ struct FeedPostRow: View {
       
       if post.isKaistIP {
         Image(systemName: "checkmark.seal.fill")
-          .foregroundStyle(Color(.systemBlue))
+          .foregroundStyle(.accent)
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
             Text("KAIST IP Verified")

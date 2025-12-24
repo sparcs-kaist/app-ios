@@ -92,7 +92,7 @@ struct FeedCommentRow: View {
       
       if comment.isKaistIP {
         Image(systemName: "checkmark.seal.fill")
-          .foregroundStyle(Color(.systemBlue))
+          .foregroundStyle(.accent)
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
             Text("KAIST IP Verified")
