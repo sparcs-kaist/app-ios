@@ -2040,6 +2040,7 @@
       }
     },
     "KAIST IP verified" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2054,6 +2055,9 @@
           }
         }
       }
+    },
+    "KAIST IP Verified" : {
+
     },
     "Language" : {
       "localizations" : {
