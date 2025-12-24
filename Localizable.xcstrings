@@ -1630,6 +1630,22 @@
         }
       }
     },
+    "Enter Phone Number" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter Phone Number"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전화 번호 입력"
+          }
+        }
+      }
+    },
     "Error" : {
       "localizations" : {
         "en" : {
@@ -2822,6 +2838,38 @@
         }
       }
     },
+    "Phone Number" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phone Number"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전화 번호"
+          }
+        }
+      }
+    },
+    "Phone number can be set only once. Is the number you want to use correct?\n\n%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phone number can be set only once. Is the number you want to use correct?\n\n%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전화 번호는 한 번만 설정할 수 있습니다. 사용하고자 하는 번호가 맞으신가요?\n\n%@"
+          }
+        }
+      }
+    },
     "Photo Library" : {
       "localizations" : {
         "en" : {
@@ -3617,6 +3665,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@에 대한 생각을 공유해 보세요..."
+          }
+        }
+      }
+    },
+    "Show Badge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Badge"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "뱃지 표시"
           }
         }
       }

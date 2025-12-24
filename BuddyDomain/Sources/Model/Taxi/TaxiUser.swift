@@ -15,6 +15,7 @@ public struct TaxiUser: Identifiable, Hashable, Sendable {
   public let phoneNumber: String?
   public let email: String
   public let withdraw: Bool
+  public let badge: Bool?
   public let ban: Bool
   public let agreeOnTermsOfService: Bool
   public let joinedAt: Date
@@ -29,6 +30,7 @@ public struct TaxiUser: Identifiable, Hashable, Sendable {
     phoneNumber: String?,
     email: String,
     withdraw: Bool,
+    badge: Bool?,
     ban: Bool,
     agreeOnTermsOfService: Bool,
     joinedAt: Date,
@@ -42,6 +44,7 @@ public struct TaxiUser: Identifiable, Hashable, Sendable {
     self.phoneNumber = phoneNumber
     self.email = email
     self.withdraw = withdraw
+    self.badge = badge
     self.ban = ban
     self.agreeOnTermsOfService = agreeOnTermsOfService
     self.joinedAt = joinedAt
