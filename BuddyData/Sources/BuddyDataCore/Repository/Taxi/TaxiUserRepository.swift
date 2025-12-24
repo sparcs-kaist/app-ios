@@ -13,6 +13,8 @@ import Moya
 
 public enum TaxiUserErrorCode: Int {
   case editBankAccountFailed = 2001
+  case editBadgeFailed = 2002
+  case registerPhoneNumberFailed = 2004
 }
 
 public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
@@ -29,6 +31,18 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
     return result
   }
   
+  public func editBadge(showBadge: Bool) async throws {
+    let response = try await provider.request(.editBadge(badge: showBadge))
+    
+    if response.statusCode != 200 {
+      throw NSError(
+        domain: "TaxiUserRepository",
+        code: TaxiUserErrorCode.editBadgeFailed.rawValue,
+        userInfo: [NSLocalizedDescriptionKey : "Failed to edit badge option"]
+      )
+    }
+  }
+  
   public func editBankAccount(account: String) async throws {
     let response = try await provider.request(.editBankAccount(account: account))
     
@@ -37,6 +51,18 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
         domain: "TaxiUserRepository",
         code: TaxiUserErrorCode.editBankAccountFailed.rawValue,
         userInfo: [NSLocalizedDescriptionKey : "Failed to edit bank account"]
+      )
+    }
+  }
+  
+  public func registerPhoneNumber(phoneNumber: String) async throws {
+    let response = try await provider.request(.registerPhoneNumber(phoneNumber: phoneNumber))
+    
+    if response.statusCode != 200 {
+      throw NSError(
+        domain: "TaxiUserRepository",
+        code: TaxiUserErrorCode.registerPhoneNumberFailed.rawValue,
+        userInfo: [NSLocalizedDescriptionKey : "Failed to register phone number"]
       )
     }
   }

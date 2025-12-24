@@ -33,12 +33,13 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
+  @ObservationIgnored @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
   
   // MARK: - Properties
   var bankName: String?
   var bankNumber: String = ""
   var phoneNumber: String = ""
-  var showBadge: Bool = true
+  var showBadge: Bool = false
   var user: TaxiUser?
   var state: ViewState = .loading
 
@@ -53,7 +54,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     bankName = user.account.split(separator: " ").first.map { String($0) }
     bankNumber = String(user.account.split(separator: " ").last ?? "")
     phoneNumber = user.phoneNumber ?? ""
-    showBadge = user.badge ?? true
+    showBadge = user.badge ?? false
     state = .loaded
   }
   
@@ -62,9 +63,14 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       if let bankName {
         try await taxiUserRepository.editBankAccount(account: "\(bankName) \(bankNumber)")
       }
+      if !phoneNumber.isEmpty {
+        try await taxiUserRepository.registerPhoneNumber(phoneNumber: phoneNumber)
+        try await taxiUserRepository.editBadge(showBadge: showBadge)
+      }
       try await userUseCase.fetchTaxiUser()
     } catch {
-      logger.debug("Failed to edit bank account: \(error.localizedDescription)")
+      logger.debug("Failed to edit user information: \(error.localizedDescription)")
+      crashlyticsHelper.recordException(error: error)
     }
   }
 }

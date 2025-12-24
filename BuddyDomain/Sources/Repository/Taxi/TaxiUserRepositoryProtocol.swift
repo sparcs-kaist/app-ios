@@ -10,4 +10,6 @@ import Foundation
 public protocol TaxiUserRepositoryProtocol: Sendable {
   func fetchUser() async throws -> TaxiUser
   func editBankAccount(account: String) async throws
+  func registerPhoneNumber(phoneNumber: String) async throws
+  func editBadge(showBadge: Bool) async throws
 }

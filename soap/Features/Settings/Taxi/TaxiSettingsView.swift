@@ -34,6 +34,9 @@ struct TaxiSettingsView: View {
     }
     .task {
       await vm.fetchUser()
+      if !hasNumberRegistered {
+        vm.showBadge = true
+      }
       withAnimation {
         showToggle = hasNumberRegistered
       }
@@ -144,7 +147,7 @@ struct TaxiSettingsView: View {
     vm.bankName != nil
     && !vm.bankNumber.isEmpty
     && (vm.phoneNumber.isEmpty || vm.phoneNumber.count == 13)
-    && (hasNumberChanged || hasBankAccountChanged)
+    && (hasNumberChanged || hasBankAccountChanged || hasBadgeChanged)
   }
   
   private var hasNumberRegistered: Bool {
@@ -154,6 +157,10 @@ struct TaxiSettingsView: View {
   private var hasNumberChanged: Bool {
     vm.user?.phoneNumber == nil
     && vm.phoneNumber != ""
+  }
+  
+  private var hasBadgeChanged: Bool {
+    vm.user?.badge != vm.showBadge
   }
   
   private var hasBankAccountChanged: Bool {
