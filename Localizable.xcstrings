@@ -32,17 +32,6 @@
     "%@" : {
       "shouldTranslate" : false
     },
-    "%@ • %@" : {
-      "localizations" : {
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ • %2$@"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
     "%@ → %@" : {
       "localizations" : {
         "en-GB" : {
@@ -323,6 +312,7 @@
       }
     },
     "0 left" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1607,6 +1597,7 @@
       }
     },
     "Enjoy your day" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2331,6 +2322,7 @@
       }
     },
     "No more classes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2611,6 +2603,7 @@
       }
     },
     "Open Buddy on your iPhone to continue" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3609,6 +3602,7 @@
       }
     },
     "Sign in" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3625,6 +3619,7 @@
       }
     },
     "Sign in Required" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -28,6 +28,7 @@
 		8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */; };
 		8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */; };
 		8B6637B42EFD159600795A41 /* BuddyiOSWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8B6637BC2EFD21BE00795A41 /* BuddyAccessoryUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637BB2EFD21BE00795A41 /* BuddyAccessoryUI */; };
 		8B6B2B4B2E2878CD00D13D50 /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6B2B4A2E2878CD00D13D50 /* Nuke */; };
 		8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6B2B4C2E2878CD00D13D50 /* NukeExtensions */; };
 		8B6B2B4F2E2878CD00D13D50 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6B2B4E2E2878CD00D13D50 /* NukeUI */; };
@@ -138,6 +139,7 @@
 		8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		8B3FB12F2E94F1D700F57FD7 /* BuddyWatchWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BuddyWatchWidgetExtension.entitlements; sourceTree = "<group>"; };
 		8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BuddyiOSWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B6637BA2EFD205300795A41 /* BuddyUI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyUI; sourceTree = "<group>"; };
 		8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WatchBuddy Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8367FF2E92461900892B70 /* BuddyDomain */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyDomain; sourceTree = "<group>"; };
 		8B8DFBE62CCF771700AB82CC /* soap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = soap.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -219,6 +221,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B6637BC2EFD21BE00795A41 /* BuddyAccessoryUI in Frameworks */,
 				8B3FB1312E951D7200F57FD7 /* BuddyDataMocks in Frameworks */,
 				8B3FB11E2E94F1C200F57FD7 /* SwiftUI.framework in Frameworks */,
 				8B3FB11C2E94F1C200F57FD7 /* WidgetKit.framework in Frameworks */,
@@ -303,6 +306,7 @@
 		8B8DFBDD2CCF771700AB82CC = {
 			isa = PBXGroup;
 			children = (
+				8B6637BA2EFD205300795A41 /* BuddyUI */,
 				8B3FB12F2E94F1D700F57FD7 /* BuddyWatchWidgetExtension.entitlements */,
 				8BFAD2612E927C41005D8639 /* BuddyData */,
 				8B8367FF2E92461900892B70 /* BuddyDomain */,
@@ -354,6 +358,7 @@
 			packageProductDependencies = (
 				8B3FB1302E951D7200F57FD7 /* BuddyDataMocks */,
 				8B3FB1322E951D7200F57FD7 /* BuddyDomain */,
+				8B6637BB2EFD21BE00795A41 /* BuddyAccessoryUI */,
 			);
 			productName = BuddyWatchWidgetExtension;
 			productReference = 8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */;
@@ -1384,6 +1389,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8B5073DD2E851F79007E9C27 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		8B6637BB2EFD21BE00795A41 /* BuddyAccessoryUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyAccessoryUI;
 		};
 		8B6B2B4A2E2878CD00D13D50 /* Nuke */ = {
 			isa = XCSwiftPackageProductDependency;

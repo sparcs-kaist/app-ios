@@ -9,16 +9,7 @@ import WidgetKit
 import SwiftUI
 import BuddyDomain
 import BuddyDataMocks
-
-struct LectureEntry: TimelineEntry {
-  let date: Date
-  let lecture: Lecture?
-  let classtime: ClassTime?
-  let startDate: Date?
-  let signInRequired: Bool
-  let backgroundColor: Color
-  let relevance: TimelineEntryRelevance
-}
+import BuddyAccessoryUI
 
 struct Provider: TimelineProvider {
   private let suite = "group.org.sparcs.soap"
