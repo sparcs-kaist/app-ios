@@ -156,6 +156,8 @@ struct BuddyUpcomingClassWidgetEntryView: View {
         UpcomingClassInlineWidgetView(entry: entry)
       case .accessoryCircular:
         UpcomingClassCircularWidgetView(entry: entry)
+      case .systemSmall:
+        UpcomingClassSmallWidgetView(entry: entry)
       default:
         Text("Not supported")
       }
@@ -172,7 +174,7 @@ struct BuddyUpcomingClassWidget: Widget {
         .containerBackground(.fill.tertiary, for: .widget)
     }
     .supportedFamilies(
-      [.accessoryRectangular, .accessoryInline, .accessoryCircular]
+      [.accessoryRectangular, .accessoryInline, .accessoryCircular, .systemSmall]
     )
     .configurationDisplayName("Upcoming Class")
     .description("Check out the next class.")
@@ -191,7 +193,7 @@ extension ConfigurationAppIntent {
   }
 }
 
-#Preview(as: .accessoryRectangular) {
+#Preview(as: .systemSmall) {
   BuddyUpcomingClassWidget()
 } timeline: {
   let lectures = Array(Lecture.mockList.suffix(5))
