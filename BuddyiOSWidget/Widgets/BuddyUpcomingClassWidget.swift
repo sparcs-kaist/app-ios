@@ -67,8 +67,8 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
     }
 
     let currentSemester = await timetableUseCase.currentSemester
-//    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
-    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Autumn")
+    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
+//    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Autumn")
     let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
 
     var entries: [LectureEntry] = []
