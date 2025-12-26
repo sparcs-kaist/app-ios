@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct BuddyiOSWidgetBundle: WidgetBundle {
     var body: some Widget {
-        BuddyiOSWidget()
+      BuddyUpcomingClassWidget()
 //        BuddyiOSWidgetControl()
 //        BuddyiOSWidgetLiveActivity()
     }

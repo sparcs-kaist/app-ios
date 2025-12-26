@@ -1,20 +1,18 @@
 //
-//  BuddyWatchWidget.swift
-//  BuddyWatchWidget
+//  BuddyiOSWidget.swift
+//  BuddyiOSWidget
 //
-//  Created by Soongyu Kwon on 07/10/2025.
+//  Created by Soongyu Kwon on 25/12/2025.
 //
 
 import WidgetKit
 import SwiftUI
 import BuddyDomain
+import BuddyDataCore
 import BuddyDataMocks
 import BuddyUpcomingClassWidgetUI
 
-struct UpcomingClassProvider: TimelineProvider {
-  private let suite = "group.org.sparcs.soap"
-  private let key = "timetableData"
-
+struct UpcomingClassProvider: AppIntentTimelineProvider {
   func placeholder(in context: Context) -> LectureEntry {
     LectureEntry(
       date: Date(),
@@ -31,34 +29,46 @@ struct UpcomingClassProvider: TimelineProvider {
     )
   }
 
-  func getSnapshot(in context: Context, completion: @escaping (LectureEntry) -> ()) {
-    completion(placeholder(in: context))
+  func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> LectureEntry {
+    LectureEntry(
+      date: Date(),
+      lecture: Lecture.mock,
+      classtime: Lecture.mock.classTimes[0],
+      startDate: dateOnSameDay(
+        minutes: Lecture.mock.classTimes[0].begin,
+        date: Date(),
+        calendar: .current
+      )!,
+      signInRequired: false,
+      backgroundColor: Lecture.mock.backgroundColor,
+      relevance: .init(score: 50)
+    )
   }
 
-  func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+  func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<LectureEntry> {
     let now = Date()
     let calendar = Calendar.current
 
-    let ud = UserDefaults(suiteName: suite)
-    let data = ud?.data(forKey: key) ?? Data()
-    guard
-      !data.isEmpty,
-      let timetable: Timetable = try? JSONDecoder().decode(Timetable.self, from: data)
-    else {
-      // failed to decode timetable
+    let timetableService = TimetableService()
+    try? await timetableService.setup()
+
+    guard let timetableUseCase = timetableService.timetableUseCase else {
+      // return error
       let entry = LectureEntry(
         date: now,
         lecture: nil,
         classtime: nil,
         startDate: nil,
-        signInRequired: true,
+        signInRequired: false,
         backgroundColor: .black,
-        relevance: .init(score: 10)
+        relevance: .init(score: 20)
       )
-      completion(Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30))))
-      return
+      return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
 
+    let currentSemester = await timetableUseCase.currentSemester
+//    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
+    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Autumn")
     let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
 
     var entries: [LectureEntry] = []
@@ -129,13 +139,13 @@ struct UpcomingClassProvider: TimelineProvider {
 
     entries.sort { $0.date < $1.date }
 
-    completion(Timeline(entries: entries, policy: .atEnd))
+    return Timeline(entries: entries, policy: .atEnd)
   }
 }
 
 struct BuddyUpcomingClassWidgetEntryView: View {
   @Environment(\.widgetFamily) private var familiy
-  var entry: LectureEntry
+  var entry: UpcomingClassProvider.Entry
 
   var body: some View {
     Group {
@@ -146,28 +156,38 @@ struct BuddyUpcomingClassWidgetEntryView: View {
         UpcomingClassInlineWidgetView(entry: entry)
       case .accessoryCircular:
         UpcomingClassCircularWidgetView(entry: entry)
-      case .accessoryCorner:
-        UpcomingClassCornerWidgetView(entry: entry)
       default:
         Text("Not supported")
       }
     }
-    .containerBackground(entry.backgroundColor.gradient, for: .widget)
   }
 }
 
 struct BuddyUpcomingClassWidget: Widget {
-  let kind: String = "BuddyWatchWidgetUpcomingClass"
+  let kind: String = "BuddyUpcomingClassWidget"
 
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: UpcomingClassProvider()) { entry in
+    AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: UpcomingClassProvider()) { entry in
       BuddyUpcomingClassWidgetEntryView(entry: entry)
+        .containerBackground(.fill.tertiary, for: .widget)
     }
     .supportedFamilies(
-      [.accessoryRectangular, .accessoryInline, .accessoryCircular, .accessoryCorner]
+      [.accessoryRectangular, .accessoryInline, .accessoryCircular]
     )
     .configurationDisplayName("Upcoming Class")
     .description("Check out the next class.")
+  }
+}
+
+extension ConfigurationAppIntent {
+  fileprivate static var smiley: ConfigurationAppIntent {
+    let intent = ConfigurationAppIntent()
+    return intent
+  }
+
+  fileprivate static var starEyes: ConfigurationAppIntent {
+    let intent = ConfigurationAppIntent()
+    return intent
   }
 }
 

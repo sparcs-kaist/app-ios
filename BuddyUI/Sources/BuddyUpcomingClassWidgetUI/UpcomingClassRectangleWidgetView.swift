@@ -21,7 +21,6 @@ public struct UpcomingClassRectangleWidgetView: View {
         HStack(alignment: .center) {
           Circle()
             .frame(width: 12, height: 12)
-            .padding(.top, 2)
 
           Text(ct.description)
             .fontDesign(.rounded)

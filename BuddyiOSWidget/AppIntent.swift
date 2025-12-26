@@ -9,10 +9,26 @@ import WidgetKit
 import AppIntents
 
 struct ConfigurationAppIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource { "Configuration" }
-    static var description: IntentDescription { "This is an example widget." }
+  static var title: LocalizedStringResource { "Configuration" }
+  static var description: IntentDescription { "This is an example widget." }
 
-    // An example configurable parameter.
-    @Parameter(title: "Favorite Emoji", default: "😃")
-    var favoriteEmoji: String
+  @Parameter(title: "Mirror Timetable", default: true)
+  var mirrorTimetable: Bool
+
+  @Parameter(title: "Semester", default: "2026")
+  var semester: String
+
+  static var parameterSummary: some ParameterSummary {
+    When(\.$mirrorTimetable, .equalTo, false) {
+      Summary {
+        \.$mirrorTimetable
+        \.$semester
+      }
+    } otherwise: {
+      Summary {
+        \.$mirrorTimetable
+      }
+    }
+  }
 }
+
