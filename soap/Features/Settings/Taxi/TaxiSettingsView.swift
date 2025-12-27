@@ -62,15 +62,15 @@ struct TaxiSettingsView: View {
     }
     .navigationTitle("Taxi")
     .alert("Warning", isPresented: $showAlert, actions: {
-      Button(role: .cancel, action: {
-        
-      })
+      Button(role: .cancel) { }
       
       Button(role: .confirm, action: {
         Task {
           await vm.editInformation()
           dismiss()
         }
+      }, label: {
+        Text("Confirm")
       })
     }, message: {
       Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber)")
