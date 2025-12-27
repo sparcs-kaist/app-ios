@@ -8,10 +8,14 @@
 import SwiftUI
 import BuddyDomain
 
-struct UpcomingClassInlineWidgetView: View {
+public struct UpcomingClassInlineWidgetView: View {
   var entry: LectureEntry
 
-  var body: some View {
+  public init(entry: LectureEntry) {
+    self.entry = entry
+  }
+
+  public var body: some View {
     if let lecture = entry.lecture, let start = entry.startDate {
       Text("\(start, style: .time) • \(lecture.title.localized())")
     } else if entry.signInRequired {

@@ -10,7 +10,8 @@ import SwiftUI
 
 @main
 struct BuddyWatchWidgetBundle: WidgetBundle {
-    var body: some Widget {
-        BuddyWatchWidget()
-    }
+  var body: some Widget {
+    BuddyUpcomingClassWidget()
+  }
 }
+

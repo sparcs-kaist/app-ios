@@ -78,17 +78,17 @@ struct FeedPostRow: View {
       
       if post.isKaistIP {
         Image(systemName: "checkmark.seal.fill")
-          .foregroundStyle(Color(.systemBlue))
+          .foregroundStyle(.accent)
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
-            Text("KAIST IP verified")
+            Text("KAIST IP Verified")
               .presentationCompactAdaptation(.popover)
               .padding()
           }
           .onTapGesture {
             showPopover = true
           }
-          .accessibilityLabel(Text("KAIST IP verified"))
+          .accessibilityLabel(Text("KAIST IP Verified"))
       }
 
       // onPostDeleted == nil here means FeedPostRow is in the FeedPostView.
