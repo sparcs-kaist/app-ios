@@ -10,9 +10,11 @@ import SwiftUI
 
 @main
 struct BuddyiOSWidgetBundle: WidgetBundle {
-    var body: some Widget {
-      BuddyUpcomingClassWidget()
-//        BuddyiOSWidgetControl()
-//        BuddyiOSWidgetLiveActivity()
-    }
+  var body: some Widget {
+    BuddyUpcomingClassWidget()
+    BuddyTimetableWidget()
+    //        BuddyiOSWidgetControl()
+    //        BuddyiOSWidgetLiveActivity()
+  }
 }
+
