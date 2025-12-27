@@ -142,10 +142,8 @@ struct TaxiChatView: View {
         if let firstDate = viewModel.groupedChats.first?.time {
           TaxiChatDayMessage(date: firstDate)
         }
-
+        
         ForEach(viewModel.groupedChats) { groupedChat in
-          let badge = viewModel.room.participants.first(where: { $0.id == groupedChat.authorID })?.badge ?? false
-                    
           TaxiChatUserWrapper(
             authorID: groupedChat.authorID,
             authorName: groupedChat.authorName,
@@ -154,7 +152,7 @@ struct TaxiChatView: View {
             isMe: groupedChat.isMe,
             isGeneral: groupedChat.isGeneral,
             isWithdrawn: groupedChat.authorIsWithdrew ?? false,
-            badge: badge
+            badge: hasBadge(authorID: groupedChat.authorID)
           ) {
             ForEach(groupedChat.chats) { chat in
               let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
@@ -546,6 +544,17 @@ struct TaxiChatView: View {
         }
       }
     )
+  }
+  
+  private var badgeByAuthorID: Dictionary<String, Bool> {
+    Dictionary(uniqueKeysWithValues: viewModel.room.participants.map {
+      ($0.id, $0.badge)
+    })
+  }
+  
+  private func hasBadge(authorID: String?) -> Bool {
+    guard let authorID else { return false }
+    return badgeByAuthorID[authorID] ?? false
   }
 }
 

@@ -14,7 +14,7 @@ import Moya
 public enum TaxiUserErrorCode: Int {
   case editBankAccountFailed = 2001
   case editBadgeFailed = 2002
-  case registerPhoneNumberFailed = 2004
+  case registerPhoneNumberFailed = 2003
 }
 
 public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {

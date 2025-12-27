@@ -2178,12 +2178,12 @@
         }
       }
     },
-    "Members with this badge can resolve issues through SPARCS' mediation when they arise." : {
+    "Members with this badge can resolve issues through SPARCS mediation when problems arise." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Members with this badge can resolve issues through SPARCS' mediation when they arise."
+            "value" : "Members with this badge can resolve issues through SPARCS mediation when problems arise."
           }
         },
         "ko" : {

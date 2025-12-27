@@ -82,8 +82,9 @@ struct FeedPostRow: View {
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
             Text("KAIST IP Verified")
+              .font(.caption)
               .presentationCompactAdaptation(.popover)
-              .padding()
+              .padding(.horizontal)
           }
           .onTapGesture {
             showPopover = true
