@@ -59,7 +59,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
         lecture: nil,
         classtime: nil,
         startDate: nil,
-        signInRequired: false,
+        signInRequired: true,
         backgroundColor: .black,
         relevance: .init(score: 20)
       )
@@ -177,19 +177,7 @@ struct BuddyUpcomingClassWidget: Widget {
       [.accessoryRectangular, .accessoryInline, .accessoryCircular, .systemSmall]
     )
     .configurationDisplayName("Upcoming Class")
-    .description("Check out the next class.")
-  }
-}
-
-extension ConfigurationAppIntent {
-  fileprivate static var smiley: ConfigurationAppIntent {
-    let intent = ConfigurationAppIntent()
-    return intent
-  }
-
-  fileprivate static var starEyes: ConfigurationAppIntent {
-    let intent = ConfigurationAppIntent()
-    return intent
+    .description("Keep track of your classes.")
   }
 }
 

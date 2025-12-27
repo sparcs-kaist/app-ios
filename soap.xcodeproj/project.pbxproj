@@ -12,6 +12,7 @@
 		8B3914E02E92F37500B7FB6B /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914DF2E92F37500B7FB6B /* Factory */; };
 		8B3914E22E92F37500B7FB6B /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914E12E92F37500B7FB6B /* FactoryKit */; };
 		8B3914E82E93F4AA00B7FB6B /* BuddyDataWatch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */; };
+		8B3A62A22EFF98A4006427DF /* BuddyTimetableWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */; };
 		8B3FB11C2E94F1C200F57FD7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */; };
 		8B3FB11E2E94F1C200F57FD7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */; };
 		8B3FB1292E94F1C400F57FD7 /* BuddyWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -240,6 +241,7 @@
 				8B6637BE2EFD410800795A41 /* BuddyDataMocks in Frameworks */,
 				8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */,
 				8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */,
+				8B3A62A22EFF98A4006427DF /* BuddyTimetableWidgetUI in Frameworks */,
 				8B6637C82EFE721200795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */,
 				8B6637C02EFD410800795A41 /* BuddyDomain in Frameworks */,
 			);
@@ -392,6 +394,7 @@
 				8B6637BD2EFD410800795A41 /* BuddyDataMocks */,
 				8B6637BF2EFD410800795A41 /* BuddyDomain */,
 				8B6637C72EFE721200795A41 /* BuddyUpcomingClassWidgetUI */,
+				8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */,
 			);
 			productName = BuddyiOSWidgetExtension;
 			productReference = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */;
@@ -1364,6 +1367,10 @@
 		8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDataWatch;
+		};
+		8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyTimetableWidgetUI;
 		};
 		8B3FB1302E951D7200F57FD7 /* BuddyDataMocks */ = {
 			isa = XCSwiftPackageProductDependency;

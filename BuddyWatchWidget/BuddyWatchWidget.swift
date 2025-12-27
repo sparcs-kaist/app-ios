@@ -167,7 +167,7 @@ struct BuddyUpcomingClassWidget: Widget {
       [.accessoryRectangular, .accessoryInline, .accessoryCircular, .accessoryCorner]
     )
     .configurationDisplayName("Upcoming Class")
-    .description("Check out the next class.")
+    .description("Keep track of your classes.")
   }
 }
 

@@ -13,6 +13,10 @@ let package = Package(
       name: "BuddyUpcomingClassWidgetUI",
       targets: ["BuddyUpcomingClassWidgetUI"]
     ),
+    .library(
+      name: "BuddyTimetableWidgetUI",
+      targets: ["BuddyTimetableWidgetUI"]
+    ),
   ],
   dependencies: [
     .package(path: "../BuddyDomain")
@@ -24,9 +28,16 @@ let package = Package(
         "BuddyDomain",
       ]
     ),
+    .target(
+      name: "BuddyTimetableWidgetUI",
+      dependencies: [
+        "BuddyDomain",
+        "BuddyDataCore",
+      ]
+    ),
     .testTarget(
       name: "BuddyUITests",
-      dependencies: ["BuddyUpcomingClassWidgetUI"]
+      dependencies: ["BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI"]
     ),
   ]
 )

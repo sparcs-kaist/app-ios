@@ -24,7 +24,7 @@ struct TimetableGrid: View {
       HStack(spacing: 4) {
         ForEach(timetableViewModel.selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
           ZStack(alignment: .top) {
-            girdHorizontalLine
+            gridHorizontalLine
               .foregroundStyle(.separator)
             if let selectedTimetable = timetableViewModel.selectedTimetable {
               ForEach(selectedTimetable.getLectures(day: day)) { item in
@@ -56,7 +56,7 @@ struct TimetableGrid: View {
     }
   }
 
-  private var girdHorizontalLine: some View {
+  private var gridHorizontalLine: some View {
     VStack(spacing: 0) {
       let minHour = (timetableViewModel.selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
       let maxHour = (timetableViewModel.selectedTimetable?.maxMinutes ?? defaultMaxMinutes) / 60
@@ -81,6 +81,9 @@ struct TimetableGrid: View {
           .font(.caption)
           .frame(maxWidth: .infinity)
           .frame(height: TimetableConstructor.daysHeight)
+          .textCase(.uppercase)
+          .fontDesign(.rounded)
+          .fontWeight(.medium)
       }
     }.padding(.leading, TimetableConstructor.hoursWidth + 8)
   }
@@ -94,6 +97,8 @@ struct TimetableGrid: View {
         Text(String(hour))
           .font(.caption)
           .frame(width: TimetableConstructor.hoursWidth)
+          .fontDesign(.rounded)
+
         Spacer()
       }
 
@@ -103,7 +108,7 @@ struct TimetableGrid: View {
   }
 }
 
-struct HorizontalLine: Shape {
+private struct HorizontalLine: Shape {
   func path(in rect: CGRect) -> Path {
     var path = Path()
     path.move(to: CGPoint(x: 0, y: 0))

@@ -1081,6 +1081,7 @@
       }
     },
     "Check out the next class." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2048,6 +2049,9 @@
       }
     },
     "KAIST IP Verified" : {
+
+    },
+    "Keep track of your classes." : {
 
     },
     "Language" : {
