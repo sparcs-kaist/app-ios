@@ -56,7 +56,8 @@ struct TaxiChatUserWrapper<Content: View>: View {
                     showPopover.toggle()
                   }
                   .popover(isPresented: $showPopover) {
-                    Text("Members with this badge can resolve issues through SPARCS' mediation when they arise.")
+                    Text("Members with this badge can resolve issues through SPARCS mediation when problems arise.")
+                      .font(.caption)
                       .padding()
                       .frame(width: 250)
                       .presentationCompactAdaptation(.popover)

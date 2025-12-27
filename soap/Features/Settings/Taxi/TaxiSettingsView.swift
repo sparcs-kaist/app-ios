@@ -12,7 +12,6 @@ struct TaxiSettingsView: View {
   @State private var vm: TaxiSettingsViewModelProtocol
   @State private var safariURL: URL?
   @State private var showAlert: Bool = false
-  @State private var showToggle: Bool = false
   
   @Environment(\.dismiss) var dismiss
   
@@ -32,13 +31,11 @@ struct TaxiSettingsView: View {
         ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
+    .animation(.spring, value: showToggle)
     .task {
       await vm.fetchUser()
       if !hasNumberRegistered {
         vm.showBadge = true // showBadge defaults to true for users without a registered phone number
-      }
-      withAnimation {
-        showToggle = !vm.phoneNumber.isEmpty
       }
     }
     .toolbar {
@@ -109,15 +106,12 @@ struct TaxiSettingsView: View {
           Text("Phone Number")
           Spacer()
           TextField("Enter Phone Number", text: $vm.phoneNumber)
+            .keyboardType(.phonePad)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
             .onChange(of: vm.phoneNumber) {
               vm.phoneNumber = vm.phoneNumber.formatPhoneNumber()
-              withAnimation {
-                showToggle = !vm.phoneNumber.isEmpty
-              }
             }
-            .keyboardType(.phonePad)
             .disabled(hasNumberRegistered)
         }
         if showToggle {
@@ -126,7 +120,7 @@ struct TaxiSettingsView: View {
               Text("Show Badge")
             })
           }
-          .transition(.slide.combined(with: .opacity.animation(.easeInOut(duration: 0.3))))
+          .transition(.slide)
         }
       }
       
@@ -146,16 +140,16 @@ struct TaxiSettingsView: View {
   }
   
   private var isValid: Bool {
-    (isBankAccountValid || isPhoneNumberValid)
+    (isBankAccountValid && isPhoneNumberValid)
     && (hasNumberChanged || hasBankAccountChanged || (hasNumberRegistered && hasBadgeChanged))
   }
   
   private var isBankAccountValid: Bool {
-    vm.bankName != nil && !vm.bankNumber.isEmpty
+    (vm.bankName != nil && !vm.bankNumber.isEmpty) || (vm.bankName == nil && vm.bankNumber.isEmpty)
   }
   
   private var isPhoneNumberValid: Bool {
-    vm.phoneNumber.isEmpty || vm.phoneNumber.count == 13
+    vm.phoneNumber.isEmpty || vm.phoneNumber.count == Constants.formattedPhoneNumberLength
   }
   
   private var hasNumberRegistered: Bool {
@@ -172,12 +166,21 @@ struct TaxiSettingsView: View {
   }
   
   private var hasBankAccountChanged: Bool {
-    guard let account = vm.user?.account else { return false }
-    if let name = account.split(separator: " ").first,
-       let number = account.split(separator: " ").last,
-       (String(name) != vm.bankName) || (String(number) != vm.bankNumber) { return true }
+    guard let account = vm.user?.account, !account.isEmpty else {
+      return (vm.bankName?.isEmpty == false) || !vm.bankNumber.isEmpty
+    }
     
-    return isBankAccountValid // account was not set before
+    let components = account.split(separator: " ")
+    
+    if let name = components.first, let number = components.last {
+      return (String(name) != vm.bankName) || (String(number) != vm.bankNumber)
+    }
+    
+    return (vm.bankName?.isEmpty == false) || !vm.bankNumber.isEmpty
+  }
+  
+  private var showToggle: Bool {
+    !vm.phoneNumber.isEmpty
   }
 }
 
