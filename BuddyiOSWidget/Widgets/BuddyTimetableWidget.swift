@@ -33,7 +33,6 @@ struct TimetableProvider: AppIntentTimelineProvider {
 
   func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<TimetableEntry> {
     let now = Date()
-    let calendar = Calendar.current
 
     let timetableService = TimetableService()
     try? await timetableService.setup()
@@ -50,7 +49,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
 
     let currentSemester = await timetableUseCase.currentSemester
 //    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
-    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2023-Spring")
+    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Spring")
     let entry = TimetableEntry(
       date: now,
       timetable: timetable,

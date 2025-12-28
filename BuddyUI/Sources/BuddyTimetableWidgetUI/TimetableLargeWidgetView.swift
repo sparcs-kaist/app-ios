@@ -80,7 +80,7 @@ public struct TimetableLargeWidgetView: View {
                 )
                 .frame(
                   height: TimetableConstructor
-                    .getCellHeight(for: item, in: geometry.size, of: timetable.duration-60)
+                    .getCellHeight(for: item, in: geometry.size, of: timetable.duration % 60 == 0 ? timetable.duration : timetable.duration + 60)
                 )
                 .offset(
                   y: TimetableConstructor
@@ -88,7 +88,7 @@ public struct TimetableLargeWidgetView: View {
                       for: item,
                       in: geometry.size,
                       at: timetable.minMinutes,
-                      of: timetable.duration-60
+                      of: timetable.duration % 60 == 0 ? timetable.duration : timetable.duration + 60
                     )
                 )
               }
@@ -105,7 +105,11 @@ public struct TimetableLargeWidgetView: View {
       let minHour = (entry.timetable?.minMinutes ?? defaultMinMinutes) / 60
       let maxHour = (entry.timetable?.maxMinutes ?? defaultMaxMinutes) / 60
 
-      ForEach(minHour..<maxHour-1, id: \.self) { hour in
+      let calculatedMaxHour = (
+        entry.timetable?.maxMinutes ?? defaultMaxMinutes
+      ) % 60 == 0 ? maxHour : maxHour + 1
+
+      ForEach(minHour..<calculatedMaxHour, id: \.self) { hour in
         HorizontalLine()
           .stroke(style: StrokeStyle(lineWidth: 1))
         HorizontalLine()
@@ -138,7 +142,11 @@ public struct TimetableLargeWidgetView: View {
       let minHour = (entry.timetable?.minMinutes ?? defaultMinMinutes) / 60
       let maxHour = (entry.timetable?.maxMinutes ?? defaultMaxMinutes) / 60
 
-      ForEach(minHour..<maxHour-1, id: \.self) { hour in
+      let calculatedMaxHour = (
+        entry.timetable?.maxMinutes ?? defaultMaxMinutes
+      ) % 60 == 0 ? maxHour : maxHour + 1
+
+      ForEach(minHour..<calculatedMaxHour, id: \.self) { hour in
         Text(String(hour))
           .font(.caption)
           .frame(width: TimetableConstructor.hoursWidth)
