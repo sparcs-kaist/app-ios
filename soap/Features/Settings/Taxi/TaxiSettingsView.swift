@@ -101,18 +101,25 @@ struct TaxiSettingsView: View {
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
             .keyboardType(.numberPad)
+            .onChange(of: vm.bankNumber) {
+              vm.bankNumber = vm.phoneNumber.filter { $0.isASCIINumber }
+            }
         }
         HStack {
           Text("Phone Number")
           Spacer()
           TextField("Enter Phone Number", text: $vm.phoneNumber)
-            .keyboardType(.phonePad)
+            .keyboardType(.numberPad)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
-            .onChange(of: vm.phoneNumber) {
-              vm.phoneNumber = vm.phoneNumber.formatPhoneNumber()
-            }
             .disabled(hasNumberRegistered)
+            .onChange(of: vm.phoneNumber) {
+              vm.phoneNumber = String(
+                vm.phoneNumber
+                  .prefix(Constants.phoneNumberLength)
+                  .filter { $0.isASCIINumber }
+              )
+            }
         }
         if showToggle {
           HStack {
@@ -149,7 +156,8 @@ struct TaxiSettingsView: View {
   }
   
   private var isPhoneNumberValid: Bool {
-    vm.phoneNumber.isEmpty || vm.phoneNumber.count == Constants.formattedPhoneNumberLength
+    vm.phoneNumber.isEmpty
+    || (vm.phoneNumber.count == Constants.phoneNumberLength && vm.phoneNumber.allSatisfy { $0.isASCIINumber })
   }
   
   private var hasNumberRegistered: Bool {
@@ -180,7 +188,8 @@ struct TaxiSettingsView: View {
   }
   
   private var showToggle: Bool {
-    !vm.phoneNumber.isEmpty
+    vm.phoneNumber.count == Constants.phoneNumberLength
+    && vm.phoneNumber.allSatisfy { $0.isASCIINumber }
   }
 }
 

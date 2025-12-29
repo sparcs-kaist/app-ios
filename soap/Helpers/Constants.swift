@@ -64,5 +64,5 @@ enum Constants {
     }
   }()
   
-  static let formattedPhoneNumberLength = 13
+  static let phoneNumberLength = 11
 }

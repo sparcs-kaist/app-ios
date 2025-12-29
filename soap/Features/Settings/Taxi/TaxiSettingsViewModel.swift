@@ -53,7 +53,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     }
     bankName = user.account.split(separator: " ").first.map { String($0) }
     bankNumber = String(user.account.split(separator: " ").last ?? "")
-    phoneNumber = user.phoneNumber ?? ""
+    phoneNumber = (user.phoneNumber ?? "").filter { $0.isASCIINumber }
     showBadge = user.badge ?? false
     state = .loaded
   }
@@ -63,7 +63,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       await editBankAccount(bankName: bankName, bankNumber: bankNumber)
     }
     if !phoneNumber.isEmpty && user?.phoneNumber != phoneNumber {
-      await registerPhoneNumber(phoneNumber: phoneNumber)
+      await registerPhoneNumber(phoneNumber: phoneNumber.formatPhoneNumber())
     }
     if user?.badge != showBadge {
       await editBadge(showBadge: showBadge)
