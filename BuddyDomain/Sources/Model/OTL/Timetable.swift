@@ -36,7 +36,7 @@ public extension Timetable {
   }
 
   // Return the maximum end minutes.
-  var maxMinutes: Int {
+  var gappedMaxMinutes: Int {
     lectures
       .flatMap { $0.classTimes }
       .map { $0.end }
@@ -44,7 +44,15 @@ public extension Timetable {
       .map { (($0 / 60) + 1) * 60 } ?? defaultMaxMinutes
   }
 
+  var maxMinutes: Int {
+    lectures
+      .flatMap { $0.classTimes }
+      .map { $0.end }
+      .max() ?? defaultMaxMinutes
+  }
+
   // Return the maximum duration of the total timetable.
+  var gappedDuration: Int { gappedMaxMinutes - minMinutes }
   var duration: Int { maxMinutes - minMinutes }
 
   // Return visible days. Return all weekdays by default, and check for the need of weekends inclusion.

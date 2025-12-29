@@ -45,6 +45,15 @@ public struct ClassTime: Sendable, Codable {
     }
   }
 
+  public func begin(at now: Date) -> Date {
+    let calendar = Calendar.current
+
+    let hour = begin / 60
+    let minute = begin % 60
+
+    return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: now) ?? now
+  }
+
   private func formatMinutes(_ minutes: Int) -> String {
     let h = minutes / 60
     let m = minutes % 60
