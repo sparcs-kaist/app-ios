@@ -7,7 +7,6 @@
 
 import SwiftUI
 import BuddyDomain
-import BuddyDataCore
 
 struct TimetableGridCell: View {
   @Environment(\.widgetRenderingMode) var renderingMode

@@ -16,19 +16,38 @@ struct TimetableProvider: AppIntentTimelineProvider {
   func placeholder(in context: Context) -> TimetableEntry {
     TimetableEntry(
       date: Date(),
-      timetable: Timetable.mock,
+      timetable: nil,
       signInRequired: false,
       relevance: .init(score: 50)
     )
   }
 
   func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> TimetableEntry {
-    TimetableEntry(
-      date: Date(),
-      timetable: Timetable.mock,
+    let now = Date()
+
+    let timetableService = TimetableService()
+    try? await timetableService.setup()
+
+    guard let timetableUseCase = timetableService.timetableUseCase else {
+      let entry = TimetableEntry(
+        date: now,
+        timetable: nil,
+        signInRequired: true,
+        relevance: .init(score: 10)
+      )
+      return entry
+    }
+
+    let currentSemester = await timetableUseCase.currentSemester
+    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
+    let entry = TimetableEntry(
+      date: now,
+      timetable: timetable,
       signInRequired: false,
-      relevance: .init(score: 50)
+      relevance: .init(score: 100)
     )
+
+    return entry
   }
 
   func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<TimetableEntry> {
@@ -48,8 +67,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
     }
 
     let currentSemester = await timetableUseCase.currentSemester
-//    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
-    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Spring")
+    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
     let entry = TimetableEntry(
       date: now,
       timetable: timetable,

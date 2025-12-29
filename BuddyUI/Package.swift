@@ -32,7 +32,6 @@ let package = Package(
       name: "BuddyTimetableWidgetUI",
       dependencies: [
         "BuddyDomain",
-        "BuddyDataCore",
       ]
     ),
     .testTarget(
