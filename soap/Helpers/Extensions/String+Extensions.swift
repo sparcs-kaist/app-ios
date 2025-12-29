@@ -12,16 +12,16 @@ extension String {
     addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
   }
   
+  /// Formats the string as a Korean phone number in the form `XXX-XXXX-XXXX`.
+  ///
+  /// This method extracts only numeric characters from the receiver and then
+  /// applies the `XXX-XXXX-XXXX` mask. It is intended for 11-digit Korean
+  /// mobile numbers (including the leading `0`), but will format as many
+  /// digits as are available, left to right, ignoring any non-digit characters.
+  ///
+  /// - Returns: A string containing the extracted digits formatted according
+  ///   to the `XXX-XXXX-XXXX` pattern.
   func formatPhoneNumber() -> String {
-    /// Formats the string as a Korean phone number in the form `XXX-XXXX-XXXX`.
-    ///
-    /// This method extracts only numeric characters from the receiver and then
-    /// applies the `XXX-XXXX-XXXX` mask. It is intended for 11-digit Korean
-    /// mobile numbers (including the leading `0`), but will format as many
-    /// digits as are available, left to right, ignoring any non-digit characters.
-    ///
-    /// - Returns: A string containing the extracted digits formatted according
-    ///   to the `XXX-XXXX-XXXX` pattern.
 
     let cleanNumber = self.filter { $0.isNumber }
     
