@@ -134,12 +134,12 @@ struct UpcomingClassProvider: TimelineProvider {
 }
 
 struct BuddyUpcomingClassWidgetEntryView: View {
-  @Environment(\.widgetFamily) private var familiy
+  @Environment(\.widgetFamily) private var family
   var entry: LectureEntry
 
   var body: some View {
     Group {
-      switch familiy {
+      switch family {
       case .accessoryRectangular:
         UpcomingClassRectangleWidgetView(entry: entry)
       case .accessoryInline:
