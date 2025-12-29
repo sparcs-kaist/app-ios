@@ -102,7 +102,7 @@ struct TaxiSettingsView: View {
             .foregroundStyle(.secondary)
             .keyboardType(.numberPad)
             .onChange(of: vm.bankNumber) {
-              vm.bankNumber = vm.phoneNumber.filter { $0.isASCIINumber }
+              vm.bankNumber = vm.bankNumber.filter { $0.isASCIINumber }
             }
         }
         HStack {
