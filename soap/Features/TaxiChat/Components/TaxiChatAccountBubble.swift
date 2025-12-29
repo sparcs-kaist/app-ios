@@ -77,7 +77,8 @@ struct TaxiChatAccountBubble: View {
     date: Date(),
     isMe: false,
     isGeneral: false,
-    isWithdrawn: false
+    isWithdrawn: false,
+    badge: true
   ) {
     TaxiChatAccountBubble(content: "KB국민 90415338958", isCommitPaymentAvailable: false) {
       logger.debug("mark as sent")

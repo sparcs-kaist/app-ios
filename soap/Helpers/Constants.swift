@@ -63,4 +63,6 @@ enum Constants {
       return URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
     }
   }()
+  
+  static let phoneNumberLength = 11
 }

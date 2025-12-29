@@ -16,6 +16,7 @@ struct TaxiUserDTO: Codable {
   let phoneNumber: String?
   let email: String
   let withdraw: Bool
+  let badge: Bool?
   let ban: Bool
   let agreeOnTermsOfService: Bool
   let joinAt: String
@@ -30,6 +31,7 @@ struct TaxiUserDTO: Codable {
     case phoneNumber
     case email
     case withdraw
+    case badge
     case ban
     case agreeOnTermsOfService
     case joinAt = "joinat"
@@ -48,6 +50,7 @@ extension TaxiUserDTO {
       phoneNumber: phoneNumber,
       email: email,
       withdraw: withdraw,
+      badge: badge,
       ban: ban,
       agreeOnTermsOfService: agreeOnTermsOfService,
       joinedAt: joinAt.toDate() ?? Date(),

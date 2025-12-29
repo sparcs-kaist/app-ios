@@ -58,4 +58,9 @@ class MockTaxiChatViewModel: TaxiChatViewModelProtocol {
   func sendImage(_ image: UIImage) async throws {
     // Mock implementation - no actual sending
   }
+  
+  func hasBadge(authorID: String?) -> Bool {
+    // Mock implementation
+    return true
+  }
 }

@@ -1177,6 +1177,22 @@
         }
       }
     },
+    "Confirm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
     "Content Preferences" : {
       "localizations" : {
         "en" : {
@@ -1626,6 +1642,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "계좌 번호 입력"
+          }
+        }
+      }
+    },
+    "Enter Phone Number" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter Phone Number"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전화 번호 입력"
           }
         }
       }
@@ -2142,6 +2174,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "출발지"
+          }
+        }
+      }
+    },
+    "Members with this badge can resolve issues through SPARCS mediation when problems arise." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Members with this badge can resolve issues through SPARCS mediation when problems arise."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 배지가 있는 회원분들은 문제가 생길 시 SPARCS의 중재를 통해 문제를 해결할 수 있습니다."
           }
         }
       }
@@ -2802,6 +2850,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "송금 완료"
+          }
+        }
+      }
+    },
+    "Phone Number" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phone Number"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전화 번호"
+          }
+        }
+      }
+    },
+    "Phone number can be set only once. Is the number you want to use correct?\n\n%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phone number can be set only once. Is the number you want to use correct?\n\n%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전화 번호는 한 번만 설정할 수 있습니다. 사용하고자 하는 번호가 맞으신가요?\n\n%@"
           }
         }
       }
@@ -3601,6 +3681,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@에 대한 생각을 공유해 보세요..."
+          }
+        }
+      }
+    },
+    "Show Badge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Badge"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "뱃지 표시"
           }
         }
       }

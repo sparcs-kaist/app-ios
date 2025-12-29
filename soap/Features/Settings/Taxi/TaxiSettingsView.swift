@@ -11,7 +11,7 @@ import BuddyDomain
 struct TaxiSettingsView: View {
   @State private var vm: TaxiSettingsViewModelProtocol
   @State private var safariURL: URL?
-  @State private var isValid: Bool = false
+  @State private var showAlert: Bool = false
   
   @Environment(\.dismiss) var dismiss
   
@@ -31,16 +31,23 @@ struct TaxiSettingsView: View {
         ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
+    .animation(.spring, value: showToggle)
     .task {
       await vm.fetchUser()
+      if !hasNumberRegistered {
+        vm.showBadge = true // showBadge defaults to true for users without a registered phone number
+      }
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Button("Done", systemImage: "checkmark", role: .confirm) {
-          dismiss()
           Task {
-            guard let bankName = vm.bankName else { return }
-            await vm.editBankAccount(account: "\(bankName) \(vm.bankNumber)")
+            if hasNumberChanged {
+              showAlert = true
+              return
+            }
+            await vm.editInformation()
+            dismiss()
           }
         }
         .disabled(!isValid)
@@ -50,10 +57,21 @@ struct TaxiSettingsView: View {
     .fullScreenCover(item: $safariURL) {
       SafariViewWrapper(url: $0)
     }
-    .onChange(of: [vm.bankName, vm.bankNumber]) {
-      isValid = vm.bankName != nil && !vm.bankNumber.isEmpty && (vm.user?.account != "\(vm.bankName ?? "") \(vm.bankNumber)")
-    }
     .navigationTitle("Taxi")
+    .alert("Warning", isPresented: $showAlert, actions: {
+      Button(role: .cancel) { }
+      
+      Button(role: .confirm, action: {
+        Task {
+          await vm.editInformation()
+          dismiss()
+        }
+      }, label: {
+        Text("Confirm")
+      })
+    }, message: {
+      Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber.formatPhoneNumber())")
+    })
   }
   
   @ViewBuilder
@@ -61,6 +79,7 @@ struct TaxiSettingsView: View {
     List {
       RowElementView(title: "Nickname", content: "Unknown")
       RowElementView(title: "Bank Account", content: "Unknown")
+      RowElementView(title: "Phone Number", content: "Unknown")
     }
   }
   
@@ -81,6 +100,34 @@ struct TaxiSettingsView: View {
           TextField("Enter Bank Number", text: $vm.bankNumber)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
+            .keyboardType(.numberPad)
+            .onChange(of: vm.bankNumber) {
+              vm.bankNumber = vm.bankNumber.filter { $0.isASCIINumber }
+            }
+        }
+        HStack {
+          Text("Phone Number")
+          Spacer()
+          TextField("Enter Phone Number", text: $vm.phoneNumber)
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.trailing)
+            .foregroundStyle(.secondary)
+            .disabled(hasNumberRegistered)
+            .onChange(of: vm.phoneNumber) {
+              vm.phoneNumber = String(
+                vm.phoneNumber
+                  .prefix(Constants.phoneNumberLength)
+                  .filter { $0.isASCIINumber }
+              )
+            }
+        }
+        if showToggle {
+          HStack {
+            Toggle(isOn: $vm.showBadge, label: {
+              Text("Show Badge")
+            })
+          }
+          .transition(.slide)
         }
       }
       
@@ -97,6 +144,52 @@ struct TaxiSettingsView: View {
         Text(text)
       }
     }
+  }
+  
+  private var isValid: Bool {
+    (isBankAccountValid && isPhoneNumberValid)
+    && (hasNumberChanged || hasBankAccountChanged || (hasNumberRegistered && hasBadgeChanged))
+  }
+  
+  private var isBankAccountValid: Bool {
+    (vm.bankName != nil && !vm.bankNumber.isEmpty) || (vm.bankName == nil && vm.bankNumber.isEmpty)
+  }
+  
+  private var isPhoneNumberValid: Bool {
+    vm.phoneNumber.isEmpty
+    || (vm.phoneNumber.count == Constants.phoneNumberLength && vm.phoneNumber.allSatisfy { $0.isASCIINumber })
+  }
+  
+  private var hasNumberRegistered: Bool {
+    vm.user?.phoneNumber?.isEmpty == false
+  }
+  
+  private var hasNumberChanged: Bool {
+    vm.user?.phoneNumber?.isEmpty != false
+    && !vm.phoneNumber.isEmpty
+  }
+  
+  private var hasBadgeChanged: Bool {
+    vm.user?.badge != vm.showBadge
+  }
+  
+  private var hasBankAccountChanged: Bool {
+    guard let account = vm.user?.account, !account.isEmpty else {
+      return (vm.bankName?.isEmpty == false) || !vm.bankNumber.isEmpty
+    }
+    
+    let components = account.split(separator: " ")
+    
+    if let name = components.first, let number = components.last {
+      return (String(name) != vm.bankName) || (String(number) != vm.bankNumber)
+    }
+    
+    return (vm.bankName?.isEmpty == false) || !vm.bankNumber.isEmpty
+  }
+  
+  private var showToggle: Bool {
+    vm.phoneNumber.count == Constants.phoneNumberLength
+    && vm.phoneNumber.allSatisfy { $0.isASCIINumber }
   }
 }
 
