@@ -70,7 +70,7 @@ struct TaxiSettingsView: View {
         Text("Confirm")
       })
     }, message: {
-      Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber)")
+      Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber.formatPhoneNumber())")
     })
   }
   
