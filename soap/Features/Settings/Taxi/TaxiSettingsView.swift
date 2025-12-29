@@ -165,8 +165,8 @@ struct TaxiSettingsView: View {
   }
   
   private var hasNumberChanged: Bool {
-    vm.user?.phoneNumber == nil
-    && vm.phoneNumber != ""
+    vm.user?.phoneNumber?.isEmpty != false
+    && !vm.phoneNumber.isEmpty
   }
   
   private var hasBadgeChanged: Bool {

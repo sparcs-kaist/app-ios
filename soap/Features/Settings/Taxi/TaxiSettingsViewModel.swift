@@ -62,7 +62,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     if let bankName, !bankNumber.isEmpty {
       await editBankAccount(bankName: bankName, bankNumber: bankNumber)
     }
-    if !phoneNumber.isEmpty && user?.phoneNumber != phoneNumber {
+    if !phoneNumber.isEmpty && user?.phoneNumber != phoneNumber.formatPhoneNumber() {
       await registerPhoneNumber(phoneNumber: phoneNumber.formatPhoneNumber())
     }
     if user?.badge != showBadge {
