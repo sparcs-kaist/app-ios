@@ -152,7 +152,7 @@ struct TaxiChatView: View {
             isMe: groupedChat.isMe,
             isGeneral: groupedChat.isGeneral,
             isWithdrawn: groupedChat.authorIsWithdrew ?? false,
-            badge: hasBadge(authorID: groupedChat.authorID)
+            badge: viewModel.hasBadge(authorID: groupedChat.authorID)
           ) {
             ForEach(groupedChat.chats) { chat in
               let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
@@ -544,17 +544,6 @@ struct TaxiChatView: View {
         }
       }
     )
-  }
-  
-  private var badgeByAuthorID: Dictionary<String, Bool> {
-    Dictionary(uniqueKeysWithValues: viewModel.room.participants.map {
-      ($0.id, $0.badge)
-    })
-  }
-  
-  private func hasBadge(authorID: String?) -> Bool {
-    guard let authorID else { return false }
-    return badgeByAuthorID[authorID] ?? false
   }
 }
 
