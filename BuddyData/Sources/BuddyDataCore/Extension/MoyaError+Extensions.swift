@@ -11,11 +11,8 @@ import Moya
 extension MoyaError {
   var toAPIError: Error {
     guard let response = self.response else { return self }
+    guard let error = try? response.map(APIErrorResponse.self) else { return self }
     
-    do {
-      return try response.map(APIErrorResponse.self)
-    } catch {
-      return error
-    }
+    return error
   }
 }
