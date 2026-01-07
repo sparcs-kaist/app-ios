@@ -59,10 +59,8 @@ extension LectureType {
       .mr
     case "Major Elective":
       .me
-    case "Humanities and Social Elective":
-      .hse
     default:
-      .etc
+      rawValue.contains("Humanities & Social Elective") ? .hse : .etc
     }
   }
 }
