@@ -25,11 +25,9 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
         .compactMap { $0.toModel() }
 
       return result
-    } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
     } catch {
-      throw error
+      let apiError = (error as? MoyaError).flatMap { try? $0.response?.map(APIErrorResponse.self)}
+      throw apiError ?? error
     }
   }
 
