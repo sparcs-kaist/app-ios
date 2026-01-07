@@ -25,9 +25,10 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
         .compactMap { $0.toModel() }
 
       return result
+    } catch let moyaError as MoyaError {
+      throw moyaError.toAPIError
     } catch {
-      let apiError = (error as? MoyaError).flatMap { try? $0.response?.map(APIErrorResponse.self)}
-      throw apiError ?? error
+      throw error
     }
   }
 
@@ -41,8 +42,7 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
 
       return (onGoing: onGoingRooms, done: doneRooms)
     } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
+      throw moyaError.toAPIError
     } catch {
       throw error
     }
@@ -57,8 +57,7 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
 
       return result
     } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
+      throw moyaError.toAPIError
     } catch {
       throw error
     }
@@ -72,8 +71,7 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
 
       return result
     } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
+      throw moyaError.toAPIError
     } catch {
       throw error
     }
@@ -86,8 +84,7 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
 
       return result
     } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
+      throw moyaError.toAPIError
     } catch {
       throw error
     }
@@ -100,8 +97,7 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
 
       return result
     } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
+      throw moyaError.toAPIError
     } catch {
       throw error
     }
@@ -114,8 +110,7 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
 
       return result
     } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
+      throw moyaError.toAPIError
     } catch {
       throw error
     }
@@ -128,8 +123,7 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
 
       return result
     } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
+      throw moyaError.toAPIError
     } catch {
       throw error
     }
@@ -142,8 +136,7 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
 
       return result
     } catch let moyaError as MoyaError {
-      let body = try moyaError.response!.map(APIErrorResponse.self)
-      throw body
+      throw moyaError.toAPIError
     } catch {
       throw error
     }
