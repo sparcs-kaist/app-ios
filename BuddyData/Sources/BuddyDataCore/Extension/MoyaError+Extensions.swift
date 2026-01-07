@@ -7,7 +7,6 @@
 
 import Foundation
 import Moya
-import BuddyDataCore
 
 extension MoyaError {
   var toAPIError: Error {
