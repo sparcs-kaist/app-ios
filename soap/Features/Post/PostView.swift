@@ -248,7 +248,7 @@ struct PostView: View {
         }
       )
 
-      PostShareButton(url: URL(string: "https://newara.dev.sparcs.org/post/\(viewModel.post.id)")!)
+      PostShareButton(url: Constants.araPostURL.appending(path: String(viewModel.post.id)))
     }
     .font(.callout)
   }

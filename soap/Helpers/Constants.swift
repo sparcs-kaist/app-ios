@@ -63,6 +63,14 @@ enum Constants {
       return URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/chat-img")!
     }
   }()
-  
+
+  static let araPostURL = {
+    if Status.isProduction {
+      return URL(string: "https://newara.sparcs.org/post/")!
+    } else {
+      return URL(string: "https://newara.dev.sparcs.org/post/")!
+    }
+  }()
+
   static let phoneNumberLength = 11
 }
