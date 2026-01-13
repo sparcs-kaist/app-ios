@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Haptica
 
 
 struct PostCommentButton: View {
@@ -14,6 +15,7 @@ struct PostCommentButton: View {
 
   var body: some View {
     Button("\(commentCount)", systemImage: "text.bubble") {
+      Haptic.impact(.light).generate()
       onClick()
     }
     .animation(.spring(), value: commentCount)

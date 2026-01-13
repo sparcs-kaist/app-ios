@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Haptica
+
 
 struct CompactTimetableSelector: View {
   @Environment(TimetableViewModel.self) private var timetableViewModel
@@ -91,6 +93,7 @@ struct CompactTimetableSelector: View {
   private var semesterSelector: some View {
     HStack {
       Button(action: {
+        Haptic.decrease.generate()
         withAnimation(.spring) {
           timetableViewModel.selectPreviousSemester()
         }
@@ -108,6 +111,7 @@ struct CompactTimetableSelector: View {
       Spacer()
 
       Button(action: {
+        Haptic.increase.generate()
         withAnimation(.spring) {
           timetableViewModel.selectNextSemester()
         }

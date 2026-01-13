@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Haptica
 
 
 struct PostBookmarkButton: View {
@@ -14,6 +15,7 @@ struct PostBookmarkButton: View {
   
   var body: some View {
     Button("bookmark", systemImage: isBookmarked ? "bookmark.fill" : "bookmark") {
+      Haptic.impact(.light).generate()
       Task {
         await onToggleBookmark()
       }

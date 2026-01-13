@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Haptica
 
 struct PostVoteButton: View {
   let myVote: Bool?
@@ -18,6 +19,7 @@ struct PostVoteButton: View {
   var body: some View {
     HStack {
       Button(action: {
+        Haptic.increase.generate()
         guard !isRunning else { return }
         isRunning = true
         Task {
@@ -39,6 +41,7 @@ struct PostVoteButton: View {
       Divider()
 
       Button("downvote", systemImage: downvoteImage) {
+        Haptic.decrease.generate()
         guard !isRunning else { return }
         isRunning = true
         Task {

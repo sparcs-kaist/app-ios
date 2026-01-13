@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import Haptica
 
 struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
@@ -219,6 +220,7 @@ struct TaxiListView: View {
                   .padding(.horizontal)
                   .id(day.weekdaySymbol)
                   .onTapGesture {
+                    Haptic.selection.generate()
                     selectedRoom = room
                   }
               }

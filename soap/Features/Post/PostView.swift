@@ -9,6 +9,7 @@ import SwiftUI
 import NukeUI
 import WebKit
 import BuddyDomain
+import Haptica
 
 struct PostView: View {
   @State private var viewModel: PostViewModelProtocol
@@ -143,7 +144,9 @@ struct PostView: View {
         Button("Summarise", systemImage: "text.append") {
           summarisedContent = ""
           Task {
+            Haptic.start.generate()
             summarisedContent = await viewModel.summarisedContent()
+            Haptic.success.generate()
           }
         }
         .disabled(summarisedContent != nil)

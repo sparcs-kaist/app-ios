@@ -9,6 +9,7 @@ import SwiftUI
 import Translation
 import Factory
 import BuddyDomain
+import Haptica
 
 struct LectureReviewCell: View {
   @Binding var review: LectureReview
@@ -43,8 +44,10 @@ struct LectureReviewCell: View {
             Button("Summarise", systemImage: "text.append") {
               summarisedContent = ""
               Task {
+                Haptic.start.generate()
                 summarisedContent = await foundationModelsUseCase
                   .summarise(review.content, maxWords: 50, tone: "concise")
+                Haptic.success.generate()
               }
             }
             .disabled(summarisedContent != nil)
@@ -143,10 +146,12 @@ struct LectureReviewCell: View {
 
     do {
       if prevLiked {
+        Haptic.decrease.generate()
         review.isLiked = false
         review.like -= 1
         try await otlCourseRepository.unlikeReview(reviewId: review.id)
       } else {
+        Haptic.increase.generate()
         review.isLiked = true
         review.like += 1
         try await otlCourseRepository.likeReview(reviewId: review.id)
