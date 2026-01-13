@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 import BuddyDomain
 import BuddyDataMocks
+import Haptica
 
 struct TaxiDestinationPicker: View {
   @Binding var source: TaxiLocation?
@@ -43,6 +44,7 @@ struct TaxiDestinationPicker: View {
   }
 
   private func swapLocations() {
+    Haptic.selection.generate()
     withAnimation(.easeInOut) {
       isFlipped.toggle()
     }
