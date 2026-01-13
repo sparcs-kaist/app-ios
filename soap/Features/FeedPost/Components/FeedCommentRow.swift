@@ -95,14 +95,14 @@ struct FeedCommentRow: View {
           .foregroundStyle(.accent)
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
-            Text("KAIST IP Verified")
+            Text("This post was created from within the KAIST network.")
               .presentationCompactAdaptation(.popover)
               .padding()
           }
           .onTapGesture {
             showPopover = true
           }
-          .accessibilityLabel(Text("KAIST IP Verified"))
+          .accessibilityLabel(Text("This post was created from within the KAIST network."))
       }
 
       Text(comment.createdAt.timeAgoDisplay)

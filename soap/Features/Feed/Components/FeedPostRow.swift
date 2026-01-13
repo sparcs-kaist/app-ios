@@ -81,7 +81,7 @@ struct FeedPostRow: View {
           .foregroundStyle(.accent)
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
-            Text("KAIST IP Verified")
+            Text("This post was created from within the KAIST network.")
               .font(.caption)
               .presentationCompactAdaptation(.popover)
               .padding(.horizontal)
@@ -89,7 +89,7 @@ struct FeedPostRow: View {
           .onTapGesture {
             showPopover = true
           }
-          .accessibilityLabel(Text("KAIST IP Verified"))
+          .accessibilityLabel(Text("This post was created from within the KAIST network."))
       }
 
       // onPostDeleted == nil here means FeedPostRow is in the FeedPostView.

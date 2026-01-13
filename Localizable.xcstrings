@@ -2080,9 +2080,6 @@
         }
       }
     },
-    "KAIST IP Verified" : {
-
-    },
     "Keep track of your classes." : {
 
     },
@@ -4161,6 +4158,9 @@
           }
         }
       }
+    },
+    "This post was created from within the KAIST network." : {
+
     },
     "Timetable" : {
       "localizations" : {
