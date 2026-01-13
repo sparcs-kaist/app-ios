@@ -51,7 +51,7 @@ struct FeedPostView: View {
           comments
         }
       }
-      .task {
+      .task(id: post.id) {
         await viewModel.fetchComments(postID: post.id)
         self.feedUser = await userUseCase.feedUser
       }

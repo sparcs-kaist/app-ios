@@ -25,7 +25,7 @@ protocol FeedPostViewModelProtocol: Observable {
 
 @Observable
 class FeedPostViewModel: FeedPostViewModelProtocol {
-  enum ViewState {
+  enum ViewState: Comparable {
     case loading
     case loaded
     case error(message: String)
@@ -46,6 +46,7 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
 
   // MARK: - Functions
   func fetchComments(postID: String) async {
+    guard state != .loading else { return }
     do {
       let comments: [FeedComment] = try await feedCommentRepository.fetchComments(postID: postID)
       self.comments = comments
