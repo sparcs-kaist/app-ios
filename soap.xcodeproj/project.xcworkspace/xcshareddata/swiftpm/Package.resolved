@@ -1,5 +1,5 @@
 {
-  "originHash" : "07df8996af482ae875bf89099f2c1fe9fd8270b42dff17fa82937f35a211085b",
+  "originHash" : "3d0d205b2d32f57eda606e5e598f93655840ba52d5cd09d3001eb9eb3ef7c402",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -98,6 +98,15 @@
       "state" : {
         "revision" : "fb7f2740b1570d2f7599c6bb9531bf4fad6974b7",
         "version" : "5.0.0"
+      }
+    },
+    {
+      "identity" : "haptica",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/efremidze/Haptica.git",
+      "state" : {
+        "revision" : "8fbb3286d1fe525925aea9bd64b0defdd545db5a",
+        "version" : "4.0.1"
       }
     },
     {
