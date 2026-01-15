@@ -19,12 +19,12 @@ struct PostVoteButton: View {
   var body: some View {
     HStack {
       Button(action: {
-        Haptic.increase.generate()
-        guard !isRunning else { return }
-        isRunning = true
-        Task {
+        Task { @MainActor in
+          guard !isRunning else { return }
+          isRunning = true
+          Haptic.increase.generate()
+          defer { isRunning = false }
           await onUpvote()
-          isRunning = false
         }
       }, label: {
         HStack {
@@ -41,12 +41,12 @@ struct PostVoteButton: View {
       Divider()
 
       Button("downvote", systemImage: downvoteImage) {
-        Haptic.decrease.generate()
-        guard !isRunning else { return }
-        isRunning = true
-        Task {
+        Task { @MainActor in
+          guard !isRunning else { return }
+          isRunning = true
+          Haptic.decrease.generate()
+          defer { isRunning = false }
           await onDownvote()
-          isRunning = false
         }
       }
       .labelStyle(.iconOnly)
