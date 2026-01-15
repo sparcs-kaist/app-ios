@@ -211,6 +211,7 @@ struct FeedPostRow: View {
   private func upvote() async {
     let previousMyVote: FeedVoteType? = post.myVote
     let previousUpvotes: Int = post.upvotes
+    let previousDownvotes: Int = post.downvotes
 
     do {
       if previousMyVote == .up {
@@ -232,11 +233,13 @@ struct FeedPostRow: View {
       logger.error(error)
       post.myVote = previousMyVote
       post.upvotes = previousUpvotes
+      post.downvotes = previousDownvotes
     }
   }
 
   private func downvote() async {
     let previousMyVote: FeedVoteType? = post.myVote
+    let previousUpvotes: Int = post.upvotes
     let previousDownvotes: Int = post.downvotes
 
     do {
@@ -258,6 +261,7 @@ struct FeedPostRow: View {
     } catch {
       logger.error(error)
       post.myVote = previousMyVote
+      post.upvotes = previousUpvotes
       post.downvotes = previousDownvotes
     }
   }
