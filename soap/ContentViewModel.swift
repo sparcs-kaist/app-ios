@@ -18,6 +18,7 @@ class ContentViewModel {
   var isAuthenticated = false
   var isUpdateRequired = false
   private var cancellables = Set<AnyCancellable>()
+  private var lastCheckTime: Date?
 
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
@@ -37,11 +38,12 @@ class ContentViewModel {
   
   func onActivation() async {
     isLoading = true
-    defer { isLoading = false }
     
-    await checkForUpdates()
+    await checkUpdateIfNeeded()
     if isUpdateRequired { return }
     await refreshAccessTokenIfNeeded()
+    
+    isLoading = false
   }
 
   func refreshAccessTokenIfNeeded() async {
@@ -62,7 +64,20 @@ class ContentViewModel {
     }
   }
   
-  func checkForUpdates() async  {
+  func checkUpdateIfNeeded() async {
+    let now = Date()
+    
+    if lastCheckTime == nil || now.timeIntervalSince(lastCheckTime!) > 3600 { // 1 hour interval
+      await checkForUpdates()
+      lastCheckTime = now
+    }
+  }
+  
+  func resetTimer() {
+    lastCheckTime = nil
+  }
+  
+  private func checkForUpdates() async  {
     logger.debug("Checking for updates")
     guard let requiredVersion = try? await versionRepository.getMinimumVersion() else {
       logger.error("Failed to fetch minimum required version.")

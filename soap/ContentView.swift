@@ -43,6 +43,7 @@ struct ContentView: View {
     }
     .alert("Update Required", isPresented: $viewModel.isUpdateRequired, actions: {
       Button(action: {
+        viewModel.resetTimer()
         UIApplication.shared.open(Constants.araPostURL, options: [:], completionHandler: nil)
       }, label: {
         Text("Open App Store")
