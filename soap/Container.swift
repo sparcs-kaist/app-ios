@@ -43,6 +43,10 @@ extension Container {
   var authRepository: Factory<AuthRepositoryProtocol> {
     self { AuthRepository(provider: MoyaProvider<AuthTarget>()) }
   }
+  
+  var versionRepository: Factory<VersionRepositoryProtocol> {
+    self { VersionRepository(provider: MoyaProvider<VersionTarget>()) }
+  }
 
   // MARK: Taxi
   var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol> {

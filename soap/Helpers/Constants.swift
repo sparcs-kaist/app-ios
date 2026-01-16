@@ -12,6 +12,10 @@ enum Constants {
   // MARK: Infinite Scroll Constants
   static let loadMoreThreshold = 0.6
   
+  // MARK: App Store URL
+  // TODO: Fill with real app ID
+  static let appStoreURL = URL(string: "itms-apps://itunes.apple.com/app")!
+  
   // MARK: Terms
   static let privacyPolicyURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/Privacy.md")!
   static let termsOfUseURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/TermsOfUse.md")!
