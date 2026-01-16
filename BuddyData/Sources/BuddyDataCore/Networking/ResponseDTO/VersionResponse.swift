@@ -6,6 +6,6 @@
 //
 
 
-struct VersionResponse: Codable {
+public struct VersionResponse: Codable {
   let ios: String
 }

@@ -92,7 +92,6 @@ class ContentViewModel {
     }
     
     isUpdateRequired = currentVersion.compare(requiredVersion, options: .numeric) == .orderedAscending
-    return
   }
   
   private func getAppVersion() -> String? {
