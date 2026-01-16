@@ -16,11 +16,13 @@ import BuddyDomain
 class ContentViewModel {
   var isLoading = true
   var isAuthenticated = false
+  var isUpdateRequired = false
   private var cancellables = Set<AnyCancellable>()
 
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
+  @ObservationIgnored @Injected(\.versionRepository) private var versionRepository: VersionRepositoryProtocol
 
   init() {
     authUseCase.isAuthenticatedPublisher
@@ -32,9 +34,17 @@ class ContentViewModel {
       }
       .store(in: &cancellables)
   }
+  
+  func onActivation() async {
+    isLoading = true
+    defer { isLoading = false }
+    
+    await checkForUpdates()
+    if isUpdateRequired { return }
+    await refreshAccessTokenIfNeeded()
+  }
 
   func refreshAccessTokenIfNeeded() async {
-    isLoading = true
     do {
       // Avoid forcing refresh when token is still valid
       try await authUseCase.refreshAccessToken(force: false)
@@ -42,7 +52,6 @@ class ContentViewModel {
     } catch {
       logger.error(error)
     }
-    isLoading = false
   }
   
   func fetchTaxiLocations() async {
@@ -51,5 +60,30 @@ class ContentViewModel {
     } catch {
       logger.error(error)
     }
+  }
+  
+  func checkForUpdates() async  {
+    logger.debug("Checking for updates")
+    guard let requiredVersion = try? await versionRepository.getMinimumVersion() else {
+      logger.error("Failed to fetch minimum required version.")
+      isUpdateRequired = false // TODO: check if network connection is lost
+      return
+    }
+    
+    guard let currentVersion = getAppVersion() else {
+      logger.error("Failed to get current app version.")
+      isUpdateRequired = false
+      return
+    }
+    
+    isUpdateRequired = currentVersion.compare(requiredVersion, options: .numeric) == .orderedAscending
+    return
+  }
+  
+  private func getAppVersion() -> String? {
+    if let info = Bundle.main.infoDictionary, let currentVersion = info["CFBundleShortVersionString"] as? String {
+      return currentVersion
+    }
+    return nil
   }
 }

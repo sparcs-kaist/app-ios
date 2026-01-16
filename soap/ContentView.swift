@@ -18,6 +18,12 @@ struct ContentView: View {
     ZStack {
       if viewModel.isAuthenticated {
         MainView()
+        // TODO: refactor alert
+          .alert("Error", isPresented: $crashlyticsHelper.showAlert, actions: {
+            Button(role: .confirm) { }
+          }, message: {
+            Text(crashlyticsHelper.alertMessage)
+          })
       } else if viewModel.isLoading {
         // MARK: THIS PLAYS CRUCIAL ROLE HIDING SIGN IN VIEW ON LOADING
       } else {
@@ -25,20 +31,24 @@ struct ContentView: View {
       }
     }
     .task {
-      await viewModel.refreshAccessTokenIfNeeded()
+      await viewModel.onActivation()
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .onChange(of: scenePhase) {
       if scenePhase == .active {
         Task {
-          await viewModel.refreshAccessTokenIfNeeded()
+          await viewModel.onActivation()
         }
       }
     }
-    .alert("Error", isPresented: $crashlyticsHelper.showAlert, actions: {
-      Button(role: .confirm) { }
+    .alert("Update Required", isPresented: $viewModel.isUpdateRequired, actions: {
+      Button(action: {
+        UIApplication.shared.open(Constants.araPostURL, options: [:], completionHandler: nil)
+      }, label: {
+        Text("Open App Store")
+      })
     }, message: {
-      Text(crashlyticsHelper.alertMessage)
+      Text("A new version is available. Please update to continue.")
     })
   }
 }

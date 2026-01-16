@@ -334,6 +334,22 @@
     "A" : {
       "shouldTranslate" : false
     },
+    "A new version is available. Please update to continue." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new version is available. Please update to continue."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 버전이 출시되었습니다. 계속하려면 업데이트해 주세요. "
+          }
+        }
+      }
+    },
     "Active Groups" : {
       "localizations" : {
         "en" : {
@@ -2651,6 +2667,22 @@
         }
       }
     },
+    "Open App Store" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open App Store"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store 열기"
+          }
+        }
+      }
+    },
     "Open Buddy on your iPhone to continue" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4357,6 +4389,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "다가오는 수업"
+          }
+        }
+      }
+    },
+    "Update Required" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update Required"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 가능"
           }
         }
       }
