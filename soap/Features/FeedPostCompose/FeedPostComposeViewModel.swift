@@ -162,6 +162,6 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   }
   
   func handleException(_ error: Error) {
-    crashlyticsHelper.recordException(error: error, showAlert: false)
+    crashlyticsHelper.recordException(error: error)
   }
 }

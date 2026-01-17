@@ -22,6 +22,8 @@ final class TimetableViewModel {
   }
   
   var isLoading: Bool = false
+  public var showAlert: Bool = false
+  public var alertMessage: LocalizedStringResource = ""
   
   var semesters: [Semester] {
     timetableUseCase.semesters
@@ -103,24 +105,42 @@ final class TimetableViewModel {
     timetableUseCase.selectedTimetableID = id
   }
 
-  func createTable() async throws {
-    try await timetableUseCase.createTable()
+  func createTable() async {
+    do {
+      try await timetableUseCase.createTable()
+    } catch {
+      handleException(error: error, type: .createTable)
+    }
   }
 
-  func deleteTable() async throws {
-    try await timetableUseCase.deleteTable()
+  func deleteTable() async {
+    do {
+      try await timetableUseCase.deleteTable()
+    } catch {
+      handleException(error: error, type: .deleteTable)
+    }
   }
 
-  func addLecture(lecture: Lecture) async throws {
-    try await timetableUseCase.addLecture(lecture: lecture)
+  func addLecture(lecture: Lecture) async {
+    do {
+      try await timetableUseCase.addLecture(lecture: lecture)
+    } catch {
+      handleException(error: error, type: .addLecture)
+    }
   }
 
-  func deleteLecture(lecture: Lecture) async throws {
-    try await timetableUseCase.deleteLecture(lecture: lecture)
+  func deleteLecture(lecture: Lecture) async {
+    do {
+      try await timetableUseCase.deleteLecture(lecture: lecture)
+    } catch {
+      handleException(error: error, type: .addLecture)
+    }
   }
   
-  func handleException(error: Error, type: ErrorType) {
-    var alertMessage: LocalizedStringResource {
+  private func handleException(error: Error, type: ErrorType) {
+    defer { showAlert = true }
+    
+    self.alertMessage = {
       switch type {
       case .addLecture:
         "An unexpected error occurred while adding a lecture. Please try again later."
@@ -133,8 +153,14 @@ final class TimetableViewModel {
       case .fetchData:
         "An unexpected error occurred while loading timetables. Please try again later."
       }
+    }()
+      
+    if error.isNetworkMoyaError {
+      alertMessage = "You are not connected to the Internet."
+      return
     }
-    crashlyticsHelper.recordException(error: error, alertMessage: alertMessage)
+    
+    crashlyticsHelper.recordException(error: error)
   }
 }
 

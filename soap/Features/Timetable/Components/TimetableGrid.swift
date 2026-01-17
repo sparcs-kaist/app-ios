@@ -33,11 +33,7 @@ struct TimetableGrid: View {
                   isCandidate: item.lecture.id == timetableViewModel.candidateLecture?.id,
                   onDeletion: {
                     Task {
-                      do {
-                        try await timetableViewModel.deleteLecture(lecture: item.lecture)
-                      } catch {
-                        timetableViewModel.handleException(error: error, type: .deleteLecture)
-                      }
+                      await timetableViewModel.deleteLecture(lecture: item.lecture)
                     }
                   }
                 )

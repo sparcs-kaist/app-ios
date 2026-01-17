@@ -222,6 +222,6 @@ class PostViewModel: PostViewModelProtocol {
   }
   
   func handleException(_ error: any Error) {
-    crashlyticsHelper.recordException(error: error, showAlert: false)
+    crashlyticsHelper.recordException(error: error)
   }
 }

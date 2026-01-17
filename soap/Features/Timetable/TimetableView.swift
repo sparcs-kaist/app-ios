@@ -100,6 +100,11 @@ struct TimetableView: View {
         }
       }
     }
+    .alert("Error", isPresented: $viewModel.showAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(viewModel.alertMessage)
+    })
   }
 }
 

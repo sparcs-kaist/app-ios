@@ -16,7 +16,7 @@ struct FeedPostRow: View {
   let onComment: (() -> Void)?
   @State var showFullContent: Bool = false
 
-  @State private var showAlert: Bool = false
+  @State private var presentAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
   @State private var canBeExpanded: Bool = false
@@ -116,8 +116,12 @@ struct FeedPostRow: View {
                       try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
                       showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                     } catch {
-                      crashlyticsHelper.recordException(error: error, showAlert: false)
-                      showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
+                      if error.isNetworkMoyaError {
+                        showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
+                      } else {
+                        crashlyticsHelper.recordException(error: error)
+                        showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
+                      }
                     }
                   }
                 }
@@ -136,7 +140,7 @@ struct FeedPostRow: View {
         } message: {
           Text("Are you sure you want to delete this post?")
         }
-        .alert(alertTitle, isPresented: $showAlert, actions: {
+        .alert(alertTitle, isPresented: $presentAlert, actions: {
           Button("Okay", role: .close) { }
         }, message: {
           Text(alertMessage)
@@ -261,7 +265,7 @@ struct FeedPostRow: View {
   private func showAlert(title: String, message: String) {
     alertTitle = title
     alertMessage = message
-    showAlert = true
+    presentAlert = true
   }
 }
 

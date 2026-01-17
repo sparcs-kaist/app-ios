@@ -19,6 +19,10 @@ struct TaxiReportView: View {
   @State private var isUploading: Bool = false
   @Environment(\.dismiss) private var dismiss
   
+  @State private var presentAlert: Bool = false
+  @State private var alertTitle: String = ""
+  @State private var alertContent: String = ""
+  
   // MARK: - Dependencies
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   
@@ -86,7 +90,12 @@ struct TaxiReportView: View {
                   try await viewModel.createReport(roomID: room.id)
                   dismiss()
                 } catch {
-                  viewModel.handleException(error)
+                  if error.isNetworkMoyaError {
+                    showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
+                  } else {
+                    viewModel.handleException(error)
+                    showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a user. Please try again later."))
+                  }
                 }
               }
             }, label: {
@@ -102,6 +111,11 @@ struct TaxiReportView: View {
         }
       }
     }
+    .alert(alertTitle, isPresented: $presentAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(alertContent)
+    })
   }
   
   var isValid: Bool {
@@ -109,6 +123,12 @@ struct TaxiReportView: View {
       viewModel.selectedUser != nil && viewModel.selectedReason != nil &&
       (viewModel.selectedReason != .etcReason || (1...viewModel.maxEtcDetailsLength).contains(viewModel.etcDetails.count))
     )
+  }
+  
+  private func showAlert(title: String, content: String) {
+    alertTitle = title
+    alertContent = content
+    presentAlert = true
   }
 }
 

@@ -12,18 +12,12 @@ import Factory
 struct ContentView: View {
   @Bindable private var viewModel = ContentViewModel()
   @Environment(\.scenePhase) private var scenePhase
-  @InjectedObservable(\.crashlyticsHelper) private var crashlyticsHelper
+  @Injected(\.crashlyticsHelper) private var crashlyticsHelper
 
   var body: some View {
     ZStack {
       if viewModel.isAuthenticated {
         MainView()
-        // TODO: refactor alert
-          .alert("Error", isPresented: $crashlyticsHelper.showAlert, actions: {
-            Button(role: .confirm) { }
-          }, message: {
-            Text(crashlyticsHelper.alertMessage)
-          })
       } else if viewModel.isLoading {
         // MARK: THIS PLAYS CRUCIAL ROLE HIDING SIGN IN VIEW ON LOADING
       } else {

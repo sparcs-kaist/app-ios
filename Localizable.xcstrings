@@ -606,6 +606,22 @@
         }
       }
     },
+    "An unexpected error occurred while fetching user information. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while fetching user information. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 정보를 불러오는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+          }
+        }
+      }
+    },
     "An unexpected error occurred while loading timetables. Please try again later." : {
       "localizations" : {
         "en" : {
@@ -682,6 +698,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "사용자를 신고하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요. "
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while updating badge information. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while updating badge information. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "뱃지 표시 여부를 업데이트하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while updating bank account information. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while updating bank account information. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계좌 정보를 업데이트하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "An unexpected error occurred while updating phone number information. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred while updating phone number information. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전화 번호를 등록하는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요."
           }
         }
       }
@@ -2097,7 +2161,14 @@
       }
     },
     "Keep track of your classes." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep track of your classes."
+          }
+        }
+      }
     },
     "Language" : {
       "localizations" : {
@@ -3798,6 +3869,7 @@
       }
     },
     "Something went wrong. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3957,6 +4029,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Taxi 봇"
+          }
+        }
+      }
+    },
+    "Taxi User Information Not Found." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "택시 사용자 정보를 불러올 수 없습니다."
           }
         }
       }

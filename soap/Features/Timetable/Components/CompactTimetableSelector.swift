@@ -55,22 +55,14 @@ struct CompactTimetableSelector: View {
 
       Button("New Table", systemImage: "plus") {
         Task {
-          do {
-            try await timetableViewModel.createTable()
-          } catch {
-            timetableViewModel.handleException(error: error, type: .createTable)
-          }
+          await timetableViewModel.createTable()
         }
       }
 
       Divider()
       Button("Delete", systemImage: "trash", role: .destructive) {
         Task {
-          do {
-            try await timetableViewModel.deleteTable()
-          } catch {
-            timetableViewModel.handleException(error: error, type: .deleteTable)
-          }
+          await timetableViewModel.deleteTable()
         }
       }
       .tint(nil)
