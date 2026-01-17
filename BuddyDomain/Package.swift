@@ -14,11 +14,17 @@ let package = Package(
             targets: ["BuddyDomain"]
         ),
     ],
+    dependencies: [
+      .package(url: "https://github.com/mxcl/Version.git", .upToNextMajor(from: "2.2.0"))
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "BuddyDomain"
+            name: "BuddyDomain",
+            dependencies: [
+              .product(name: "Version", package: "Version")
+            ]
         ),
         .testTarget(
             name: "BuddyDomainTests",
