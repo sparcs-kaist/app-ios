@@ -18,7 +18,7 @@ protocol FeedPostViewModelProtocol: Observable {
   var image: UIImage? { get set }
   var isAnonymous: Bool { get set }
 
-  func fetchComments(postID: String) async
+  func fetchComments(postID: String, initial: Bool) async
   func writeComment(postID: String) async throws -> FeedComment
   func writeReply(commentID: String) async throws -> FeedComment
 }
@@ -45,8 +45,8 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   ) private var feedCommentRepository: FeedCommentRepositoryProtocol
 
   // MARK: - Functions
-  func fetchComments(postID: String) async {
-    guard state != .loading else { return }
+  func fetchComments(postID: String, initial: Bool) async {
+    guard state != .loading || initial else { return }
     do {
       let comments: [FeedComment] = try await feedCommentRepository.fetchComments(postID: postID)
       self.comments = comments
