@@ -96,6 +96,7 @@ struct FeedCommentRow: View {
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
             Text("This post was created from within the KAIST network.")
+              .frame(width: 200)
               .presentationCompactAdaptation(.popover)
               .padding()
           }

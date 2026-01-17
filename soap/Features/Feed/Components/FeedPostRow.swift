@@ -82,9 +82,9 @@ struct FeedPostRow: View {
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
             Text("This post was created from within the KAIST network.")
-              .font(.caption)
+              .frame(width: 200)
               .presentationCompactAdaptation(.popover)
-              .padding(.horizontal)
+              .padding()
           }
           .onTapGesture {
             showPopover = true
