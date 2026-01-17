@@ -52,6 +52,7 @@
 		8BFAD2712E92B654005D8639 /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2702E92B654005D8639 /* BuddyDataiOS */; };
 		8BFAD2732E92B949005D8639 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2722E92B949005D8639 /* BuddyDataMocks */; };
 		8BFAD2752E92B98A005D8639 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2742E92B98A005D8639 /* BuddyDataMocks */; };
+		F6C7DAC62F1B2BE4000B32F1 /* Version in Frameworks */ = {isa = PBXBuildFile; productRef = F6C7DAC52F1B2BE4000B32F1 /* Version */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -280,6 +281,7 @@
 				8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */,
 				8B45B2822F161F8100A858F5 /* Haptica in Frameworks */,
 				8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */,
+				F6C7DAC62F1B2BE4000B32F1 /* Version in Frameworks */,
 				8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */,
 				8B5073E32E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
 				8B5073E72E851F79007E9C27 /* FirebaseCrashlytics in Frameworks */,
@@ -475,6 +477,7 @@
 				8BFAD2702E92B654005D8639 /* BuddyDataiOS */,
 				8BFAD2742E92B98A005D8639 /* BuddyDataMocks */,
 				8B45B2812F161F8100A858F5 /* Haptica */,
+				F6C7DAC52F1B2BE4000B32F1 /* Version */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -576,6 +579,7 @@
 				8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */,
 				8B5073DD2E851F79007E9C27 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				8B45B2802F161F8100A858F5 /* XCRemoteSwiftPackageReference "Haptica" */,
+				F6C7DAC42F1B2BE4000B32F1 /* XCRemoteSwiftPackageReference "Version" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8B8DFBE72CCF771700AB82CC /* Products */;
@@ -1360,6 +1364,14 @@
 				minimumVersion = 15.0.3;
 			};
 		};
+		F6C7DAC42F1B2BE4000B32F1 /* XCRemoteSwiftPackageReference "Version" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mxcl/Version";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1512,6 +1524,11 @@
 		8BFAD2742E92B98A005D8639 /* BuddyDataMocks */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDataMocks;
+		};
+		F6C7DAC52F1B2BE4000B32F1 /* Version */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F6C7DAC42F1B2BE4000B32F1 /* XCRemoteSwiftPackageReference "Version" */;
+			productName = Version;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

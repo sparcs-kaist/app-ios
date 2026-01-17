@@ -10,6 +10,7 @@ import Combine
 import Observation
 import Factory
 import BuddyDomain
+import Version
 
 @Observable
 @MainActor
@@ -85,19 +86,9 @@ class ContentViewModel {
       return
     }
     
-    guard let currentVersion = getAppVersion() else {
-      logger.error("Failed to get current app version.")
-      isUpdateRequired = false
-      return
-    }
+    let currentVersion = Bundle.main.version
     
-    isUpdateRequired = currentVersion.compare(requiredVersion, options: .numeric) == .orderedAscending
-  }
-  
-  private func getAppVersion() -> String? {
-    if let info = Bundle.main.infoDictionary, let currentVersion = info["CFBundleShortVersionString"] as? String {
-      return currentVersion
-    }
-    return nil
+    isUpdateRequired = currentVersion < requiredVersion
+    logger.debug("currentVersion: \(currentVersion), requiredVersion: \(requiredVersion), isUpdateRequired: \(isUpdateRequired)")
   }
 }
