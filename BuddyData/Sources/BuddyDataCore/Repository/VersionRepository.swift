@@ -7,6 +7,7 @@
 
 import Foundation
 import BuddyDomain
+import Version
 
 @preconcurrency
 import Moya
@@ -18,10 +19,10 @@ public final class VersionRepository: VersionRepositoryProtocol {
     self.provider = provider
   }
   
-  public func getMinimumVersion() async throws -> String {
+  public func getMinimumVersion() async throws -> Version? {
     let response = try await self.provider.request(.getMinimumVersion)
     let result = try response.map(VersionResponse.self)
     
-    return result.ios
+    return Version(result.ios)
   }
 }
