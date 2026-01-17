@@ -12,7 +12,7 @@ import BuddyDomain
 
 struct FeedPostView: View {
   @Binding var post: FeedPost
-  let onDelete: (() -> Void)?
+  let onDelete: (() async throws -> Void)?
 
   @Environment(\.keyboardShowing) private var keyboardShowing
   @Environment(\.dismiss) private var dismiss
@@ -94,8 +94,19 @@ struct FeedPostView: View {
           }
           .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
-              onDelete?()
-              dismiss()
+              Task {
+                do {
+                  try await onDelete?()
+                  dismiss()
+                } catch {
+                  if let deletionError = error as? FeedDeletionError, let message = deletionError.errorDescription {
+                    showAlert(title: String(localized: "Error"), message: message)
+                  }
+                  else {
+                    showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
+                  }
+                }
+              }
             }
             Button("Cancel", role: .cancel) { }
           } message: {

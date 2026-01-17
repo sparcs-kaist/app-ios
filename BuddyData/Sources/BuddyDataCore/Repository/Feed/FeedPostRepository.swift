@@ -32,6 +32,11 @@ public actor FeedPostRepository: FeedPostRepositoryProtocol {
 
   public func deletePost(postID: String) async throws {
     let response = try await provider.request(.delete(postID: postID))
+    
+    if response.statusCode == 409 {
+      throw FeedDeletionError.hasComments
+    }
+    
     _ = try response.filterSuccessfulStatusCodes()
   }
 

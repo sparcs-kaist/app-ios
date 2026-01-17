@@ -49,10 +49,8 @@ struct FeedView: View {
               NavigationLink(destination: {
                 FeedPostView(post: $post, onDelete: {
                   if let idx = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
-                    Task {
-                      try? await viewModel.deletePost(postID: post.id)
-                      viewModel.posts.remove(at: idx)
-                    }
+                    try await viewModel.deletePost(postID: post.id)
+                    viewModel.posts.remove(at: idx)
                   }
                 })
                 .environment(spoilerContents)
@@ -61,11 +59,7 @@ struct FeedView: View {
               }, label: {
                 FeedPostRow(post: $post, onPostDeleted: { postID in
                   Task {
-                    do {
-                      try await viewModel.deletePost(postID: postID)
-                    } catch {
-                      showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
-                    }
+                    await deletePost(postID: postID)
                   }
                 }, onComment: nil)
                 .environment(spoilerContents)
@@ -144,6 +138,19 @@ struct FeedView: View {
     alertTitle = title
     alertMessage = message
     showAlert = true
+  }
+  
+  private func deletePost(postID: String) async {
+    do {
+      try await viewModel.deletePost(postID: postID)
+    } catch {
+      if let deletionError = error as? FeedDeletionError, let message = deletionError.errorDescription {
+        showAlert(title: String(localized: "Error"), message: message)
+      }
+      else {
+        showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
+      }
+    }
   }
 }
 

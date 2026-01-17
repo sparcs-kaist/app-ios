@@ -535,6 +535,22 @@
         }
       }
     },
+    "Posts with comments cannot be deleted." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posts with comments cannot be deleted."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글이 달린 게시글은 삭제할 수 없습니다."
+          }
+        }
+      }
+    },
     "Received" : {
       "localizations" : {
         "en" : {
