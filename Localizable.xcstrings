@@ -4035,6 +4035,12 @@
     },
     "Taxi User Information Not Found." : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxi User Information Not Found."
+          }
+        },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",

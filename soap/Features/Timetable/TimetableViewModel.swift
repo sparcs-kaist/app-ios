@@ -133,7 +133,7 @@ final class TimetableViewModel {
     do {
       try await timetableUseCase.deleteLecture(lecture: lecture)
     } catch {
-      handleException(error: error, type: .addLecture)
+      handleException(error: error, type: .deleteLecture)
     }
   }
   
