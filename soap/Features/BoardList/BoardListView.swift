@@ -47,8 +47,6 @@ struct ListGlassSection<Content: View>: View {
 
 struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
-  @State private var selectedBoard: AraBoard? = nil
-  @State private var tabBarVisibility: Visibility = .visible
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel()) {
@@ -82,7 +80,7 @@ struct BoardListView: View {
       .disabled(viewModel.state == .loading)
       .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Boards") : "")
       .toolbarTitleDisplayMode(.inlineLarge)
-      .toolbar(tabBarVisibility, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
+      .toolbar(.visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
     }, detail: {
       NavigationStack {
         
