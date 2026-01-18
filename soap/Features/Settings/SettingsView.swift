@@ -16,6 +16,7 @@ struct SettingsView: View {
   @State private var showLogoutError: Bool = false
   @State private var isCrashlyticsEnabled: Bool = false
   @State private var showLegalView: Bool = false
+  @State private var showCreditView: Bool = false
 
   init(_ viewModel: SettingsViewModel = .init()) {
     self.viewModel = viewModel
@@ -75,7 +76,11 @@ struct SettingsView: View {
       }
       .navigationDestination(isPresented: $showLegalView) {
         LicenseListView()
+          .navigationTitle("Legal Notices")
           .licenseViewStyle(.withRepositoryAnchorLink)
+      }
+      .navigationDestination(isPresented: $showCreditView) {
+        CreditView()
       }
     }
   }
@@ -101,14 +106,17 @@ struct SettingsView: View {
   
   private var terms: some View {
     Group {
-      Button("Privacy Policy", systemImage: "list.bullet.clipboard") {
+      Button("Privacy Policy", systemImage: "hand.raised.fill") {
         openURL(Constants.privacyPolicyURL)
       }
-      Button("Terms of Use", systemImage: "list.bullet.clipboard") {
+      Button("Terms of Use", systemImage: "doc.text") {
         openURL(Constants.termsOfUseURL)
       }
-      Button("Acknowledgements", systemImage: "list.bullet.clipboard") {
+      Button("Legal Notices", systemImage: "scale.3d") {
         showLegalView = true
+      }
+      Button("Acknowledgements", systemImage: "heart.text.square") {
+        showCreditView = true
       }
     }
     .foregroundStyle(.primary)
