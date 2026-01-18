@@ -18,7 +18,7 @@ struct PostCommentCell: View {
   let onDelete: (() -> Void)?
   let onEdit: (() -> Void)?
 
-  @State private var showAlert: Bool = false
+  @State private var presentAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertContent: String = ""
   @State private var showTranslateSheet: Bool = false
@@ -50,7 +50,7 @@ struct PostCommentCell: View {
         footer
       }
     }
-    .alert(alertTitle, isPresented: $showAlert, actions: {
+    .alert(alertTitle, isPresented: $presentAlert, actions: {
       Button("Okay", role: .close) { }
     }, message: {
       Text(alertContent)
@@ -247,15 +247,19 @@ struct PostCommentCell: View {
         .reportComment(commentID: comment.id, type: type)
       showAlert(title: String(localized: "Report Submitted"), content: String(localized: "Your report has been submitted successfully."))
     } catch {
-      crashlyticsHelper.recordException(error: error, showAlert: false)
-      showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
+      if error.isNetworkMoyaError {
+        showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
+      } else {
+        crashlyticsHelper.recordException(error: error)
+        showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
+      }
     }
   }
   
   private func showAlert(title: String, content: String) {
     alertTitle = title
     alertContent = content
-    showAlert = true
+    presentAlert = true
   }
 }
 

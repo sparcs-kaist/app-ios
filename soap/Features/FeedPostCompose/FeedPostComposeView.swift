@@ -17,7 +17,7 @@ struct FeedPostComposeView: View {
   @State private var showPhotosPicker: Bool = false
   @State private var isUploading: Bool = false
   
-  @State private var showAlert: Bool = false
+  @State private var presentAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
   
@@ -76,8 +76,12 @@ struct FeedPostComposeView: View {
                   try await viewModel.writePost()
                   dismiss()
                 } catch {
-                  viewModel.handleException(error)
-                  showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a post. Please try again later."))
+                  if error.isNetworkMoyaError {
+                    showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
+                  } else {
+                    viewModel.handleException(error)
+                    showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a post. Please try again later."))
+                  }
                 }
               }
             }, label: {
@@ -104,7 +108,7 @@ struct FeedPostComposeView: View {
         }
       }
     }
-    .alert(alertTitle, isPresented: $showAlert, actions: {
+    .alert(alertTitle, isPresented: $presentAlert, actions: {
       Button("Okay") { }
     }, message: {
       Text(alertMessage)
@@ -195,7 +199,7 @@ struct FeedPostComposeView: View {
   private func showAlert(title: String, message: String) {
     alertTitle = title
     alertMessage = message
-    showAlert = true
+    presentAlert = true
   }
 }
 

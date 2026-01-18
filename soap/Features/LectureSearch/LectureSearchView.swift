@@ -81,11 +81,7 @@ struct LectureSearchView: View {
               lecture: lecture,
               onAdd: {
                 Task {
-                  do {
-                    try await timetableViewModel.addLecture(lecture: lecture)
-                  } catch {
-                    timetableViewModel.handleException(error: error, type: .addLecture)
-                  }
+                  await timetableViewModel.addLecture(lecture: lecture)
                 }
               },
               isOverlapping: timetableViewModel.isCandidateOverlapping,

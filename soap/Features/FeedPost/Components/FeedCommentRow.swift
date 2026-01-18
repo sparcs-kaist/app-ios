@@ -16,7 +16,7 @@ struct FeedCommentRow: View {
   let isReply: Bool
   let onReply: (() -> Void)?
   
-  @State private var showAlert: Bool = false
+  @State private var presentAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertMessage: String = ""
   
@@ -96,6 +96,7 @@ struct FeedCommentRow: View {
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
             Text("This post was created from within the KAIST network.")
+              .frame(width: 200)
               .presentationCompactAdaptation(.popover)
               .padding()
           }
@@ -129,8 +130,12 @@ struct FeedCommentRow: View {
                     try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
                     showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                   } catch {
-                    crashlyticsHelper.recordException(error: error, showAlert: false)
-                    showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
+                    if error.isNetworkMoyaError {
+                      showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
+                    } else {
+                      crashlyticsHelper.recordException(error: error)
+                      showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
+                    }
                   }
                 }
               }
@@ -139,7 +144,7 @@ struct FeedCommentRow: View {
         }
       }
     }
-    .alert(alertTitle, isPresented: $showAlert, actions: {
+    .alert(alertTitle, isPresented: $presentAlert, actions: {
       Button("Okay", role: .close) { }
     }, message: {
       Text(alertMessage)
@@ -274,7 +279,7 @@ struct FeedCommentRow: View {
   private func showAlert(title: String, message: String) {
     alertTitle = title
     alertMessage = message
-    showAlert = true
+    presentAlert = true
   }
 }
 

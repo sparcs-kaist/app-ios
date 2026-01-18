@@ -9,6 +9,8 @@ import Foundation
 import BuddyDomain
 
 class MockTaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
+  var showAlert: Bool = false
+  var alertContent: LocalizedStringResource = ""
   var bankName: String? = "카카오뱅크"
   var bankNumber: String = "3333-01-1234567"
   var phoneNumber: String = "010-1234-5678"

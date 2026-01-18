@@ -105,7 +105,7 @@ struct PostTranslationView: View {
             content = translatedContent.targetText
           }
         } catch {
-          crashlyticsHelper.recordException(error: error, showAlert: false)
+          crashlyticsHelper.recordException(error: error)
           errorMessage = "Failed to translate. Please try again."
           showErrorAlert = true
         }

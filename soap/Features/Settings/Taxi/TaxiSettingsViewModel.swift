@@ -15,6 +15,8 @@ protocol TaxiSettingsViewModelProtocol: Observable {
   var bankNumber: String { get set }
   var phoneNumber: String { get set }
   var showBadge: Bool { get set }
+  var showAlert: Bool { get set }
+  var alertContent: LocalizedStringResource { get set }
   var user: TaxiUser? { get }
   var state: TaxiSettingsViewModel.ViewState { get }
   
@@ -27,7 +29,14 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   enum ViewState {
     case loading
     case loaded
-    case error(message: String)
+    case error(message: LocalizedStringResource)
+  }
+  
+  enum ErrorType {
+    case fetch
+    case bank
+    case badge
+    case phone
   }
   
   // MARK: - Dependencies
@@ -40,6 +49,8 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   var bankNumber: String = ""
   var phoneNumber: String = ""
   var showBadge: Bool = false
+  var showAlert: Bool = false
+  var alertContent: LocalizedStringResource = ""
   var user: TaxiUser?
   var state: ViewState = .loading
 
@@ -72,7 +83,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       try await userUseCase.fetchTaxiUser()
     } catch {
       logger.debug("Failed to fetch user information: \(error.localizedDescription)")
-      crashlyticsHelper.recordException(error: error)
+      handleException(error: error, type: .fetch)
     }
   }
   
@@ -81,7 +92,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       try await taxiUserRepository.editBankAccount(account: "\(bankName) \(bankNumber)")
     } catch {
       logger.debug("Failed to edit bank account: \(error.localizedDescription)")
-      crashlyticsHelper.recordException(error: error)
+      handleException(error: error, type: .bank)
     }
   }
   
@@ -90,7 +101,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       try await taxiUserRepository.registerPhoneNumber(phoneNumber: phoneNumber)
     } catch {
       logger.debug("Failed to register phone number: \(error.localizedDescription)")
-      crashlyticsHelper.recordException(error: error)
+      handleException(error: error, type: .phone)
     }
   }
   
@@ -99,7 +110,34 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       try await taxiUserRepository.editBadge(showBadge: showBadge)
     } catch {
       logger.debug("Failed to edit badge: \(error.localizedDescription)")
+      handleException(error: error, type: .badge)
+    }
+  }
+  
+  private func handleException(error: Error, type: ErrorType) {
+    if error.isNetworkMoyaError {
+      alertContent = "You are not connected to the Internet."
+    } else {
+      alertContent = {
+        switch type {
+        case .badge:
+          return "An unexpected error occurred while updating badge information. Please try again later."
+        case .bank:
+          return "An unexpected error occurred while updating bank account information. Please try again later."
+        case .phone:
+          return "An unexpected error occurred while updating phone number information. Please try again later."
+        case .fetch:
+          return "An unexpected error occurred while fetching user information. Please try again later."
+        }
+      }()
       crashlyticsHelper.recordException(error: error)
     }
+    
+    if type == .fetch {
+      state = .error(message: alertContent)
+      return
+    }
+    
+    showAlert = true
   }
 }

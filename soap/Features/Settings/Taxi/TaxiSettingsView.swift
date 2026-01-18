@@ -135,6 +135,11 @@ struct TaxiSettingsView: View {
         navigationLinkWithIcon(destination: TaxiReportListView(), text: String(localized: "Report Details"), systemImage: "exclamationmark.bubble")
       }
     }
+    .alert("Error", isPresented: $vm.showAlert, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(vm.alertContent)
+    })
   }
   
   fileprivate func navigationLinkWithIcon(destination: some View, text: String, systemImage: String) -> some View {

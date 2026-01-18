@@ -401,9 +401,12 @@ struct PostView: View {
                 proxy.scrollTo(uploadedComment?.id, anchor: .center)
               }
             } catch {
-              logger.error(error)
-              viewModel.handleException(error)
-              showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a comment. Please try again later."))
+              if error.isNetworkMoyaError {
+                showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
+              } else {
+                viewModel.handleException(error)
+                showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a comment. Please try again later."))
+              }
             }
           }
         }, label: {
@@ -500,8 +503,12 @@ struct PostView: View {
       try await viewModel.report(type: type)
       showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
     } catch {
-      viewModel.handleException(error)
-      showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
+      if error.isNetworkMoyaError {
+        showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
+      } else {
+        viewModel.handleException(error)
+        showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
+      }
     }
   }
 }
