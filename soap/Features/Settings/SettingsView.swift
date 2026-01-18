@@ -8,13 +8,15 @@
 import SwiftUI
 import BuddyDataCore
 import FirebaseCrashlytics
+import LicenseList
 
 struct SettingsView: View {
   @Environment(\.openURL) private var openURL
   @State private var viewModel: SettingsViewModel
   @State private var showLogoutError: Bool = false
   @State private var isCrashlyticsEnabled: Bool = false
-  
+  @State private var showLegalView: Bool = false
+
   init(_ viewModel: SettingsViewModel = .init()) {
     self.viewModel = viewModel
   }
@@ -33,16 +35,6 @@ struct SettingsView: View {
         
         Section() {
           terms
-          Button("Sign Out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
-            Task {
-              do {
-                try await viewModel.signOut()
-              } catch {
-                showLogoutError = true
-              }
-            }
-          }
-          .foregroundStyle(.red)
         }
         
         if !Status.isProduction {
@@ -54,6 +46,19 @@ struct SettingsView: View {
               viewModel.handleException(NSError(domain: "Test", code: 1001))
             }
           }
+        }
+
+        Section {
+          Button("Sign Out", systemImage: "iphone.and.arrow.right.outward", role: .destructive) {
+            Task {
+              do {
+                try await viewModel.signOut()
+              } catch {
+                showLogoutError = true
+              }
+            }
+          }
+          .foregroundStyle(.red)
         }
       }
       .navigationTitle(Text("Settings"))
@@ -67,6 +72,10 @@ struct SettingsView: View {
       }
       .onChange(of: isCrashlyticsEnabled) {
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(isCrashlyticsEnabled)
+      }
+      .navigationDestination(isPresented: $showLegalView) {
+        LicenseListView()
+          .licenseViewStyle(.withRepositoryAnchorLink)
       }
     }
   }
@@ -97,6 +106,9 @@ struct SettingsView: View {
       }
       Button("Terms of Use", systemImage: "list.bullet.clipboard") {
         openURL(Constants.termsOfUseURL)
+      }
+      Button("Acknowledgements", systemImage: "list.bullet.clipboard") {
+        showLegalView = true
       }
     }
     .foregroundStyle(.primary)
