@@ -350,6 +350,22 @@
         }
       }
     },
+    "Acknowledgements" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acknowledgements"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "만든 사람들"
+          }
+        }
+      }
+    },
     "Active Groups" : {
       "localizations" : {
         "en" : {
@@ -2211,6 +2227,22 @@
     "LectureType" : {
       "shouldTranslate" : false
     },
+    "Legal Notices" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legal Notices"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오픈소스 고지"
+          }
+        }
+      }
+    },
     "Load" : {
       "localizations" : {
         "en" : {
@@ -3923,6 +3955,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "강의"
+          }
+        }
+      }
+    },
+    "Sponsored By" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sponsored By"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "후원사"
           }
         }
       }
