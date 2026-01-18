@@ -80,7 +80,7 @@ struct BoardListView: View {
       .disabled(viewModel.state == .loading)
       .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Boards") : "")
       .toolbarTitleDisplayMode(.inlineLarge)
-      .toolbar(.visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
+      .toolbar(horizontalSizeClass == .compact ? .automatic : .visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
     }, detail: {
       NavigationStack {
         
