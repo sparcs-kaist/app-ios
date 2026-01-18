@@ -53,7 +53,7 @@ struct MainView: View {
         logger.debug("Taxi Invitation Id: \(taxiInviteId ?? "nil")")
       }
     }
-    .tabViewStyle(.sidebarAdaptable)
+    .tabViewStyle(.tabBarOnly)
   }
 }
 

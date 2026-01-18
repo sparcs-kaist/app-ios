@@ -98,6 +98,7 @@ struct PostListView: View {
       BackgroundGradientView(color: .red)
         .ignoresSafeArea()
     }
+    .scrollContentBackground(.hidden)
   }
 }
 
