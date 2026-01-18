@@ -2167,6 +2167,12 @@
             "state" : "translated",
             "value" : "Keep track of your classes."
           }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수업을 놓치지 마세요."
+          }
         }
       }
     },
@@ -4280,7 +4286,20 @@
       }
     },
     "This post was created from within the KAIST network." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This post was created from within the KAIST network."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KAIST 네트워크 접속 환경에서 작성된 게시글입니다."
+          }
+        }
+      }
     },
     "Timetable" : {
       "localizations" : {
