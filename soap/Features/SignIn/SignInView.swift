@@ -16,10 +16,10 @@ struct SignInView: View {
   var body: some View {
     VStack {
       Spacer()
-      Text("SPARCS APP INTERNAL")
-        .fontWeight(.medium)
-        .fontDesign(.monospaced)
-        .font(.title2)
+      Image(.buddyIcon)
+        .resizable()
+        .scaledToFit()
+        .frame(width: 192, height: 192)
       Spacer()
       
       Group {
