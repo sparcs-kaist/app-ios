@@ -39,8 +39,7 @@ struct TimetableGridCell: View {
       .glassEffect(
         colorScheme == .light ? .regular
           .tint(backgroundColor)
-          .interactive() : .identity
-          .interactive(),
+        : .identity,
         in: .rect(cornerRadius: 4)
       )
       .contextMenu {
@@ -71,3 +70,4 @@ struct TimetableGridCell: View {
 #Preview(traits: .fixedLayout(width: 88, height: 105)) {
   TimetableGridCell(lecture: Lecture.mockList[3], isCandidate: false, onDeletion: nil)
 }
+
