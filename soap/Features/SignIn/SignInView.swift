@@ -21,7 +21,21 @@ struct SignInView: View {
         .scaledToFit()
         .frame(width: 192, height: 192)
       Spacer()
-      
+
+      HStack {
+        Text("Sponsored by")
+          .font(.callout)
+          .fontWeight(.medium)
+
+        Image(.hyundaiMobisInline)
+          .resizable()
+          .scaledToFit()
+          .frame(height: 24)
+      }
+
+      Spacer()
+        .frame(height: 16)
+
       Group {
         if let attributed = try? AttributedString(markdown: String(localized: "By continuing, you agree to our [Terms of Use](\(Constants.termsOfUseURL.absoluteString)) and [Privacy Policy](\(Constants.privacyPolicyURL.absoluteString)).")) {
           Text(attributed)
