@@ -39,8 +39,7 @@ struct TimetableGridCell: View {
       .glassEffect(
         colorScheme == .light ? .regular
           .tint(backgroundColor)
-          .interactive() : .identity
-          .interactive(),
+          .interactive() : .identity,
         in: .rect(cornerRadius: 4)
       )
       .contextMenu {
