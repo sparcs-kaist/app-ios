@@ -3940,9 +3940,6 @@
         }
       }
     },
-    "SPARCS APP INTERNAL" : {
-      "shouldTranslate" : false
-    },
     "Speech" : {
       "localizations" : {
         "en" : {
