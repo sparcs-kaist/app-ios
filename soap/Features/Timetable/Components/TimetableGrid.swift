@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import BuddyDataCore
+import Haptica
 
 struct TimetableGrid: View {
   @Environment(TimetableViewModel.self) private var timetableViewModel
@@ -41,6 +42,7 @@ struct TimetableGrid: View {
                 .offset(y: TimetableConstructor.getCellOffset(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration))
                 .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
                 .onTapGesture {
+                  Haptic.selection.generate()
                   selectedLecture?(item)
                 }
               }
