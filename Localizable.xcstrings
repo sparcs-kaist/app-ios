@@ -2228,6 +2228,7 @@
       "shouldTranslate" : false
     },
     "Legal Notices" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3955,6 +3956,9 @@
           }
         }
       }
+    },
+    "Sponsored by" : {
+
     },
     "Sponsored By" : {
       "localizations" : {
