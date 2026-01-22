@@ -8,14 +8,12 @@
 import SwiftUI
 import BuddyDataCore
 import FirebaseCrashlytics
-import LicenseList
 
 struct SettingsView: View {
   @Environment(\.openURL) private var openURL
   @State private var viewModel: SettingsViewModel
   @State private var showLogoutError: Bool = false
   @State private var isCrashlyticsEnabled: Bool = false
-  @State private var showLegalView: Bool = false
   @State private var showCreditView: Bool = false
 
   init(_ viewModel: SettingsViewModel = .init()) {
@@ -74,11 +72,6 @@ struct SettingsView: View {
       .onChange(of: isCrashlyticsEnabled) {
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(isCrashlyticsEnabled)
       }
-      .navigationDestination(isPresented: $showLegalView) {
-        LicenseListView()
-          .navigationTitle("Legal Notices")
-          .licenseViewStyle(.withRepositoryAnchorLink)
-      }
       .navigationDestination(isPresented: $showCreditView) {
         CreditView()
       }
@@ -111,9 +104,6 @@ struct SettingsView: View {
       }
       Button("Terms of Use", systemImage: "doc.text") {
         openURL(Constants.termsOfUseURL)
-      }
-      Button("Legal Notices", systemImage: "scale.3d") {
-        showLegalView = true
       }
       Button("Acknowledgements", systemImage: "heart.text.square") {
         showCreditView = true
