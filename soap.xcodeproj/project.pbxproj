@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B24D7652F27537A009B9889 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B24D7642F27537A009B9889 /* BuddyDataCore */; };
 		8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */; };
 		8B3914DE2E92E0DF00B7FB6B /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
 		8B3914E02E92F37500B7FB6B /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914DF2E92F37500B7FB6B /* Factory */; };
@@ -16,7 +17,6 @@
 		8B3FB11C2E94F1C200F57FD7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */; };
 		8B3FB11E2E94F1C200F57FD7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */; };
 		8B3FB1292E94F1C400F57FD7 /* BuddyWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		8B3FB1312E951D7200F57FD7 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3FB1302E951D7200F57FD7 /* BuddyDataMocks */; };
 		8B3FB1332E951D7200F57FD7 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3FB1322E951D7200F57FD7 /* BuddyDomain */; };
 		8B3FB13D2E953D1500F57FD7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
 		8B3FB13E2E953D1500F57FD7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
@@ -30,7 +30,6 @@
 		8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */; };
 		8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */; };
 		8B6637B42EFD159600795A41 /* BuddyiOSWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		8B6637BE2EFD410800795A41 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637BD2EFD410800795A41 /* BuddyDataMocks */; };
 		8B6637C02EFD410800795A41 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637BF2EFD410800795A41 /* BuddyDomain */; };
 		8B6637C62EFE720D00795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637C52EFE720D00795A41 /* BuddyUpcomingClassWidgetUI */; };
 		8B6637C82EFE721200795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637C72EFE721200795A41 /* BuddyUpcomingClassWidgetUI */; };
@@ -50,8 +49,6 @@
 		8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26C2E92A52D005D8639 /* BuddyDataCore */; };
 		8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26E2E92A52D005D8639 /* BuddyDomain */; };
 		8BFAD2712E92B654005D8639 /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2702E92B654005D8639 /* BuddyDataiOS */; };
-		8BFAD2732E92B949005D8639 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2722E92B949005D8639 /* BuddyDataMocks */; };
-		8BFAD2752E92B98A005D8639 /* BuddyDataMocks in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2742E92B98A005D8639 /* BuddyDataMocks */; };
 		F6C7DAC62F1B2BE4000B32F1 /* Version in Frameworks */ = {isa = PBXBuildFile; productRef = F6C7DAC52F1B2BE4000B32F1 /* Version */; };
 /* End PBXBuildFile section */
 
@@ -228,7 +225,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B3FB1312E951D7200F57FD7 /* BuddyDataMocks in Frameworks */,
 				8B3FB11E2E94F1C200F57FD7 /* SwiftUI.framework in Frameworks */,
 				8B3FB11C2E94F1C200F57FD7 /* WidgetKit.framework in Frameworks */,
 				8B6637C62EFE720D00795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */,
@@ -240,9 +236,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B6637BE2EFD410800795A41 /* BuddyDataMocks in Frameworks */,
 				8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */,
 				8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */,
+				8B24D7652F27537A009B9889 /* BuddyDataCore in Frameworks */,
 				8B3A62A22EFF98A4006427DF /* BuddyTimetableWidgetUI in Frameworks */,
 				8B6637C82EFE721200795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */,
 				8B6637C02EFD410800795A41 /* BuddyDomain in Frameworks */,
@@ -253,7 +249,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BFAD2732E92B949005D8639 /* BuddyDataMocks in Frameworks */,
 				8B3914E82E93F4AA00B7FB6B /* BuddyDataWatch in Frameworks */,
 				8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */,
 				8B3914E22E92F37500B7FB6B /* FactoryKit in Frameworks */,
@@ -275,7 +270,6 @@
 				8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */,
 				8B5073E52E851F79007E9C27 /* FirebaseCore in Frameworks */,
 				8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */,
-				8BFAD2752E92B98A005D8639 /* BuddyDataMocks in Frameworks */,
 				8BFAD2712E92B654005D8639 /* BuddyDataiOS in Frameworks */,
 				8B6B2B512E2878CD00D13D50 /* NukeVideo in Frameworks */,
 				8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */,
@@ -370,7 +364,6 @@
 			);
 			name = BuddyWatchWidgetExtension;
 			packageProductDependencies = (
-				8B3FB1302E951D7200F57FD7 /* BuddyDataMocks */,
 				8B3FB1322E951D7200F57FD7 /* BuddyDomain */,
 				8B6637C52EFE720D00795A41 /* BuddyUpcomingClassWidgetUI */,
 			);
@@ -395,10 +388,10 @@
 			);
 			name = BuddyiOSWidgetExtension;
 			packageProductDependencies = (
-				8B6637BD2EFD410800795A41 /* BuddyDataMocks */,
 				8B6637BF2EFD410800795A41 /* BuddyDomain */,
 				8B6637C72EFE721200795A41 /* BuddyUpcomingClassWidgetUI */,
 				8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */,
+				8B24D7642F27537A009B9889 /* BuddyDataCore */,
 			);
 			productName = BuddyiOSWidgetExtension;
 			productReference = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */;
@@ -425,7 +418,6 @@
 			packageProductDependencies = (
 				8BFAD26C2E92A52D005D8639 /* BuddyDataCore */,
 				8BFAD26E2E92A52D005D8639 /* BuddyDomain */,
-				8BFAD2722E92B949005D8639 /* BuddyDataMocks */,
 				8B3914DF2E92F37500B7FB6B /* Factory */,
 				8B3914E12E92F37500B7FB6B /* FactoryKit */,
 				8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */,
@@ -475,7 +467,6 @@
 				8B8368012E9247A900892B70 /* BuddyDomain */,
 				8BFAD2682E92A3A0005D8639 /* BuddyDataCore */,
 				8BFAD2702E92B654005D8639 /* BuddyDataiOS */,
-				8BFAD2742E92B98A005D8639 /* BuddyDataMocks */,
 				8B45B2812F161F8100A858F5 /* Haptica */,
 				F6C7DAC52F1B2BE4000B32F1 /* Version */,
 			);
@@ -1375,6 +1366,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8B24D7642F27537A009B9889 /* BuddyDataCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDataCore;
+		};
 		8B2AF35F2E1DB70200648F86 /* SwiftyBeaver */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8B2AF35E2E1DB70200648F86 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
@@ -1397,10 +1392,6 @@
 		8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyTimetableWidgetUI;
-		};
-		8B3FB1302E951D7200F57FD7 /* BuddyDataMocks */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BuddyDataMocks;
 		};
 		8B3FB1322E951D7200F57FD7 /* BuddyDomain */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1440,10 +1431,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8B5073DD2E851F79007E9C27 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
-		};
-		8B6637BD2EFD410800795A41 /* BuddyDataMocks */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BuddyDataMocks;
 		};
 		8B6637BF2EFD410800795A41 /* BuddyDomain */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1516,14 +1503,6 @@
 		8BFAD2702E92B654005D8639 /* BuddyDataiOS */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDataiOS;
-		};
-		8BFAD2722E92B949005D8639 /* BuddyDataMocks */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BuddyDataMocks;
-		};
-		8BFAD2742E92B98A005D8639 /* BuddyDataMocks */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BuddyDataMocks;
 		};
 		F6C7DAC52F1B2BE4000B32F1 /* Version */ = {
 			isa = XCSwiftPackageProductDependency;

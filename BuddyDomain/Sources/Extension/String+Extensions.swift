@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension String {
+public extension String {
   func toHTMLParagraphs() -> String {
     self
       .components(separatedBy: "\n") // split by newlines

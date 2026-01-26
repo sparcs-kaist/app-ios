@@ -7,7 +7,6 @@
 
 import Foundation
 import BuddyDomain
-import BuddyDataMocks
 
 class MockBoardListViewModel: BoardListViewModelProtocol {
   // MARK: - Properties

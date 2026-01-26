@@ -9,7 +9,6 @@
 import SwiftUI
 import Observation
 import BuddyDomain
-import BuddyDataMocks
 
 @MainActor
 @Observable

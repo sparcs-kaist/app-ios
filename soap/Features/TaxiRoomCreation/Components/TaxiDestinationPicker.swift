@@ -8,7 +8,6 @@
 import SwiftUI
 import MapKit
 import BuddyDomain
-import BuddyDataMocks
 import Haptica
 
 struct TaxiDestinationPicker: View {

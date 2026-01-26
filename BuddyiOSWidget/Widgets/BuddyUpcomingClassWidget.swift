@@ -9,7 +9,6 @@ import WidgetKit
 import SwiftUI
 import BuddyDomain
 import BuddyDataCore
-import BuddyDataMocks
 import BuddyUpcomingClassWidgetUI
 
 struct UpcomingClassProvider: AppIntentTimelineProvider {

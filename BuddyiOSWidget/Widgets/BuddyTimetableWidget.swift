@@ -9,7 +9,6 @@ import WidgetKit
 import SwiftUI
 import BuddyDomain
 import BuddyDataCore
-import BuddyDataMocks
 import BuddyTimetableWidgetUI
 
 struct TimetableProvider: AppIntentTimelineProvider {
