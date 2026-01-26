@@ -13,13 +13,11 @@ let package = Package(
             name: "BuddyDataCore",
             targets: ["BuddyDataCore"]
         ),
-        .library(name: "BuddyDataiOS", targets: ["BuddyDataiOS"]),
         .library(name: "BuddyDataWatch", targets: ["BuddyDataWatch"])
     ],
     dependencies: [
       .package(path: "../BuddyDomain"),
       .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
-      .package(url: "https://github.com/socketio/socket.io-client-swift", .upToNextMinor(from: "16.1.1")),
       .package(url: "https://github.com/evgenyneu/keychain-swift.git", from: "24.0.0"),
       .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.0")),
     ],
@@ -33,10 +31,6 @@ let package = Package(
               .product(name: "KeychainSwift", package: "keychain-swift"),
             ]
         ),
-        .target(name: "BuddyDataiOS", dependencies: [
-          "BuddyDataCore",
-          .product(name: "SocketIO", package: "socket.io-client-swift"),
-        ]),
         .target(name: "BuddyDataWatch", dependencies: [
           "BuddyDataCore"
         ]),
