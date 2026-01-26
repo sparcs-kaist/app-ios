@@ -64,8 +64,8 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
     \.feedPostRepository
   ) private var feedPostRepository: FeedPostRepositoryProtocol
   @ObservationIgnored @Injected(
-    \.crashlyticsHelper
-  ) private var crashlyticsHelper: CrashlyticsHelper
+    \.crashlyticsService
+  ) private var crashlyticsService: CrashlyticsServiceProtocol
 
   // MARK: - Functions
   func fetchFeedUser() async {
@@ -162,6 +162,6 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   }
   
   func handleException(_ error: Error) {
-    crashlyticsHelper.recordException(error: error)
+    crashlyticsService.recordException(error: error)
   }
 }

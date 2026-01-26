@@ -7,9 +7,10 @@
 
 import Foundation
 import FirebaseCrashlytics
+import BuddyDomain
 
 @Observable
-final class CrashlyticsHelper {
+final class CrashlyticsService: CrashlyticsServiceProtocol {
   func recordException(error: Error) {
     Crashlytics.crashlytics().record(error: error as NSError)
   }

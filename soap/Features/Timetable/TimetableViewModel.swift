@@ -68,7 +68,7 @@ final class TimetableViewModel {
   @ObservationIgnored @Injected(
     \.timetableUseCase
   ) private var timetableUseCase: TimetableUseCaseProtocol
-  @ObservationIgnored @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
+  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
 
   // MARK: - Functions
 
@@ -160,7 +160,7 @@ final class TimetableViewModel {
       return
     }
     
-    crashlyticsHelper.recordException(error: error)
+    crashlyticsService.recordException(error: error)
   }
 }
 

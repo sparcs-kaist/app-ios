@@ -47,8 +47,8 @@ class PostViewModel: PostViewModelProtocol {
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
   @ObservationIgnored @Injected(
-    \.crashlyticsHelper
-  ) private var crashlyticsHelper: CrashlyticsHelper
+    \.crashlyticsService
+  ) private var crashlyticsService: CrashlyticsServiceProtocol
 
   // MARK: - Initialiser
   init(post: AraPost) {
@@ -222,6 +222,6 @@ class PostViewModel: PostViewModelProtocol {
   }
   
   func handleException(_ error: any Error) {
-    crashlyticsHelper.recordException(error: error)
+    crashlyticsService.recordException(error: error)
   }
 }

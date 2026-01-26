@@ -21,12 +21,6 @@ extension Container {
   private var userStorage: Factory<UserStorageProtocol> {
     self { UserStorage() }.singleton
   }
-  
-  // MARK: - Helper
-  @MainActor
-  var crashlyticsHelper: Factory<CrashlyticsHelper> {
-    self { @MainActor in CrashlyticsHelper() }.singleton
-  }
 
   // MARK: - Networking
   private var authPlugin: Factory<AccessTokenPlugin> {
@@ -183,6 +177,11 @@ extension Container {
     self {
        SessionBridgeService()
     }.singleton
+  }
+
+  @MainActor
+  var crashlyticsService: Factory<CrashlyticsServiceProtocol> {
+    self { @MainActor in CrashlyticsService() }.singleton
   }
 
   // MARK: - Use Cases

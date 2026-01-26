@@ -36,7 +36,7 @@ struct FeedPostView: View {
     \.feedPostRepository
   ) private var feedPostRepository: FeedPostRepositoryProtocol
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
-  @ObservationIgnored @Injected(\.crashlyticsHelper) private var crashlyticsHelper: CrashlyticsHelper
+  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
   @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
 
   var body: some View {
@@ -82,7 +82,7 @@ struct FeedPostView: View {
                         if error.isNetworkMoyaError {
                           showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
                         } else {
-                          crashlyticsHelper.recordException(error: error)
+                          crashlyticsService.recordException(error: error)
                           showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
                         }
                       }
@@ -182,7 +182,7 @@ struct FeedPostView: View {
               if error.isNetworkMoyaError {
                 showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
               } else {
-                crashlyticsHelper.recordException(error: error)
+                crashlyticsService.recordException(error: error)
                 showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a comment. Please try again later."))
               }
             }
