@@ -155,9 +155,8 @@ extension Container {
     }.singleton
   }
 
-  @MainActor
   var crashlyticsService: Factory<CrashlyticsServiceProtocol> {
-    self { @MainActor in CrashlyticsService() }.singleton
+    self { CrashlyticsService() }.singleton
   }
 
   // MARK: - Use Cases
