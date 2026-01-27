@@ -214,10 +214,9 @@ extension Container {
     }
   }
 
-  @MainActor
   var foundationModelsUseCase: Factory<FoundationModelsUseCaseProtocol> {
     self {
-      @MainActor in FoundationModelsUseCase()
+      FoundationModelsUseCase()
     }
   }
   

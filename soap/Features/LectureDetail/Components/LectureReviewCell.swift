@@ -10,6 +10,7 @@ import Translation
 import Factory
 import BuddyDomain
 import Haptica
+import FoundationModels
 
 struct LectureReviewCell: View {
   @Binding var review: LectureReview
@@ -40,7 +41,7 @@ struct LectureReviewCell: View {
 
         Menu {
           Button("Translate", systemImage: "translate") { showTranslateSheet = true }
-          if foundationModelsUseCase.isAvailable {
+          if SystemLanguageModel.default.isAvailable {
             Button("Summarise", systemImage: "text.append") {
               summarisedContent = ""
               Task {

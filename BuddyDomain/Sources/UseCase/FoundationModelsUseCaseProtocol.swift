@@ -7,9 +7,7 @@
 
 import Foundation
 
-@MainActor
-public protocol FoundationModelsUseCaseProtocol {
-  var isAvailable: Bool { get }
-
+public protocol FoundationModelsUseCaseProtocol: Actor {
+  func isAvailable() async -> Bool
   func summarise(_ text: String, maxWords: Int, tone: String) async -> String
 }

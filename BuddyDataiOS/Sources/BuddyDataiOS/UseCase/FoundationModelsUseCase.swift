@@ -9,8 +9,8 @@ import Foundation
 import FoundationModels
 import BuddyDomain
 
-public class FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
-  public var isAvailable: Bool {
+public actor FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
+  public func isAvailable() async -> Bool {
     SystemLanguageModel.default.isAvailable
   }
 

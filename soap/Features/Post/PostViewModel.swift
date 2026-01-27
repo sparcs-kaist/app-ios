@@ -32,9 +32,7 @@ protocol PostViewModelProtocol: Observable {
 class PostViewModel: PostViewModelProtocol {
   // MARK: - Properties
   var post: AraPost
-  var isFoundationModelsAvailable: Bool {
-    foundationModelsUseCase.isAvailable
-  }
+  var isFoundationModelsAvailable: Bool = false
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -53,6 +51,13 @@ class PostViewModel: PostViewModelProtocol {
   // MARK: - Initialiser
   init(post: AraPost) {
     self.post = post
+    Task {
+      await refreshFoundationModelsAvailability()
+    }
+  }
+
+  private func refreshFoundationModelsAvailability() async {
+    isFoundationModelsAvailable = await foundationModelsUseCase.isAvailable()
   }
 
   private func insertThreadedComment(into comments: inout [AraPostComment], comment: AraPostComment) -> Bool {
