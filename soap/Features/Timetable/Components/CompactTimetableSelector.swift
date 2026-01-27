@@ -99,6 +99,7 @@ struct CompactTimetableSelector: View {
 
       Text(timetableViewModel.selectedSemester?.description ?? "Unknown")
         .contentTransition(.numericText())
+        .animation(.spring, value: timetableViewModel.selectedSemester?.id)
 
       Spacer()
 
