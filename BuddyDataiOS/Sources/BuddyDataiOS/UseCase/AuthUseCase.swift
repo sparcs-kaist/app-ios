@@ -11,7 +11,7 @@ import Observation
 import BuddyDomain
 
 @Observable
-public class AuthUseCase: AuthUseCaseProtocol {
+public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   private let authenticationService: AuthenticationServiceProtocol
   private let tokenStorage: TokenStorageProtocol
   private let araUserRepository: AraUserRepositoryProtocol

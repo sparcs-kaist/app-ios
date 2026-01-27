@@ -160,10 +160,9 @@ extension Container {
   }
 
   // MARK: - Use Cases
-  @MainActor
   var authUseCase: Factory<AuthUseCaseProtocol> {
     self {
-      @MainActor in AuthUseCase(
+      AuthUseCase(
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve(),
         araUserRepository: self.araUserRepository.resolve(),
