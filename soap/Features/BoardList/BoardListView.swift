@@ -105,6 +105,7 @@ struct BoardListView: View {
         ForEach(boards.filter { $0.group.id == group.id }) { board in
           NavigationLink(destination: {
             PostListView(board: board)
+              .id(board.id)
           }, label: {
             HStack {
               Text(board.name.localized())
@@ -115,7 +116,6 @@ struct BoardListView: View {
             }
           })
           .tint(.primary)
-          .id(board.id)
         }
       }
       .id(group.id)
