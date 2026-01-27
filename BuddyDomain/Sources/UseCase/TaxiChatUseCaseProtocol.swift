@@ -9,8 +9,7 @@ import Foundation
 import Combine
 import UIKit
 
-@MainActor
-public protocol TaxiChatUseCaseProtocol {
+public protocol TaxiChatUseCaseProtocol: Sendable {
   var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
   var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> { get }
   var accountChats: [TaxiChat] { get }

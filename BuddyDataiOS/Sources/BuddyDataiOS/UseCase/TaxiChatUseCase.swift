@@ -11,7 +11,7 @@ import Combine
 import SocketIO
 import BuddyDomain
 
-public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
+public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable {
   // MARK: - Publishers
   private var groupedChatsSubject = CurrentValueSubject<[TaxiChatGroup], Never>([])
   public var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> {
@@ -119,12 +119,12 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
 
     // converts [TaxiChat] into [TaxiChatGroup]
     taxiChatService.chatsPublisher
-      .sink { [weak self] chats in
-        Task {
-          guard let self = self else { return }
+      .sink { [weak self, taxiChatRepository] chats in
+        Task { [weak self, taxiChatRepository] in
+          guard let self else { return }
 
           try? await taxiChatRepository.readChats(roomID: self.room.id)
-          
+
           let user: TaxiUser? = await self.userUseCase.taxiUser
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
 
@@ -136,10 +136,10 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
 
     // handles room updates from chat_update event
     taxiChatService.roomUpdatePublisher
-      .sink { [weak self] roomID in
-        Task {
-          guard let self = self, roomID == self.room.id else { return }
-          
+      .sink { [weak self, taxiRoomRepository] roomID in
+        Task { [weak self, taxiRoomRepository] in
+          guard let self, roomID == self.room.id else { return }
+
           do {
             let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: roomID)
             self.room = updatedRoom

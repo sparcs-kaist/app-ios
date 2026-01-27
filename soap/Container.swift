@@ -185,10 +185,9 @@ extension Container {
     }.singleton
   }
 
-  @MainActor
   var taxiChatUseCase: ParameterFactory<TaxiRoom, TaxiChatUseCaseProtocol> {
     self {
-      @MainActor in TaxiChatUseCase(
+      TaxiChatUseCase(
         taxiChatService: self.taxiChatService.resolve(),
         userUseCase: self.userUseCase.resolve(),
         taxiChatRepository: self.taxiChatRepository.resolve(),
