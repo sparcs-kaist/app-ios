@@ -21,7 +21,7 @@ class TaxiPreviewViewModel {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
-  ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+  ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @ObservationIgnored @Injected(\.taxiRoomUseCase) private var taxiRoomUseCase: TaxiRoomUseCaseProtocol
 
@@ -54,6 +54,7 @@ class TaxiPreviewViewModel {
   }
 
   func joinRoom(id: String) async throws {
+    guard let taxiRoomRepository else { return }
     let _ = try await taxiRoomRepository.joinRoom(id: id)
   }
 

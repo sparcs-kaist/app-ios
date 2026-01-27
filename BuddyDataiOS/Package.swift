@@ -20,7 +20,8 @@ let package = Package(
         url: "https://github.com/firebase/firebase-ios-sdk.git",
         .upToNextMajor(from: "12.3.0")
       ),
-      .package(url: "https://github.com/socketio/socket.io-client-swift", .upToNextMinor(from: "16.1.1")),
+      .package(url: "https://github.com/socketio/socket.io-client-swift", .upToNextMajor(from: "16.1.1")),
+      .package(url: "https://github.com/hmlongco/Factory.git", .upToNextMajor(from: "2.5.3"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -34,6 +35,7 @@ let package = Package(
                 name: "FirebaseCrashlytics",
                 package: "firebase-ios-sdk"
               ),
+              .product(name: "Factory", package: "Factory"),
             ]
         ),
         .testTarget(

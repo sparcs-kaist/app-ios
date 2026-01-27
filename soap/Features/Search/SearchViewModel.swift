@@ -44,7 +44,9 @@ class SearchViewModel {
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol
-  @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+  @ObservationIgnored @Injected(
+    \.taxiRoomRepository
+  ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
   @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol
   
@@ -79,6 +81,7 @@ class SearchViewModel {
   }
   
   func fetchInitialData() async {
+    guard let taxiRoomRepository else { return }
     state = .loading
     
     do {

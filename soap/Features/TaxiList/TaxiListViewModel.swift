@@ -42,11 +42,13 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   public var roomCapacity: Int = 4
 
   // MARK: - Dependency
-  @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+  @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
 
   // MARK: - Functions
   public func fetchData(inviteId: String? = nil) async {
+    guard let taxiRoomRepository else { return }
+
     logger.debug("[TaxiListViewModel] fetching data")
     do {
       let repo = taxiRoomRepository
@@ -75,6 +77,7 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   }
 
   public func createRoom(title: String) async throws {
+    guard let taxiRoomRepository else { return }
     logger.debug("[TaxiListViewModel] creating a room")
 
     // Safely capture values before any suspension

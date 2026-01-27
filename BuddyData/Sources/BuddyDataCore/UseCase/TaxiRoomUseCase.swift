@@ -11,17 +11,19 @@ import Factory
 
 public final class TaxiRoomUseCase: TaxiRoomUseCaseProtocol {
   // MARK: - Dependencies
-  private let taxiRoomRepository: TaxiRoomRepositoryProtocol
+  private let taxiRoomRepository: TaxiRoomRepositoryProtocol?
   private let userStorage: UserStorageProtocol
   
   // MARK: - Initializer
-  public init(taxiRoomRepository: TaxiRoomRepositoryProtocol, userStorage: UserStorageProtocol) {
+  public init(taxiRoomRepository: TaxiRoomRepositoryProtocol?, userStorage: UserStorageProtocol) {
     self.taxiRoomRepository = taxiRoomRepository
     self.userStorage = userStorage
   }
   
   // MARK: - Functions
   public func isBlocked() async -> TaxiRoomBlockStatus {
+    guard let taxiRoomRepository else { return TaxiRoomBlockStatus.error(errorMessage: String(localized: "Failed to load user information.")) }
+
     guard let taxiUser = await userStorage.getTaxiUser(),
           let taxiRooms = try? await taxiRoomRepository.fetchMyRooms().onGoing else {
       return .error(errorMessage: String(localized: "Failed to load user information."))

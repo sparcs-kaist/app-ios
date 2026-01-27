@@ -34,7 +34,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   // MARK: - Dependencies
   private let taxiChatUseCase: TaxiChatUseCaseProtocol
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
-  @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+  @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
 
   // MARK: - Initialiser
   init(room: TaxiRoom) {
@@ -102,6 +102,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func leaveRoom() async throws {
+    guard let taxiRoomRepository else { return }
     let _ = try await taxiRoomRepository.leaveRoom(id: room.id)
   }
 
@@ -110,6 +111,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func commitSettlement() {
+    guard let taxiRoomRepository else { return }
+    
     Task {
       do {
         let room: TaxiRoom = try await taxiRoomRepository.commitSettlement(id: room.id)
@@ -130,6 +133,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func commitPayment() {
+    guard let taxiRoomRepository else { return }
+
     Task {
       do {
         let room: TaxiRoom = try await taxiRoomRepository.commitPayment(id: room.id)

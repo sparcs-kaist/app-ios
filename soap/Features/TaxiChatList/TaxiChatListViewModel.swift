@@ -26,7 +26,7 @@ class TaxiChatListViewModel: TaxiChatListViewModelProtocol {
   // MARK: - Dependency
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
-  ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol
+  ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
 
   // MARK: - Initialiser
@@ -38,6 +38,8 @@ class TaxiChatListViewModel: TaxiChatListViewModelProtocol {
 
   // MARK: - Functions
   func fetchData() async {
+    guard let taxiRoomRepository else { return }
+    
     do {
       (onGoingRooms, doneRooms) = try await taxiRoomRepository.fetchMyRooms()
       withAnimation(.spring) {

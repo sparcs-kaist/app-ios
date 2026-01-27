@@ -42,13 +42,13 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   private let taxiChatService: TaxiChatServiceProtocol
   private let userUseCase: UserUseCaseProtocol
   private let taxiChatRepository: TaxiChatRepositoryProtocol
-  private let taxiRoomRepository: TaxiRoomRepositoryProtocol
+  private let taxiRoomRepository: TaxiRoomRepositoryProtocol?
 
   public init(
     taxiChatService: TaxiChatServiceProtocol,
     userUseCase: UserUseCaseProtocol,
     taxiChatRepository: TaxiChatRepositoryProtocol,
-    taxiRoomRepository: TaxiRoomRepositoryProtocol,
+    taxiRoomRepository: TaxiRoomRepositoryProtocol?,
     room: TaxiRoom
   ) {
     self.taxiChatService = taxiChatService
@@ -100,6 +100,8 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   }
 
   private func bind() {
+    guard let taxiRoomRepository else { return }
+
     // is socket(TaxiChatService) connected
     taxiChatService.isConnectedPublisher
       .sink { [weak self] isConnected in
@@ -131,7 +133,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
           guard let self = self, roomID == self.room.id else { return }
           
           do {
-            let updatedRoom: TaxiRoom = try await self.taxiRoomRepository.getRoom(id: roomID)
+            let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: roomID)
             self.room = updatedRoom
             self.roomUpdateSubject.send(updatedRoom)
           } catch {

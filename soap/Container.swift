@@ -43,9 +43,6 @@ extension Container {
   }
 
   // MARK: Taxi
-  var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol> {
-    self { TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [self.authPlugin.resolve()])) }
-  }
 
   var taxiUserRepository: Factory<TaxiUserRepositoryProtocol> {
     self { TaxiUserRepository(provider: MoyaProvider<TaxiUserTarget>(plugins: [self.authPlugin.resolve()])) }
@@ -233,7 +230,10 @@ extension Container {
   @MainActor
   var taxiRoomUseCase: Factory<TaxiRoomUseCaseProtocol> {
     self {
-      @MainActor in TaxiRoomUseCase(taxiRoomRepository: self.taxiRoomRepository.resolve(), userStorage: self.userStorage.resolve())
+      @MainActor in TaxiRoomUseCase(
+        taxiRoomRepository: self.taxiRoomRepository.resolve(),
+        userStorage: self.userStorage.resolve()
+      )
     }
   }
 

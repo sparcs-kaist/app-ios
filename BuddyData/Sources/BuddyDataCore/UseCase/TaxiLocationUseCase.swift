@@ -9,14 +9,15 @@ import Foundation
 import BuddyDomain
 
 public final class TaxiLocationUseCase: TaxiLocationUseCaseProtocol {
-  private let taxiRoomRepository: TaxiRoomRepositoryProtocol
+  private let taxiRoomRepository: TaxiRoomRepositoryProtocol?
   public var locations: [TaxiLocation] = []
   
-  public init(taxiRoomRepository: TaxiRoomRepositoryProtocol) {
+  public init(taxiRoomRepository: TaxiRoomRepositoryProtocol?) {
     self.taxiRoomRepository = taxiRoomRepository
   }
   
   public func fetchLocations() async throws {
+    guard let taxiRoomRepository else { return }
     self.locations = try await taxiRoomRepository.fetchLocations()
   }
   
