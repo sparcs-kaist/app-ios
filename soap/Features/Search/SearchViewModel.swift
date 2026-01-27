@@ -99,8 +99,8 @@ class SearchViewModel {
       let fetchedRooms = try await taxiRoomRepository.fetchRooms()
       
       try await taxiLocationUseCase.fetchLocations()
-      let matchedLocations = taxiLocationUseCase.queryLocation(searchText)
-            
+      let matchedLocations = await taxiLocationUseCase.queryLocation(searchText)
+
       var added: Set<TaxiRoom> = []
       
       for room in fetchedRooms {

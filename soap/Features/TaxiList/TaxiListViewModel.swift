@@ -10,13 +10,12 @@ import Observation
 import Factory
 import BuddyDomain
 
-@MainActor
 @Observable
 public class TaxiListViewModel: TaxiListViewModelProtocol {
   public enum ViewState {
     case loading
     case loaded(rooms: [TaxiRoom], locations: [TaxiLocation])
-    case empty(locations: [TaxiLocation])
+    case empty
     case error(message: String)
   }
 
@@ -54,7 +53,7 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
       let repo = taxiRoomRepository
       self.rooms = try await repo.fetchRooms()
       try await taxiLocationUseCase.fetchLocations()
-      self.locations = taxiLocationUseCase.locations
+      self.locations = await taxiLocationUseCase.locations
       if let inviteId = inviteId {
         logger.debug("[TaxiListViewModel] invitation id: \(inviteId)")
         invitedRoom = rooms.first(where: { $0.id == inviteId })
@@ -62,11 +61,11 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
 
       withAnimation(.spring) {
         if rooms.isEmpty {
-          state = .empty(locations: taxiLocationUseCase.locations)
+          state = .empty
           return
         }
 
-        state = .loaded(rooms: rooms, locations: taxiLocationUseCase.locations)
+        state = .loaded(rooms: rooms, locations: self.locations)
       }
     } catch {
       logger.error("[TaxiListViewModel] fetch data failed: \(error.localizedDescription)")

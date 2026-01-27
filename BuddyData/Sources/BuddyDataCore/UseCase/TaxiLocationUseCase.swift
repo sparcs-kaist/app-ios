@@ -8,7 +8,7 @@
 import Foundation
 import BuddyDomain
 
-public final class TaxiLocationUseCase: TaxiLocationUseCaseProtocol {
+public actor TaxiLocationUseCase: TaxiLocationUseCaseProtocol {
   private let taxiRoomRepository: TaxiRoomRepositoryProtocol?
   public var locations: [TaxiLocation] = []
   

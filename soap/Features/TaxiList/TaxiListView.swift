@@ -82,8 +82,8 @@ struct TaxiListView: View {
                   loadingView()
                 case .loaded(let rooms, let locations):
                   loadedView(rooms: rooms, locations: locations)
-                case .empty(let locations):
-                  emptyView(locations: locations)
+                case .empty:
+                  emptyView()
                 case .error(let message):
                   errorView(errorMessage: message)
                 }
@@ -235,7 +235,7 @@ struct TaxiListView: View {
     .animation(.spring, value: viewModel.destination)
   }
 
-  private func emptyView(locations: [TaxiLocation]) -> some View {
+  private func emptyView() -> some View {
     ContentUnavailableView("No Rides This Week", systemImage: "car.2.fill", description: Text("Looks like there are no groups scheduled for this week. Be the first to create one!"))
   }
 
@@ -298,7 +298,7 @@ struct TaxiListView: View {
 
 #Preview("Empty State") {
   let vm = MockTaxiListViewModel()
-  vm.state = .empty(locations: TaxiLocation.mockList)
+  vm.state = .empty
   return TaxiListView(viewModel: vm)
 }
 

@@ -197,11 +197,10 @@ extension Container {
       )
     }
   }
-  
-  @MainActor
+
   var taxiLocationUseCase: Factory<TaxiLocationUseCaseProtocol> {
     self {
-      @MainActor in TaxiLocationUseCase(taxiRoomRepository: self.taxiRoomRepository.resolve())
+      TaxiLocationUseCase(taxiRoomRepository: self.taxiRoomRepository.resolve())
     }
   }
   
