@@ -20,11 +20,12 @@ class TaxiReportViewModel {
   let maxEtcDetailsLength = 30 // Restricted by Taxi backend
   
   // MARK: - Dependency
-  @ObservationIgnored @Injected(\.taxiReportRepository) private var taxiReportRepository: TaxiReportRepositoryProtocol
+  @ObservationIgnored @Injected(\.taxiReportRepository) private var taxiReportRepository: TaxiReportRepositoryProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
   
   // MARK: - Functions
   public func createReport(roomID: String) async throws {
+    guard let taxiReportRepository else { return }
     logger.debug("[TaxiReportViewModel] creating a report")
     
     guard let selectedUser = selectedUser, let selectedReason = selectedReason else { return }

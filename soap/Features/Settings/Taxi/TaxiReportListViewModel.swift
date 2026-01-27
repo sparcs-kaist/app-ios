@@ -30,10 +30,12 @@ class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
   var reports: (incoming: [TaxiReport], outgoing: [TaxiReport]) = (incoming: [], outgoing: [])
   
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.taxiReportRepository) private var taxiReportRepository: TaxiReportRepositoryProtocol
-  
+  @ObservationIgnored @Injected(\.taxiReportRepository) private var taxiReportRepository: TaxiReportRepositoryProtocol?
+
   // MARK: - Functions
   func fetchReports() async {
+    guard let taxiReportRepository else { return }
+
     do {
       reports = try await taxiReportRepository.fetchMyReports()
       state = .loaded

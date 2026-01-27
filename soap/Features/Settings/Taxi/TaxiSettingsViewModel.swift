@@ -41,7 +41,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
-  @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol
+  @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
   
   // MARK: - Properties
@@ -88,6 +88,8 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   }
   
   private func editBankAccount(bankName: String, bankNumber: String) async {
+    guard let taxiUserRepository else { return }
+
     do {
       try await taxiUserRepository.editBankAccount(account: "\(bankName) \(bankNumber)")
     } catch {
@@ -97,6 +99,8 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   }
   
   private func registerPhoneNumber(phoneNumber: String) async {
+    guard let taxiUserRepository else { return }
+
     do {
       try await taxiUserRepository.registerPhoneNumber(phoneNumber: phoneNumber)
     } catch {
@@ -106,6 +110,8 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   }
   
   private func editBadge(showBadge: Bool) async {
+    guard let taxiUserRepository else { return }
+    
     do {
       try await taxiUserRepository.editBadge(showBadge: showBadge)
     } catch {

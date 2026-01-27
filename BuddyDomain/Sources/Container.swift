@@ -9,7 +9,21 @@ import Foundation
 import Factory
 
 extension Container {
+
+  // MARK: - Taxi
   public var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol?> {
+    promised()
+  }
+
+  public var taxiUserRepository: Factory<TaxiUserRepositoryProtocol?> {
+    promised()
+  }
+
+  public var taxiChatRepository: Factory<TaxiChatRepositoryProtocol?> {
+    promised()
+  }
+
+  public var taxiReportRepository: Factory<TaxiReportRepositoryProtocol?> {
     promised()
   }
 }

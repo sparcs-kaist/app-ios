@@ -41,13 +41,13 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Dependency
   private let taxiChatService: TaxiChatServiceProtocol
   private let userUseCase: UserUseCaseProtocol
-  private let taxiChatRepository: TaxiChatRepositoryProtocol
+  private let taxiChatRepository: TaxiChatRepositoryProtocol?
   private let taxiRoomRepository: TaxiRoomRepositoryProtocol?
 
   public init(
     taxiChatService: TaxiChatServiceProtocol,
     userUseCase: UserUseCaseProtocol,
-    taxiChatRepository: TaxiChatRepositoryProtocol,
+    taxiChatRepository: TaxiChatRepositoryProtocol?,
     taxiRoomRepository: TaxiRoomRepositoryProtocol?,
     room: TaxiRoom
   ) {
@@ -60,7 +60,8 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
 
   public func fetchInitialChats() async {
     guard !hasInitialChatsBeenFetched else { return }
-    
+    guard let taxiChatRepository else { return }
+
     hasInitialChatsBeenFetched = true
 
     bind()
@@ -73,6 +74,8 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   }
 
   public func fetchChats(before date: Date) async {
+    guard let taxiChatRepository else { return }
+
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id, before: date)
     } catch {
@@ -81,6 +84,8 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   }
 
   public func sendChat(_ content: String?, type: TaxiChat.ChatType) async {
+    guard let taxiChatRepository else { return }
+
     do {
       let request = TaxiChatRequest(roomID: room.id, type: type, content: content)
       try await taxiChatRepository.sendChat(request)
@@ -90,6 +95,8 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   }
 
   public func sendImage(_ content: UIImage) async throws {
+    guard let taxiChatRepository else { return }
+
     guard let imageData = content.compressForUpload(maxSizeMB: 1.0, maxDimension: 1000) else {
       return
     }
@@ -100,6 +107,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
   }
 
   private func bind() {
+    guard let taxiChatRepository else { return }
     guard let taxiRoomRepository else { return }
 
     // is socket(TaxiChatService) connected
@@ -115,7 +123,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol {
         Task {
           guard let self = self else { return }
 
-          try? await self.taxiChatRepository.readChats(roomID: self.room.id)
+          try? await taxiChatRepository.readChats(roomID: self.room.id)
           
           let user: TaxiUser? = await self.userUseCase.taxiUser
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")

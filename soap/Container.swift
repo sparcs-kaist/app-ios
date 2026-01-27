@@ -42,27 +42,6 @@ extension Container {
     self { VersionRepository(provider: MoyaProvider<VersionTarget>()) }
   }
 
-  // MARK: Taxi
-
-  var taxiUserRepository: Factory<TaxiUserRepositoryProtocol> {
-    self { TaxiUserRepository(provider: MoyaProvider<TaxiUserTarget>(plugins: [self.authPlugin.resolve()])) }
-  }
-
-  var taxiChatRepository: Factory<TaxiChatRepositoryProtocol> {
-    self {
-      TaxiChatRepository(
-        provider: MoyaProvider<TaxiChatTarget>(plugins: [self.authPlugin.resolve()])
-      )
-    }
-  }
-
-  var taxiReportRepository: Factory<TaxiReportRepositoryProtocol> {
-    self {
-      TaxiReportRepository(
-        provider: MoyaProvider<TaxiReportTarget>(plugins: [self.authPlugin.resolve()])
-      )
-    }
-  }
 
   // MARK: Ara
   var araUserRepository: Factory<AraUserRepositoryProtocol> {

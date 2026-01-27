@@ -30,10 +30,30 @@ extension Container: @retroactive AutoRegistering {
   }
 
   public func autoRegister() {
+
+    // MARK: Taxi
     taxiRoomRepository.register {
       TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [
         self.authPlugin.resolve()
       ]))
+    }
+
+    taxiUserRepository.register {
+      TaxiUserRepository(provider: MoyaProvider<TaxiUserTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+
+    taxiChatRepository.register {
+      TaxiChatRepository(
+        provider: MoyaProvider<TaxiChatTarget>(plugins: [self.authPlugin.resolve()])
+      )
+    }
+
+    taxiReportRepository.register {
+      TaxiReportRepository(
+        provider: MoyaProvider<TaxiReportTarget>(plugins: [self.authPlugin.resolve()])
+      )
     }
   }
 }
