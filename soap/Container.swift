@@ -204,10 +204,9 @@ extension Container {
     }
   }
   
-  @MainActor
   var taxiRoomUseCase: Factory<TaxiRoomUseCaseProtocol> {
     self {
-      @MainActor in TaxiRoomUseCase(
+      TaxiRoomUseCase(
         taxiRoomRepository: self.taxiRoomRepository.resolve(),
         userStorage: self.userStorage.resolve()
       )
