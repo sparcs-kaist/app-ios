@@ -7,8 +7,7 @@
 
 import Foundation
 
-@MainActor
-public protocol TimetableUseCaseProtocol: Observable {
+public protocol TimetableUseCaseProtocol: Observable, Sendable {
   var semesters: [Semester] { get }
 
   var selectedSemesterID: Semester.ID? { get set }
@@ -23,6 +22,7 @@ public protocol TimetableUseCaseProtocol: Observable {
   var isEditable: Bool { get }
 
   func load() async throws
+  func selectSemester(_ id: Semester.ID) async
   func createTable() async throws
   func deleteTable() async throws
   func addLecture(lecture: Lecture) async throws

@@ -219,10 +219,9 @@ extension Container {
     }
   }
   
-  @MainActor
   var timetableUseCase: Factory<TimetableUseCaseProtocol> {
     self {
-      @MainActor in TimetableUseCase(
+      TimetableUseCase(
         userUseCase: self.userUseCase.resolve(),
         otlTimetableRepository: self.otlTimetableRepository.resolve(),
         sessionBridgeService: self.sessionBridgeService.resolve()

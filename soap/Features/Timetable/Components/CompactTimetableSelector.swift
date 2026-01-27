@@ -86,8 +86,8 @@ struct CompactTimetableSelector: View {
     HStack {
       Button(action: {
         Haptic.decrease.generate()
-        withAnimation(.spring) {
-          timetableViewModel.selectPreviousSemester()
+        Task {
+          await timetableViewModel.selectPreviousSemester()
         }
       }, label: {
         Image(systemName: "chevron.left")
@@ -104,8 +104,8 @@ struct CompactTimetableSelector: View {
 
       Button(action: {
         Haptic.increase.generate()
-        withAnimation(.spring) {
-          timetableViewModel.selectNextSemester()
+        Task {
+          await timetableViewModel.selectNextSemester()
         }
       }, label: {
         Image(systemName: "chevron.right")

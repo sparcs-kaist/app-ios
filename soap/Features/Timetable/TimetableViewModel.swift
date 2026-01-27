@@ -83,22 +83,22 @@ final class TimetableViewModel {
     }
   }
 
-  func selectPreviousSemester() {
+  func selectPreviousSemester() async {
     guard let selectedSemesterID = timetableUseCase.selectedSemesterID,
           let currentIndex = timetableUseCase.semesters.firstIndex(where: { $0.id == selectedSemesterID }),
-          currentIndex >= 0 else {
+          currentIndex > 0 else {
       return
     }
-    timetableUseCase.selectedSemesterID = timetableUseCase.semesters[currentIndex - 1].id
+    await timetableUseCase.selectSemester(timetableUseCase.semesters[currentIndex - 1].id)
   }
 
-  func selectNextSemester() {
+  func selectNextSemester() async {
     guard let selectedSemesterID = timetableUseCase.selectedSemesterID,
           let currentIndex = timetableUseCase.semesters.firstIndex(where: { $0.id == selectedSemesterID }),
-          currentIndex >= 0 else {
+          currentIndex < timetableUseCase.semesters.count - 1 else {
       return
     }
-    timetableUseCase.selectedSemesterID = timetableUseCase.semesters[currentIndex + 1].id
+    await timetableUseCase.selectSemester(timetableUseCase.semesters[currentIndex + 1].id)
   }
 
   func selectTimetable(id: String) {
