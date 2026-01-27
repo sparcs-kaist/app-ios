@@ -40,7 +40,7 @@ struct TimetableGrid: View {
                 )
                 .frame(height: TimetableConstructor.getCellHeight(for: item, in: geometry.size, of: selectedTimetable.gappedDuration))
                 .offset(y: TimetableConstructor.getCellOffset(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration))
-                .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
+                .transition(.scale.combined(with: .opacity))
                 .onTapGesture {
                   Haptic.selection.generate()
                   selectedLecture?(item)
