@@ -42,40 +42,6 @@ extension Container {
     self { VersionRepository(provider: MoyaProvider<VersionTarget>()) }
   }
 
-
-  // MARK: Feed
-  var feedUserRepository: Factory<FeedUserRepositoryProtocol> {
-    self {
-      FeedUserRepository(provider: MoyaProvider<FeedUserTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-
-  var feedPostRepository: Factory<FeedPostRepositoryProtocol> {
-    self {
-      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-
-  var feedCommentRepository: Factory<FeedCommentRepositoryProtocol> {
-    self {
-      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-
-  var feedImageRepository: Factory<FeedImageRepositoryProtocol> {
-    self {
-      FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-
   // MARK: OTL
   var otlUserRepository: Factory<OTLUserRepositoryProtocol> {
     self {

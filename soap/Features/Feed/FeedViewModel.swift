@@ -39,7 +39,7 @@ final class FeedViewModel: FeedViewModelProtocol {
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
   @ObservationIgnored @Injected(
     \.feedPostRepository
-  ) private var feedPostRepository: FeedPostRepositoryProtocol
+  ) private var feedPostRepository: FeedPostRepositoryProtocol?
 
   // MARK: - Functions
   func signOut() async throws {
@@ -47,6 +47,8 @@ final class FeedViewModel: FeedViewModelProtocol {
   }
 
   func fetchInitialData() async {
+    guard let feedPostRepository else { return }
+
     do {
       let page: FeedPostPage = try await feedPostRepository.fetchPosts(cursor: nil, page: 20)
       self.posts = page.items
@@ -60,6 +62,8 @@ final class FeedViewModel: FeedViewModelProtocol {
   }
 
   func deletePost(postID: String) async throws {
+    guard let feedPostRepository else { return }
+    
     try await feedPostRepository.deletePost(postID: postID)
     self.posts.removeAll { $0.id == postID }
   }

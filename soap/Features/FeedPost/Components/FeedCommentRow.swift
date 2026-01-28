@@ -29,7 +29,7 @@ struct FeedCommentRow: View {
   // MARK: - Dependencies
   @Injected(
     \.feedCommentRepository
-  ) private var feedCommentRepository: FeedCommentRepositoryProtocol
+  ) private var feedCommentRepository: FeedCommentRepositoryProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
 
   var body: some View {
@@ -127,8 +127,10 @@ struct FeedCommentRow: View {
               Button(reason.description) {
                 Task {
                   do {
-                    try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
-                    showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                    if let feedCommentRepository {
+                      try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
+                      showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                    }
                   } catch {
                     if error.isNetworkMoyaError {
                       showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
@@ -212,6 +214,8 @@ struct FeedCommentRow: View {
 
   // MARK: - Functions
   private func upvote() async {
+    guard let feedCommentRepository else { return }
+
     let previousMyVote: FeedVoteType? = comment.myVote
     let previousUpvotes: Int = comment.upvotes
 
@@ -239,6 +243,8 @@ struct FeedCommentRow: View {
   }
 
   private func downvote() async {
+    guard let feedCommentRepository else { return }
+
     let previousMyVote: FeedVoteType? = comment.myVote
     let previousDownvotes: Int = comment.downvotes
 
@@ -266,6 +272,8 @@ struct FeedCommentRow: View {
   }
 
   private func delete() async {
+    guard let feedCommentRepository else { return }
+
     comment.isDeleted = true
     do {
       try await feedCommentRepository.deleteComment(commentID: comment.id)

@@ -77,5 +77,30 @@ extension Container: @retroactive AutoRegistering {
         self.authPlugin.resolve()
       ]))
     }
+
+    // MARK: Feed
+    feedUserRepository.register {
+      FeedUserRepository(provider: MoyaProvider<FeedUserTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+
+    feedPostRepository.register {
+      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+
+    feedCommentRepository.register {
+      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+
+    feedImageRepository.register {
+      FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
   }
 }

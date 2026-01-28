@@ -34,7 +34,7 @@ struct FeedPostView: View {
   // MARK: - Dependencies
   @Injected(
     \.feedPostRepository
-  ) private var feedPostRepository: FeedPostRepositoryProtocol
+  ) private var feedPostRepository: FeedPostRepositoryProtocol?
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
   @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
@@ -76,8 +76,10 @@ struct FeedPostView: View {
                   Button(reason.description) {
                     Task {
                       do {
-                        try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
-                        showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                        if let feedPostRepository {
+                          try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
+                          showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                        }
                       } catch {
                         if error.isNetworkMoyaError {
                           showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))

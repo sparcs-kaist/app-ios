@@ -41,4 +41,21 @@ extension Container {
   public var araCommentRepository: Factory<AraCommentRepositoryProtocol?> {
     promised()
   }
+
+  // MARK: Feed
+  public var feedUserRepository: Factory<FeedUserRepositoryProtocol?> {
+    promised()
+  }
+
+  public var feedPostRepository: Factory<FeedPostRepositoryProtocol?> {
+    promised()
+  }
+
+  public var feedCommentRepository: Factory<FeedCommentRepositoryProtocol?> {
+    promised()
+  }
+
+  public var feedImageRepository: Factory<FeedImageRepositoryProtocol?> {
+    promised()
+  }
 }

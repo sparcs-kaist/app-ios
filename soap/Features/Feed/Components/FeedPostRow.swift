@@ -26,7 +26,7 @@ struct FeedPostRow: View {
   @State private var showPopover: Bool = false
 
   // MARK: - Dependencies
-  @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol
+  @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
 
   var body: some View {
@@ -113,8 +113,10 @@ struct FeedPostRow: View {
                 Button(reason.description) {
                   Task {
                     do {
-                      try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
-                      showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                      if let feedPostRepository {
+                        try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
+                        showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                      }
                     } catch {
                       if error.isNetworkMoyaError {
                         showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
@@ -209,6 +211,8 @@ struct FeedPostRow: View {
 
   // MARK: - Functions
   private func upvote() async {
+    guard let feedPostRepository else { return }
+
     let previousMyVote: FeedVoteType? = post.myVote
     let previousUpvotes: Int = post.upvotes
     let previousDownvotes: Int = post.downvotes
@@ -238,6 +242,8 @@ struct FeedPostRow: View {
   }
 
   private func downvote() async {
+    guard let feedPostRepository else { return }
+
     let previousMyVote: FeedVoteType? = post.myVote
     let previousUpvotes: Int = post.upvotes
     let previousDownvotes: Int = post.downvotes

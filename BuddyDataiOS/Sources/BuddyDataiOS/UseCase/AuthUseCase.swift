@@ -15,7 +15,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   private let authenticationService: AuthenticationServiceProtocol
   private let tokenStorage: TokenStorageProtocol
   private let araUserRepository: AraUserRepositoryProtocol?
-  private let feedUserRepository: FeedUserRepositoryProtocol
+  private let feedUserRepository: FeedUserRepositoryProtocol?
   private let otlUserRepository: OTLUserRepositoryProtocol
 
   private let _isAuthenticatedSubject = CurrentValueSubject<Bool, Never>(false)
@@ -32,7 +32,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
     authenticationService: AuthenticationServiceProtocol,
     tokenStorage: TokenStorageProtocol,
     araUserRepository: AraUserRepositoryProtocol?,
-    feedUserRepository: FeedUserRepositoryProtocol,
+    feedUserRepository: FeedUserRepositoryProtocol?,
     otlUserRepository: OTLUserRepositoryProtocol
   ) {
     self.authenticationService = authenticationService
@@ -140,7 +140,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   }
 
   public func signIn() async throws {
-    guard let araUserRepository else { return }
+    guard let araUserRepository, let feedUserRepository else { return }
     do {
       let tokenResponse: SignInResponse = try await authenticationService.authenticate()
       tokenStorage
@@ -151,7 +151,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
       try? await araUserRepository.agreeTOS(userID: userInfo.userID)
 
       // MARK: Sign up Feed
-      try await self.feedUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
+      try await feedUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
       // MARK: Sign up OTL
       try await self.otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)

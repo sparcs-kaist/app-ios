@@ -31,6 +31,10 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
     case error(message: String)
   }
 
+  enum CommentWriteError: Error {
+    case repositoryNotAvailable
+  }
+
   // MARK: - Properties
   var state: ViewState = .loading
   var comments: [FeedComment] = []
@@ -42,11 +46,13 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.feedCommentRepository
-  ) private var feedCommentRepository: FeedCommentRepositoryProtocol
+  ) private var feedCommentRepository: FeedCommentRepositoryProtocol?
 
   // MARK: - Functions
   func fetchComments(postID: String, initial: Bool) async {
     guard state != .loading || initial else { return }
+    guard let feedCommentRepository else { return }
+
     do {
       let comments: [FeedComment] = try await feedCommentRepository.fetchComments(postID: postID)
       self.comments = comments
@@ -57,6 +63,8 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   }
 
   func writeComment(postID: String) async throws -> FeedComment {
+    guard let feedCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
+
     let request = FeedCreateComment(
       content: text,
       isAnonymous: isAnonymous,
@@ -86,6 +94,8 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   }
 
   func writeReply(commentID: String) async throws -> FeedComment {
+    guard let feedCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
+    
     let request = FeedCreateComment(content: text, isAnonymous: isAnonymous, image: nil)
     let comment: FeedComment = try await feedCommentRepository.writeReply(commentID: commentID, request: request)
 

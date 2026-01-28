@@ -11,13 +11,13 @@ import BuddyDomain
 public final class UserUseCase: UserUseCaseProtocol {
   private let araUserRepository: AraUserRepositoryProtocol?
   private let taxiUserRepository: TaxiUserRepositoryProtocol?
-  private let feedUserRepository: FeedUserRepositoryProtocol
+  private let feedUserRepository: FeedUserRepositoryProtocol?
   private let otlUserRepository: OTLUserRepositoryProtocol
   private let userStorage: UserStorageProtocol
 
   public init(
     taxiUserRepository: TaxiUserRepositoryProtocol?,
-    feedUserRepository: FeedUserRepositoryProtocol,
+    feedUserRepository: FeedUserRepositoryProtocol?,
     araUserRepository: AraUserRepositoryProtocol?,
     otlUserRepository: OTLUserRepositoryProtocol,
     userStorage: UserStorageProtocol
@@ -80,6 +80,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
 
   public func fetchFeedUser() async throws {
+    guard let feedUserRepository else { return }
+    
     print("Fetching Feed User")
     let user = try await feedUserRepository.fetchUser()
     await userStorage.setFeedUser(user)
