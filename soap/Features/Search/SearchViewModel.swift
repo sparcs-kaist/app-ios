@@ -48,8 +48,8 @@ class SearchViewModel {
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
-  @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol
-  
+  @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol?
+
   func bind() {
     cancellables.removeAll()
     
@@ -81,7 +81,7 @@ class SearchViewModel {
   }
   
   func fetchInitialData() async {
-    guard let taxiRoomRepository, let araBoardRepository else { return }
+    guard let taxiRoomRepository, let araBoardRepository, let otlCourseRepository else { return }
     state = .loading
     
     do {

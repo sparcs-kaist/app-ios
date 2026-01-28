@@ -19,14 +19,15 @@ class CourseViewModel {
   }
   
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol
-  
+  @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol?
+
   // MARK: - Properties
   var reviews: [LectureReview] = []
   var state: ViewState = .loading
   
   // MARK: - Functions
   func fetchReviews(courseId: Int) async {
+    guard let otlCourseRepository else { return }
     do {
       self.state = .loading
       self.reviews = try await otlCourseRepository.fetchReviews(courseId: courseId, offset: 0, limit: 100)

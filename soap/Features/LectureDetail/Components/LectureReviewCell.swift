@@ -15,7 +15,7 @@ import FoundationModels
 struct LectureReviewCell: View {
   @Binding var review: LectureReview
 
-  @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol
+  @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol?
   @Injected(
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
@@ -142,6 +142,8 @@ struct LectureReviewCell: View {
   }
 
   private func toggleLike() async {
+    guard let otlCourseRepository else { return }
+
     let prevLiked = review.isLiked
     let prevLikeCount = review.like
 

@@ -42,39 +42,6 @@ extension Container {
     self { VersionRepository(provider: MoyaProvider<VersionTarget>()) }
   }
 
-  // MARK: OTL
-  var otlUserRepository: Factory<OTLUserRepositoryProtocol> {
-    self {
-      OTLUserRepository(provider: MoyaProvider<OTLUserTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-
-  var otlTimetableRepository: Factory<OTLTimetableRepositoryProtocol> {
-    self {
-      OTLTimetableRepository(provider: MoyaProvider<OTLTimetableTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-
-  var otlLectureRepository: Factory<OTLLectureRepositoryProtocol> {
-    self {
-      OTLLectureRepository(provider: MoyaProvider<OTLLectureTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-  
-  var otlCourseRepository: Factory<OTLCourseRepositoryProtocol> {
-    self {
-      OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {

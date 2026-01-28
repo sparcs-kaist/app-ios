@@ -102,5 +102,30 @@ extension Container: @retroactive AutoRegistering {
         self.authPlugin.resolve()
       ]))
     }
+
+    // MARK: OTL
+    otlUserRepository.register {
+      OTLUserRepository(provider: MoyaProvider<OTLUserTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+
+    otlTimetableRepository.register {
+      OTLTimetableRepository(provider: MoyaProvider<OTLTimetableTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+
+    otlLectureRepository.register {
+      OTLLectureRepository(provider: MoyaProvider<OTLLectureTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+
+    otlCourseRepository.register {
+      OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
   }
 }

@@ -31,7 +31,7 @@ class LectureSearchViewModel {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.otlLectureRepository
-  ) private var otlLectureRepository: OTLLectureRepositoryProtocol
+  ) private var otlLectureRepository: OTLLectureRepositoryProtocol?
   @ObservationIgnored @Injected(
     \.timetableUseCase
   ) private var timetableUseCase: TimetableUseCaseProtocol
@@ -61,6 +61,7 @@ class LectureSearchViewModel {
   }
 
   func fetchLectures() async {
+    guard let otlLectureRepository else { return }
     guard let selectedSemester = timetableUseCase.selectedSemester,
           !searchKeyword.isEmpty else { return }
 

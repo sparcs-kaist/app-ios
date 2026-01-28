@@ -24,11 +24,13 @@ class LectureDetailViewModel {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.otlLectureRepository
-  ) private var otlLectureRepository: OTLLectureRepositoryProtocol
+  ) private var otlLectureRepository: OTLLectureRepositoryProtocol?
 
   // MARK: - Functions
 
   func fetchReviews(lectureID: Int) async {
+    guard let otlLectureRepository else { return }
+
     do {
       self.reviews = try await otlLectureRepository.fetchLectures(lectureID: lectureID)
       self.state = .loaded

@@ -12,14 +12,14 @@ public final class UserUseCase: UserUseCaseProtocol {
   private let araUserRepository: AraUserRepositoryProtocol?
   private let taxiUserRepository: TaxiUserRepositoryProtocol?
   private let feedUserRepository: FeedUserRepositoryProtocol?
-  private let otlUserRepository: OTLUserRepositoryProtocol
+  private let otlUserRepository: OTLUserRepositoryProtocol?
   private let userStorage: UserStorageProtocol
 
   public init(
     taxiUserRepository: TaxiUserRepositoryProtocol?,
     feedUserRepository: FeedUserRepositoryProtocol?,
     araUserRepository: AraUserRepositoryProtocol?,
-    otlUserRepository: OTLUserRepositoryProtocol,
+    otlUserRepository: OTLUserRepositoryProtocol?,
     userStorage: UserStorageProtocol
   ) {
     self.taxiUserRepository = taxiUserRepository
@@ -89,6 +89,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
 
   public func fetchOTLUser() async throws {
+    guard let otlUserRepository else { return }
+    
     print("Fetching OTL User")
     let user = try await otlUserRepository.fetchUser()
     await userStorage.setOTLUser(user)

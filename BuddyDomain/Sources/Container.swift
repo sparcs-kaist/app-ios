@@ -58,4 +58,21 @@ extension Container {
   public var feedImageRepository: Factory<FeedImageRepositoryProtocol?> {
     promised()
   }
+
+  // MARK: OTL
+  public var otlUserRepository: Factory<OTLUserRepositoryProtocol?> {
+    promised()
+  }
+
+  public var otlTimetableRepository: Factory<OTLTimetableRepositoryProtocol?> {
+    promised()
+  }
+
+  public var otlLectureRepository: Factory<OTLLectureRepositoryProtocol?> {
+    promised()
+  }
+
+  public var otlCourseRepository: Factory<OTLCourseRepositoryProtocol?> {
+    promised()
+  }
 }

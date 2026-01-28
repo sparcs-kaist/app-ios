@@ -14,7 +14,7 @@ struct ReviewComposeView: View {
   let onWrite: ((LectureReview) -> Void)
 
   @Environment(\.dismiss) private var dismiss
-  @Injected(\.otlLectureRepository) private var otlLectureRepository: OTLLectureRepositoryProtocol
+  @Injected(\.otlLectureRepository) private var otlLectureRepository: OTLLectureRepositoryProtocol?
 
   @State private var grade: Int = 5
   @State private var load: Int = 5
@@ -86,6 +86,7 @@ struct ReviewComposeView: View {
             role: .confirm,
             action: {
               Task {
+                guard let otlLectureRepository else { return }
                 isUploading = true
                 defer { isUploading = false }
                 do {
