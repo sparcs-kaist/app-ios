@@ -31,6 +31,7 @@ extension Container: @retroactive AutoRegistering {
 
   public func autoRegister() {
 
+    // MARK: - Repositories
     // MARK: Taxi
     taxiRoomRepository.register {
       TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [
@@ -54,6 +55,27 @@ extension Container: @retroactive AutoRegistering {
       TaxiReportRepository(
         provider: MoyaProvider<TaxiReportTarget>(plugins: [self.authPlugin.resolve()])
       )
+    }
+
+    // MARK: Ara
+    araUserRepository.register {
+      AraUserRepository(provider: MoyaProvider<AraUserTarget>(plugins: [self.authPlugin.resolve()]))
+    }
+
+    araBoardRepository.register {
+      AraBoardRepository(
+        provider: MoyaProvider<AraBoardTarget>(
+          plugins: [
+            self.authPlugin.resolve()
+          ]
+        )
+      )
+    }
+
+    araCommentRepository.register {
+      AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
     }
   }
 }

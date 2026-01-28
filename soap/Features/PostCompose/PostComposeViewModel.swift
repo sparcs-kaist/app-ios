@@ -52,13 +52,15 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol
+  ) private var araBoardRepository: AraBoardRepositoryProtocol?
 
   init(board: AraBoard) {
     self.board = board
   }
 
   func writePost() async throws {
+    guard let araBoardRepository else { return }
+    
     var attachments: [AraAttachment] = []
     for image in selectedImages {
       let attachment: AraAttachment = try await araBoardRepository.uploadImage(image: image)

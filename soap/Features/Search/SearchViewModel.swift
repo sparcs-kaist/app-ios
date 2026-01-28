@@ -43,7 +43,7 @@ class SearchViewModel {
   @ObservationIgnored private let searchKeywordSubject = PassthroughSubject<String, Never>()
   
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol
+  @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol?
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
@@ -81,7 +81,7 @@ class SearchViewModel {
   }
   
   func fetchInitialData() async {
-    guard let taxiRoomRepository else { return }
+    guard let taxiRoomRepository, let araBoardRepository else { return }
     state = .loading
     
     do {
@@ -125,7 +125,8 @@ class SearchViewModel {
   
   func loadAraNextPage() async {
     guard !isLoadingMore && hasMorePages else { return }
-    
+    guard let araBoardRepository else { return }
+
     isLoadingMore = true
     
     do {

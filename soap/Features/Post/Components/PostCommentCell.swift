@@ -24,7 +24,7 @@ struct PostCommentCell: View {
   @State private var showTranslateSheet: Bool = false
 
   // MARK: - Dependencies
-  @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol
+  @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol?
   @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
 
   var body: some View {
@@ -144,6 +144,7 @@ struct PostCommentCell: View {
           Task {
             let previousContent: String? = comment.content
             do {
+              guard let araCommentRepository else { return }
               comment.content = nil
               onDelete?()
               try await araCommentRepository.deleteComment(commentID: comment.id)
@@ -188,6 +189,8 @@ struct PostCommentCell: View {
 
   // MARK: - Functions
   private func upvote() async {
+    guard let araCommentRepository else { return }
+
     let previousMyVote: Bool? = comment.myVote
     let previousUpvotes: Int = comment.upvotes
 
@@ -215,6 +218,8 @@ struct PostCommentCell: View {
   }
 
   func downvote() async {
+    guard let araCommentRepository else { return }
+
     let previousMyVote: Bool? = comment.myVote
     let previousDownvotes: Int = comment.downvotes
 
@@ -242,6 +247,8 @@ struct PostCommentCell: View {
   }
   
   private func report(type: AraContentReportType) async {
+    guard let araCommentRepository else { return }
+    
     do {
       try await araCommentRepository
         .reportComment(commentID: comment.id, type: type)

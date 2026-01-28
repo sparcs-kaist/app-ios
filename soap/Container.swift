@@ -43,31 +43,6 @@ extension Container {
   }
 
 
-  // MARK: Ara
-  var araUserRepository: Factory<AraUserRepositoryProtocol> {
-    self { AraUserRepository(provider: MoyaProvider<AraUserTarget>(plugins: [self.authPlugin.resolve()])) }
-  }
-
-  var araBoardRepository: Factory<AraBoardRepositoryProtocol> {
-    self {
-      AraBoardRepository(
-        provider: MoyaProvider<AraBoardTarget>(
-          plugins: [
-            self.authPlugin.resolve()
-          ]
-        )
-      )
-    }
-  }
-
-  var araCommentRepository: Factory<AraCommentRepositoryProtocol> {
-    self {
-      AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-  }
-
   // MARK: Feed
   var feedUserRepository: Factory<FeedUserRepositoryProtocol> {
     self {

@@ -9,7 +9,7 @@ import Foundation
 import BuddyDomain
 
 public final class UserUseCase: UserUseCaseProtocol {
-  private let araUserRepository: AraUserRepositoryProtocol
+  private let araUserRepository: AraUserRepositoryProtocol?
   private let taxiUserRepository: TaxiUserRepositoryProtocol?
   private let feedUserRepository: FeedUserRepositoryProtocol
   private let otlUserRepository: OTLUserRepositoryProtocol
@@ -18,7 +18,7 @@ public final class UserUseCase: UserUseCaseProtocol {
   public init(
     taxiUserRepository: TaxiUserRepositoryProtocol?,
     feedUserRepository: FeedUserRepositoryProtocol,
-    araUserRepository: AraUserRepositoryProtocol,
+    araUserRepository: AraUserRepositoryProtocol?,
     otlUserRepository: OTLUserRepositoryProtocol,
     userStorage: UserStorageProtocol
   ) {
@@ -62,6 +62,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
 
   public func fetchAraUser() async throws {
+    guard let araUserRepository else { return }
+
     print("Fetching Ara User")
     let user = try await araUserRepository.fetchUser()
     await userStorage.setAraUser(user)
@@ -92,6 +94,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
 
   public func updateAraUser(params: [String: Any]) async throws {
+    guard let araUserRepository else { return }
+    
     print("Updating Ara User Information: \(params)")
     guard let araUser = await araUser else {
       print("Ara User Not Found")

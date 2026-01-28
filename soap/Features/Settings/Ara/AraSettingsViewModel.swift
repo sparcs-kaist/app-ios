@@ -36,7 +36,6 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
-  @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol
 
   // MARK: - Properties
   var user: AraUser?

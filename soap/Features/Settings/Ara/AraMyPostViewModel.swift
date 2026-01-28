@@ -38,8 +38,8 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
     case bookmark = "Bookmarked"
   }
   
-  @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol
-  
+  @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol?
+
   var posts: [AraPost] = []
   var state: ViewState = .loading
   var type: PostType = .all
@@ -93,7 +93,8 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   
   func fetchInitialPosts() async {
     guard let user = user else { return }
-    
+    guard let araBoardRepository else { return }
+
     do {
       var page: AraPostPage
       switch self.type {
@@ -123,7 +124,8 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   func loadNextPage() async {
     guard let user = user else { return }
     guard !isLoadingMore && hasMorePages else { return }
-    
+    guard let araBoardRepository else { return }
+
     isLoadingMore = true
     
     do {
@@ -156,6 +158,8 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   }
   
   func refreshItem(postID: Int) {
+    guard let araBoardRepository else { return }
+    
     Task {
       guard let updated: AraPost = try? await araBoardRepository.fetchPost(origin: .none, postID: postID) else { return }
 

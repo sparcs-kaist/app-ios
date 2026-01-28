@@ -37,16 +37,20 @@ class PostViewModel: PostViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol
+  ) private var araBoardRepository: AraBoardRepositoryProtocol?
   @ObservationIgnored @Injected(
     \.araCommentRepository
-  ) private var araCommentRepository: AraCommentRepositoryProtocol
+  ) private var araCommentRepository: AraCommentRepositoryProtocol?
   @ObservationIgnored @Injected(
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
   @ObservationIgnored @Injected(
     \.crashlyticsService
   ) private var crashlyticsService: CrashlyticsServiceProtocol
+
+  enum CommentWriteError: Error {
+    case repositoryNotAvailable
+  }
 
   // MARK: - Initialiser
   init(post: AraPost) {
@@ -78,6 +82,8 @@ class PostViewModel: PostViewModelProtocol {
 
   // MARK: - Functions
   func fetchPost() async {
+    guard let araBoardRepository else { return }
+
     do {
       let post: AraPost = try await araBoardRepository.fetchPost(origin: .board, postID: post.id)
       self.post = post
@@ -87,6 +93,8 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func upvote() async {
+    guard let araBoardRepository else { return }
+
     let previousMyVote: Bool? = post.myVote
     let previousUpvotes: Int = post.upvotes
 
@@ -114,6 +122,8 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func downvote() async {
+    guard let araBoardRepository else { return }
+
     let previousMyVote: Bool? = post.myVote
     let previousDownvotes: Int = post.downvotes
 
@@ -141,6 +151,8 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func writeComment(content: String) async throws -> AraPostComment {
+    guard let araCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
+
     var comment: AraPostComment = try await araCommentRepository.writeComment(
       postID: post.id,
       content: content
@@ -154,6 +166,7 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment {
+    guard let araCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
     var comment: AraPostComment = try await araCommentRepository.writeThreadedComment(
       commentID: commentID,
       content: content
@@ -172,6 +185,8 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func editComment(commentID: Int, content: String) async throws -> AraPostComment {
+    guard let araCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
+    
     var comment: AraPostComment = try await araCommentRepository.editComment(
       commentID: commentID,
       content: content
@@ -196,6 +211,8 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func report(type: AraContentReportType) async throws {
+    guard let araBoardRepository else { return }
+
     try await araBoardRepository.reportPost(postID: post.id, type: type)
   }
 
@@ -204,10 +221,14 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func deletePost() async throws {
+    guard let araBoardRepository else { return }
+
     try await araBoardRepository.deletePost(postID: post.id)
   }
   
   func toggleBookmark() async {
+    guard let araBoardRepository else { return }
+    
     let previousBookmarkStatus: Bool = post.myScrap
     
     do {

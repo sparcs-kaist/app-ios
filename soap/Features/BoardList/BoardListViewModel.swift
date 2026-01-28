@@ -34,9 +34,11 @@ class BoardListViewModel: BoardListViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol
+  ) private var araBoardRepository: AraBoardRepositoryProtocol?
 
   func fetchBoards() async {
+    guard let araBoardRepository else { return }
+    
     do {
       let boards = try await araBoardRepository.fetchBoards()
 

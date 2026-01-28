@@ -57,7 +57,7 @@ class PostListViewModel: PostListViewModelProtocol {
   //MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol
+  ) private var araBoardRepository: AraBoardRepositoryProtocol?
 
   // MARK: - Initialiser
   init(board: AraBoard) {
@@ -83,6 +83,8 @@ class PostListViewModel: PostListViewModelProtocol {
   }
 
   func fetchInitialPosts() async {
+    guard let araBoardRepository else { return }
+
     do {
       let page = try await araBoardRepository.fetchPosts(
         type: .board(boardID: board.id),
@@ -103,7 +105,8 @@ class PostListViewModel: PostListViewModelProtocol {
   
   func loadNextPage() async {
     guard !isLoadingMore && hasMorePages else { return }
-    
+    guard let araBoardRepository else { return }
+
     isLoadingMore = true
     
     do {
@@ -127,6 +130,8 @@ class PostListViewModel: PostListViewModelProtocol {
   }
 
   func refreshItem(postID: Int) {
+    guard let araBoardRepository else { return }
+    
     Task {
       guard let updated: AraPost = try? await araBoardRepository.fetchPost(origin: .none, postID: postID) else { return }
 

@@ -14,7 +14,7 @@ import BuddyDomain
 public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   private let authenticationService: AuthenticationServiceProtocol
   private let tokenStorage: TokenStorageProtocol
-  private let araUserRepository: AraUserRepositoryProtocol
+  private let araUserRepository: AraUserRepositoryProtocol?
   private let feedUserRepository: FeedUserRepositoryProtocol
   private let otlUserRepository: OTLUserRepositoryProtocol
 
@@ -31,7 +31,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   public init(
     authenticationService: AuthenticationServiceProtocol,
     tokenStorage: TokenStorageProtocol,
-    araUserRepository: AraUserRepositoryProtocol,
+    araUserRepository: AraUserRepositoryProtocol?,
     feedUserRepository: FeedUserRepositoryProtocol,
     otlUserRepository: OTLUserRepositoryProtocol
   ) {
@@ -140,14 +140,15 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   }
 
   public func signIn() async throws {
+    guard let araUserRepository else { return }
     do {
       let tokenResponse: SignInResponse = try await authenticationService.authenticate()
       tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
 
       // MARK: Sign up Ara
-      let userInfo: AraSignInResponse = try await self.araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
-      try? await self.araUserRepository.agreeTOS(userID: userInfo.userID)
+      let userInfo: AraSignInResponse = try await araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
+      try? await araUserRepository.agreeTOS(userID: userInfo.userID)
 
       // MARK: Sign up Feed
       try await self.feedUserRepository.register(ssoInfo: tokenResponse.ssoInfo)

@@ -10,7 +10,9 @@ import Factory
 
 extension Container {
 
-  // MARK: - Taxi
+  // MARK: - Repositories
+
+  // MARK:  Taxi
   public var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol?> {
     promised()
   }
@@ -24,6 +26,19 @@ extension Container {
   }
 
   public var taxiReportRepository: Factory<TaxiReportRepositoryProtocol?> {
+    promised()
+  }
+
+  // MARK: Ara
+  public var araUserRepository: Factory<AraUserRepositoryProtocol?> {
+    promised()
+  }
+
+  public var araBoardRepository: Factory<AraBoardRepositoryProtocol?> {
+    promised()
+  }
+
+  public var araCommentRepository: Factory<AraCommentRepositoryProtocol?> {
     promised()
   }
 }
