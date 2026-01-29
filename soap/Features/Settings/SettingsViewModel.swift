@@ -13,10 +13,12 @@ import BuddyDomain
 @Observable
 class SettingsViewModel {
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
+  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
   
   func signOut() async throws {
+    guard let authUseCase else { return }
+    
     try await authUseCase.signOut()
   }
   

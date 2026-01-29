@@ -29,9 +29,22 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  // MARK: - Services
+  private var authenticationService: Factory<AuthenticationServiceProtocol> {
+    self {
+      MainActor.assumeIsolated {
+        AuthenticationService(authRepository: self.authRepository.resolve())
+      }
+    }.singleton
+  }
+
   public func autoRegister() {
 
     // MARK: - Repositories
+    authRepository.register {
+      AuthRepository(provider: MoyaProvider<AuthTarget>())
+    }
+
     // MARK: Taxi
     taxiRoomRepository.register {
       TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [
@@ -127,5 +140,17 @@ extension Container: @retroactive AutoRegistering {
         self.authPlugin.resolve()
       ]))
     }
+
+    // MARK: - Use Cases
+    authUseCase.register {
+      AuthUseCase(
+        authenticationService: self.authenticationService.resolve(),
+        tokenStorage: self.tokenStorage.resolve(),
+        araUserRepository: self.araUserRepository.resolve(),
+        feedUserRepository: self.feedUserRepository.resolve(),
+        otlUserRepository: self.otlUserRepository.resolve()
+      )
+    }
+    .scope(.singleton)
   }
 }

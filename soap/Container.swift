@@ -34,22 +34,12 @@ extension Container {
 
   // MARK: - Repositories
 
-  var authRepository: Factory<AuthRepositoryProtocol> {
-    self { AuthRepository(provider: MoyaProvider<AuthTarget>()) }
-  }
-  
   var versionRepository: Factory<VersionRepositoryProtocol> {
     self { VersionRepository(provider: MoyaProvider<VersionTarget>()) }
   }
 
   // MARK: - Services
-  private var authenticationService: Factory<AuthenticationServiceProtocol> {
-    self {
-      MainActor.assumeIsolated {
-        AuthenticationService(authRepository: self.authRepository.resolve())
-      }
-    }.singleton
-  }
+
 
   private var taxiChatService: Factory<TaxiChatServiceProtocol> {
     self {
@@ -68,17 +58,6 @@ extension Container {
   }
 
   // MARK: - Use Cases
-  var authUseCase: Factory<AuthUseCaseProtocol> {
-    self {
-      AuthUseCase(
-        authenticationService: self.authenticationService.resolve(),
-        tokenStorage: self.tokenStorage.resolve(),
-        araUserRepository: self.araUserRepository.resolve(),
-        feedUserRepository: self.feedUserRepository.resolve(),
-        otlUserRepository: self.otlUserRepository.resolve()
-      )
-    }.singleton
-  }
 
   var userUseCase: Factory<UserUseCaseProtocol> {
     self {

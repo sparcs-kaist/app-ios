@@ -36,13 +36,14 @@ final class FeedViewModel: FeedViewModelProtocol {
   private var hasNext: Bool = false
 
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
+  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.feedPostRepository
   ) private var feedPostRepository: FeedPostRepositoryProtocol?
 
   // MARK: - Functions
   func signOut() async throws {
+    guard let authUseCase else { return }
     try await authUseCase.signOut()
   }
 

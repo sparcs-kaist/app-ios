@@ -13,10 +13,10 @@ import BuddyDomain
 import BuddyDataCore
 
 public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthenticationPresentationContextProviding {
-  private let authRepository: AuthRepositoryProtocol
+  private let authRepository: AuthRepositoryProtocol?
   private let codeVerifier: String
 
-  public init(authRepository: AuthRepositoryProtocol) {
+  public init(authRepository: AuthRepositoryProtocol?) {
     self.authRepository = authRepository
     self.codeVerifier = UUID().uuidString.replacingOccurrences(of: "-", with: "")
   }
@@ -93,11 +93,13 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
   }
 
   public func exchangeCodeForTokens(_ authorisationCode: String) async throws -> SignInResponse {
-    try await authRepository
+    guard let authRepository else { throw AuthenticationServiceError.unknown }
+    return try await authRepository
       .requestToken(authorisationCode: authorisationCode, codeVerifier: Data(self.codeVerifier.utf8).base64URLEncodedString())
   }
 
   public func refreshAccessToken(refreshToken: String) async throws -> TokenResponse {
-    try await authRepository.refreshToken(refreshToken: refreshToken)
+    guard let authRepository else { throw AuthenticationServiceError.unknown }
+    return try await authRepository.refreshToken(refreshToken: refreshToken)
   }
 }

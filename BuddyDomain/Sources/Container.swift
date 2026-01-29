@@ -11,6 +11,9 @@ import Factory
 extension Container {
 
   // MARK: - Repositories
+  public var authRepository: Factory<AuthRepositoryProtocol?> {
+    promised()
+  }
 
   // MARK:  Taxi
   public var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol?> {
@@ -73,6 +76,11 @@ extension Container {
   }
 
   public var otlCourseRepository: Factory<OTLCourseRepositoryProtocol?> {
+    promised()
+  }
+
+  // MARK: - Use Cases
+  public var authUseCase: Factory<AuthUseCaseProtocol?> {
     promised()
   }
 }
