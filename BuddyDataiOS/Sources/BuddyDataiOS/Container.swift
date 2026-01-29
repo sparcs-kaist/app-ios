@@ -156,5 +156,16 @@ extension Container: @retroactive AutoRegistering {
       )
     }
     .scope(.singleton)
+
+    userUseCase.register {
+      UserUseCase(
+        taxiUserRepository: self.taxiUserRepository.resolve(),
+        feedUserRepository: self.feedUserRepository.resolve(),
+        araUserRepository: self.araUserRepository.resolve(),
+        otlUserRepository: self.otlUserRepository.resolve(),
+        userStorage: self.userStorage.resolve()
+      )
+    }
+    .scope(.singleton)
   }
 }

@@ -23,13 +23,13 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   public var selectedTimetableID: Timetable.ID? = nil
 
   // MARK: - Dependencies
-  private let userUseCase: UserUseCaseProtocol
+  private let userUseCase: UserUseCaseProtocol?
   private let otlTimetableRepository: OTLTimetableRepositoryProtocol?
   private let sessionBridgeService: SessionBridgeServiceProtocol?
 
   // MARK: - Initialiser
   public init(
-    userUseCase: UserUseCaseProtocol,
+    userUseCase: UserUseCaseProtocol?,
     otlTimetableRepository: OTLTimetableRepositoryProtocol?,
     sessionBridgeService: SessionBridgeServiceProtocol? = nil
   ) {
@@ -93,7 +93,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   public func load() async throws {
     // Avoid re-loading if already populated
     guard store.isEmpty || semesters.isEmpty else { return }
-    guard let otlTimetableRepository else { return }
+    guard let otlTimetableRepository, let userUseCase else { return }
 
     async let fetchSemesters = otlTimetableRepository.getSemesters()
     async let fetchCurrentSemester = otlTimetableRepository.getCurrentSemester()
@@ -136,6 +136,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
   public func createTable() async throws {
     guard
+      let userUseCase,
       let user: OTLUser = await userUseCase.otlUser,
       let selectedSemester,
       let otlTimetableRepository
@@ -160,6 +161,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
   public func deleteTable() async throws {
     guard isEditable,
+          let userUseCase,
           let sid = selectedSemesterID,
           let tid = selectedTimetableID,
           let user = await userUseCase.otlUser,
@@ -181,6 +183,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
   public func addLecture(lecture: Lecture) async throws {
     guard isEditable,
+          let userUseCase,
           let sid = selectedSemesterID,
           let tid = selectedTimetableID,
           let user = await userUseCase.otlUser,
@@ -211,6 +214,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
   public func deleteLecture(lecture: Lecture) async throws {
     guard isEditable,
+          let userUseCase,
           let sid = selectedSemesterID,
           let tid = selectedTimetableID,
           let user = await userUseCase.otlUser,
@@ -244,6 +248,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   /// Refresh tables for `selectedSemesterID`, seeding My Table if needed and merging server tables (deduped).
   private func refreshTablesForSelectedSemester() async {
     guard
+      let userUseCase,
       let sid = selectedSemesterID,
       let semester = semesters.first(where: { $0.id == sid })
     else { return }

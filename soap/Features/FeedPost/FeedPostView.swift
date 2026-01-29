@@ -35,7 +35,7 @@ struct FeedPostView: View {
   @Injected(
     \.feedPostRepository
   ) private var feedPostRepository: FeedPostRepositoryProtocol?
-  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
   @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
 
@@ -53,6 +53,7 @@ struct FeedPostView: View {
       }
       .task(id: post.id) {
         await viewModel.fetchComments(postID: post.id, initial: true)
+        guard let userUseCase else { return }
         self.feedUser = await userUseCase.feedUser
       }
       .refreshable {

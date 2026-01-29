@@ -22,7 +22,7 @@ class TaxiPreviewViewModel {
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.taxiRoomUseCase) private var taxiRoomUseCase: TaxiRoomUseCaseProtocol
 
   //MARK: - Initialiser
@@ -59,6 +59,8 @@ class TaxiPreviewViewModel {
   }
 
   private func fetchTaxiUser() async {
+    guard let userUseCase else { return }
+    
     self.taxiUser = await userUseCase.taxiUser
   }
   

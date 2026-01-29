@@ -56,7 +56,7 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   var selectedImages: [FeedPostPhotoItem] = []
 
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.feedImageRepository
   ) private var feedImageRepository: FeedImageRepositoryProtocol?
@@ -69,6 +69,8 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
 
   // MARK: - Functions
   func fetchFeedUser() async {
+    guard let userUseCase else { return }
+    
     self.feedUser = await userUseCase.feedUser
   }
 

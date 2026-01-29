@@ -40,7 +40,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   }
   
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
   
@@ -56,6 +56,8 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
 
   // MARK: - Functions
   func fetchUser() async {
+    guard let userUseCase else { return }
+
     state = .loading
     self.user = await userUseCase.taxiUser
     guard let user = self.user else {
@@ -70,6 +72,8 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   }
   
   func editInformation() async {
+    guard let userUseCase else { return }
+    
     if let bankName, !bankNumber.isEmpty {
       await editBankAccount(bankName: bankName, bankNumber: bankNumber)
     }

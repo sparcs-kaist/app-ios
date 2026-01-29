@@ -53,18 +53,6 @@ extension Container {
 
   // MARK: - Use Cases
 
-  var userUseCase: Factory<UserUseCaseProtocol> {
-    self {
-      UserUseCase(
-        taxiUserRepository: self.taxiUserRepository.resolve(),
-        feedUserRepository: self.feedUserRepository.resolve(),
-        araUserRepository: self.araUserRepository.resolve(),
-        otlUserRepository: self.otlUserRepository.resolve(),
-        userStorage: self.userStorage.resolve()
-      )
-    }.singleton
-  }
-
   var taxiChatUseCase: ParameterFactory<TaxiRoom, TaxiChatUseCaseProtocol> {
     self {
       TaxiChatUseCase(

@@ -23,8 +23,8 @@ struct TaxiReportView: View {
   @State private var alertContent: String = ""
   
   // MARK: - Dependencies
-  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
-  
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
+
   var body: some View {
     NavigationStack {
       Form {
@@ -38,6 +38,8 @@ struct TaxiReportView: View {
           .labelsHidden()
         }
         .task {
+          guard let userUseCase else { return }
+          
           self.taxiUser = await userUseCase.taxiUser
         }
         

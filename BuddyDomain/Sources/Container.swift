@@ -87,4 +87,8 @@ extension Container {
   public var authUseCase: Factory<AuthUseCaseProtocol?> {
     promised()
   }
+
+  public var userUseCase: Factory<UserUseCaseProtocol?> {
+    promised()
+  }
 }

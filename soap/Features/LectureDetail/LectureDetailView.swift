@@ -22,7 +22,7 @@ struct LectureDetailView: View {
     self.classTime = classTime
   }
 
-  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   @Environment(\.dismiss) private var dismiss
   @State private var viewModel = LectureDetailViewModel()
@@ -47,6 +47,7 @@ struct LectureDetailView: View {
     }
     .task {
       await viewModel.fetchReviews(lectureID: lecture.id)
+      guard let userUseCase else { return }
       let otl = await userUseCase.otlUser
       canWriteReview = otl?.reviewWritableLectures.contains { $0.id == lecture.id } ?? false
     }

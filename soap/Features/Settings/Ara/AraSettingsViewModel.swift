@@ -35,7 +35,7 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
   }
   
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   // MARK: - Properties
   var user: AraUser?
@@ -58,6 +58,8 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
   
   // MARK: - Functions
   func fetchUser() async {
+    guard let userUseCase else { return }
+
     state = .loading
     self.user = await userUseCase.araUser
     guard let user = self.user else {
@@ -71,10 +73,14 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
   }
   
   func updateNickname() async throws {
+    guard let userUseCase else { return }
+
     try await userUseCase.updateAraUser(params: ["nickname": nickname])
   }
   
   func updateContentPreference() async {
+    guard let userUseCase else { return }
+    
     do {
       try await userUseCase.updateAraUser(params: ["see_sexual": allowNSFW, "see_social": allowPolitical])
     } catch {

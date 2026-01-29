@@ -27,7 +27,7 @@ class TaxiChatListViewModel: TaxiChatListViewModelProtocol {
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   // MARK: - Initialiser
   init() {
@@ -53,6 +53,8 @@ class TaxiChatListViewModel: TaxiChatListViewModelProtocol {
   }
 
   private func fetchTaxiUser() async {
+    guard let userUseCase else { return }
+    
     self.taxiUser = await userUseCase.taxiUser
   }
 }
