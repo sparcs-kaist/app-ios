@@ -8,6 +8,7 @@
       "shouldTranslate" : false
     },
     "**Note:** May contain errors, please double-check facts." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -113,6 +114,7 @@
       "shouldTranslate" : false
     },
     "%lld comments" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -135,6 +137,7 @@
       }
     },
     "%lld day%@ ago" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -157,6 +160,7 @@
       }
     },
     "%lld hour%@ ago" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -179,6 +183,7 @@
       }
     },
     "%lld min ago" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -255,9 +260,6 @@
       },
       "shouldTranslate" : false
     },
-    "%lld/280" : {
-      "shouldTranslate" : false
-    },
     "⏰ It's 15 minutes before your taxi leaves! If everyone's gathered, go ahead and call the taxi to head out together." : {
       "localizations" : {
         "en" : {
@@ -284,9 +286,6 @@
       "shouldTranslate" : false
     },
     "🤖" : {
-      "shouldTranslate" : false
-    },
-    "😀" : {
       "shouldTranslate" : false
     },
     "🚕 Looking for someone to ride with on %@ from %@ to %@! 🚕" : {
@@ -331,9 +330,6 @@
     "3" : {
       "shouldTranslate" : false
     },
-    "A" : {
-      "shouldTranslate" : false
-    },
     "A new version is available. Please update to continue." : {
       "localizations" : {
         "en" : {
@@ -351,6 +347,7 @@
       }
     },
     "Acknowledgements" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -383,6 +380,7 @@
       }
     },
     "Add" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -405,6 +403,7 @@
       }
     },
     "Add Lecture" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -427,6 +426,7 @@
       }
     },
     "Add to \"%@\"" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -449,6 +449,7 @@
       }
     },
     "Allow NSFW" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -471,6 +472,7 @@
       }
     },
     "Allow Political" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -553,6 +555,7 @@
       }
     },
     "An error occurred while signing out. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -575,6 +578,7 @@
       }
     },
     "An unexpected error occurred while adding a lecture. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -591,6 +595,7 @@
       }
     },
     "An unexpected error occurred while creating a new timetable. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -607,6 +612,7 @@
       }
     },
     "An unexpected error occurred while deleting a timetable. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -623,6 +629,7 @@
       }
     },
     "An unexpected error occurred while fetching user information. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -639,6 +646,7 @@
       }
     },
     "An unexpected error occurred while loading timetables. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -655,6 +663,7 @@
       }
     },
     "An unexpected error occurred while removing a lecture. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -671,6 +680,7 @@
       }
     },
     "An unexpected error occurred while reporting a comment. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -687,6 +697,7 @@
       }
     },
     "An unexpected error occurred while reporting a post. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -703,6 +714,7 @@
       }
     },
     "An unexpected error occurred while reporting a user. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -719,6 +731,7 @@
       }
     },
     "An unexpected error occurred while updating badge information. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -735,6 +748,7 @@
       }
     },
     "An unexpected error occurred while updating bank account information. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -751,6 +765,7 @@
       }
     },
     "An unexpected error occurred while updating phone number information. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -767,6 +782,7 @@
       }
     },
     "An unexpected error occurred while uploading a comment. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -783,6 +799,7 @@
       }
     },
     "An unexpected error occurred while uploading a post. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -837,9 +854,6 @@
         }
       }
     },
-    "Ara" : {
-      "shouldTranslate" : false
-    },
     "Are you sure you want to delete this post?" : {
       "localizations" : {
         "en" : {
@@ -884,13 +898,8 @@
         }
       }
     },
-    "AU" : {
-      "shouldTranslate" : false
-    },
-    "B" : {
-      "shouldTranslate" : false
-    },
     "Bank Name" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -913,6 +922,7 @@
       }
     },
     "Bank Number" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -992,6 +1002,7 @@
       }
     },
     "Bookmarked Posts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1061,9 +1072,6 @@
         }
       }
     },
-    "C" : {
-      "shouldTranslate" : false
-    },
     "Call Taxi" : {
       "localizations" : {
         "en" : {
@@ -1097,6 +1105,7 @@
       }
     },
     "Cannot Add Lecture" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1129,6 +1138,7 @@
       }
     },
     "Change Language" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1194,6 +1204,7 @@
       }
     },
     "Classroom" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1226,6 +1237,7 @@
       }
     },
     "Close" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1242,6 +1254,7 @@
       }
     },
     "Code" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1258,6 +1271,7 @@
       }
     },
     "Competition" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1274,6 +1288,7 @@
       }
     },
     "Confirm" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1290,6 +1305,7 @@
       }
     },
     "Content Preferences" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1402,6 +1418,7 @@
       }
     },
     "Credit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1418,6 +1435,7 @@
       }
     },
     "Credits" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1433,10 +1451,8 @@
         }
       }
     },
-    "D" : {
-      "shouldTranslate" : false
-    },
     "Date" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1453,6 +1469,7 @@
       }
     },
     "Debug Menu" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1534,6 +1551,7 @@
       }
     },
     "Department" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1662,6 +1680,7 @@
       }
     },
     "downvote" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1727,6 +1746,7 @@
       }
     },
     "Enter Bank Number" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1743,6 +1763,7 @@
       }
     },
     "Enter Phone Number" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1791,6 +1812,7 @@
       }
     },
     "Exams" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1805,9 +1827,6 @@
           }
         }
       }
-    },
-    "F" : {
-      "shouldTranslate" : false
     },
     "Failed to delete a post. Please try again later." : {
       "localizations" : {
@@ -1848,6 +1867,7 @@
       }
     },
     "Failed to load content" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1935,6 +1955,7 @@
       }
     },
     "Force Crash" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1983,6 +2004,7 @@
       }
     },
     "Grade" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2048,6 +2070,7 @@
       }
     },
     "Information" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2080,6 +2103,7 @@
       }
     },
     "Invoke Exception" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2144,6 +2168,7 @@
       }
     },
     "just now" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2193,6 +2218,7 @@
       }
     },
     "Language" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2224,9 +2250,6 @@
         }
       }
     },
-    "LectureType" : {
-      "shouldTranslate" : false
-    },
     "Legal Notices" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2245,6 +2268,7 @@
       }
     },
     "Load" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2282,9 +2306,6 @@
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit" : {
       "shouldTranslate" : false
     },
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus." : {
-      "shouldTranslate" : false
-    },
     "meeting point" : {
       "localizations" : {
         "en" : {
@@ -2318,6 +2339,7 @@
       }
     },
     "Miscellaneous" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2334,6 +2356,7 @@
       }
     },
     "more" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2366,6 +2389,7 @@
       }
     },
     "My Posts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2382,6 +2406,7 @@
       }
     },
     "My Table" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2417,6 +2442,7 @@
       }
     },
     "New Table" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2449,6 +2475,7 @@
       }
     },
     "Nickname" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2465,6 +2492,7 @@
       }
     },
     "Nicknames can only be changed every 3 months." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2481,6 +2509,7 @@
       }
     },
     "Nicknames can only be changed every 3 months. Change nickname to %@?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2530,6 +2559,7 @@
       }
     },
     "No Reports" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2562,6 +2592,7 @@
       }
     },
     "No Reviews" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2892,6 +2923,7 @@
       }
     },
     "Other reasons" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2962,6 +2994,7 @@
       }
     },
     "Payment Required" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2978,6 +3011,7 @@
       }
     },
     "Payment Settled" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2994,6 +3028,7 @@
       }
     },
     "Phone Number" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3010,6 +3045,7 @@
       }
     },
     "Phone number can be set only once. Is the number you want to use correct?\n\n%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3115,6 +3151,7 @@
       "shouldTranslate" : false
     },
     "Post" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3147,6 +3184,7 @@
       }
     },
     "Privacy Policy" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3163,6 +3201,7 @@
       }
     },
     "Professor" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3179,6 +3218,7 @@
       }
     },
     "Profile" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3227,6 +3267,7 @@
       }
     },
     "Remove from Table" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3291,6 +3332,7 @@
       }
     },
     "Report Details" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3323,6 +3365,7 @@
       }
     },
     "Report Type" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3387,6 +3430,7 @@
       }
     },
     "Reviews" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3489,6 +3533,7 @@
       }
     },
     "Search courses, codes or professors." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3553,6 +3598,7 @@
       }
     },
     "Select Bank" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3601,6 +3647,7 @@
       }
     },
     "Send Crash Reports" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3617,6 +3664,7 @@
       }
     },
     "Send Feedback" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3649,6 +3697,7 @@
       }
     },
     "Service" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3665,6 +3714,7 @@
       }
     },
     "Services" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3681,6 +3731,7 @@
       }
     },
     "Settings" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3713,6 +3764,7 @@
       }
     },
     "Settlement Completed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3729,6 +3781,7 @@
       }
     },
     "Settlement Requested" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3745,6 +3798,7 @@
       }
     },
     "Settlement Required" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3809,6 +3863,7 @@
       }
     },
     "Share your thoughts on %@..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3825,6 +3880,7 @@
       }
     },
     "Show Badge" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3875,6 +3931,7 @@
       }
     },
     "Sign Out" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3942,6 +3999,7 @@
       }
     },
     "Speech" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3961,6 +4019,7 @@
 
     },
     "Sponsored By" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3993,6 +4052,7 @@
       }
     },
     "Summarising..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4009,6 +4069,7 @@
       }
     },
     "Summary" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4041,6 +4102,7 @@
       }
     },
     "Table %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4089,6 +4151,7 @@
       }
     },
     "Taxi User Information Not Found." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4121,6 +4184,7 @@
       }
     },
     "Terms of Use" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4169,6 +4233,7 @@
       }
     },
     "There are no reviews for this lecture yet." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4233,6 +4298,7 @@
       }
     },
     "There was an error. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4271,6 +4337,7 @@
       }
     },
     "This lecture collides with an existing lecture in your timetable." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4335,6 +4402,7 @@
       }
     },
     "This post was created from within the KAIST network." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4383,6 +4451,7 @@
       }
     },
     "Today at %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4399,6 +4468,7 @@
       }
     },
     "Toggle Spoiler" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4415,6 +4485,7 @@
       }
     },
     "Tomorrow at %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4463,6 +4534,7 @@
       }
     },
     "Type" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4566,6 +4638,7 @@
       }
     },
     "Warning" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4662,6 +4735,7 @@
       }
     },
     "Write a comment" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4678,6 +4752,7 @@
       }
     },
     "Write a reply to %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4694,6 +4769,7 @@
       }
     },
     "Write a Review" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4710,6 +4786,7 @@
       }
     },
     "Write Anonymously" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4726,6 +4803,7 @@
       }
     },
     "You are not connected to the Internet." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4780,6 +4858,7 @@
       }
     },
     "You can't change nickname until %@." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

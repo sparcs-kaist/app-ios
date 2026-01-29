@@ -91,12 +91,12 @@ struct TaxiReportView: View {
                   try await viewModel.createReport(roomID: room.id)
                   dismiss()
                 } catch {
-                  if error.isNetworkMoyaError {
-                    showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
-                  } else {
-                    viewModel.handleException(error)
-                    showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a user. Please try again later."))
-                  }
+//                  if error.isNetworkMoyaError {
+//                    showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
+//                  } else {
+//                    viewModel.handleException(error)
+//                    showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a user. Please try again later."))
+//                  }
                 }
               }
             }, label: {

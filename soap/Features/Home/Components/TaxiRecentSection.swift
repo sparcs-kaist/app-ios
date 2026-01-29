@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 struct TaxiRecentSection: View {
   var body: some View {

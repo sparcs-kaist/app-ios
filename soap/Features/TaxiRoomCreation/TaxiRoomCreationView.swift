@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct TaxiRoomCreationView: View {
   @State var viewModel: TaxiListViewModelProtocol

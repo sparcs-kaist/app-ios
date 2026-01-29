@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyFeatureShared
 
 struct TaxiChatBubble: View {
   let content: String

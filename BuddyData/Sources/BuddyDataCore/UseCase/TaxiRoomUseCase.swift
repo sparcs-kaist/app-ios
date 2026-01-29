@@ -33,7 +33,7 @@ public final class TaxiRoomUseCase: TaxiRoomUseCaseProtocol {
       return .notPaid
     }
     
-    if taxiRooms.count >= Constants.taxiMaxRoomCount {
+    if taxiRooms.count >= TaxiConstants.taxiMaxRoomCount {
       return .tooManyRooms
     }
     

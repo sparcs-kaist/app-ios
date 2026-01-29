@@ -10,6 +10,7 @@ import NukeUI
 import Factory
 import Translation
 import BuddyDomain
+import BuddyFeatureShared
 
 struct PostCommentCell: View {
   @Binding var comment: AraPostComment
@@ -254,12 +255,12 @@ struct PostCommentCell: View {
         .reportComment(commentID: comment.id, type: type)
       showAlert(title: String(localized: "Report Submitted"), content: String(localized: "Your report has been submitted successfully."))
     } catch {
-      if error.isNetworkMoyaError {
-        showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
-      } else {
-        crashlyticsService?.recordException(error: error)
-        showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
-      }
+//      if error.isNetworkMoyaError {
+//        showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
+//      } else {
+//        crashlyticsService?.recordException(error: error)
+//        showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
+//      }
     }
   }
   

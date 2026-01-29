@@ -8,6 +8,7 @@
 import SwiftUI
 import NukeUI
 import Playgrounds
+import BuddyDomain
 
 struct TaxiChatImageBubble: View {
   let id: String

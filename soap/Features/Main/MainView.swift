@@ -7,6 +7,8 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureTimetable
+import BuddyFeatureFeed
 
 struct MainView: View {
   @State private var taxiInviteId: String?

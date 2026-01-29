@@ -7,6 +7,8 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
+import BuddyFeatureTimetable
 
 struct SearchView: View {
   @State private var viewModel = SearchViewModel()

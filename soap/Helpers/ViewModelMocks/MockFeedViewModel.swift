@@ -7,6 +7,7 @@
 
 import Foundation
 import BuddyDomain
+import BuddyFeatureFeed
 
 class MockFeedViewModel: FeedViewModelProtocol {
   // MARK: - Properties

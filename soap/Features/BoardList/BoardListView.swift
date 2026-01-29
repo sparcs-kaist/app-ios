@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 struct ListGlassSection<Content: View>: View {
   let header: Label<Text, Image>

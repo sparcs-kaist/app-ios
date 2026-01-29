@@ -8,6 +8,7 @@
 import SwiftUI
 import Factory
 import BuddyDomain
+import BuddyFeatureShared
 
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol

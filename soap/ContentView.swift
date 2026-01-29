@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Factory
+import BuddyDomain
 
 struct ContentView: View {
   @Bindable private var viewModel = ContentViewModel()
