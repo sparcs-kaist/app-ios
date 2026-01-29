@@ -32,12 +32,6 @@ extension Container {
     }
   }
 
-  // MARK: - Repositories
-
-  var versionRepository: Factory<VersionRepositoryProtocol> {
-    self { VersionRepository(provider: MoyaProvider<VersionTarget>()) }
-  }
-
   // MARK: - Services
 
 

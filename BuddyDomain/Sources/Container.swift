@@ -15,6 +15,10 @@ extension Container {
     promised()
   }
 
+  public var versionRepository: Factory<VersionRepositoryProtocol?> {
+    promised()
+  }
+
   // MARK:  Taxi
   public var taxiRoomRepository: Factory<TaxiRoomRepositoryProtocol?> {
     promised()

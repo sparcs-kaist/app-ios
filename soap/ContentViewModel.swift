@@ -24,7 +24,7 @@ class ContentViewModel {
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
-  @ObservationIgnored @Injected(\.versionRepository) private var versionRepository: VersionRepositoryProtocol
+  @ObservationIgnored @Injected(\.versionRepository) private var versionRepository: VersionRepositoryProtocol?
 
   init() {
     guard let authUseCase else { return }
@@ -51,7 +51,7 @@ class ContentViewModel {
 
   func refreshAccessTokenIfNeeded() async {
     guard let authUseCase else { return }
-    
+
     do {
       // Avoid forcing refresh when token is still valid
       try await authUseCase.refreshAccessToken(force: false)
@@ -83,6 +83,8 @@ class ContentViewModel {
   }
   
   private func checkForUpdates() async  {
+    guard let versionRepository else { return }
+    
     logger.debug("Checking for updates")
     guard let requiredVersion = try? await versionRepository.getMinimumVersion() else {
       logger.error("Failed to fetch minimum required version.")

@@ -45,6 +45,10 @@ extension Container: @retroactive AutoRegistering {
       AuthRepository(provider: MoyaProvider<AuthTarget>())
     }
 
+    versionRepository.register {
+      VersionRepository(provider: MoyaProvider<VersionTarget>())
+    }
+
     // MARK: Taxi
     taxiRoomRepository.register {
       TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [
