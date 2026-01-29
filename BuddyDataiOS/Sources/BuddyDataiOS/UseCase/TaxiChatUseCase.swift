@@ -39,13 +39,13 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   public var accountChats: [TaxiChat] = []
 
   // MARK: - Dependency
-  private let taxiChatService: TaxiChatServiceProtocol
+  private let taxiChatService: TaxiChatServiceProtocol?
   private let userUseCase: UserUseCaseProtocol?
   private let taxiChatRepository: TaxiChatRepositoryProtocol?
   private let taxiRoomRepository: TaxiRoomRepositoryProtocol?
 
   public init(
-    taxiChatService: TaxiChatServiceProtocol,
+    taxiChatService: TaxiChatServiceProtocol?,
     userUseCase: UserUseCaseProtocol?,
     taxiChatRepository: TaxiChatRepositoryProtocol?,
     taxiRoomRepository: TaxiRoomRepositoryProtocol?,
@@ -107,7 +107,9 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   }
 
   private func bind() {
-    guard let taxiChatRepository, let taxiRoomRepository, let userUseCase else { return }
+    guard let taxiChatRepository, let taxiRoomRepository, let userUseCase, let taxiChatService else {
+      return
+    }
 
     // is socket(TaxiChatService) connected
     taxiChatService.isConnectedPublisher

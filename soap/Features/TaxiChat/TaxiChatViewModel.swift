@@ -10,6 +10,7 @@ import Observation
 import Factory
 import Combine
 import BuddyDomain
+import BuddyDataiOS
 
 @MainActor
 @Observable
@@ -39,7 +40,13 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   // MARK: - Initialiser
   init(room: TaxiRoom) {
     self.room = room
-    taxiChatUseCase = Container.shared.taxiChatUseCase(room)
+    self.taxiChatUseCase = TaxiChatUseCase(
+      taxiChatService: Container.shared.taxiChatService(),
+      userUseCase: Container.shared.userUseCase(),
+      taxiChatRepository: Container.shared.taxiChatRepository(),
+      taxiRoomRepository: Container.shared.taxiRoomRepository(),
+      room: room
+    )
     badgeByAuthorID = Dictionary(uniqueKeysWithValues: room.participants.map {
       ($0.id, $0.badge)
     })

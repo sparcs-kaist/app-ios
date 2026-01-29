@@ -156,6 +156,11 @@ extension Container: @retroactive AutoRegistering {
     }
     .scope(.singleton)
 
+    taxiChatService.register {
+      TaxiChatService(tokenStorage: self.tokenStorage.resolve())
+    }
+    .scope(.singleton)
+
     // MARK: - Use Cases
     authUseCase.register {
       AuthUseCase(
