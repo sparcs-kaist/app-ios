@@ -34,7 +34,7 @@ class LectureSearchViewModel {
   ) private var otlLectureRepository: OTLLectureRepositoryProtocol?
   @ObservationIgnored @Injected(
     \.timetableUseCase
-  ) private var timetableUseCase: TimetableUseCaseProtocol
+  ) private var timetableUseCase: TimetableUseCaseProtocol?
 
   func bind() {
     cancellables.removeAll()
@@ -61,7 +61,7 @@ class LectureSearchViewModel {
   }
 
   func fetchLectures() async {
-    guard let otlLectureRepository else { return }
+    guard let otlLectureRepository, let timetableUseCase else { return }
     guard let selectedSemester = timetableUseCase.selectedSemester,
           !searchKeyword.isEmpty else { return }
 

@@ -18,7 +18,7 @@ struct LectureReviewCell: View {
   @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol?
   @Injected(
     \.foundationModelsUseCase
-  ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
+  ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?
 
   @Environment(\.colorScheme) var colorScheme
   @Environment(\.openURL) private var openURL
@@ -43,6 +43,8 @@ struct LectureReviewCell: View {
           Button("Translate", systemImage: "translate") { showTranslateSheet = true }
           if SystemLanguageModel.default.isAvailable {
             Button("Summarise", systemImage: "text.append") {
+              guard let foundationModelsUseCase else { return }
+              
               summarisedContent = ""
               Task {
                 Haptic.start.generate()

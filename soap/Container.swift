@@ -33,22 +33,10 @@ extension Container {
   }
 
   // MARK: - Services
-
-
   private var taxiChatService: Factory<TaxiChatServiceProtocol> {
     self {
       TaxiChatService(tokenStorage: self.tokenStorage.resolve())
     }.singleton
-  }
-
-  var sessionBridgeService: Factory<SessionBridgeServiceProtocol> {
-    self {
-       SessionBridgeService()
-    }.singleton
-  }
-
-  var crashlyticsService: Factory<CrashlyticsServiceProtocol> {
-    self { CrashlyticsService() }.singleton
   }
 
   // MARK: - Use Cases
@@ -63,36 +51,5 @@ extension Container {
         room: $0
       )
     }
-  }
-
-  var taxiLocationUseCase: Factory<TaxiLocationUseCaseProtocol> {
-    self {
-      TaxiLocationUseCase(taxiRoomRepository: self.taxiRoomRepository.resolve())
-    }
-  }
-  
-  var taxiRoomUseCase: Factory<TaxiRoomUseCaseProtocol> {
-    self {
-      TaxiRoomUseCase(
-        taxiRoomRepository: self.taxiRoomRepository.resolve(),
-        userStorage: self.userStorage.resolve()
-      )
-    }
-  }
-
-  var foundationModelsUseCase: Factory<FoundationModelsUseCaseProtocol> {
-    self {
-      FoundationModelsUseCase()
-    }
-  }
-  
-  var timetableUseCase: Factory<TimetableUseCaseProtocol> {
-    self {
-      TimetableUseCase(
-        userUseCase: self.userUseCase.resolve(),
-        otlTimetableRepository: self.otlTimetableRepository.resolve(),
-        sessionBridgeService: self.sessionBridgeService.resolve()
-      )
-    }.singleton
   }
 }

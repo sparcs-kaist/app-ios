@@ -13,13 +13,15 @@ import BuddyDomain
 @Observable
 class TaxiRoomCreationViewModel {
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.taxiRoomUseCase) private var taxiRoomUseCase: TaxiRoomUseCaseProtocol
-  
+  @ObservationIgnored @Injected(\.taxiRoomUseCase) private var taxiRoomUseCase: TaxiRoomUseCaseProtocol?
+
   // MARK: - Properties
   var blockStatus: TaxiRoomBlockStatus = .allow
   
   // MARK: - Functions
   func fetchBlockStatus() async {
+    guard let taxiRoomUseCase else { return }
+    
     self.blockStatus = await taxiRoomUseCase.isBlocked()
   }
 }

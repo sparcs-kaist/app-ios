@@ -27,7 +27,7 @@ struct FeedPostRow: View {
 
   // MARK: - Dependencies
   @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol?
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
+  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   var body: some View {
     Group {
@@ -121,7 +121,7 @@ struct FeedPostRow: View {
                       if error.isNetworkMoyaError {
                         showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
                       } else {
-                        crashlyticsService.recordException(error: error)
+                        crashlyticsService?.recordException(error: error)
                         showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
                       }
                     }

@@ -42,11 +42,11 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
 
   // MARK: - Dependency
   @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
-  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol?
 
   // MARK: - Functions
   public func fetchData(inviteId: String? = nil) async {
-    guard let taxiRoomRepository else { return }
+    guard let taxiRoomRepository, let taxiLocationUseCase else { return }
 
     logger.debug("[TaxiListViewModel] fetching data")
     do {

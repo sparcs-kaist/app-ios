@@ -93,7 +93,7 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
 @main
 struct soapApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-  @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol
+  @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol?
 
   init() {
     // Initialise Console Logger (SwiftyBeaver)
@@ -103,7 +103,9 @@ struct soapApp: App {
     logger.addDestination(console)
 
     // watchOS support
-    sessionBridgeService.start()
+    if let sessionBridgeService {
+      sessionBridgeService.start()
+    }
 
     // App Intents
     BuddyShortcuts.updateAppShortcutParameters()

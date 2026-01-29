@@ -47,7 +47,7 @@ class SearchViewModel {
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
-  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol?
   @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol?
 
   func bind() {
@@ -81,7 +81,7 @@ class SearchViewModel {
   }
   
   func fetchInitialData() async {
-    guard let taxiRoomRepository, let araBoardRepository, let otlCourseRepository else { return }
+    guard let taxiRoomRepository, let araBoardRepository, let otlCourseRepository, let taxiLocationUseCase else { return }
     state = .loading
     
     do {

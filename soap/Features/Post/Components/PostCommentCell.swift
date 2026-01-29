@@ -25,7 +25,7 @@ struct PostCommentCell: View {
 
   // MARK: - Dependencies
   @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol?
-  @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
+  @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   var body: some View {
     // is this comment deleted?
@@ -257,7 +257,7 @@ struct PostCommentCell: View {
       if error.isNetworkMoyaError {
         showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
       } else {
-        crashlyticsService.recordException(error: error)
+        crashlyticsService?.recordException(error: error)
         showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
       }
     }

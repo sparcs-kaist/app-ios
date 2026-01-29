@@ -32,8 +32,8 @@ struct PostTranslationView: View {
 
   @State private var isTranslating: Bool = true
   
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
-  
+  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
+
   init(post: AraPost) {
     self.post = post
   }
@@ -105,7 +105,7 @@ struct PostTranslationView: View {
             content = translatedContent.targetText
           }
         } catch {
-          crashlyticsService.recordException(error: error)
+          crashlyticsService?.recordException(error: error)
           errorMessage = "Failed to translate. Please try again."
           showErrorAlert = true
         }

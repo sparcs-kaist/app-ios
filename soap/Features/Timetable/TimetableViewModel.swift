@@ -26,14 +26,20 @@ final class TimetableViewModel {
   public var alertMessage: LocalizedStringResource = ""
   
   var semesters: [Semester] {
-    timetableUseCase.semesters
+    guard let timetableUseCase else { return [] }
+
+    return timetableUseCase.semesters
   }
 
   var selectedSemester: Semester? {
-    timetableUseCase.selectedSemester
+    guard let timetableUseCase else { return nil }
+
+    return timetableUseCase.selectedSemester
   }
 
   var selectedTimetable: Timetable? {
+    guard let timetableUseCase else { return nil }
+
     if let candidateLecture,
        var timetable = timetableUseCase.selectedTimetable {
       timetable.lectures.append(candidateLecture)
@@ -45,34 +51,42 @@ final class TimetableViewModel {
   }
 
   var timetableIDsForSelectedSemester: [String] {
-    timetableUseCase.timetableIDsForSelectedSemester
+    guard let timetableUseCase else { return [] }
+
+    return timetableUseCase.timetableIDsForSelectedSemester
   }
 
   var selectedTimetableDisplayName: String {
-    timetableUseCase.selectedTimetableDisplayName
+    guard let timetableUseCase else { return "" }
+
+    return timetableUseCase.selectedTimetableDisplayName
   }
 
   var candidateLecture: Lecture? = nil
   var isCandidateOverlapping: Bool {
-    guard let timetable = timetableUseCase.selectedTimetable,
+    guard let timetableUseCase,
+          let timetable = timetableUseCase.selectedTimetable,
           let candidateLecture = candidateLecture else { return false }
 
     return timetable.hasCollision(with: candidateLecture)
   }
 
   var isEditable: Bool {
+    guard let timetableUseCase else { return false }
     return timetableUseCase.isEditable
   }
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.timetableUseCase
-  ) private var timetableUseCase: TimetableUseCaseProtocol
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
+  ) private var timetableUseCase: TimetableUseCaseProtocol?
+  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   // MARK: - Functions
 
   func fetchData() async {
+    guard let timetableUseCase else { return }
+
     isLoading = true
     defer { isLoading = false }
 
@@ -84,7 +98,8 @@ final class TimetableViewModel {
   }
 
   func selectPreviousSemester() async {
-    guard let selectedSemesterID = timetableUseCase.selectedSemesterID,
+    guard let timetableUseCase,
+          let selectedSemesterID = timetableUseCase.selectedSemesterID,
           let currentIndex = timetableUseCase.semesters.firstIndex(where: { $0.id == selectedSemesterID }),
           currentIndex > 0 else {
       return
@@ -93,7 +108,8 @@ final class TimetableViewModel {
   }
 
   func selectNextSemester() async {
-    guard let selectedSemesterID = timetableUseCase.selectedSemesterID,
+    guard let timetableUseCase,
+          let selectedSemesterID = timetableUseCase.selectedSemesterID,
           let currentIndex = timetableUseCase.semesters.firstIndex(where: { $0.id == selectedSemesterID }),
           currentIndex < timetableUseCase.semesters.count - 1 else {
       return
@@ -102,10 +118,14 @@ final class TimetableViewModel {
   }
 
   func selectTimetable(id: String) {
+    guard var timetableUseCase else { return }
+
     timetableUseCase.selectedTimetableID = id
   }
 
   func createTable() async {
+    guard var timetableUseCase else { return }
+
     do {
       try await timetableUseCase.createTable()
     } catch {
@@ -114,6 +134,8 @@ final class TimetableViewModel {
   }
 
   func deleteTable() async {
+    guard var timetableUseCase else { return }
+
     do {
       try await timetableUseCase.deleteTable()
     } catch {
@@ -122,6 +144,8 @@ final class TimetableViewModel {
   }
 
   func addLecture(lecture: Lecture) async {
+    guard var timetableUseCase else { return }
+
     do {
       try await timetableUseCase.addLecture(lecture: lecture)
     } catch {
@@ -130,6 +154,8 @@ final class TimetableViewModel {
   }
 
   func deleteLecture(lecture: Lecture) async {
+    guard var timetableUseCase else { return }
+
     do {
       try await timetableUseCase.deleteLecture(lecture: lecture)
     } catch {
@@ -159,8 +185,8 @@ final class TimetableViewModel {
       alertMessage = "You are not connected to the Internet."
       return
     }
-    
-    crashlyticsService.recordException(error: error)
+
+    crashlyticsService?.recordException(error: error)
   }
 }
 

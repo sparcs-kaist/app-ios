@@ -145,6 +145,17 @@ extension Container: @retroactive AutoRegistering {
       ]))
     }
 
+    // MARK: - Services
+    sessionBridgeService.register {
+      SessionBridgeService()
+    }
+    .scope(.singleton)
+
+    crashlyticsService.register {
+      CrashlyticsService()
+    }
+    .scope(.singleton)
+
     // MARK: - Use Cases
     authUseCase.register {
       AuthUseCase(
@@ -164,6 +175,30 @@ extension Container: @retroactive AutoRegistering {
         araUserRepository: self.araUserRepository.resolve(),
         otlUserRepository: self.otlUserRepository.resolve(),
         userStorage: self.userStorage.resolve()
+      )
+    }
+    .scope(.singleton)
+
+    taxiLocationUseCase.register {
+      TaxiLocationUseCase(taxiRoomRepository: self.taxiRoomRepository.resolve())
+    }
+
+    taxiRoomUseCase.register {
+      TaxiRoomUseCase(
+        taxiRoomRepository: self.taxiRoomRepository.resolve(),
+        userStorage: self.userStorage.resolve()
+      )
+    }
+
+    foundationModelsUseCase.register {
+      FoundationModelsUseCase()
+    }
+
+    timetableUseCase.register {
+      TimetableUseCase(
+        userUseCase: self.userUseCase.resolve(),
+        otlTimetableRepository: self.otlTimetableRepository.resolve(),
+        sessionBridgeService: self.sessionBridgeService.resolve()
       )
     }
     .scope(.singleton)

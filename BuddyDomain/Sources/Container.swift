@@ -83,12 +83,37 @@ extension Container {
     promised()
   }
 
+  // MARK: - Services
+  public var sessionBridgeService: Factory<SessionBridgeServiceProtocol?> {
+    promised()
+  }
+
+  public var crashlyticsService: Factory<CrashlyticsServiceProtocol?> {
+    promised()
+  }
+
   // MARK: - Use Cases
   public var authUseCase: Factory<AuthUseCaseProtocol?> {
     promised()
   }
 
   public var userUseCase: Factory<UserUseCaseProtocol?> {
+    promised()
+  }
+
+  public var taxiLocationUseCase: Factory<TaxiLocationUseCaseProtocol?> {
+    promised()
+  }
+
+  public var taxiRoomUseCase: Factory<TaxiRoomUseCaseProtocol?> {
+    promised()
+  }
+
+  public var foundationModelsUseCase: Factory<FoundationModelsUseCaseProtocol?> {
+    promised()
+  }
+
+  public var timetableUseCase: Factory<TimetableUseCaseProtocol?> {
     promised()
   }
 }

@@ -43,10 +43,10 @@ class PostViewModel: PostViewModelProtocol {
   ) private var araCommentRepository: AraCommentRepositoryProtocol?
   @ObservationIgnored @Injected(
     \.foundationModelsUseCase
-  ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol
+  ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.crashlyticsService
-  ) private var crashlyticsService: CrashlyticsServiceProtocol
+  ) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   enum CommentWriteError: Error {
     case repositoryNotAvailable
@@ -61,6 +61,8 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   private func refreshFoundationModelsAvailability() async {
+    guard let foundationModelsUseCase else { return }
+
     isFoundationModelsAvailable = await foundationModelsUseCase.isAvailable()
   }
 
@@ -186,7 +188,7 @@ class PostViewModel: PostViewModelProtocol {
 
   func editComment(commentID: Int, content: String) async throws -> AraPostComment {
     guard let araCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
-    
+
     var comment: AraPostComment = try await araCommentRepository.editComment(
       commentID: commentID,
       content: content
@@ -217,6 +219,8 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func summarisedContent() async -> String {
+    guard let foundationModelsUseCase else { return "" }
+
     return await foundationModelsUseCase.summarise(post.content ?? "", maxWords: 50, tone: "concise")
   }
 
@@ -248,6 +252,6 @@ class PostViewModel: PostViewModelProtocol {
   }
   
   func handleException(_ error: any Error) {
-    crashlyticsService.recordException(error: error)
+    crashlyticsService?.recordException(error: error)
   }
 }

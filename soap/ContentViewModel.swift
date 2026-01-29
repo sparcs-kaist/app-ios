@@ -23,7 +23,7 @@ class ContentViewModel {
 
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
-  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol?
   @ObservationIgnored @Injected(\.versionRepository) private var versionRepository: VersionRepositoryProtocol?
 
   init() {
@@ -62,6 +62,8 @@ class ContentViewModel {
   }
   
   func fetchTaxiLocations() async {
+    guard let taxiLocationUseCase else { return }
+    
     do {
       try await taxiLocationUseCase.fetchLocations()
     } catch {

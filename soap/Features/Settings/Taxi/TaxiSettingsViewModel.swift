@@ -42,7 +42,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol?
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol
+  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
   
   // MARK: - Properties
   var bankName: String?
@@ -140,7 +140,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
           return "An unexpected error occurred while fetching user information. Please try again later."
         }
       }()
-      crashlyticsService.recordException(error: error)
+      crashlyticsService?.recordException(error: error)
     }
     
     if type == .fetch {

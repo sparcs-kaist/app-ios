@@ -23,7 +23,7 @@ class TaxiPreviewViewModel {
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
-  @ObservationIgnored @Injected(\.taxiRoomUseCase) private var taxiRoomUseCase: TaxiRoomUseCaseProtocol
+  @ObservationIgnored @Injected(\.taxiRoomUseCase) private var taxiRoomUseCase: TaxiRoomUseCaseProtocol?
 
   //MARK: - Initialiser
   init() {
@@ -65,6 +65,8 @@ class TaxiPreviewViewModel {
   }
   
   private func fetchBlockStatus() async {
+    guard let taxiRoomUseCase else { return }
+    
     self.blockStatus = await taxiRoomUseCase.isBlocked()
   }
 }
