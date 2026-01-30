@@ -151,7 +151,6 @@ struct PostCommentCell: View {
               try await araCommentRepository.deleteComment(commentID: comment.id)
             } catch {
               comment.content = previousContent
-              logger.error(error)
             }
           }
         }
@@ -212,7 +211,6 @@ struct PostCommentCell: View {
         try await araCommentRepository.upvoteComment(commentID: comment.id)
       }
     } catch {
-      logger.error(error)
       comment.upvotes = previousUpvotes
       comment.myVote = previousMyVote
     }
@@ -241,7 +239,6 @@ struct PostCommentCell: View {
         try await araCommentRepository.downvoteComment(commentID: comment.id)
       }
     } catch {
-      logger.error(error)
       comment.downvotes = previousDownvotes
       comment.myVote = previousMyVote
     }

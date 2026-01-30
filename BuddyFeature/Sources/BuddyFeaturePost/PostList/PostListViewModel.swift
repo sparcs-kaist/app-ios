@@ -98,7 +98,6 @@ class PostListViewModel: PostListViewModelProtocol {
       self.hasMorePages = currentPage < totalPages
       self.state = .loaded(posts: self.posts)
     } catch {
-      logger.error(error)
       state = .error(message: error.localizedDescription)
     }
   }
@@ -124,7 +123,6 @@ class PostListViewModel: PostListViewModelProtocol {
       self.state = .loaded(posts: self.posts)
       self.isLoadingMore = false
     } catch {
-      logger.error(error)
       self.isLoadingMore = false
     }
   }

@@ -46,15 +46,15 @@ struct ListGlassSection<Content: View>: View {
   }
 }
 
-struct BoardListView: View {
+public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-  init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel()) {
+  public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel()) {
     _viewModel = State(initialValue: viewModel)
   }
   
-  var body: some View {
+  public var body: some View {
     NavigationSplitView(sidebar: {
       ScrollView {
         LazyVStack(spacing: 20) {
@@ -162,21 +162,21 @@ struct BoardListView: View {
 }
 
 
-#Preview("Loading State") {
-  @Previewable @State var viewModel = MockBoardListViewModel()
-  viewModel.state = .loading
-  
-  return BoardListView(viewModel)
-}
-
-#Preview("Loaded State") {
-  @Previewable @State var viewModel = MockBoardListViewModel()
-  BoardListView(viewModel)
-}
-
-#Preview("Error State") {
-  @Previewable @State var viewModel = MockBoardListViewModel()
-  viewModel.state = .error(message: "Something went wrong")
-  
-  return BoardListView(viewModel)
-}
+//#Preview("Loading State") {
+//  @Previewable @State var viewModel = MockBoardListViewModel()
+//  viewModel.state = .loading
+//  
+//  return BoardListView(viewModel)
+//}
+//
+//#Preview("Loaded State") {
+//  @Previewable @State var viewModel = MockBoardListViewModel()
+//  BoardListView(viewModel)
+//}
+//
+//#Preview("Error State") {
+//  @Previewable @State var viewModel = MockBoardListViewModel()
+//  viewModel.state = .error(message: "Something went wrong")
+//  
+//  return BoardListView(viewModel)
+//}

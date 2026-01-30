@@ -4,9 +4,6 @@
     "" : {
       "shouldTranslate" : false
     },
-    "[%@]" : {
-      "shouldTranslate" : false
-    },
     "**Note:** May contain errors, please double-check facts." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -29,9 +26,6 @@
           }
         }
       }
-    },
-    "%@" : {
-      "shouldTranslate" : false
     },
     "%@ → %@" : {
       "localizations" : {
@@ -228,6 +222,7 @@
       }
     },
     "%lld views" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -833,6 +828,7 @@
       }
     },
     "Anonymous" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -855,6 +851,7 @@
       }
     },
     "Are you sure you want to delete this post?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -877,6 +874,7 @@
       }
     },
     "Are you sure you want to discard this post?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -945,6 +943,7 @@
       }
     },
     "Be the first one to share your thoughts." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -986,6 +985,7 @@
       }
     },
     "bookmark" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1503,6 +1503,7 @@
       }
     },
     "Delete" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1519,6 +1520,7 @@
       }
     },
     "Delete Post" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1632,6 +1634,7 @@
       }
     },
     "Discard Post" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1648,6 +1651,7 @@
       }
     },
     "Dismiss" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1697,6 +1701,7 @@
       }
     },
     "Edit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1713,6 +1718,7 @@
       }
     },
     "Editing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1829,6 +1835,7 @@
       }
     },
     "Failed to delete a post. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2120,6 +2127,7 @@
       }
     },
     "It looks like there are no posts on this page right now." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2543,6 +2551,7 @@
       }
     },
     "No one has commented yet." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2723,6 +2732,7 @@
       }
     },
     "No topic" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2771,6 +2781,7 @@
       }
     },
     "Nothing Here Yet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2787,9 +2798,6 @@
       }
     },
     "Notice" : {
-      "shouldTranslate" : false
-    },
-    "NSFW" : {
       "shouldTranslate" : false
     },
     "Okay" : {
@@ -3078,6 +3086,7 @@
       }
     },
     "Please enter the title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3132,6 +3141,7 @@
       }
     },
     "Political" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3146,9 +3156,6 @@
           }
         }
       }
-    },
-    "Portal Notice" : {
-      "shouldTranslate" : false
     },
     "Post" : {
       "extractionState" : "stale",
@@ -3284,6 +3291,7 @@
       }
     },
     "reply as %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3300,6 +3308,7 @@
       }
     },
     "reply to %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3349,6 +3358,7 @@
       }
     },
     "Report Submitted" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3815,6 +3825,7 @@
       }
     },
     "share" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4036,6 +4047,7 @@
       }
     },
     "Summarise" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4168,6 +4180,7 @@
       }
     },
     "terms of use" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4354,6 +4367,7 @@
       }
     },
     "This post contains NSFW content" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4370,6 +4384,7 @@
       }
     },
     "This post contains political content" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4386,6 +4401,7 @@
       }
     },
     "This post is hidden" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4502,6 +4518,7 @@
       }
     },
     "Translate" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4590,6 +4607,7 @@
       }
     },
     "Untitled" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4655,6 +4673,7 @@
       }
     },
     "What's happening?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4719,6 +4738,7 @@
       }
     },
     "Write" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4897,6 +4917,7 @@
       }
     },
     "Your report has been submitted successfully." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

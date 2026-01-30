@@ -8,10 +8,14 @@
 import SwiftUI
 import BuddyDomain
 
-struct PostListRow: View {
+public struct PostListRow: View {
   let post: AraPost
 
-  var body: some View {
+  public init(post: AraPost) {
+    self.post = post
+  }
+
+  public var body: some View {
     VStack(alignment: .leading, spacing: 4) {
       HStack(spacing: 4) {
         if let topic = post.topic {
@@ -19,7 +23,7 @@ struct PostListRow: View {
             .font(.subheadline)
             .fontWeight(.medium)
             .lineLimit(1)
-            .foregroundStyle(.accent)
+            .foregroundStyle(Color.accentColor)
         }
 
         Text(title)

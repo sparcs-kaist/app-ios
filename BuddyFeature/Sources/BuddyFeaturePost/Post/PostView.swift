@@ -12,7 +12,7 @@ import BuddyDomain
 import Haptica
 import BuddyFeatureShared
 
-struct PostView: View {
+public struct PostView: View {
   @State private var viewModel: PostViewModelProtocol
   @Environment(\.dismiss) private var dismiss
 
@@ -41,12 +41,12 @@ struct PostView: View {
 
   let onPostDeleted: ((Int) -> Void)?
 
-  init(post: AraPost, onPostDeleted: ((Int) -> Void)? = nil) {
+  public init(post: AraPost, onPostDeleted: ((Int) -> Void)? = nil) {
     _viewModel = State(initialValue: PostViewModel(post: post))
     self.onPostDeleted = onPostDeleted
   }
 
-  var body: some View {
+  public var body: some View {
     ScrollViewReader { proxy in
       ScrollView {
         Group {
@@ -422,7 +422,7 @@ struct PostView: View {
         })
         .fontWeight(.medium)
         .padding(12)
-        .glassEffect(.regular.tint(.accent).interactive(), in: .circle)
+        .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .circle)
         .disabled(comment.isEmpty)
         .transition(.move(edge: .trailing).combined(with: .opacity))
         .disabled(isUploadingComment)

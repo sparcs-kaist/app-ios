@@ -103,27 +103,27 @@ struct PostListView: View {
   }
 }
 
-#Preview("Loading State") {
-  @Previewable @State var viewModel = MockPostListViewModel()
-  viewModel.state = .loading
-  
-  return NavigationStack {
-    PostListView(viewModel: viewModel)
-  }
-}
-
-#Preview("Loaded State") {
-  @Previewable @State var viewModel = MockPostListViewModel()
-  return NavigationStack {
-    PostListView(viewModel: viewModel)
-  }
-}
-
-#Preview("Error State") {
-  @Previewable @State var viewModel = MockPostListViewModel()
-  viewModel.state = .error(message: "Something went wrong")
-  
-  return NavigationStack {
-    PostListView(viewModel: viewModel)
-  }
-}
+//#Preview("Loading State") {
+//  @Previewable @State var viewModel = MockPostListViewModel()
+//  viewModel.state = .loading
+//  
+//  return NavigationStack {
+//    PostListView(viewModel: viewModel)
+//  }
+//}
+//
+//#Preview("Loaded State") {
+//  @Previewable @State var viewModel = MockPostListViewModel()
+//  return NavigationStack {
+//    PostListView(viewModel: viewModel)
+//  }
+//}
+//
+//#Preview("Error State") {
+//  @Previewable @State var viewModel = MockPostListViewModel()
+//  viewModel.state = .error(message: "Something went wrong")
+//  
+//  return NavigationStack {
+//    PostListView(viewModel: viewModel)
+//  }
+//}

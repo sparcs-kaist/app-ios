@@ -14,12 +14,14 @@ let package = Package(
             targets: ["BuddyFeatureTimetable"]
         ),
         .library(name: "BuddyFeatureFeed", targets: ["BuddyFeatureFeed"]),
+        .library(name: "BuddyFeaturePost", targets: ["BuddyFeaturePost"]),
         .library(name: "BuddyFeatureSettings", targets: ["BuddyFeatureSettings"]),
         .library(name: "BuddyFeatureShared", targets: ["BuddyFeatureShared"])
     ],
     dependencies: [
       .package(path: "../BuddyDomain"),
-      .package(url: "https://github.com/efremidze/Haptica.git", .upToNextMajor(from: "4.0.1"))
+      .package(url: "https://github.com/efremidze/Haptica.git", .upToNextMajor(from: "4.0.1")),
+      .package(url: "https://github.com/kean/Nuke.git", .upToNextMajor(from: "12.8"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -46,6 +48,15 @@ let package = Package(
             "BuddyDomain",
             "Haptica",
             "BuddyFeatureShared"
+          ]
+        ),
+        .target(
+          name: "BuddyFeaturePost",
+          dependencies: [
+            "BuddyDomain",
+            "BuddyFeatureShared",
+            "Nuke",
+            "NukeUI"
           ]
         ),
         .target(

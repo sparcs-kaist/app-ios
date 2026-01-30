@@ -90,7 +90,6 @@ class PostViewModel: PostViewModelProtocol {
       let post: AraPost = try await araBoardRepository.fetchPost(origin: .board, postID: post.id)
       self.post = post
     } catch {
-      logger.error(error)
     }
   }
 
@@ -117,7 +116,6 @@ class PostViewModel: PostViewModelProtocol {
         try await araBoardRepository.upvotePost(postID: post.id)
       }
     } catch {
-      logger.error(error)
       post.upvotes = previousUpvotes
       post.myVote = previousMyVote
     }
@@ -146,7 +144,6 @@ class PostViewModel: PostViewModelProtocol {
         try await araBoardRepository.downvotePost(postID: post.id)
       }
     } catch {
-      logger.error(error)
       post.downvotes = previousDownvotes
       post.myVote = previousMyVote
     }
@@ -246,7 +243,6 @@ class PostViewModel: PostViewModelProtocol {
         try await araBoardRepository.addBookmark(postID: post.id)
       }
     } catch {
-      logger.error(error)
       post.myScrap = previousBookmarkStatus
     }
   }
