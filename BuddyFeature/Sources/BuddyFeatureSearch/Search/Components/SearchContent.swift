@@ -7,7 +7,6 @@
 
 import SwiftUI
 import BuddyDomain
-import BuddyDataCore
 import BuddyFeatureShared
 
 struct SearchContent<Element: Identifiable, Cell: View>: View {

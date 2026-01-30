@@ -41,7 +41,9 @@ let package = Package(
           dependencies: [
             "BuddyDomain",
             "BuddyFeatureShared",
-            "BuddyFeatureSettings"
+            "BuddyFeatureSettings",
+            .product(name: "Nuke", package: "Nuke"),
+            .product(name: "NukeUI", package: "Nuke"),
           ]
         ),
         .target(

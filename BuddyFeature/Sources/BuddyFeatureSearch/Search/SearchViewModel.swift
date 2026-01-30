@@ -9,7 +9,6 @@ import SwiftUI
 import Observation
 import Combine
 import Factory
-import SwiftyBeaver
 import BuddyDomain
 
 @MainActor
