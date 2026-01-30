@@ -14,6 +14,7 @@ public protocol TaxiChatUseCaseProtocol: Sendable {
   var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> { get }
   var accountChats: [TaxiChat] { get }
 
+  func setRoom(_ room: TaxiRoom)
   func fetchInitialChats() async
   func fetchChats(before date: Date) async
   func sendChat(_ content: String?, type: TaxiChat.ChatType) async

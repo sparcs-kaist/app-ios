@@ -10,7 +10,6 @@ import Observation
 import Factory
 import Combine
 import BuddyDomain
-import BuddyDataiOS
 
 @MainActor
 @Observable
@@ -33,27 +32,26 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   private var badgeByAuthorID: Dictionary<String, Bool>
 
   // MARK: - Dependencies
-  private let taxiChatUseCase: TaxiChatUseCaseProtocol
+  @ObservationIgnored @Injected(
+    \.taxiChatUseCase
+  ) private var taxiChatUseCase: TaxiChatUseCaseProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
 
   // MARK: - Initialiser
   init(room: TaxiRoom) {
     self.room = room
-    self.taxiChatUseCase = TaxiChatUseCase(
-      taxiChatService: Container.shared.taxiChatService(),
-      userUseCase: Container.shared.userUseCase(),
-      taxiChatRepository: Container.shared.taxiChatRepository(),
-      taxiRoomRepository: Container.shared.taxiRoomRepository(),
-      room: room
-    )
     badgeByAuthorID = Dictionary(uniqueKeysWithValues: room.participants.map {
       ($0.id, $0.badge)
     })
   }
 
   func setup() async {
+    guard let taxiChatUseCase else { return }
     await fetchTaxiUser()
+
+    taxiChatUseCase.setRoom(self.room)
+
     bind()
   }
 
@@ -64,6 +62,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   private func bind() {
+    guard let taxiChatUseCase else { return }
+
     taxiChatUseCase.groupedChatsPublisher
       .receive(on: DispatchQueue.main)
       .sink { [weak self] groupedChats in
@@ -91,6 +91,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func fetchChats(before date: Date) async {
+    guard let taxiChatUseCase else { return }
+
     if isFetching { return }
     isFetching = true
     defer { isFetching = false }
@@ -99,10 +101,14 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func fetchInitialChats() async {
+    guard let taxiChatUseCase else { return }
+
     await taxiChatUseCase.fetchInitialChats()
   }
 
   func sendChat(_ message: String, type: TaxiChat.ChatType) {
+    guard let taxiChatUseCase else { return }
+
     if type == .text && message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return }
 
     Task {
@@ -120,8 +126,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func commitSettlement() {
-    guard let taxiRoomRepository else { return }
-    
+    guard let taxiRoomRepository, let taxiChatUseCase else { return }
+
     Task {
       do {
         let room: TaxiRoom = try await taxiRoomRepository.commitSettlement(id: room.id)
@@ -163,7 +169,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   var account: String? {
-    guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }) else {
+    guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }),
+          let taxiChatUseCase else {
       return nil
     }
 
@@ -171,6 +178,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func sendImage(_ image: UIImage) async throws {
+    guard let taxiChatUseCase else { return }
+
     isUploading = true
     defer { isUploading = false }
 

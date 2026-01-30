@@ -184,6 +184,15 @@ extension Container: @retroactive AutoRegistering {
     }
     .scope(.singleton)
 
+    taxiChatUseCase.register {
+      TaxiChatUseCase(
+        taxiChatService: self.taxiChatService.resolve(),
+        userUseCase: self.userUseCase.resolve(),
+        taxiChatRepository: self.taxiChatRepository.resolve(),
+        taxiRoomRepository: self.taxiRoomRepository.resolve(),
+      )
+    }
+
     taxiLocationUseCase.register {
       TaxiLocationUseCase(taxiRoomRepository: self.taxiRoomRepository.resolve())
     }

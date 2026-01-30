@@ -29,7 +29,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   }
 
   // MARK: - State
-  private var room: TaxiRoom
+  private var room: TaxiRoom?
   private var isSocketConnected: Bool = false
   private var hasInitialChatsBeenFetched: Bool = false
 
@@ -48,18 +48,20 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
     taxiChatService: TaxiChatServiceProtocol?,
     userUseCase: UserUseCaseProtocol?,
     taxiChatRepository: TaxiChatRepositoryProtocol?,
-    taxiRoomRepository: TaxiRoomRepositoryProtocol?,
-    room: TaxiRoom
+    taxiRoomRepository: TaxiRoomRepositoryProtocol?
   ) {
     self.taxiChatService = taxiChatService
     self.userUseCase = userUseCase
     self.taxiChatRepository = taxiChatRepository
     self.taxiRoomRepository = taxiRoomRepository
+  }
+
+  public func setRoom(_ room: TaxiRoom) {
     self.room = room
   }
 
   public func fetchInitialChats() async {
-    guard !hasInitialChatsBeenFetched else { return }
+    guard !hasInitialChatsBeenFetched, let room else { return }
     guard let taxiChatRepository else { return }
 
     hasInitialChatsBeenFetched = true
@@ -74,7 +76,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   }
 
   public func fetchChats(before date: Date) async {
-    guard let taxiChatRepository else { return }
+    guard let taxiChatRepository, let room else { return }
 
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id, before: date)
@@ -84,7 +86,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   }
 
   public func sendChat(_ content: String?, type: TaxiChat.ChatType) async {
-    guard let taxiChatRepository else { return }
+    guard let taxiChatRepository, let room else { return }
 
     do {
       let request = TaxiChatRequest(roomID: room.id, type: type, content: content)
@@ -95,7 +97,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   }
 
   public func sendImage(_ content: UIImage) async throws {
-    guard let taxiChatRepository else { return }
+    guard let taxiChatRepository, let room else { return }
 
     guard let imageData = content.compressForUpload(maxSizeMB: 1.0, maxDimension: 1000) else {
       return
@@ -107,7 +109,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   }
 
   private func bind() {
-    guard let taxiChatRepository, let taxiRoomRepository, let userUseCase, let taxiChatService else {
+    guard let taxiChatRepository, let taxiRoomRepository, let userUseCase, let taxiChatService, let room else {
       return
     }
 
@@ -124,7 +126,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
         Task { [weak self, taxiChatRepository] in
           guard let self else { return }
 
-          try? await taxiChatRepository.readChats(roomID: self.room.id)
+          try? await taxiChatRepository.readChats(roomID: room.id)
 
           let user: TaxiUser? = await userUseCase.taxiUser
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
@@ -139,7 +141,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
     taxiChatService.roomUpdatePublisher
       .sink { [weak self, taxiRoomRepository] roomID in
         Task { [weak self, taxiRoomRepository] in
-          guard let self, roomID == self.room.id else { return }
+          guard let self, roomID == room.id else { return }
 
           do {
             let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: roomID)

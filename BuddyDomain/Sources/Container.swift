@@ -105,6 +105,10 @@ extension Container {
     promised()
   }
 
+  public var taxiChatUseCase: Factory<TaxiChatUseCaseProtocol?> {
+    promised()
+  }
+
   public var taxiLocationUseCase: Factory<TaxiLocationUseCaseProtocol?> {
     promised()
   }
