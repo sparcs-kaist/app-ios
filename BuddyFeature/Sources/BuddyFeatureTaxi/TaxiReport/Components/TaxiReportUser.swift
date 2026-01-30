@@ -21,7 +21,7 @@ struct TaxiReportUser: View {
           
           if user.badge {
             Image(systemName: "phone.circle.fill")
-              .foregroundStyle(.accent)
+              .foregroundStyle(Color.accentColor)
               .scaleEffect(0.8)
           }
         }

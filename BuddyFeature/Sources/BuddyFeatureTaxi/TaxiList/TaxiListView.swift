@@ -10,7 +10,7 @@ import BuddyDomain
 import BuddyFeatureShared
 import Haptica
 
-struct TaxiListView: View {
+public struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
   @Namespace private var namespace
 
@@ -29,7 +29,7 @@ struct TaxiListView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-  init(taxiInviteId: Binding<String?> = .constant(nil), viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
+  public init(taxiInviteId: Binding<String?> = .constant(nil), viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _taxiInviteId = taxiInviteId
     _viewModel = State(initialValue: viewModel)
   }
@@ -56,7 +56,7 @@ struct TaxiListView: View {
     }
   }
 
-  var body: some View {
+  public var body: some View {
     NavigationStack {
       ScrollViewReader { scrollViewProxy in
         ScrollView {
@@ -282,29 +282,29 @@ struct TaxiListView: View {
 
 
 // MARK: - Previews
-#Preview("Loading State") {
-  let vm = MockTaxiListViewModel()
-  vm.state = .loading
-  return TaxiListView(viewModel: vm)
-}
-
-#Preview("Loaded State") {
-  let vm = MockTaxiListViewModel()
-  vm.state = .loaded(
-    rooms: TaxiRoom.mockList,
-    locations: TaxiLocation.mockList
-  )
-  return TaxiListView(viewModel: vm)
-}
-
-#Preview("Empty State") {
-  let vm = MockTaxiListViewModel()
-  vm.state = .empty
-  return TaxiListView(viewModel: vm)
-}
-
-#Preview("Error State") {
-  let vm = MockTaxiListViewModel()
-  vm.state = .error(message: "Something went wrong")
-  return TaxiListView(viewModel: vm)
-}
+//#Preview("Loading State") {
+//  let vm = MockTaxiListViewModel()
+//  vm.state = .loading
+//  return TaxiListView(viewModel: vm)
+//}
+//
+//#Preview("Loaded State") {
+//  let vm = MockTaxiListViewModel()
+//  vm.state = .loaded(
+//    rooms: TaxiRoom.mockList,
+//    locations: TaxiLocation.mockList
+//  )
+//  return TaxiListView(viewModel: vm)
+//}
+//
+//#Preview("Empty State") {
+//  let vm = MockTaxiListViewModel()
+//  vm.state = .empty
+//  return TaxiListView(viewModel: vm)
+//}
+//
+//#Preview("Error State") {
+//  let vm = MockTaxiListViewModel()
+//  vm.state = .error(message: "Something went wrong")
+//  return TaxiListView(viewModel: vm)
+//}

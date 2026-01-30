@@ -10,6 +10,7 @@ import BuddyDomain
 import BuddyFeatureTimetable
 import BuddyFeatureFeed
 import BuddyFeaturePost
+import BuddyFeatureTaxi
 
 struct MainView: View {
   @State private var taxiInviteId: String?

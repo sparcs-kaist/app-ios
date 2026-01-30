@@ -50,7 +50,7 @@ struct TaxiChatUserWrapper<Content: View>: View {
               
               if badge {
                 Image(systemName: "phone.circle.fill")
-                  .foregroundStyle(.accent)
+                  .foregroundStyle(Color.accentColor)
                   .scaleEffect(0.8)
                   .onTapGesture {
                     showPopover.toggle()

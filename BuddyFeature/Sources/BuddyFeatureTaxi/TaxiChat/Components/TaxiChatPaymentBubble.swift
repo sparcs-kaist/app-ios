@@ -1,18 +1,18 @@
 //
-//  TaxiChatSettlementBubble.swift
+//  TaxiChatPaymentBubble.swift
 //  soap
 //
-//  Created by Soongyu Kwon on 20/07/2025.
+//  Created by Soongyu Kwon on 25/07/2025.
 //
 
 import SwiftUI
 
-struct TaxiChatSettlementBubble: View {
+struct TaxiChatPaymentBubble: View {
   var body: some View {
-    Label("I paid for the taxi!", systemImage: "creditcard.fill")
+    Label("I sent the money!", systemImage: "paperplane.fill")
       .padding(12)
       .background(
-        .accent,
+        Color.accentColor,
         in: .rect(
           topLeadingRadius: 24,
           bottomLeadingRadius: 24,
@@ -35,7 +35,7 @@ struct TaxiChatSettlementBubble: View {
     isWithdrawn: false,
     badge: true
   ) {
-    TaxiChatSettlementBubble()
+    TaxiChatPaymentBubble()
   }
   .padding()
 }

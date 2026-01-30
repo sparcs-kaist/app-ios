@@ -138,7 +138,6 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         }
         await taxiChatUseCase.sendChat(account, type: .account)
       } catch {
-        logger.debug(error)
       }
     }
   }
@@ -155,7 +154,6 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         let room: TaxiRoom = try await taxiRoomRepository.commitPayment(id: room.id)
         self.room = room
       } catch {
-        logger.debug(error)
       }
     }
   }

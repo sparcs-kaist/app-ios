@@ -198,26 +198,26 @@ struct TaxiChatListView: View {
 
 
 // MARK: - Previews
-#Preview("Loading State") {
-  let vm = MockTaxiChatListViewModel()
-  vm.state = .loading
-  return NavigationStack {
-    TaxiChatListView(viewModel: vm)
-  }
-}
-
-#Preview("Loaded State") {
-  let vm = MockTaxiChatListViewModel()
-  vm.state = .loaded(onGoing: Array(TaxiRoom.mockList.prefix(3)), done: Array(TaxiRoom.mockList.suffix(5)))
-  return NavigationStack {
-    TaxiChatListView(viewModel: vm)
-  }
-}
-
-#Preview("Error State") {
-  let vm = MockTaxiChatListViewModel()
-  vm.state = .error(message: "Something went wrong")
-  return NavigationStack {
-    TaxiChatListView(viewModel: vm)
-  }
-}
+//#Preview("Loading State") {
+//  let vm = MockTaxiChatListViewModel()
+//  vm.state = .loading
+//  return NavigationStack {
+//    TaxiChatListView(viewModel: vm)
+//  }
+//}
+//
+//#Preview("Loaded State") {
+//  let vm = MockTaxiChatListViewModel()
+//  vm.state = .loaded(onGoing: Array(TaxiRoom.mockList.prefix(3)), done: Array(TaxiRoom.mockList.suffix(5)))
+//  return NavigationStack {
+//    TaxiChatListView(viewModel: vm)
+//  }
+//}
+//
+//#Preview("Error State") {
+//  let vm = MockTaxiChatListViewModel()
+//  vm.state = .error(message: "Something went wrong")
+//  return NavigationStack {
+//    TaxiChatListView(viewModel: vm)
+//  }
+//}

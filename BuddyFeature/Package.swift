@@ -15,6 +15,7 @@ let package = Package(
         ),
         .library(name: "BuddyFeatureFeed", targets: ["BuddyFeatureFeed"]),
         .library(name: "BuddyFeaturePost", targets: ["BuddyFeaturePost"]),
+        .library(name: "BuddyFeatureTaxi", targets: ["BuddyFeatureTaxi"]),
         .library(name: "BuddyFeatureSettings", targets: ["BuddyFeatureSettings"]),
         .library(name: "BuddyFeatureShared", targets: ["BuddyFeatureShared"])
     ],
@@ -55,6 +56,16 @@ let package = Package(
           dependencies: [
             "BuddyDomain",
             "BuddyFeatureShared",
+            .product(name: "Nuke", package: "Nuke"),
+            .product(name: "NukeUI", package: "Nuke"),
+          ]
+        ),
+        .target(
+          name: "BuddyFeatureTaxi",
+          dependencies: [
+            "BuddyDomain",
+            "BuddyFeatureShared",
+            "Haptica",
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
           ]

@@ -117,7 +117,7 @@ struct TaxiRoomCreationView: View {
   }
 }
 
-#Preview {
-  let vm = MockTaxiListViewModel()
-  return TaxiRoomCreationView(viewModel: vm)
-}
+//#Preview {
+//  let vm = MockTaxiListViewModel()
+//  return TaxiRoomCreationView(viewModel: vm)
+//}

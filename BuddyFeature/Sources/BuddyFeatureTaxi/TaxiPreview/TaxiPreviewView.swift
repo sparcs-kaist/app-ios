@@ -10,7 +10,7 @@ import MapKit
 import BuddyDomain
 import BuddyFeatureShared
 
-struct TaxiPreviewView: View {
+public struct TaxiPreviewView: View {
   let room: TaxiRoom
 
   @State private var viewModel = TaxiPreviewViewModel()
@@ -22,7 +22,11 @@ struct TaxiPreviewView: View {
   @State private var showErrorAlert: Bool = false
   @State private var errorMessage: String = ""
 
-  var body: some View {
+  public init(room: TaxiRoom) {
+    self.room = room
+  }
+
+  public var body: some View {
     VStack(spacing: 0) {
       Map(position: $mapCamPos) {
         Marker(
@@ -30,7 +34,7 @@ struct TaxiPreviewView: View {
           systemImage: "location.fill",
           coordinate: room.source.coordinate
         )
-        .tint(.accent)
+        .tint(Color.accentColor)
 
         Marker(room.destination.title.localized(), coordinate: room.destination.coordinate)
 
@@ -42,7 +46,7 @@ struct TaxiPreviewView: View {
           )
 
           MapPolyline(route.polyline)
-            .stroke(.accent, style: strokeStyle)
+            .stroke(Color.accentColor, style: strokeStyle)
         }
       }
       .disabled(true)

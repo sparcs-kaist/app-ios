@@ -32,7 +32,7 @@ struct TaxiDepartureTimePicker: View {
         }
       } label: {
         Text(departureTime.formatted(.dateTime.month().day()))
-          .foregroundStyle(showDatePicker ? .accent : .primary)
+          .foregroundStyle(showDatePicker ? Color.accentColor : .primary)
       }
       .buttonStyle(.bordered)
       Button {
@@ -42,7 +42,7 @@ struct TaxiDepartureTimePicker: View {
         }
       } label: {
         Text(departureTime.formatted(.dateTime.hour().minute()))
-          .foregroundStyle(showTimePicker ? .accent : .primary)
+          .foregroundStyle(showTimePicker ? Color.accentColor : .primary)
       }
       .buttonStyle(.bordered)
     }

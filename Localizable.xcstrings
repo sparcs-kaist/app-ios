@@ -1,9 +1,6 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
-    "" : {
-      "shouldTranslate" : false
-    },
     "**Note:** May contain errors, please double-check facts." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -26,17 +23,6 @@
           }
         }
       }
-    },
-    "%@ → %@" : {
-      "localizations" : {
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ → %2$@"
-          }
-        }
-      },
-      "shouldTranslate" : false
     },
     "%@ at %@" : {
       "localizations" : {
@@ -61,6 +47,7 @@
       }
     },
     "%@ has joined" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -83,6 +70,7 @@
       }
     },
     "%@ has left" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -103,9 +91,6 @@
           }
         }
       }
-    },
-    "%lld" : {
-      "shouldTranslate" : false
     },
     "%lld comments" : {
       "extractionState" : "stale",
@@ -200,6 +185,7 @@
       }
     },
     "%lld people" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -244,18 +230,8 @@
         }
       }
     },
-    "%lld/%lld" : {
-      "localizations" : {
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld/%2$lld"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
     "⏰ It's 15 minutes before your taxi leaves! If everyone's gathered, go ahead and call the taxi to head out together." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -277,13 +253,8 @@
         }
       }
     },
-    "👻" : {
-      "shouldTranslate" : false
-    },
-    "🤖" : {
-      "shouldTranslate" : false
-    },
     "🚕 Looking for someone to ride with on %@ from %@ to %@! 🚕" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -322,9 +293,6 @@
         }
       }
     },
-    "3" : {
-      "shouldTranslate" : false
-    },
     "A new version is available. Please update to continue." : {
       "localizations" : {
         "en" : {
@@ -359,6 +327,7 @@
       }
     },
     "Active Groups" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -490,6 +459,7 @@
       }
     },
     "Already Departed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -506,6 +476,7 @@
       }
     },
     "Already Sent" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -528,6 +499,7 @@
       }
     },
     "An email will be sent asking them to send you the money." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1073,6 +1045,7 @@
       }
     },
     "Call Taxi" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1089,6 +1062,7 @@
       }
     },
     "Cancel" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1122,6 +1096,7 @@
       }
     },
     "Capacity" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1155,6 +1130,7 @@
       }
     },
     "Chat as %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1171,6 +1147,7 @@
       }
     },
     "Chats" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1221,6 +1198,7 @@
       }
     },
     "Clear Selection" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1338,6 +1316,7 @@
       }
     },
     "Copy" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1354,6 +1333,7 @@
       }
     },
     "Copy Account Info" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1386,6 +1366,7 @@
       }
     },
     "Create" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1402,6 +1383,7 @@
       }
     },
     "Create a New Group" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1537,6 +1519,7 @@
       }
     },
     "Depart at" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1570,6 +1553,7 @@
       }
     },
     "Departure Time" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1586,6 +1570,7 @@
       }
     },
     "Details" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1602,6 +1587,7 @@
       }
     },
     "Didn't come on time" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1618,6 +1604,7 @@
       }
     },
     "Didn't send money" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1668,6 +1655,7 @@
       }
     },
     "Done" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1802,6 +1790,7 @@
       }
     },
     "ETC" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1891,6 +1880,7 @@
       }
     },
     "Failed to parse account information." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2045,6 +2035,7 @@
       }
     },
     "I paid for the taxi!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2061,6 +2052,7 @@
       }
     },
     "I sent the money!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2094,6 +2086,7 @@
       }
     },
     "Invalid Invitation" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2144,6 +2137,7 @@
       }
     },
     "Join" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2160,6 +2154,7 @@
       }
     },
     "Joined" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2243,6 +2238,7 @@
       }
     },
     "Leave" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2293,6 +2289,7 @@
       }
     },
     "Looks like there are no groups scheduled for this week. Be the first to create one!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2315,6 +2312,7 @@
       "shouldTranslate" : false
     },
     "meeting point" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2331,6 +2329,7 @@
       }
     },
     "Members with this badge can resolve issues through SPARCS mediation when problems arise." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2381,6 +2380,7 @@
       }
     },
     "More" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2434,6 +2434,7 @@
       "shouldTranslate" : false
     },
     "New Group" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2618,6 +2619,7 @@
       }
     },
     "No Rides Found" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2640,6 +2642,7 @@
       }
     },
     "No Rides This Week" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2662,6 +2665,7 @@
       }
     },
     "No rooms found for this week. Be the first one to create one!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2678,6 +2682,7 @@
       }
     },
     "No rooms found from %@ to %@. Be the first one to create one!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2700,6 +2705,7 @@
       }
     },
     "No rooms found from %@ to any destination. Be the first one to create one!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2716,6 +2722,7 @@
       }
     },
     "No rooms found heading to %@. Be the first one to create one!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2749,6 +2756,7 @@
       }
     },
     "Not paid" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2796,9 +2804,6 @@
           }
         }
       }
-    },
-    "Notice" : {
-      "shouldTranslate" : false
     },
     "Okay" : {
       "localizations" : {
@@ -2850,6 +2855,7 @@
       }
     },
     "Open Kakao Pay" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2866,6 +2872,7 @@
       }
     },
     "Open Kakao T" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2882,6 +2889,7 @@
       }
     },
     "Open Toss" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2898,6 +2906,7 @@
       }
     },
     "Open Uber" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2948,6 +2957,7 @@
       }
     },
     "Paid" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2964,6 +2974,7 @@
       }
     },
     "Participants %lld/%lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2986,6 +2997,7 @@
       }
     },
     "Past Groups" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3070,6 +3082,7 @@
       }
     },
     "Photo Library" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3242,6 +3255,7 @@
       }
     },
     "Reason" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3258,6 +3272,7 @@
       }
     },
     "Remove" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3325,6 +3340,7 @@
       }
     },
     "Report" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3392,6 +3408,7 @@
       }
     },
     "Reports for unsettled payments and no-shows can only be submitted after the departure time." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3408,6 +3425,7 @@
       }
     },
     "Request Settlement" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3424,6 +3442,7 @@
       }
     },
     "Requested settlement" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3479,6 +3498,7 @@
       }
     },
     "Room Limit Reached" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3495,6 +3515,7 @@
       }
     },
     "Room Settlement Required" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3576,6 +3597,7 @@
       }
     },
     "Select" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3592,6 +3614,7 @@
       }
     },
     "Select a room" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3625,6 +3648,7 @@
       }
     },
     "Select the app to send your payment. Tap Already Sent once you've completed the transfer." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3641,6 +3665,7 @@
       }
     },
     "Send" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3691,6 +3716,7 @@
       }
     },
     "Send Payment" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3758,6 +3784,7 @@
       }
     },
     "Settlement" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3842,6 +3869,7 @@
       }
     },
     "Share" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3858,6 +3886,7 @@
       }
     },
     "Share now and create a pleasant taxi-sharing experience!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4098,6 +4127,7 @@
       }
     },
     "swap" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4147,6 +4177,7 @@
       }
     },
     "Taxi Bot" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4214,6 +4245,7 @@
       }
     },
     "The link you followed is invalid. Please try again." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4263,6 +4295,7 @@
       }
     },
     "There are rooms for which settlement has not been completed. To create a room, please settle an existing room." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4279,6 +4312,7 @@
       }
     },
     "There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4334,6 +4368,7 @@
       }
     },
     "This group is full" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4451,6 +4486,7 @@
       }
     },
     "Title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4535,6 +4571,7 @@
       }
     },
     "Try Again" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4591,6 +4628,7 @@
       }
     },
     "Unknown" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4690,6 +4728,7 @@
       }
     },
     "where to?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4706,6 +4745,7 @@
       }
     },
     "Who?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4722,6 +4762,7 @@
       }
     },
     "Why?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4840,6 +4881,7 @@
       }
     },
     "You are participating in more than 5 rooms. To create a room, please settle an existing room." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4856,6 +4898,7 @@
       }
     },
     "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from %@ to %@." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

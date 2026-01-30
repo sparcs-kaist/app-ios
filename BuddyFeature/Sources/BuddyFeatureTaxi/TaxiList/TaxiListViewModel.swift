@@ -40,6 +40,8 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   public var roomDepartureTime: Date = Date().ceilToNextTenMinutes()
   public var roomCapacity: Int = 4
 
+  public init() { }
+
   // MARK: - Dependency
   @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol?
@@ -48,14 +50,12 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   public func fetchData(inviteId: String? = nil) async {
     guard let taxiRoomRepository, let taxiLocationUseCase else { return }
 
-    logger.debug("[TaxiListViewModel] fetching data")
     do {
       let repo = taxiRoomRepository
       self.rooms = try await repo.fetchRooms()
       try await taxiLocationUseCase.fetchLocations()
       self.locations = await taxiLocationUseCase.locations
       if let inviteId = inviteId {
-        logger.debug("[TaxiListViewModel] invitation id: \(inviteId)")
         invitedRoom = rooms.first(where: { $0.id == inviteId })
       }
 
@@ -68,7 +68,6 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
         state = .loaded(rooms: rooms, locations: self.locations)
       }
     } catch {
-      logger.error("[TaxiListViewModel] fetch data failed: \(error.localizedDescription)")
       withAnimation(.spring) {
         state = .error(message: error.localizedDescription)
       }
@@ -77,7 +76,6 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
 
   public func createRoom(title: String) async throws {
     guard let taxiRoomRepository else { return }
-    logger.debug("[TaxiListViewModel] creating a room")
 
     // Safely capture values before any suspension
     guard let source = source, let destination = destination else { return }

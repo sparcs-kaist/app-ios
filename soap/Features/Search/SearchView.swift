@@ -10,6 +10,7 @@ import BuddyDomain
 import BuddyFeatureShared
 import BuddyFeatureTimetable
 import BuddyFeaturePost
+import BuddyFeatureTaxi
 
 struct SearchView: View {
   @State private var viewModel = SearchViewModel()

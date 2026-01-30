@@ -19,7 +19,7 @@ struct TaxiChatBubble: View {
     Text(.init(formattedContent))
       .padding(12)
       .background(
-        isMe ? .accent : .secondarySystemBackground,
+        isMe ? Color.accentColor : .secondarySystemBackground,
         in: .rect(
           topLeadingRadius: 24,
           bottomLeadingRadius: !isMe && showTip ? 4 : 24,
@@ -28,7 +28,7 @@ struct TaxiChatBubble: View {
         )
       )
       .foregroundStyle(isMe ? .white : .primary)
-      .tint(isMe ? .white.opacity(0.8) : .accent)
+      .tint(isMe ? .white.opacity(0.8) : Color.accentColor)
       .environment(\.openURL, OpenURLAction(handler: handleURL))
       .sheet(item: $selectedURL) { url in
         SafariViewWrapper(url: url)

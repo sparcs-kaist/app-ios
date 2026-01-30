@@ -26,7 +26,6 @@ class TaxiReportViewModel {
   // MARK: - Functions
   public func createReport(roomID: String) async throws {
     guard let taxiReportRepository else { return }
-    logger.debug("[TaxiReportViewModel] creating a report")
     
     guard let selectedUser = selectedUser, let selectedReason = selectedReason else { return }
     let etcDetails = selectedReason == .etcReason ? etcDetails : ""
@@ -43,7 +42,6 @@ class TaxiReportViewModel {
   }
   
   public func handleException(_ error: Error) {
-    logger.error("[TaxiReportViewModel] failed to create a report: \(error)")
     crashlyticsService?.recordException(error: error)
   }
 }

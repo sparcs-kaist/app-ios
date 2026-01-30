@@ -5,19 +5,19 @@
 //  Created by Soongyu Kwon on 14/07/2025.
 //
 
-import SwiftUI
-import Observation
-import BuddyDomain
-
-@Observable
-class MockTaxiChatListViewModel: TaxiChatListViewModelProtocol {
-  // MARK: - ViewModel Properties
-  var state: TaxiChatListViewModel.ViewState = .loading
-  var onGoingRooms: [TaxiRoom] = []
-  var doneRooms: [TaxiRoom] = []
-  var taxiUser: TaxiUser?
-
-  // MARK: - Functions
-  func fetchData() async {
-  }
-}
+//import SwiftUI
+//import Observation
+//import BuddyDomain
+//
+//@Observable
+//class MockTaxiChatListViewModel: TaxiChatListViewModelProtocol {
+//  // MARK: - ViewModel Properties
+//  var state: TaxiChatListViewModel.ViewState = .loading
+//  var onGoingRooms: [TaxiRoom] = []
+//  var doneRooms: [TaxiRoom] = []
+//  var taxiUser: TaxiUser?
+//
+//  // MARK: - Functions
+//  func fetchData() async {
+//  }
+//}
