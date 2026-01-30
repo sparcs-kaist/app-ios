@@ -937,9 +937,6 @@
         }
       }
     },
-    "Board" : {
-      "shouldTranslate" : false
-    },
     "Boards" : {
       "localizations" : {
         "en" : {
@@ -1350,6 +1347,7 @@
       }
     },
     "Courses" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1930,6 +1928,7 @@
       }
     },
     "Find courses, posts, rides and more." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2305,12 +2304,6 @@
         }
       }
     },
-    "Lorem ipsum\t13 min ago" : {
-      "shouldTranslate" : false
-    },
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit" : {
-      "shouldTranslate" : false
-    },
     "meeting point" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2429,9 +2422,6 @@
           }
         }
       }
-    },
-    "Navigate" : {
-      "shouldTranslate" : false
     },
     "New Group" : {
       "extractionState" : "stale",
@@ -2586,6 +2576,7 @@
       }
     },
     "No results" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3132,6 +3123,7 @@
       }
     },
     "Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3188,6 +3180,7 @@
       }
     },
     "Posts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3476,6 +3469,7 @@
       }
     },
     "Rides" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3532,6 +3526,7 @@
       }
     },
     "Search" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3548,6 +3543,7 @@
       }
     },
     "Search Anything" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3581,6 +3577,7 @@
       }
     },
     "Search Scope" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

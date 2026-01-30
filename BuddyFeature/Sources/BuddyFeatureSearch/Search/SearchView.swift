@@ -12,14 +12,16 @@ import BuddyFeatureTimetable
 import BuddyFeaturePost
 import BuddyFeatureTaxi
 
-struct SearchView: View {
+public struct SearchView: View {
   @State private var viewModel = SearchViewModel()
   @State private var selectedRoom: TaxiRoom? = nil
   @State private var selectedCourse: Course? = nil
   @State private var courseSheetDetent: PresentationDetent = .height(200)
   @FocusState private var isFocused
 
-  var body: some View {
+  public init() { }
+
+  public var body: some View {
     NavigationStack {
       Group {
         if case let .error(message) = viewModel.state {

@@ -119,7 +119,6 @@ class SearchViewModel {
       self.state = .loaded
     } catch {
       state = .error(message: error.localizedDescription)
-      logger.error(error)
     }
   }
   
@@ -143,7 +142,6 @@ class SearchViewModel {
       self.state = .loaded
       self.isLoadingMore = false
     } catch {
-      logger.error(error)
       self.state = .error(message: error.localizedDescription)
       self.isLoadingMore = false
     }

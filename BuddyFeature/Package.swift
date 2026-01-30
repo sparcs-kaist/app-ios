@@ -17,6 +17,7 @@ let package = Package(
         .library(name: "BuddyFeaturePost", targets: ["BuddyFeaturePost"]),
         .library(name: "BuddyFeatureTaxi", targets: ["BuddyFeatureTaxi"]),
         .library(name: "BuddyFeatureSettings", targets: ["BuddyFeatureSettings"]),
+        .library(name: "BuddyFeatureSearch", targets: ["BuddyFeatureSearch"]),
         .library(name: "BuddyFeatureShared", targets: ["BuddyFeatureShared"])
     ],
     dependencies: [
@@ -68,6 +69,16 @@ let package = Package(
             "Haptica",
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
+          ]
+        ),
+        .target(
+          name: "BuddyFeatureSearch",
+          dependencies: [
+            "BuddyDomain",
+            "BuddyFeatureShared",
+            "BuddyFeatureTimetable",
+            "BuddyFeaturePost",
+            "BuddyFeatureTaxi",
           ]
         ),
         .target(
