@@ -18,7 +18,7 @@ public extension MoyaProvider {
         case .success(let response):
           continuation.resume(returning: response)
         case .failure(let error):
-          continuation.resume(throwing: error)
+          continuation.resume(throwing: NetworkErrorMapper.map(error))
         }
       }
     }
