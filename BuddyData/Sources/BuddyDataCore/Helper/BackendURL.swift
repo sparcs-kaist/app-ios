@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyDomain
 
 public enum BackendURL {
   // MARK: Authorisation

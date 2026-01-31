@@ -8,11 +8,12 @@
 import SwiftUI
 import Combine
 import Factory
+import BuddyDomain
 
 struct ContentView: View {
   @Bindable private var viewModel = ContentViewModel()
   @Environment(\.scenePhase) private var scenePhase
-  @Injected(\.crashlyticsHelper) private var crashlyticsHelper
+  @Injected(\.crashlyticsService) private var crashlyticsService
 
   var body: some View {
     ZStack {

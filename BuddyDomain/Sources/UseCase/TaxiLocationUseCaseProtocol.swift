@@ -7,8 +7,7 @@
 
 import Foundation
 
-@MainActor
-public protocol TaxiLocationUseCaseProtocol: Sendable {
+public protocol TaxiLocationUseCaseProtocol: Actor {
   var locations: [TaxiLocation] { get }
   
   func fetchLocations() async throws

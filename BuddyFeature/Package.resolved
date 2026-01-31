@@ -1,0 +1,24 @@
+{
+  "originHash" : "f8116af1e1cd97e5db1d1d8d5af67ec1671a73c99762bd67d0e9b6e3767c846a",
+  "pins" : [
+    {
+      "identity" : "factory",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hmlongco/Factory.git",
+      "state" : {
+        "revision" : "ccc898f21992ebc130bc04cc197460a5ae230bcf",
+        "version" : "2.5.3"
+      }
+    },
+    {
+      "identity" : "version",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mxcl/Version.git",
+      "state" : {
+        "revision" : "67ce582bb9de70e1eb2ee41fd71aad3b5f86d97b",
+        "version" : "2.2.0"
+      }
+    }
+  ],
+  "version" : 3
+}

@@ -16,10 +16,12 @@ class SignInViewModel {
   var isLoading: Bool = false
   var errorMessage: String? = nil
 
-  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
+  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   func signIn() async throws {
+    guard let authUseCase, let userUseCase else { return }
+    
     isLoading = true
     defer { isLoading = false }
 

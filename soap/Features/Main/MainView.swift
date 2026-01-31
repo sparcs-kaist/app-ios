@@ -7,6 +7,11 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureTimetable
+import BuddyFeatureFeed
+import BuddyFeaturePost
+import BuddyFeatureTaxi
+import BuddyFeatureSearch
 
 struct MainView: View {
   @State private var taxiInviteId: String?
@@ -57,6 +62,6 @@ struct MainView: View {
   }
 }
 
-#Preview {
-  MainView(feedViewModel: MockFeedViewModel(), boardListViewModel: MockBoardListViewModel())
-}
+//#Preview {
+//  MainView(feedViewModel: MockFeedViewModel(), boardListViewModel: MockBoardListViewModel())
+//}

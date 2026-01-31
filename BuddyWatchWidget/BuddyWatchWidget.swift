@@ -8,7 +8,6 @@
 import WidgetKit
 import SwiftUI
 import BuddyDomain
-import BuddyDataMocks
 import BuddyUpcomingClassWidgetUI
 
 struct UpcomingClassProvider: TimelineProvider {
