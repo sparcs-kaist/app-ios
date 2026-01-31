@@ -9,17 +9,17 @@ import Foundation
 import BuddyDomain
 
 public final class UserUseCase: UserUseCaseProtocol {
-  private let araUserRepository: AraUserRepositoryProtocol
-  private let taxiUserRepository: TaxiUserRepositoryProtocol
-  private let feedUserRepository: FeedUserRepositoryProtocol
-  private let otlUserRepository: OTLUserRepositoryProtocol
+  private let araUserRepository: AraUserRepositoryProtocol?
+  private let taxiUserRepository: TaxiUserRepositoryProtocol?
+  private let feedUserRepository: FeedUserRepositoryProtocol?
+  private let otlUserRepository: OTLUserRepositoryProtocol?
   private let userStorage: UserStorageProtocol
 
   public init(
-    taxiUserRepository: TaxiUserRepositoryProtocol,
-    feedUserRepository: FeedUserRepositoryProtocol,
-    araUserRepository: AraUserRepositoryProtocol,
-    otlUserRepository: OTLUserRepositoryProtocol,
+    taxiUserRepository: TaxiUserRepositoryProtocol?,
+    feedUserRepository: FeedUserRepositoryProtocol?,
+    araUserRepository: AraUserRepositoryProtocol?,
+    otlUserRepository: OTLUserRepositoryProtocol?,
     userStorage: UserStorageProtocol
   ) {
     self.taxiUserRepository = taxiUserRepository
@@ -62,6 +62,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
 
   public func fetchAraUser() async throws {
+    guard let araUserRepository else { return }
+
     print("Fetching Ara User")
     let user = try await araUserRepository.fetchUser()
     await userStorage.setAraUser(user)
@@ -69,6 +71,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
   
   public func fetchTaxiUser() async throws {
+    guard let taxiUserRepository else { return }
+    
     print("Fetching Taxi User")
     let user = try await taxiUserRepository.fetchUser()
     await userStorage.setTaxiUser(user)
@@ -76,6 +80,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
 
   public func fetchFeedUser() async throws {
+    guard let feedUserRepository else { return }
+    
     print("Fetching Feed User")
     let user = try await feedUserRepository.fetchUser()
     await userStorage.setFeedUser(user)
@@ -83,6 +89,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
 
   public func fetchOTLUser() async throws {
+    guard let otlUserRepository else { return }
+    
     print("Fetching OTL User")
     let user = try await otlUserRepository.fetchUser()
     await userStorage.setOTLUser(user)
@@ -90,6 +98,8 @@ public final class UserUseCase: UserUseCaseProtocol {
   }
 
   public func updateAraUser(params: [String: Any]) async throws {
+    guard let araUserRepository else { return }
+    
     print("Updating Ara User Information: \(params)")
     guard let araUser = await araUser else {
       print("Ara User Not Found")

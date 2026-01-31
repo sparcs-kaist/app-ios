@@ -21,12 +21,14 @@ class ContentViewModel {
   private var cancellables = Set<AnyCancellable>()
   private var lastCheckTime: Date?
 
-  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol
-  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol
-  @ObservationIgnored @Injected(\.versionRepository) private var versionRepository: VersionRepositoryProtocol
+  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
+  @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol?
+  @ObservationIgnored @Injected(\.versionRepository) private var versionRepository: VersionRepositoryProtocol?
 
   init() {
+    guard let authUseCase else { return }
+
     authUseCase.isAuthenticatedPublisher
       .receive(on: DispatchQueue.main)
       .sink { [weak self] newValue in
@@ -48,6 +50,8 @@ class ContentViewModel {
   }
 
   func refreshAccessTokenIfNeeded() async {
+    guard let authUseCase, let userUseCase else { return }
+
     do {
       // Avoid forcing refresh when token is still valid
       try await authUseCase.refreshAccessToken(force: false)
@@ -58,6 +62,8 @@ class ContentViewModel {
   }
   
   func fetchTaxiLocations() async {
+    guard let taxiLocationUseCase else { return }
+    
     do {
       try await taxiLocationUseCase.fetchLocations()
     } catch {
@@ -79,6 +85,8 @@ class ContentViewModel {
   }
   
   private func checkForUpdates() async  {
+    guard let versionRepository else { return }
+
     logger.debug("Checking for updates")
     guard let requiredVersion = try? await versionRepository.getMinimumVersion() else {
       logger.error("Failed to fetch minimum required version.")

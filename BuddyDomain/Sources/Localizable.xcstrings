@@ -17,6 +17,39 @@
         }
       }
     },
+    "%@ at %@" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ at %2$@"
+          }
+        }
+      }
+    },
+    "%lld day%@ ago" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld day%2$@ ago"
+          }
+        }
+      }
+    },
+    "%lld hour%@ ago" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld hour%2$@ ago"
+          }
+        }
+      }
+    },
+    "%lld min ago" : {
+
+    },
     "%lldh" : {
       "localizations" : {
         "en" : {
@@ -391,6 +424,9 @@
         }
       }
     },
+    "just now" : {
+
+    },
     "ME" : {
       "localizations" : {
         "en" : {
@@ -749,6 +785,9 @@
         }
       }
     },
+    "Today at %@" : {
+
+    },
     "Token refresh failed: %@" : {
       "localizations" : {
         "en" : {
@@ -764,6 +803,9 @@
           }
         }
       }
+    },
+    "Tomorrow at %@" : {
+
     },
     "Tue" : {
       "localizations" : {

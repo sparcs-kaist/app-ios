@@ -7,7 +7,6 @@
 
 import SwiftUI
 import BuddyDomain
-import BuddyDataMocks
 
 struct LectureView: View {
   let item: LectureItem
