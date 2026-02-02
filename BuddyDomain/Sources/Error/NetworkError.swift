@@ -42,4 +42,14 @@ public enum NetworkError: Error, LocalizedError, Sendable {
       return false
     }
   }
+
+  public var isRecordable: Bool {
+    switch self {
+    case .serverError(_), .notFound, .unknown(_):
+      return true
+    default:
+      // No reason to record other basic network errors.
+      return false
+    }
+  }
 }

@@ -10,9 +10,18 @@ import FirebaseCrashlytics
 import BuddyDomain
 
 public final class CrashlyticsService: CrashlyticsServiceProtocol {
-  public init() { }
+  private let userUseCase: UserUseCaseProtocol?
+
+  public init(userUseCase: UserUseCaseProtocol?) {
+    self.userUseCase = userUseCase
+  }
 
   public func recordException(error: Error) {
-    Crashlytics.crashlytics().record(error: error as NSError)
+    let userUseCase = self.userUseCase
+    
+    Task {
+      let userID: String? = await userUseCase?.taxiUser?.id
+      Crashlytics.crashlytics().record(error: error, userInfo: ["id": userID ?? "unauthorized"])
+    }
   }
 }
