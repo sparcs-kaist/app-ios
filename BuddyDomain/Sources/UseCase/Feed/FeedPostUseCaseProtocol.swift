@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol FeedPostUseCaseProtocol {
+public protocol FeedPostUseCaseProtocol: Sendable {
   func fetchPosts(cursor: String?, page: Int) async throws -> FeedPostPage
   func writePost(request: FeedCreatePost) async throws
   func deletePost(postID: String) async throws

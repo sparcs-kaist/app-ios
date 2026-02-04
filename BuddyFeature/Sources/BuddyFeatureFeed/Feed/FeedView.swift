@@ -19,10 +19,6 @@ public struct FeedView: View {
   @State private var showSettingsSheet: Bool = false
   @State private var showComposeView: Bool = false
 
-  @State private var alertTitle: String = ""
-  @State private var alertMessage: String = ""
-  @State private var showAlert: Bool = false
-
   @State private var spoilerContents = SpoilerContents()
 
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -37,51 +33,11 @@ public struct FeedView: View {
         LazyVStack(spacing: 0) {
           switch viewModel.state {
           case .loading:
-            ForEach(.constant(FeedPost.mockList)) { $post in
-              FeedPostRow(post: $post, onPostDeleted: nil, onComment: nil)
-                .environment(spoilerContents)
-                .padding(.vertical)
-
-              Divider()
-                .padding(.horizontal)
-            }
-            .redacted(reason: .placeholder)
+            loadingView
           case .loaded:
-            ForEach($viewModel.posts) { $post in
-              NavigationLink(destination: {
-                FeedPostView(post: $post, onDelete: {
-                  if let idx = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
-                    try await viewModel.deletePost(postID: post.id)
-                    viewModel.posts.remove(at: idx)
-                  }
-                })
-                .environment(spoilerContents)
-                .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-//                .navigationTransition(.zoom(sourceID: post.id, in: namespace))
-              }, label: {
-                FeedPostRow(post: $post, onPostDeleted: { postID in
-                  Task {
-                    await deletePost(postID: postID)
-                  }
-                }, onComment: nil)
-                .environment(spoilerContents)
-                .contentShape(.rect)
-              })
-              .id(post.id)
-              .padding(.vertical)
-              .navigationLinkIndicatorVisibility(.hidden)
-              .buttonStyle(.plain)
-              .matchedTransitionSource(id: post.id, in: namespace)
-
-              Divider()
-                .padding(.horizontal)
-            }
+            contentView
           case .error(let message):
-            ContentUnavailableView(
-              "Error",
-              systemImage: "questionmark.text.page",
-              description: Text(message)
-            )
+            errorView(message: message)
           }
         }
         .animation(.spring, value: viewModel.posts)
@@ -124,10 +80,10 @@ public struct FeedView: View {
           .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
           .interactiveDismissDisabled()
       }
-      .alert(alertTitle, isPresented: $showAlert, actions: {
+      .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented, actions: {
         Button("Okay", role: .close) { }
       }, message: {
-        Text(alertMessage)
+        Text(viewModel.alertState?.message ?? "Unexpected Error")
       })
       .background {
         BackgroundGradientView(color: .accentColor)
@@ -136,23 +92,60 @@ public struct FeedView: View {
     }
   }
 
-  private func showAlert(title: String, message: String) {
-    alertTitle = title
-    alertMessage = message
-    showAlert = true
-  }
-  
-  private func deletePost(postID: String) async {
-    do {
-      try await viewModel.deletePost(postID: postID)
-    } catch {
-      if let deletionError = error as? FeedDeletionError, let message = deletionError.errorDescription {
-        showAlert(title: String(localized: "Error"), message: message)
-      }
-      else {
-        showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
-      }
+  private var contentView: some View {
+    ForEach($viewModel.posts) { $post in
+      NavigationLink(destination: {
+        FeedPostView(post: $post, onDelete: {
+          if let idx = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
+            await viewModel.deletePost(postID: post.id)
+            viewModel.posts.remove(at: idx)
+          }
+        })
+        .environment(spoilerContents)
+        .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
+        //                .navigationTransition(.zoom(sourceID: post.id, in: namespace))
+      }, label: {
+        FeedPostRow(post: $post, onPostDeleted: { postID in
+          Task {
+            await deletePost(postID: postID)
+          }
+        }, onComment: nil)
+        .environment(spoilerContents)
+        .contentShape(.rect)
+      })
+      .id(post.id)
+      .padding(.vertical)
+      .navigationLinkIndicatorVisibility(.hidden)
+      .buttonStyle(.plain)
+      .matchedTransitionSource(id: post.id, in: namespace)
+
+      Divider()
+        .padding(.horizontal)
     }
+  }
+
+  private var loadingView: some View {
+    ForEach(.constant(FeedPost.mockList)) { $post in
+      FeedPostRow(post: $post, onPostDeleted: nil, onComment: nil)
+        .environment(spoilerContents)
+        .padding(.vertical)
+
+      Divider()
+        .padding(.horizontal)
+    }
+    .redacted(reason: .placeholder)
+  }
+
+  private func errorView(message: String) -> some View {
+    ContentUnavailableView(
+      "Error",
+      systemImage: "questionmark.text.page",
+      description: Text(message)
+    )
+  }
+
+  private func deletePost(postID: String) async {
+    await viewModel.deletePost(postID: postID)
   }
 }
 

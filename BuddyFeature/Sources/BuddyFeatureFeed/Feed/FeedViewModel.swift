@@ -14,10 +14,12 @@ import BuddyDomain
 public protocol FeedViewModelProtocol: Observable {
   var state: FeedViewModel.ViewState { get }
   var posts: [FeedPost] { get set }
+  var alertState: AlertState? { get }
+  var isAlertPresented: Bool { get set }
 
   func signOut() async throws
   func fetchInitialData() async
-  func deletePost(postID: String) async throws
+  func deletePost(postID: String) async
 }
 
 @MainActor
@@ -32,6 +34,9 @@ public final class FeedViewModel: FeedViewModelProtocol {
   // MARK: - Properteis
   public var state: ViewState = .loading
   public var posts: [FeedPost] = []
+  public var alertState: AlertState? = nil
+  public var isAlertPresented: Bool = false
+
   private var nextCursor: String? = nil
   private var hasNext: Bool = false
 
@@ -39,9 +44,7 @@ public final class FeedViewModel: FeedViewModelProtocol {
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
-  @ObservationIgnored @Injected(
-    \.feedPostRepository
-  ) private var feedPostRepository: FeedPostRepositoryProtocol?
+  @ObservationIgnored @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
 
   // MARK: - Functions
   public func signOut() async throws {
@@ -50,10 +53,10 @@ public final class FeedViewModel: FeedViewModelProtocol {
   }
 
   public func fetchInitialData() async {
-    guard let feedPostRepository else { return }
+    guard let feedPostUseCase else { return }
 
     do {
-      let page: FeedPostPage = try await feedPostRepository.fetchPosts(cursor: nil, page: 20)
+      let page: FeedPostPage = try await feedPostUseCase.fetchPosts(cursor: nil, page: 20)
       self.posts = page.items
       self.nextCursor = page.nextCursor
       self.hasNext = page.hasNext
@@ -63,10 +66,15 @@ public final class FeedViewModel: FeedViewModelProtocol {
     }
   }
 
-  public func deletePost(postID: String) async throws {
-    guard let feedPostRepository else { return }
-    
-    try await feedPostRepository.deletePost(postID: postID)
-    self.posts.removeAll { $0.id == postID }
+  public func deletePost(postID: String) async {
+    guard let feedPostUseCase else { return }
+
+    do {
+      try await feedPostUseCase.deletePost(postID: postID)
+      self.posts.removeAll { $0.id == postID }
+    } catch {
+      self.alertState = .init(title: "Unable to delete post", message: error.localizedDescription)
+      self.isAlertPresented = true
+    }
   }
 }
