@@ -219,6 +219,9 @@
         }
       }
     },
+    "Cannot delete post that has votes or comments." : {
+
+    },
     "Courses" : {
       "localizations" : {
         "en" : {
@@ -841,6 +844,9 @@
         }
       }
     },
+    "Unable to load feed. Please try again later." : {
+
+    },
     "Unauthorized Sales" : {
       "localizations" : {
         "en" : {
@@ -856,6 +862,9 @@
           }
         }
       }
+    },
+    "Unknown error occurred. Please try again." : {
+
     },
     "Wed" : {
       "localizations" : {
