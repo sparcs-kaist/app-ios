@@ -7,7 +7,9 @@
 
 import Foundation
 
-public enum NetworkError: Error, LocalizedError, Sendable {
+public enum NetworkError: Error, LocalizedError, SourcedError, Sendable {
+  public var source: ErrorSource { .network }
+
   case noConnection
   case timeout
   case serverError(statusCode: Int)
