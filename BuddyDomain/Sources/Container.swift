@@ -124,4 +124,8 @@ extension Container {
   public var timetableUseCase: Factory<TimetableUseCaseProtocol?> {
     promised()
   }
+
+  public var feedPostUseCase: Factory<FeedPostUseCaseProtocol?> {
+    promised()
+  }
 }

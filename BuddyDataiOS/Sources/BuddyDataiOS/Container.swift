@@ -216,5 +216,12 @@ extension Container: @retroactive AutoRegistering {
       )
     }
     .scope(.singleton)
+
+    feedPostUseCase.register {
+      FeedPostUseCase(
+        feedPostRepository: self.feedPostRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
   }
 }
