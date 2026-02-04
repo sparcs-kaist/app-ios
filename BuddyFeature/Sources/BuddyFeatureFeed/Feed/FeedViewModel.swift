@@ -73,7 +73,7 @@ public final class FeedViewModel: FeedViewModelProtocol {
       try await feedPostUseCase.deletePost(postID: postID)
       self.posts.removeAll { $0.id == postID }
     } catch {
-      self.alertState = .init(title: "Unable to delete post", message: error.localizedDescription)
+      self.alertState = .init(title: String(localized: "Unable to delete post"), message: error.localizedDescription)
       self.isAlertPresented = true
     }
   }
