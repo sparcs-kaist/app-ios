@@ -17,9 +17,8 @@ struct FeedPostRow: View {
   let onComment: (() -> Void)?
   @State var showFullContent: Bool = false
 
-  @State private var presentAlert: Bool = false
-  @State private var alertTitle: String = ""
-  @State private var alertMessage: String = ""
+  @State private var alertState: AlertState? = nil
+  @State private var isAlertPresented: Bool = false
   @State private var canBeExpanded: Bool = false
   
   @State private var showDeleteConfirmation: Bool = false
@@ -27,8 +26,8 @@ struct FeedPostRow: View {
   @State private var showPopover: Bool = false
 
   // MARK: - Dependencies
-  @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol?
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
+  @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   var body: some View {
     Group {
@@ -40,7 +39,19 @@ struct FeedPostRow: View {
         footer
       }
     }
-    .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
+    .translationPresentation(
+      isPresented: $showTranslateSheet,
+      text: post.content
+    )
+    .alert(
+      alertState?.title ?? "Error",
+      isPresented: $isAlertPresented,
+      actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(alertState?.message ?? "Unexpected Error")
+      }
+    )
   }
 
   @ViewBuilder
@@ -114,17 +125,20 @@ struct FeedPostRow: View {
                 Button(reason.description) {
                   Task {
                     do {
-                      if let feedPostRepository {
-                        try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
-                        showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                      if let feedPostUseCase {
+                        try await feedPostUseCase.reportPost(postID: post.id, reason: reason, detail: "")
+                        alertState = .init(
+                          title: String(localized: "Report Submitted"),
+                          message: String(localized: "Your report has been submitted successfully.")
+                        )
+                        isAlertPresented = true
                       }
                     } catch {
-//                      if error.isNetworkMoyaError {
-//                        showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//                      } else {
-//                        crashlyticsService?.recordException(error: error)
-//                        showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
-//                      }
+                      alertState = .init(
+                        title: String(localized: "Unable to submit report."),
+                        message: error.localizedDescription
+                      )
+                      isAlertPresented = true
                     }
                   }
                 }
@@ -143,11 +157,6 @@ struct FeedPostRow: View {
         } message: {
           Text("Are you sure you want to delete this post?")
         }
-        .alert(alertTitle, isPresented: $presentAlert, actions: {
-          Button("Okay", role: .close) { }
-        }, message: {
-          Text(alertMessage)
-        })
       }
     }
     .padding(.horizontal)
@@ -212,7 +221,7 @@ struct FeedPostRow: View {
 
   // MARK: - Functions
   private func upvote() async {
-    guard let feedPostRepository else { return }
+    guard let feedPostUseCase else { return }
 
     let previousMyVote: FeedVoteType? = post.myVote
     let previousUpvotes: Int = post.upvotes
@@ -223,7 +232,7 @@ struct FeedPostRow: View {
         // cancel upvote
         post.myVote = nil
         post.upvotes -= 1
-        try await feedPostRepository.deleteVote(postID: post.id)
+        try await feedPostUseCase.deleteVote(postID: post.id)
       } else {
         // upvote
         if previousMyVote == .down {
@@ -232,18 +241,22 @@ struct FeedPostRow: View {
         }
         post.myVote = .up
         post.upvotes += 1
-        try await feedPostRepository.vote(postID: post.id, type: .up)
+        try await feedPostUseCase.vote(postID: post.id, type: .up)
       }
     } catch {
-      print(error)
       post.myVote = previousMyVote
       post.upvotes = previousUpvotes
       post.downvotes = previousDownvotes
+      alertState = .init(
+        title: String(localized: "Failed to upvote"),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 
   private func downvote() async {
-    guard let feedPostRepository else { return }
+    guard let feedPostUseCase else { return }
 
     let previousMyVote: FeedVoteType? = post.myVote
     let previousUpvotes: Int = post.upvotes
@@ -254,7 +267,7 @@ struct FeedPostRow: View {
         // cancel downvote
         post.myVote = nil
         post.downvotes -= 1
-        try await feedPostRepository.deleteVote(postID: post.id)
+        try await feedPostUseCase.deleteVote(postID: post.id)
       } else {
         // downvote
         if previousMyVote == .up {
@@ -263,20 +276,18 @@ struct FeedPostRow: View {
         }
         post.myVote = .down
         post.downvotes += 1
-        try await feedPostRepository.vote(postID: post.id, type: .down)
+        try await feedPostUseCase.vote(postID: post.id, type: .down)
       }
     } catch {
-      print(error)
       post.myVote = previousMyVote
       post.upvotes = previousUpvotes
       post.downvotes = previousDownvotes
+      alertState = .init(
+        title: String(localized: "Failed to downvote"),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
-  }
-  
-  private func showAlert(title: String, message: String) {
-    alertTitle = title
-    alertMessage = message
-    presentAlert = true
   }
 }
 
