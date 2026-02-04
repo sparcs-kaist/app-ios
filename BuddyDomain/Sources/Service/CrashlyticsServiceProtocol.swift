@@ -7,4 +7,7 @@
 
 public protocol CrashlyticsServiceProtocol {
   func recordException(error: Error)
+
+  func record(error: SourcedError, context: CrashContext)
+  func record(error: Error, context: CrashContext)
 }
