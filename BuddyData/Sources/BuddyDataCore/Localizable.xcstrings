@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Cannot delete post that has votes or comments." : {
+
+    },
     "Failed to load user information." : {
       "localizations" : {
         "en" : {
@@ -49,6 +52,9 @@
         }
       }
     },
+    "Unable to load feed. Please try again later." : {
+
+    },
     "Unknown" : {
       "localizations" : {
         "en" : {
@@ -64,6 +70,9 @@
           }
         }
       }
+    },
+    "Unknown error occurred. Please try again." : {
+
     }
   },
   "version" : "1.1"

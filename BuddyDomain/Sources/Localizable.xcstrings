@@ -136,6 +136,9 @@
         }
       }
     },
+    "An unexpected error occurred." : {
+
+    },
     "An unknown authentication error occurred." : {
       "localizations" : {
         "en" : {
@@ -491,6 +494,9 @@
         }
       }
     },
+    "No internet connection." : {
+
+    },
     "No refresh token available." : {
       "localizations" : {
         "en" : {
@@ -603,6 +609,12 @@
         }
       }
     },
+    "Request timed out." : {
+
+    },
+    "Resources not found." : {
+
+    },
     "Rides" : {
       "localizations" : {
         "en" : {
@@ -640,6 +652,12 @@
           }
         }
       }
+    },
+    "Server error (%lld)." : {
+
+    },
+    "Session expired. Please sign in again." : {
+
     },
     "Sexually Explicit Content" : {
       "localizations" : {
