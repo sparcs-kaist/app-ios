@@ -152,7 +152,7 @@ extension Container: @retroactive AutoRegistering {
     .scope(.singleton)
 
     crashlyticsService.register {
-      CrashlyticsService()
+      CrashlyticsService(userUseCase: self.userUseCase.resolve())
     }
     .scope(.singleton)
 
