@@ -26,32 +26,22 @@ public actor FeedPostRepository: FeedPostRepositoryProtocol {
   }
 
   public func writePost(request: FeedCreatePost) async throws {
-    let response = try await provider.request(.writePost(request: FeedPostRequestDTO.fromModel(request)))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.writePost(request: FeedPostRequestDTO.fromModel(request)))
   }
 
   public func deletePost(postID: String) async throws {
-    let response = try await provider.request(.delete(postID: postID))
-    
-    if response.statusCode == 409 {
-      throw FeedDeletionError.hasComments
-    }
-    
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.delete(postID: postID))
   }
 
   public func vote(postID: String, type: FeedVoteType) async throws {
-    let response = try await provider.request(.vote(postID: postID, type: type))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.vote(postID: postID, type: type))
   }
 
   public func deleteVote(postID: String) async throws {
-    let response = try await provider.request(.deleteVote(postID: postID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.deleteVote(postID: postID))
   }
   
   public func reportPost(postID: String, reason: FeedReportType, detail: String) async throws {
-    let response = try await provider.request(.reportPost(postID: postID, reason: reason.rawValue, detail: detail))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.reportPost(postID: postID, reason: reason.rawValue, detail: detail))
   }
 }
