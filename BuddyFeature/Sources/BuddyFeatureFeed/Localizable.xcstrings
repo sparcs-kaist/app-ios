@@ -425,6 +425,12 @@
         }
       }
     },
+    "Unable to delete post" : {
+
+    },
+    "Unable to submit report." : {
+
+    },
     "What's happening?" : {
       "localizations" : {
         "en" : {
