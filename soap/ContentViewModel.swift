@@ -50,7 +50,7 @@ class ContentViewModel {
   func refreshAccessTokenIfNeeded() async {
     do {
       // Avoid forcing refresh when token is still valid
-      try await authUseCase.refreshAccessToken(force: false)
+      try await authUseCase.refreshAccessToken(force: true)
       await userUseCase.fetchUsers()
     } catch {
       logger.error(error)
