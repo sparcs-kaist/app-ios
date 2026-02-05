@@ -54,10 +54,6 @@ extension Container {
     promised()
   }
 
-  public var feedPostRepository: Factory<FeedPostRepositoryProtocol?> {
-    promised()
-  }
-
   public var feedCommentRepository: Factory<FeedCommentRepositoryProtocol?> {
     promised()
   }

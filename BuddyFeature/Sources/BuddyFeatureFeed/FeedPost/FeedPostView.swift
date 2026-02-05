@@ -25,19 +25,16 @@ struct FeedPostView: View {
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var targetComment: FeedComment? = nil
   @State private var isUploadingComment: Bool = false
-  
-  @State private var presentAlert: Bool = false
-  @State private var alertTitle: String = ""
-  @State private var alertMessage: String = ""
+
+  @State private var alertState: AlertState? = nil
+  @State private var isAlertPresented: Bool = false
 
   @State private var showTranslateSheet: Bool = false
 
   // MARK: - Dependencies
-  @Injected(
-    \.feedPostRepository
-  ) private var feedPostRepository: FeedPostRepositoryProtocol?
+  @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
   @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
 
   var body: some View {
@@ -78,17 +75,17 @@ struct FeedPostView: View {
                   Button(reason.description) {
                     Task {
                       do {
-                        if let feedPostRepository {
-                          try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
-                          showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                        if let feedPostUseCase {
+                          try await feedPostUseCase.reportPost(postID: post.id, reason: reason, detail: "")
+                          alertState = .init(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+                          isAlertPresented = true
                         }
                       } catch {
-//                        if error.isNetworkMoyaError {
-//                          showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//                        } else {
-//                          crashlyticsService?.recordException(error: error)
-//                          showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
-//                        }
+                        alertState = .init(
+                          title: String(localized: "Unable to submit report."),
+                          message: error.localizedDescription
+                        )
+                        isAlertPresented = true
                       }
                     }
                   }
@@ -103,12 +100,11 @@ struct FeedPostView: View {
                   try await onDelete?()
                   dismiss()
                 } catch {
-                  if let deletionError = error as? FeedDeletionError, let message = deletionError.errorDescription {
-                    showAlert(title: String(localized: "Error"), message: message)
-                  }
-                  else {
-                    showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
-                  }
+                  alertState = .init(
+                    title: String(localized: "Unable to delete post."),
+                    message: error.localizedDescription
+                  )
+                  isAlertPresented = true
                 }
               }
             }
@@ -123,11 +119,15 @@ struct FeedPostView: View {
       .safeAreaBar(edge: .bottom) {
         inputBar(proxy: proxy)
       }
-      .alert(alertTitle, isPresented: $presentAlert, actions: {
-        Button("Okay", role: .close) { }
-      }, message: {
-        Text(alertMessage)
-      })
+      .alert(
+        alertState?.title ?? "Error",
+        isPresented: $isAlertPresented,
+        actions: {
+          Button("Okay", role: .close) { }
+        }, message: {
+          Text(alertState?.message ?? "Unexpected Error")
+        }
+      )
     }
   }
 
@@ -183,12 +183,11 @@ struct FeedPostView: View {
                 proxy.scrollTo(uploadedComment?.id, anchor: .center)
               }
             } catch {
-//              if error.isNetworkMoyaError {
-//                showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//              } else {
-//                crashlyticsService?.recordException(error: error)
-//                showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a comment. Please try again later."))
-//              }
+              alertState = .init(
+                title: String(localized: "Unable to write comment."),
+                message: error.localizedDescription
+              )
+              isAlertPresented = true
             }
           }
         }, label: {
@@ -277,12 +276,6 @@ struct FeedPostView: View {
           .scaleEffect(0.8)
       }
     }
-  }
-  
-  private func showAlert(title: String, message: String) {
-    alertTitle = title
-    alertMessage = message
-    presentAlert = true
   }
 }
 

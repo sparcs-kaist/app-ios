@@ -12,12 +12,12 @@ public final class FeedPostUseCase: FeedPostUseCaseProtocol {
   // MARK: - Properties
   private let feature: String = "FeedPost"
   // MARK: - Dependencies
-  private let feedPostRepository: FeedPostRepositoryProtocol?
+  private let feedPostRepository: FeedPostRepositoryProtocol
   private let crashlyticsService: CrashlyticsServiceProtocol?
 
   // MARK: - Initialiser
   public init(
-    feedPostRepository: FeedPostRepositoryProtocol?,
+    feedPostRepository: FeedPostRepositoryProtocol,
     crashlyticsService: CrashlyticsServiceProtocol?
   ) {
     self.feedPostRepository = feedPostRepository
@@ -34,13 +34,6 @@ public final class FeedPostUseCase: FeedPostUseCaseProtocol {
       ]
     )
 
-    guard let feedPostRepository else {
-      let error = FeedPostUseCaseError.noFeedPostRepository
-
-      crashlyticsService?.recordException(error: error)
-      throw error
-    }
-
     return try await execute(context: context) {
       try await feedPostRepository.fetchPosts(cursor: cursor, page: page)
     }
@@ -56,13 +49,6 @@ public final class FeedPostUseCase: FeedPostUseCaseProtocol {
       ]
     )
 
-    guard let feedPostRepository else {
-      let error = FeedPostUseCaseError.noFeedPostRepository
-
-      crashlyticsService?.recordException(error: error)
-      throw error
-    }
-
     try await execute(context: context) {
       try await feedPostRepository.writePost(request: request)
     }
@@ -75,13 +61,6 @@ public final class FeedPostUseCase: FeedPostUseCaseProtocol {
         "postID": postID
       ]
     )
-
-    guard let feedPostRepository else {
-      let error = FeedPostUseCaseError.noFeedPostRepository
-
-      crashlyticsService?.recordException(error: error)
-      throw error
-    }
 
     try await execute(context: context) {
       try await feedPostRepository.deletePost(postID: postID)
@@ -96,12 +75,6 @@ public final class FeedPostUseCase: FeedPostUseCaseProtocol {
         "type": "\(type)"
       ]
     )
-    guard let feedPostRepository else {
-      let error = FeedPostUseCaseError.noFeedPostRepository
-
-      crashlyticsService?.recordException(error: error)
-      throw error
-    }
 
     try await execute(context: context) {
       try await feedPostRepository.vote(postID: postID, type: type)
@@ -115,13 +88,6 @@ public final class FeedPostUseCase: FeedPostUseCaseProtocol {
         "postID": postID
       ]
     )
-
-    guard let feedPostRepository else {
-      let error = FeedPostUseCaseError.noFeedPostRepository
-
-      crashlyticsService?.recordException(error: error)
-      throw error
-    }
 
     try await execute(context: context) {
       try await feedPostRepository.deleteVote(postID: postID)
@@ -137,13 +103,6 @@ public final class FeedPostUseCase: FeedPostUseCaseProtocol {
         "detail": detail
       ]
     )
-
-    guard let feedPostRepository else {
-      let error = FeedPostUseCaseError.noFeedPostRepository
-
-      crashlyticsService?.recordException(error: error)
-      throw error
-    }
 
     try await execute(context: context) {
       try await feedPostRepository.reportPost(postID: postID, reason: reason, detail: detail)

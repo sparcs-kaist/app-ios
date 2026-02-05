@@ -61,8 +61,8 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
     \.feedImageRepository
   ) private var feedImageRepository: FeedImageRepositoryProtocol?
   @ObservationIgnored @Injected(
-    \.feedPostRepository
-  ) private var feedPostRepository: FeedPostRepositoryProtocol?
+    \.feedPostUseCase
+  ) private var feedPostUseCase: FeedPostUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.crashlyticsService
   ) private var crashlyticsService: CrashlyticsServiceProtocol?
@@ -75,8 +75,8 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   }
 
   func writePost() async throws {
-    guard let feedImageRepository, let feedPostRepository else { return }
-    
+    guard let feedImageRepository, let feedPostUseCase else { return }
+
     // Run uploads concurrently
     let uploadedImages: [FeedImage] = try await withThrowingTaskGroup(
       of: (Int, FeedImage).self
@@ -101,7 +101,7 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
       isAnonymous: selectedComposeType == .anonymously,
       images: uploadedImages
     )
-    try await feedPostRepository.writePost(request: request)
+    try await feedPostUseCase.writePost(request: request)
   }
 
   private func loadImagesAndReconcile() async {

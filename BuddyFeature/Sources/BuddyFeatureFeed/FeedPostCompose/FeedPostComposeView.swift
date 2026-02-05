@@ -18,10 +18,9 @@ struct FeedPostComposeView: View {
   @State private var showPhotosPicker: Bool = false
   @State private var isUploading: Bool = false
   
-  @State private var presentAlert: Bool = false
-  @State private var alertTitle: String = ""
-  @State private var alertMessage: String = ""
-  
+  @State private var alertState: AlertState? = nil
+  @State private var isAlertPresented: Bool = false
+
   @FocusState private var isFocused: Bool
 
   var body: some View {
@@ -77,12 +76,11 @@ struct FeedPostComposeView: View {
                   try await viewModel.writePost()
                   dismiss()
                 } catch {
-//                  if error.isNetworkMoyaError {
-//                    showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//                  } else {
-//                    viewModel.handleException(error)
-//                    showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a post. Please try again later."))
-//                  }
+                  alertState = .init(
+                    title: String(localized: "Unable to write post."),
+                    message: error.localizedDescription
+                  )
+                  isAlertPresented = true
                 }
               }
             }, label: {
@@ -109,11 +107,15 @@ struct FeedPostComposeView: View {
         }
       }
     }
-    .alert(alertTitle, isPresented: $presentAlert, actions: {
-      Button("Okay") { }
-    }, message: {
-      Text(alertMessage)
-    })
+    .alert(
+      alertState?.title ?? "Error",
+      isPresented: $isAlertPresented,
+      actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(alertState?.message ?? "Unexpected Error")
+      }
+    )
     .task {
       await viewModel.fetchFeedUser()
     }
@@ -195,12 +197,6 @@ struct FeedPostComposeView: View {
             .font(.caption)
         }
     }
-  }
-  
-  private func showAlert(title: String, message: String) {
-    alertTitle = title
-    alertMessage = message
-    presentAlert = true
   }
 }
 

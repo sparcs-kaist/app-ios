@@ -29,6 +29,15 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  // MARK: - Repositories
+  private var feedPostRepository: Factory<FeedPostRepositoryProtocol> {
+    self {
+      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -98,12 +107,6 @@ extension Container: @retroactive AutoRegistering {
     // MARK: Feed
     feedUserRepository.register {
       FeedUserRepository(provider: MoyaProvider<FeedUserTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-
-    feedPostRepository.register {
-      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
         self.authPlugin.resolve()
       ]))
     }

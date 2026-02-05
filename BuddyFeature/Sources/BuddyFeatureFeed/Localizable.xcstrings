@@ -180,6 +180,7 @@
       }
     },
     "Failed to delete a post. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -200,6 +201,12 @@
           }
         }
       }
+    },
+    "Failed to downvote" : {
+
+    },
+    "Failed to upvote" : {
+
     },
     "Feed" : {
       "localizations" : {
@@ -425,10 +432,16 @@
         }
       }
     },
-    "Unable to delete post" : {
+    "Unable to delete post." : {
 
     },
     "Unable to submit report." : {
+
+    },
+    "Unable to write comment." : {
+
+    },
+    "Unable to write post." : {
 
     },
     "What's happening?" : {
