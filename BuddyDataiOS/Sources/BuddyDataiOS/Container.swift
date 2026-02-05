@@ -38,6 +38,14 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  private var feedCommentRepository: Factory<FeedCommentRepositoryProtocol> {
+    self {
+      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -107,12 +115,6 @@ extension Container: @retroactive AutoRegistering {
     // MARK: Feed
     feedUserRepository.register {
       FeedUserRepository(provider: MoyaProvider<FeedUserTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-
-    feedCommentRepository.register {
-      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
         self.authPlugin.resolve()
       ]))
     }
@@ -223,6 +225,13 @@ extension Container: @retroactive AutoRegistering {
     feedPostUseCase.register {
       FeedPostUseCase(
         feedPostRepository: self.feedPostRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
+    feedCommentUseCase.register {
+      FeedCommentUseCase(
+        feedCommentRepository: self.feedCommentRepository.resolve(),
         crashlyticsService: self.crashlyticsService.resolve()
       )
     }

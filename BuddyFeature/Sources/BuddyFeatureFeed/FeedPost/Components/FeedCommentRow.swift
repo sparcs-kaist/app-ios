@@ -29,8 +29,8 @@ struct FeedCommentRow: View {
 
   // MARK: - Dependencies
   @Injected(
-    \.feedCommentRepository
-  ) private var feedCommentRepository: FeedCommentRepositoryProtocol?
+    \.feedCommentUseCase
+  ) private var feedCommentUseCase: FeedCommentUseCaseProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   var body: some View {
@@ -128,8 +128,8 @@ struct FeedCommentRow: View {
               Button(reason.description) {
                 Task {
                   do {
-                    if let feedCommentRepository {
-                      try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
+                    if let feedCommentUseCase {
+                      try await feedCommentUseCase.reportComment(commentID: comment.id, reason: reason, detail: "")
                       showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
                     }
                   } catch {
@@ -215,7 +215,7 @@ struct FeedCommentRow: View {
 
   // MARK: - Functions
   private func upvote() async {
-    guard let feedCommentRepository else { return }
+    guard let feedCommentUseCase else { return }
 
     let previousMyVote: FeedVoteType? = comment.myVote
     let previousUpvotes: Int = comment.upvotes
@@ -225,7 +225,7 @@ struct FeedCommentRow: View {
         // cancel upvote
         comment.myVote = nil
         comment.upvotes -= 1
-        try await feedCommentRepository.deleteVote(commentID: comment.id)
+        try await feedCommentUseCase.deleteVote(commentID: comment.id)
       } else {
         // upvote
         if previousMyVote == .down {
@@ -234,7 +234,7 @@ struct FeedCommentRow: View {
         }
         comment.myVote = .up
         comment.upvotes += 1
-        try await feedCommentRepository.vote(commentID: comment.id, type: .up)
+        try await feedCommentUseCase.vote(commentID: comment.id, type: .up)
       }
     } catch {
       print(error)
@@ -244,7 +244,7 @@ struct FeedCommentRow: View {
   }
 
   private func downvote() async {
-    guard let feedCommentRepository else { return }
+    guard let feedCommentUseCase else { return }
 
     let previousMyVote: FeedVoteType? = comment.myVote
     let previousDownvotes: Int = comment.downvotes
@@ -254,7 +254,7 @@ struct FeedCommentRow: View {
         // cancel downvote
         comment.myVote = nil
         comment.downvotes -= 1
-        try await feedCommentRepository.deleteVote(commentID: comment.id)
+        try await feedCommentUseCase.deleteVote(commentID: comment.id)
       } else {
         // downvote
         if previousMyVote == .up {
@@ -263,7 +263,7 @@ struct FeedCommentRow: View {
         }
         comment.myVote = .down
         comment.downvotes += 1
-        try await feedCommentRepository.vote(commentID: comment.id, type: .down)
+        try await feedCommentUseCase.vote(commentID: comment.id, type: .down)
       }
     } catch {
       print(error)
@@ -273,11 +273,11 @@ struct FeedCommentRow: View {
   }
 
   private func delete() async {
-    guard let feedCommentRepository else { return }
+    guard let feedCommentUseCase else { return }
 
     comment.isDeleted = true
     do {
-      try await feedCommentRepository.deleteComment(commentID: comment.id)
+      try await feedCommentUseCase.deleteComment(commentID: comment.id)
     } catch {
       comment.isDeleted = false
     }

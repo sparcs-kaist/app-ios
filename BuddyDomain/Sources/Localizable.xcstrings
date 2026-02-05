@@ -219,6 +219,9 @@
         }
       }
     },
+    "Cannot delete comment that has votes." : {
+
+    },
     "Cannot delete post that has votes or comments." : {
 
     },

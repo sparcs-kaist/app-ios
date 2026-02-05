@@ -45,16 +45,16 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
-    \.feedCommentRepository
-  ) private var feedCommentRepository: FeedCommentRepositoryProtocol?
+    \.feedCommentUseCase
+  ) private var feedCommentUseCase: FeedCommentUseCaseProtocol?
 
   // MARK: - Functions
   func fetchComments(postID: String, initial: Bool) async {
     guard state != .loading || initial else { return }
-    guard let feedCommentRepository else { return }
+    guard let feedCommentUseCase else { return }
 
     do {
-      let comments: [FeedComment] = try await feedCommentRepository.fetchComments(postID: postID)
+      let comments: [FeedComment] = try await feedCommentUseCase.fetchComments(postID: postID)
       self.comments = comments
       self.state = .loaded
     } catch {
@@ -63,14 +63,14 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   }
 
   func writeComment(postID: String) async throws -> FeedComment {
-    guard let feedCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
+    guard let feedCommentUseCase else { throw CommentWriteError.repositoryNotAvailable }
 
     let request = FeedCreateComment(
       content: text,
       isAnonymous: isAnonymous,
       image: nil
     )
-    let comment: FeedComment = try await feedCommentRepository.writeComment(postID: postID, request: request)
+    let comment: FeedComment = try await feedCommentUseCase.writeComment(postID: postID, request: request)
 
     self.comments.append(comment)
 
@@ -94,10 +94,10 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   }
 
   func writeReply(commentID: String) async throws -> FeedComment {
-    guard let feedCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
-    
+    guard let feedCommentUseCase else { throw CommentWriteError.repositoryNotAvailable }
+
     let request = FeedCreateComment(content: text, isAnonymous: isAnonymous, image: nil)
-    let comment: FeedComment = try await feedCommentRepository.writeReply(commentID: commentID, request: request)
+    let comment: FeedComment = try await feedCommentUseCase.writeReply(commentID: commentID, request: request)
 
     var comments: [FeedComment] = self.comments
     _ = insertReply(into: &comments, comment: comment)
