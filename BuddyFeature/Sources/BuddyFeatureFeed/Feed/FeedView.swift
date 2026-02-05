@@ -6,8 +6,6 @@
 //
 
 import SwiftUI
-import Factory
-import NukeUI
 import BuddyDomain
 import BuddyFeatureShared
 import BuddyFeatureSettings
@@ -96,18 +94,15 @@ public struct FeedView: View {
     ForEach($viewModel.posts) { $post in
       NavigationLink(destination: {
         FeedPostView(post: $post, onDelete: {
-          if let idx = viewModel.posts.firstIndex(where: { $0.id == post.id }) {
-            await viewModel.deletePost(postID: post.id)
-            viewModel.posts.remove(at: idx)
-          }
+          await viewModel.deletePost(postID: post.id)
         })
         .environment(spoilerContents)
         .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-        //                .navigationTransition(.zoom(sourceID: post.id, in: namespace))
+        .navigationTransition(.zoom(sourceID: post.id, in: namespace))
       }, label: {
         FeedPostRow(post: $post, onPostDeleted: { postID in
           Task {
-            await deletePost(postID: postID)
+            await viewModel.deletePost(postID: postID)
           }
         }, onComment: nil)
         .environment(spoilerContents)
@@ -144,9 +139,6 @@ public struct FeedView: View {
     )
   }
 
-  private func deletePost(postID: String) async {
-    await viewModel.deletePost(postID: postID)
-  }
 }
 
 

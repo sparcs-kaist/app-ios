@@ -7,7 +7,6 @@
 
 import SwiftUI
 import NukeUI
-import Factory
 import BuddyDomain
 import BuddyFeatureShared
 
@@ -17,17 +16,12 @@ struct FeedPostRow: View {
   let onComment: (() -> Void)?
   @State var showFullContent: Bool = false
 
-  @State private var alertState: AlertState? = nil
-  @State private var isAlertPresented: Bool = false
+  @State private var viewModel: FeedPostRowViewModelProtocol = FeedPostRowViewModel()
   @State private var canBeExpanded: Bool = false
-  
+
   @State private var showDeleteConfirmation: Bool = false
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
-
-  // MARK: - Dependencies
-  @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
-  @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   var body: some View {
     Group {
@@ -44,12 +38,12 @@ struct FeedPostRow: View {
       text: post.content
     )
     .alert(
-      alertState?.title ?? "Error",
-      isPresented: $isAlertPresented,
+      viewModel.alertState?.title ?? "Error",
+      isPresented: $viewModel.isAlertPresented,
       actions: {
         Button("Okay", role: .close) { }
       }, message: {
-        Text(alertState?.message ?? "Unexpected Error")
+        Text(viewModel.alertState?.message ?? "Unexpected Error")
       }
     )
   }
@@ -87,7 +81,7 @@ struct FeedPostRow: View {
       Text(post.authorName)
         .fontWeight(.semibold)
         .font(.callout)
-      
+
       if post.isKaistIP {
         Image(systemName: "checkmark.seal.fill")
           .foregroundStyle(.tint)
@@ -124,22 +118,7 @@ struct FeedPostRow: View {
               ForEach(FeedReportType.allCases) { reason in
                 Button(reason.description) {
                   Task {
-                    do {
-                      if let feedPostUseCase {
-                        try await feedPostUseCase.reportPost(postID: post.id, reason: reason, detail: "")
-                        alertState = .init(
-                          title: String(localized: "Report Submitted"),
-                          message: String(localized: "Your report has been submitted successfully.")
-                        )
-                        isAlertPresented = true
-                      }
-                    } catch {
-                      alertState = .init(
-                        title: String(localized: "Unable to submit report."),
-                        message: error.localizedDescription
-                      )
-                      isAlertPresented = true
-                    }
+                    await viewModel.reportPost(postID: post.id, reason: reason)
                   }
                 }
               }
@@ -197,9 +176,9 @@ struct FeedPostRow: View {
         myVote: post.myVote == .up ? true : post.myVote == .down ? false : nil,
         votes: post.upvotes - post.downvotes,
         onDownvote: {
-          await downvote()
+          await viewModel.downvote(post: $post)
         }, onUpvote: {
-          await upvote()
+          await viewModel.upvote(post: $post)
         }
       )
 
@@ -209,85 +188,9 @@ struct FeedPostRow: View {
       .allowsHitTesting(onComment != nil)
 
       Spacer()
-
-//      if onPostDeleted == nil {
-//        PostShareButton(url: URL(string: "https://sparcs.org")!) // FIXME: Feed URL Placeholder
-//      }
     }
-//    .frame(height: 20)
     .padding(.horizontal)
     .padding(.top, 4)
-  }
-
-  // MARK: - Functions
-  private func upvote() async {
-    guard let feedPostUseCase else { return }
-
-    let previousMyVote: FeedVoteType? = post.myVote
-    let previousUpvotes: Int = post.upvotes
-    let previousDownvotes: Int = post.downvotes
-
-    do {
-      if previousMyVote == .up {
-        // cancel upvote
-        post.myVote = nil
-        post.upvotes -= 1
-        try await feedPostUseCase.deleteVote(postID: post.id)
-      } else {
-        // upvote
-        if previousMyVote == .down {
-          // remove downvote if there was
-          post.downvotes -= 1
-        }
-        post.myVote = .up
-        post.upvotes += 1
-        try await feedPostUseCase.vote(postID: post.id, type: .up)
-      }
-    } catch {
-      post.myVote = previousMyVote
-      post.upvotes = previousUpvotes
-      post.downvotes = previousDownvotes
-      alertState = .init(
-        title: String(localized: "Failed to upvote"),
-        message: error.localizedDescription
-      )
-      isAlertPresented = true
-    }
-  }
-
-  private func downvote() async {
-    guard let feedPostUseCase else { return }
-
-    let previousMyVote: FeedVoteType? = post.myVote
-    let previousUpvotes: Int = post.upvotes
-    let previousDownvotes: Int = post.downvotes
-
-    do {
-      if previousMyVote == .down {
-        // cancel downvote
-        post.myVote = nil
-        post.downvotes -= 1
-        try await feedPostUseCase.deleteVote(postID: post.id)
-      } else {
-        // downvote
-        if previousMyVote == .up {
-          // remove downvote if there was
-          post.upvotes -= 1
-        }
-        post.myVote = .down
-        post.downvotes += 1
-        try await feedPostUseCase.vote(postID: post.id, type: .down)
-      }
-    } catch {
-      post.myVote = previousMyVote
-      post.upvotes = previousUpvotes
-      post.downvotes = previousDownvotes
-      alertState = .init(
-        title: String(localized: "Failed to downvote"),
-        message: error.localizedDescription
-      )
-      isAlertPresented = true
-    }
   }
 }
 

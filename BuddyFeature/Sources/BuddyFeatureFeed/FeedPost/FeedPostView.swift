@@ -7,7 +7,6 @@
 
 import SwiftUI
 import NukeUI
-import Factory
 import BuddyDomain
 import BuddyFeatureShared
 
@@ -20,21 +19,11 @@ struct FeedPostView: View {
 
   @State private var showDeleteConfirmation: Bool = false
 
-  @State private var feedUser: FeedUser? = nil
-
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var targetComment: FeedComment? = nil
-  @State private var isUploadingComment: Bool = false
-
-  @State private var alertState: AlertState? = nil
-  @State private var isAlertPresented: Bool = false
 
   @State private var showTranslateSheet: Bool = false
 
-  // MARK: - Dependencies
-  @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
-  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
-  @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
   @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
 
   var body: some View {
@@ -51,8 +40,7 @@ struct FeedPostView: View {
       }
       .task(id: post.id) {
         await viewModel.fetchComments(postID: post.id, initial: true)
-        guard let userUseCase else { return }
-        self.feedUser = await userUseCase.feedUser
+        await viewModel.fetchFeedUser()
       }
       .refreshable {
         await viewModel.fetchComments(postID: post.id, initial: false)
@@ -62,56 +50,7 @@ struct FeedPostView: View {
       .toolbarVisibility(.hidden, for: .tabBar)
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Menu("More", systemImage: "ellipsis") {
-            Button("Translate", systemImage: "translate") { showTranslateSheet = true }
-            Divider()
-            if post.isAuthor {
-              Button("Delete", systemImage: "trash", role: .destructive) {
-                showDeleteConfirmation = true
-              }
-            } else {
-              Menu("Report", systemImage: "exclamationmark.triangle.fill") {
-                ForEach(FeedReportType.allCases) { reason in
-                  Button(reason.description) {
-                    Task {
-                      do {
-                        if let feedPostUseCase {
-                          try await feedPostUseCase.reportPost(postID: post.id, reason: reason, detail: "")
-                          alertState = .init(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-                          isAlertPresented = true
-                        }
-                      } catch {
-                        alertState = .init(
-                          title: String(localized: "Unable to submit report."),
-                          message: error.localizedDescription
-                        )
-                        isAlertPresented = true
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-          .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-              Task {
-                do {
-                  try await onDelete?()
-                  dismiss()
-                } catch {
-                  alertState = .init(
-                    title: String(localized: "Unable to delete post."),
-                    message: error.localizedDescription
-                  )
-                  isAlertPresented = true
-                }
-              }
-            }
-            Button("Cancel", role: .cancel) { }
-          } message: {
-            Text("Are you sure you want to delete this post?")
-          }
+          moreMenu
         }
       }
       .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
@@ -120,14 +59,55 @@ struct FeedPostView: View {
         inputBar(proxy: proxy)
       }
       .alert(
-        alertState?.title ?? "Error",
-        isPresented: $isAlertPresented,
+        viewModel.alertState?.title ?? "Error",
+        isPresented: $viewModel.isAlertPresented,
         actions: {
           Button("Okay", role: .close) { }
         }, message: {
-          Text(alertState?.message ?? "Unexpected Error")
+          Text(viewModel.alertState?.message ?? "Unexpected Error")
         }
       )
+    }
+  }
+
+  private var moreMenu: some View {
+    Menu("More", systemImage: "ellipsis") {
+      Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+      Divider()
+      if post.isAuthor {
+        Button("Delete", systemImage: "trash", role: .destructive) {
+          showDeleteConfirmation = true
+        }
+      } else {
+        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+          ForEach(FeedReportType.allCases) { reason in
+            Button(reason.description) {
+              Task {
+                await viewModel.reportPost(postID: post.id, reason: reason)
+              }
+            }
+          }
+        }
+      }
+    }
+    .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+      Button("Delete", role: .destructive) {
+        Task {
+          do {
+            try await onDelete?()
+            dismiss()
+          } catch {
+            viewModel.alertState = .init(
+              title: String(localized: "Unable to delete post."),
+              message: error.localizedDescription
+            )
+            viewModel.isAlertPresented = true
+          }
+        }
+      }
+      Button("Cancel", role: .cancel) { }
+    } message: {
+      Text("Are you sure you want to delete this post?")
     }
   }
 
@@ -165,33 +145,18 @@ struct FeedPostView: View {
           guard !viewModel.text.isEmpty else { return }
 
           Task {
-            isUploadingComment = true
-            defer { isUploadingComment = false }
-            do {
-              var uploadedComment: FeedComment? = nil
-              if let targetComment {
-                uploadedComment = try await viewModel.writeReply(commentID: targetComment.id)
-              } else {
-                uploadedComment = try await viewModel.writeComment(postID: post.id)
-              }
+            if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: targetComment) {
               post.commentCount += 1
               targetComment = nil
-              viewModel.text = ""
               isWritingCommentFocusState = false
 
               withAnimation(.spring) {
-                proxy.scrollTo(uploadedComment?.id, anchor: .center)
+                proxy.scrollTo(uploadedComment.id, anchor: .center)
               }
-            } catch {
-              alertState = .init(
-                title: String(localized: "Unable to write comment."),
-                message: error.localizedDescription
-              )
-              isAlertPresented = true
             }
           }
         }, label: {
-          if isUploadingComment {
+          if viewModel.isSubmittingComment {
             ProgressView()
               .tint(.white)
           } else {
@@ -203,9 +168,8 @@ struct FeedPostView: View {
         .fontWeight(.medium)
         .padding(12)
         .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .circle)
-        .disabled(viewModel.text.isEmpty)
+        .disabled(viewModel.text.isEmpty || viewModel.isSubmittingComment)
         .transition(.move(edge: .trailing).combined(with: .opacity))
-        .disabled(isUploadingComment)
       }
     }
     .padding(keyboardShowing ? [.horizontal, .vertical] : [.horizontal])
