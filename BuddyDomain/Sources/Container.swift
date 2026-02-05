@@ -54,7 +54,7 @@ extension Container {
     promised()
   }
 
-  public var feedImageRepository: Factory<FeedImageRepositoryProtocol?> {
+  public var feedImageUseCase: Factory<FeedImageUseCaseProtocol?> {
     promised()
   }
 

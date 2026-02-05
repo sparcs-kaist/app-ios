@@ -58,8 +58,8 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(
-    \.feedImageRepository
-  ) private var feedImageRepository: FeedImageRepositoryProtocol?
+    \.feedImageUseCase
+  ) private var feedImageUseCase: FeedImageUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.feedPostUseCase
   ) private var feedPostUseCase: FeedPostUseCaseProtocol?
@@ -75,7 +75,7 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   }
 
   func writePost() async throws {
-    guard let feedImageRepository, let feedPostUseCase else { return }
+    guard let feedImageUseCase, let feedPostUseCase else { return }
 
     // Run uploads concurrently
     let uploadedImages: [FeedImage] = try await withThrowingTaskGroup(
@@ -83,7 +83,7 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
     ) { group in
       for (idx, item) in selectedImages.enumerated() {
         group.addTask {
-          let image = try await feedImageRepository.uploadPostImage(item: item)
+          let image = try await feedImageUseCase.uploadPostImage(item: item)
           return (idx, image)
         }
       }

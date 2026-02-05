@@ -1,5 +1,5 @@
 {
-  "originHash" : "f8116af1e1cd97e5db1d1d8d5af67ec1671a73c99762bd67d0e9b6e3767c846a",
+  "originHash" : "a41dc547e067fffd109b09de86d200a7477e77140f28c26be04a1729ae0f7c31",
   "pins" : [
     {
       "identity" : "factory",
@@ -8,6 +8,24 @@
       "state" : {
         "revision" : "ccc898f21992ebc130bc04cc197460a5ae230bcf",
         "version" : "2.5.3"
+      }
+    },
+    {
+      "identity" : "haptica",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/efremidze/Haptica.git",
+      "state" : {
+        "revision" : "8fbb3286d1fe525925aea9bd64b0defdd545db5a",
+        "version" : "4.0.1"
+      }
+    },
+    {
+      "identity" : "nuke",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kean/Nuke.git",
+      "state" : {
+        "revision" : "0ead44350d2737db384908569c012fe67c421e4d",
+        "version" : "12.8.0"
       }
     },
     {

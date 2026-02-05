@@ -46,6 +46,14 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  private var feedImageRepository: Factory<FeedImageRepositoryProtocol> {
+    self {
+      FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -119,10 +127,11 @@ extension Container: @retroactive AutoRegistering {
       ]))
     }
 
-    feedImageRepository.register {
-      FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
+    feedImageUseCase.register {
+      FeedImageUseCase(
+        feedImageRepository: self.feedImageRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
     }
 
     // MARK: OTL
