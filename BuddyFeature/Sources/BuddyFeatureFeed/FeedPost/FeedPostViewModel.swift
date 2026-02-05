@@ -18,9 +18,17 @@ protocol FeedPostViewModelProtocol: Observable {
   var image: UIImage? { get set }
   var isAnonymous: Bool { get set }
 
+  var alertState: AlertState? { get set }
+  var isAlertPresented: Bool { get set }
+  var isSubmittingComment: Bool { get }
+  var feedUser: FeedUser? { get }
+
   func fetchComments(postID: String, initial: Bool) async
   func writeComment(postID: String) async throws -> FeedComment
   func writeReply(commentID: String) async throws -> FeedComment
+  func reportPost(postID: String, reason: FeedReportType) async
+  func submitComment(postID: String, replyingTo targetComment: FeedComment?) async -> FeedComment?
+  func fetchFeedUser() async
 }
 
 @Observable
@@ -43,18 +51,25 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   var image: UIImage? = nil
   var isAnonymous: Bool = true
 
+  var alertState: AlertState? = nil
+  var isAlertPresented: Bool = false
+  var isSubmittingComment: Bool = false
+  var feedUser: FeedUser? = nil
+
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
-    \.feedCommentRepository
-  ) private var feedCommentRepository: FeedCommentRepositoryProtocol?
+    \.feedCommentUseCase
+  ) private var feedCommentUseCase: FeedCommentUseCaseProtocol?
+  @ObservationIgnored @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   // MARK: - Functions
   func fetchComments(postID: String, initial: Bool) async {
     guard state != .loading || initial else { return }
-    guard let feedCommentRepository else { return }
+    guard let feedCommentUseCase else { return }
 
     do {
-      let comments: [FeedComment] = try await feedCommentRepository.fetchComments(postID: postID)
+      let comments: [FeedComment] = try await feedCommentUseCase.fetchComments(postID: postID)
       self.comments = comments
       self.state = .loaded
     } catch {
@@ -63,14 +78,14 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   }
 
   func writeComment(postID: String) async throws -> FeedComment {
-    guard let feedCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
+    guard let feedCommentUseCase else { throw CommentWriteError.repositoryNotAvailable }
 
     let request = FeedCreateComment(
       content: text,
       isAnonymous: isAnonymous,
       image: nil
     )
-    let comment: FeedComment = try await feedCommentRepository.writeComment(postID: postID, request: request)
+    let comment: FeedComment = try await feedCommentUseCase.writeComment(postID: postID, request: request)
 
     self.comments.append(comment)
 
@@ -94,15 +109,62 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   }
 
   func writeReply(commentID: String) async throws -> FeedComment {
-    guard let feedCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
-    
+    guard let feedCommentUseCase else { throw CommentWriteError.repositoryNotAvailable }
+
     let request = FeedCreateComment(content: text, isAnonymous: isAnonymous, image: nil)
-    let comment: FeedComment = try await feedCommentRepository.writeReply(commentID: commentID, request: request)
+    let comment: FeedComment = try await feedCommentUseCase.writeReply(commentID: commentID, request: request)
 
     var comments: [FeedComment] = self.comments
     _ = insertReply(into: &comments, comment: comment)
     self.comments = comments
 
     return comment
+  }
+
+  func reportPost(postID: String, reason: FeedReportType) async {
+    guard let feedPostUseCase else { return }
+
+    do {
+      try await feedPostUseCase.reportPost(postID: postID, reason: reason, detail: "")
+      alertState = .init(
+        title: String(localized: "Report Submitted"),
+        message: String(localized: "Your report has been submitted successfully.")
+      )
+      isAlertPresented = true
+    } catch {
+      alertState = .init(
+        title: String(localized: "Unable to submit report."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
+    }
+  }
+
+  func submitComment(postID: String, replyingTo targetComment: FeedComment?) async -> FeedComment? {
+    isSubmittingComment = true
+    defer { isSubmittingComment = false }
+
+    do {
+      let uploadedComment: FeedComment
+      if let targetComment {
+        uploadedComment = try await writeReply(commentID: targetComment.id)
+      } else {
+        uploadedComment = try await writeComment(postID: postID)
+      }
+      text = ""
+      return uploadedComment
+    } catch {
+      alertState = .init(
+        title: String(localized: "Unable to write comment."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
+      return nil
+    }
+  }
+
+  func fetchFeedUser() async {
+    guard let userUseCase else { return }
+    self.feedUser = await userUseCase.feedUser
   }
 }

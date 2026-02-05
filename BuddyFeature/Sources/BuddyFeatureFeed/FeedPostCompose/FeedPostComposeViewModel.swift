@@ -19,8 +19,13 @@ protocol FeedPostComposeViewModelProtocol: Observable {
   var selectedItems: [PhotosPickerItem] { get set }
   var selectedImages: [FeedPostPhotoItem] { get set }
 
+  var alertState: AlertState? { get }
+  var isAlertPresented: Bool { get set }
+  var isUploading: Bool { get }
+
   func fetchFeedUser() async
   func writePost() async throws
+  func submitPost() async -> Bool
   func handleException(_ error: Error)
 }
 
@@ -29,9 +34,9 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   enum ComposeType: Int, Hashable, CaseIterable, Identifiable {
     case publicly = 0
     case anonymously = 1
-    
+
     var id: Self { self }
-    
+
     func prettyString(nickname: String?) -> String {
       switch self {
       case .anonymously:
@@ -55,14 +60,18 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   }
   var selectedImages: [FeedPostPhotoItem] = []
 
+  var alertState: AlertState? = nil
+  var isAlertPresented: Bool = false
+  var isUploading: Bool = false
+
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(
-    \.feedImageRepository
-  ) private var feedImageRepository: FeedImageRepositoryProtocol?
+    \.feedImageUseCase
+  ) private var feedImageUseCase: FeedImageUseCaseProtocol?
   @ObservationIgnored @Injected(
-    \.feedPostRepository
-  ) private var feedPostRepository: FeedPostRepositoryProtocol?
+    \.feedPostUseCase
+  ) private var feedPostUseCase: FeedPostUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.crashlyticsService
   ) private var crashlyticsService: CrashlyticsServiceProtocol?
@@ -70,20 +79,20 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   // MARK: - Functions
   func fetchFeedUser() async {
     guard let userUseCase else { return }
-    
+
     self.feedUser = await userUseCase.feedUser
   }
 
   func writePost() async throws {
-    guard let feedImageRepository, let feedPostRepository else { return }
-    
+    guard let feedImageUseCase, let feedPostUseCase else { return }
+
     // Run uploads concurrently
     let uploadedImages: [FeedImage] = try await withThrowingTaskGroup(
       of: (Int, FeedImage).self
     ) { group in
       for (idx, item) in selectedImages.enumerated() {
         group.addTask {
-          let image = try await feedImageRepository.uploadPostImage(item: item)
+          let image = try await feedImageUseCase.uploadPostImage(item: item)
           return (idx, image)
         }
       }
@@ -101,7 +110,24 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
       isAnonymous: selectedComposeType == .anonymously,
       images: uploadedImages
     )
-    try await feedPostRepository.writePost(request: request)
+    try await feedPostUseCase.writePost(request: request)
+  }
+
+  func submitPost() async -> Bool {
+    isUploading = true
+    defer { isUploading = false }
+
+    do {
+      try await writePost()
+      return true
+    } catch {
+      alertState = .init(
+        title: String(localized: "Unable to write post."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
+      return false
+    }
   }
 
   private func loadImagesAndReconcile() async {
@@ -164,7 +190,7 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
 
     return nil
   }
-  
+
   func handleException(_ error: Error) {
     crashlyticsService?.recordException(error: error)
   }

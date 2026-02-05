@@ -7,7 +7,6 @@
 
 import SwiftUI
 import NukeUI
-import Factory
 import BuddyDomain
 import BuddyFeatureShared
 
@@ -17,18 +16,12 @@ struct FeedPostRow: View {
   let onComment: (() -> Void)?
   @State var showFullContent: Bool = false
 
-  @State private var presentAlert: Bool = false
-  @State private var alertTitle: String = ""
-  @State private var alertMessage: String = ""
+  @State private var viewModel: FeedPostRowViewModelProtocol = FeedPostRowViewModel()
   @State private var canBeExpanded: Bool = false
-  
+
   @State private var showDeleteConfirmation: Bool = false
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
-
-  // MARK: - Dependencies
-  @Injected(\.feedPostRepository) private var feedPostRepository: FeedPostRepositoryProtocol?
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   var body: some View {
     Group {
@@ -40,7 +33,19 @@ struct FeedPostRow: View {
         footer
       }
     }
-    .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
+    .translationPresentation(
+      isPresented: $showTranslateSheet,
+      text: post.content
+    )
+    .alert(
+      viewModel.alertState?.title ?? "Error",
+      isPresented: $viewModel.isAlertPresented,
+      actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(viewModel.alertState?.message ?? "Unexpected Error")
+      }
+    )
   }
 
   @ViewBuilder
@@ -76,7 +81,7 @@ struct FeedPostRow: View {
       Text(post.authorName)
         .fontWeight(.semibold)
         .font(.callout)
-      
+
       if post.isKaistIP {
         Image(systemName: "checkmark.seal.fill")
           .foregroundStyle(.tint)
@@ -113,19 +118,7 @@ struct FeedPostRow: View {
               ForEach(FeedReportType.allCases) { reason in
                 Button(reason.description) {
                   Task {
-                    do {
-                      if let feedPostRepository {
-                        try await feedPostRepository.reportPost(postID: post.id, reason: reason, detail: "")
-                        showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-                      }
-                    } catch {
-//                      if error.isNetworkMoyaError {
-//                        showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//                      } else {
-//                        crashlyticsService?.recordException(error: error)
-//                        showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
-//                      }
-                    }
+                    await viewModel.reportPost(postID: post.id, reason: reason)
                   }
                 }
               }
@@ -143,11 +136,6 @@ struct FeedPostRow: View {
         } message: {
           Text("Are you sure you want to delete this post?")
         }
-        .alert(alertTitle, isPresented: $presentAlert, actions: {
-          Button("Okay", role: .close) { }
-        }, message: {
-          Text(alertMessage)
-        })
       }
     }
     .padding(.horizontal)
@@ -188,9 +176,9 @@ struct FeedPostRow: View {
         myVote: post.myVote == .up ? true : post.myVote == .down ? false : nil,
         votes: post.upvotes - post.downvotes,
         onDownvote: {
-          await downvote()
+          await viewModel.downvote(post: $post)
         }, onUpvote: {
-          await upvote()
+          await viewModel.upvote(post: $post)
         }
       )
 
@@ -200,83 +188,9 @@ struct FeedPostRow: View {
       .allowsHitTesting(onComment != nil)
 
       Spacer()
-
-//      if onPostDeleted == nil {
-//        PostShareButton(url: URL(string: "https://sparcs.org")!) // FIXME: Feed URL Placeholder
-//      }
     }
-//    .frame(height: 20)
     .padding(.horizontal)
     .padding(.top, 4)
-  }
-
-  // MARK: - Functions
-  private func upvote() async {
-    guard let feedPostRepository else { return }
-
-    let previousMyVote: FeedVoteType? = post.myVote
-    let previousUpvotes: Int = post.upvotes
-    let previousDownvotes: Int = post.downvotes
-
-    do {
-      if previousMyVote == .up {
-        // cancel upvote
-        post.myVote = nil
-        post.upvotes -= 1
-        try await feedPostRepository.deleteVote(postID: post.id)
-      } else {
-        // upvote
-        if previousMyVote == .down {
-          // remove downvote if there was
-          post.downvotes -= 1
-        }
-        post.myVote = .up
-        post.upvotes += 1
-        try await feedPostRepository.vote(postID: post.id, type: .up)
-      }
-    } catch {
-      print(error)
-      post.myVote = previousMyVote
-      post.upvotes = previousUpvotes
-      post.downvotes = previousDownvotes
-    }
-  }
-
-  private func downvote() async {
-    guard let feedPostRepository else { return }
-
-    let previousMyVote: FeedVoteType? = post.myVote
-    let previousUpvotes: Int = post.upvotes
-    let previousDownvotes: Int = post.downvotes
-
-    do {
-      if previousMyVote == .down {
-        // cancel downvote
-        post.myVote = nil
-        post.downvotes -= 1
-        try await feedPostRepository.deleteVote(postID: post.id)
-      } else {
-        // downvote
-        if previousMyVote == .up {
-          // remove downvote if there was
-          post.upvotes -= 1
-        }
-        post.myVote = .down
-        post.downvotes += 1
-        try await feedPostRepository.vote(postID: post.id, type: .down)
-      }
-    } catch {
-      print(error)
-      post.myVote = previousMyVote
-      post.upvotes = previousUpvotes
-      post.downvotes = previousDownvotes
-    }
-  }
-  
-  private func showAlert(title: String, message: String) {
-    alertTitle = title
-    alertMessage = message
-    presentAlert = true
   }
 }
 

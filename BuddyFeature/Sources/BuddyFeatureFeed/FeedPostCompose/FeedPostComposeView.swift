@@ -16,12 +16,7 @@ struct FeedPostComposeView: View {
   @Environment(\.openURL) private var openURL
 
   @State private var showPhotosPicker: Bool = false
-  @State private var isUploading: Bool = false
-  
-  @State private var presentAlert: Bool = false
-  @State private var alertTitle: String = ""
-  @State private var alertMessage: String = ""
-  
+
   @FocusState private var isFocused: Bool
 
   var body: some View {
@@ -30,13 +25,13 @@ struct FeedPostComposeView: View {
         VStack(alignment: .leading) {
           header
             .padding(.horizontal)
-            .disabled(isUploading)
+            .disabled(viewModel.isUploading)
 
           TextField("What's happening?", text: $viewModel.text, axis: .vertical)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
             .padding(.horizontal)
-            .disabled(isUploading)
+            .disabled(viewModel.isUploading)
             .focused($isFocused)
 
           HStack {
@@ -50,7 +45,7 @@ struct FeedPostComposeView: View {
 
           if !viewModel.selectedImages.isEmpty {
             FeedPostPhotoItemStrip(images: $viewModel.selectedImages)
-              .disabled(isUploading)
+              .disabled(viewModel.isUploading)
           }
         }
         .padding(.vertical)
@@ -63,7 +58,7 @@ struct FeedPostComposeView: View {
           Button("Close", systemImage: "xmark") {
             dismiss()
           }
-          .disabled(isUploading)
+          .disabled(viewModel.isUploading)
         }
 
         ToolbarItem(placement: .topBarTrailing) {
@@ -71,22 +66,12 @@ struct FeedPostComposeView: View {
             role: .confirm,
             action: {
               Task {
-                isUploading = true
-                defer { isUploading = false }
-                do {
-                  try await viewModel.writePost()
+                if await viewModel.submitPost() {
                   dismiss()
-                } catch {
-//                  if error.isNetworkMoyaError {
-//                    showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//                  } else {
-//                    viewModel.handleException(error)
-//                    showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a post. Please try again later."))
-//                  }
                 }
               }
             }, label: {
-              if isUploading {
+              if viewModel.isUploading {
                 ProgressView()
                   .tint(.white)
               } else {
@@ -96,7 +81,7 @@ struct FeedPostComposeView: View {
           )
           .disabled(viewModel.text.isEmpty)
           .disabled(viewModel.text.count > 280)
-          .disabled(isUploading)
+          .disabled(viewModel.isUploading)
         }
       }
       .toolbar {
@@ -105,15 +90,19 @@ struct FeedPostComposeView: View {
           Button("Photo Library", systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
-          .disabled(isUploading)
+          .disabled(viewModel.isUploading)
         }
       }
     }
-    .alert(alertTitle, isPresented: $presentAlert, actions: {
-      Button("Okay") { }
-    }, message: {
-      Text(alertMessage)
-    })
+    .alert(
+      viewModel.alertState?.title ?? "Error",
+      isPresented: $viewModel.isAlertPresented,
+      actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(viewModel.alertState?.message ?? "Unexpected Error")
+      }
+    )
     .task {
       await viewModel.fetchFeedUser()
     }
@@ -149,7 +138,7 @@ struct FeedPostComposeView: View {
       .buttonStyle(.glass)
 
       Spacer()
-      
+
       Button {
         openURL(Constants.termsOfUseURL)
       } label: {
@@ -195,12 +184,6 @@ struct FeedPostComposeView: View {
             .font(.caption)
         }
     }
-  }
-  
-  private func showAlert(title: String, message: String) {
-    alertTitle = title
-    alertMessage = message
-    presentAlert = true
   }
 }
 

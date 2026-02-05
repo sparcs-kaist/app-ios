@@ -7,7 +7,6 @@
 
 import SwiftUI
 import NukeUI
-import Factory
 import Translation
 import BuddyDomain
 import BuddyFeatureShared
@@ -16,22 +15,14 @@ struct FeedCommentRow: View {
   @Binding var comment: FeedComment
   let isReply: Bool
   let onReply: (() -> Void)?
-  
-  @State private var presentAlert: Bool = false
-  @State private var alertTitle: String = ""
-  @State private var alertMessage: String = ""
-  
+
+  @State private var viewModel: FeedCommentRowViewModelProtocol = FeedCommentRowViewModel()
+
   @State private var showFullContent: Bool = false
   @State private var canBeExpanded: Bool = false
 
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
-
-  // MARK: - Dependencies
-  @Injected(
-    \.feedCommentRepository
-  ) private var feedCommentRepository: FeedCommentRepositoryProtocol?
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
@@ -43,11 +34,20 @@ struct FeedCommentRow: View {
         header
 
         content
-        
+
         footer
       }
     }
     .translationPresentation(isPresented: $showTranslateSheet, text: comment.content)
+    .alert(
+      viewModel.alertState?.title ?? "Error",
+      isPresented: $viewModel.isAlertPresented,
+      actions: {
+        Button("Okay", role: .close) { }
+      }, message: {
+        Text(viewModel.alertState?.message ?? "Unexpected Error")
+      }
+    )
   }
 
   @ViewBuilder
@@ -90,7 +90,7 @@ struct FeedCommentRow: View {
       }
       .fontWeight(.semibold)
       .font(.callout)
-      
+
       if comment.isKaistIP {
         Image(systemName: "checkmark.seal.fill")
           .foregroundStyle(.tint)
@@ -119,7 +119,7 @@ struct FeedCommentRow: View {
         if comment.isMyComment {
           Button("Delete", systemImage: "trash", role: .destructive) {
             Task {
-              await delete()
+              await viewModel.delete(comment: $comment)
             }
           }
         } else {
@@ -127,19 +127,7 @@ struct FeedCommentRow: View {
             ForEach(FeedReportType.allCases) { reason in
               Button(reason.description) {
                 Task {
-                  do {
-                    if let feedCommentRepository {
-                      try await feedCommentRepository.reportComment(commentID: comment.id, reason: reason, detail: "")
-                      showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
-                    }
-                  } catch {
-//                    if error.isNetworkMoyaError {
-//                      showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//                    } else {
-//                      crashlyticsService?.recordException(error: error)
-//                      showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
-//                    }
-                  }
+                  await viewModel.reportComment(commentID: comment.id, reason: reason)
                 }
               }
             }
@@ -147,11 +135,6 @@ struct FeedCommentRow: View {
         }
       }
     }
-    .alert(alertTitle, isPresented: $presentAlert, actions: {
-      Button("Okay", role: .close) { }
-    }, message: {
-      Text(alertMessage)
-    })
     .labelStyle(.iconOnly)
   }
 
@@ -167,13 +150,13 @@ struct FeedCommentRow: View {
         ViewThatFits(in: .vertical) {
           Text(comment.content)
             .hidden()
-          
+
           Color.clear.onAppear {
             canBeExpanded = true
           }
         }
       }
-    
+
     if canBeExpanded && !showFullContent && !comment.isDeleted {
       Button("more") {
         withAnimation {
@@ -199,9 +182,9 @@ struct FeedCommentRow: View {
           myVote: comment.myVote == .up ? true : comment.myVote == .down ? false : nil,
           votes: comment.upvotes - comment.downvotes,
           onDownvote: {
-            await downvote()
+            await viewModel.downvote(comment: $comment)
           }, onUpvote: {
-            await upvote()
+            await viewModel.upvote(comment: $comment)
           }
         )
         .disabled(comment.isMyComment)
@@ -213,83 +196,7 @@ struct FeedCommentRow: View {
     .frame(height: 20)
   }
 
-  // MARK: - Functions
-  private func upvote() async {
-    guard let feedCommentRepository else { return }
-
-    let previousMyVote: FeedVoteType? = comment.myVote
-    let previousUpvotes: Int = comment.upvotes
-
-    do {
-      if previousMyVote == .up {
-        // cancel upvote
-        comment.myVote = nil
-        comment.upvotes -= 1
-        try await feedCommentRepository.deleteVote(commentID: comment.id)
-      } else {
-        // upvote
-        if previousMyVote == .down {
-          // remove downvote if there was
-          comment.downvotes -= 1
-        }
-        comment.myVote = .up
-        comment.upvotes += 1
-        try await feedCommentRepository.vote(commentID: comment.id, type: .up)
-      }
-    } catch {
-      print(error)
-      comment.myVote = previousMyVote
-      comment.upvotes = previousUpvotes
-    }
-  }
-
-  private func downvote() async {
-    guard let feedCommentRepository else { return }
-
-    let previousMyVote: FeedVoteType? = comment.myVote
-    let previousDownvotes: Int = comment.downvotes
-
-    do {
-      if previousMyVote == .down {
-        // cancel downvote
-        comment.myVote = nil
-        comment.downvotes -= 1
-        try await feedCommentRepository.deleteVote(commentID: comment.id)
-      } else {
-        // downvote
-        if previousMyVote == .up {
-          // remove downvote if there was
-          comment.upvotes -= 1
-        }
-        comment.myVote = .down
-        comment.downvotes += 1
-        try await feedCommentRepository.vote(commentID: comment.id, type: .down)
-      }
-    } catch {
-      print(error)
-      comment.myVote = previousMyVote
-      comment.downvotes = previousDownvotes
-    }
-  }
-
-  private func delete() async {
-    guard let feedCommentRepository else { return }
-
-    comment.isDeleted = true
-    do {
-      try await feedCommentRepository.deleteComment(commentID: comment.id)
-    } catch {
-      comment.isDeleted = false
-    }
-  }
-  
   private let authorTag = LocalizedString(["en": "Author", "ko": "작성자"])
-  
-  private func showAlert(title: String, message: String) {
-    alertTitle = title
-    alertMessage = message
-    presentAlert = true
-  }
 }
 
 #Preview {

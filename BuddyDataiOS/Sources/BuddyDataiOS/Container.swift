@@ -29,6 +29,31 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  // MARK: - Repositories
+  private var feedPostRepository: Factory<FeedPostRepositoryProtocol> {
+    self {
+      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  private var feedCommentRepository: Factory<FeedCommentRepositoryProtocol> {
+    self {
+      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  private var feedImageRepository: Factory<FeedImageRepositoryProtocol> {
+    self {
+      FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -102,22 +127,11 @@ extension Container: @retroactive AutoRegistering {
       ]))
     }
 
-    feedPostRepository.register {
-      FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-
-    feedCommentRepository.register {
-      FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-
-    feedImageRepository.register {
-      FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
+    feedImageUseCase.register {
+      FeedImageUseCase(
+        feedImageRepository: self.feedImageRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
     }
 
     // MARK: OTL
@@ -152,7 +166,7 @@ extension Container: @retroactive AutoRegistering {
     .scope(.singleton)
 
     crashlyticsService.register {
-      CrashlyticsService()
+      CrashlyticsService(userUseCase: self.userUseCase.resolve())
     }
     .scope(.singleton)
 
@@ -216,5 +230,19 @@ extension Container: @retroactive AutoRegistering {
       )
     }
     .scope(.singleton)
+
+    feedPostUseCase.register {
+      FeedPostUseCase(
+        feedPostRepository: self.feedPostRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
+    feedCommentUseCase.register {
+      FeedCommentUseCase(
+        feedCommentRepository: self.feedCommentRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
   }
 }
