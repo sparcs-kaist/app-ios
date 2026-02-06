@@ -22,6 +22,7 @@ let package = Package(
     ],
     dependencies: [
       .package(path: "../BuddyDomain"),
+      .package(path: "../BuddyTestSupport"),
       .package(url: "https://github.com/efremidze/Haptica.git", .upToNextMajor(from: "4.0.1")),
       .package(url: "https://github.com/kean/Nuke.git", .upToNextMajor(from: "12.0.0"))
     ],
@@ -92,7 +93,10 @@ let package = Package(
         ),
         .testTarget(
             name: "BuddyFeatureFeedTests",
-            dependencies: ["BuddyFeatureFeed"]
+            dependencies: [
+              "BuddyFeatureFeed",
+              "BuddyTestSupport"
+            ]
         ),
     ]
 )

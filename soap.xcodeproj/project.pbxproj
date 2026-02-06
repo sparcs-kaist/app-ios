@@ -144,6 +144,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8B2DE7B22F35F5480020EB6F /* BuddyTestSupport */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyTestSupport; sourceTree = "<group>"; };
 		8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BuddyWatchWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -329,6 +330,7 @@
 		8B8DFBDD2CCF771700AB82CC = {
 			isa = PBXGroup;
 			children = (
+				8B2DE7B22F35F5480020EB6F /* BuddyTestSupport */,
 				8BE539512F2B75DA00735E7A /* BuddyFeature */,
 				8BE537AD2F2780A700735E7A /* BuddyDataiOS */,
 				8B6637C32EFD600200795A41 /* BuddyiOSWidgetExtension.entitlements */,
