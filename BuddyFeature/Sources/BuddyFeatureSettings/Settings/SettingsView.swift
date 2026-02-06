@@ -73,6 +73,8 @@ public struct SettingsView: View {
   
   private var appSettings: some View {
     Group {
+      NavigationLink("Notifications") { NotificationSettingsView() }
+
       Button("Change Language", systemImage: "globe") {
         if let url = URL(string: UIApplication.openSettingsURLString) {
           openURL(url)
