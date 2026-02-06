@@ -92,6 +92,10 @@ extension Container {
   public var authUseCase: Factory<AuthUseCaseProtocol?> {
     promised()
   }
+  
+  public var fcmUseCase: Factory<FCMUseCaseProtocol?> {
+    promised()
+  }
 
   public var userUseCase: Factory<UserUseCaseProtocol?> {
     promised()

@@ -60,7 +60,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 // MARK: - Non-actor-isolated delegate sink
 final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingDelegate {
-
+  @Injected(\.fcmUseCase) private var fcmUseCase: FCMUseCaseProtocol?
+  
   // Foreground presentation
   func userNotificationCenter(_ center: UNUserNotificationCenter,
                               willPresent notification: UNNotification,
@@ -84,8 +85,15 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
   nonisolated func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
     print("FCM token: \(String(describing: fcmToken))")
     // If you need to touch @MainActor state or UI:
-    Task { @MainActor in
+    Task { @MainActor [fcmUseCase] in
       // save to Keychain / send to server / update view model
+      guard let fcmToken else { return }
+      
+      do {
+        try await fcmUseCase?.register(fcmToken: fcmToken)
+      } catch {
+        print("Failed to register fcm token: \(error)")
+      }
     }
   }
 }
