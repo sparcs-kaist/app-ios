@@ -43,6 +43,16 @@ public struct FeedView: View {
       .disabled(viewModel.state == .loading)
       .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed") : "")
       .toolbarTitleDisplayMode(.inlineLarge)
+      .navigationDestination(for: String.self) { postID in
+        if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
+          FeedPostView(post: $viewModel.posts[index], onDelete: {
+            await viewModel.deletePost(postID: postID)
+          })
+          .environment(spoilerContents)
+          .addKeyboardVisibilityToEnvironment()
+//          .navigationTransition(.zoom(sourceID: postID, in: namespace))
+        }
+      }
       .task {
         await viewModel.fetchInitialData()
       }
@@ -55,7 +65,7 @@ public struct FeedView: View {
             showComposeView = true
           }
         }
-        .matchedTransitionSource(id: "ComposeView", in: namespace)
+//        .matchedTransitionSource(id: "ComposeView", in: namespace)
 
         ToolbarSpacer(.fixed)
         
@@ -92,14 +102,7 @@ public struct FeedView: View {
 
   private var contentView: some View {
     ForEach($viewModel.posts) { $post in
-      NavigationLink(destination: {
-        FeedPostView(post: $post, onDelete: {
-          await viewModel.deletePost(postID: post.id)
-        })
-        .environment(spoilerContents)
-        .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-        .navigationTransition(.zoom(sourceID: post.id, in: namespace))
-      }, label: {
+      NavigationLink(value: post.id) {
         FeedPostRow(post: $post, onPostDeleted: { postID in
           Task {
             await viewModel.deletePost(postID: postID)
@@ -107,7 +110,7 @@ public struct FeedView: View {
         }, onComment: nil)
         .environment(spoilerContents)
         .contentShape(.rect)
-      })
+      }
       .id(post.id)
       .padding(.vertical)
       .navigationLinkIndicatorVisibility(.hidden)
