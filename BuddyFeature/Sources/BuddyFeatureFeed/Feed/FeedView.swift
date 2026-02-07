@@ -50,7 +50,6 @@ public struct FeedView: View {
           })
           .environment(spoilerContents)
           .addKeyboardVisibilityToEnvironment()
-//          .navigationTransition(.zoom(sourceID: postID, in: namespace))
         }
       }
       .task {
@@ -65,7 +64,6 @@ public struct FeedView: View {
             showComposeView = true
           }
         }
-//        .matchedTransitionSource(id: "ComposeView", in: namespace)
 
         ToolbarSpacer(.fixed)
         
