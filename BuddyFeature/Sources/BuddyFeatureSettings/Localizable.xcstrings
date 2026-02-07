@@ -320,6 +320,9 @@
         }
       }
     },
+    "Failed to encode toggle status" : {
+
+    },
     "Failed to load content" : {
       "localizations" : {
         "en" : {
@@ -335,6 +338,12 @@
           }
         }
       }
+    },
+    "Failed to save toggle status" : {
+
+    },
+    "Failed to update toggle status" : {
+
     },
     "Force Crash" : {
       "localizations" : {
@@ -463,6 +472,9 @@
           }
         }
       }
+    },
+    "Notifications" : {
+
     },
     "Okay" : {
       "localizations" : {

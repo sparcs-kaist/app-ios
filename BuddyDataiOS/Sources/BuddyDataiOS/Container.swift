@@ -53,6 +53,14 @@ extension Container: @retroactive AutoRegistering {
       ]))
     }
   }
+  
+  private var fcmRepository: Factory<FCMRepositoryProtocol> {
+    self {
+      FCMRepository(provider: MoyaProvider<FCMTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
 
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
@@ -184,6 +192,11 @@ extension Container: @retroactive AutoRegistering {
         feedUserRepository: self.feedUserRepository.resolve(),
         otlUserRepository: self.otlUserRepository.resolve()
       )
+    }
+    .scope(.singleton)
+    
+    fcmUseCase.register {
+      FCMUseCase(fcmRepository: self.fcmRepository.resolve())
     }
     .scope(.singleton)
 
