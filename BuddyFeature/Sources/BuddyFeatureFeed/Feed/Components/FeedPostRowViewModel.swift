@@ -11,16 +11,6 @@ import Factory
 import BuddyDomain
 
 @MainActor
-protocol FeedPostRowViewModelProtocol: Observable {
-  var alertState: AlertState? { get }
-  var isAlertPresented: Bool { get set }
-
-  func upvote(post: Binding<FeedPost>) async
-  func downvote(post: Binding<FeedPost>) async
-  func reportPost(postID: String, reason: FeedReportType) async
-}
-
-@MainActor
 @Observable
 final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
   var alertState: AlertState? = nil
