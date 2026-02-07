@@ -7,8 +7,10 @@
 
 import SwiftUI
 import NukeUI
+import Factory
 import BuddyDomain
 import BuddyFeatureShared
+import BuddyPreviewSupport
 
 struct FeedPostView: View {
   @Binding var post: FeedPost
@@ -243,3 +245,36 @@ struct FeedPostView: View {
   }
 }
 
+// MARK: - Previews
+
+// IGNORES COMMENT COUNT BEING WRONG SINCE THEY ARE NOT BEING COUNTED DYNAMICALLY BASED ON ACTUAL COMMENTS. IT IS BEING PULLED FROM POST META DATA.
+
+#Preview("Post Detail") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  let _ = Container.setupFeedPreview()
+  NavigationStack {
+    FeedPostView(post: .constant(FeedPost.mock), onDelete: nil)
+      .environment(spoilerContents)
+      .addKeyboardVisibilityToEnvironment()
+  }
+}
+
+#Preview("With Comments") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  let _ = Container.setupFeedPreview()
+  NavigationStack {
+    FeedPostView(post: .constant(FeedPost.mockList[6]), onDelete: nil)
+      .environment(spoilerContents)
+      .addKeyboardVisibilityToEnvironment()
+  }
+}
+
+#Preview("Author Post") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  let _ = Container.setupFeedPreview()
+  NavigationStack {
+    FeedPostView(post: .constant(FeedPost.mockList[0]), onDelete: {})
+      .environment(spoilerContents)
+      .addKeyboardVisibilityToEnvironment()
+  }
+}
