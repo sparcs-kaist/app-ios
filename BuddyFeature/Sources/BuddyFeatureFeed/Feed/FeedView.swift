@@ -9,6 +9,7 @@ import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
 import BuddyFeatureSettings
+import BuddyPreviewSupport
 
 public struct FeedView: View {
   @State private var viewModel: FeedViewModelProtocol = FeedViewModel()
@@ -143,20 +144,20 @@ public struct FeedView: View {
 }
 
 
-// MARK: - Previews (requires MockFeedViewModel from soap target)
-// #Preview("Loading State") {
-//   @Previewable @State var viewModel = MockFeedViewModel()
-//   viewModel.state = .loading
-//   return FeedView(viewModel)
-// }
-//
-// #Preview("Loaded State") {
-//   @Previewable @State var viewModel = MockFeedViewModel()
-//   FeedView(viewModel)
-// }
-//
-// #Preview("Error State") {
-//   @Previewable @State var viewModel = MockFeedViewModel()
-//   viewModel.state = .error(message: "Something went wrong")
-//   return FeedView(viewModel)
-// }
+// MARK: - Previews
+
+#Preview("Loading") {
+  FeedView(PreviewFeedViewModel(state: .loading, posts: FeedPost.mockList))
+}
+
+#Preview("Loaded") {
+  FeedView(PreviewFeedViewModel(state: .loaded, posts: FeedPost.mockList))
+}
+
+#Preview("Error") {
+  FeedView(PreviewFeedViewModel(state: .error(message: "Something went wrong")))
+}
+
+#Preview("Empty") {
+  FeedView(PreviewFeedViewModel(state: .loaded, posts: []))
+}

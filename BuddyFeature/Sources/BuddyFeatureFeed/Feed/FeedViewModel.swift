@@ -11,28 +11,10 @@ import Factory
 import BuddyDomain
 
 @MainActor
-public protocol FeedViewModelProtocol: Observable {
-  var state: FeedViewModel.ViewState { get }
-  var posts: [FeedPost] { get set }
-  var alertState: AlertState? { get }
-  var isAlertPresented: Bool { get set }
-
-  func signOut() async throws
-  func fetchInitialData() async
-  func deletePost(postID: String) async
-}
-
-@MainActor
 @Observable
 public final class FeedViewModel: FeedViewModelProtocol {
-  public enum ViewState: Equatable {
-    case loading
-    case loaded
-    case error(message: String)
-  }
-
   // MARK: - Properteis
-  public var state: ViewState = .loading
+  public var state: FeedViewState = .loading
   public var posts: [FeedPost] = []
   public var alertState: AlertState? = nil
   public var isAlertPresented: Bool = false

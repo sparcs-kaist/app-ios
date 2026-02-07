@@ -1,2 +1,6 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+//
+//  BuddyPreviewSupport.swift
+//  BuddyPreviewSupport
+//
+//  Preview helpers and mock registrations for SwiftUI Previews.
+//
