@@ -9,6 +9,8 @@ import SwiftUI
 import NukeUI
 import BuddyDomain
 import BuddyFeatureShared
+import Factory
+import BuddyPreviewSupport
 
 struct FeedPostRow: View {
   @Binding var post: FeedPost
@@ -194,6 +196,46 @@ struct FeedPostRow: View {
   }
 }
 
-#Preview {
+// MARK: - Previews
+
+#Preview("With Actions") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  FeedPostRow(post: .constant(FeedPost.mock), onPostDeleted: { _ in }, onComment: { })
+    .environment(spoilerContents)
+}
+
+#Preview("Without Actions") {
+  @Previewable @State var spoilerContents = SpoilerContents()
   FeedPostRow(post: .constant(FeedPost.mock), onPostDeleted: nil, onComment: nil)
+    .environment(spoilerContents)
+}
+
+#Preview("Anonymous") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  FeedPostRow(
+    post: .constant(FeedPost.mockList[4]),
+    onPostDeleted: { _ in },
+    onComment: { }
+  )
+  .environment(spoilerContents)
+}
+
+#Preview("Long Content") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  FeedPostRow(
+    post: .constant(FeedPost.mockList[6]),
+    onPostDeleted: { _ in },
+    onComment: { }
+  )
+  .environment(spoilerContents)
+}
+
+#Preview("Multiple Images") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  FeedPostRow(
+    post: .constant(FeedPost.mockList[5]),
+    onPostDeleted: { _ in },
+    onComment: { }
+  )
+  .environment(spoilerContents)
 }
