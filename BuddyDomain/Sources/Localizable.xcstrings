@@ -17,6 +17,39 @@
         }
       }
     },
+    "%@ at %@" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ at %2$@"
+          }
+        }
+      }
+    },
+    "%lld day%@ ago" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld day%2$@ ago"
+          }
+        }
+      }
+    },
+    "%lld hour%@ ago" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld hour%2$@ ago"
+          }
+        }
+      }
+    },
+    "%lld min ago" : {
+
+    },
     "%lldh" : {
       "localizations" : {
         "en" : {
@@ -103,6 +136,9 @@
         }
       }
     },
+    "An unexpected error occurred." : {
+
+    },
     "An unknown authentication error occurred." : {
       "localizations" : {
         "en" : {
@@ -118,6 +154,9 @@
           }
         }
       }
+    },
+    "Ara" : {
+
     },
     "Authentication was cancelled by the user." : {
       "localizations" : {
@@ -183,6 +222,12 @@
         }
       }
     },
+    "Cannot delete comment that has votes." : {
+
+    },
+    "Cannot delete post that has votes or comments." : {
+
+    },
     "Courses" : {
       "localizations" : {
         "en" : {
@@ -247,6 +292,9 @@
         }
       }
     },
+    "Failed to compress image for upload." : {
+
+    },
     "Failed to exchange code for tokens: %@" : {
       "localizations" : {
         "en" : {
@@ -294,6 +342,9 @@
           }
         }
       }
+    },
+    "Feed" : {
+
     },
     "Fri" : {
       "localizations" : {
@@ -391,6 +442,9 @@
         }
       }
     },
+    "just now" : {
+
+    },
     "ME" : {
       "localizations" : {
         "en" : {
@@ -454,6 +508,9 @@
           }
         }
       }
+    },
+    "No internet connection." : {
+
     },
     "No refresh token available." : {
       "localizations" : {
@@ -519,6 +576,9 @@
         }
       }
     },
+    "OTL" : {
+
+    },
     "Posts" : {
       "localizations" : {
         "en" : {
@@ -567,6 +627,12 @@
         }
       }
     },
+    "Request timed out." : {
+
+    },
+    "Resources not found." : {
+
+    },
     "Rides" : {
       "localizations" : {
         "en" : {
@@ -604,6 +670,12 @@
           }
         }
       }
+    },
+    "Server error (%lld)." : {
+
+    },
+    "Session expired. Please sign in again." : {
+
     },
     "Sexually Explicit Content" : {
       "localizations" : {
@@ -733,6 +805,9 @@
         }
       }
     },
+    "Taxi" : {
+
+    },
     "Thu" : {
       "localizations" : {
         "en" : {
@@ -749,6 +824,9 @@
         }
       }
     },
+    "Today at %@" : {
+
+    },
     "Token refresh failed: %@" : {
       "localizations" : {
         "en" : {
@@ -764,6 +842,9 @@
           }
         }
       }
+    },
+    "Tomorrow at %@" : {
+
     },
     "Tue" : {
       "localizations" : {
@@ -796,6 +877,9 @@
           }
         }
       }
+    },
+    "Unknown error occurred. Please try again." : {
+
     },
     "Wed" : {
       "localizations" : {

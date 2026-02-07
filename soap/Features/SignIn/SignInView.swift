@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 struct SignInView: View {
   @State private var viewModel = SignInViewModel()

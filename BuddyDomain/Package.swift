@@ -15,7 +15,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-      .package(url: "https://github.com/mxcl/Version.git", .upToNextMajor(from: "2.2.0"))
+      .package(url: "https://github.com/mxcl/Version.git", .upToNextMajor(from: "2.2.0")),
+      .package(url: "https://github.com/hmlongco/Factory.git", .upToNextMajor(from: "2.5.3"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -23,7 +24,8 @@ let package = Package(
         .target(
             name: "BuddyDomain",
             dependencies: [
-              .product(name: "Version", package: "Version")
+              .product(name: "Version", package: "Version"),
+              .product(name: "Factory", package: "Factory"),
             ]
         ),
         .testTarget(

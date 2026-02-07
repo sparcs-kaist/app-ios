@@ -10,7 +10,7 @@ import Observation
 import BuddyDomain
 
 @Observable
-public final class TimetableUseCase: TimetableUseCaseProtocol {
+public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendable {
   // MARK: - Properties
   private var store: [Semester.ID: [Timetable]] = [:]
   public var semesters: [Semester] = []
@@ -18,30 +18,19 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
   /// Prevent overlapping fetches per semester when the user switches quickly.
   private var fetchingSemesters = Set<Semester.ID>()
 
-  public var selectedSemesterID: Semester.ID? = nil {
-    didSet {
-      guard let selectedSemesterID else { return }
-      // Always default-select My Table of the chosen semester
-      selectedTimetableID = "\(selectedSemesterID)-myTable"
-
-      // Refresh tables for the newly selected semester
-      Task { [weak self] in
-        await self?.refreshTablesForSelectedSemester()
-      }
-    }
-  }
+  public var selectedSemesterID: Semester.ID? = nil
 
   public var selectedTimetableID: Timetable.ID? = nil
 
   // MARK: - Dependencies
-  private let userUseCase: UserUseCaseProtocol
-  private let otlTimetableRepository: OTLTimetableRepositoryProtocol
+  private let userUseCase: UserUseCaseProtocol?
+  private let otlTimetableRepository: OTLTimetableRepositoryProtocol?
   private let sessionBridgeService: SessionBridgeServiceProtocol?
 
   // MARK: - Initialiser
   public init(
-    userUseCase: UserUseCaseProtocol,
-    otlTimetableRepository: OTLTimetableRepositoryProtocol,
+    userUseCase: UserUseCaseProtocol?,
+    otlTimetableRepository: OTLTimetableRepositoryProtocol?,
     sessionBridgeService: SessionBridgeServiceProtocol? = nil
   ) {
     self.userUseCase = userUseCase
@@ -95,9 +84,16 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
   }
 
   // MARK: - API
+  public func selectSemester(_ id: Semester.ID) async {
+    selectedSemesterID = id
+    selectedTimetableID = "\(id)-myTable"
+    await refreshTablesForSelectedSemester()
+  }
+
   public func load() async throws {
     // Avoid re-loading if already populated
     guard store.isEmpty || semesters.isEmpty else { return }
+    guard let otlTimetableRepository, let userUseCase else { return }
 
     async let fetchSemesters = otlTimetableRepository.getSemesters()
     async let fetchCurrentSemester = otlTimetableRepository.getCurrentSemester()
@@ -140,8 +136,10 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
 
   public func createTable() async throws {
     guard
+      let userUseCase,
       let user: OTLUser = await userUseCase.otlUser,
-      let selectedSemester
+      let selectedSemester,
+      let otlTimetableRepository
     else { return }
 
     // Create on server
@@ -163,10 +161,12 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
 
   public func deleteTable() async throws {
     guard isEditable,
+          let userUseCase,
           let sid = selectedSemesterID,
           let tid = selectedTimetableID,
           let user = await userUseCase.otlUser,
-          let timetableID = Int(tid)
+          let timetableID = Int(tid),
+          let otlTimetableRepository
     else { return }
 
     // Delete on server
@@ -183,10 +183,12 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
 
   public func addLecture(lecture: Lecture) async throws {
     guard isEditable,
+          let userUseCase,
           let sid = selectedSemesterID,
           let tid = selectedTimetableID,
           let user = await userUseCase.otlUser,
-          let timetableID = Int(tid)
+          let timetableID = Int(tid),
+          let otlTimetableRepository
     else { return }
 
     let updatedTable: Timetable = try await otlTimetableRepository.addLecture(
@@ -212,10 +214,12 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
 
   public func deleteLecture(lecture: Lecture) async throws {
     guard isEditable,
+          let userUseCase,
           let sid = selectedSemesterID,
           let tid = selectedTimetableID,
           let user = await userUseCase.otlUser,
-          let timetableID = Int(tid)
+          let timetableID = Int(tid),
+          let otlTimetableRepository
     else { return }
 
     let updatedTable: Timetable = try await otlTimetableRepository.deleteLecture(
@@ -242,9 +246,9 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
   // MARK: - Helpers
 
   /// Refresh tables for `selectedSemesterID`, seeding My Table if needed and merging server tables (deduped).
-  @MainActor
   private func refreshTablesForSelectedSemester() async {
     guard
+      let userUseCase,
       let sid = selectedSemesterID,
       let semester = semesters.first(where: { $0.id == sid })
     else { return }
@@ -259,7 +263,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
     defer { fetchingSemesters.remove(sid) }
 
     guard let user = otlUser else { return }
-
+    guard let otlTimetableRepository else { return }
     do {
       let fetched = try await otlTimetableRepository.getTables(
         userID: user.id,
@@ -281,7 +285,6 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
 
   /// Ensures there is a `-myTable` entry for the given semester,
   /// filled with the user's lectures for that semester.
-  @MainActor
   private func seedMyTableIfNeeded(semester: Semester, user: OTLUser?) {
     let sid = semester.id
     if let existing = store[sid], existing.contains(where: { $0.id.hasSuffix("-myTable") }) {
@@ -307,7 +310,6 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
   /// - keeps order of existing tables
   /// - appends any new ones not present (by id)
   /// - keeps `-myTable` as the first element if present
-  @MainActor
   private func mergeKeepingMyTableFirst(existing: [Timetable], incoming: [Timetable]) -> [Timetable] {
     var seen = Set(existing.map { $0.id })
     var result = existing
@@ -326,3 +328,4 @@ public final class TimetableUseCase: TimetableUseCaseProtocol {
     return result
   }
 }
+
