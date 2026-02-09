@@ -67,6 +67,7 @@ public struct FeedView: View {
             showComposeView = true
           }
         }
+        .matchedTransitionSource(id: "ComposeView", in: namespace)
 
         ToolbarSpacer(.fixed)
         
@@ -118,7 +119,6 @@ public struct FeedView: View {
       .padding(.vertical)
       .navigationLinkIndicatorVisibility(.hidden)
       .buttonStyle(.plain)
-      .matchedTransitionSource(id: post.id, in: namespace)
 
       Divider()
         .padding(.horizontal)
