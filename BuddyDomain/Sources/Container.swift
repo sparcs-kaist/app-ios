@@ -88,6 +88,10 @@ extension Container {
     promised()
   }
 
+  public var analyticsService: Factory<AnalyticsServiceProtocol?> {
+    promised()
+  }
+
   // MARK: - Use Cases
   public var authUseCase: Factory<AuthUseCaseProtocol?> {
     promised()

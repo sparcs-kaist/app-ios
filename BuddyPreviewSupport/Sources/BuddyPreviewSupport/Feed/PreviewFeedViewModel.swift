@@ -23,4 +23,8 @@ public final class PreviewFeedViewModel: FeedViewModelProtocol {
   public func signOut() async throws {}
   public func fetchInitialData() async {}
   public func deletePost(postID: String) async {}
+
+  public func openSettingsTapped() {}
+  public func refreshFeed() async {}
+  public func writeFeedButtonTapped() {}
 }

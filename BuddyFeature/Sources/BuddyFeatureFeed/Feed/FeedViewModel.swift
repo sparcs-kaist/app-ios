@@ -27,13 +27,11 @@ public final class FeedViewModel: FeedViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
   @ObservationIgnored @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   // MARK: - Functions
-  public func signOut() async throws {
-    guard let authUseCase else { return }
-    try await authUseCase.signOut()
-  }
-
   public func fetchInitialData() async {
     guard let feedPostUseCase else { return }
 
@@ -58,5 +56,18 @@ public final class FeedViewModel: FeedViewModelProtocol {
       self.alertState = .init(title: String(localized: "Unable to delete post."), message: error.localizedDescription)
       self.isAlertPresented = true
     }
+  }
+
+  public func openSettingsTapped() {
+    analyticsService?.logEvent(FeedViewEvent.openSettingsButtonTapped)
+  }
+
+  public func refreshFeed() async {
+    await fetchInitialData()
+    analyticsService?.logEvent(FeedViewEvent.feedRefreshed)
+  }
+
+  public func writeFeedButtonTapped() {
+    analyticsService?.logEvent(FeedViewEvent.writeFeedButtonTapped)
   }
 }

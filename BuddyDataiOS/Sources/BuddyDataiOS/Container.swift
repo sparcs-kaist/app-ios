@@ -174,14 +174,17 @@ extension Container: @retroactive AutoRegistering {
     .scope(.singleton)
 
     crashlyticsService.register {
-      CrashlyticsService(userUseCase: self.userUseCase.resolve())
+      CrashlyticsService()
     }
-    .scope(.singleton)
 
     taxiChatService.register {
       TaxiChatService(tokenStorage: self.tokenStorage.resolve())
     }
     .scope(.singleton)
+
+    analyticsService.register {
+      AnalyticsService()
+    }
 
     // MARK: - Use Cases
     authUseCase.register {

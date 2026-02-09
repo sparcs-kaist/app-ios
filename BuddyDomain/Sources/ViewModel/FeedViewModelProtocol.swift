@@ -14,7 +14,10 @@ public protocol FeedViewModelProtocol: Observable {
   var alertState: AlertState? { get }
   var isAlertPresented: Bool { get set }
 
-  func signOut() async throws
   func fetchInitialData() async
   func deletePost(postID: String) async
+
+  func openSettingsTapped()
+  func refreshFeed() async
+  func writeFeedButtonTapped()
 }

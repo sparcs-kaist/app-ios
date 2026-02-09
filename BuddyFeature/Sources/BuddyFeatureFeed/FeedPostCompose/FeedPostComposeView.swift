@@ -9,6 +9,7 @@ import SwiftUI
 import NukeUI
 import PhotosUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct FeedPostComposeView: View {
   @State private var viewModel: FeedPostComposeViewModelProtocol = FeedPostComposeViewModel()
@@ -117,6 +118,7 @@ struct FeedPostComposeView: View {
       matching: .images,
       photoLibrary: .shared()
     )
+    .analyticsScreen(name: "Feed Compose", class: String(describing: Self.self))
   }
 
   var header: some View {

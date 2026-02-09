@@ -10,6 +10,7 @@ import BuddyDomain
 import BuddyFeatureShared
 import BuddyFeatureSettings
 import BuddyPreviewSupport
+import FirebaseAnalytics
 
 public struct FeedView: View {
   @State private var viewModel: FeedViewModelProtocol = FeedViewModel()
@@ -57,11 +58,12 @@ public struct FeedView: View {
         await viewModel.fetchInitialData()
       }
       .refreshable {
-        await viewModel.fetchInitialData()
+        await viewModel.refreshFeed()
       }
       .toolbar {
         ToolbarItem {
           Button("Write", systemImage: "square.and.pencil") {
+            viewModel.writeFeedButtonTapped()
             showComposeView = true
           }
         }
@@ -70,6 +72,7 @@ public struct FeedView: View {
         
         ToolbarItem {
           Button("Settings", systemImage: "gear") {
+            viewModel.openSettingsTapped()
             showSettingsSheet = true
           }
         }
@@ -97,6 +100,7 @@ public struct FeedView: View {
           .ignoresSafeArea()
       }
     }
+    .analyticsScreen(name: "Feed", class: String(describing: Self.self))
   }
 
   private var contentView: some View {
