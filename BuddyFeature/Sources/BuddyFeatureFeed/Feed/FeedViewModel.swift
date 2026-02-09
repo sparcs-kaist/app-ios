@@ -25,7 +25,6 @@ public final class FeedViewModel: FeedViewModelProtocol {
   public init() {}
 
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
   @ObservationIgnored @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.analyticsService

@@ -117,19 +117,4 @@ struct FeedViewModelTests {
 
     tearDownFeedTestDependencies()
   }
-
-  @Test("signOut delegates to authUseCase")
-  @MainActor
-  func signOutDelegatesToUseCase() async throws {
-    let mockAuthUseCase = MockAuthUseCase()
-    setupFeedTestDependencies(authUseCase: mockAuthUseCase)
-
-    let viewModel = FeedViewModel()
-
-    try await viewModel.signOut()
-
-    #expect(mockAuthUseCase.signOutCallCount == 1)
-
-    tearDownFeedTestDependencies()
-  }
 }

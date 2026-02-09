@@ -12,22 +12,20 @@ import Factory
 @MainActor
 public func setupFeedTestDependencies(
   feedPostUseCase: MockFeedPostUseCase? = nil,
-  feedCommentUseCase: MockFeedCommentUseCase? = nil,
-  authUseCase: MockAuthUseCase? = nil
+  feedCommentUseCase: MockFeedCommentUseCase? = nil
 ) {
   // Always register crashlytics service (required by ViewModels)
   Container.shared.crashlyticsService.register { MockCrashlyticsService() }
+  Container.shared.analyticsService.register { MockAnalyticsService() }
 
   // Register provided mocks, or default mocks for promised factories
   Container.shared.feedPostUseCase.register { feedPostUseCase ?? MockFeedPostUseCase() }
   Container.shared.feedCommentUseCase.register { feedCommentUseCase ?? MockFeedCommentUseCase() }
-  Container.shared.authUseCase.register { authUseCase ?? MockAuthUseCase() }
 }
 
 @MainActor
 public func tearDownFeedTestDependencies() {
   Container.shared.feedPostUseCase.reset()
   Container.shared.feedCommentUseCase.reset()
-  Container.shared.authUseCase.reset()
   Container.shared.crashlyticsService.reset()
 }
