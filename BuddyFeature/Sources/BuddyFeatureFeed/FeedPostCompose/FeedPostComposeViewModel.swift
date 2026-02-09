@@ -75,6 +75,9 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
   @ObservationIgnored @Injected(
     \.crashlyticsService
   ) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   // MARK: - Functions
   func fetchFeedUser() async {
@@ -119,6 +122,12 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
 
     do {
       try await writePost()
+      analyticsService?.logEvent(
+        FeedPostComposeViewEvent.postSubmitted(
+          isAnonymous: selectedComposeType == .anonymously,
+          imageCount: selectedImages.count
+        )
+      )
       return true
     } catch {
       alertState = .init(
