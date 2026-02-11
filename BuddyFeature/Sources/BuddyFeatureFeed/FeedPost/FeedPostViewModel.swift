@@ -62,6 +62,9 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   ) private var feedCommentUseCase: FeedCommentUseCaseProtocol?
   @ObservationIgnored @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   // MARK: - Functions
   func fetchComments(postID: String, initial: Bool) async {
@@ -72,6 +75,9 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
       let comments: [FeedComment] = try await feedCommentUseCase.fetchComments(postID: postID)
       self.comments = comments
       self.state = .loaded
+      if !initial {
+        analyticsService?.logEvent(FeedPostViewEvent.commentsRefreshed)
+      }
     } catch {
       self.state = .error(message: error.localizedDescription)
     }
@@ -126,6 +132,7 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
 
     do {
       try await feedPostUseCase.reportPost(postID: postID, reason: reason, detail: "")
+      analyticsService?.logEvent(FeedPostViewEvent.postReported(reason: reason.description))
       alertState = .init(
         title: String(localized: "Report Submitted"),
         message: String(localized: "Your report has been submitted successfully.")
@@ -151,6 +158,12 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
       } else {
         uploadedComment = try await writeComment(postID: postID)
       }
+      analyticsService?.logEvent(
+        FeedPostViewEvent.commentSubmitted(
+          isReply: targetComment != nil,
+          isAnonymous: isAnonymous
+        )
+      )
       text = ""
       return uploadedComment
     } catch {

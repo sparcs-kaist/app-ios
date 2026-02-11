@@ -8,16 +8,12 @@
 import Foundation
 import FirebaseCrashlytics
 import BuddyDomain
+import KeychainSwift
 
 public final class CrashlyticsService: CrashlyticsServiceProtocol {
-  private let userUseCase: UserUseCaseProtocol?
-
-  public init(userUseCase: UserUseCaseProtocol?) {
-    self.userUseCase = userUseCase
-  }
+  private static let fcmDeviceIDKey: String = "fcmDeviceID"
 
   public func recordException(error: Error) {
-    let userUseCase = self.userUseCase
 
     // Pass NetworkError those are not recordable
     if let networkError = error as? NetworkError,
@@ -25,10 +21,8 @@ public final class CrashlyticsService: CrashlyticsServiceProtocol {
       return
     }
 
-    Task {
-      let userID: String? = await userUseCase?.taxiUser?.id
-      Crashlytics.crashlytics().record(error: error, userInfo: ["id": userID ?? "unauthorized"])
-    }
+    let userID: String = getDeviceUUID()
+    Crashlytics.crashlytics().record(error: error, userInfo: ["id": userID])
   }
 
   public func record(
@@ -40,25 +34,20 @@ public final class CrashlyticsService: CrashlyticsServiceProtocol {
       return
     }
 
-    let userUseCase = self.userUseCase
+    let userID: String = getDeviceUUID()
 
-    Task.detached(priority: .utility) {
+    let crashlytics = Crashlytics.crashlytics()
 
-      let userID = await userUseCase?.taxiUser?.id ?? "unauthorized"
+    crashlytics.setCustomValue(context.feature, forKey: "feature")
+    crashlytics.setCustomValue(context.action, forKey: "action")
+    crashlytics.setCustomValue(error.source.rawValue, forKey: "source")
+    crashlytics.setCustomValue(userID, forKey: "user_id")
 
-      let crashlytics = Crashlytics.crashlytics()
-
-      crashlytics.setCustomValue(context.feature, forKey: "feature")
-      crashlytics.setCustomValue(context.action, forKey: "action")
-      crashlytics.setCustomValue(error.source.rawValue, forKey: "source")
-      crashlytics.setCustomValue(userID, forKey: "user_id")
-
-      context.metadata.forEach {
-        crashlytics.setCustomValue($0.value, forKey: $0.key)
-      }
-
-      crashlytics.record(error: error)
+    context.metadata.forEach {
+      crashlytics.setCustomValue($0.value, forKey: $0.key)
     }
+
+    crashlytics.record(error: error)
   }
 
   public func record(
@@ -70,24 +59,31 @@ public final class CrashlyticsService: CrashlyticsServiceProtocol {
       return
     }
 
-    let userUseCase = self.userUseCase
+    let userID: String = getDeviceUUID()
 
-    Task.detached(priority: .utility) {
+    let crashlytics = Crashlytics.crashlytics()
 
-      let userID = await userUseCase?.taxiUser?.id ?? "unauthorized"
+    crashlytics.setCustomValue(context.feature, forKey: "feature")
+    crashlytics.setCustomValue(context.action, forKey: "action")
+    crashlytics.setCustomValue(ErrorSource.unknown.rawValue, forKey: "source")
+    crashlytics.setCustomValue(userID, forKey: "user_id")
 
-      let crashlytics = Crashlytics.crashlytics()
-
-      crashlytics.setCustomValue(context.feature, forKey: "feature")
-      crashlytics.setCustomValue(context.action, forKey: "action")
-      crashlytics.setCustomValue(ErrorSource.unknown.rawValue, forKey: "source")
-      crashlytics.setCustomValue(userID, forKey: "user_id")
-
-      context.metadata.forEach {
-        crashlytics.setCustomValue($0.value, forKey: $0.key)
-      }
-
-      crashlytics.record(error: error)
+    context.metadata.forEach {
+      crashlytics.setCustomValue($0.value, forKey: $0.key)
     }
+
+    crashlytics.record(error: error)
+  }
+
+  private func getDeviceUUID() -> String {
+    let keychain = KeychainSwift()
+    keychain.accessGroup = "N5V8W52U3U.org.sparcs.soap"
+
+    return keychain.get(CrashlyticsService.fcmDeviceIDKey) ?? {
+      let deviceUUID = UUID().uuidString
+      keychain.set(deviceUUID, forKey: CrashlyticsService.fcmDeviceIDKey)
+
+      return deviceUUID
+    }()
   }
 }

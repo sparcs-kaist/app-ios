@@ -8,7 +8,6 @@
 import Foundation
 import BuddyDomain
 
-
 public final class MockCrashlyticsService: CrashlyticsServiceProtocol, @unchecked Sendable {
   var recordExceptionCallCount = 0
   public var recordErrorWithContextCallCount = 0

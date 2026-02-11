@@ -19,6 +19,9 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.feedPostUseCase) private var feedPostUseCase: FeedPostUseCaseProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   // MARK: - Functions
   func upvote(post: Binding<FeedPost>) async {
@@ -43,6 +46,7 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
         post.wrappedValue.upvotes += 1
         try await feedPostUseCase.vote(postID: post.wrappedValue.id, type: .up)
       }
+      analyticsService?.logEvent(FeedPostRowEvent.postUpvoted)
     } catch {
       post.wrappedValue.myVote = previousMyVote
       post.wrappedValue.upvotes = previousUpvotes
@@ -77,6 +81,7 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
         post.wrappedValue.downvotes += 1
         try await feedPostUseCase.vote(postID: post.wrappedValue.id, type: .down)
       }
+      analyticsService?.logEvent(FeedPostRowEvent.postDownvoted)
     } catch {
       post.wrappedValue.myVote = previousMyVote
       post.wrappedValue.upvotes = previousUpvotes
@@ -94,6 +99,7 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
 
     do {
       try await feedPostUseCase.reportPost(postID: postID, reason: reason, detail: "")
+      analyticsService?.logEvent(FeedPostRowEvent.postReported(reason: reason.description))
       alertState = .init(
         title: String(localized: "Report Submitted"),
         message: String(localized: "Your report has been submitted successfully.")

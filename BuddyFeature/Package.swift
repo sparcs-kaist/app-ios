@@ -25,7 +25,11 @@ let package = Package(
       .package(path: "../BuddyTestSupport"),
       .package(path: "../BuddyPreviewSupport"),
       .package(url: "https://github.com/efremidze/Haptica.git", .upToNextMajor(from: "4.0.1")),
-      .package(url: "https://github.com/kean/Nuke.git", .upToNextMajor(from: "12.0.0"))
+      .package(url: "https://github.com/kean/Nuke.git", .upToNextMajor(from: "12.0.0")),
+      .package(
+        url: "https://github.com/firebase/firebase-ios-sdk.git",
+        .upToNextMajor(from: "12.3.0")
+      ),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -47,6 +51,10 @@ let package = Package(
             "BuddyPreviewSupport",
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
+            .product(
+              name: "FirebaseAnalytics",
+              package: "firebase-ios-sdk"
+            ),
           ]
         ),
         .target(

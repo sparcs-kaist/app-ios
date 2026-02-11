@@ -11,6 +11,7 @@ import Factory
 import BuddyDomain
 import BuddyFeatureShared
 import BuddyPreviewSupport
+import FirebaseAnalytics
 
 struct FeedPostView: View {
   @Binding var post: FeedPost
@@ -70,6 +71,14 @@ struct FeedPostView: View {
         }
       )
     }
+    .analyticsScreen(
+      name: "Feed Post",
+      class: String(describing: Self.self),
+      extraParameters: [
+        "is_author": post.isAuthor,
+        "has_comments": post.commentCount > 0
+      ]
+    )
   }
 
   private var moreMenu: some View {
