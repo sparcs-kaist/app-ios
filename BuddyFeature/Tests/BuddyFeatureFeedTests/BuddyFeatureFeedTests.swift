@@ -28,4 +28,5 @@ public func tearDownFeedTestDependencies() {
   Container.shared.feedPostUseCase.reset()
   Container.shared.feedCommentUseCase.reset()
   Container.shared.crashlyticsService.reset()
+  Container.shared.analyticsService.reset()
 }
