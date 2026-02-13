@@ -32,7 +32,7 @@ struct MainView: View {
       }
 
       Tab("Boards", systemImage: "tray.full", value: .board) {
-        BoardListView(boardListViewModel)
+        BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
       }
 
       Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
@@ -67,13 +67,6 @@ struct MainView: View {
       TaxiPreviewView(room: room)
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(400), .height(500)])
-    }
-    .sheet(item: $viewModel.deepLinkedPost) { post in
-      NavigationStack {
-        PostView(post: post)
-          .navigationBarTitleDisplayMode(.inline)
-      }
-      .presentationDragIndicator(.visible)
     }
     .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented) {
       Button("Okay", role: .cancel) { }
