@@ -190,6 +190,18 @@ public struct PostView: View {
                   commentOnEdit = comment
                 }
                 isWritingCommentFocusState = true
+              },
+              onUpvote: {
+                await viewModel.upvoteComment(comment: $comment)
+              },
+              onDownvote: {
+                await viewModel.downvoteComment(comment: $comment)
+              },
+              onReport: { type in
+                try await viewModel.reportComment(commentID: comment.id, type: type)
+              },
+              onDeleteComment: {
+                await viewModel.deleteComment(comment: $comment)
               }
             )
             .id(comment.id)
@@ -213,6 +225,18 @@ public struct PostView: View {
                     commentOnEdit = thread
                   }
                   isWritingCommentFocusState = true
+                },
+                onUpvote: {
+                  await viewModel.upvoteComment(comment: $thread)
+                },
+                onDownvote: {
+                  await viewModel.downvoteComment(comment: $thread)
+                },
+                onReport: { type in
+                  try await viewModel.reportComment(commentID: thread.id, type: type)
+                },
+                onDeleteComment: {
+                  await viewModel.deleteComment(comment: $thread)
                 }
               )
               .id(thread.id)

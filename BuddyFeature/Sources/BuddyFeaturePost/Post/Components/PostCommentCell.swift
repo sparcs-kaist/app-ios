@@ -7,7 +7,6 @@
 
 import SwiftUI
 import NukeUI
-import Factory
 import Translation
 import BuddyDomain
 import BuddyFeatureShared
@@ -18,15 +17,15 @@ struct PostCommentCell: View {
   let onComment: (() -> Void)?
   let onDelete: (() -> Void)?
   let onEdit: (() -> Void)?
+  let onUpvote: () async -> Void
+  let onDownvote: () async -> Void
+  let onReport: (AraContentReportType) async throws -> Void
+  let onDeleteComment: () async -> Void
 
   @State private var presentAlert: Bool = false
   @State private var alertTitle: String = ""
   @State private var alertContent: String = ""
   @State private var showTranslateSheet: Bool = false
-
-  // MARK: - Dependencies
-  @Injected(\.araCommentRepository) private var araCommentRepository: AraCommentRepositoryProtocol?
-  @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   var body: some View {
     // is this comment deleted?
@@ -76,10 +75,10 @@ struct PostCommentCell: View {
           myVote: comment.myVote,
           votes: comment.upvotes - comment.downvotes,
           onDownvote: {
-            await downvote()
+            await onDownvote()
           },
           onUpvote: {
-            await upvote()
+            await onUpvote()
           }
         )
         .disabled(comment.isMine ?? false)
@@ -143,15 +142,8 @@ struct PostCommentCell: View {
 
         Button("Delete", systemImage: "trash", role: .destructive) {
           Task {
-            let previousContent: String? = comment.content
-            do {
-              guard let araCommentRepository else { return }
-              comment.content = nil
-              onDelete?()
-              try await araCommentRepository.deleteComment(commentID: comment.id)
-            } catch {
-              comment.content = previousContent
-            }
+            onDelete?()
+            await onDeleteComment()
           }
         }
       }
@@ -187,80 +179,14 @@ struct PostCommentCell: View {
     }
   }
 
-  // MARK: - Functions
-  private func upvote() async {
-    guard let araCommentRepository else { return }
-
-    let previousMyVote: Bool? = comment.myVote
-    let previousUpvotes: Int = comment.upvotes
-
-    do {
-      if previousMyVote == true {
-        // cancel upvote
-        comment.myVote = nil
-        comment.upvotes -= 1
-        try await araCommentRepository.cancelVote(commentID: comment.id)
-      } else {
-        // upvote
-        if previousMyVote == false {
-          // remove downvote if there was
-          comment.downvotes -= 1
-        }
-        comment.myVote = true
-        comment.upvotes += 1
-        try await araCommentRepository.upvoteComment(commentID: comment.id)
-      }
-    } catch {
-      comment.upvotes = previousUpvotes
-      comment.myVote = previousMyVote
-    }
-  }
-
-  func downvote() async {
-    guard let araCommentRepository else { return }
-
-    let previousMyVote: Bool? = comment.myVote
-    let previousDownvotes: Int = comment.downvotes
-
-    do {
-      if previousMyVote == false {
-        // cancel downvote
-        comment.myVote = nil
-        comment.downvotes -= 1
-        try await araCommentRepository.cancelVote(commentID: comment.id)
-      } else {
-        // downvote
-        if previousMyVote == true {
-          // remove upvote if there was
-          comment.upvotes -= 1
-        }
-        comment.myVote = false
-        comment.downvotes += 1
-        try await araCommentRepository.downvoteComment(commentID: comment.id)
-      }
-    } catch {
-      comment.downvotes = previousDownvotes
-      comment.myVote = previousMyVote
-    }
-  }
-  
   private func report(type: AraContentReportType) async {
-    guard let araCommentRepository else { return }
-    
     do {
-      try await araCommentRepository
-        .reportComment(commentID: comment.id, type: type)
+      try await onReport(type)
       showAlert(title: String(localized: "Report Submitted"), content: String(localized: "Your report has been submitted successfully."))
     } catch {
-//      if error.isNetworkMoyaError {
-//        showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
-//      } else {
-//        crashlyticsService?.recordException(error: error)
-//        showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a comment. Please try again later."))
-//      }
     }
   }
-  
+
   private func showAlert(title: String, content: String) {
     alertTitle = title
     alertContent = content
@@ -275,7 +201,11 @@ struct PostCommentCell: View {
     isThreaded: false,
     onComment: nil,
     onDelete: nil,
-    onEdit: nil
+    onEdit: nil,
+    onUpvote: {},
+    onDownvote: {},
+    onReport: { _ in },
+    onDeleteComment: {}
   )
   .padding()
   PostCommentCell(
@@ -283,7 +213,11 @@ struct PostCommentCell: View {
     isThreaded: true,
     onComment: nil,
     onDelete: nil,
-    onEdit: nil
+    onEdit: nil,
+    onUpvote: {},
+    onDownvote: {},
+    onReport: { _ in },
+    onDeleteComment: {}
   )
   .padding()
 }

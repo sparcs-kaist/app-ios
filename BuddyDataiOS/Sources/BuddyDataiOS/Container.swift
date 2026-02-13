@@ -62,6 +62,26 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  private var araBoardRepository: Factory<AraBoardRepositoryProtocol> {
+    self {
+      AraBoardRepository(
+        provider: MoyaProvider<AraBoardTarget>(
+          plugins: [
+            self.authPlugin.resolve()
+          ]
+        )
+      )
+    }
+  }
+
+  private var araCommentRepository: Factory<AraCommentRepositoryProtocol> {
+    self {
+      AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -110,22 +130,6 @@ extension Container: @retroactive AutoRegistering {
     // MARK: Ara
     araUserRepository.register {
       AraUserRepository(provider: MoyaProvider<AraUserTarget>(plugins: [self.authPlugin.resolve()]))
-    }
-
-    araBoardRepository.register {
-      AraBoardRepository(
-        provider: MoyaProvider<AraBoardTarget>(
-          plugins: [
-            self.authPlugin.resolve()
-          ]
-        )
-      )
-    }
-
-    araCommentRepository.register {
-      AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
     }
 
     // MARK: Feed
@@ -257,6 +261,20 @@ extension Container: @retroactive AutoRegistering {
     feedCommentUseCase.register {
       FeedCommentUseCase(
         feedCommentRepository: self.feedCommentRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
+    araBoardUseCase.register {
+      AraBoardUseCase(
+        araBoardRepository: self.araBoardRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
+    araCommentUseCase.register {
+      AraCommentUseCase(
+        araCommentRepository: self.araCommentRepository.resolve(),
         crashlyticsService: self.crashlyticsService.resolve()
       )
     }

@@ -41,14 +41,6 @@ extension Container {
     promised()
   }
 
-  public var araBoardRepository: Factory<AraBoardRepositoryProtocol?> {
-    promised()
-  }
-
-  public var araCommentRepository: Factory<AraCommentRepositoryProtocol?> {
-    promised()
-  }
-
   // MARK: Feed
   public var feedUserRepository: Factory<FeedUserRepositoryProtocol?> {
     promised()
@@ -130,6 +122,14 @@ extension Container {
   }
 
   public var feedCommentUseCase: Factory<FeedCommentUseCaseProtocol?> {
+    promised()
+  }
+
+  public var araBoardUseCase: Factory<AraBoardUseCaseProtocol?> {
+    promised()
+  }
+
+  public var araCommentUseCase: Factory<AraCommentUseCaseProtocol?> {
     promised()
   }
 }

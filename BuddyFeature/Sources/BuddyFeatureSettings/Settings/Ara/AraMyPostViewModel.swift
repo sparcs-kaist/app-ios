@@ -38,7 +38,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
     case bookmark = "Bookmarked"
   }
   
-  @ObservationIgnored @Injected(\.araBoardRepository) private var araBoardRepository: AraBoardRepositoryProtocol?
+  @ObservationIgnored @Injected(\.araBoardUseCase) private var araBoardUseCase: AraBoardUseCaseProtocol?
 
   var posts: [AraPost] = []
   var state: ViewState = .loading
@@ -93,20 +93,20 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   
   func fetchInitialPosts() async {
     guard let user = user else { return }
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
     do {
       var page: AraPostPage
       switch self.type {
       case .all:
-        page = try await araBoardRepository.fetchPosts(
+        page = try await araBoardUseCase.fetchPosts(
           type: .user(userID: user.id),
           page: 1,
           pageSize: pageSize,
           searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
         )
       case .bookmark:
-        page = try await araBoardRepository.fetchBookmarks(
+        page = try await araBoardUseCase.fetchBookmarks(
           page: 1,
           pageSize: pageSize)
       }
@@ -124,7 +124,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   func loadNextPage() async {
     guard let user = user else { return }
     guard !isLoadingMore && hasMorePages else { return }
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
     isLoadingMore = true
     
@@ -133,14 +133,14 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
       var page: AraPostPage
       switch self.type {
       case .all:
-        page = try await araBoardRepository.fetchPosts(
+        page = try await araBoardUseCase.fetchPosts(
           type: .user(userID: user.id),
           page: nextPage,
           pageSize: pageSize,
           searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
         )
       case .bookmark:
-        page = try await araBoardRepository.fetchBookmarks(
+        page = try await araBoardUseCase.fetchBookmarks(
           page: nextPage,
           pageSize: pageSize
         )
@@ -158,10 +158,10 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   }
   
   func refreshItem(postID: Int) {
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
     
     Task {
-      guard let updated: AraPost = try? await araBoardRepository.fetchPost(origin: .none, postID: postID) else { return }
+      guard let updated: AraPost = try? await araBoardUseCase.fetchPost(origin: .none, postID: postID) else { return }
 
       if let idx = self.posts.firstIndex(where: { $0.id == updated.id }) {
         var previousPost: AraPost = self.posts[idx]

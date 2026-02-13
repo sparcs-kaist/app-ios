@@ -25,7 +25,12 @@ protocol PostViewModelProtocol: Observable {
   func summarisedContent() async -> String
   func deletePost() async throws
   func toggleBookmark() async
-  func handleException(_ error: Error)
+
+  // Comment operations (moved from PostCommentCell)
+  func upvoteComment(comment: Binding<AraPostComment>) async
+  func downvoteComment(comment: Binding<AraPostComment>) async
+  func reportComment(commentID: Int, type: AraContentReportType) async throws
+  func deleteComment(comment: Binding<AraPostComment>) async
 }
 
 @Observable
@@ -36,20 +41,20 @@ class PostViewModel: PostViewModelProtocol {
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
-    \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol?
+    \.araBoardUseCase
+  ) private var araBoardUseCase: AraBoardUseCaseProtocol?
   @ObservationIgnored @Injected(
-    \.araCommentRepository
-  ) private var araCommentRepository: AraCommentRepositoryProtocol?
+    \.araCommentUseCase
+  ) private var araCommentUseCase: AraCommentUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?
   @ObservationIgnored @Injected(
-    \.crashlyticsService
-  ) private var crashlyticsService: CrashlyticsServiceProtocol?
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   enum CommentWriteError: Error {
-    case repositoryNotAvailable
+    case useCaseNotAvailable
   }
 
   // MARK: - Initialiser
@@ -84,17 +89,17 @@ class PostViewModel: PostViewModelProtocol {
 
   // MARK: - Functions
   func fetchPost() async {
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
     do {
-      let post: AraPost = try await araBoardRepository.fetchPost(origin: .board, postID: post.id)
+      let post: AraPost = try await araBoardUseCase.fetchPost(origin: .board, postID: post.id)
       self.post = post
     } catch {
     }
   }
 
   func upvote() async {
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
     let previousMyVote: Bool? = post.myVote
     let previousUpvotes: Int = post.upvotes
@@ -104,7 +109,7 @@ class PostViewModel: PostViewModelProtocol {
         // cancel upvote
         post.myVote = nil
         post.upvotes -= 1
-        try await araBoardRepository.cancelVote(postID: post.id)
+        try await araBoardUseCase.cancelVote(postID: post.id)
       } else {
         // upvote
         if previousMyVote == false {
@@ -113,8 +118,9 @@ class PostViewModel: PostViewModelProtocol {
         }
         post.myVote = true
         post.upvotes += 1
-        try await araBoardRepository.upvotePost(postID: post.id)
+        try await araBoardUseCase.upvotePost(postID: post.id)
       }
+      analyticsService?.logEvent(PostViewEvent.postUpvoted)
     } catch {
       post.upvotes = previousUpvotes
       post.myVote = previousMyVote
@@ -122,7 +128,7 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func downvote() async {
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
     let previousMyVote: Bool? = post.myVote
     let previousDownvotes: Int = post.downvotes
@@ -132,7 +138,7 @@ class PostViewModel: PostViewModelProtocol {
         // cancel downvote
         post.myVote = nil
         post.downvotes -= 1
-        try await araBoardRepository.cancelVote(postID: post.id)
+        try await araBoardUseCase.cancelVote(postID: post.id)
       } else {
         // downvote
         if previousMyVote == true {
@@ -141,8 +147,9 @@ class PostViewModel: PostViewModelProtocol {
         }
         post.myVote = false
         post.downvotes += 1
-        try await araBoardRepository.downvotePost(postID: post.id)
+        try await araBoardUseCase.downvotePost(postID: post.id)
       }
+      analyticsService?.logEvent(PostViewEvent.postDownvoted)
     } catch {
       post.downvotes = previousDownvotes
       post.myVote = previousMyVote
@@ -150,9 +157,9 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func writeComment(content: String) async throws -> AraPostComment {
-    guard let araCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
+    guard let araCommentUseCase else { throw CommentWriteError.useCaseNotAvailable }
 
-    var comment: AraPostComment = try await araCommentRepository.writeComment(
+    var comment: AraPostComment = try await araCommentUseCase.writeComment(
       postID: post.id,
       content: content
     )
@@ -161,12 +168,14 @@ class PostViewModel: PostViewModelProtocol {
     self.post.comments.append(comment)
     self.post.commentCount += 1
 
+    analyticsService?.logEvent(PostViewEvent.commentSubmitted)
+
     return comment
   }
 
   func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment {
-    guard let araCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
-    var comment: AraPostComment = try await araCommentRepository.writeThreadedComment(
+    guard let araCommentUseCase else { throw CommentWriteError.useCaseNotAvailable }
+    var comment: AraPostComment = try await araCommentUseCase.writeThreadedComment(
       commentID: commentID,
       content: content
     )
@@ -180,13 +189,15 @@ class PostViewModel: PostViewModelProtocol {
     self.post.comments = comments
     self.post.commentCount += 1
 
+    analyticsService?.logEvent(PostViewEvent.commentSubmitted)
+
     return comment
   }
 
   func editComment(commentID: Int, content: String) async throws -> AraPostComment {
-    guard let araCommentRepository else { throw CommentWriteError.repositoryNotAvailable }
+    guard let araCommentUseCase else { throw CommentWriteError.useCaseNotAvailable }
 
-    var comment: AraPostComment = try await araCommentRepository.editComment(
+    var comment: AraPostComment = try await araCommentUseCase.editComment(
       commentID: commentID,
       content: content
     )
@@ -210,44 +221,123 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func report(type: AraContentReportType) async throws {
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
-    try await araBoardRepository.reportPost(postID: post.id, type: type)
+    try await araBoardUseCase.reportPost(postID: post.id, type: type)
+    analyticsService?.logEvent(PostViewEvent.postReported(type: "\(type)"))
   }
 
   func summarisedContent() async -> String {
     guard let foundationModelsUseCase else { return "" }
 
+    analyticsService?.logEvent(PostViewEvent.summariseRequested)
     return await foundationModelsUseCase.summarise(post.content ?? "", maxWords: 50, tone: "concise")
   }
 
   func deletePost() async throws {
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
-    try await araBoardRepository.deletePost(postID: post.id)
+    try await araBoardUseCase.deletePost(postID: post.id)
+    analyticsService?.logEvent(PostViewEvent.postDeleted)
   }
-  
+
   func toggleBookmark() async {
-    guard let araBoardRepository else { return }
-    
+    guard let araBoardUseCase else { return }
+
     let previousBookmarkStatus: Bool = post.myScrap
-    
+
     do {
       if previousBookmarkStatus {
         guard let scrapId = post.scrapId else { return }
-        
+
         post.myScrap = false
-        try await araBoardRepository.removeBookmark(bookmarkID: scrapId)
+        try await araBoardUseCase.removeBookmark(bookmarkID: scrapId)
       } else {
         post.myScrap = true
-        try await araBoardRepository.addBookmark(postID: post.id)
+        try await araBoardUseCase.addBookmark(postID: post.id)
       }
+      analyticsService?.logEvent(PostViewEvent.bookmarkToggled(isBookmarked: post.myScrap))
     } catch {
       post.myScrap = previousBookmarkStatus
     }
   }
-  
-  func handleException(_ error: any Error) {
-    crashlyticsService?.recordException(error: error)
+
+  // MARK: - Comment Operations
+  func upvoteComment(comment: Binding<AraPostComment>) async {
+    guard let araCommentUseCase else { return }
+
+    let previousMyVote: Bool? = comment.wrappedValue.myVote
+    let previousUpvotes: Int = comment.wrappedValue.upvotes
+
+    do {
+      if previousMyVote == true {
+        // cancel upvote
+        comment.wrappedValue.myVote = nil
+        comment.wrappedValue.upvotes -= 1
+        try await araCommentUseCase.cancelVote(commentID: comment.wrappedValue.id)
+      } else {
+        // upvote
+        if previousMyVote == false {
+          // remove downvote if there was
+          comment.wrappedValue.downvotes -= 1
+        }
+        comment.wrappedValue.myVote = true
+        comment.wrappedValue.upvotes += 1
+        try await araCommentUseCase.upvoteComment(commentID: comment.wrappedValue.id)
+      }
+      analyticsService?.logEvent(PostCommentCellEvent.commentUpvoted)
+    } catch {
+      comment.wrappedValue.upvotes = previousUpvotes
+      comment.wrappedValue.myVote = previousMyVote
+    }
+  }
+
+  func downvoteComment(comment: Binding<AraPostComment>) async {
+    guard let araCommentUseCase else { return }
+
+    let previousMyVote: Bool? = comment.wrappedValue.myVote
+    let previousDownvotes: Int = comment.wrappedValue.downvotes
+
+    do {
+      if previousMyVote == false {
+        // cancel downvote
+        comment.wrappedValue.myVote = nil
+        comment.wrappedValue.downvotes -= 1
+        try await araCommentUseCase.cancelVote(commentID: comment.wrappedValue.id)
+      } else {
+        // downvote
+        if previousMyVote == true {
+          // remove upvote if there was
+          comment.wrappedValue.upvotes -= 1
+        }
+        comment.wrappedValue.myVote = false
+        comment.wrappedValue.downvotes += 1
+        try await araCommentUseCase.downvoteComment(commentID: comment.wrappedValue.id)
+      }
+      analyticsService?.logEvent(PostCommentCellEvent.commentDownvoted)
+    } catch {
+      comment.wrappedValue.downvotes = previousDownvotes
+      comment.wrappedValue.myVote = previousMyVote
+    }
+  }
+
+  func reportComment(commentID: Int, type: AraContentReportType) async throws {
+    guard let araCommentUseCase else { return }
+
+    try await araCommentUseCase.reportComment(commentID: commentID, type: type)
+    analyticsService?.logEvent(PostCommentCellEvent.commentReported(type: "\(type)"))
+  }
+
+  func deleteComment(comment: Binding<AraPostComment>) async {
+    guard let araCommentUseCase else { return }
+
+    let previousContent: String? = comment.wrappedValue.content
+    do {
+      comment.wrappedValue.content = nil
+      try await araCommentUseCase.deleteComment(commentID: comment.wrappedValue.id)
+      analyticsService?.logEvent(PostCommentCellEvent.commentDeleted)
+    } catch {
+      comment.wrappedValue.content = previousContent
+    }
   }
 }
