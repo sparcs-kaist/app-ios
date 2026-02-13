@@ -108,5 +108,12 @@ let package = Package(
               "BuddyTestSupport"
             ]
         ),
+        .testTarget(
+          name: "BuddyFeaturePostTests",
+          dependencies: [
+            "BuddyFeaturePost",
+            "BuddyTestSupport"
+          ]
+        ),
     ]
 )
