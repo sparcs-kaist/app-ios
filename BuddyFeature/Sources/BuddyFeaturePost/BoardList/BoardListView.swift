@@ -48,10 +48,12 @@ struct ListGlassSection<Content: View>: View {
 
 public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
+  @Binding var deepLinkedPost: AraPost?
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-  public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel()) {
+  public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel(), deepLinkedPost: Binding<AraPost?> = .constant(nil)) {
     _viewModel = State(initialValue: viewModel)
+    _deepLinkedPost = deepLinkedPost
   }
   
   public var body: some View {
@@ -82,6 +84,10 @@ public struct BoardListView: View {
       .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Boards") : "")
       .toolbarTitleDisplayMode(.inlineLarge)
       .toolbar(horizontalSizeClass == .compact ? .automatic : .visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
+      .navigationDestination(item: $deepLinkedPost) { post in
+        PostView(post: post)
+          .toolbar(.hidden, for: .tabBar)
+      }
     }, detail: {
       NavigationStack {
         
