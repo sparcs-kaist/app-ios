@@ -14,6 +14,8 @@ import BuddyDomain
 protocol PostViewModelProtocol: Observable {
   var post: AraPost { get set }
   var isFoundationModelsAvailable: Bool { get }
+  var alertState: AlertState? { get set }
+  var isAlertPresented: Bool { get set }
 
   func fetchPost() async
   func upvote() async
@@ -38,6 +40,8 @@ class PostViewModel: PostViewModelProtocol {
   // MARK: - Properties
   var post: AraPost
   var isFoundationModelsAvailable: Bool = false
+  var alertState: AlertState? = nil
+  var isAlertPresented: Bool = false
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -95,6 +99,10 @@ class PostViewModel: PostViewModelProtocol {
       let post: AraPost = try await araBoardUseCase.fetchPost(origin: .board, postID: post.id)
       self.post = post
     } catch {
+      presentAlert(
+        title: String(localized: "Unable to fetch post."),
+        message: error.localizedDescription
+      )
     }
   }
 
@@ -339,5 +347,10 @@ class PostViewModel: PostViewModelProtocol {
     } catch {
       comment.wrappedValue.content = previousContent
     }
+  }
+
+  func presentAlert(title: String, message: String) {
+    alertState = .init(title: title, message: message)
+    isAlertPresented = true
   }
 }

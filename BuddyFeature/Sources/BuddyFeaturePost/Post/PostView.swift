@@ -35,10 +35,6 @@ public struct PostView: View {
 
   @State private var summarisedContent: String? = nil
 
-  @State private var showAlert: Bool = false
-  @State private var alertTitle: String = ""
-  @State private var alertMessage: String = ""
-
   let onPostDeleted: ((Int) -> Void)?
 
   public init(post: AraPost, onPostDeleted: ((Int) -> Void)? = nil) {
@@ -83,7 +79,11 @@ public struct PostView: View {
                     onPostDeleted?(viewModel.post.id)
                     dismiss()
                   } catch {
-                    showAlert(title: String(localized: "Error"), message: String(localized: "Failed to delete a post. Please try again later."))
+                    viewModel.alertState = .init(
+                      title: String(localized: "Unable to delete post."),
+                      message: error.localizedDescription
+                    )
+                    viewModel.isAlertPresented = true
                   }
                 }
               }
@@ -97,10 +97,10 @@ public struct PostView: View {
         BackgroundGradientView(color: .red)
           .ignoresSafeArea()
       }
-      .alert(alertTitle, isPresented: $showAlert, actions: {
+      .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented, actions: {
         Button("Okay", role: .close) { }
       }, message: {
-        Text(alertMessage)
+        Text(viewModel.alertState?.message ?? "Unexpected Error")
       })
       .sheet(item: $tappedURL) { url in
         SafariViewWrapper(url: url)
@@ -164,87 +164,36 @@ public struct PostView: View {
   }
 
   private var comments: some View {
-    VStack(spacing: 16) {
-      // Main comment
-      if viewModel.post.comments.isEmpty {
-        Divider()
-        ContentUnavailableView("No one has commented yet.", systemImage: "text.bubble", description: Text("Be the first one to share your thoughts."))
-          .scaleEffect(0.8)
-      } else {
-        ForEach($viewModel.post.comments) { $comment in
-          VStack(spacing: 12) {
-            PostCommentCell(
-              comment: $comment,
-              isThreaded: false,
-              onComment: {
-                targetComment = comment
-                isWritingCommentFocusState = true
-              },
-              onDelete: {
-                viewModel.post.commentCount -= 1
-              },
-              onEdit: {
-                withAnimation(.spring) {
-                  self.comment = comment.content ?? ""
-                  targetComment = nil
-                  commentOnEdit = comment
-                }
-                isWritingCommentFocusState = true
-              },
-              onUpvote: {
-                await viewModel.upvoteComment(comment: $comment)
-              },
-              onDownvote: {
-                await viewModel.downvoteComment(comment: $comment)
-              },
-              onReport: { type in
-                try await viewModel.reportComment(commentID: comment.id, type: type)
-              },
-              onDeleteComment: {
-                await viewModel.deleteComment(comment: $comment)
-              }
-            )
-            .id(comment.id)
-
-            // Threads
-            ForEach($comment.comments) { $thread in
-              PostCommentCell(
-                comment: $thread,
-                isThreaded: true,
-                onComment: {
-                  targetComment = thread
-                  isWritingCommentFocusState = true
-                },
-                onDelete: {
-                  viewModel.post.commentCount -= 1
-                },
-                onEdit: {
-                  withAnimation(.spring) {
-                    self.comment = thread.content ?? ""
-                    targetComment = nil
-                    commentOnEdit = thread
-                  }
-                  isWritingCommentFocusState = true
-                },
-                onUpvote: {
-                  await viewModel.upvoteComment(comment: $thread)
-                },
-                onDownvote: {
-                  await viewModel.downvoteComment(comment: $thread)
-                },
-                onReport: { type in
-                  try await viewModel.reportComment(commentID: thread.id, type: type)
-                },
-                onDeleteComment: {
-                  await viewModel.deleteComment(comment: $thread)
-                }
-              )
-              .id(thread.id)
-            }
-          }
+    PostCommentsSection(
+      comments: $viewModel.post.comments,
+      onReply: { selectedComment in
+        targetComment = selectedComment
+        isWritingCommentFocusState = true
+      },
+      onCommentDeleted: {
+        viewModel.post.commentCount -= 1
+      },
+      onEdit: { selectedComment in
+        withAnimation(.spring) {
+          comment = selectedComment.content ?? ""
+          targetComment = nil
+          commentOnEdit = selectedComment
         }
+        isWritingCommentFocusState = true
+      },
+      onUpvote: { target in
+        await viewModel.upvoteComment(comment: target)
+      },
+      onDownvote: { target in
+        await viewModel.downvoteComment(comment: target)
+      },
+      onReport: { commentID, type in
+        try await viewModel.reportComment(commentID: commentID, type: type)
+      },
+      onDeleteComment: { target in
+        await viewModel.deleteComment(comment: target)
       }
-    }
+    )
     .padding(.top, 4)
     .animation(.spring, value: viewModel.post.comments)
   }
@@ -391,7 +340,6 @@ public struct PostView: View {
           TextField(text: $comment, prompt: Text(placeholder), axis: .vertical, label: {})
             .focused($isWritingCommentFocusState)
             .onChange(of: isWritingCommentFocusState) {
-              print(isWritingCommentFocusState)
               isWritingComment = isWritingCommentFocusState
             }
         }
@@ -426,12 +374,11 @@ public struct PostView: View {
                 proxy.scrollTo(uploadedComment?.id, anchor: .center)
               }
             } catch {
-//              if error.isNetworkMoyaError {
-//                showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//              } else {
-//                viewModel.handleException(error)
-//                showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while uploading a comment. Please try again later."))
-//              }
+              viewModel.alertState = .init(
+                title: String(localized: "Unable to write comment."),
+                message: error.localizedDescription
+              )
+              viewModel.isAlertPresented = true
             }
           }
         }, label: {
@@ -517,23 +464,20 @@ public struct PostView: View {
     return result
   }
 
-  private func showAlert(title: String, message: String) {
-    alertTitle = title
-    alertMessage = message
-    showAlert = true
-  }
-  
   private func report(type: AraContentReportType) async {
     do {
       try await viewModel.report(type: type)
-      showAlert(title: String(localized: "Report Submitted"), message: String(localized: "Your report has been submitted successfully."))
+      viewModel.alertState = .init(
+        title: String(localized: "Report Submitted"),
+        message: String(localized: "Your report has been submitted successfully.")
+      )
+      viewModel.isAlertPresented = true
     } catch {
-//      if error.isNetworkMoyaError {
-//        showAlert(title: String(localized: "Error"), message: String(localized: "You are not connected to the Internet."))
-//      } else {
-//        viewModel.handleException(error)
-//        showAlert(title: String(localized: "Error"), message: String(localized: "An unexpected error occurred while reporting a post. Please try again later."))
-//      }
+      viewModel.alertState = .init(
+        title: String(localized: "Unable to submit report."),
+        message: error.localizedDescription
+      )
+      viewModel.isAlertPresented = true
     }
   }
 }

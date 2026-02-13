@@ -22,9 +22,8 @@ struct PostCommentCell: View {
   let onReport: (AraContentReportType) async throws -> Void
   let onDeleteComment: () async -> Void
 
-  @State private var presentAlert: Bool = false
-  @State private var alertTitle: String = ""
-  @State private var alertContent: String = ""
+  @State private var alertState: AlertState? = nil
+  @State private var isAlertPresented: Bool = false
   @State private var showTranslateSheet: Bool = false
 
   var body: some View {
@@ -50,10 +49,10 @@ struct PostCommentCell: View {
         footer
       }
     }
-    .alert(alertTitle, isPresented: $presentAlert, actions: {
+    .alert(alertState?.title ?? "Error", isPresented: $isAlertPresented, actions: {
       Button("Okay", role: .close) { }
     }, message: {
-      Text(alertContent)
+      Text(alertState?.message ?? "Unexpected Error")
     })
     .translationPresentation(isPresented: $showTranslateSheet, text: comment.content ?? "")
   }
@@ -184,13 +183,13 @@ struct PostCommentCell: View {
       try await onReport(type)
       showAlert(title: String(localized: "Report Submitted"), content: String(localized: "Your report has been submitted successfully."))
     } catch {
+      showAlert(title: String(localized: "Unable to submit report."), content: error.localizedDescription)
     }
   }
 
   private func showAlert(title: String, content: String) {
-    alertTitle = title
-    alertContent = content
-    presentAlert = true
+    alertState = .init(title: title, message: content)
+    isAlertPresented = true
   }
 }
 

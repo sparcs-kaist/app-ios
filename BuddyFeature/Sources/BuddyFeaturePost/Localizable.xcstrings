@@ -270,6 +270,7 @@
       }
     },
     "Failed to delete a post. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -674,6 +675,18 @@
           }
         }
       }
+    },
+    "Unable to delete post." : {
+
+    },
+    "Unable to fetch post." : {
+
+    },
+    "Unable to submit report." : {
+
+    },
+    "Unable to write comment." : {
+
     },
     "Untitled" : {
       "localizations" : {
