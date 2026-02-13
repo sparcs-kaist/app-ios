@@ -16,6 +16,7 @@ public enum TaxiRoomTarget {
   case joinRoom(roomID: String)
   case leaveRoom(roomID: String)
   case getRoom(roomID: String)
+  case getPublicRoom(roomID: String)
   case commitSettlement(roomID: String)
   case commitPayment(roomID: String)
 }
@@ -41,6 +42,8 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       "/rooms/abort"
     case .getRoom:
       "/rooms/info"
+    case .getPublicRoom:
+      "/rooms/publicInfo"
     case .commitSettlement:
       "/rooms/commitSettlement"
     case .commitPayment:
@@ -50,7 +53,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
 
   public var method: Moya.Method {
     switch self {
-    case .fetchRooms, .fetchMyRooms, .getRoom, .fetchLocations:
+    case .fetchRooms, .fetchMyRooms, .getRoom, .fetchLocations, .getPublicRoom:
       .get
     case .createRoom, .joinRoom, .leaveRoom, .commitSettlement, .commitPayment:
       .post
@@ -71,6 +74,8 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .getRoom(let roomID):
       .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
+    case .getPublicRoom(let roomID):
+        .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
     case .commitSettlement(let roomID):
       .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .commitPayment(let roomID):

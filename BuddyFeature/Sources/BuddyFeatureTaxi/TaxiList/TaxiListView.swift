@@ -16,8 +16,6 @@ public struct TaxiListView: View {
 
   // view properties
   @State private var scrollTarget: String? = nil
-  @Binding var taxiInviteId: String?
-  @State private var showInvalidInviteIdAlert: Bool = false
 
   // show taxi room preview
   @State private var showRoomCreationSheet: Bool = false
@@ -29,8 +27,7 @@ public struct TaxiListView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-  public init(taxiInviteId: Binding<String?> = .constant(nil), viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
-    _taxiInviteId = taxiInviteId
+  public init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(initialValue: viewModel)
   }
 
@@ -143,32 +140,18 @@ public struct TaxiListView: View {
         TaxiPreviewView(room: room)
           .onDisappear {
             Task {
-              await viewModel.fetchData(inviteId: nil)
-              viewModel.invitedRoom = nil
+              await viewModel.fetchData()
             }
           }
           .presentationDragIndicator(.visible)
           .presentationDetents([.height(400), .height(500)])
       }
     }
-    .alert("Invalid Invitation", isPresented: $showInvalidInviteIdAlert, actions: {
-      Button(role: .confirm) { }
-    }, message: {
-      Text("The link you followed is invalid. Please try again.")
-    })
-    .task(id: taxiInviteId) {
-      await viewModel.fetchData(inviteId: taxiInviteId)
-      if viewModel.invitedRoom == nil && taxiInviteId != nil {
-        showInvalidInviteIdAlert = true
-      }
-      taxiInviteId = nil
-    }
-    .onChange(of: viewModel.invitedRoom) {
-      if viewModel.invitedRoom == nil { return }
-      selectedRoom = viewModel.invitedRoom
+    .task {
+      await viewModel.fetchData()
     }
     .refreshable {
-      await viewModel.fetchData(inviteId: nil)
+      await viewModel.fetchData()
     }
   }
 
@@ -251,7 +234,7 @@ public struct TaxiListView: View {
       actions: {
         Button("Try Again") {
           Task {
-            await viewModel.fetchData(inviteId: taxiInviteId) 
+            await viewModel.fetchData()
           }
         }
       }

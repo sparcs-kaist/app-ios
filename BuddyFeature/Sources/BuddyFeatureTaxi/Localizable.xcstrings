@@ -525,6 +525,7 @@
       }
     },
     "Invalid Invitation" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1252,6 +1253,7 @@
       }
     },
     "The link you followed is invalid. Please try again." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

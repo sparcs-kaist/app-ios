@@ -205,6 +205,9 @@
         }
       }
     },
+    "Invalid Invitation" : {
+
+    },
     "Keep track of your classes." : {
       "localizations" : {
         "en" : {
@@ -332,6 +335,9 @@
           }
         }
       }
+    },
+    "The link you followed is invalid. Please try again." : {
+
     },
     "There are no more classes today." : {
       "localizations" : {

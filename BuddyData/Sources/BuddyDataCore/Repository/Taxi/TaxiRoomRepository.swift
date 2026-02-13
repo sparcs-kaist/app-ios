@@ -116,6 +116,19 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
     }
   }
 
+  public func getPublicRoom(id: String) async throws -> TaxiRoom {
+    do {
+      let response = try await provider.request(.getPublicRoom(roomID: id))
+      let result = try response.map(TaxiRoomDTO.self).toModel()
+
+      return result
+    } catch let moyaError as MoyaError {
+      throw moyaError.toAPIError
+    } catch {
+      throw error
+    }
+  }
+
   public func commitSettlement(id: String) async throws -> TaxiRoom {
     do {
       let response = try await provider.request(.commitSettlement(roomID: id))

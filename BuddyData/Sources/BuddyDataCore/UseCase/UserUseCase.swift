@@ -67,7 +67,7 @@ public final class UserUseCase: UserUseCaseProtocol {
     print("Fetching Ara User")
     let user = try await araUserRepository.fetchUser()
     await userStorage.setAraUser(user)
-    print(user)
+//    print(user)
   }
   
   public func fetchTaxiUser() async throws {
@@ -76,7 +76,7 @@ public final class UserUseCase: UserUseCaseProtocol {
     print("Fetching Taxi User")
     let user = try await taxiUserRepository.fetchUser()
     await userStorage.setTaxiUser(user)
-    print(user)
+//    print(user)
   }
 
   public func fetchFeedUser() async throws {
@@ -85,7 +85,7 @@ public final class UserUseCase: UserUseCaseProtocol {
     print("Fetching Feed User")
     let user = try await feedUserRepository.fetchUser()
     await userStorage.setFeedUser(user)
-    print(user)
+//    print(user)
   }
 
   public func fetchOTLUser() async throws {
@@ -94,7 +94,7 @@ public final class UserUseCase: UserUseCaseProtocol {
     print("Fetching OTL User")
     let user = try await otlUserRepository.fetchUser()
     await userStorage.setOTLUser(user)
-    print(user)
+//    print(user)
   }
 
   public func updateAraUser(params: [String: Any]) async throws {

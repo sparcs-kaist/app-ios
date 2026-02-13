@@ -14,12 +14,12 @@ import BuddyFeatureTaxi
 import BuddyFeatureSearch
 
 struct MainView: View {
-  @State private var taxiInviteId: String?
+  @State private var viewModel = MainViewModel()
   @State private var selectedTab: TabSelection = .feed
-  
+
   private var feedViewModel: FeedViewModelProtocol
   private var boardListViewModel: BoardListViewModelProtocol
-  
+
   init(feedViewModel: FeedViewModelProtocol = FeedViewModel(), boardListViewModel: BoardListViewModelProtocol = BoardListViewModel()) {
     self.feedViewModel = feedViewModel
     self.boardListViewModel = boardListViewModel
@@ -40,7 +40,7 @@ struct MainView: View {
       }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
-        TaxiListView(taxiInviteId: $taxiInviteId)
+        TaxiListView()
       }
 
       Tab(value: .search, role: .search) {
@@ -49,14 +49,25 @@ struct MainView: View {
     }
     .tabBarMinimizeBehavior(.onScrollDown)
     .onOpenURL { url in
-      logger.debug(url.pathComponents)
-      if let host = url.host, host.contains("taxi") {
-        logger.debug("App started with taxi deeplink")
+      guard let deepLink = DeepLink(url: url) else { return }
+      switch deepLink {
+      case .taxiInvite(let code):
         selectedTab = .taxi
-        
-        taxiInviteId = String(url.lastPathComponent)
-        logger.debug("Taxi Invitation Id: \(taxiInviteId ?? "nil")")
+        print(code)
+        Task {
+          await viewModel.resolveInvite(code: code)
+        }
       }
+    }
+    .sheet(item: $viewModel.invitedRoom) { room in
+      TaxiPreviewView(room: room)
+        .presentationDragIndicator(.visible)
+        .presentationDetents([.height(400), .height(500)])
+    }
+    .alert("Invalid Invitation", isPresented: $viewModel.showInvalidInviteAlert) {
+      Button("Okay", role: .cancel) { }
+    } message: {
+      Text("The link you followed is invalid. Please try again.")
     }
     .tabViewStyle(.tabBarOnly)
   }

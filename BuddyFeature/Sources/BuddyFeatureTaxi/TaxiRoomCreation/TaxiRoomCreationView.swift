@@ -63,7 +63,7 @@ struct TaxiRoomCreationView: View {
             Task {
               do {
                 try await viewModel.createRoom(title: title)
-                await viewModel.fetchData(inviteId: nil)
+                await viewModel.fetchData()
                 dismiss()
               } catch {
                 self.alertTitle = String(localized: "Error")
