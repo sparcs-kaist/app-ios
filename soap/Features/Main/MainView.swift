@@ -53,9 +53,13 @@ struct MainView: View {
       switch deepLink {
       case .taxiInvite(let code):
         selectedTab = .taxi
-        print(code)
         Task {
           await viewModel.resolveInvite(code: code)
+        }
+      case .araPost(let id):
+        selectedTab = .board
+        Task {
+          await viewModel.resolvePost(id: id)
         }
       }
     }
@@ -64,10 +68,17 @@ struct MainView: View {
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(400), .height(500)])
     }
-    .alert("Invalid Invitation", isPresented: $viewModel.showInvalidInviteAlert) {
+    .sheet(item: $viewModel.deepLinkedPost) { post in
+      NavigationStack {
+        PostView(post: post)
+          .navigationBarTitleDisplayMode(.inline)
+      }
+      .presentationDragIndicator(.visible)
+    }
+    .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented) {
       Button("Okay", role: .cancel) { }
     } message: {
-      Text("The link you followed is invalid. Please try again.")
+      Text(viewModel.alertState?.message ?? "Unexpected Error")
     }
     .tabViewStyle(.tabBarOnly)
   }
