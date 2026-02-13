@@ -43,7 +43,7 @@ public class BoardListViewModel: BoardListViewModelProtocol {
       analyticsService?.logEvent(BoardListViewEvent.boardsLoaded)
 
     } catch {
-      state = .error(message: "Failed to load boards.")
+      state = .error(message: String(localized: "Failed to load boards."))
     }
   }
 }
