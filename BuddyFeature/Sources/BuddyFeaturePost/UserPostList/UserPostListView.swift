@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import BuddyDomain
 import BuddyPreviewSupport
+import FirebaseAnalytics
 
 struct UserPostListView: View {
   @State private var viewModel: UserPostListViewModelProtocol
@@ -72,44 +73,46 @@ struct UserPostListView: View {
       }
     }
     .searchable(text: $viewModel.searchKeyword)
+    .analyticsScreen(name: "Ara User Post List", class: String(describing: Self.self))
   }
 }
 #Preview("Loading State") {
-    NavigationStack {
-        UserPostListView(viewModel: PreviewUserPostListViewModel(
-            state: .loading,
-            user: .previewAuthor
-        ))
-    }
+  NavigationStack {
+    UserPostListView(viewModel: PreviewUserPostListViewModel(
+      state: .loading,
+      user: .previewAuthor
+    ))
+  }
 }
 
 #Preview("Loaded State") {
-    NavigationStack {
-        UserPostListView(viewModel: PreviewUserPostListViewModel(
-            state: .loaded(posts: AraPost.mockList),
-            user: .previewAuthor,
-            posts: AraPost.mockList
-        ))
-    }
+  NavigationStack {
+    UserPostListView(viewModel: PreviewUserPostListViewModel(
+      state: .loaded(posts: AraPost.mockList),
+      user: .previewAuthor,
+      posts: AraPost.mockList
+    ))
+  }
 }
 
 #Preview("Error State") {
-    NavigationStack {
-        UserPostListView(viewModel: PreviewUserPostListViewModel(
-            state: .error(message: "Something went wrong"),
-            user: .previewAuthor
-        ))
-    }
+  NavigationStack {
+    UserPostListView(viewModel: PreviewUserPostListViewModel(
+      state: .error(message: "Something went wrong"),
+      user: .previewAuthor
+    ))
+  }
 }
 
 #Preview("Empty Search") {
-    NavigationStack {
-        UserPostListView(viewModel: PreviewUserPostListViewModel(
-            state: .loaded(posts: []),
-            user: .previewAuthor,
-            posts: [],
-            searchKeyword: "no results"
-        ))
-    }
+  NavigationStack {
+    UserPostListView(viewModel: PreviewUserPostListViewModel(
+      state: .loaded(posts: []),
+      user: .previewAuthor,
+      posts: [],
+      searchKeyword: "no results"
+    ))
+  }
 }
+
 

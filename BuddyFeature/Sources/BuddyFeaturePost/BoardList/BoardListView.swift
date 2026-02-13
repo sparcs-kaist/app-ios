@@ -9,6 +9,7 @@ import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
 import BuddyPreviewSupport
+import FirebaseAnalytics
 
 struct ListGlassSection<Content: View>: View {
   let header: Label<Text, Image>
@@ -44,6 +45,7 @@ struct ListGlassSection<Content: View>: View {
       )
       .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
     }
+    .analyticsScreen(name: "Board List", class: String(describing: Self.self))
   }
 }
 
@@ -56,7 +58,7 @@ public struct BoardListView: View {
     _viewModel = State(initialValue: viewModel)
     _deepLinkedPost = deepLinkedPost
   }
-  
+
   public var body: some View {
     NavigationSplitView(sidebar: {
       ScrollView {
@@ -91,7 +93,7 @@ public struct BoardListView: View {
       }
     }, detail: {
       NavigationStack {
-        
+
       }
       .background {
         BackgroundGradientView(color: .red)
@@ -170,13 +172,15 @@ public struct BoardListView: View {
 
 
 #Preview("Loading State") {
-    BoardListView(PreviewBoardListViewModel(state: .loading))
+  BoardListView(PreviewBoardListViewModel(state: .loading))
 }
 
 #Preview("Loaded State") {
-    BoardListView(PreviewBoardListViewModel(state: PreviewBoardListViewModel.loadedState()))
+  BoardListView(PreviewBoardListViewModel(state: PreviewBoardListViewModel.loadedState()))
 }
 
 #Preview("Error State") {
-    BoardListView(PreviewBoardListViewModel(state: .error(message: "Something went wrong")))
+  BoardListView(PreviewBoardListViewModel(state: .error(message: "Something went wrong")))
 }
+
+

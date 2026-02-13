@@ -11,6 +11,7 @@ import WebKit
 import BuddyDomain
 import Haptica
 import BuddyFeatureShared
+import FirebaseAnalytics
 
 public struct PostView: View {
   @State private var viewModel: PostViewModelProtocol
@@ -118,6 +119,10 @@ public struct PostView: View {
         await viewModel.fetchPost()
       }
     }
+    .analyticsScreen(name: "Ara Post", class: String(describing: Self.self), extraParameters: [
+      "is_author": viewModel.post.isMine ?? false,
+      "has_comments": viewModel.post.commentCount > 0
+    ])
   }
 
   private var actionsMenu: some View {
@@ -499,4 +504,6 @@ public struct PostView: View {
     PostView(post: .mockWithoutComments, onPostDeleted: nil)
   }
 }
+
+
 

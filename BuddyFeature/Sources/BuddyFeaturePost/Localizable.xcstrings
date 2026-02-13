@@ -292,6 +292,9 @@
         }
       }
     },
+    "Failed to load boards." : {
+
+    },
     "It looks like there are no posts on this page right now." : {
       "localizations" : {
         "en" : {

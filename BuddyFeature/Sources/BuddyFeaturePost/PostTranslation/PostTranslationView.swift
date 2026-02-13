@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import Factory
+import FirebaseAnalytics
 
 @preconcurrency
 import Translation
@@ -31,7 +32,7 @@ struct PostTranslationView: View {
   @State private var errorMessage: String = ""
 
   @State private var isTranslating: Bool = true
-  
+
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   init(post: AraPost) {
@@ -118,6 +119,7 @@ struct PostTranslationView: View {
         Text(errorMessage)
       })
     }
+    .analyticsScreen(name: "Ara Post Translation", class: String(describing: Self.self))
   }
 
   private func triggerTranslation() {
@@ -169,3 +171,4 @@ struct PostTranslationView: View {
 #Preview {
   PostTranslationView(post: AraPost.mock)
 }
+
