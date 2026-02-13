@@ -53,9 +53,13 @@ struct MainView: View {
       switch deepLink {
       case .taxiInvite(let code):
         selectedTab = .taxi
-        print(code)
         Task {
           await viewModel.resolveInvite(code: code)
+        }
+      case .araPost(let id):
+        selectedTab = .board
+        Task {
+          await viewModel.resolvePost(id: id)
         }
       }
     }
@@ -64,10 +68,22 @@ struct MainView: View {
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(400), .height(500)])
     }
+    .sheet(item: $viewModel.deepLinkedPost) { post in
+      NavigationStack {
+        PostView(post: post)
+          .navigationBarTitleDisplayMode(.inline)
+      }
+      .presentationDragIndicator(.visible)
+    }
     .alert("Invalid Invitation", isPresented: $viewModel.showInvalidInviteAlert) {
       Button("Okay", role: .cancel) { }
     } message: {
       Text("The link you followed is invalid. Please try again.")
+    }
+    .alert("Post Not Found", isPresented: $viewModel.showInvalidPostAlert) {
+      Button("Okay", role: .cancel) { }
+    } message: {
+      Text("The post you are looking for could not be found.")
     }
     .tabViewStyle(.tabBarOnly)
   }

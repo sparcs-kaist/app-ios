@@ -14,11 +14,16 @@ import BuddyDomain
 @Observable
 final class MainViewModel {
   var invitedRoom: TaxiRoom? = nil
+  var deepLinkedPost: AraPost? = nil
   var showInvalidInviteAlert: Bool = false
+  var showInvalidPostAlert: Bool = false
 
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
+  @ObservationIgnored @Injected(
+    \.araBoardRepository
+  ) private var araBoardRepository: AraBoardRepositoryProtocol?
 
   func resolveInvite(code: String) async {
     guard let taxiRoomRepository else { return }
@@ -28,6 +33,17 @@ final class MainViewModel {
     } catch {
       print(error)
       showInvalidInviteAlert = true
+    }
+  }
+
+  func resolvePost(id: Int) async {
+    guard let araBoardRepository else { return }
+
+    do {
+      deepLinkedPost = try await araBoardRepository.fetchPost(origin: nil, postID: id)
+    } catch {
+      print(error)
+      showInvalidPostAlert = true
     }
   }
 }

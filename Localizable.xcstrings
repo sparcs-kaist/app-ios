@@ -304,6 +304,9 @@
         }
       }
     },
+    "Post Not Found" : {
+
+    },
     "Sponsored by" : {
       "localizations" : {
         "en" : {
@@ -337,6 +340,9 @@
       }
     },
     "The link you followed is invalid. Please try again." : {
+
+    },
+    "The post you are looking for could not be found." : {
 
     },
     "There are no more classes today." : {
