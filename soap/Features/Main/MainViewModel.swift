@@ -15,8 +15,8 @@ import BuddyDomain
 final class MainViewModel {
   var invitedRoom: TaxiRoom? = nil
   var deepLinkedPost: AraPost? = nil
-  var showInvalidInviteAlert: Bool = false
-  var showInvalidPostAlert: Bool = false
+  var alertState: AlertState? = nil
+  var isAlertPresented: Bool = false
 
   @ObservationIgnored @Injected(
     \.taxiRoomRepository
@@ -31,8 +31,11 @@ final class MainViewModel {
     do {
       invitedRoom = try await taxiRoomRepository.getPublicRoom(id: code)
     } catch {
-      print(error)
-      showInvalidInviteAlert = true
+      alertState = .init(
+        title: String(localized: "Invalid Invitation"),
+        message: String(localized: "The link you followed is invalid. Please try again.")
+      )
+      isAlertPresented = true
     }
   }
 
@@ -42,8 +45,11 @@ final class MainViewModel {
     do {
       deepLinkedPost = try await araBoardRepository.fetchPost(origin: nil, postID: id)
     } catch {
-      print(error)
-      showInvalidPostAlert = true
+      alertState = .init(
+        title: String(localized: "Post Not Found"),
+        message: String(localized: "The post you are looking for could not be found.")
+      )
+      isAlertPresented = true
     }
   }
 }

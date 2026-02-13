@@ -75,15 +75,10 @@ struct MainView: View {
       }
       .presentationDragIndicator(.visible)
     }
-    .alert("Invalid Invitation", isPresented: $viewModel.showInvalidInviteAlert) {
+    .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented) {
       Button("Okay", role: .cancel) { }
     } message: {
-      Text("The link you followed is invalid. Please try again.")
-    }
-    .alert("Post Not Found", isPresented: $viewModel.showInvalidPostAlert) {
-      Button("Okay", role: .cancel) { }
-    } message: {
-      Text("The post you are looking for could not be found.")
+      Text(viewModel.alertState?.message ?? "Unexpected Error")
     }
     .tabViewStyle(.tabBarOnly)
   }
