@@ -11,23 +11,10 @@ import Factory
 import BuddyDomain
 
 @MainActor
-public protocol BoardListViewModelProtocol: Observable {
-  var state: BoardListViewModel.ViewState { get }
-
-  func fetchBoards() async
-}
-
-@MainActor
 @Observable
 public class BoardListViewModel: BoardListViewModelProtocol {
-  public enum ViewState: Equatable {
-    case loading
-    case loaded(boards: [AraBoard], groups: [AraBoardGroup])
-    case error(message: String)
-  }
-
   // MARK: - Properties
-  public var state: ViewState = .loading
+  public var state: BoardListViewState = .loading
   var boards: [AraBoard] = []
   var groups: [AraBoardGroup] = []
 

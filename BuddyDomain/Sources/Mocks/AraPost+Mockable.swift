@@ -801,4 +801,11 @@ public extension AraPost {
       )
     ]
   }
+
+  static var mockWithoutComments: AraPost {
+    var post = AraPost.mock
+    post.comments = []
+    post.commentCount = 0
+    return post
+  }
 }

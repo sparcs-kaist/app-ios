@@ -11,32 +11,10 @@ import Observation
 import Factory
 import BuddyDomain
 
-@MainActor
-protocol UserPostListViewModelProtocol: Observable {
-  var state: UserPostListViewModel.ViewState { get }
-  var user: AraPostAuthor { get }
-  var posts: [AraPost] { get }
-  var searchKeyword: String { get set }
-
-  var isLoadingMore: Bool { get }
-  var hasMorePages: Bool { get }
-
-  func fetchInitialPosts() async
-  func loadNextPage() async
-  func refreshItem(postID: Int)
-  func removePost(postID: Int)
-  func bind()
-}
-
 @Observable
 class UserPostListViewModel: UserPostListViewModelProtocol {
   // MARK: - Properties
-  enum ViewState: Equatable {
-    case loading
-    case loaded(posts: [AraPost])
-    case error(message: String)
-  }
-  var state: ViewState = .loading
+  var state: UserPostListViewState = .loading
   var user: AraPostAuthor
   var posts: [AraPost] = []
 

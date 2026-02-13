@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
+import Observation
 import BuddyDomain
 import BuddyFeatureShared
+import BuddyPreviewSupport
 
 struct PostListView: View {
   @State private var viewModel: PostListViewModelProtocol
@@ -103,27 +105,38 @@ struct PostListView: View {
   }
 }
 
-//#Preview("Loading State") {
-//  @Previewable @State var viewModel = MockPostListViewModel()
-//  viewModel.state = .loading
-//  
-//  return NavigationStack {
-//    PostListView(viewModel: viewModel)
-//  }
-//}
-//
-//#Preview("Loaded State") {
-//  @Previewable @State var viewModel = MockPostListViewModel()
-//  return NavigationStack {
-//    PostListView(viewModel: viewModel)
-//  }
-//}
-//
-//#Preview("Error State") {
-//  @Previewable @State var viewModel = MockPostListViewModel()
-//  viewModel.state = .error(message: "Something went wrong")
-//  
-//  return NavigationStack {
-//    PostListView(viewModel: viewModel)
-//  }
-//}
+#Preview("Loading State") {
+    NavigationStack {
+        PostListView(viewModel: PreviewPostListViewModel(state: .loading, board: .mock))
+    }
+}
+
+#Preview("Loaded State") {
+    NavigationStack {
+        PostListView(viewModel: PreviewPostListViewModel(
+            state: .loaded(posts: AraPost.mockList),
+            board: .mock,
+            posts: AraPost.mockList
+        ))
+    }
+}
+
+#Preview("Error State") {
+    NavigationStack {
+        PostListView(viewModel: PreviewPostListViewModel(
+            state: .error(message: "Something went wrong"),
+            board: .mock
+        ))
+    }
+}
+
+#Preview("Empty Search") {
+    NavigationStack {
+        PostListView(viewModel: PreviewPostListViewModel(
+            state: .loaded(posts: []),
+            board: .mock,
+            posts: [],
+            searchKeyword: "no results"
+        ))
+    }
+}

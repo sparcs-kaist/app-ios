@@ -482,6 +482,21 @@ public struct PostView: View {
   }
 }
 
-#Preview {
-  PostView(post: AraPost.mock, onPostDeleted: nil)
+#Preview("Loaded") {
+  NavigationStack {
+    PostView(post: AraPost.mock, onPostDeleted: nil)
+  }
 }
+
+#Preview("Loading Content") {
+  NavigationStack {
+    PostView(post: AraPost.mockList[0], onPostDeleted: nil)
+  }
+}
+
+#Preview("No Comments") {
+  NavigationStack {
+    PostView(post: .mockWithoutComments, onPostDeleted: nil)
+  }
+}
+

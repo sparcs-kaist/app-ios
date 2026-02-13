@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import Observation
 import BuddyDomain
+import BuddyPreviewSupport
 
 struct UserPostListView: View {
   @State private var viewModel: UserPostListViewModelProtocol
@@ -17,6 +19,10 @@ struct UserPostListView: View {
 
   init(user: AraPostAuthor) {
     _viewModel = State(initialValue: UserPostListViewModel(user: user))
+  }
+
+  init(viewModel: UserPostListViewModelProtocol) {
+    _viewModel = State(initialValue: viewModel)
   }
 
   var body: some View {
@@ -68,3 +74,42 @@ struct UserPostListView: View {
     .searchable(text: $viewModel.searchKeyword)
   }
 }
+#Preview("Loading State") {
+    NavigationStack {
+        UserPostListView(viewModel: PreviewUserPostListViewModel(
+            state: .loading,
+            user: .previewAuthor
+        ))
+    }
+}
+
+#Preview("Loaded State") {
+    NavigationStack {
+        UserPostListView(viewModel: PreviewUserPostListViewModel(
+            state: .loaded(posts: AraPost.mockList),
+            user: .previewAuthor,
+            posts: AraPost.mockList
+        ))
+    }
+}
+
+#Preview("Error State") {
+    NavigationStack {
+        UserPostListView(viewModel: PreviewUserPostListViewModel(
+            state: .error(message: "Something went wrong"),
+            user: .previewAuthor
+        ))
+    }
+}
+
+#Preview("Empty Search") {
+    NavigationStack {
+        UserPostListView(viewModel: PreviewUserPostListViewModel(
+            state: .loaded(posts: []),
+            user: .previewAuthor,
+            posts: [],
+            searchKeyword: "no results"
+        ))
+    }
+}
+

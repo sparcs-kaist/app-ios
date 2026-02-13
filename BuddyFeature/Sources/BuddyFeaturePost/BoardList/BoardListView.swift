@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
+import BuddyPreviewSupport
 
 struct ListGlassSection<Content: View>: View {
   let header: Label<Text, Image>
@@ -168,21 +169,14 @@ public struct BoardListView: View {
 }
 
 
-//#Preview("Loading State") {
-//  @Previewable @State var viewModel = MockBoardListViewModel()
-//  viewModel.state = .loading
-//  
-//  return BoardListView(viewModel)
-//}
-//
-//#Preview("Loaded State") {
-//  @Previewable @State var viewModel = MockBoardListViewModel()
-//  BoardListView(viewModel)
-//}
-//
-//#Preview("Error State") {
-//  @Previewable @State var viewModel = MockBoardListViewModel()
-//  viewModel.state = .error(message: "Something went wrong")
-//  
-//  return BoardListView(viewModel)
-//}
+#Preview("Loading State") {
+    BoardListView(PreviewBoardListViewModel(state: .loading))
+}
+
+#Preview("Loaded State") {
+    BoardListView(PreviewBoardListViewModel(state: PreviewBoardListViewModel.loadedState()))
+}
+
+#Preview("Error State") {
+    BoardListView(PreviewBoardListViewModel(state: .error(message: "Something went wrong")))
+}
