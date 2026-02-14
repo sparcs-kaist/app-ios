@@ -121,9 +121,6 @@
         }
       }
     },
-    "3" : {
-      "shouldTranslate" : false
-    },
     "Active Groups" : {
       "localizations" : {
         "en" : {

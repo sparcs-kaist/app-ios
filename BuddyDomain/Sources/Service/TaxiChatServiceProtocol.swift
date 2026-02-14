@@ -13,4 +13,5 @@ public protocol TaxiChatServiceProtocol {
   var isConnectedPublisher: AnyPublisher<Bool, Never> { get }
   var roomUpdatePublisher: AnyPublisher<String, Never> { get }
   func reconnect()
+  func disconnect()
 }

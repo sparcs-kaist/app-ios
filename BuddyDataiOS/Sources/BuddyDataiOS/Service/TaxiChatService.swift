@@ -71,6 +71,14 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
     socket.connect()
   }
 
+  deinit {
+    socket.disconnect()
+  }
+
+  public func disconnect() {
+    socket.disconnect()
+  }
+
   public func reconnect() {
     socket.disconnect()
     manager.config = [
@@ -88,6 +96,14 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
   private func setupSocketEvents() {
     socket.on(clientEvent: .connect) { _, _ in
       self.isConnected = true
+    }
+
+    socket.on(clientEvent: .disconnect) { _, _ in
+      self.isConnected = false
+    }
+
+    socket.on(clientEvent: .error) { data, _ in
+      print("[TaxiChatService] Socket error: \(data)")
     }
 
     // Retrieves recent chats
