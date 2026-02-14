@@ -270,6 +270,7 @@
       }
     },
     "Failed to delete a post. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -290,6 +291,9 @@
           }
         }
       }
+    },
+    "Failed to load boards." : {
+
     },
     "It looks like there are no posts on this page right now." : {
       "localizations" : {
@@ -674,6 +678,18 @@
           }
         }
       }
+    },
+    "Unable to delete post." : {
+
+    },
+    "Unable to fetch post." : {
+
+    },
+    "Unable to submit report." : {
+
+    },
+    "Unable to write comment." : {
+
     },
     "Untitled" : {
       "localizations" : {

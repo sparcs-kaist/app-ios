@@ -11,23 +11,10 @@ import Factory
 import BuddyDomain
 
 @MainActor
-public protocol BoardListViewModelProtocol: Observable {
-  var state: BoardListViewModel.ViewState { get }
-
-  func fetchBoards() async
-}
-
-@MainActor
 @Observable
 public class BoardListViewModel: BoardListViewModelProtocol {
-  public enum ViewState: Equatable {
-    case loading
-    case loaded(boards: [AraBoard], groups: [AraBoardGroup])
-    case error(message: String)
-  }
-
   // MARK: - Properties
-  public var state: ViewState = .loading
+  public var state: BoardListViewState = .loading
   var boards: [AraBoard] = []
   var groups: [AraBoardGroup] = []
 
@@ -35,14 +22,17 @@ public class BoardListViewModel: BoardListViewModelProtocol {
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
-    \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol?
+    \.araBoardUseCase
+  ) private var araBoardUseCase: AraBoardUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   public func fetchBoards() async {
-    guard let araBoardRepository else { return }
-    
+    guard let araBoardUseCase else { return }
+
     do {
-      let boards = try await araBoardRepository.fetchBoards()
+      let boards = try await araBoardUseCase.fetchBoards()
 
       let sortedBoards = boards.sorted { $0.id < $1.id }
       let uniqueGroups = Array(Set(sortedBoards.map(\.group))).sorted { $0.id < $1.id }
@@ -50,9 +40,10 @@ public class BoardListViewModel: BoardListViewModelProtocol {
       self.boards = sortedBoards
       self.groups = uniqueGroups
       state = .loaded(boards: sortedBoards, groups: uniqueGroups)
+      analyticsService?.logEvent(BoardListViewEvent.boardsLoaded)
 
     } catch {
-      state = .error(message: "Failed to load boards.")
+      state = .error(message: String(localized: "Failed to load boards."))
     }
   }
 }

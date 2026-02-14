@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import Observation
 import BuddyDomain
 import BuddyFeatureShared
+import BuddyPreviewSupport
+import FirebaseAnalytics
 
 struct PostListView: View {
   @State private var viewModel: PostListViewModelProtocol
@@ -16,11 +19,11 @@ struct PostListView: View {
   @Namespace private var namespace
 
   @State private var loadedInitialPost: Bool = false
-  
+
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostListViewModel(board: board))
   }
-  
+
   init(viewModel: PostListViewModelProtocol) {
     _viewModel = State(initialValue: viewModel)
   }
@@ -100,30 +103,44 @@ struct PostListView: View {
         .ignoresSafeArea()
     }
     .scrollContentBackground(.hidden)
+    .analyticsScreen(name: "Ara Post List", class: String(describing: Self.self))
   }
 }
 
-//#Preview("Loading State") {
-//  @Previewable @State var viewModel = MockPostListViewModel()
-//  viewModel.state = .loading
-//  
-//  return NavigationStack {
-//    PostListView(viewModel: viewModel)
-//  }
-//}
-//
-//#Preview("Loaded State") {
-//  @Previewable @State var viewModel = MockPostListViewModel()
-//  return NavigationStack {
-//    PostListView(viewModel: viewModel)
-//  }
-//}
-//
-//#Preview("Error State") {
-//  @Previewable @State var viewModel = MockPostListViewModel()
-//  viewModel.state = .error(message: "Something went wrong")
-//  
-//  return NavigationStack {
-//    PostListView(viewModel: viewModel)
-//  }
-//}
+#Preview("Loading State") {
+  NavigationStack {
+    PostListView(viewModel: PreviewPostListViewModel(state: .loading, board: .mock))
+  }
+}
+
+#Preview("Loaded State") {
+  NavigationStack {
+    PostListView(viewModel: PreviewPostListViewModel(
+      state: .loaded(posts: AraPost.mockList),
+      board: .mock,
+      posts: AraPost.mockList
+    ))
+  }
+}
+
+#Preview("Error State") {
+  NavigationStack {
+    PostListView(viewModel: PreviewPostListViewModel(
+      state: .error(message: "Something went wrong"),
+      board: .mock
+    ))
+  }
+}
+
+#Preview("Empty Search") {
+  NavigationStack {
+    PostListView(viewModel: PreviewPostListViewModel(
+      state: .loaded(posts: []),
+      board: .mock,
+      posts: [],
+      searchKeyword: "no results"
+    ))
+  }
+}
+
+

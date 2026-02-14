@@ -28,7 +28,6 @@ public final class FeedImageRepository: FeedImageRepositoryProtocol {
     let response = try await provider.request(
       .uploadPostImage(imageData: imageData, description: item.description, spoiler: item.spoiler)
     )
-    _ = try response.filterSuccessfulStatusCodes()
 
     let imageDTO: FeedImageDTO = try response.map(FeedImageDTO.self)
     guard let image = imageDTO.toModel() else {

@@ -8,6 +8,7 @@
 import SwiftUI
 import PhotosUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct PostComposeView: View {
   @State private var viewModel: PostComposeViewModelProtocol
@@ -17,7 +18,7 @@ struct PostComposeView: View {
 
   @FocusState private var isTitleFocused
   @FocusState private var isDescriptionFocused
-  
+
   @State private var isShowingCancelDialog = false
   @State private var showPhotosPicker: Bool = false
 
@@ -188,6 +189,7 @@ struct PostComposeView: View {
         Text(errorMessage)
       })
     }
+    .analyticsScreen(name: "Ara Post Compose", class: String(describing: Self.self))
   }
 
   private var termsOfUseButton: some View {
@@ -222,3 +224,5 @@ struct PostComposeView: View {
 #Preview {
   PostComposeView(board: AraBoard.mockList[1])
 }
+
+

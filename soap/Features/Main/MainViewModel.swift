@@ -22,8 +22,8 @@ final class MainViewModel {
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(
-    \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol?
+    \.araBoardUseCase
+  ) private var araBoardUseCase: AraBoardUseCaseProtocol?
 
   func resolveInvite(code: String) async {
     guard let taxiRoomRepository else { return }
@@ -40,10 +40,10 @@ final class MainViewModel {
   }
 
   func resolvePost(id: Int) async {
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
     do {
-      deepLinkedPost = try await araBoardRepository.fetchPost(origin: nil, postID: id)
+      deepLinkedPost = try await araBoardUseCase.fetchPost(origin: nil, postID: id)
     } catch {
       alertState = .init(
         title: String(localized: "Post Not Found"),

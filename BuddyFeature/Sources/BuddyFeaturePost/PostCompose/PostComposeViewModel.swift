@@ -51,19 +51,22 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
-    \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol?
+    \.araBoardUseCase
+  ) private var araBoardUseCase: AraBoardUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   init(board: AraBoard) {
     self.board = board
   }
 
   func writePost() async throws {
-    guard let araBoardRepository else { return }
-    
+    guard let araBoardUseCase else { return }
+
     var attachments: [AraAttachment] = []
     for image in selectedImages {
-      let attachment: AraAttachment = try await araBoardRepository.uploadImage(image: image)
+      let attachment: AraAttachment = try await araBoardUseCase.uploadImage(image: image)
 
       attachments.append(attachment)
     }
@@ -79,7 +82,8 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
       board: board
     )
 
-    try await araBoardRepository.writePost(request: request)
+    try await araBoardUseCase.writePost(request: request)
+    analyticsService?.logEvent(PostComposeViewEvent.postSubmitted)
   }
 
   private func loadSelectedImages() async {

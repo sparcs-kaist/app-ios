@@ -11,32 +11,10 @@ import Observation
 import Factory
 import BuddyDomain
 
-@MainActor
-protocol PostListViewModelProtocol: Observable {
-  var state: PostListViewModel.ViewState { get }
-  var board: AraBoard { get }
-  var posts: [AraPost] { get }
-  var searchKeyword: String { get set }
-
-  var isLoadingMore: Bool { get }
-  var hasMorePages: Bool { get }
-
-  func fetchInitialPosts() async
-  func loadNextPage() async
-  func refreshItem(postID: Int)
-  func removePost(postID: Int)
-  func bind()
-}
-
 @Observable
 class PostListViewModel: PostListViewModelProtocol {
   // MARK: - Properties
-  enum ViewState: Equatable {
-    case loading
-    case loaded(posts: [AraPost])
-    case error(message: String)
-  }
-  var state: ViewState = .loading
+  var state: PostListViewState = .loading
   var board: AraBoard
   var posts: [AraPost] = []
 
@@ -56,8 +34,11 @@ class PostListViewModel: PostListViewModelProtocol {
 
   //MARK: - Dependencies
   @ObservationIgnored @Injected(
-    \.araBoardRepository
-  ) private var araBoardRepository: AraBoardRepositoryProtocol?
+    \.araBoardUseCase
+  ) private var araBoardUseCase: AraBoardUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   // MARK: - Initialiser
   init(board: AraBoard) {
@@ -70,12 +51,15 @@ class PostListViewModel: PostListViewModelProtocol {
     let searchPublisher = searchKeywordSubject
       .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
       .removeDuplicates()
-    
+
     searchPublisher
       .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
-      .sink { [weak self] _ in
+      .sink { [weak self] keyword in
         guard let self else { return }
         Task {
+          if !keyword.isEmpty {
+            self.analyticsService?.logEvent(PostListViewEvent.searchPerformed(keyword: keyword))
+          }
           await self.fetchInitialPosts()
         }
       }
@@ -83,10 +67,10 @@ class PostListViewModel: PostListViewModelProtocol {
   }
 
   func fetchInitialPosts() async {
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
     do {
-      let page = try await araBoardRepository.fetchPosts(
+      let page = try await araBoardUseCase.fetchPosts(
         type: .board(boardID: board.id),
         page: 1,
         pageSize: pageSize,
@@ -97,20 +81,21 @@ class PostListViewModel: PostListViewModelProtocol {
       self.posts = page.results
       self.hasMorePages = currentPage < totalPages
       self.state = .loaded(posts: self.posts)
+      analyticsService?.logEvent(PostListViewEvent.postsRefreshed)
     } catch {
       state = .error(message: error.localizedDescription)
     }
   }
-  
+
   func loadNextPage() async {
     guard !isLoadingMore && hasMorePages else { return }
-    guard let araBoardRepository else { return }
+    guard let araBoardUseCase else { return }
 
     isLoadingMore = true
-    
+
     do {
       let nextPage = currentPage + 1
-      let page = try await araBoardRepository.fetchPosts(
+      let page = try await araBoardUseCase.fetchPosts(
         type: .board(boardID: board.id),
         page: nextPage,
         pageSize: pageSize,
@@ -122,16 +107,17 @@ class PostListViewModel: PostListViewModelProtocol {
       self.hasMorePages = currentPage < totalPages
       self.state = .loaded(posts: self.posts)
       self.isLoadingMore = false
+      analyticsService?.logEvent(PostListViewEvent.nextPageLoaded)
     } catch {
       self.isLoadingMore = false
     }
   }
 
   func refreshItem(postID: Int) {
-    guard let araBoardRepository else { return }
-    
+    guard let araBoardUseCase else { return }
+
     Task {
-      guard let updated: AraPost = try? await araBoardRepository.fetchPost(origin: .none, postID: postID) else { return }
+      guard let updated: AraPost = try? await araBoardUseCase.fetchPost(origin: .none, postID: postID) else { return }
 
       if let idx = self.posts.firstIndex(where: { $0.id == updated.id }) {
         var previousPost: AraPost = self.posts[idx]

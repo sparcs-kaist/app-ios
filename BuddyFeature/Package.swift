@@ -70,8 +70,13 @@ let package = Package(
           dependencies: [
             "BuddyDomain",
             "BuddyFeatureShared",
+            "BuddyPreviewSupport",
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
+            .product(
+              name: "FirebaseAnalytics",
+              package: "firebase-ios-sdk"
+            ),
           ]
         ),
         .target(
@@ -107,6 +112,13 @@ let package = Package(
               "BuddyFeatureFeed",
               "BuddyTestSupport"
             ]
+        ),
+        .testTarget(
+          name: "BuddyFeaturePostTests",
+          dependencies: [
+            "BuddyFeaturePost",
+            "BuddyTestSupport"
+          ]
         ),
     ]
 )
