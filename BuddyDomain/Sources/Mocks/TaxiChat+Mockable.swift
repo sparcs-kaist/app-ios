@@ -46,7 +46,33 @@ public extension TaxiChat {
         isValid: true,
         inOutNames: []
       ),
-      
+
+      TaxiChat(
+        roomID: roomID,
+        type: .text,
+        authorID: "user1",
+        authorName: "Alice",
+        authorProfileURL: URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/NupjukOTL.png"),
+        authorIsWithdrew: false,
+        content: "hello?",
+        time: baseDate.addingTimeInterval(-3450),
+        isValid: true,
+        inOutNames: []
+      ),
+
+      TaxiChat(
+        roomID: roomID,
+        type: .text,
+        authorID: "user1",
+        authorName: "Alice",
+        authorProfileURL: URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/NupjukOTL.png"),
+        authorIsWithdrew: false,
+        content: "this is a test message",
+        time: baseDate.addingTimeInterval(-3430),
+        isValid: true,
+        inOutNames: []
+      ),
+
       // Bob enters
       TaxiChat(
         roomID: roomID,

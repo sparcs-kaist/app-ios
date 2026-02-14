@@ -158,7 +158,6 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
       let chatDTOs: [TaxiChatDTO] = try decoder.decode([TaxiChatDTO].self, from: jsonData)
 
       let chats: [TaxiChat] = chatDTOs.compactMap { $0.toModel() }
-
       return chats
     } catch {
       return []
