@@ -32,6 +32,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   private var room: TaxiRoom?
   private var isSocketConnected: Bool = false
   private var hasInitialChatsBeenFetched: Bool = false
+  private var flatChats: [TaxiChat] = []
 
   private var cancellables = Set<AnyCancellable>()
 
@@ -88,6 +89,26 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   public func sendChat(_ content: String?, type: TaxiChat.ChatType) async {
     guard let taxiChatRepository, let room else { return }
 
+    // Optimistic insert
+    if let content, let userUseCase {
+      let user: TaxiUser? = await userUseCase.taxiUser
+      let optimisticChat = TaxiChat(
+        roomID: room.id,
+        type: type,
+        authorID: user?.oid,
+        authorName: user?.nickname,
+        authorProfileURL: user?.profileImageURL,
+        authorIsWithdrew: false,
+        content: content,
+        time: Date(),
+        isValid: true,
+        inOutNames: nil
+      )
+      flatChats.append(optimisticChat)
+      let grouped = groupChats(flatChats, currentUserID: user?.oid ?? "")
+      groupedChats = grouped
+    }
+
     do {
       let request = TaxiChatRequest(roomID: room.id, type: type, content: content)
       try await taxiChatRepository.sendChat(request)
@@ -127,6 +148,8 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
           guard let self else { return }
 
           try? await taxiChatRepository.readChats(roomID: room.id)
+
+          self.flatChats = chats
 
           let user: TaxiUser? = await userUseCase.taxiUser
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")

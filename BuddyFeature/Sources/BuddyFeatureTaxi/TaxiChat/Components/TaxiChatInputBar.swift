@@ -20,6 +20,7 @@ struct TaxiChatInputBar: View {
   var onCommitSettlement: () -> Void
   var onShowPayMoneyAlert: () -> Void
   var onError: (String) -> Void
+  var onFocusChange: ((Bool) -> Void)?
 
   @State private var showPhotosPicker: Bool = false
   @State private var selectedItem: PhotosPickerItem?
@@ -126,6 +127,9 @@ struct TaxiChatInputBar: View {
         guard let image = UIImage(data: imageData) else { return }
         self.selectedImage = image
       }
+    }
+    .onChange(of: isFocused) { _, newValue in
+      onFocusChange?(newValue)
     }
   }
 }
