@@ -198,6 +198,9 @@ extension Container: @retroactive AutoRegistering {
       AuthRetryConfig.tokenRefresher = { [weak useCase] in
         try await useCase?.refreshAccessToken(force: true)
       }
+      useCase.onTokenRefresh = { [weak self] in
+        self?.taxiChatService.resolve()?.reconnect()
+      }
       return useCase
     }
     .scope(.singleton)

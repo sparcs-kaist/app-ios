@@ -27,6 +27,8 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   private var refreshTimer: Timer?
   // Coalesce concurrent refresh calls
   private var refreshTask: Task<Void, Error>?
+  // Called after a successful token refresh
+  public var onTokenRefresh: (() -> Void)?
 
   public init(
     authenticationService: AuthenticationServiceProtocol,
@@ -125,6 +127,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
         self._isAuthenticatedSubject.value = true
         print("[AuthUseCase] Successfully refreshed access token.")
         self.scheduleRefreshTimer() // set timer on success
+        self.onTokenRefresh?()
       } catch {
         print("[AuthUseCase] Token refresh failed. \(error.localizedDescription)")
         // network error, do not remove tokens on decoding error. only when 401

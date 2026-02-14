@@ -71,6 +71,20 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
     socket.connect()
   }
 
+  public func reconnect() {
+    socket.disconnect()
+    manager.config = [
+      .log(false),
+      .compress,
+      .forceWebsockets(true),
+      .extraHeaders([
+        "Origin": "taxi.sparcs.org",
+        "Authorization": "Bearer \(tokenStorage.getAccessToken() ?? "")"
+      ])
+    ]
+    socket.connect()
+  }
+
   private func setupSocketEvents() {
     socket.on(clientEvent: .connect) { _, _ in
       self.isConnected = true
