@@ -192,13 +192,20 @@ extension Container: @retroactive AutoRegistering {
 
     // MARK: - Use Cases
     authUseCase.register {
-      AuthUseCase(
+      let useCase = AuthUseCase(
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve(),
         araUserRepository: self.araUserRepository.resolve(),
         feedUserRepository: self.feedUserRepository.resolve(),
         otlUserRepository: self.otlUserRepository.resolve()
       )
+      AuthRetryConfig.tokenRefresher = { [weak useCase] in
+        try await useCase?.refreshAccessToken(force: true)
+      }
+      useCase.onTokenRefresh = { [weak self] in
+        self?.taxiChatService.resolve()?.reconnect()
+      }
+      return useCase
     }
     .scope(.singleton)
     

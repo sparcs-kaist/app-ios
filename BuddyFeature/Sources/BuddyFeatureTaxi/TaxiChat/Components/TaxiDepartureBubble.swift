@@ -34,10 +34,14 @@ struct TaxiDepartureBubble: View {
       isPresented: $showAlert,
       actions: {
         Button("Open Kakao T", role: .confirm) {
-          openKakaoT()
+          if let url = TaxiDeepLinkHelper.kakaoTURL(source: room.source, destination: room.destination) {
+            openURL(url)
+          }
         }
         Button("Open Uber", role: .confirm) {
-          openUber()
+          if let url = TaxiDeepLinkHelper.uberURL(source: room.source, destination: room.destination) {
+            openURL(url)
+          }
         }
         Button("Cancel", role: .cancel) { }
       },
@@ -47,22 +51,6 @@ struct TaxiDepartureBubble: View {
         )
       }
     )
-  }
-
-  private func openKakaoT() {
-    if let url = URL(
-      string: "kakaot://taxi/set?dest_lng=\(room.destination.longitude)&dest_lat=\(room.destination.latitude)&origin_lng=\(room.source.longitude)&origin_lat=\(room.source.latitude)"
-    ) {
-      openURL(url)
-    }
-  }
-
-  private func openUber() {
-    if let url = URL(
-      string: "uber://?action=setPickup&client_id=a&&pickup[latitude]=\(room.source.latitude)&pickup[longitude]=\(room.source.longitude)&&dropoff[latitude]=\(room.destination.latitude)&dropoff[longitude]=\(room.destination.longitude)"
-    ) {
-      openURL(url)
-    }
   }
 }
 

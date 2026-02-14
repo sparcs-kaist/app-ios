@@ -60,12 +60,12 @@ struct TaxiChatAccountBubble: View {
     }
     .padding(12)
     .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 24))
-    .contextMenu {
-      Button("Copy Account Info", systemImage: "doc.on.doc") {
-        let parts = content.split(separator: " ", maxSplits: 1)
-        UIPasteboard.general.string = String(parts[1])
-      }
-    }
+//    .contextMenu {
+//      Button("Copy Account Info", systemImage: "doc.on.doc") {
+//        let parts = content.split(separator: " ", maxSplits: 1)
+//        UIPasteboard.general.string = String(parts[1])
+//      }
+//    }
   }
 }
 

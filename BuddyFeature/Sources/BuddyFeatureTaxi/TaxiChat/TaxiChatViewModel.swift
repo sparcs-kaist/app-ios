@@ -23,8 +23,13 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   var state: ViewState = .loading
   var groupedChats: [TaxiChatGroup] = []
   var taxiUser: TaxiUser?
-  var fetchedDateSet: Set<Date> = []
-  var isUploading: Bool = false               // to show progress on image upload
+  var isUploading: Bool = false
+
+  var alertState: AlertState? = nil
+  var isAlertPresented: Bool = false
+
+  private(set) var topChatID: String? = nil
+  private var fetchedDateSet: Set<Date> = []
 
   var room: TaxiRoom
   private var cancellables = Set<AnyCancellable>()
@@ -90,14 +95,19 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       .store(in: &cancellables)
   }
 
-  func fetchChats(before date: Date) async {
-    guard let taxiChatUseCase else { return }
+  func loadMoreChats() async {
+    guard let taxiChatUseCase,
+          !isFetching,
+          let oldestDate = groupedChats.first?.chats.first?.time,
+          !fetchedDateSet.contains(oldestDate) else { return }
 
-    if isFetching { return }
+    topChatID = groupedChats.first?.id
+    fetchedDateSet.insert(oldestDate)
+
     isFetching = true
     defer { isFetching = false }
-    
-    await taxiChatUseCase.fetchChats(before: date)
+
+    await taxiChatUseCase.fetchChats(before: oldestDate)
   }
 
   func fetchInitialChats() async {
@@ -138,6 +148,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         }
         await taxiChatUseCase.sendChat(account, type: .account)
       } catch {
+        alertState = AlertState(title: "Error", message: error.localizedDescription)
+        isAlertPresented = true
       }
     }
   }
@@ -154,6 +166,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         let room: TaxiRoom = try await taxiRoomRepository.commitPayment(id: room.id)
         self.room = room
       } catch {
+        alertState = AlertState(title: "Error", message: error.localizedDescription)
+        isAlertPresented = true
       }
     }
   }

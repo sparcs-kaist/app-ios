@@ -25,8 +25,10 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
 
   // Timer Properties
   private var refreshTimer: Timer?
-  // Avoid collision
-  private var isRefreshing = false
+  // Coalesce concurrent refresh calls
+  private var refreshTask: Task<Void, Error>?
+  // Called after a successful token refresh
+  public var onTokenRefresh: (() -> Void)?
 
   public init(
     authenticationService: AuthenticationServiceProtocol,
@@ -91,52 +93,56 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   }
 
   public func refreshAccessToken(force: Bool) async throws {
-    if isRefreshing {
-      print("[AuthUseCase] Already refreshing, skipping duplicate call.")
+    // If a refresh is already in-flight, coalesce by awaiting it
+    if let existingTask = refreshTask {
+      try await existingTask.value
       return
     }
-    isRefreshing = true
-    if let accessToken = tokenStorage.getAccessToken(), !tokenStorage.isTokenExpired(), !force {
+
+    if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired(), !force {
       print("[AuthUseCase] Access token is still valid. No refresh needed.")
-      print("AccessToken: \(accessToken)")
       scheduleRefreshTimer() // reset timer on valid
-      isRefreshing = false
       return
     }
 
-    guard let currentRefreshToken = tokenStorage.getRefreshToken() else {
-      // No refresh token found, sign out.
-      tokenStorage.clearTokens()
-      _isAuthenticatedSubject.value = false
-      cancelRefreshTimer()
-      isRefreshing = false
-      throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
-    }
+    let task = Task { [weak self] in
+      guard let self else { return }
+      defer { self.refreshTask = nil }
 
-    // Attempts to refresh token using refresh token from Keychain
-    do {
-      let tokenResponse = try await authenticationService.refreshAccessToken(
-        refreshToken: currentRefreshToken
-      )
-      tokenStorage
-        .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
-      _isAuthenticatedSubject.value = true
-      print("[AuthUseCase] Successfully refreshed access token.")
-      scheduleRefreshTimer() // set timer on success
-      isRefreshing = false
-    } catch {
-      print("[AuthUseCase] Token refresh failed. \(error.localizedDescription)")
-      // network error, do not remove tokens on decoding error. only when 401
-      let nsError = error as NSError
-      let isAuthError = nsError.domain == NSURLErrorDomain ? false : (nsError.code == 401)
-      if isAuthError {
-        tokenStorage.clearTokens()
-        _isAuthenticatedSubject.value = false
-        cancelRefreshTimer()
+      guard let currentRefreshToken = self.tokenStorage.getRefreshToken() else {
+        // No refresh token found, sign out.
+        self.tokenStorage.clearTokens()
+        self._isAuthenticatedSubject.value = false
+        self.cancelRefreshTimer()
+        throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
       }
-      isRefreshing = false
-      throw AuthUseCaseError.refreshFailed(error)
+
+      // Attempts to refresh token using refresh token from Keychain
+      do {
+        let tokenResponse = try await self.authenticationService.refreshAccessToken(
+          refreshToken: currentRefreshToken
+        )
+        self.tokenStorage
+          .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
+        self._isAuthenticatedSubject.value = true
+        print("[AuthUseCase] Successfully refreshed access token.")
+        self.scheduleRefreshTimer() // set timer on success
+        self.onTokenRefresh?()
+      } catch {
+        print("[AuthUseCase] Token refresh failed. \(error.localizedDescription)")
+        // network error, do not remove tokens on decoding error. only when 401
+        let nsError = error as NSError
+        let isAuthError = nsError.domain == NSURLErrorDomain ? false : (nsError.code == 401)
+        if isAuthError {
+          self.tokenStorage.clearTokens()
+          self._isAuthenticatedSubject.value = false
+          self.cancelRefreshTimer()
+        }
+        throw AuthUseCaseError.refreshFailed(error)
+      }
     }
+    refreshTask = task
+    try await task.value
   }
 
   public func signIn() async throws {

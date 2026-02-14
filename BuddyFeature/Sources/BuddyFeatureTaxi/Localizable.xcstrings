@@ -121,9 +121,6 @@
         }
       }
     },
-    "3" : {
-      "shouldTranslate" : false
-    },
     "Active Groups" : {
       "localizations" : {
         "en" : {
@@ -301,6 +298,7 @@
       }
     },
     "Copy Account Info" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
