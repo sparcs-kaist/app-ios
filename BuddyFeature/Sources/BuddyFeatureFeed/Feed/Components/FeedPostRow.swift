@@ -145,7 +145,7 @@ struct FeedPostRow: View {
 
   @ViewBuilder
   var content: some View {
-    Text(post.content)
+    Text(post.content.toDetectedAttributedString())
       .textSelection(.enabled)
       .padding(.horizontal)
       .lineLimit(showFullContent ? nil : 5)
@@ -234,6 +234,16 @@ struct FeedPostRow: View {
   @Previewable @State var spoilerContents = SpoilerContents()
   FeedPostRow(
     post: .constant(FeedPost.mockList[5]),
+    onPostDeleted: { _ in },
+    onComment: { }
+  )
+  .environment(spoilerContents)
+}
+
+#Preview("URL Content") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  FeedPostRow(
+    post: .constant(FeedPost.mockList[8]),
     onPostDeleted: { _ in },
     onComment: { }
   )

@@ -140,7 +140,9 @@ struct FeedCommentRow: View {
 
   @ViewBuilder
   var content: some View {
-    Text(comment.isDeleted ? "This comment has been deleted." : comment.content)
+    Text(comment.isDeleted ?
+         "This comment has been deleted."
+         : comment.content.toDetectedAttributedString())
       .lineLimit(showFullContent ? nil : 3)
       .textSelection(.enabled)
       .foregroundStyle(comment.isDeleted ? .secondary : .primary)

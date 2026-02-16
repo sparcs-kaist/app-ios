@@ -90,3 +90,26 @@ public extension String {
     return result
   }
 }
+
+public extension String {
+  func toDetectedAttributedString() -> AttributedString {
+    var attributedString = AttributedString(self)
+    let types = NSTextCheckingResult.CheckingType.link.rawValue
+    
+    guard let detector = try? NSDataDetector(types: types) else { return attributedString }
+    
+    let matches = detector.matches(in: self, options: [], range: NSRange(self.startIndex..., in: self))
+    
+    for match in matches {
+      let range = match.range
+      let startIndex = attributedString.index(attributedString.startIndex, offsetByCharacters: range.lowerBound)
+      let endIndex = attributedString.index(attributedString.startIndex, offsetByCharacters: range.upperBound)
+      
+      if let url = match.url {
+        attributedString[startIndex..<endIndex].link = url
+      }
+    }
+    
+    return attributedString
+  }
+}
