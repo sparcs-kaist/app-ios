@@ -34,30 +34,20 @@ struct TaxiChatView: View {
   }
 
   var body: some View {
-    ScrollViewReader { proxy in
-      Group {
-        switch viewModel.state {
-        case .loading:
-          chatListView(groups: Array(TaxiChatGroup.mockList.prefix(6)), isInteractive: false)
-            .redacted(reason: .placeholder)
-            .disabled(true)
-        case .loaded:
-          chatListView(groups: viewModel.groupedChats, isInteractive: true)
-            .onChange(of: viewModel.groupedChats) {
-              proxy.scrollTo(viewModel.topChatID, anchor: .top)
-            }
-            .onChange(of: scrollToBottomTrigger) {
-              withAnimation {
-                proxy.scrollTo(viewModel.groupedChats.last?.id, anchor: .bottom)
-              }
-            }
-            .scrollDismissesKeyboard(.interactively)
-        case .error(let message):
-          errorView(errorMessage: message)
-        }
+    Group {
+      switch viewModel.state {
+      case .loading:
+        chatListView(groups: Array(TaxiChatGroup.mockList.prefix(6)), isInteractive: false)
+          .redacted(reason: .placeholder)
+          .disabled(true)
+      case .loaded:
+        ChatList(items: viewModel.renderItems, room: viewModel.room, user: viewModel.taxiUser)
+          .ignoresSafeArea()
+      case .error(let message):
+        errorView(errorMessage: message)
       }
-      .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .navigationTitle(Text(viewModel.room.title))
     .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
     .navigationBarTitleDisplayMode(.inline)

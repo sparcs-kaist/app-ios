@@ -10,8 +10,6 @@ import BuddyDomain
 import NukeUI
 
 struct MessageView<Content: View>: View {
-  @ViewBuilder let content: () -> Content
-
   let chat: TaxiChat
   let kind: TaxiChat.ChatType
   let sender: SenderInfo
@@ -19,8 +17,10 @@ struct MessageView<Content: View>: View {
   let readCount: Int
   let metadata: MetadataVisibility
 
+  @ViewBuilder let content: () -> Content
+
   var body: some View {
-    HStack(alignment: .bottom) {
+    HStack(alignment: .bottom, spacing: 4) {
       if sender.isMine {
         Spacer()
         ChatReadReceipt(
@@ -41,17 +41,19 @@ struct MessageView<Content: View>: View {
             .fontWeight(.medium)
         }
 
-        content()
-      }
+        HStack(alignment: .bottom, spacing: 4) {
+          content()
 
-      if !sender.isMine {
-        ChatReadReceipt(
-          readCount: readCount,
-          showTime: metadata.showTime,
-          time: chat.time,
-          alignment: .leading
-        )
-        Spacer()
+          if !sender.isMine {
+            ChatReadReceipt(
+              readCount: readCount,
+              showTime: metadata.showTime,
+              time: chat.time,
+              alignment: .leading
+            )
+            Spacer(minLength: 40)
+          }
+        }
       }
     }
   }

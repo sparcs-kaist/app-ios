@@ -18,6 +18,11 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
     groupedChatsSubject.eraseToAnyPublisher()
   }
 
+  private var chatsSubject = CurrentValueSubject<[TaxiChat], Never>([])
+  public var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
+    chatsSubject.eraseToAnyPublisher()
+  }
+
   private var roomUpdateSubject = PassthroughSubject<TaxiRoom, Never>()
   public var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> {
     roomUpdateSubject.eraseToAnyPublisher()
@@ -105,6 +110,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
         inOutNames: nil
       )
       flatChats.append(optimisticChat)
+      chatsSubject.send(flatChats)
       let grouped = groupChats(flatChats, currentUserID: user?.oid ?? "")
       groupedChats = grouped
     }
@@ -150,6 +156,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
           try? await taxiChatRepository.readChats(roomID: room.id)
 
           self.flatChats = chats
+          self.chatsSubject.send(chats)
 
           let user: TaxiUser? = await userUseCase.taxiUser
           let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")

@@ -22,6 +22,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   // MARK: - Properties
   var state: ViewState = .loading
   var groupedChats: [TaxiChatGroup] = []
+  var renderItems: [ChatRenderItem] = []
   var taxiUser: TaxiUser?
   var isUploading: Bool = false
 
@@ -35,6 +36,12 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   private var cancellables = Set<AnyCancellable>()
   private var isFetching: Bool = false
   private var badgeByAuthorID: Dictionary<String, Bool>
+
+  private let renderItemBuilder = ChatRenderItemBuilder(
+    policy: TaxiGroupingPolicy(),
+    positionResolver: ChatBubblePositionResolver(),
+    presentationPolicy: DefaultMessagePresentationPolicy()
+  )
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -83,6 +90,15 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         withAnimation(.spring) {
           self.state = .loaded(groupedChats: self.groupedChats)
         }
+      }
+      .store(in: &cancellables)
+
+    taxiChatUseCase.chatsPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] chats in
+        guard let self = self else { return }
+        let filtered = chats.filter { $0.roomID == self.room.id }
+        self.renderItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
       }
       .store(in: &cancellables)
 

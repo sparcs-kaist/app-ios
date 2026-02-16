@@ -769,6 +769,9 @@
         }
       }
     },
+    "not implemented" : {
+
+    },
     "Not paid" : {
       "localizations" : {
         "en" : {
@@ -1249,9 +1252,6 @@
           }
         }
       }
-    },
-    "test" : {
-
     },
     "The link you followed is invalid. Please try again." : {
       "extractionState" : "stale",

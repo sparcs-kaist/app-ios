@@ -19,7 +19,7 @@ struct ChatImageBubble: View {
         image
           .resizable()
           .scaledToFit()
-          .frame(maxHeight: 360)
+          .frame(maxHeight: 240)
           .clipShape(.rect(cornerRadius: 24))
       } else {
         RoundedRectangle(cornerRadius: 24)

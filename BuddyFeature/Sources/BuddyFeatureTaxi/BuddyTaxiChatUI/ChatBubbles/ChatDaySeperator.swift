@@ -11,9 +11,15 @@ struct ChatDaySeperator: View {
   let date: Date
 
   var body: some View {
-    Text(date.formattedDate)
-      .fontWeight(.medium)
-      .font(.footnote)
+    HStack {
+      Spacer()
+
+      Text(date.formattedDate)
+        .fontWeight(.medium)
+        .font(.footnote)
+
+      Spacer()
+    }
   }
 }
 
