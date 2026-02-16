@@ -75,8 +75,13 @@ struct ChatList: UIViewRepresentable {
 
 #Preview {
   let mock: [TaxiChat] = TaxiChat.mockList
-  let builder = ChatRenderItemBuilder(policy: TaxiGroupingPolicy(), positionResolver: ChatBubblePositionResolver())
+  let builder = ChatRenderItemBuilder(
+    policy: TaxiGroupingPolicy(),
+    positionResolver: ChatBubblePositionResolver(),
+    presentationPolicy: DefaultMessagePresentationPolicy()
+  )
   let items = builder.build(chats: mock, myUserID: "user1")
 
   ChatList(items: items)
+    .ignoresSafeArea()
 }

@@ -11,21 +11,24 @@ import Playgrounds
 
 enum ChatRenderItem: Hashable {
   case daySeparator(Date)
-  case systemEvent(id: UUID, chat: TaxiChat)
-  case bubble(
+  case systemEvent(
+    id: UUID,
+    chat: TaxiChat
+  )
+  case message(
     id: UUID,
     chat: TaxiChat,
+    kind: TaxiChat.ChatType,
+    sender: SenderInfo,
     position: ChatBubblePosition,
-    isMine: Bool,
-    showName: Bool,
-    showAvatar: Bool,
-    showTime: Bool
+    metadata: MetadataVisibility
   )
 }
 
 struct ChatRenderItemBuilder {
   let policy: ChatGroupingPolicy
   let positionResolver: ChatBubblePositionResolver
+  let presentationPolicy: MessagePresentationPolicy
   let calendar: Calendar = .current
 
   func build(chats: [TaxiChat], myUserID: String?) -> [ChatRenderItem] {
@@ -38,23 +41,50 @@ struct ChatRenderItemBuilder {
     var cluster: [TaxiChat] = []
     var lastDay: Date?
 
+    func sender(of chat: TaxiChat) -> SenderInfo {
+      SenderInfo(
+        id: chat.authorID,
+        name: chat.authorName,
+        avatarURL: chat.authorProfileURL,
+        isMine: chat.authorID == myUserID,
+        isWithdrew: chat.authorIsWithdrew ?? false
+      )
+    }
+
+    func groupingBehavior(of chat: TaxiChat) -> GroupingBehavior {
+      if policy.isBubbleEligible(chat) && !policy.isSystemEvent(chat) {
+        return .mergeable
+      }
+      return .standalone
+    }
+
     func flushCluster() {
       guard !cluster.isEmpty else { return }
+
       for (idx, chat) in cluster.enumerated() {
-        let isMine = chat.authorID == myUserID
+        let k = chat.type
+        let s = sender(of: chat)
         let pos = positionResolver.resolve(index: idx, count: cluster.count)
+        let meta = presentationPolicy.metadata(
+          kind: k,
+          isMine: s.isMine,
+          indexInCluster: idx,
+          clusterCount: cluster.count,
+          isStandalone: false
+        )
+
         items.append(
-          .bubble(
+          .message(
             id: chat.id,
             chat: chat,
+            kind: k,
+            sender: s,
             position: pos,
-            isMine: isMine,
-            showName: !isMine && idx == 0,
-            showAvatar: !isMine && idx == cluster.count - 1,
-            showTime: idx == cluster.count - 1
+            metadata: meta
           )
         )
       }
+
       cluster.removeAll(keepingCapacity: true)
     }
 
@@ -66,17 +96,44 @@ struct ChatRenderItemBuilder {
         lastDay = day
       }
 
-      if policy.isSystemEvent(chat) || !policy.isBubbleEligible(chat) {
+      switch groupingBehavior(of: chat) {
+      case .standalone:
         flushCluster()
-        items.append(.systemEvent(id: chat.id, chat: chat))
-        continue
-      }
 
-      if let prev = cluster.last, policy.canGroup(prev, chat, myUserID: myUserID) {
-        cluster.append(chat)
-      } else {
-        flushCluster()
-        cluster.append(chat)
+        let k = chat.type
+        let s = sender(of: chat)
+        let meta = presentationPolicy.metadata(
+          kind: k,
+          isMine: s.isMine,
+          indexInCluster: 0,
+          clusterCount: 1,
+          isStandalone: true
+        )
+
+        if k == .entrance || k == .exit {
+          items.append(
+            .systemEvent(id: chat.id, chat: chat)
+          )
+        } else {
+          items.append(
+            .message(
+              id: chat.id,
+              chat: chat,
+              kind: k,
+              sender: s,
+              position: .single,
+              metadata: meta
+            )
+          )
+        }
+
+      case .mergeable:
+        if let prev = cluster.last, policy.canGroup(prev, chat, myUserID: myUserID) {
+          cluster.append(chat)
+        } else {
+          flushCluster()
+          cluster.append(chat)
+        }
       }
     }
 
@@ -85,9 +142,13 @@ struct ChatRenderItemBuilder {
   }
 }
 
-
 #Playground {
   let mock: [TaxiChat] = TaxiChat.mockList
-  let builder = ChatRenderItemBuilder(policy: TaxiGroupingPolicy(), positionResolver: ChatBubblePositionResolver())
-  let items = builder.build(chats: mock, myUserID: "user1")
+  let builder = ChatRenderItemBuilder(
+    policy: TaxiGroupingPolicy(),
+    positionResolver: ChatBubblePositionResolver(),
+    presentationPolicy: DefaultMessagePresentationPolicy()
+  )
+  let items = builder.build(chats: mock, myUserID: "user2")
 }
+

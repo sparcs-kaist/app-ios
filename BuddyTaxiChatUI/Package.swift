@@ -15,6 +15,7 @@ let package = Package(
     ],
     dependencies: [
       .package(path: "../BuddyDomain"),
+      .package(url: "https://github.com/kean/Nuke.git", .upToNextMajor(from: "12.0.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -22,7 +23,9 @@ let package = Package(
         .target(
             name: "BuddyTaxiChatUI",
             dependencies: [
-              "BuddyDomain"
+              "BuddyDomain",
+              .product(name: "Nuke", package: "Nuke"),
+              .product(name: "NukeUI", package: "Nuke"),
             ]
         ),
         .testTarget(

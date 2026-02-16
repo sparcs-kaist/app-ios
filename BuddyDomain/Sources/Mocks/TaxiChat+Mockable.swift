@@ -55,7 +55,7 @@ public extension TaxiChat {
         authorProfileURL: URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/NupjukOTL.png"),
         authorIsWithdrew: false,
         content: "hello?",
-        time: baseDate.addingTimeInterval(-3450),
+        time: baseDate.addingTimeInterval(-3500),
         isValid: true,
         inOutNames: []
       ),

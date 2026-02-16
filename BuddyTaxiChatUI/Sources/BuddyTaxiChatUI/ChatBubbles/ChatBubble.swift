@@ -22,8 +22,8 @@ struct ChatBubble: View {
         isMine ? Color.accentColor : .secondarySystemBackground,
         in: .rect(
           topLeadingRadius: 24,
-          bottomLeadingRadius: !isMine && position == .bottom ? 4 : 24,
-          bottomTrailingRadius: isMine && position == .bottom ? 4 : 24,
+          bottomLeadingRadius: !isMine && (position == .bottom || position == .single) ? 4 : 24,
+          bottomTrailingRadius: isMine && (position == .bottom || position == .single) ? 4 : 24,
           topTrailingRadius: 24
         )
       )
@@ -56,23 +56,28 @@ struct ChatBubble: View {
 }
 
 
-#Preview {
-  let mock: [TaxiChat] = TaxiChat.mockList
-  let builder = ChatRenderItemBuilder(policy: TaxiGroupingPolicy(), positionResolver: ChatBubblePositionResolver())
-  let items = builder.build(chats: mock, myUserID: "user1")
-
-  LazyVStack {
-    ForEach(items, id: \.self) { item in
-      switch item {
-      case .bubble(_, let chat, let position, let isMine, _, _, _):
-        ChatBubble(
-          chat: chat,
-          position: position,
-          isMine: isMine
-        )
-      default:
-        EmptyView()
-      }
-    }
-  }
-}
+//#Preview {
+//  let mock: [TaxiChat] = TaxiChat.mockList
+//  let builder = ChatRenderItemBuilder(
+//    policy: TaxiGroupingPolicy(),
+//    positionResolver: ChatBubblePositionResolver(),
+//    presentationPolicy: DefaultMessagePresentationPolicy()
+//  )
+//  let items = builder.build(chats: mock, myUserID: "user1")
+//
+//  LazyVStack {
+//    ForEach(items, id: \.self) { item in
+//      switch item {
+//      case .message(_, let chat, let position, let isMine, _, _, _):
+//        ChatBubble(
+//          chat: chat,
+//          position: position,
+//          isMine: isMine
+//        )
+//      default:
+//        EmptyView()
+//      }
+//    }
+//  }
+//  .padding()
+//}
