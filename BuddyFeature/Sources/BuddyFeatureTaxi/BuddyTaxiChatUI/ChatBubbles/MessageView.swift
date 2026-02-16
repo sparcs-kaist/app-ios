@@ -22,7 +22,7 @@ struct MessageView<Content: View>: View {
   var body: some View {
     HStack(alignment: .bottom, spacing: 4) {
       if sender.isMine {
-        Spacer()
+        Spacer(minLength: 40)
         ChatReadReceipt(
           readCount: readCount,
           showTime: metadata.showTime,

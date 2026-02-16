@@ -23,7 +23,6 @@ struct ChatList: UIViewRepresentable {
     tableView.translatesAutoresizingMaskIntoConstraints = false
     tableView.separatorStyle = .none
     tableView.backgroundColor = .systemBackground
-    tableView.rowHeight = UITableView.automaticDimension
     tableView.dataSource = context.coordinator.dataSource(tableView: tableView)
     tableView.delegate = context.coordinator
     tableView.keyboardDismissMode = .interactive
@@ -55,6 +54,13 @@ struct ChatList: UIViewRepresentable {
         ?? UITableViewCell(style: .default, reuseIdentifier: "cell")
         cell.selectionStyle = .none
         cell.backgroundColor = .clear
+
+        let verticalMargin: CGFloat = switch item {
+        case .message(_, _, _, _, let position, _):
+          position == .single ? 8 : 1
+        case .daySeparator, .systemEvent:
+          8
+        }
 
         cell.contentConfiguration = UIHostingConfiguration {
           switch item {
@@ -96,7 +102,8 @@ struct ChatList: UIViewRepresentable {
             }
           }
         }
-        .margins(.all, 0)
+        .margins(.horizontal, 0)
+        .margins(.vertical, verticalMargin)
 
         return cell
       }
