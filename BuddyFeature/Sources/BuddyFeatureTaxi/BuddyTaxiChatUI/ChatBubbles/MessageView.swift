@@ -9,7 +9,9 @@ import SwiftUI
 import BuddyDomain
 import NukeUI
 
-struct MessageView: View {
+struct MessageView<Content: View>: View {
+  @ViewBuilder let content: () -> Content
+
   let chat: TaxiChat
   let kind: TaxiChat.ChatType
   let sender: SenderInfo
@@ -39,7 +41,7 @@ struct MessageView: View {
             .fontWeight(.medium)
         }
 
-        bubble
+        content()
       }
 
       if !sender.isMine {
@@ -51,16 +53,6 @@ struct MessageView: View {
         )
         Spacer()
       }
-    }
-  }
-
-  @ViewBuilder
-  var bubble: some View {
-    switch chat.type {
-    case .text:
-      ChatBubble(chat: chat, position: position, isMine: sender.isMine)
-    default:
-      Text("not implemented")
     }
   }
 
@@ -76,29 +68,5 @@ struct MessageView: View {
         Text("Unknown")
       }
     }
-  }
-}
-
-#Preview {
-  let mock: [TaxiChat] = TaxiChat.mockList
-  let builder = ChatRenderItemBuilder(
-    policy: TaxiGroupingPolicy(),
-    positionResolver: ChatBubblePositionResolver(),
-    presentationPolicy: DefaultMessagePresentationPolicy()
-  )
-  let items = builder.build(chats: mock, myUserID: "user2")
-
-  ScrollView {
-    LazyVStack {
-      ForEach(items, id: \.self) { item in
-        switch item {
-        case .message(let id, let chat, let kind, let sender, let position, let metadata):
-          MessageView(chat: chat, kind: kind, sender: sender, position: position, readCount: 2, metadata: metadata)
-        default:
-          EmptyView()
-        }
-      }
-    }
-    .padding()
   }
 }

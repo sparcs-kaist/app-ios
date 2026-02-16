@@ -46,7 +46,6 @@
 		8B89693D2F2CCC8A00955B84 /* BuddyFeatureTaxi in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693C2F2CCC8A00955B84 /* BuddyFeatureTaxi */; };
 		8B89693F2F2CCF8700955B84 /* BuddyFeatureSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */; };
 		8BBA1ADA2E8EBD24009CD124 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
-		8BCE13962F402B47005FCEBC /* BuddyTaxiChatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCE13952F402B47005FCEBC /* BuddyTaxiChatUI */; };
 		8BE537AF2F27833F00735E7A /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE537AE2F27833F00735E7A /* BuddyDataiOS */; };
 		8BE539532F2B767900735E7A /* BuddyFeatureTimetable in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539522F2B767900735E7A /* BuddyFeatureTimetable */; };
 		8BE539552F2B775A00735E7A /* BuddyFeatureShared in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539542F2B775A00735E7A /* BuddyFeatureShared */; };
@@ -160,7 +159,6 @@
 		8B8DFBF82CCF771800AB82CC /* soapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFC022CCF771800AB82CC /* soapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
-		8BCE13942F401BA7005FCEBC /* BuddyTaxiChatUI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyTaxiChatUI; sourceTree = "<group>"; };
 		8BE537AD2F2780A700735E7A /* BuddyDataiOS */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyDataiOS; sourceTree = "<group>"; };
 		8BE539512F2B75DA00735E7A /* BuddyFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyFeature; sourceTree = "<group>"; };
 		8BE804162E49EE3A00904AC6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
@@ -281,7 +279,6 @@
 				8B6B2B4F2E2878CD00D13D50 /* NukeUI in Frameworks */,
 				8BE537AF2F27833F00735E7A /* BuddyDataiOS in Frameworks */,
 				8BE5395D2F2CA4D300735E7A /* BuddyFeaturePost in Frameworks */,
-				8BCE13962F402B47005FCEBC /* BuddyTaxiChatUI in Frameworks */,
 				8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */,
 				8BE539552F2B775A00735E7A /* BuddyFeatureShared in Frameworks */,
 				8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */,
@@ -334,7 +331,6 @@
 		8B8DFBDD2CCF771700AB82CC = {
 			isa = PBXGroup;
 			children = (
-				8BCE13942F401BA7005FCEBC /* BuddyTaxiChatUI */,
 				8B001F772F377F8100E9FCE5 /* BuddyPreviewSupport */,
 				8B2DE7B22F35F5480020EB6F /* BuddyTestSupport */,
 				8BE539512F2B75DA00735E7A /* BuddyFeature */,
@@ -502,7 +498,6 @@
 				8BE5395C2F2CA4D300735E7A /* BuddyFeaturePost */,
 				8B89693C2F2CCC8A00955B84 /* BuddyFeatureTaxi */,
 				8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */,
-				8BCE13952F402B47005FCEBC /* BuddyTaxiChatUI */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -1530,10 +1525,6 @@
 		8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyFeatureSearch;
-		};
-		8BCE13952F402B47005FCEBC /* BuddyTaxiChatUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BuddyTaxiChatUI;
 		};
 		8BE537AE2F27833F00735E7A /* BuddyDataiOS */ = {
 			isa = XCSwiftPackageProductDependency;
