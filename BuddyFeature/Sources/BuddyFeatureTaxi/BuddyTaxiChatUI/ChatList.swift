@@ -23,6 +23,7 @@ struct ChatList: UIViewRepresentable {
     tableView.translatesAutoresizingMaskIntoConstraints = false
     tableView.separatorStyle = .none
     tableView.backgroundColor = .systemBackground
+    tableView.contentInsetAdjustmentBehavior = .never
     tableView.dataSource = context.coordinator.dataSource(tableView: tableView)
     tableView.delegate = context.coordinator
     tableView.keyboardDismissMode = .interactive
@@ -32,6 +33,18 @@ struct ChatList: UIViewRepresentable {
 
   func updateUIView(_ tableView: UITableView, context: Context) {
     context.coordinator.apply(items: items, animated: true)
+
+    if let window = tableView.window {
+      let windowInsets = window.safeAreaInsets
+      let insets = UIEdgeInsets(
+        top: windowInsets.top,
+        left: windowInsets.left,
+        bottom: windowInsets.bottom + 12,
+        right: windowInsets.right
+      )
+      tableView.contentInset = insets
+      tableView.scrollIndicatorInsets = insets
+    }
   }
 
   final class Coordinator: NSObject, UITableViewDelegate {
@@ -102,7 +115,7 @@ struct ChatList: UIViewRepresentable {
             }
           }
         }
-        .margins(.horizontal, 0)
+        .margins(.horizontal, 8)
         .margins(.vertical, verticalMargin)
 
         return cell
