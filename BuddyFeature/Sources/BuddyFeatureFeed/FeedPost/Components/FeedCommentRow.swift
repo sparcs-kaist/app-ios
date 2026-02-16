@@ -23,6 +23,7 @@ struct FeedCommentRow: View {
 
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
+  @State private var safariSheetURL: URL? = nil
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
@@ -48,6 +49,9 @@ struct FeedCommentRow: View {
         Text(viewModel.alertState?.message ?? "Unexpected Error")
       }
     )
+    .sheet(item: $safariSheetURL) { url in
+      SafariViewWrapper(url: url)
+    }
   }
 
   @ViewBuilder
@@ -158,6 +162,10 @@ struct FeedCommentRow: View {
           }
         }
       }
+      .environment(\.openURL, OpenURLAction { url in
+        safariSheetURL = url
+        return .handled
+      })
 
     if canBeExpanded && !showFullContent && !comment.isDeleted {
       Button("more") {

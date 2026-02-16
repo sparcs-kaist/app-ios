@@ -24,6 +24,7 @@ struct FeedPostRow: View {
   @State private var showDeleteConfirmation: Bool = false
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
+  @State private var safariSheetURL: URL? = nil
 
   var body: some View {
     Group {
@@ -48,6 +49,9 @@ struct FeedPostRow: View {
         Text(viewModel.alertState?.message ?? "Unexpected Error")
       }
     )
+    .sheet(item: $safariSheetURL) { url in
+      SafariViewWrapper(url: url)
+    }
   }
 
   @ViewBuilder
@@ -158,6 +162,10 @@ struct FeedPostRow: View {
           }
         }
       }
+      .environment(\.openURL, OpenURLAction { url in
+        safariSheetURL = url
+        return .handled
+      })
     if canBeExpanded && !showFullContent {
       Button("more") {
         withAnimation {
