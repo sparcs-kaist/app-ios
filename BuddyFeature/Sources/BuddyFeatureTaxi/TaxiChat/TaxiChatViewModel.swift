@@ -36,7 +36,6 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   var room: TaxiRoom
   private var cancellables = Set<AnyCancellable>()
   private var isFetching: Bool = false
-  private var badgeByAuthorID: Dictionary<String, Bool>
 
   private let renderItemBuilder = ChatRenderItemBuilder(
     policy: TaxiGroupingPolicy(),
@@ -54,9 +53,6 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   // MARK: - Initialiser
   init(room: TaxiRoom) {
     self.room = room
-    badgeByAuthorID = Dictionary(uniqueKeysWithValues: room.participants.map {
-      ($0.id, $0.badge)
-    })
   }
 
   func setup() async {
@@ -203,10 +199,5 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     defer { isUploading = false }
 
     try await taxiChatUseCase.sendImage(image)
-  }
-  
-  func hasBadge(authorID: String?) -> Bool {
-    guard let authorID else { return false }
-    return badgeByAuthorID[authorID] ?? false
   }
 }

@@ -106,11 +106,15 @@ struct ChatCollectionView: UIViewRepresentable {
     var previousScrollTrigger: Int = 0
 
     var hasInitialScroll = false
+    private var badgeByAuthorID: Dictionary<String, Bool>
 
     init(items: [ChatRenderItem], room: TaxiRoom, user: TaxiUser?) {
       self.items = items
       self.room = room
       self.user = user
+      badgeByAuthorID = Dictionary(uniqueKeysWithValues: room.participants.map {
+        ($0.id, $0.badge)
+      })
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -188,6 +192,11 @@ struct ChatCollectionView: UIViewRepresentable {
 
     private func safeAreaInsets(for view: UIView) -> UIEdgeInsets {
       view.safeAreaInsets
+    }
+
+    func hasBadge(authorID: String?) -> Bool {
+      guard let authorID else { return false }
+      return badgeByAuthorID[authorID] ?? false
     }
   }
 }

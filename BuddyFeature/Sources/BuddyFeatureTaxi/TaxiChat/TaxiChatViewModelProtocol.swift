@@ -40,5 +40,4 @@ protocol TaxiChatViewModelProtocol: Observable {
   func commitSettlement()
   func commitPayment()
   func sendImage(_ image: UIImage) async throws
-  func hasBadge(authorID: String?) -> Bool
 }

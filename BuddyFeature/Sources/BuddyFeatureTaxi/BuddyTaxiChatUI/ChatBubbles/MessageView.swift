@@ -19,6 +19,8 @@ struct MessageView<Content: View>: View {
 
   @ViewBuilder let content: () -> Content
 
+  @State private var showPopover: Bool = false
+
   var body: some View {
     HStack(alignment: .bottom, spacing: 4) {
       if sender.isMine {
@@ -36,9 +38,23 @@ struct MessageView<Content: View>: View {
 
       VStack(alignment: .leading, spacing: 4) {
         if metadata.showName {
-          authorNameplace
-            .font(.caption)
-            .fontWeight(.medium)
+          HStack(spacing: 4) {
+            authorNameplace
+            Image(systemName: "phone.circle.fill")
+              .foregroundStyle(Color.accentColor)
+              .onTapGesture {
+                showPopover = true
+              }
+              .popover(isPresented: $showPopover) {
+                Text("Members with this badge can resolve issues through SPARCS mediation when problems arise.")
+                  .font(.caption)
+                  .padding()
+                  .frame(width: 250)
+                  .presentationCompactAdaptation(.popover)
+              }
+          }
+          .font(.caption)
+          .fontWeight(.medium)
         }
 
         HStack(alignment: .bottom, spacing: 4) {
