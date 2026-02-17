@@ -25,9 +25,27 @@ struct ChatCollectionView: UIViewRepresentable {
   }
 
   func updateUIView(_ collectionView: UICollectionView, context: Context) {
+    let newBottomInset = self.safeAreaInsets.bottom + 8
+    let oldBottomInset = context.coordinator.previousBottomInset
+
     collectionView.contentInset.top = self.safeAreaInsets.top
-    collectionView.contentInset.bottom = self.safeAreaInsets.bottom + 8
+    collectionView.contentInset.bottom = newBottomInset
     collectionView.scrollIndicatorInsets = collectionView.contentInset
+
+    let delta = newBottomInset - oldBottomInset
+
+    if delta > 0 {
+      UIView.animate(
+        withDuration: 0.25,
+        delay: 0,
+        options: [.curveEaseInOut, .beginFromCurrentState]
+      ) {
+        collectionView.contentOffset.y += delta
+        collectionView.layoutIfNeeded()
+      }
+    }
+
+    context.coordinator.previousBottomInset = newBottomInset
 
     context.coordinator.items = items
     context.coordinator.room = room
@@ -52,6 +70,7 @@ struct ChatCollectionView: UIViewRepresentable {
     var items: [ChatRenderItem]
     var room: TaxiRoom
     var user: TaxiUser?
+    var previousBottomInset: CGFloat = 0
 
     init(items: [ChatRenderItem], room: TaxiRoom, user: TaxiUser?) {
       self.items = items
