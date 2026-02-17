@@ -80,7 +80,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       .sink { [weak self] chats in
         guard let self = self else { return }
         let filtered = chats.filter { $0.roomID == self.room.id }
-        self.renderItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
+        let builtItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
+        self.renderItems = builtItems
+        print("[HERE] \(self.renderItems)")
         self.state = .loaded
       }
       .store(in: &cancellables)

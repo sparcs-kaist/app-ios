@@ -47,11 +47,18 @@ struct ChatCollectionView: UIViewRepresentable {
 
     context.coordinator.previousBottomInset = newBottomInset
 
+    let shouldReload =
+      context.coordinator.items != items ||
+      context.coordinator.room != room ||
+      context.coordinator.user != user
+
     context.coordinator.items = items
     context.coordinator.room = room
     context.coordinator.user = user
 
-    collectionView.reloadData()
+    if shouldReload {
+      collectionView.reloadData()
+    }
   }
 
   func makeCoordinator() -> Coordinator {

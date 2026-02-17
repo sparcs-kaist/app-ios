@@ -13,7 +13,7 @@ import BuddyDomain
 
 public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable {
   // MARK: - Publishers
-  private var chatsSubject = CurrentValueSubject<[TaxiChat], Never>([])
+  private var chatsSubject = PassthroughSubject<[TaxiChat], Never>()
   public var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
     chatsSubject.eraseToAnyPublisher()
   }
@@ -145,8 +145,6 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
 
           self.flatChats = chats
           self.chatsSubject.send(chats)
-
-          let user: TaxiUser? = await userUseCase.taxiUser
 
           self.accountChats = chats.filter { $0.type == .account }
         }
