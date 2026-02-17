@@ -56,6 +56,10 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
     self.room = room
   }
 
+  public func reconnect() {
+    taxiChatService?.reconnect()
+  }
+
   public func fetchInitialChats() async {
     guard !hasInitialChatsBeenFetched, let room else { return }
     guard let taxiChatRepository else { return }
