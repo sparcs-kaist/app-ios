@@ -34,7 +34,7 @@ struct TaxiChatView: View {
   }
 
   var body: some View {
-    Group {
+    GeometryReader { reader in
       switch viewModel.state {
       case .loading:
         ProgressView()
@@ -42,7 +42,13 @@ struct TaxiChatView: View {
 //          .redacted(reason: .placeholder)
 //          .disabled(true)
       case .loaded:
-        ChatList(items: viewModel.renderItems, room: viewModel.room, user: viewModel.taxiUser)
+        ChatCollectionView(
+          items: viewModel.renderItems,
+          room: viewModel.room,
+          user: viewModel.taxiUser,
+          safeAreaInsets: reader.safeAreaInsets
+        )
+        .ignoresSafeArea()
       case .error(let message):
         errorView(errorMessage: message)
       }
