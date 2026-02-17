@@ -14,6 +14,7 @@ struct ChatCollectionView: UIViewRepresentable {
   let room: TaxiRoom
   let user: TaxiUser?
   let safeAreaInsets: EdgeInsets
+  let scrollToBottomTrigger: Int
 
   func makeUIView(context: Context) -> UICollectionView {
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())
@@ -63,8 +64,16 @@ struct ChatCollectionView: UIViewRepresentable {
         context.coordinator.hasInitialScroll = true
 
         DispatchQueue.main.async {
-          scrollToBottom(collectionView)
+          scrollToBottom(collectionView, animated: false)
         }
+      }
+    }
+
+    if scrollToBottomTrigger != context.coordinator.previousScrollTrigger {
+      context.coordinator.previousScrollTrigger = scrollToBottomTrigger
+
+      DispatchQueue.main.async {
+        scrollToBottom(collectionView, animated: true)
       }
     }
   }
@@ -73,12 +82,12 @@ struct ChatCollectionView: UIViewRepresentable {
     Coordinator(items: items, room: room, user: user)
   }
 
-  private func scrollToBottom(_ collectionView: UICollectionView) {
+  private func scrollToBottom(_ collectionView: UICollectionView, animated: Bool) {
     let itemCount = collectionView.numberOfItems(inSection: 0)
     guard itemCount > 0 else { return }
 
     let indexPath = IndexPath(item: itemCount - 1, section: 0)
-    collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
+    collectionView.scrollToItem(at: indexPath, at: .bottom, animated: animated)
   }
 
   private func layout() -> UICollectionViewLayout {
@@ -94,6 +103,7 @@ struct ChatCollectionView: UIViewRepresentable {
     var room: TaxiRoom
     var user: TaxiUser?
     var previousBottomInset: CGFloat = 0
+    var previousScrollTrigger: Int = 0
 
     var hasInitialScroll = false
 
@@ -196,7 +206,8 @@ struct ChatCollectionView: UIViewRepresentable {
     items: items,
     room: TaxiRoom.mock,
     user: TaxiUser.mock,
-    safeAreaInsets: EdgeInsets()
+    safeAreaInsets: EdgeInsets(),
+    scrollToBottomTrigger: 0
   )
     .ignoresSafeArea()
 }

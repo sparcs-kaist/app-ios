@@ -21,7 +21,6 @@ struct TaxiChatView: View {
   @State private var showReportSheet: Bool = false
 
   @State private var tappedImageID: String? = nil
-  @State private var scrollToBottomTrigger: Int = 0
 
   @Namespace private var namespace
 
@@ -46,7 +45,8 @@ struct TaxiChatView: View {
           items: viewModel.renderItems,
           room: viewModel.room,
           user: viewModel.taxiUser,
-          safeAreaInsets: reader.safeAreaInsets
+          safeAreaInsets: reader.safeAreaInsets,
+          scrollToBottomTrigger: viewModel.scrollToBottomTrigger
         )
         .ignoresSafeArea()
       case .error(let message):
@@ -67,11 +67,9 @@ struct TaxiChatView: View {
         isCommitSettlementAvailable: viewModel.isCommitSettlementAvailable,
         onSendText: { message in
           viewModel.sendChat(message, type: .text)
-          scrollToBottomTrigger += 1
         },
         onSendImage: { image in
           try await viewModel.sendImage(image)
-          scrollToBottomTrigger += 1
         },
         onCommitSettlement: {
           viewModel.commitSettlement()
@@ -82,9 +80,6 @@ struct TaxiChatView: View {
         onError: { message in
           viewModel.alertState = AlertState(title: "Error", message: message)
           viewModel.isAlertPresented = true
-        },
-        onFocusChange: { focused in
-          if focused { scrollToBottomTrigger += 1 }
         }
       )
     }

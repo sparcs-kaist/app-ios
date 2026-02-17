@@ -18,6 +18,8 @@ protocol TaxiChatViewModelProtocol: Observable {
   var room: TaxiRoom { get }
   var isUploading: Bool { get }
 
+  var scrollToBottomTrigger: Int { get }
+
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
 

@@ -25,6 +25,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   var taxiUser: TaxiUser?
   var isUploading: Bool = false
 
+  var scrollToBottomTrigger: Int = 0
+
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
 
@@ -122,6 +124,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
     if type == .text && message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return }
 
+    scrollToBottomTrigger += 1
+
     Task {
       await taxiChatUseCase.sendChat(message, type: type)
     }
@@ -192,6 +196,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   func sendImage(_ image: UIImage) async throws {
     guard let taxiChatUseCase else { return }
+
+    scrollToBottomTrigger += 1
 
     isUploading = true
     defer { isUploading = false }
