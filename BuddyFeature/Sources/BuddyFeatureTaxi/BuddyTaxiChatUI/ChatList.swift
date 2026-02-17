@@ -1,150 +1,99 @@
 //
 //  ChatList.swift
-//  BuddyTaxiChatUI
+//  BuddyFeature
 //
-//  Created by Soongyu Kwon on 14/02/2026.
+//  Created by Soongyu Kwon on 17/02/2026.
 //
 
 import SwiftUI
-import UIKit
 import BuddyDomain
 
-struct ChatList: UIViewRepresentable {
+struct ChatList: View {
   let items: [ChatRenderItem]
   let room: TaxiRoom
   let user: TaxiUser?
 
-  func makeCoordinator() -> Coordinator {
-    Coordinator(room: room, user: user)
-  }
-
-  func makeUIView(context: Context) -> UITableView {
-    let tableView = UITableView(frame: .zero, style: .grouped)
-    tableView.translatesAutoresizingMaskIntoConstraints = false
-    tableView.separatorStyle = .none
-    tableView.backgroundColor = .systemBackground
-    tableView.contentInsetAdjustmentBehavior = .never
-    tableView.dataSource = context.coordinator.dataSource(tableView: tableView)
-    tableView.delegate = context.coordinator
-    tableView.keyboardDismissMode = .interactive
-
-    return tableView
-  }
-
-  func updateUIView(_ tableView: UITableView, context: Context) {
-    context.coordinator.apply(items: items, animated: true)
-
-    if let window = tableView.window {
-      let windowInsets = window.safeAreaInsets
-      let insets = UIEdgeInsets(
-        top: windowInsets.top,
-        left: windowInsets.left,
-        bottom: windowInsets.bottom + 12,
-        right: windowInsets.right
-      )
-      tableView.contentInset = insets
-      tableView.scrollIndicatorInsets = insets
+  var body: some View {
+    ScrollViewReader { reader in
+      List(items) { item in
+        chatItem(item)
+      }
+      .listStyle(.plain)
+      .environment(\.defaultMinListRowHeight, 0)
+      .onAppear {
+        reader.scrollTo(items.last?.id, anchor: .bottom)
+      }
+      .scrollDismissesKeyboard(.interactively)
     }
   }
 
-  final class Coordinator: NSObject, UITableViewDelegate {
-    let room: TaxiRoom
-    let user: TaxiUser?
-
-    enum Section { case main }
-    private var ds: UITableViewDiffableDataSource<Section, ChatRenderItem>?
-
-    init(room: TaxiRoom, user: TaxiUser?) {
-      self.room = room
-      self.user = user
-    }
-
-    func dataSource(tableView: UITableView) -> UITableViewDiffableDataSource<Section, ChatRenderItem> {
-      if let ds { return ds }
-
-      let ds = UITableViewDiffableDataSource<Section, ChatRenderItem>(tableView: tableView) { tableView, indexPath, item in
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
-        ?? UITableViewCell(style: .default, reuseIdentifier: "cell")
-        cell.selectionStyle = .none
-        cell.backgroundColor = .clear
-
-        let verticalMargin: CGFloat = switch item {
-        case .message(_, _, _, _, let position, _):
-          position == .single ? 8 : 1
-        case .daySeparator, .systemEvent:
-          8
-        }
-
-        cell.contentConfiguration = UIHostingConfiguration {
-          switch item {
-          case .daySeparator(let date):
-            ChatDaySeperator(date: date)
-          case .systemEvent(_, let chat):
-            ChatGeneralMessage(authorName: chat.authorName, type: chat.type)
-          case .message(_, let chat, let kind, let sender, let position, let metadata):
-            MessageView(
-              chat: chat,
-              kind: kind,
-              sender: sender,
-              position: position,
-              readCount: self.readCount(for: chat),
-              metadata: metadata
-            ) {
-              switch kind {
-              case .text:
-                ChatBubble(chat: chat, position: position, isMine: sender.isMine)
-              case .s3img:
-                ChatImageBubble(id: chat.content)
-              case .departure:
-                ChatDepartureBubble(room: self.room)
-              case .arrival:
-                ChatArrivalBubble()
-              case .settlement:
-                ChatSettlementBubble()
-              case .payment:
-                ChatPaymentBubble()
-              case .account:
-                ChatAccountBubble(content: chat.content, isCommitPaymentAvailable: self.isCommitSettlementAvailable) {
-                  // showPayMoneyAlert = true
-                }
-              case .share:
-                ChatShareBubble(room: self.room)
-              default:
-                Text("not implemented")
-              }
+  @ViewBuilder
+  func chatItem(_ item: ChatRenderItem) -> some View {
+    Group {
+      switch item {
+      case .daySeparator(let date):
+        ChatDaySeperator(date: date)
+          .listRowInsets(.init(top: 8, leading: 8, bottom: 8, trailing: 8))
+      case .systemEvent(_, let chat):
+        ChatGeneralMessage(authorName: chat.authorName, type: chat.type)
+          .listRowInsets(.init(top: 8, leading: 8, bottom: 8, trailing: 8))
+      case .message(_, let chat, let kind, let sender, let position, let metadata):
+        MessageView(
+          chat: chat,
+          kind: kind,
+          sender: sender,
+          position: position,
+          readCount: readCount(for: chat),
+          metadata: metadata
+        ) {
+          switch kind {
+          case .text:
+            ChatBubble(chat: chat, position: position, isMine: sender.isMine)
+          case .s3img:
+            ChatImageBubble(id: chat.content)
+          case .departure:
+            ChatDepartureBubble(room: room)
+          case .arrival:
+            ChatArrivalBubble()
+          case .settlement:
+            ChatSettlementBubble()
+          case .payment:
+            ChatPaymentBubble()
+          case .account:
+            ChatAccountBubble(content: chat.content, isCommitPaymentAvailable: isCommitSettlementAvailable) {
+//              showPayMoneyAlert = true
             }
+          case .share:
+            ChatShareBubble(room: room)
+          default:
+            Text("not supported")
           }
         }
-        .margins(.horizontal, 8)
-        .margins(.vertical, verticalMargin)
-
-        return cell
+        .listRowInsets(
+          .init(
+            top: position == .middle || position == .bottom ? 4 : 8,
+            leading: 8,
+            bottom: 0,
+            trailing: 8
+          )
+        )
       }
-
-      self.ds = ds
-      return ds
     }
+    .listRowSeparator(.hidden)
+  }
 
-    private var isCommitSettlementAvailable: Bool {
-      return room.isDeparted && room.settlementTotal == 0
-    }
+  private var isCommitSettlementAvailable: Bool {
+    return room.isDeparted && room.settlementTotal == 0
+  }
 
-    private func readCount(for chat: TaxiChat) -> Int {
-      let otherParticipants = self.room.participants.filter {
-        $0.id != self.user?.oid
-      }
-      return otherParticipants.count(where: { $0.readAt <= chat.time })
+  private func readCount(for chat: TaxiChat) -> Int {
+    let otherParticipants = room.participants.filter {
+      $0.id != user?.oid
     }
-
-    func apply(items: [ChatRenderItem], animated: Bool) {
-      guard let ds else { return }
-      var snapshot = NSDiffableDataSourceSnapshot<Section, ChatRenderItem>()
-      snapshot.appendSections([.main])
-      snapshot.appendItems(items, toSection: .main)
-      ds.apply(snapshot, animatingDifferences: animated)
-    }
+    return otherParticipants.count(where: { $0.readAt <= chat.time })
   }
 }
+
 
 #Preview {
   let mock: [TaxiChat] = TaxiChat.mockList
@@ -153,9 +102,6 @@ struct ChatList: UIViewRepresentable {
     positionResolver: ChatBubblePositionResolver(),
     presentationPolicy: DefaultMessagePresentationPolicy()
   )
-  let items = builder.build(chats: mock, myUserID: "user1")
-
+  let items = builder.build(chats: mock, myUserID: "user2")
   ChatList(items: items, room: TaxiRoom.mock, user: TaxiUser.mock)
-    .ignoresSafeArea()
 }
-

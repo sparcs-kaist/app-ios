@@ -788,6 +788,9 @@
         }
       }
     },
+    "not supported" : {
+
+    },
     "Notice" : {
       "localizations" : {
         "en" : {
