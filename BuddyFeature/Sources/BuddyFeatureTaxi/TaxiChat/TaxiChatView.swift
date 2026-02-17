@@ -37,12 +37,12 @@ struct TaxiChatView: View {
     Group {
       switch viewModel.state {
       case .loading:
-        chatListView(groups: Array(TaxiChatGroup.mockList.prefix(6)), isInteractive: false)
-          .redacted(reason: .placeholder)
-          .disabled(true)
+        ProgressView()
+//        chatListView(groups: Array(TaxiChatGroup.mockList.prefix(6)), isInteractive: false)
+//          .redacted(reason: .placeholder)
+//          .disabled(true)
       case .loaded:
         ChatList(items: viewModel.renderItems, room: viewModel.room, user: viewModel.taxiUser)
-          .ignoresSafeArea()
       case .error(let message):
         errorView(errorMessage: message)
       }
@@ -153,127 +153,6 @@ struct TaxiChatView: View {
       await viewModel.setup()
       await viewModel.fetchInitialChats()
     }
-  }
-
-  // isInteractive means data is actual loaded data. False means it is a mock and needs to be redacted.
-  private func chatListView(groups: [TaxiChatGroup], isInteractive: Bool) -> some View {
-    ScrollView {
-      LazyVStack(spacing: 16) {
-        Color.clear
-          .frame(height: 1)
-          .onAppear {
-            if isInteractive {
-              Task { await viewModel.loadMoreChats() }
-            }
-          }
-
-        if let firstDate = groups.first?.time {
-          TaxiChatDayMessage(date: firstDate)
-        }
-
-        ForEach(groups) { groupedChat in
-          TaxiChatUserWrapper(
-            authorID: groupedChat.authorID,
-            authorName: groupedChat.authorName,
-            authorProfileImageURL: groupedChat.authorProfileURL,
-            date: groupedChat.time,
-            isMe: isInteractive ? groupedChat.isMe : false,
-            isGeneral: groupedChat.isGeneral,
-            isWithdrawn: groupedChat.authorIsWithdrew ?? false,
-            badge: isInteractive ? viewModel.hasBadge(authorID: groupedChat.authorID) : false
-          ) {
-            ForEach(groupedChat.chats) { chat in
-              let showTimeLabel: Bool = groupedChat.lastChatID == chat.id
-
-              HStack(alignment: .bottom, spacing: 4) {
-                if isInteractive && groupedChat.isMe && groupedChat.lastChatID != nil {
-                  TaxiChatReadReceipt(
-                    readCount: readCount(for: chat),
-                    showTimeLabel: showTimeLabel,
-                    time: groupedChat.time.formattedTime,
-                    alignment: .trailing
-                  )
-                }
-
-                chatBubble(for: chat, in: groupedChat, isInteractive: isInteractive)
-
-                if isInteractive && !groupedChat.isMe && groupedChat.lastChatID != nil {
-                  TaxiChatReadReceipt(
-                    readCount: readCount(for: chat),
-                    showTimeLabel: showTimeLabel,
-                    time: groupedChat.time.formattedTime,
-                    alignment: .leading
-                  )
-                } else if !isInteractive && showTimeLabel {
-                  TaxiChatReadReceipt(
-                    readCount: 3,
-                    showTimeLabel: true,
-                    time: groupedChat.time.formattedTime,
-                    alignment: .leading
-                  )
-                }
-              }
-            }
-          }
-          .id(groupedChat.id)
-        }
-      }
-      .padding(.leading)
-      .padding(.trailing, 8)
-    }
-    .defaultScrollAnchor(.bottom)
-    .contentMargins(.bottom, 20)
-  }
-
-  @ViewBuilder
-  private func chatBubble(for chat: TaxiChat, in groupedChat: TaxiChatGroup, isInteractive: Bool) -> some View {
-    switch chat.type {
-    case .entrance, .exit:
-      TaxiChatGeneralMessage(authorName: chat.authorName, type: chat.type)
-    case .text:
-      TaxiChatBubble(
-        content: chat.content,
-        showTip: groupedChat.lastChatID == chat.id,
-        isMe: isInteractive ? groupedChat.isMe : false
-      )
-    case .s3img:
-      if isInteractive {
-        TaxiChatImageBubble(id: chat.content)
-          .matchedTransitionSource(id: chat.content, in: namespace)
-          .onTapGesture {
-            tappedImageID = chat.content
-          }
-      } else {
-        TaxiChatImageBubble(id: chat.content)
-      }
-    case .departure:
-      TaxiDepartureBubble(room: isInteractive ? viewModel.room : TaxiRoom.mock)
-    case .arrival:
-      TaxiArrivalBubble()
-    case .settlement:
-      TaxiChatSettlementBubble()
-    case .payment:
-      TaxiChatPaymentBubble()
-    case .account:
-      if isInteractive {
-        TaxiChatAccountBubble(content: chat.content, isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable) {
-          showPayMoneyAlert = true
-        }
-      } else {
-        TaxiChatAccountBubble(content: "BANK NUMBER", isCommitPaymentAvailable: true) { }
-      }
-    case .share:
-      TaxiChatShareBubble(room: isInteractive ? viewModel.room : TaxiRoom.mock)
-    default:
-      Text(chat.type.rawValue)
-    }
-  }
-
-  private func readCount(for chat: TaxiChat) -> Int {
-    let otherParticipants = viewModel.room.participants.filter {
-      $0.id != viewModel.taxiUser?.oid
-    }
-    return otherParticipants.count(where: { $0.readAt <= chat.time })
   }
 
   @ToolbarContentBuilder

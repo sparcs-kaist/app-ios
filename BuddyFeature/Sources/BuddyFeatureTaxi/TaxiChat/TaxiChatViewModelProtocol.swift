@@ -13,7 +13,6 @@ import BuddyDomain
 protocol TaxiChatViewModelProtocol: Observable {
   // MARK: - ViewModel Properties
   var state: TaxiChatViewModel.ViewState { get }
-  var groupedChats: [TaxiChatGroup] { get }
   var renderItems: [ChatRenderItem] { get }
   var taxiUser: TaxiUser? { get }
   var room: TaxiRoom { get }

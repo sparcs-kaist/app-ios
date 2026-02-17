@@ -16,12 +16,11 @@ import BuddyDomain
 class TaxiChatViewModel: TaxiChatViewModelProtocol {
   enum ViewState {
     case loading
-    case loaded(groupedChats: [TaxiChatGroup])
+    case loaded
     case error(message: String)
   }
   // MARK: - Properties
   var state: ViewState = .loading
-  var groupedChats: [TaxiChatGroup] = []
   var renderItems: [ChatRenderItem] = []
   var taxiUser: TaxiUser?
   var isUploading: Bool = false
@@ -76,29 +75,13 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   private func bind() {
     guard let taxiChatUseCase else { return }
 
-    taxiChatUseCase.groupedChatsPublisher
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] groupedChats in
-        guard let self = self else { return }
-        self.groupedChats = groupedChats
-        self.groupedChats = self.groupedChats.map { groupedChat in
-          var newGroupedChat = groupedChat
-          
-          newGroupedChat.chats = groupedChat.chats.filter { $0.roomID == self.room.id }
-          return newGroupedChat
-        }
-        withAnimation(.spring) {
-          self.state = .loaded(groupedChats: self.groupedChats)
-        }
-      }
-      .store(in: &cancellables)
-
     taxiChatUseCase.chatsPublisher
       .receive(on: DispatchQueue.main)
       .sink { [weak self] chats in
         guard let self = self else { return }
         let filtered = chats.filter { $0.roomID == self.room.id }
         self.renderItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
+        self.state = .loaded
       }
       .store(in: &cancellables)
 
@@ -112,18 +95,18 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func loadMoreChats() async {
-    guard let taxiChatUseCase,
-          !isFetching,
-          let oldestDate = groupedChats.first?.chats.first?.time,
-          !fetchedDateSet.contains(oldestDate) else { return }
-
-    topChatID = groupedChats.first?.id
-    fetchedDateSet.insert(oldestDate)
-
-    isFetching = true
-    defer { isFetching = false }
-
-    await taxiChatUseCase.fetchChats(before: oldestDate)
+//    guard let taxiChatUseCase,
+//          !isFetching,
+//          let oldestDate = groupedChats.first?.chats.first?.time,
+//          !fetchedDateSet.contains(oldestDate) else { return }
+//
+//    topChatID = groupedChats.first?.id
+//    fetchedDateSet.insert(oldestDate)
+//
+//    isFetching = true
+//    defer { isFetching = false }
+//
+//    await taxiChatUseCase.fetchChats(before: oldestDate)
   }
 
   func fetchInitialChats() async {

@@ -13,11 +13,6 @@ import BuddyDomain
 
 public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable {
   // MARK: - Publishers
-  private var groupedChatsSubject = CurrentValueSubject<[TaxiChatGroup], Never>([])
-  public var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> {
-    groupedChatsSubject.eraseToAnyPublisher()
-  }
-
   private var chatsSubject = CurrentValueSubject<[TaxiChat], Never>([])
   public var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
     chatsSubject.eraseToAnyPublisher()
@@ -26,11 +21,6 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   private var roomUpdateSubject = PassthroughSubject<TaxiRoom, Never>()
   public var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> {
     roomUpdateSubject.eraseToAnyPublisher()
-  }
-
-  private var groupedChats: [TaxiChatGroup] {
-    get { groupedChatsSubject.value }
-    set { groupedChatsSubject.send(newValue) }
   }
 
   // MARK: - State
@@ -111,8 +101,6 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
       )
       flatChats.append(optimisticChat)
       chatsSubject.send(flatChats)
-      let grouped = groupChats(flatChats, currentUserID: user?.oid ?? "")
-      groupedChats = grouped
     }
 
     do {
@@ -159,9 +147,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
           self.chatsSubject.send(chats)
 
           let user: TaxiUser? = await userUseCase.taxiUser
-          let groupedChats = self.groupChats(chats, currentUserID: user?.oid ?? "")
 
-          self.groupedChats = groupedChats
           self.accountChats = chats.filter { $0.type == .account }
         }
       }
@@ -183,74 +169,5 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
         }
       }
       .store(in: &cancellables)
-  }
-
-  private func groupChats(_ chats: [TaxiChat], currentUserID: String) -> [TaxiChatGroup] {
-    guard !chats.isEmpty else { return [] }
-
-    var result: [TaxiChatGroup] = []
-    var currentGroup: [TaxiChat] = []
-
-    func flushGroup() {
-      if !currentGroup.isEmpty {
-        let time: Date = currentGroup.first?.time ?? Date()
-        let isMe: Bool = currentGroup.first?.authorID == currentUserID
-        let group = TaxiChatGroup(
-          id: time.toISO8601,
-          chats: currentGroup,
-          lastChatID: currentGroup.last?.id,
-          authorID: currentGroup.first?.authorID,
-          authorName: currentGroup.first?.authorName,
-          authorProfileURL: currentGroup.first?.authorProfileURL,
-          authorIsWithdrew: currentGroup.first?.authorIsWithdrew,
-          time: time,
-          isMe: isMe,
-          isGeneral: false
-        )
-        result.append(group)
-        currentGroup = []
-      }
-    }
-
-    let calendar = Calendar.current
-
-    for chat in chats {
-      if chat.type == .entrance || chat.type == .exit {
-        flushGroup()
-        let group = TaxiChatGroup(
-          id: chat.time.toISO8601,
-          chats: [chat],
-          lastChatID: nil,
-          authorID: chat.authorID,
-          authorName: chat.authorName,
-          authorProfileURL: chat.authorProfileURL,
-          authorIsWithdrew: chat.authorIsWithdrew,
-          time: chat.time,
-          isMe: chat.authorID == currentUserID,
-          isGeneral: true
-        )
-        result.append(group)
-        continue
-      }
-
-      if currentGroup.isEmpty {
-        currentGroup.append(chat)
-        continue
-      }
-
-      let lastChat = currentGroup.last!
-      let isSameAuthor = chat.authorID == lastChat.authorID
-      let isSameMinute = calendar.isDate(chat.time, equalTo: lastChat.time, toGranularity: .minute)
-
-      if isSameAuthor && isSameMinute {
-        currentGroup.append(chat)
-      } else {
-        flushGroup()
-        currentGroup = [chat]
-      }
-    }
-
-    flushGroup()
-    return result
   }
 }

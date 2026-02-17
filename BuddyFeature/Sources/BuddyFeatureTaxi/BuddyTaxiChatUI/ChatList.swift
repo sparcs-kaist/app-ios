@@ -13,13 +13,23 @@ struct ChatList: View {
   let room: TaxiRoom
   let user: TaxiUser?
 
-  @State private var scrollPosition: UUID?
-
   var body: some View {
     GeometryReader { reader in
       ScrollViewReader { proxy in
-        List(items) { item in
-          chatItem(item)
+        List {
+          Color.clear
+            .frame(height: reader.safeAreaInsets.top)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowSeparator(.hidden)
+
+          ForEach(items) { item in
+            chatItem(item)
+          }
+
+          Color.clear
+            .frame(height: reader.safeAreaInsets.bottom)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowSeparator(.hidden)
         }
         .ignoresSafeArea()
         .listStyle(.plain)
@@ -27,12 +37,9 @@ struct ChatList: View {
         .onAppear {
           proxy.scrollTo(items.last?.id, anchor: .bottom)
         }
-        .scrollPosition(id: $scrollPosition)
         .scrollDismissesKeyboard(.interactively)
-        .contentMargins(.top, reader.safeAreaInsets.top)
-        .contentMargins(.bottom, reader.safeAreaInsets.bottom)
-        .onChange(of: scrollPosition) {
-          
+        .onChange(of: reader.safeAreaInsets.bottom) {
+          print("[HERE] \(reader.safeAreaInsets.bottom)")
         }
       }
     }

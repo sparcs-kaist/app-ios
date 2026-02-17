@@ -10,7 +10,6 @@ import Combine
 import UIKit
 
 public protocol TaxiChatUseCaseProtocol: Sendable {
-  var groupedChatsPublisher: AnyPublisher<[TaxiChatGroup], Never> { get }
   var chatsPublisher: AnyPublisher<[TaxiChat], Never> { get }
   var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> { get }
   var accountChats: [TaxiChat] { get }
