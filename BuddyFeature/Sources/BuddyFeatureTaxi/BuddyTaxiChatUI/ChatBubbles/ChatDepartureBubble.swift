@@ -1,5 +1,5 @@
 //
-//  TaxiDepartureBubble.swift
+//  ChatDepartureBubble.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 18/07/2025.
@@ -8,7 +8,7 @@
 import SwiftUI
 import BuddyDomain
 
-struct TaxiDepartureBubble: View {
+struct ChatDepartureBubble: View {
   let room: TaxiRoom
 
   @Environment(\.openURL) private var openURL
@@ -54,19 +54,19 @@ struct TaxiDepartureBubble: View {
   }
 }
 
-#Preview {
-  TaxiChatUserWrapper(
-    authorID: nil,
-    authorName: nil,
-    authorProfileImageURL: nil,
-    date: Date(),
-    isMe: false,
-    isGeneral: false,
-    isWithdrawn: false,
-    badge: true
-  ) {
-    TaxiDepartureBubble(room: TaxiRoom.mock)
-  }
-  .padding()
-}
-
+//#Preview {
+//  TaxiChatUserWrapper(
+//    authorID: nil,
+//    authorName: nil,
+//    authorProfileImageURL: nil,
+//    date: Date(),
+//    isMe: false,
+//    isGeneral: false,
+//    isWithdrawn: false,
+//    badge: true
+//  ) {
+//    TaxiDepartureBubble(room: TaxiRoom.mock)
+//  }
+//  .padding()
+//}
+//

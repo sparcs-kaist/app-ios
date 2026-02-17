@@ -1,5 +1,5 @@
 //
-//  TaxiChatGeneralMessage.swift
+//  ChatGeneralMessage.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 18/07/2025.
@@ -8,12 +8,14 @@
 import SwiftUI
 import BuddyDomain
 
-struct TaxiChatGeneralMessage: View {
+struct ChatGeneralMessage: View {
   let authorName: String?
   let type: TaxiChat.ChatType
 
   var body: some View {
-    Group {
+    HStack {
+      Spacer()
+
       switch type {
       case .entrance:
         Text("\(authorName ?? "unknown") has joined")
@@ -22,14 +24,11 @@ struct TaxiChatGeneralMessage: View {
       default:
         EmptyView()
       }
+
+      Spacer()
     }
     .foregroundStyle(.secondary)
     .fontWeight(.medium)
     .font(.footnote)
   }
-}
-
-#Preview {
-  TaxiChatGeneralMessage(authorName: "testuser", type: .entrance)
-  TaxiChatGeneralMessage(authorName: "testuser", type: .exit)
 }

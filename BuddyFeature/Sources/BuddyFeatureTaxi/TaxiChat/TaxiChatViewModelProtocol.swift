@@ -13,10 +13,12 @@ import BuddyDomain
 protocol TaxiChatViewModelProtocol: Observable {
   // MARK: - ViewModel Properties
   var state: TaxiChatViewModel.ViewState { get }
-  var groupedChats: [TaxiChatGroup] { get }
+  var renderItems: [ChatRenderItem] { get }
   var taxiUser: TaxiUser? { get }
   var room: TaxiRoom { get }
   var isUploading: Bool { get }
+
+  var scrollToBottomTrigger: Int { get }
 
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
@@ -38,5 +40,4 @@ protocol TaxiChatViewModelProtocol: Observable {
   func commitSettlement()
   func commitPayment()
   func sendImage(_ image: UIImage) async throws
-  func hasBadge(authorID: String?) -> Bool
 }

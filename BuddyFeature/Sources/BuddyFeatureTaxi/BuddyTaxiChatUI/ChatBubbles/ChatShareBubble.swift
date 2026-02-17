@@ -1,5 +1,5 @@
 //
-//  TaxiChatShareBubble.swift
+//  ChatShareBubble.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 01/08/2025.
@@ -8,7 +8,7 @@
 import SwiftUI
 import BuddyDomain
 
-struct TaxiChatShareBubble: View {
+struct ChatShareBubble: View {
   let room: TaxiRoom
 
   var body: some View {
@@ -26,18 +26,18 @@ struct TaxiChatShareBubble: View {
   }
 }
 
-#Preview {
-  TaxiChatUserWrapper(
-    authorID: nil,
-    authorName: nil,
-    authorProfileImageURL: nil,
-    date: Date(),
-    isMe: false,
-    isGeneral: false,
-    isWithdrawn: false,
-    badge: true
-  ) {
-    TaxiChatShareBubble(room: TaxiRoom.mock)
-  }
-  .padding()
-}
+//#Preview {
+//  TaxiChatUserWrapper(
+//    authorID: nil,
+//    authorName: nil,
+//    authorProfileImageURL: nil,
+//    date: Date(),
+//    isMe: false,
+//    isGeneral: false,
+//    isWithdrawn: false,
+//    badge: true
+//  ) {
+//    TaxiChatShareBubble(room: TaxiRoom.mock)
+//  }
+//  .padding()
+//}

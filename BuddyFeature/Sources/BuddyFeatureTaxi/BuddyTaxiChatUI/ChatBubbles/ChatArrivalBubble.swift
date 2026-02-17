@@ -1,5 +1,5 @@
 //
-//  TaxiArrivalBubble.swift
+//  ChatArrivalBubble.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 18/07/2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TaxiArrivalBubble: View {
+struct ChatArrivalBubble: View {
   var body: some View {
     Text("There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment.")
       .padding(12)
@@ -15,18 +15,18 @@ struct TaxiArrivalBubble: View {
   }
 }
 
-#Preview {
-  TaxiChatUserWrapper(
-    authorID: nil,
-    authorName: nil,
-    authorProfileImageURL: nil,
-    date: Date(),
-    isMe: false,
-    isGeneral: false,
-    isWithdrawn: false,
-    badge: true
-  ) {
-    TaxiArrivalBubble()
-  }
-  .padding()
-}
+//#Preview {
+//  TaxiChatUserWrapper(
+//    authorID: nil,
+//    authorName: nil,
+//    authorProfileImageURL: nil,
+//    date: Date(),
+//    isMe: false,
+//    isGeneral: false,
+//    isWithdrawn: false,
+//    badge: true
+//  ) {
+//    TaxiArrivalBubble()
+//  }
+//  .padding()
+//}

@@ -4,6 +4,9 @@
     "" : {
       "shouldTranslate" : false
     },
+    "%@" : {
+
+    },
     "%@ → %@" : {
       "localizations" : {
         "en-GB" : {
@@ -784,6 +787,9 @@
           }
         }
       }
+    },
+    "not supported" : {
+
     },
     "Notice" : {
       "localizations" : {

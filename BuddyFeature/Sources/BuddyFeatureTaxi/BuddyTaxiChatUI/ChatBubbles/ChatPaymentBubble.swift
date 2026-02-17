@@ -1,5 +1,5 @@
 //
-//  TaxiChatPaymentBubble.swift
+//  ChatPaymentBubble.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 25/07/2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TaxiChatPaymentBubble: View {
+struct ChatPaymentBubble: View {
   var body: some View {
     Label("I sent the money!", systemImage: "paperplane.fill")
       .padding(12)
@@ -24,18 +24,18 @@ struct TaxiChatPaymentBubble: View {
   }
 }
 
-#Preview {
-  TaxiChatUserWrapper(
-    authorID: nil,
-    authorName: nil,
-    authorProfileImageURL: nil,
-    date: Date(),
-    isMe: false,
-    isGeneral: false,
-    isWithdrawn: false,
-    badge: true
-  ) {
-    TaxiChatPaymentBubble()
-  }
-  .padding()
-}
+//#Preview {
+//  TaxiChatUserWrapper(
+//    authorID: nil,
+//    authorName: nil,
+//    authorProfileImageURL: nil,
+//    date: Date(),
+//    isMe: false,
+//    isGeneral: false,
+//    isWithdrawn: false,
+//    badge: true
+//  ) {
+//    TaxiChatPaymentBubble()
+//  }
+//  .padding()
+//}

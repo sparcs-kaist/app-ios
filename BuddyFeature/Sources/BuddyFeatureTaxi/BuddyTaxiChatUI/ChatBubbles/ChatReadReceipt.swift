@@ -1,5 +1,5 @@
 //
-//  TaxiChatReadReceipt.swift
+//  ChatReadReceipt.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 14/02/2026.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct TaxiChatReadReceipt: View {
+struct ChatReadReceipt: View {
   let readCount: Int
-  let showTimeLabel: Bool
-  let time: String
+  let showTime: Bool
+  let time: Date
   let alignment: HorizontalAlignment
 
   var body: some View {
@@ -20,8 +20,8 @@ struct TaxiChatReadReceipt: View {
           .font(.caption2)
       }
 
-      if showTimeLabel {
-        Text(time)
+      if showTime {
+        Text(time, style: .time)
           .font(.caption2)
           .foregroundStyle(.secondary)
       }

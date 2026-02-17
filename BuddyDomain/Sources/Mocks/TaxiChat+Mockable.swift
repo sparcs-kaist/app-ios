@@ -46,7 +46,33 @@ public extension TaxiChat {
         isValid: true,
         inOutNames: []
       ),
-      
+
+      TaxiChat(
+        roomID: roomID,
+        type: .text,
+        authorID: "user1",
+        authorName: "Alice",
+        authorProfileURL: URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/NupjukOTL.png"),
+        authorIsWithdrew: false,
+        content: "hello?",
+        time: baseDate.addingTimeInterval(-3500),
+        isValid: true,
+        inOutNames: []
+      ),
+
+      TaxiChat(
+        roomID: roomID,
+        type: .text,
+        authorID: "user1",
+        authorName: "Alice",
+        authorProfileURL: URL(string: "https://sparcs-taxi-dev.s3.ap-northeast-2.amazonaws.com/profile-img/default/NupjukOTL.png"),
+        authorIsWithdrew: false,
+        content: "this is a test message",
+        time: baseDate.addingTimeInterval(-3430),
+        isValid: true,
+        inOutNames: []
+      ),
+
       // Bob enters
       TaxiChat(
         roomID: roomID,
@@ -272,109 +298,3 @@ public extension TaxiChat {
     ]
   }
 }
-
-extension TaxiChatGroup: Mockable { }
-
-public extension TaxiChatGroup {
-  static var mock: TaxiChatGroup {
-    mockList[0]
-  }
-  
-  static var mockList: [TaxiChatGroup] {
-    let chats = TaxiChat.mockList
-    let currentUserID = "user1" // Alice is current user
-    
-    // Group chats by time and author (simplified grouping logic)
-    var groups: [TaxiChatGroup] = []
-    var currentGroup: [TaxiChat] = []
-    let calendar = Calendar.current
-    
-    for chat in chats {
-      if chat.type == .entrance || chat.type == .exit {
-        // Flush current group if any
-        if !currentGroup.isEmpty {
-          let time = currentGroup.first?.time ?? Date()
-          let isMe = currentGroup.first?.authorID == currentUserID
-          groups.append(TaxiChatGroup(
-            id: time.toISO8601,
-            chats: currentGroup,
-            lastChatID: currentGroup.last?.id,
-            authorID: currentGroup.first?.authorID,
-            authorName: currentGroup.first?.authorName,
-            authorProfileURL: currentGroup.first?.authorProfileURL,
-            authorIsWithdrew: currentGroup.first?.authorIsWithdrew,
-            time: time,
-            isMe: isMe,
-            isGeneral: false
-          ))
-          currentGroup = []
-        }
-        
-        // Add general message group
-        groups.append(TaxiChatGroup(
-          id: chat.time.toISO8601,
-          chats: [chat],
-          lastChatID: nil,
-          authorID: chat.authorID,
-          authorName: chat.authorName,
-          authorProfileURL: chat.authorProfileURL,
-          authorIsWithdrew: chat.authorIsWithdrew,
-          time: chat.time,
-          isMe: chat.authorID == currentUserID,
-          isGeneral: true
-        ))
-        continue
-      }
-      
-      if currentGroup.isEmpty {
-        currentGroup.append(chat)
-        continue
-      }
-      
-      let lastChat = currentGroup.last!
-      let isSameAuthor = chat.authorID == lastChat.authorID
-      let isSameMinute = calendar.isDate(chat.time, equalTo: lastChat.time, toGranularity: .minute)
-      
-      if isSameAuthor && isSameMinute {
-        currentGroup.append(chat)
-      } else {
-        // Flush current group
-        let time = currentGroup.first?.time ?? Date()
-        let isMe = currentGroup.first?.authorID == currentUserID
-        groups.append(TaxiChatGroup(
-          id: time.toISO8601,
-          chats: currentGroup,
-          lastChatID: currentGroup.last?.id,
-          authorID: currentGroup.first?.authorID,
-          authorName: currentGroup.first?.authorName,
-          authorProfileURL: currentGroup.first?.authorProfileURL,
-          authorIsWithdrew: currentGroup.first?.authorIsWithdrew,
-          time: time,
-          isMe: isMe,
-          isGeneral: false
-        ))
-        currentGroup = [chat]
-      }
-    }
-    
-    // Flush remaining group
-    if !currentGroup.isEmpty {
-      let time = currentGroup.first?.time ?? Date()
-      let isMe = currentGroup.first?.authorID == currentUserID
-      groups.append(TaxiChatGroup(
-        id: time.toISO8601,
-        chats: currentGroup,
-        lastChatID: currentGroup.last?.id,
-        authorID: currentGroup.first?.authorID,
-        authorName: currentGroup.first?.authorName,
-        authorProfileURL: currentGroup.first?.authorProfileURL,
-        authorIsWithdrew: currentGroup.first?.authorIsWithdrew,
-        time: time,
-        isMe: isMe,
-        isGeneral: false
-      ))
-    }
-    
-    return groups
-  }
-} 

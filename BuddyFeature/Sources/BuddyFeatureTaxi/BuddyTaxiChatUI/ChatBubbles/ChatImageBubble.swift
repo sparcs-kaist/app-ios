@@ -1,5 +1,5 @@
 //
-//  TaxiChatImageBubble.swift
+//  ChatImageBubble.swift
 //  soap
 //
 //  Created by Soongyu Kwon on 28/07/2025.
@@ -10,7 +10,7 @@ import NukeUI
 import Playgrounds
 import BuddyDomain
 
-struct TaxiChatImageBubble: View {
+struct ChatImageBubble: View {
   let id: String
 
   var body: some View {
@@ -19,7 +19,7 @@ struct TaxiChatImageBubble: View {
         image
           .resizable()
           .scaledToFit()
-          .frame(maxHeight: 360)
+          .frame(maxHeight: 240)
           .clipShape(.rect(cornerRadius: 24))
       } else {
         RoundedRectangle(cornerRadius: 24)
@@ -32,18 +32,18 @@ struct TaxiChatImageBubble: View {
   }
 }
 
-#Preview {
-  TaxiChatUserWrapper(
-    authorID: nil,
-    authorName: nil,
-    authorProfileImageURL: nil,
-    date: Date(),
-    isMe: false,
-    isGeneral: false,
-    isWithdrawn: false,
-    badge: true
-  ) {
-    TaxiChatImageBubble(id: "688714fb95fce20ddc8f19da")
-  }
-  .padding()
-}
+//#Preview {
+//  TaxiChatUserWrapper(
+//    authorID: nil,
+//    authorName: nil,
+//    authorProfileImageURL: nil,
+//    date: Date(),
+//    isMe: false,
+//    isGeneral: false,
+//    isWithdrawn: false,
+//    badge: true
+//  ) {
+//    TaxiChatImageBubble(id: "688714fb95fce20ddc8f19da")
+//  }
+//  .padding()
+//}

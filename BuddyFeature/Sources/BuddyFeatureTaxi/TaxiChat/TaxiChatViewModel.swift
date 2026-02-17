@@ -16,14 +16,16 @@ import BuddyDomain
 class TaxiChatViewModel: TaxiChatViewModelProtocol {
   enum ViewState {
     case loading
-    case loaded(groupedChats: [TaxiChatGroup])
+    case loaded
     case error(message: String)
   }
   // MARK: - Properties
   var state: ViewState = .loading
-  var groupedChats: [TaxiChatGroup] = []
+  var renderItems: [ChatRenderItem] = []
   var taxiUser: TaxiUser?
   var isUploading: Bool = false
+
+  var scrollToBottomTrigger: Int = 0
 
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
@@ -34,7 +36,12 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   var room: TaxiRoom
   private var cancellables = Set<AnyCancellable>()
   private var isFetching: Bool = false
-  private var badgeByAuthorID: Dictionary<String, Bool>
+
+  private let renderItemBuilder = ChatRenderItemBuilder(
+    policy: TaxiGroupingPolicy(),
+    positionResolver: ChatBubblePositionResolver(),
+    presentationPolicy: DefaultMessagePresentationPolicy()
+  )
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -46,9 +53,6 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   // MARK: - Initialiser
   init(room: TaxiRoom) {
     self.room = room
-    badgeByAuthorID = Dictionary(uniqueKeysWithValues: room.participants.map {
-      ($0.id, $0.badge)
-    })
   }
 
   func setup() async {
@@ -56,6 +60,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     await fetchTaxiUser()
 
     taxiChatUseCase.setRoom(self.room)
+    taxiChatUseCase.reconnect()
 
     bind()
   }
@@ -69,20 +74,15 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   private func bind() {
     guard let taxiChatUseCase else { return }
 
-    taxiChatUseCase.groupedChatsPublisher
+    taxiChatUseCase.chatsPublisher
       .receive(on: DispatchQueue.main)
-      .sink { [weak self] groupedChats in
+      .sink { [weak self] chats in
         guard let self = self else { return }
-        self.groupedChats = groupedChats
-        self.groupedChats = self.groupedChats.map { groupedChat in
-          var newGroupedChat = groupedChat
-          
-          newGroupedChat.chats = groupedChat.chats.filter { $0.roomID == self.room.id }
-          return newGroupedChat
-        }
-        withAnimation(.spring) {
-          self.state = .loaded(groupedChats: self.groupedChats)
-        }
+        let filtered = chats.filter { $0.roomID == self.room.id }
+        let builtItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
+        self.renderItems = builtItems
+        print("[HERE] \(self.renderItems)")
+        self.state = .loaded
       }
       .store(in: &cancellables)
 
@@ -96,18 +96,18 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   func loadMoreChats() async {
-    guard let taxiChatUseCase,
-          !isFetching,
-          let oldestDate = groupedChats.first?.chats.first?.time,
-          !fetchedDateSet.contains(oldestDate) else { return }
-
-    topChatID = groupedChats.first?.id
-    fetchedDateSet.insert(oldestDate)
-
-    isFetching = true
-    defer { isFetching = false }
-
-    await taxiChatUseCase.fetchChats(before: oldestDate)
+//    guard let taxiChatUseCase,
+//          !isFetching,
+//          let oldestDate = groupedChats.first?.chats.first?.time,
+//          !fetchedDateSet.contains(oldestDate) else { return }
+//
+//    topChatID = groupedChats.first?.id
+//    fetchedDateSet.insert(oldestDate)
+//
+//    isFetching = true
+//    defer { isFetching = false }
+//
+//    await taxiChatUseCase.fetchChats(before: oldestDate)
   }
 
   func fetchInitialChats() async {
@@ -120,6 +120,8 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     guard let taxiChatUseCase else { return }
 
     if type == .text && message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return }
+
+    scrollToBottomTrigger += 1
 
     Task {
       await taxiChatUseCase.sendChat(message, type: type)
@@ -192,14 +194,11 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   func sendImage(_ image: UIImage) async throws {
     guard let taxiChatUseCase else { return }
 
+    scrollToBottomTrigger += 1
+
     isUploading = true
     defer { isUploading = false }
 
     try await taxiChatUseCase.sendImage(image)
-  }
-  
-  func hasBadge(authorID: String?) -> Bool {
-    guard let authorID else { return false }
-    return badgeByAuthorID[authorID] ?? false
   }
 }
