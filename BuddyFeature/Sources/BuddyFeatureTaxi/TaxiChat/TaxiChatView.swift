@@ -36,10 +36,16 @@ struct TaxiChatView: View {
     GeometryReader { reader in
       switch viewModel.state {
       case .loading:
-        ProgressView()
-//        chatListView(groups: Array(TaxiChatGroup.mockList.prefix(6)), isInteractive: false)
-//          .redacted(reason: .placeholder)
-//          .disabled(true)
+        ChatCollectionView(
+          items: Self.placeholderItems,
+          room: viewModel.room,
+          user: nil,
+          safeAreaInsets: reader.safeAreaInsets,
+          scrollToBottomTrigger: 0
+        )
+        .redacted(reason: .placeholder)
+        .disabled(true)
+        .ignoresSafeArea()
       case .loaded:
         ChatCollectionView(
           items: viewModel.renderItems,
@@ -203,6 +209,15 @@ struct TaxiChatView: View {
       }
     }
   }
+
+  private static let placeholderItems: [ChatRenderItem] = {
+    let builder = ChatRenderItemBuilder(
+      policy: TaxiGroupingPolicy(),
+      positionResolver: ChatBubblePositionResolver(),
+      presentationPolicy: DefaultMessagePresentationPolicy()
+    )
+    return builder.build(chats: TaxiChat.mockList, myUserID: nil)
+  }()
 
   private func errorView(errorMessage: String) -> some View {
     ContentUnavailableView(
