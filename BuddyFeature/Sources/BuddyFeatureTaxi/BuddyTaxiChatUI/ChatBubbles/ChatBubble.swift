@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 struct ChatBubble: View {
   let chat: TaxiChat
@@ -28,6 +29,16 @@ struct ChatBubble: View {
         )
       )
       .foregroundStyle(isMine ? .white : .primary)
+      .tint(isMine ? .white.opacity(0.8) : Color.accentColor)
+      .environment(\.openURL, OpenURLAction(handler: handleURL))
+      .sheet(item: $selectedURL) { url in
+        SafariViewWrapper(url: url)
+      }
+      .contextMenu {
+        Button("Copy", systemImage: "doc.on.doc") {
+          UIPasteboard.general.string = chat.content
+        }
+      }
   }
 
   private func handleURL(_ url: URL) -> OpenURLAction.Result {
