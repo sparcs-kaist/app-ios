@@ -58,11 +58,27 @@ struct ChatCollectionView: UIViewRepresentable {
 
     if shouldReload {
       collectionView.reloadData()
+
+      if !context.coordinator.hasInitialScroll {
+        context.coordinator.hasInitialScroll = true
+
+        DispatchQueue.main.async {
+          scrollToBottom(collectionView)
+        }
+      }
     }
   }
 
   func makeCoordinator() -> Coordinator {
     Coordinator(items: items, room: room, user: user)
+  }
+
+  private func scrollToBottom(_ collectionView: UICollectionView) {
+    let itemCount = collectionView.numberOfItems(inSection: 0)
+    guard itemCount > 0 else { return }
+
+    let indexPath = IndexPath(item: itemCount - 1, section: 0)
+    collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
   }
 
   private func layout() -> UICollectionViewLayout {
@@ -78,6 +94,8 @@ struct ChatCollectionView: UIViewRepresentable {
     var room: TaxiRoom
     var user: TaxiUser?
     var previousBottomInset: CGFloat = 0
+
+    var hasInitialScroll = false
 
     init(items: [ChatRenderItem], room: TaxiRoom, user: TaxiUser?) {
       self.items = items
