@@ -19,23 +19,19 @@ public actor AraCommentRepository: AraCommentRepositoryProtocol {
   }
 
   public func upvoteComment(commentID: Int) async throws {
-    let response = try await provider.request(.upvote(commentID: commentID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.upvote(commentID: commentID))
   }
 
   public func downvoteComment(commentID: Int) async throws {
-    let response = try await provider.request(.downvote(commentID: commentID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.downvote(commentID: commentID))
   }
 
   public func cancelVote(commentID: Int) async throws {
-    let response = try await provider.request(.cancelVote(commentID: commentID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.cancelVote(commentID: commentID))
   }
 
   public func writeComment(postID: Int, content: String) async throws -> AraPostComment {
     let response = try await provider.request(.post(postID: postID, content: content))
-    _ = try response.filterSuccessfulStatusCodes()
 
     let comment: AraPostComment = try response.map(AraPostCommentDTO.self).toModel()
 
@@ -46,7 +42,6 @@ public actor AraCommentRepository: AraCommentRepositoryProtocol {
     let response = try await provider.request(
       .postThreaded(commentID: commentID, content: content)
     )
-    _ = try response.filterSuccessfulStatusCodes()
 
     let comment: AraPostComment = try response.map(AraPostCommentDTO.self).toModel()
 
@@ -54,15 +49,13 @@ public actor AraCommentRepository: AraCommentRepositoryProtocol {
   }
 
   public func deleteComment(commentID: Int) async throws {
-    let response = try await provider.request(.delete(commentID: commentID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.delete(commentID: commentID))
   }
 
   public func editComment(commentID: Int, content: String) async throws -> AraPostComment {
     let response = try await provider.request(
       .patch(commentID: commentID, content: content)
     )
-    _ = try response.filterSuccessfulStatusCodes()
 
     let comment: AraPostComment = try response.map(AraPostCommentDTO.self).toModel()
 
@@ -70,7 +63,6 @@ public actor AraCommentRepository: AraCommentRepositoryProtocol {
   }
 
   public func reportComment(commentID: Int, type: AraContentReportType) async throws {
-    let response = try await provider.request(.report(commentID: commentID, type: type))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.report(commentID: commentID, type: type))
   }
 }

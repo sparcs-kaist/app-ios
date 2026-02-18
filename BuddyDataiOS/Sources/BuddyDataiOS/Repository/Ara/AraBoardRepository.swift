@@ -70,42 +70,34 @@ public actor AraBoardRepository: AraBoardRepositoryProtocol {
   }
 
   public func writePost(request: AraCreatePost) async throws {
-    let response = try await provider.request(.writePost(AraPostRequestDTO.fromModel(request)))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.writePost(AraPostRequestDTO.fromModel(request)))
   }
 
   public func upvotePost(postID: Int) async throws {
-    let response = try await provider.request(.upvote(postID: postID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.upvote(postID: postID))
   }
 
   public func downvotePost(postID: Int) async throws {
-    let response = try await provider.request(.downvote(postID: postID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.downvote(postID: postID))
   }
 
   public func cancelVote(postID: Int) async throws {
-    let response = try await provider.request(.cancelVote(postID: postID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.cancelVote(postID: postID))
   }
 
   public func reportPost(postID: Int, type: AraContentReportType) async throws {
-    let response = try await provider.request(.report(postID: postID, type: type))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.report(postID: postID, type: type))
   }
 
   public func deletePost(postID: Int) async throws {
-    let response = try await provider.request(.delete(postID: postID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.delete(postID: postID))
   }
   
   public func addBookmark(postID: Int) async throws {
-    let response = try await provider.request(.addBookmark(postId: postID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.addBookmark(postId: postID))
   }
   
   public func removeBookmark(bookmarkID: Int) async throws {
-    let response = try await provider.request(.removeBookmark(scrapId: bookmarkID))
-    _ = try response.filterSuccessfulStatusCodes()
+    _ = try await provider.request(.removeBookmark(scrapId: bookmarkID))
   }
 }

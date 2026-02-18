@@ -128,7 +128,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   }
 
   private func bind() {
-    guard let taxiChatRepository, let taxiRoomRepository, let userUseCase, let taxiChatService, let room else {
+    guard let taxiChatRepository, let taxiRoomRepository, let taxiChatService, let room else {
       return
     }
 
