@@ -60,7 +60,6 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     await fetchTaxiUser()
 
     taxiChatUseCase.setRoom(self.room)
-    taxiChatUseCase.reconnect()
 
     bind()
   }
