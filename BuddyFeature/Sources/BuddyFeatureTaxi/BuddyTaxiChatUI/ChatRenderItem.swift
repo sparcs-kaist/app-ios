@@ -160,6 +160,6 @@ struct ChatRenderItemBuilder {
     positionResolver: ChatBubblePositionResolver(),
     presentationPolicy: DefaultMessagePresentationPolicy()
   )
-  let items = builder.build(chats: mock, myUserID: "user2")
+  _ = builder.build(chats: mock, myUserID: "user2")
 }
 

@@ -27,10 +27,6 @@ public final class UserUseCase: UserUseCaseProtocol {
     self.araUserRepository = araUserRepository
     self.otlUserRepository = otlUserRepository
     self.userStorage = userStorage
-    print("Fetching Users")
-    Task {
-      await fetchUsers()
-    }
   }
 
   public var araUser: AraUser? {

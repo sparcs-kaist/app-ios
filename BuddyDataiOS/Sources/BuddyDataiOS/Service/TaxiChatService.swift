@@ -42,6 +42,9 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
     set { isConnectedSubject.send(newValue) }
   }
 
+  // MARK: - State
+  private var hasAttemptedReconnect: Bool = false
+
   // MARK: - Dependency
   private let tokenStorage: TokenStorageProtocol
   private let manager: SocketManager
@@ -95,11 +98,17 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
 
   private func setupSocketEvents() {
     socket.on(clientEvent: .connect) { _, _ in
+      self.hasAttemptedReconnect = false
       self.isConnected = true
     }
 
     socket.on(clientEvent: .disconnect) { _, _ in
       self.isConnected = false
+
+      if !self.hasAttemptedReconnect {
+        self.hasAttemptedReconnect = true
+        self.reconnect()
+      }
     }
 
     socket.on(clientEvent: .error) { data, _ in

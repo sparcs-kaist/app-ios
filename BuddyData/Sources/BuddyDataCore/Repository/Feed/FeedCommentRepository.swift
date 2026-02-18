@@ -44,18 +44,18 @@ public actor FeedCommentRepository: FeedCommentRepositoryProtocol {
   }
 
   public func deleteComment(commentID: String) async throws {
-    let response = try await provider.request(.delete(commentID: commentID))
+    _ = try await provider.request(.delete(commentID: commentID))
   }
 
   public func vote(commentID: String, type: FeedVoteType) async throws {
-    let response = try await provider.request(.vote(commentID: commentID, type: type))
+    _ = try await provider.request(.vote(commentID: commentID, type: type))
   }
 
   public func deleteVote(commentID: String) async throws {
-    let response = try await provider.request(.deleteVote(commentID: commentID))
+    _ = try await provider.request(.deleteVote(commentID: commentID))
   }
   
   public func reportComment(commentID: String, reason: FeedReportType, detail: String) async throws {
-    let response = try await provider.request(.reportComment(commentID: commentID, reason: reason.rawValue, detail: detail))
+    _ = try await provider.request(.reportComment(commentID: commentID, reason: reason.rawValue, detail: detail))
   }
 }

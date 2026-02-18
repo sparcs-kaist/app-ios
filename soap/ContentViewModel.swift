@@ -22,7 +22,6 @@ class ContentViewModel {
   private var lastCheckTime: Date?
 
   @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
-  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol?
   @ObservationIgnored @Injected(\.versionRepository) private var versionRepository: VersionRepositoryProtocol?
 
@@ -41,24 +40,11 @@ class ContentViewModel {
   
   func onActivation() async {
     isLoading = true
-    
+
     await checkUpdateIfNeeded()
     if isUpdateRequired { return }
-    await refreshAccessTokenIfNeeded()
-    
+
     isLoading = false
-  }
-
-  func refreshAccessTokenIfNeeded() async {
-    guard let authUseCase, let userUseCase else { return }
-
-    do {
-      // Avoid forcing refresh when token is still valid
-      try await authUseCase.refreshAccessToken(force: true)
-      await userUseCase.fetchUsers()
-    } catch {
-      logger.error(error)
-    }
   }
   
   func fetchTaxiLocations() async {
