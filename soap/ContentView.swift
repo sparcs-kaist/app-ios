@@ -29,11 +29,10 @@ struct ContentView: View {
       await viewModel.onActivation()
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-    .onChange(of: scenePhase) {
-      if scenePhase == .active {
-        Task {
-          await viewModel.onActivation()
-        }
+    .onChange(of: scenePhase) { oldPhase, newPhase in
+      guard newPhase == .active, oldPhase != .active else { return }
+      Task {
+        await viewModel.onActivation()
       }
     }
     .alert("Update Required", isPresented: $viewModel.isUpdateRequired, actions: {

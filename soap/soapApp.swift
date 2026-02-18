@@ -24,13 +24,15 @@ let logger = SwiftyBeaver.self
 class AppDelegate: NSObject, UIApplicationDelegate {
   // Keep a strong reference so it doesn't deallocate
   private let pushDelegate = PushDelegate()
+  @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
+  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
   ) -> Bool {
     FirebaseApp.configure()
-    
+
     // Firebase Crashlytics
     #if DEBUG
     Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
@@ -47,6 +49,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     // FCM
     Messaging.messaging().delegate = pushDelegate
+
+    // Refresh token and fetch users
+    Task {
+      try? await authUseCase?.refreshAccessToken(force: true)
+      await userUseCase?.fetchUsers()
+    }
 
     return true
   }
