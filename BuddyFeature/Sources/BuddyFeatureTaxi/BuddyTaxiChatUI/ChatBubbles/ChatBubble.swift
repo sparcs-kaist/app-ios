@@ -17,7 +17,7 @@ struct ChatBubble: View {
   @State private var selectedURL: URL?
 
   var body: some View {
-    Text(formattedContent)
+    Text(chat.content.toDetectedAttributedString())
       .padding(12)
       .background(
         isMine ? Color.accentColor : .secondarySystemBackground,
@@ -44,25 +44,6 @@ struct ChatBubble: View {
   private func handleURL(_ url: URL) -> OpenURLAction.Result {
     selectedURL = url
     return .handled
-  }
-
-  var formattedContent: String {
-    var newText = chat.content
-
-    guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
-      return chat.content
-    }
-
-    let matches = detector.matches(in: newText, options: [], range: NSRange(location: 0, length: newText.utf16.count))
-
-    for match in matches.reversed() {
-      guard let range = Range(match.range, in: newText) else { continue }
-      let urlString = String(newText[range])
-      let markdownLink = "[\(urlString)](\(urlString))"
-      newText.replaceSubrange(range, with: markdownLink)
-    }
-
-    return newText
   }
 }
 
