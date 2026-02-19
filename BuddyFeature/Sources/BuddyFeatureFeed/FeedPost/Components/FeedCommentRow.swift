@@ -162,10 +162,7 @@ struct FeedCommentRow: View {
           }
         }
       }
-      .environment(\.openURL, OpenURLAction { url in
-        safariSheetURL = url
-        return .handled
-      })
+      .environment(\.openURL, OpenURLAction(handler: handleURL))
 
     if canBeExpanded && !showFullContent && !comment.isDeleted {
       Button("more") {
@@ -204,6 +201,16 @@ struct FeedCommentRow: View {
     .transition(.blurReplace)
     .animation(.spring, value: comment)
     .frame(height: 20)
+  }
+
+  private func handleURL(_ url: URL) -> OpenURLAction.Result {
+    if let deepLink = DeepLink(url: url) {
+      NotificationCenter.default.post(name: .buddyInternalDeepLink, object: deepLink)
+      return .handled
+    }
+
+    safariSheetURL = url
+    return .handled
   }
 
   private let authorTag = LocalizedString(["en": "Author", "ko": "작성자"])

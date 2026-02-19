@@ -7,6 +7,10 @@
 
 import Foundation
 
+public extension Notification.Name {
+  static let buddyInternalDeepLink = Notification.Name("buddyInternalDeepLink")
+}
+
 public enum DeepLink {
   case taxiInvite(code: String)
   case araPost(id: Int)

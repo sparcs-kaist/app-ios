@@ -162,10 +162,7 @@ struct FeedPostRow: View {
           }
         }
       }
-      .environment(\.openURL, OpenURLAction { url in
-        safariSheetURL = url
-        return .handled
-      })
+      .environment(\.openURL, OpenURLAction(handler: handleURL))
     if canBeExpanded && !showFullContent {
       Button("more") {
         withAnimation {
@@ -201,6 +198,16 @@ struct FeedPostRow: View {
     }
     .padding(.horizontal)
     .padding(.top, 4)
+  }
+
+  private func handleURL(_ url: URL) -> OpenURLAction.Result {
+    if let deepLink = DeepLink(url: url) {
+      NotificationCenter.default.post(name: .buddyInternalDeepLink, object: deepLink)
+      return .handled
+    }
+
+    safariSheetURL = url
+    return .handled
   }
 }
 
