@@ -105,7 +105,7 @@ public extension String {
       let startIndex = attributedString.index(attributedString.startIndex, offsetByCharacters: range.lowerBound)
       let endIndex = attributedString.index(attributedString.startIndex, offsetByCharacters: range.upperBound)
       
-      if let url = match.url {
+      if let url = match.url, url.scheme == "http" || url.scheme == "https" {
         attributedString[startIndex..<endIndex].link = url
       }
     }
