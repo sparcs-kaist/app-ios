@@ -23,6 +23,7 @@ struct FeedCommentRow: View {
 
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
+  @State private var safariSheetURL: URL? = nil
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
@@ -48,6 +49,9 @@ struct FeedCommentRow: View {
         Text(viewModel.alertState?.message ?? "Unexpected Error")
       }
     )
+    .sheet(item: $safariSheetURL) { url in
+      SafariViewWrapper(url: url)
+    }
   }
 
   @ViewBuilder
@@ -140,7 +144,9 @@ struct FeedCommentRow: View {
 
   @ViewBuilder
   var content: some View {
-    Text(comment.isDeleted ? "This comment has been deleted." : comment.content)
+    Text(comment.isDeleted ?
+         "This comment has been deleted."
+         : comment.content.toDetectedAttributedString())
       .lineLimit(showFullContent ? nil : 3)
       .textSelection(.enabled)
       .foregroundStyle(comment.isDeleted ? .secondary : .primary)
@@ -156,6 +162,7 @@ struct FeedCommentRow: View {
           }
         }
       }
+      .environment(\.openURL, OpenURLAction(handler: handleURL))
 
     if canBeExpanded && !showFullContent && !comment.isDeleted {
       Button("more") {
@@ -194,6 +201,16 @@ struct FeedCommentRow: View {
     .transition(.blurReplace)
     .animation(.spring, value: comment)
     .frame(height: 20)
+  }
+
+  private func handleURL(_ url: URL) -> OpenURLAction.Result {
+    if let deepLink = DeepLink(url: url) {
+      NotificationCenter.default.post(name: .buddyInternalDeepLink, object: deepLink)
+      return .handled
+    }
+
+    safariSheetURL = url
+    return .handled
   }
 
   private let authorTag = LocalizedString(["en": "Author", "ko": "작성자"])

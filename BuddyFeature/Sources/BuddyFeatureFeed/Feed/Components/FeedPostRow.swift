@@ -24,6 +24,7 @@ struct FeedPostRow: View {
   @State private var showDeleteConfirmation: Bool = false
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
+  @State private var safariSheetURL: URL? = nil
 
   var body: some View {
     Group {
@@ -48,6 +49,9 @@ struct FeedPostRow: View {
         Text(viewModel.alertState?.message ?? "Unexpected Error")
       }
     )
+    .sheet(item: $safariSheetURL) { url in
+      SafariViewWrapper(url: url)
+    }
   }
 
   @ViewBuilder
@@ -145,7 +149,7 @@ struct FeedPostRow: View {
 
   @ViewBuilder
   var content: some View {
-    Text(post.content)
+    Text(post.content.toDetectedAttributedString())
       .textSelection(.enabled)
       .padding(.horizontal)
       .lineLimit(showFullContent ? nil : 5)
@@ -158,6 +162,7 @@ struct FeedPostRow: View {
           }
         }
       }
+      .environment(\.openURL, OpenURLAction(handler: handleURL))
     if canBeExpanded && !showFullContent {
       Button("more") {
         withAnimation {
@@ -193,6 +198,16 @@ struct FeedPostRow: View {
     }
     .padding(.horizontal)
     .padding(.top, 4)
+  }
+
+  private func handleURL(_ url: URL) -> OpenURLAction.Result {
+    if let deepLink = DeepLink(url: url) {
+      NotificationCenter.default.post(name: .buddyInternalDeepLink, object: deepLink)
+      return .handled
+    }
+
+    safariSheetURL = url
+    return .handled
   }
 }
 
@@ -234,6 +249,16 @@ struct FeedPostRow: View {
   @Previewable @State var spoilerContents = SpoilerContents()
   FeedPostRow(
     post: .constant(FeedPost.mockList[5]),
+    onPostDeleted: { _ in },
+    onComment: { }
+  )
+  .environment(spoilerContents)
+}
+
+#Preview("URL Content") {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  FeedPostRow(
+    post: .constant(FeedPost.mockList[8]),
     onPostDeleted: { _ in },
     onComment: { }
   )

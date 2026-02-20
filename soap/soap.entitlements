@@ -6,8 +6,8 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:taxi.sparcs.org/invite</string>
-		<string>applinks:newara.sparcs.org/post</string>
+		<string>applinks:$(TAXI_ASSOCIATED_DOMAIN)/invite</string>
+		<string>applinks:$(ARA_ASSOCIATED_DOMAIN)/post</string>
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>

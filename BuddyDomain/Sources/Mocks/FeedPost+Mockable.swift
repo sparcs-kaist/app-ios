@@ -250,6 +250,22 @@ public extension FeedPost {
             spoiler: false
           )
         ]
+      ),
+      FeedPost(
+        id: UUID().uuidString,
+        content: "이것은 URL이 포함된 게시글입니다.\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        isAnonymous: true,
+        isKaistIP: false,
+        authorName: "Anonymous",
+        nickname: nil,
+        profileImageURL: nil,
+        createdAt: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
+        commentCount: 0,
+        upvotes: 4,
+        downvotes: 3,
+        myVote: .down,
+        isAuthor: false,
+        images: []
       )
     ]
   }

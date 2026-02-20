@@ -50,18 +50,11 @@ struct MainView: View {
     .tabBarMinimizeBehavior(.onScrollDown)
     .onOpenURL { url in
       guard let deepLink = DeepLink(url: url) else { return }
-      switch deepLink {
-      case .taxiInvite(let code):
-        selectedTab = .taxi
-        Task {
-          await viewModel.resolveInvite(code: code)
-        }
-      case .araPost(let id):
-        selectedTab = .board
-        Task {
-          await viewModel.resolvePost(id: id)
-        }
-      }
+      handle(deepLink: deepLink)
+    }
+    .onReceive(NotificationCenter.default.publisher(for: .buddyInternalDeepLink)) { notification in
+      guard let deepLink = notification.object as? DeepLink else { return }
+      handle(deepLink: deepLink)
     }
     .sheet(item: $viewModel.invitedRoom) { room in
       TaxiPreviewView(room: room)
@@ -74,6 +67,21 @@ struct MainView: View {
       Text(viewModel.alertState?.message ?? "Unexpected Error")
     }
     .tabViewStyle(.tabBarOnly)
+  }
+
+  private func handle(deepLink: DeepLink) {
+    switch deepLink {
+    case .taxiInvite(let code):
+      selectedTab = .taxi
+      Task {
+        await viewModel.resolveInvite(code: code)
+      }
+    case .araPost(let id):
+      selectedTab = .board
+      Task {
+        await viewModel.resolvePost(id: id)
+      }
+    }
   }
 }
 
