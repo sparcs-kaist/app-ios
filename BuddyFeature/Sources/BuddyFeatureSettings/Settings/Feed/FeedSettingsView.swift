@@ -14,8 +14,6 @@ import BuddyPreviewSupport
 
 struct FeedSettingsView: View {
   @State private var viewModel: FeedSettingsViewModelProtocol
-  @State private var selectedProfileImageItem: PhotosPickerItem?
-  @State private var profileUIImage: UIImage?
   
   @Environment(\.dismiss) private var dismiss
   
@@ -41,13 +39,6 @@ struct FeedSettingsView: View {
     }
     .navigationTitle("Feed")
     .navigationBarBackButtonHidden(viewModel.isUpdatingProfile)
-    .onChange(of: selectedProfileImageItem) {
-      Task {
-        guard let imageData = try? await selectedProfileImageItem?.loadTransferable(type: Data.self), let uiImage = UIImage(data: imageData) else { return }
-        profileUIImage = uiImage
-        await viewModel.setProfileImage(image: uiImage)
-      }
-    }
     .toolbar {
       ToolbarItem(placement: .confirmationAction, content: {
         Button(role: .confirm, action: {
@@ -87,7 +78,7 @@ struct FeedSettingsView: View {
         .frame(width: 200, height: 200)
         .overlay(alignment: .bottomTrailing) {
           PhotosPicker(
-            selection: $selectedProfileImageItem,
+            selection: $viewModel.selectedProfileImageItem,
             matching: .images
           ) {
             Image(systemName: "pencil.circle.fill")
@@ -135,28 +126,38 @@ struct FeedSettingsView: View {
       }
   }
   
-  @ViewBuilder
   private var profileImage: some View {
     Group {
-      if viewModel.profileImageState == .removed {
+      switch viewModel.profileImageState {
+      case .noChange:
+        lazyProfileImage
+      case .removed:
         placeholderImage
-      } else if let profileUIImage {
-        Image(uiImage: profileUIImage)
+      case .updated(let uiImage):
+        Image(uiImage: uiImage)
           .resizable()
-      } else if let imageURL = viewModel.profileImageURL {
-        LazyImage(url: imageURL) { state in
-          if let image = state.image {
-            image
-              .resizable()
-          } else {
-            ProgressView()
-          }
-        }
-      } else {
-        placeholderImage
+      case .loading:
+        ProgressView()
+      case .error:
+        Image(systemName: "exclamationmark.triangle.fill")
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+  }
+  
+  @ViewBuilder private var lazyProfileImage: some View {
+    if let imageURL = viewModel.profileImageURL {
+      LazyImage(url: imageURL) { state in
+        if let image = state.image {
+          image
+            .resizable()
+        } else {
+          ProgressView()
+        }
+      }
+    } else {
+      placeholderImage
+    }
   }
   
   private var editButtonEnabled: Bool {

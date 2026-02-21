@@ -5,8 +5,8 @@
 //  Created by 하정우 on 2/20/26.
 //
 
-import Foundation
-import Combine
+import SwiftUI
+import PhotosUI
 import Factory
 import BuddyDomain
 import UIKit
@@ -17,7 +17,14 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
   var nickname: String = ""
   var feedUser: FeedUser?
   var profileImageURL: URL?
-  var profileImageState: ProfileImageChange = .noChange
+  var profileImageState: FeedProfileImageState = .noChange
+  var selectedProfileImageItem: PhotosPickerItem? = nil {
+    didSet {
+      guard let selectedProfileImageItem else { return }
+      let progress = loadTransferable(from: selectedProfileImageItem)
+      profileImageState = .loading(progress: progress)
+    }
+  }
   var state: FeedViewState = .loaded
   var isUpdatingProfile: Bool = false
   
@@ -36,10 +43,7 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
     self.feedUser = feedUser
     nickname = feedUser.nickname
     profileImageURL = feedUser.profileImageURL
-  }
-  
-  func setProfileImage(image: UIImage) async {
-    profileImageState = .updated(image)
+    profileImageState = .noChange
   }
   
   func removeProfileImage() async {
@@ -52,12 +56,12 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
     defer { isUpdatingProfile = false }
     
     switch profileImageState {
-    case .noChange:
-      break
     case .updated(let image):
       try? await feedProfileUseCase?.updateProfileImage(image: image)
     case .removed:
       try? await feedProfileUseCase?.updateProfileImage(image: nil)
+    default:
+      break
     }
     
     if await userUseCase?.feedUser?.nickname != nickname {
@@ -65,5 +69,24 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
     }
     
     await fetchUser()
+  }
+  
+  private func loadTransferable(from selectedImage: PhotosPickerItem) -> Progress {
+    return selectedImage.loadTransferable(type: Data.self) { result in
+      Task { @MainActor in
+        guard selectedImage == self.selectedProfileImageItem else { return }
+        
+        switch result {
+        case .success(let imageData?):
+          if let uiImage = UIImage(data: imageData) {
+            self.profileImageState = .updated(image: uiImage)
+          }
+        case .success(nil):
+          self.profileImageState = .noChange
+        case .failure(let error):
+          self.profileImageState = .error(message: error.localizedDescription)
+        }
+      }
+    }
   }
 }
