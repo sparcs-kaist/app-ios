@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 import BuddyDomain
 import BuddyFeatureShared
+import FirebaseAnalytics
 
 public struct TaxiPreviewView: View {
   let room: TaxiRoom
@@ -141,6 +142,7 @@ public struct TaxiPreviewView: View {
       Text(errorMessage)
     })
     .ignoresSafeArea()
+    .analyticsScreen(name: "Taxi Preview", class: String(describing: Self.self))
   }
   
   private var isJoinButtonDisabled: Bool {

@@ -13,6 +13,7 @@ import UserNotifications
 import Factory
 import BuddyDomain
 import AppIntents
+import FirebaseAnalytics
 
 #if DEBUG
 import FirebaseCrashlytics
@@ -37,6 +38,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     #if DEBUG
     Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
     #endif
+
+    Analytics.setAnalyticsCollectionEnabled(true)
 
     // Ask permission
     let center = UNUserNotificationCenter.current()

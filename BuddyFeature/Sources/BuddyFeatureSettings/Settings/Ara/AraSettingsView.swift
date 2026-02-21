@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct AraSettingsView: View {
   @State private var vm: AraSettingsViewModelProtocol
@@ -48,6 +49,7 @@ struct AraSettingsView: View {
       Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?")
     }
     .navigationTitle("Ara")
+    .analyticsScreen(name: "Ara Settings", class: String(describing: Self.self))
   }
   
   private var loadingView: some View {

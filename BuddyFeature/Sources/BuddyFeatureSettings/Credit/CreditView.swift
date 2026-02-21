@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 struct CreditView: View {
   private let credits: String = """
@@ -45,6 +46,7 @@ struct CreditView: View {
       .padding()
     }
     .navigationTitle("Acknowledgements")
+    .analyticsScreen(name: "Credit", class: String(describing: Self.self))
   }
 }
 

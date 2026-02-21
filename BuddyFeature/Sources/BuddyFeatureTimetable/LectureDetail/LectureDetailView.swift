@@ -8,6 +8,7 @@
 import SwiftUI
 import Factory
 import BuddyDomain
+import FirebaseAnalytics
 
 struct LectureDetailView: View {
   let lecture: Lecture
@@ -78,6 +79,7 @@ struct LectureDetailView: View {
       })
       .presentationDragIndicator(.visible)
     }
+    .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
   }
 
   var lectureReviews: some View {

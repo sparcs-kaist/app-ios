@@ -9,6 +9,7 @@ import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
 import Haptica
+import FirebaseAnalytics
 
 public struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
@@ -153,6 +154,7 @@ public struct TaxiListView: View {
     .refreshable {
       await viewModel.fetchData()
     }
+    .analyticsScreen(name: "Taxi List", class: String(describing: Self.self))
   }
 
 

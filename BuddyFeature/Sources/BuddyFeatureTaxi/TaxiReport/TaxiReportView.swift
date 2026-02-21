@@ -9,6 +9,7 @@ import SwiftUI
 import NukeUI
 import Factory
 import BuddyDomain
+import FirebaseAnalytics
 
 struct TaxiReportView: View {
   var room: TaxiRoom
@@ -117,6 +118,7 @@ struct TaxiReportView: View {
     }, message: {
       Text(alertContent)
     })
+    .analyticsScreen(name: "Taxi Report", class: String(describing: Self.self))
   }
   
   var isValid: Bool {

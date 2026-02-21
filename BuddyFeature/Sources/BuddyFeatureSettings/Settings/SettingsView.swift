@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 public struct SettingsView: View {
   @Environment(\.openURL) private var openURL
@@ -69,6 +70,7 @@ public struct SettingsView: View {
         CreditView()
       }
     }
+    .analyticsScreen(name: "Settings", class: String(describing: Self.self))
   }
   
   private var appSettings: some View {

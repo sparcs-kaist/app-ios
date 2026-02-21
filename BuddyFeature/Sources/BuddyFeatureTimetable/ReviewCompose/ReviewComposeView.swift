@@ -8,6 +8,7 @@
 import SwiftUI
 import Factory
 import BuddyDomain
+import FirebaseAnalytics
 
 struct ReviewComposeView: View {
   let lecture: Lecture
@@ -122,6 +123,7 @@ struct ReviewComposeView: View {
         Text("There was an error. Please try again later.")
       })
     }
+    .analyticsScreen(name: "Review Compose", class: String(describing: Self.self))
   }
 }
 

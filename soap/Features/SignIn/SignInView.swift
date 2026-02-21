@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct SignInView: View {
   @State private var viewModel = SignInViewModel()
@@ -79,6 +80,7 @@ struct SignInView: View {
     }, message: {
       Text(errorMessage)
     })
+    .analyticsScreen(name: "Sign In", class: String(describing: Self.self))
   }
 }
 

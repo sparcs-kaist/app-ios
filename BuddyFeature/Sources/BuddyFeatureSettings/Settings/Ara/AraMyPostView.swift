@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct AraMyPostView: View {
   @State private var vm: AraMyPostViewModelProtocol
@@ -18,12 +19,15 @@ struct AraMyPostView: View {
   }
   
   var body: some View {
-    switch vm.type {
-    case .all:
-      myPostView
-    case .bookmark:
-      bookmarkedPostView
+    Group {
+      switch vm.type {
+      case .all:
+        myPostView
+      case .bookmark:
+        bookmarkedPostView
+      }
     }
+    .analyticsScreen(name: "Ara My Post", class: String(describing: Self.self))
   }
   
   private var myPostView: some View {

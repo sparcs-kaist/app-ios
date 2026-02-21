@@ -39,7 +39,11 @@ let package = Package(
             dependencies: [
               "BuddyDomain",
               "Haptica",
-              "BuddyFeatureShared"
+              "BuddyFeatureShared",
+              .product(
+                name: "FirebaseAnalytics",
+                package: "firebase-ios-sdk"
+              ),
             ]
         ),
         .target(
@@ -62,7 +66,11 @@ let package = Package(
           dependencies: [
             "BuddyDomain",
             "Haptica",
-            "BuddyFeatureShared"
+            "BuddyFeatureShared",
+            .product(
+              name: "FirebaseAnalytics",
+              package: "firebase-ios-sdk"
+            ),
           ]
         ),
         .target(
@@ -87,6 +95,10 @@ let package = Package(
             "Haptica",
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
+            .product(
+              name: "FirebaseAnalytics",
+              package: "firebase-ios-sdk"
+            ),
           ]
         ),
         .target(
@@ -97,13 +109,21 @@ let package = Package(
             "BuddyFeatureTimetable",
             "BuddyFeaturePost",
             "BuddyFeatureTaxi",
+            .product(
+              name: "FirebaseAnalytics",
+              package: "firebase-ios-sdk"
+            ),
           ]
         ),
         .target(
           name: "BuddyFeatureShared",
           dependencies: [
             "Haptica",
-            "BuddyDomain"
+            "BuddyDomain",
+            .product(
+              name: "FirebaseAnalytics",
+              package: "firebase-ios-sdk"
+            ),
           ]
         ),
         .testTarget(
