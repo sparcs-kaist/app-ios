@@ -67,6 +67,7 @@ let package = Package(
             "BuddyDomain",
             "Haptica",
             "BuddyFeatureShared",
+            "BuddyFeaturePost",
             .product(
               name: "FirebaseAnalytics",
               package: "firebase-ios-sdk"
