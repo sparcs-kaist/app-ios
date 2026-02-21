@@ -34,7 +34,7 @@ public struct TaxiPreviewView: View {
           systemImage: "location.fill",
           coordinate: room.source.coordinate
         )
-        .tint(Color.accentColor)
+        .tint(.indigo)
 
         Marker(room.destination.title.localized(), coordinate: room.destination.coordinate)
 
@@ -46,7 +46,7 @@ public struct TaxiPreviewView: View {
           )
 
           MapPolyline(route.polyline)
-            .stroke(Color.accentColor, style: strokeStyle)
+            .stroke(.indigo, style: strokeStyle)
         }
       }
       .disabled(true)
