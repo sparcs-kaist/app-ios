@@ -10,8 +10,8 @@ import NukeUI
 import WebKit
 import BuddyDomain
 import Haptica
-import BuddyFeatureShared
 import FirebaseAnalytics
+import BuddyFeatureShared
 
 public struct PostView: View {
   @State private var viewModel: PostViewModelProtocol

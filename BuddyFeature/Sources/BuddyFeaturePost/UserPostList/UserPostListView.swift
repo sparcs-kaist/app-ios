@@ -10,6 +10,7 @@ import Observation
 import BuddyDomain
 import BuddyPreviewSupport
 import FirebaseAnalytics
+import BuddyFeatureShared
 
 struct UserPostListView: View {
   @State private var viewModel: UserPostListViewModelProtocol

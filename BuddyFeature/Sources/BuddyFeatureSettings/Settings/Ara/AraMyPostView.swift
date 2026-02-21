@@ -8,6 +8,8 @@
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
+import BuddyFeatureShared
+import BuddyFeaturePost
 
 struct AraMyPostView: View {
   @State private var vm: AraMyPostViewModelProtocol
@@ -73,30 +75,26 @@ struct AraMyPostView: View {
   }
   
   private var loadingView: some View {
-    EmptyView()
-    // TODO: - FIX THIS
-//    PostList(posts: AraPost.mockList, destination: { _ in EmptyView()})
-//      .redacted(reason: .placeholder)
+    PostList(posts: AraPost.mockList, destination: { _ in EmptyView()})
+      .redacted(reason: .placeholder)
   }
   
   private var loadedView: some View {
-    EmptyView()
-    // TODO: - FIX THIS 
-//    PostList(
-//      posts: vm.posts,
-//      destination: { post in
-//        PostView(post: post)
-//          .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-//          .onDisappear() {
-//            vm.refreshItem(postID: post.id)
-//          }
-//      },
-//      onRefresh: {
-//        await vm.fetchInitialPosts()
-//      },
-//      onLoadMore: {
-//        await vm.loadNextPage()
-//      }
-//    )
+    PostList(
+      posts: vm.posts,
+      destination: { post in
+        PostView(post: post)
+          .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
+          .onDisappear() {
+            vm.refreshItem(postID: post.id)
+          }
+      },
+      onRefresh: {
+        await vm.fetchInitialPosts()
+      },
+      onLoadMore: {
+        await vm.loadNextPage()
+      }
+    )
   }
 }

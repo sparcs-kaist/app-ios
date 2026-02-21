@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "[%@]" : {
+      "shouldTranslate" : false
+    },
     "**Note:** May contain errors, please double-check facts." : {
       "localizations" : {
         "en" : {
@@ -19,6 +22,22 @@
     },
     "%lld" : {
       "shouldTranslate" : false
+    },
+    "%lld views" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld views"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "조회수 %lld"
+          }
+        }
+      }
     },
     "%lld/%lld" : {
       "localizations" : {
@@ -47,6 +66,22 @@
         }
       }
     },
+    "It looks like there are no posts on this page right now." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It looks like there are no posts on this page right now."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 이 페이지에 게시물이 존재하지 않습니다."
+          }
+        }
+      }
+    },
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus." : {
       "localizations" : {
         "en" : {
@@ -57,6 +92,22 @@
         }
       },
       "shouldTranslate" : false
+    },
+    "Nothing Here Yet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing Here Yet"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 아무것도 없습니다."
+          }
+        }
+      }
     },
     "Payment Required" : {
       "localizations" : {
@@ -166,6 +217,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약"
+          }
+        }
+      }
+    },
+    "This post contains NSFW content" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This post contains NSFW content"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 게시글은 성인 콘텐츠를 포함하고 있습니다."
+          }
+        }
+      }
+    },
+    "This post contains political content" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This post contains political content"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 게시글은 정치 콘텐츠를 포함하고 있습니다."
+          }
+        }
+      }
+    },
+    "This post is hidden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This post is hidden"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 게시글은 숨김 처리되었습니다."
+          }
+        }
+      }
+    },
+    "Untitled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Untitled"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목없음"
           }
         }
       }

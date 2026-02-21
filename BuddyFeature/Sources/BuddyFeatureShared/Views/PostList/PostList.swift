@@ -8,7 +8,7 @@
 import SwiftUI
 import BuddyDomain
 
-struct PostList<Destination: View>: View {
+public struct PostList<Destination: View>: View {
   let posts: [AraPost]?
   @ViewBuilder let destination: (AraPost) -> Destination
   var onRefresh: (() async -> Void)? = nil
@@ -16,7 +16,19 @@ struct PostList<Destination: View>: View {
 
   @State private var isLoadingMore: Bool = false
 
-  var body: some View {
+  public init(
+    posts: [AraPost]?,
+    @ViewBuilder destination: @escaping (AraPost) -> Destination,
+    onRefresh: (() async -> Void)? = nil,
+    onLoadMore: (() async -> Void)? = nil
+  ) {
+    self.posts = posts
+    self.destination = destination
+    self.onRefresh = onRefresh
+    self.onLoadMore = onLoadMore
+  }
+
+  public var body: some View {
     if let posts, posts.isEmpty {
       ContentUnavailableView(
         "Nothing Here Yet",
@@ -107,7 +119,7 @@ struct PostList<Destination: View>: View {
 
 #Preview("Loaded") {
   PostList(posts: AraPost.mockList, destination: { post in
-    PostView(post: post)
-      .id(post.id)
+//    PostView(post: post)
+//      .id(post.id)
   })
 }

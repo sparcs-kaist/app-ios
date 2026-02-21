@@ -4,9 +4,6 @@
     "" : {
       "shouldTranslate" : false
     },
-    "[%@]" : {
-      "shouldTranslate" : false
-    },
     "%@" : {
       "shouldTranslate" : false
     },
@@ -285,22 +282,6 @@
         }
       }
     },
-    "It looks like there are no posts on this page right now." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "It looks like there are no posts on this page right now."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "현재 이 페이지에 게시물이 존재하지 않습니다."
-          }
-        }
-      }
-    },
     "More" : {
       "localizations" : {
         "en" : {
@@ -345,22 +326,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "주제 없음"
-          }
-        }
-      }
-    },
-    "Nothing Here Yet" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nothing Here Yet"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "현재 표시할 내용이 없습니다."
           }
         }
       }
@@ -601,54 +566,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이용 약관"
-          }
-        }
-      }
-    },
-    "This post contains NSFW content" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This post contains NSFW content"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NSFW 게시글"
-          }
-        }
-      }
-    },
-    "This post contains political content" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This post contains political content"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "정치 게시글"
-          }
-        }
-      }
-    },
-    "This post is hidden" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This post is hidden"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "숨겨진 게시글"
           }
         }
       }
