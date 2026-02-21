@@ -38,7 +38,7 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
     case .fetchSemesters:
       "/api/semesters"
     case .fetchCurrentSemester:
-      "/api/semesters/current"
+      "/api/v2/semesters/current"
     }
   }
 
