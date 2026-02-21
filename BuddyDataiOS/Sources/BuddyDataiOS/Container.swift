@@ -200,7 +200,8 @@ extension Container: @retroactive AutoRegistering {
         otlUserRepository: self.otlUserRepository.resolve()
       )
       AuthRetryConfig.tokenRefresher = { [weak useCase] in
-        try await useCase?.refreshAccessToken(force: true)
+        guard let useCase else { throw NetworkError.unauthorized }
+        try await useCase.refreshAccessToken(force: true)
       }
       useCase.onTokenRefresh = { [weak self] in
         self?.taxiChatService.resolve()?.reconnect()
