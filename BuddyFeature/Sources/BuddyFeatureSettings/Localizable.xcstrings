@@ -12,6 +12,9 @@
       },
       "shouldTranslate" : false
     },
+    "😀" : {
+
+    },
     "Acknowledgements" : {
       "localizations" : {
         "en" : {
@@ -383,6 +386,9 @@
           }
         }
       }
+    },
+    "Feed" : {
+
     },
     "Force Crash" : {
       "localizations" : {

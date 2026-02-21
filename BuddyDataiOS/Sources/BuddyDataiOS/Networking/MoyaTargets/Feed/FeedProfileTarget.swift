@@ -43,11 +43,19 @@ extension FeedProfileTarget: TargetType, AccessTokenAuthorizable {
   public var task: Moya.Task {
     switch self {
     case .setProfileImage(let image):
-      .requestData(image)
+      let multipartData: [MultipartFormData] = [
+        MultipartFormData(
+          provider: .data(image), 
+          name: "file",
+          fileName: "image.jpg",
+          mimeType: "image/jpeg"
+        )
+      ]
+      return .uploadMultipart(multipartData)
     case .removeProfileImage:
-      .requestPlain
+      return .requestPlain
     case .updateNickname(let nickname):
-      .requestParameters(parameters: ["nickname": nickname], encoding: JSONEncoding.default)
+      return .requestParameters(parameters: ["nickname": nickname], encoding: JSONEncoding.default)
     }
   }
   
