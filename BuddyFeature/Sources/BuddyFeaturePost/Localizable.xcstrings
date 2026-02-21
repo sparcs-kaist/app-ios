@@ -269,31 +269,21 @@
         }
       }
     },
-    "Failed to delete a post. Please try again later." : {
-      "extractionState" : "stale",
+    "Failed to load boards." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to delete a post. Please try again later."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to delete a post. Please try again shortly."
+            "value" : "Failed to load boards."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "게시글 삭제를 실패했습니다. 나중에 다시 시도해 주세요."
+            "value" : "게시판 불러오기에 실패했습니다."
           }
         }
       }
-    },
-    "Failed to load boards." : {
-
     },
     "It looks like there are no posts on this page right now." : {
       "localizations" : {
@@ -680,16 +670,68 @@
       }
     },
     "Unable to delete post." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to delete post."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to fetch post." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to fetch post."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글을 불러올 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to submit report." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to submit report."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to write comment." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to write comment."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글을 작성할 수 없습니다."
+          }
+        }
+      }
     },
     "Untitled" : {
       "localizations" : {

@@ -321,7 +321,20 @@
       }
     },
     "Failed to encode toggle status" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to encode toggle status"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정을 불러오는 데 실패했습니다."
+          }
+        }
+      }
     },
     "Failed to load content" : {
       "localizations" : {
@@ -340,10 +353,36 @@
       }
     },
     "Failed to save toggle status" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to save toggle status"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정을 저장하는 데 실패했습니다."
+          }
+        }
+      }
     },
     "Failed to update toggle status" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to update toggle status"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정을 업데이트하는 데 실패했습니다."
+          }
+        }
+      }
     },
     "Force Crash" : {
       "localizations" : {
@@ -474,7 +513,20 @@
       }
     },
     "Notifications" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림"
+          }
+        }
+      }
     },
     "Okay" : {
       "localizations" : {

@@ -19,36 +19,85 @@
     },
     "%@ at %@" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ at %2$@"
+          }
+        },
         "en-GB" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ at %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@"
           }
         }
       }
     },
     "%lld day%@ ago" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld day%2$@ ago"
+          }
+        },
         "en-GB" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$lld day%2$@ ago"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld일 전"
           }
         }
       }
     },
     "%lld hour%@ ago" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld hour%2$@ ago"
+          }
+        },
         "en-GB" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$lld hour%2$@ ago"
           }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld시간 전"
+          }
         }
       }
     },
     "%lld min ago" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min ago"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld분 전"
+          }
+        }
+      }
     },
     "%lldh" : {
       "localizations" : {
@@ -137,7 +186,20 @@
       }
     },
     "An unexpected error occurred." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예기치 않은 오류가 발생했습니다."
+          }
+        }
+      }
     },
     "An unknown authentication error occurred." : {
       "localizations" : {
@@ -156,7 +218,15 @@
       }
     },
     "Ara" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ara"
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "Authentication was cancelled by the user." : {
       "localizations" : {
@@ -223,10 +293,36 @@
       }
     },
     "Cannot delete comment that has votes." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot delete comment that has votes."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추천이 있는 댓글은 삭제할 수 없습니다."
+          }
+        }
+      }
     },
     "Cannot delete post that has votes or comments." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot delete post that has votes or comments."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추천 또는 댓글이 있는 게시글은 삭제할 수 없습니다."
+          }
+        }
+      }
     },
     "Courses" : {
       "localizations" : {
@@ -293,7 +389,20 @@
       }
     },
     "Failed to compress image for upload." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to compress image for upload."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업로드를 위한 이미지 압축에 실패했습니다."
+          }
+        }
+      }
     },
     "Failed to exchange code for tokens: %@" : {
       "localizations" : {
@@ -344,7 +453,20 @@
       }
     },
     "Feed" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타임라인"
+          }
+        }
+      }
     },
     "Fri" : {
       "localizations" : {
@@ -443,7 +565,20 @@
       }
     },
     "just now" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "just now"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "방금 전"
+          }
+        }
+      }
     },
     "ME" : {
       "localizations" : {
@@ -510,7 +645,20 @@
       }
     },
     "No internet connection." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No internet connection."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인터넷 연결 없음."
+          }
+        }
+      }
     },
     "No refresh token available." : {
       "localizations" : {
@@ -577,7 +725,21 @@
       }
     },
     "OTL" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OTL"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OTL"
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "Posts" : {
       "localizations" : {
@@ -628,10 +790,36 @@
       }
     },
     "Request timed out." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request timed out."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청 시간이 초과되었습니다."
+          }
+        }
+      }
     },
     "Resources not found." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resources not found."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청한 리소스를 찾을 수 없습니다."
+          }
+        }
+      }
     },
     "Rides" : {
       "localizations" : {
@@ -672,10 +860,36 @@
       }
     },
     "Server error (%lld)." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server error (%lld)."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버 오류 (%lld)"
+          }
+        }
+      }
     },
     "Session expired. Please sign in again." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session expired. Please sign in again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세션이 만료되었습니다. 다시 로그인해 주세요."
+          }
+        }
+      }
     },
     "Sexually Explicit Content" : {
       "localizations" : {
@@ -806,7 +1020,15 @@
       }
     },
     "Taxi" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxi"
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "Thu" : {
       "localizations" : {
@@ -825,7 +1047,20 @@
       }
     },
     "Today at %@" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today at %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 %@"
+          }
+        }
+      }
     },
     "Token refresh failed: %@" : {
       "localizations" : {
@@ -844,7 +1079,20 @@
       }
     },
     "Tomorrow at %@" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tomorrow at %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내일 %@"
+          }
+        }
+      }
     },
     "Tue" : {
       "localizations" : {
@@ -879,7 +1127,20 @@
       }
     },
     "Unknown error occurred. Please try again." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown error occurred. Please try again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알 수 없는 오류가 발생했습니다. 다시 시도해 주세요."
+          }
+        }
+      }
     },
     "Wed" : {
       "localizations" : {
