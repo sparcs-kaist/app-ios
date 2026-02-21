@@ -16,6 +16,7 @@ public final class PreviewFeedSettingsViewModel: FeedSettingsViewModelProtocol {
   public var profileImageState: ProfileImageChange = .noChange
   public var feedUser: FeedUser?
   public var state: FeedViewState = .loaded
+  public var isUpdatingProfile: Bool = false
   
   public init() { }
   

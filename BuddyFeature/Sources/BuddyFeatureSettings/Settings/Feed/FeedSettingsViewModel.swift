@@ -19,6 +19,7 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
   var profileImageURL: URL?
   var profileImageState: ProfileImageChange = .noChange
   var state: FeedViewState = .loaded
+  var isUpdatingProfile: Bool = false
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
@@ -47,6 +48,9 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
   }
   
   func updateProfile() async {
+    isUpdatingProfile = true
+    defer { isUpdatingProfile = false }
+    
     switch profileImageState {
     case .noChange:
       break

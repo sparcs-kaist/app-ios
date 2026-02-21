@@ -35,10 +35,12 @@ struct FeedSettingsView: View {
         ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
+    .disabled(viewModel.isUpdatingProfile)
     .task {
       await viewModel.fetchUser()
     }
     .navigationTitle("Feed")
+    .navigationBarBackButtonHidden(viewModel.isUpdatingProfile)
     .onChange(of: selectedProfileImageItem) {
       Task {
         guard let imageData = try? await selectedProfileImageItem?.loadTransferable(type: Data.self), let uiImage = UIImage(data: imageData) else { return }
@@ -47,13 +49,21 @@ struct FeedSettingsView: View {
       }
     }
     .toolbar {
-      Button(role: .confirm) {
-        Task {
-          await viewModel.updateProfile()
-          dismiss()
-        }
-      }
-      .disabled(!editButtonEnabled)
+      ToolbarItem(placement: .confirmationAction, content: {
+        Button(role: .confirm, action: {
+          Task {
+            await viewModel.updateProfile()
+            dismiss()
+          }
+        }, label: {
+          if viewModel.isUpdatingProfile {
+            ProgressView()
+          } else {
+            Image(systemName: "checkmark")
+          }
+        })
+        .disabled(!editButtonEnabled || viewModel.isUpdatingProfile)
+      })
     }
   }
   
@@ -139,7 +149,7 @@ struct FeedSettingsView: View {
             image
               .resizable()
           } else {
-            placeholderImage
+            ProgressView()
           }
         }
       } else {

@@ -21,6 +21,7 @@ public protocol FeedSettingsViewModelProtocol: Observable {
   var profileImageState: ProfileImageChange { get set }
   var feedUser: FeedUser? { get }
   var state: FeedViewState { get }
+  var isUpdatingProfile: Bool { get }
   
   func fetchUser() async
   func setProfileImage(image: UIImage) async
