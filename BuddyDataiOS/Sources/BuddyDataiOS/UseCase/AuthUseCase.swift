@@ -5,7 +5,7 @@
 //  Created by Soongyu Kwon on 09/07/2025.
 //
 
-import Foundation
+import UIKit
 import Combine
 import Observation
 import BuddyDomain
@@ -27,8 +27,13 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   private var refreshTimer: Timer?
   // Coalesce concurrent refresh calls
   private var refreshTask: Task<Void, Error>?
+  // Cooldown: skip refresh attempts for 10s after a failure
+  private var lastRefreshFailure: Date?
+  private let refreshCooldown: TimeInterval = 10
   // Called after a successful token refresh
   public var onTokenRefresh: (() -> Void)?
+  // Foreground observer
+  private var foregroundObserver: (any NSObjectProtocol)?
 
   public init(
     authenticationService: AuthenticationServiceProtocol,
@@ -47,6 +52,27 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
     let hasRefreshToken = tokenStorage.getRefreshToken() != nil
     _isAuthenticatedSubject.value = hasValidAccessToken || hasRefreshToken
     scheduleRefreshTimer()
+    observeForeground()
+  }
+
+  deinit {
+    if let foregroundObserver {
+      NotificationCenter.default.removeObserver(foregroundObserver)
+    }
+  }
+
+  // MARK: - Foreground Refresh
+  private func observeForeground() {
+    foregroundObserver = NotificationCenter.default.addObserver(
+      forName: UIApplication.willEnterForegroundNotification,
+      object: nil,
+      queue: .main
+    ) { [weak self] _ in
+      Task { [weak self] in
+        guard let self, self._isAuthenticatedSubject.value else { return }
+        try? await self.refreshAccessToken(force: false)
+      }
+    }
   }
 
   // MARK: - Timer Scheduling
@@ -99,6 +125,14 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
       return
     }
 
+    // Skip if a refresh failed recently (cooldown to avoid rapid-fire retries)
+    if let lastFailure = lastRefreshFailure,
+       Date().timeIntervalSince(lastFailure) < refreshCooldown {
+      throw AuthUseCaseError.refreshFailed(
+        NSError(domain: "AuthUseCase", code: -1, userInfo: [NSLocalizedDescriptionKey: "Refresh on cooldown"])
+      )
+    }
+
     if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired(), !force {
       print("[AuthUseCase] Access token is still valid. No refresh needed.")
       scheduleRefreshTimer() // reset timer on valid
@@ -125,14 +159,20 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
         self.tokenStorage
           .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
         self._isAuthenticatedSubject.value = true
+        self.lastRefreshFailure = nil
         print("[AuthUseCase] Successfully refreshed access token.")
         self.scheduleRefreshTimer() // set timer on success
         self.onTokenRefresh?()
       } catch {
         print("[AuthUseCase] Token refresh failed. \(error.localizedDescription)")
-        // network error, do not remove tokens on decoding error. only when 401
-        let nsError = error as NSError
-        let isAuthError = nsError.domain == NSURLErrorDomain ? false : (nsError.code == 401)
+        self.lastRefreshFailure = Date()
+        // Only clear tokens on auth error (401), not on network/decoding errors
+        let isAuthError: Bool
+        if let networkError = error as? NetworkError, case .unauthorized = networkError {
+          isAuthError = true
+        } else {
+          isAuthError = false
+        }
         if isAuthError {
           self.tokenStorage.clearTokens()
           self._isAuthenticatedSubject.value = false

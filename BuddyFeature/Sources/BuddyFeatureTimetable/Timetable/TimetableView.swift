@@ -9,6 +9,7 @@ import SwiftUI
 import BuddyDomain
 import AppIntents
 import BuddyFeatureShared
+import FirebaseAnalytics
 
 public struct TimetableView: View {
   @State private var viewModel = TimetableViewModel()
@@ -108,6 +109,7 @@ public struct TimetableView: View {
     }, message: {
       Text(viewModel.alertMessage)
     })
+    .analyticsScreen(name: "Timetable", class: String(describing: Self.self))
   }
 }
 

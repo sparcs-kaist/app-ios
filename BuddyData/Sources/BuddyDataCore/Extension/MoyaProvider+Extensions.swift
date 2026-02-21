@@ -13,6 +13,7 @@ extension Response: @unchecked @retroactive Sendable {}
 
 public enum AuthRetryConfig {
   public nonisolated(unsafe) static var tokenRefresher: (@Sendable () async throws -> Void)?
+  nonisolated(unsafe) static var isRefreshing = false
 }
 
 public extension MoyaProvider {
@@ -20,10 +21,12 @@ public extension MoyaProvider {
     do {
       return try await _request(target)
     } catch NetworkError.unauthorized {
-      // Attempt token refresh and retry once
-      guard let refresher = AuthRetryConfig.tokenRefresher else {
+      // Skip retry if already inside a refresh call (prevents deadlock)
+      guard !AuthRetryConfig.isRefreshing, let refresher = AuthRetryConfig.tokenRefresher else {
         throw NetworkError.unauthorized
       }
+      AuthRetryConfig.isRefreshing = true
+      defer { AuthRetryConfig.isRefreshing = false }
       try await refresher()
       return try await _request(target)
     }

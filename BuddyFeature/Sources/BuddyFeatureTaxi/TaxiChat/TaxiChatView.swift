@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct TaxiChatView: View {
   @State private var viewModel: TaxiChatViewModelProtocol
@@ -160,6 +161,7 @@ struct TaxiChatView: View {
       await viewModel.setup()
       await viewModel.fetchInitialChats()
     }
+    .analyticsScreen(name: "Taxi Chat", class: String(describing: Self.self))
   }
 
   @ToolbarContentBuilder

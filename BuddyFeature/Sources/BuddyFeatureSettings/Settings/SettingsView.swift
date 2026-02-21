@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 public struct SettingsView: View {
   @Environment(\.openURL) private var openURL
@@ -69,11 +70,12 @@ public struct SettingsView: View {
         CreditView()
       }
     }
+    .analyticsScreen(name: "Settings", class: String(describing: Self.self))
   }
   
   private var appSettings: some View {
     Group {
-      NavigationLink("Notifications") { NotificationSettingsView() }
+//      NavigationLink("Notifications") { NotificationSettingsView() }
 
       Button("Change Language", systemImage: "globe") {
         if let url = URL(string: UIApplication.openSettingsURLString) {

@@ -179,34 +179,37 @@
         }
       }
     },
-    "Failed to delete a post. Please try again later." : {
-      "extractionState" : "stale",
+    "Failed to downvote" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to delete a post. Please try again shortly."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to delete a post. Please try again shortly."
+            "value" : "Failed to downvote"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "게시글 삭제를 실패했습니다. 나중에 다시 시도해 주세요."
+            "value" : "비추천에 실패했습니다."
           }
         }
       }
     },
-    "Failed to downvote" : {
-
-    },
     "Failed to upvote" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to upvote"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추천에 실패했습니다."
+          }
+        }
+      }
     },
     "Feed" : {
       "localizations" : {
@@ -433,19 +436,84 @@
       }
     },
     "Unable to delete comment." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to delete comment."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글을 삭제할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to delete post." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to delete post."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글을 삭제할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to submit report." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to submit report."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to write comment." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to write comment."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글을 작성할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to write post." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to write post."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글을 작성할 수 없습니다."
+          }
+        }
+      }
     },
     "What's happening?" : {
       "localizations" : {

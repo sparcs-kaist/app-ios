@@ -206,7 +206,20 @@
       }
     },
     "Invalid Invitation" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid Invitation"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "유효하지 않은 초대"
+          }
+        }
+      }
     },
     "Keep track of your classes." : {
       "localizations" : {
@@ -305,7 +318,20 @@
       }
     },
     "Post Not Found" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Post Not Found"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글 찾을 수 없음"
+          }
+        }
+      }
     },
     "Sponsored by" : {
       "localizations" : {
@@ -340,10 +366,36 @@
       }
     },
     "The link you followed is invalid. Please try again." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The link you followed is invalid. Please try again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "링크가 유효하지 않습니다. 다시 시도해 주세요."
+          }
+        }
+      }
     },
     "The post you are looking for could not be found." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The post you are looking for could not be found."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시글을 찾을 수 없습니다."
+          }
+        }
+      }
     },
     "There are no more classes today." : {
       "localizations" : {

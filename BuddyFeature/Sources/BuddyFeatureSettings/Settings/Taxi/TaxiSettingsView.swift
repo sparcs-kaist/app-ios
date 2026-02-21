@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
+import FirebaseAnalytics
 
 struct TaxiSettingsView: View {
   @State private var vm: TaxiSettingsViewModelProtocol
@@ -73,6 +74,7 @@ struct TaxiSettingsView: View {
     }, message: {
       Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber.formatPhoneNumber())")
     })
+    .analyticsScreen(name: "Taxi Settings", class: String(describing: Self.self))
   }
   
   @ViewBuilder

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 struct LectureSearchView: View {
   @Binding var detent: PresentationDetent
@@ -38,6 +39,7 @@ struct LectureSearchView: View {
         viewModel.bind()
       }
     }
+    .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
   }
 
   @ViewBuilder

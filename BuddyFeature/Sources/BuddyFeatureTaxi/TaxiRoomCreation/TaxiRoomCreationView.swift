@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct TaxiRoomCreationView: View {
   @State var viewModel: TaxiListViewModelProtocol
@@ -93,6 +94,7 @@ struct TaxiRoomCreationView: View {
     }, message: {
       Text(alertMessage)
     })
+    .analyticsScreen(name: "Taxi Room Creation", class: String(describing: Self.self))
   }
   
   private func isTitleValid(_ title: String) -> Bool {

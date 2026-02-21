@@ -11,6 +11,7 @@ import BuddyFeatureShared
 import BuddyFeatureTimetable
 import BuddyFeaturePost
 import BuddyFeatureTaxi
+import FirebaseAnalytics
 
 public struct SearchView: View {
   @State private var viewModel = SearchViewModel()
@@ -67,6 +68,7 @@ public struct SearchView: View {
     .task {
       viewModel.bind()
     }
+    .analyticsScreen(name: "Search", class: String(describing: Self.self))
   }
   
   private func courseSection(courses: [Course]) -> some View {

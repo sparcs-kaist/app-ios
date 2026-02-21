@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 public struct CourseView: View {
   @State private var viewModel: CourseViewModel
@@ -35,6 +36,7 @@ public struct CourseView: View {
     .task {
       await viewModel.fetchReviews(courseId: course.id)
     }
+    .analyticsScreen(name: "Course", class: String(describing: Self.self))
   }
   
   private var courseSummary: some View {

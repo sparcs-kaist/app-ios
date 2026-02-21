@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct TaxiReportListView: View {
   @State private var taxiReportType: TaxiReportType = .incoming
@@ -41,6 +42,7 @@ struct TaxiReportListView: View {
     .task {
       await vm.fetchReports()
     }
+    .analyticsScreen(name: "Taxi Report List", class: String(describing: Self.self))
   }
   
   private var loadingView: some View {

@@ -9,6 +9,7 @@ import SwiftUI
 import Factory
 import BuddyDomain
 import BuddyFeatureShared
+import FirebaseAnalytics
 
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
@@ -46,6 +47,7 @@ struct TaxiChatListView: View {
     .task {
       await viewModel.fetchData()
     }
+    .analyticsScreen(name: "Taxi Chat List", class: String(describing: Self.self))
   }
   
   private func loadedLargeView(onGoing: [TaxiRoom], done: [TaxiRoom]) -> some View {

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import FirebaseAnalytics
 
 struct NotificationSettingsView: View {
   @State private var viewModel = NotificationSettingsViewModel()
@@ -29,6 +30,7 @@ struct NotificationSettingsView: View {
       }
     )
     .navigationTitle("Notifications")
+    .analyticsScreen(name: "Notification Settings", class: String(describing: Self.self))
   }
 }
 

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import NukeUI
+import FirebaseAnalytics
 
 struct FullscreenImageView: View {
   let url: URL?
@@ -21,5 +22,6 @@ struct FullscreenImageView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .ignoresSafeArea()
+    .analyticsScreen(name: "Fullscreen Image", class: String(describing: Self.self))
   }
 }
