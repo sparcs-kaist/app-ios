@@ -55,6 +55,7 @@ public struct FeedView: View {
         }
       }
       .task {
+        guard viewModel.state == .loading else { return }
         await viewModel.fetchInitialData()
       }
       .refreshable {
