@@ -24,7 +24,7 @@ public struct TaxiReportedUser: Identifiable, Hashable {
 }
 
 public struct TaxiReport: Identifiable, Hashable {
-  public enum Reason: String {
+  public enum Reason: String, Sendable {
     case noSettlement = "no-settlement"
     case noShow = "no-show"
     case etcReason = "etc-reason"

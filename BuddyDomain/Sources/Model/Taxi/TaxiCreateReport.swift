@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct TaxiCreateReport {
+public struct TaxiCreateReport: Sendable {
   public var reportedID: String
   public var reason: TaxiReport.Reason
   public var etcDetails: String?

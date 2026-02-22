@@ -14,6 +14,7 @@ public final class PreviewFeedViewModel: FeedViewModelProtocol {
   public var posts: [FeedPost]
   public var alertState: AlertState?
   public var isAlertPresented: Bool = false
+  public var isLoadingMore: Bool = false
 
   public init(state: FeedViewState = .loaded, posts: [FeedPost] = []) {
     self.state = state
@@ -22,6 +23,7 @@ public final class PreviewFeedViewModel: FeedViewModelProtocol {
 
   public func signOut() async throws {}
   public func fetchInitialData() async {}
+  public func loadNextPage() async {}
   public func deletePost(postID: String) async {}
 
   public func openSettingsTapped() {}

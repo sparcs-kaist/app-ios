@@ -104,6 +104,7 @@ public struct FeedView: View {
     .analyticsScreen(name: "Feed", class: String(describing: Self.self))
   }
 
+  @ViewBuilder
   private var contentView: some View {
     ForEach($viewModel.posts) { $post in
       NavigationLink(value: post.id) {
@@ -119,9 +120,21 @@ public struct FeedView: View {
       .padding(.vertical)
       .navigationLinkIndicatorVisibility(.hidden)
       .buttonStyle(.plain)
+      .onAppear {
+        let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) ?? 0
+        let threshold = Int(Double(viewModel.posts.count) * 0.6)
+        if index >= threshold {
+          Task { await viewModel.loadNextPage() }
+        }
+      }
 
       Divider()
         .padding(.horizontal)
+    }
+
+    if viewModel.isLoadingMore {
+      ProgressView()
+        .padding()
     }
   }
 

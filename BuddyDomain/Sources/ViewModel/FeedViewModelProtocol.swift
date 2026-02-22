@@ -13,8 +13,10 @@ public protocol FeedViewModelProtocol: Observable {
   var posts: [FeedPost] { get set }
   var alertState: AlertState? { get }
   var isAlertPresented: Bool { get set }
+  var isLoadingMore: Bool { get }
 
   func fetchInitialData() async
+  func loadNextPage() async
   func deletePost(postID: String) async
 
   func openSettingsTapped()
