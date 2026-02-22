@@ -167,17 +167,20 @@ struct FeedPostView: View {
             }
           }
         }, label: {
-          if viewModel.isSubmittingComment {
-            ProgressView()
-              .tint(.white)
-          } else {
-            Label("Send", systemImage: "paperplane")
-              .labelStyle(.iconOnly)
-              .tint(.white)
+          Group {
+            if viewModel.isSubmittingComment {
+              ProgressView()
+                .tint(.white)
+            } else {
+              Label("Send", systemImage: "paperplane")
+                .labelStyle(.iconOnly)
+                .tint(.white)
+            }
           }
+          .padding(12)
+          .contentShape(.circle)
         })
         .fontWeight(.medium)
-        .padding(12)
         .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .circle)
         .disabled(viewModel.text.isEmpty || viewModel.isSubmittingComment)
         .transition(.move(edge: .trailing).combined(with: .opacity))
