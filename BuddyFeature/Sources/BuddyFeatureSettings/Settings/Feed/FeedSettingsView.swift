@@ -184,9 +184,23 @@ struct FeedSettingsView: View {
   }
   
   private var editButtonEnabled: Bool {
-    let hasChanged = (viewModel.profileImageState != .noChange) || (viewModel.nickname != viewModel.feedUser?.nickname)
+    guard !viewModel.nickname.isEmpty else { return false }
+    guard let user = viewModel.feedUser else { return false }
     
-    return !viewModel.nickname.isEmpty && hasChanged
+    let isImageChanged: Bool
+    
+    switch viewModel.profileImageState {
+    case .updated, .removed:
+      isImageChanged = true
+    case .noChange:
+      isImageChanged = false
+    case .error, .loading:
+      return false // block uploading
+    }
+    
+    let isNicknameChanged = viewModel.nickname != user.nickname
+    
+    return isImageChanged || isNicknameChanged
   }
 }
 

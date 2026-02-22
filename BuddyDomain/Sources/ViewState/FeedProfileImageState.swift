@@ -8,7 +8,7 @@
 import UIKit
 import Foundation
 
-public enum FeedProfileImageState: Equatable {
+public enum FeedProfileImageState {
   case noChange
   case updated(image: UIImage)
   case removed
