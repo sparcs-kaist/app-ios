@@ -18,8 +18,10 @@ public protocol FeedSettingsViewModelProtocol: Observable {
   var feedUser: FeedUser? { get }
   var state: FeedViewState { get }
   var isUpdatingProfile: Bool { get }
+  var alertState: AlertState? { get set }
+  var isAlertPresented: Bool { get set }
   
   func fetchUser() async
   func removeProfileImage() async
-  func updateProfile() async
+  func updateProfile() async -> Bool
 }

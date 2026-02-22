@@ -17,6 +17,8 @@ public final class PreviewFeedSettingsViewModel: FeedSettingsViewModelProtocol {
   public var feedUser: FeedUser?
   public var state: FeedViewState = .loaded
   public var isUpdatingProfile: Bool = false
+  public var alertState: AlertState?
+  public var isAlertPresented: Bool = false
   
   public init() { }
   
@@ -28,7 +30,7 @@ public final class PreviewFeedSettingsViewModel: FeedSettingsViewModelProtocol {
     
   }
   
-  public func updateProfile() async {
-    
+  public func updateProfile() async -> Bool {
+    return true
   }
 }

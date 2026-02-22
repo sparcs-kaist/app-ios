@@ -45,7 +45,7 @@ struct FeedSettingsView: View {
       ToolbarItem(placement: .confirmationAction, content: {
         Button(role: .confirm, action: {
           Task {
-            await viewModel.updateProfile()
+            guard await viewModel.updateProfile() else { return }
             dismiss()
           }
         }, label: {
@@ -58,6 +58,17 @@ struct FeedSettingsView: View {
         .disabled(!editButtonEnabled || viewModel.isUpdatingProfile)
       })
     }
+    .alert(
+      viewModel.alertState?.title ?? "Error",
+      isPresented: $viewModel.isAlertPresented,
+      actions: {
+        Button("Okay", role: .close) {
+          dismiss()
+        }
+      }, message: {
+        Text(viewModel.alertState?.message ?? "Unexpected Error")
+      }
+    )
   }
   
   @ViewBuilder
@@ -128,6 +139,16 @@ struct FeedSettingsView: View {
       }
   }
   
+  private var errorImage: some View {
+    Circle()
+      .fill(Color.secondarySystemGroupedBackground)
+      .frame(width: 200, height: 200)
+      .overlay {
+        Image(systemName: "exclamationmark.triangle.fill")
+          .font(.largeTitle)
+      }
+  }
+  
   private var profileImage: some View {
     Group {
       switch viewModel.profileImageState {
@@ -141,7 +162,7 @@ struct FeedSettingsView: View {
       case .loading:
         ProgressView()
       case .error:
-        Image(systemName: "exclamationmark.triangle.fill")
+        errorImage
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
@@ -169,10 +190,47 @@ struct FeedSettingsView: View {
   }
 }
 
-#Preview {
+#Preview("Loading State") {
+  @Previewable @State var viewModel = PreviewFeedSettingsViewModel()
+  viewModel.state = .loading
+  
+  return NavigationStack {
+    FeedSettingsView(viewModel: viewModel)
+  }
+}
+
+#Preview("Loaded State") {
   @Previewable @State var viewModel = PreviewFeedSettingsViewModel()
   
   NavigationStack {
+    FeedSettingsView(viewModel: viewModel)
+  }
+}
+
+#Preview("Error State") {
+  @Previewable @State var viewModel = PreviewFeedSettingsViewModel()
+  viewModel.state = .error(message: "Test Error")
+  
+  return NavigationStack {
+    FeedSettingsView(viewModel: viewModel)
+  }
+}
+
+#Preview("Photo Picker Failure") {
+  @Previewable @State var viewModel = PreviewFeedSettingsViewModel()
+  viewModel.profileImageState = .error(message: "Failed to pick an image.")
+  
+  return NavigationStack {
+    FeedSettingsView(viewModel: viewModel)
+  }
+}
+
+#Preview("Upload Failure") {
+  @Previewable @State var viewModel = PreviewFeedSettingsViewModel()
+  viewModel.alertState = .init(title: "Network Error", message: "Failed to upload settings.")
+  viewModel.isAlertPresented = true
+  
+  return NavigationStack {
     FeedSettingsView(viewModel: viewModel)
   }
 }

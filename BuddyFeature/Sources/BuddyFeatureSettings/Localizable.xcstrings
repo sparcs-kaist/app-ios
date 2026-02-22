@@ -368,6 +368,22 @@
         }
       }
     },
+    "Failed to update profile." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to update profile."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필을 업데이트하는 중 오류가 발생했습니다. "
+          }
+        }
+      }
+    },
     "Failed to update toggle status" : {
       "localizations" : {
         "en" : {

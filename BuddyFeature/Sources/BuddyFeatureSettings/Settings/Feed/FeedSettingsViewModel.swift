@@ -18,6 +18,11 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
   var feedUser: FeedUser?
   var profileImageURL: URL?
   var profileImageState: FeedProfileImageState = .noChange
+  var alertState: AlertState?
+  var isAlertPresented: Bool = false
+  var state: FeedViewState = .loaded
+  var isUpdatingProfile: Bool = false
+  
   var selectedProfileImageItem: PhotosPickerItem? = nil {
     didSet {
       guard let selectedProfileImageItem else { return }
@@ -25,8 +30,6 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
       profileImageState = .loading(progress: progress)
     }
   }
-  var state: FeedViewState = .loaded
-  var isUpdatingProfile: Bool = false
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
@@ -35,15 +38,20 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
   // MARK: - Functions
   func fetchUser() async {
     state = .loading
-    defer { state = .loaded }
     
-    try? await userUseCase?.fetchFeedUser()
-    guard let feedUser = await userUseCase?.feedUser else { return }
-    
-    self.feedUser = feedUser
-    nickname = feedUser.nickname
-    profileImageURL = feedUser.profileImageURL
-    profileImageState = .noChange
+    do {
+      try await userUseCase?.fetchFeedUser()
+      guard let feedUser = await userUseCase?.feedUser else { return }
+      
+      self.feedUser = feedUser
+      nickname = feedUser.nickname
+      profileImageURL = feedUser.profileImageURL
+      profileImageState = .noChange
+      
+      state = .loaded
+    } catch {
+      state = .error(message: error.localizedDescription)
+    }
   }
   
   func removeProfileImage() async {
@@ -51,24 +59,36 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
     profileImageState = .removed
   }
   
-  func updateProfile() async {
+  func updateProfile() async -> Bool {
     isUpdatingProfile = true
     defer { isUpdatingProfile = false }
     
-    switch profileImageState {
-    case .updated(let image):
-      try? await feedProfileUseCase?.updateProfileImage(image: image)
-    case .removed:
-      try? await feedProfileUseCase?.updateProfileImage(image: nil)
-    default:
-      break
+    do {
+      switch profileImageState {
+      case .updated(let image):
+        try await feedProfileUseCase?.updateProfileImage(image: image)
+      case .removed:
+        try await feedProfileUseCase?.updateProfileImage(image: nil)
+      default:
+        break
+      }
+      
+      if await userUseCase?.feedUser?.nickname != nickname {
+        try await feedProfileUseCase?.updateNickname(nickname: nickname)
+      }
+      
+      await fetchUser()
+      
+      return true
+    } catch {
+      alertState = .init(
+        title: String(localized: "Failed to update profile."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
+      
+      return false
     }
-    
-    if await userUseCase?.feedUser?.nickname != nickname {
-      try? await feedProfileUseCase?.updateNickname(nickname: nickname)
-    }
-    
-    await fetchUser()
   }
   
   private func loadTransferable(from selectedImage: PhotosPickerItem) -> Progress {
