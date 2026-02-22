@@ -6,9 +6,7 @@
 //
 import SwiftUI
 import PhotosUI
-import Combine
 import BuddyDomain
-import UIKit
 
 @Observable
 public final class PreviewFeedSettingsViewModel: FeedSettingsViewModelProtocol {

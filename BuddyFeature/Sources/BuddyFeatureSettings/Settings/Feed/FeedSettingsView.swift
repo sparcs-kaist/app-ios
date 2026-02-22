@@ -123,7 +123,7 @@ struct FeedSettingsView: View {
       .fill(Color.secondarySystemGroupedBackground)
       .frame(width: 200, height: 200)
       .overlay {
-        Text("😀")
+        Text(verbatim: "😀")
           .font(.largeTitle)
       }
   }

@@ -24,7 +24,7 @@ public final class FeedProfileRepository: FeedProfileRepositoryProtocol {
   }
   
   public func setProfileImage(image: UIImage) async throws {
-    guard let imageData = image.compressForUpload(maxSizeMB: 1024) else {
+    guard let imageData = image.compressForUpload(maxSizeMB: 10.0) else {
       throw NSError(domain: "FeedProfileRepository", code: 1)
     }
     

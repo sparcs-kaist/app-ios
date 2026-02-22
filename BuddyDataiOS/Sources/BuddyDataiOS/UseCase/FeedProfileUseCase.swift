@@ -58,7 +58,7 @@ public final class FeedProfileUseCase: FeedProfileUseCaseProtocol {
       crashlyticsService?.record(error: networkError, context: context)
       throw networkError
     } catch {
-      let mappedError = FeedImageUseCaseError.unknown(underlying: error)
+      let mappedError = FeedProfileUseCaseError.unknown(underlying: error)
       crashlyticsService?.record(error: mappedError, context: context)
       throw mappedError
     }

@@ -12,9 +12,6 @@
       },
       "shouldTranslate" : false
     },
-    "😀" : {
-
-    },
     "Acknowledgements" : {
       "localizations" : {
         "en" : {
@@ -388,7 +385,20 @@
       }
     },
     "Feed" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타임라인"
+          }
+        }
+      }
     },
     "Force Crash" : {
       "localizations" : {
