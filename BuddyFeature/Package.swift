@@ -68,10 +68,13 @@ let package = Package(
             "Haptica",
             "BuddyFeatureShared",
             "BuddyFeaturePost",
+            "BuddyPreviewSupport",
             .product(
               name: "FirebaseAnalytics",
               package: "firebase-ios-sdk"
             ),
+            .product(name: "Nuke", package: "Nuke"),
+            .product(name: "NukeUI", package: "Nuke"),
           ]
         ),
         .target(

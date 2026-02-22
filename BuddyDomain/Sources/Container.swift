@@ -124,6 +124,10 @@ extension Container {
   public var feedCommentUseCase: Factory<FeedCommentUseCaseProtocol?> {
     promised()
   }
+  
+  public var feedProfileUseCase: Factory<FeedProfileUseCaseProtocol?> {
+    promised()
+  }
 
   public var araBoardUseCase: Factory<AraBoardUseCaseProtocol?> {
     promised()

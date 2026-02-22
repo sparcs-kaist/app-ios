@@ -28,6 +28,7 @@ public struct SettingsView: View {
         }
         
         Section(header: Text("Services")) {
+          NavigationLink("Feed") { FeedSettingsView() }
           NavigationLink("Ara") { AraSettingsView() }
           NavigationLink("Taxi") { TaxiSettingsView() }
         }

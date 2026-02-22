@@ -54,6 +54,14 @@ extension Container: @retroactive AutoRegistering {
     }
   }
   
+  private var feedProfileRepository: Factory<FeedProfileRepositoryProtocol> {
+    self {
+      FeedProfileRepository(provider: MoyaProvider<FeedProfileTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+  
   private var fcmRepository: Factory<FCMRepositoryProtocol> {
     self {
       FCMRepository(provider: MoyaProvider<FCMTarget>(plugins: [
@@ -269,6 +277,13 @@ extension Container: @retroactive AutoRegistering {
     feedCommentUseCase.register {
       FeedCommentUseCase(
         feedCommentRepository: self.feedCommentRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+    
+    feedProfileUseCase.register {
+      FeedProfileUseCase(
+        feedProfileRepository: self.feedProfileRepository.resolve(),
         crashlyticsService: self.crashlyticsService.resolve()
       )
     }
