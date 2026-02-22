@@ -19,6 +19,7 @@ public final class FeedViewModel: FeedViewModelProtocol {
   public var alertState: AlertState? = nil
   public var isAlertPresented: Bool = false
 
+  public var isLoadingMore: Bool = false
   private var nextCursor: String? = nil
   private var hasNext: Bool = false
 
@@ -42,6 +43,23 @@ public final class FeedViewModel: FeedViewModelProtocol {
       self.state = .loaded
     } catch {
       self.state = .error(message: error.localizedDescription)
+    }
+  }
+
+  public func loadNextPage() async {
+    guard !isLoadingMore && hasNext, let feedPostUseCase else { return }
+
+    isLoadingMore = true
+    defer { isLoadingMore = false }
+
+    do {
+      let page: FeedPostPage = try await feedPostUseCase.fetchPosts(cursor: nextCursor, page: 20)
+      self.posts.append(contentsOf: page.items)
+      self.nextCursor = page.nextCursor
+      self.hasNext = page.hasNext
+    } catch {
+      self.alertState = .init(title: String(localized: "Unable to load more posts."), message: error.localizedDescription)
+      self.isAlertPresented = true
     }
   }
 

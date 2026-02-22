@@ -467,6 +467,9 @@
         }
       }
     },
+    "Unable to load more posts." : {
+
+    },
     "Unable to submit report." : {
       "localizations" : {
         "en" : {
