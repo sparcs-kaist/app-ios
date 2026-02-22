@@ -11,6 +11,7 @@ import UIKit
 import NukeUI
 import BuddyDomain
 import BuddyPreviewSupport
+import FirebaseAnalytics
 
 struct FeedSettingsView: View {
   @State private var viewModel: FeedSettingsViewModelProtocol
@@ -33,6 +34,7 @@ struct FeedSettingsView: View {
         ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
+    .analyticsScreen(name: "Feed Settings", class: String(describing: Self.self))
     .disabled(viewModel.isUpdatingProfile)
     .task {
       await viewModel.fetchUser()
