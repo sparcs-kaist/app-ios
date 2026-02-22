@@ -112,7 +112,7 @@ struct FeedPostRow: View {
       Spacer()
 
       if onPostDeleted != nil {
-        Menu("More", systemImage: "ellipsis") {
+        Menu {
           Button("Translate", systemImage: "translate") { showTranslateSheet = true }
           Divider()
           if post.isAuthor {
@@ -130,8 +130,12 @@ struct FeedPostRow: View {
               }
             }
           }
+        } label: {
+          Label("More", systemImage: "ellipsis")
+            .labelStyle(.iconOnly)
+            .padding(8)
+            .contentShape(.rect)
         }
-        .labelStyle(.iconOnly)
         .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
           Button("Delete", role: .destructive) {
             Task {

@@ -117,7 +117,7 @@ struct FeedCommentRow: View {
 
       Spacer()
 
-      Menu("More", systemImage: "ellipsis") {
+      Menu {
         Button("Translate", systemImage: "translate") { showTranslateSheet = true }
         Divider()
         if comment.isMyComment {
@@ -137,9 +137,13 @@ struct FeedCommentRow: View {
             }
           }
         }
+      } label: {
+        Label("More", systemImage: "ellipsis")
+          .labelStyle(.iconOnly)
+          .padding(8)
+          .contentShape(.rect)
       }
     }
-    .labelStyle(.iconOnly)
   }
 
   @ViewBuilder
