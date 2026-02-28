@@ -14,6 +14,10 @@ struct CompactTimetableSelector: View {
   @Binding var selectedSemester: Semester?
   let timetables: [V2TimetableSummary]
   @Binding var selectedTimetableID: Int?
+  let renameTimetable: (String) async -> Void
+
+  @State private var showRenameAlert: Bool = false
+  @State private var renameText: String = ""
 
   var body: some View {
     ZStack {
@@ -26,6 +30,21 @@ struct CompactTimetableSelector: View {
       }
     }
     .frame(height: 30)
+    .alert("Rename \"\(displayName)\"", isPresented: $showRenameAlert, actions: {
+      TextField(displayName, text: $renameText)
+
+      Button("Confirm", action: {
+        Task {
+          await renameTimetable(renameText)
+          renameText = ""
+        }
+      })
+      .disabled(displayName.isEmpty)
+
+      Button("Cancel", role: .cancel, action: {})
+    }, message: {
+      Text("Enter a new name for this timetable.")
+    })
   }
 
   var tableSelector: some View {
@@ -49,7 +68,7 @@ struct CompactTimetableSelector: View {
             if selectedTimetableID == timetable.id {
               Image(systemName: "checkmark")
             }
-            Text(timetable.name.isEmpty ? "Untitled" : timetable.name)
+            Text(timetable.title.isEmpty ? "Untitled" : timetable.title)
           }
         })
       }
@@ -63,8 +82,9 @@ struct CompactTimetableSelector: View {
       Divider()
 
       Button("Rename", systemImage: "square.and.pencil") {
-
+        showRenameAlert = true
       }
+      .disabled(selectedTimetableID == nil)
 
       Button("Delete", systemImage: "trash", role: .destructive) {
         Task {
@@ -72,11 +92,12 @@ struct CompactTimetableSelector: View {
         }
       }
       .tint(nil)
-//      .disabled(!timetableViewModel.isEditable)
+      .disabled(selectedTimetableID == nil)
     }, label: {
       HStack(spacing: 16) {
         Text(displayName)
           .fontWeight(.semibold)
+          .contentTransition(.numericText())
 
         Image(systemName: "ellipsis")
       }
@@ -153,7 +174,7 @@ struct CompactTimetableSelector: View {
     guard let timetable = selectedTimetable else {
       return "My Table"
     }
-    return timetable.name.isEmpty ? "Untitled" : timetable.name
+    return timetable.title.isEmpty ? "Untitled" : timetable.title
   }
 
   private var selectedTimetable: V2TimetableSummary? {

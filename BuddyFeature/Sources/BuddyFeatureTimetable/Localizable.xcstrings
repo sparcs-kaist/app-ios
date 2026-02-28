@@ -177,6 +177,9 @@
     "C" : {
       "shouldTranslate" : false
     },
+    "Cancel" : {
+
+    },
     "Cannot Add Lecture" : {
       "localizations" : {
         "en" : {
@@ -256,6 +259,9 @@
           }
         }
       }
+    },
+    "Confirm" : {
+
     },
     "Credit" : {
       "localizations" : {
@@ -339,6 +345,9 @@
           }
         }
       }
+    },
+    "Enter a new name for this timetable." : {
+
     },
     "Error" : {
       "localizations" : {
@@ -563,6 +572,9 @@
       }
     },
     "Rename" : {
+
+    },
+    "Rename \"%@\"" : {
 
     },
     "Report" : {

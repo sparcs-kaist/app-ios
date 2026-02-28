@@ -21,7 +21,7 @@ public extension V2TimetableSummaryDTO {
   func toModel() -> V2TimetableSummary {
     V2TimetableSummary(
       id: id,
-      name: name,
+      title: name,
       year: year,
       semester: SemesterType.fromRawValue(semester)
     )

@@ -9,13 +9,13 @@ import Foundation
 
 public struct V2TimetableSummary: Identifiable, Hashable, Sendable, Codable {
   public let id: Int
-  public let name: String
+  public var title: String
   public let year: Int
   public let semester: SemesterType
 
-  public init(id: Int, name: String, year: Int, semester: SemesterType) {
+  public init(id: Int, title: String, year: Int, semester: SemesterType) {
     self.id = id
-    self.name = name
+    self.title = title
     self.year = year
     self.semester = semester
   }

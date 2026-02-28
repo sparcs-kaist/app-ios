@@ -22,7 +22,10 @@ public struct V2TimetableView: View {
               semesters: viewModel.semesters,
               selectedSemester: $viewModel.selectedSemester,
               timetables: viewModel.timetables,
-              selectedTimetableID: $viewModel.selectedTimetableID
+              selectedTimetableID: $viewModel.selectedTimetableID,
+              renameTimetable: { title in
+                await viewModel.renameTable(title: title)
+              }
             )
             .redacted(reason: viewModel.isLoading ? .placeholder : [])
           }

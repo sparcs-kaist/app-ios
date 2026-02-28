@@ -30,6 +30,12 @@ final class V2TimetableViewModel {
   @ObservationIgnored private var timetableListTask: Task<Void, Never>?
   var timetables: [V2TimetableSummary] = [] {
     didSet {
+      // Do not clear selectedTimetableID when it appears in timetables
+      if let selectedID = selectedTimetableID,
+         timetables.contains(where: { $0.id == selectedID }) {
+        return
+      }
+
       selectedTimetableID = nil
     }
   }
@@ -67,6 +73,29 @@ final class V2TimetableViewModel {
       // ignore
     } catch {
       // HANDLE EXCCEPTION
+    }
+  }
+
+  func renameTable(title: String) async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedTimetableID
+    else { return }
+
+    do {
+      try await timetableUseCase.renameTable(id: selectedTimetableID, title: title)
+
+      if let index = timetables.firstIndex(where: { $0.id == selectedTimetableID }) {
+        withAnimation(.spring) {
+          timetables[index].title = title
+        }
+      }
+
+      timetableListTask?.cancel()
+      timetableListTask = Task {
+        await updateTimetableList()
+      }
+    } catch {
+      // HANDLE EXCEPTION
     }
   }
 }
