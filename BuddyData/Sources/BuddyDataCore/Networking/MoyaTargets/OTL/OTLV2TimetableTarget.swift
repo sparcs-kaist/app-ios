@@ -10,6 +10,7 @@ import Moya
 
 public enum OTLV2TimetableTarget {
   case fetchTables(year: Int, semester: Int)
+  case fetchTable(timetableID: Int)
   case fetchMyTable(year: Int, semester: Int)
   case deleteTable(timetableID: Int)
   case renameTable(timetableID: Int, title: String)
@@ -28,6 +29,8 @@ extension OTLV2TimetableTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchTables, .deleteTable, .renameTable:
       "/api/v2/timetables"
+    case .fetchTable(let timetableID):
+      "/api/v2/timetables/\(timetableID)"
     case .fetchMyTable:
       "/api/v2/timetables/my-timetable"
     case .addLecture(let timetableID, _), .deleteLecture(let timetableID, _):
@@ -41,7 +44,7 @@ extension OTLV2TimetableTarget: TargetType, AccessTokenAuthorizable {
 
   public var method: Moya.Method {
     switch self {
-    case .fetchTables, .fetchMyTable, .fetchSemesters, .fetchCurrentSemester:
+    case .fetchTables, .fetchTable, .fetchMyTable, .fetchSemesters, .fetchCurrentSemester:
         .get
     case .renameTable, .addLecture, .deleteLecture:
         .patch
@@ -76,14 +79,15 @@ extension OTLV2TimetableTarget: TargetType, AccessTokenAuthorizable {
           "id": timetableID,
           "name": title
         ], encoding: JSONEncoding.default)
-    case .fetchSemesters, .fetchCurrentSemester:
+    case .fetchTable, .fetchSemesters, .fetchCurrentSemester:
         .requestPlain
     }
   }
 
   public var headers: [String: String]? {
     [
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Accept-Language": Bundle.main.preferredLocalizations.first ?? "ko"
     ]
   }
 

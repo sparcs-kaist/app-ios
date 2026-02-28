@@ -27,11 +27,16 @@ public final class OTLV2TimetableRepository: OTLV2TimetableRepositoryProtocol, S
     return result.timetables.compactMap { $0.toModel() }
   }
 
+  public func getTable(timetableID: Int) async throws -> V2Timetable {
+    let response = try await self.provider.request(.fetchTable(timetableID: timetableID))
+    return try response.map(V2TimetableDTO.self).toModel(id: String(timetableID))
+  }
+
   public func getMyTable(year: Int, semester: SemesterType) async throws -> V2Timetable {
     let response = try await self.provider.request(
       .fetchMyTable(year: year, semester: semester.intValue)
     )
-    return try response.map(V2TimetableDTO.self).toModel()
+    return try response.map(V2TimetableDTO.self).toModel(id: "\(year)-\(semester.rawValue)-myTable")
   }
 
   public func deleteTable(timetableID: Int) async throws {

@@ -13,7 +13,7 @@ public struct V2TimetableDTO: Codable {
 }
 
 public extension V2TimetableDTO {
-  func toModel() -> V2Timetable {
-    V2Timetable(lectures: lectures.compactMap { $0.toModel() })
+  func toModel(id: String) -> V2Timetable {
+    V2Timetable(id: id, lectures: lectures.compactMap { $0.toModel() })
   }
 }

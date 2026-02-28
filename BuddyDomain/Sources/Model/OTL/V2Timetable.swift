@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-public struct V2Timetable: Hashable, Codable, Sendable {
+public struct V2Timetable: Identifiable, Hashable, Codable, Sendable {
+  public var id: String
   public var lectures: [V2Lecture]
 
   private var defaultMinMinutes = 540 // 9:00 AM
@@ -18,7 +19,8 @@ public struct V2Timetable: Hashable, Codable, Sendable {
     "B-", "B", "B+", "A-", "A", "A+"
   ]
 
-  public init(lectures: [V2Lecture]) {
+  public init(id: String, lectures: [V2Lecture]) {
+    self.id = id
     self.lectures = lectures
   }
 }
