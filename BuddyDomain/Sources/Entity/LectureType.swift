@@ -52,15 +52,27 @@ extension LectureType {
   public static func fromRawValue(_ rawValue: String) -> LectureType {
     switch rawValue {
     case "Basic Required":
-        .br
+      .br
     case "Basic Elective":
       .be
     case "Major Required":
       .mr
     case "Major Elective":
       .me
+    case "Humanities and Social Elective":
+      .hse
+    case "기초필수":
+      .br
+    case "기초선택":
+      .be
+    case "전공필수":
+      .mr
+    case "전공선택":
+      .me
+    case "인문사회선택":
+      .hse
     default:
-      rawValue.contains("Humanities & Social Elective") ? .hse : .etc
+      .etc
     }
   }
 }

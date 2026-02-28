@@ -19,3 +19,14 @@ public struct LectureItem: Identifiable {
     self.index = index
   }
 }
+
+public struct V2LectureItem: Identifiable {
+  public let id = UUID()
+  public let lecture: V2Lecture
+  public let lectureClass: V2LectureClass
+
+  public init(lecture: V2Lecture, lectureClass: V2LectureClass) {
+    self.lecture = lecture
+    self.lectureClass = lectureClass
+  }
+}
