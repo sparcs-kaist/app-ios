@@ -117,6 +117,10 @@ extension Container {
     promised()
   }
 
+  public var v2TimetableUseCase: Factory<V2TimetableUseCaseProtocol?> {
+    promised()
+  }
+
   public var feedPostUseCase: Factory<FeedPostUseCaseProtocol?> {
     promised()
   }

@@ -36,7 +36,7 @@ struct MainView: View {
       }
 
       Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
-        TimetableView()
+        V2TimetableView()
       }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {

@@ -35,8 +35,8 @@ public struct TimetableView: View {
 //            SiriTipView(intent: NextClassAppIntents(), isVisible: $siriSuggestion)
 
             // Timetable Selector
-            CompactTimetableSelector()
-              .environment(viewModel)
+//            CompactTimetableSelector()
+//              .environment(viewModel)
 
             // Timetable Gird View
             TimetableGrid() { lectureItem in

@@ -90,6 +90,14 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  private var otlV2TimetableRepository: Factory<OTLV2TimetableRepositoryProtocol> {
+    self {
+      OTLV2TimetableRepository(provider: MoyaProvider<OTLV2TimetableTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -266,6 +274,13 @@ extension Container: @retroactive AutoRegistering {
       )
     }
     .scope(.singleton)
+
+    v2TimetableUseCase.register {
+      V2TimetableUseCase(
+        otlTimetableRepository: self.otlV2TimetableRepository.resolve(),
+        sessionBirdgeService: self.sessionBridgeService.resolve()
+      )
+    }
 
     feedPostUseCase.register {
       FeedPostUseCase(

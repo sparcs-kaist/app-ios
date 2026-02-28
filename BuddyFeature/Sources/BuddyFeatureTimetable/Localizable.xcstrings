@@ -562,6 +562,9 @@
         }
       }
     },
+    "Rename" : {
+
+    },
     "Report" : {
       "localizations" : {
         "en" : {
@@ -691,6 +694,7 @@
       }
     },
     "Table %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
