@@ -1030,6 +1030,38 @@
       },
       "shouldTranslate" : false
     },
+    "This nickname is already in use." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This nickname is already in use."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 사용 중인 닉네임입니다."
+          }
+        }
+      }
+    },
+    "This nickname is not available." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This nickname is not available."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용할 수 없는 닉네임입니다."
+          }
+        }
+      }
+    },
     "Thu" : {
       "localizations" : {
         "en" : {
