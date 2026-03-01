@@ -21,9 +21,9 @@ extension FCMTarget: TargetType, AccessTokenAuthorizable {
   public var path: String {
     switch self {
     case .register:
-      "/notification/device_info/"
+      "/notification/device_info"
     case .manage:
-      "/notification/manage_alert/"
+      "/notification/manage_alert"
     }
   }
   
