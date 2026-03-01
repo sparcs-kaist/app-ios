@@ -15,6 +15,7 @@ struct CompactTimetableSelector: View {
   let timetables: [V2TimetableSummary]
   @Binding var selectedTimetableID: Int?
   let renameTimetable: (String) async -> Void
+  let deleteTimetable: () async -> Void
 
   @State private var showRenameAlert: Bool = false
   @State private var renameText: String = ""
@@ -33,13 +34,13 @@ struct CompactTimetableSelector: View {
     .alert("Rename \"\(displayName)\"", isPresented: $showRenameAlert, actions: {
       TextField(displayName, text: $renameText)
 
-      Button("Confirm", action: {
+      Button("Confirm", role: .confirm, action: {
         Task {
           await renameTimetable(renameText)
           renameText = ""
         }
       })
-      .disabled(displayName.isEmpty)
+      .disabled(renameText.isEmpty)
 
       Button("Cancel", role: .cancel, action: {})
     }, message: {
@@ -88,7 +89,7 @@ struct CompactTimetableSelector: View {
 
       Button("Delete", systemImage: "trash", role: .destructive) {
         Task {
-//          await timetableViewModel.deleteTable()
+          await deleteTimetable()
         }
       }
       .tint(nil)

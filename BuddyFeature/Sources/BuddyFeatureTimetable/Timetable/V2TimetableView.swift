@@ -25,6 +25,9 @@ public struct V2TimetableView: View {
               selectedTimetableID: $viewModel.selectedTimetableID,
               renameTimetable: { title in
                 await viewModel.renameTable(title: title)
+              },
+              deleteTimetable: {
+                await viewModel.deleteTable()
               }
             )
             .redacted(reason: viewModel.isLoading ? .placeholder : [])

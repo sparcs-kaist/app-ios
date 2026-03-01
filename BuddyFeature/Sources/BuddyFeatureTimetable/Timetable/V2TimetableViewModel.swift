@@ -98,4 +98,24 @@ final class V2TimetableViewModel {
       // HANDLE EXCEPTION
     }
   }
+
+  func deleteTable() async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedTimetableID
+    else { return }
+
+    do {
+      try await timetableUseCase.deleteTable(id: selectedTimetableID)
+      if let index = timetables.firstIndex(where: { $0.id == selectedTimetableID }) {
+        timetables.remove(at: index)
+      }
+
+      timetableListTask?.cancel()
+      timetableListTask = Task {
+        await updateTimetableList()
+      }
+    } catch {
+      // HANDLE EXCEPTION
+    }
+  }
 }
