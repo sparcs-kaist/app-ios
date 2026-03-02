@@ -32,6 +32,13 @@ public final class OTLV2TimetableRepository: OTLV2TimetableRepositoryProtocol, S
     return try response.map(V2TimetableDTO.self).toModel(id: String(timetableID))
   }
 
+  public func createTable(year: Int, semester: SemesterType) async throws -> V2TableCreation {
+    let response = try await self.provider.request(
+      .createTable(year: year, semester: semester.intValue)
+    )
+    return try response.map(V2TableCreationDTO.self).toModel()
+  }
+
   public func getMyTable(year: Int, semester: SemesterType) async throws -> V2Timetable {
     let response = try await self.provider.request(
       .fetchMyTable(year: year, semester: semester.intValue)

@@ -12,6 +12,7 @@ public enum OTLV2TimetableTarget {
   case fetchTables(year: Int, semester: Int)
   case fetchTable(timetableID: Int)
   case fetchMyTable(year: Int, semester: Int)
+  case createTable(year: Int, semester: Int)
   case deleteTable(timetableID: Int)
   case renameTable(timetableID: Int, title: String)
   case addLecture(timetableID: Int, lectureID: Int)
@@ -27,7 +28,7 @@ extension OTLV2TimetableTarget: TargetType, AccessTokenAuthorizable {
 
   public var path: String {
     switch self {
-    case .fetchTables, .deleteTable, .renameTable:
+    case .fetchTables, .deleteTable, .renameTable, .createTable:
       "/api/v2/timetables"
     case .fetchTable(let timetableID):
       "/api/v2/timetables/\(timetableID)"
@@ -46,6 +47,8 @@ extension OTLV2TimetableTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchTables, .fetchTable, .fetchMyTable, .fetchSemesters, .fetchCurrentSemester:
         .get
+    case .createTable:
+        .post
     case .renameTable, .addLecture, .deleteLecture:
         .patch
     case .deleteTable:
@@ -64,6 +67,12 @@ extension OTLV2TimetableTarget: TargetType, AccessTokenAuthorizable {
         .requestParameters(parameters: [
           "action": "add",
           "lectureId": lectureID
+        ], encoding: JSONEncoding.default)
+    case .createTable(let year, let semester):
+        .requestParameters(parameters: [
+          "year": year,
+          "semester": semester,
+          "lectureIds": []
         ], encoding: JSONEncoding.default)
     case .deleteLecture(_, let lectureID):
         .requestParameters(parameters: [

@@ -14,6 +14,7 @@ struct CompactTimetableSelector: View {
   @Binding var selectedSemester: Semester?
   let timetables: [V2TimetableSummary]
   @Binding var selectedTimetableID: Int?
+  let createTimetable: () async -> Void
   let renameTimetable: (String) async -> Void
   let deleteTimetable: () async -> Void
 
@@ -76,7 +77,7 @@ struct CompactTimetableSelector: View {
 
       Button("New Table", systemImage: "plus") {
         Task {
-//          await timetableViewModel.createTable()
+          await createTimetable()
         }
       }
 

@@ -45,4 +45,8 @@ public final class V2TimetableUseCase: V2TimetableUseCaseProtocol, @unchecked Se
   public func renameTable(id: Int, title: String) async throws {
     try await otlTimetableRepository.renameTable(timetableID: id, title: title)
   }
+
+  public func createTable(semester: Semester) async throws -> V2TableCreation {
+    try await otlTimetableRepository.createTable(year: semester.year, semester: semester.semesterType)
+  }
 }

@@ -118,4 +118,20 @@ final class V2TimetableViewModel {
       // HANDLE EXCEPTION
     }
   }
+
+  func createTable() async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedSemester else { return }
+
+    do {
+      let creation = try await timetableUseCase.createTable(semester: selectedSemester)
+      timetableListTask?.cancel()
+      timetableListTask = Task {
+        await updateTimetableList()
+        selectedTimetableID = creation.id
+      }
+    } catch {
+      // HANDLE EXCEPTION
+    }
+  }
 }

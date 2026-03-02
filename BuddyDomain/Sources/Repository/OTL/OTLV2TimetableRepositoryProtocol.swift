@@ -10,6 +10,7 @@ import Foundation
 public protocol OTLV2TimetableRepositoryProtocol: Sendable {
   func getTables(year: Int, semester: SemesterType) async throws -> [V2TimetableSummary]
   func getTable(timetableID: Int) async throws -> V2Timetable
+  func createTable(year: Int, semester: SemesterType) async throws -> V2TableCreation
   func getMyTable(year: Int, semester: SemesterType) async throws -> V2Timetable
   func deleteTable(timetableID: Int) async throws
   func renameTable(timetableID: Int, title: String) async throws

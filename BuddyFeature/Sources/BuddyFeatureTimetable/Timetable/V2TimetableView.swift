@@ -23,6 +23,9 @@ public struct V2TimetableView: View {
               selectedSemester: $viewModel.selectedSemester,
               timetables: viewModel.timetables,
               selectedTimetableID: $viewModel.selectedTimetableID,
+              createTimetable: {
+                await viewModel.createTable()
+              },
               renameTimetable: { title in
                 await viewModel.renameTable(title: title)
               },
