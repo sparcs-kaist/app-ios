@@ -10,7 +10,7 @@ import Foundation
 public enum TabSelection: Hashable {
   case feed
   case board
-  case timetable
+  case map
   case taxi
   case search
 }

@@ -16,6 +16,9 @@ import BuddyFeatureSearch
 struct MainView: View {
   @State private var viewModel = MainViewModel()
   @State private var selectedTab: TabSelection = .feed
+  @State private var extendTimetableView: Bool = false
+
+  @Namespace private var namespace
 
   private var feedViewModel: FeedViewModelProtocol
   private var boardListViewModel: BoardListViewModelProtocol
@@ -35,8 +38,8 @@ struct MainView: View {
         BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
       }
 
-      Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
-        V2TimetableView()
+      Tab("Map", systemImage: "map", value: .map) {
+
       }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
@@ -48,6 +51,41 @@ struct MainView: View {
       }
     }
     .tabBarMinimizeBehavior(.onScrollDown)
+    .tabViewBottomAccessory {
+      HStack {
+        Circle()
+          .fill(.indigo)
+          .frame(width: 12, height: 12)
+
+        VStack(alignment: .leading) {
+          Text("System Programming")
+            .font(.headline)
+          Text("E3-1 1201")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+        }
+
+        Spacer()
+
+        Text("in 10m")
+          .fontDesign(.rounded)
+          .font(.callout)
+      }
+      .padding()
+      .matchedTransitionSource(id: "TimetableViewSource", in: namespace)
+      .onTapGesture {
+        extendTimetableView = true
+      }
+    }
+    .fullScreenCover(isPresented: $extendTimetableView) {
+      V2TimetableView()
+        .safeAreaInset(edge: .top) {
+          Capsule()
+            .fill(.primary.secondary)
+            .frame(width: 36, height: 4)
+        }
+        .navigationTransition(.zoom(sourceID: "TimetableViewSource", in: namespace))
+    }
     .onOpenURL { url in
       guard let deepLink = DeepLink(url: url) else { return }
       handle(deepLink: deepLink)
