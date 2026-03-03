@@ -55,6 +55,15 @@ public final class FeedProfileUseCase: FeedProfileUseCaseProtocol {
     do {
       return try await operation()
     } catch let networkError as NetworkError {
+      if case .serverError(let statusCode) = networkError {
+        if statusCode == 400 {
+          throw FeedProfileUseCaseError.reserved
+        }
+        if statusCode == 409 {
+          throw FeedProfileUseCaseError.conflict
+        }
+      }
+      
       crashlyticsService?.record(error: networkError, context: context)
       throw networkError
     } catch {
