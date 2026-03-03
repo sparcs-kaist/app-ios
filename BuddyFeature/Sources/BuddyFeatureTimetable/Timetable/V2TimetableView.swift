@@ -11,7 +11,10 @@ import BuddyFeatureShared
 import FirebaseAnalytics
 
 public struct V2TimetableView: View {
-  @State private var viewModel = V2TimetableViewModel()
+  @Bindable private var viewModel: V2TimetableViewModel
+
+  @State private var showSearchSheet: Bool = false
+  @State private var selectedDetent: PresentationDetent = .medium
 
   @Environment(\.colorScheme) private var colorScheme
 
@@ -48,6 +51,16 @@ public struct V2TimetableView: View {
             .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
             .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
             .frame(height: reader.size.height * 0.8)
+
+            TimetableCreditGraph(selectedTimetable: viewModel.timetable)
+              .padding()
+              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+
+            TimetableSummary(selectedTimetable: viewModel.timetable)
+              .padding()
+              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
           }
           .padding()
         }
@@ -58,12 +71,26 @@ public struct V2TimetableView: View {
         .navigationTitle("Timetable")
         .toolbarTitleDisplayMode(.inlineLarge)
         .background(Color.systemGroupedBackground)
-        .task {
-          await viewModel.setup()
+        .toolbar {
+          ToolbarItem(placement: .topBarTrailing) {
+            Button("Add Lecture", systemImage: "plus") {
+              showSearchSheet = true
+            }
+            .disabled(viewModel.selectedTimetableID == nil)
+          }
         }
+//        .sheet(isPresented: $showSearchSheet) {
+//          LectureSearchView(detent: $selectedDetent)
+//            .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
+//            .onAppear {
+//              selectedDetent = .medium
+//            }
+//        }
       }
     }
   }
 
-  public init() { }
+  public init(_ viewModel: V2TimetableViewModel) {
+    self.viewModel = viewModel
+  }
 }

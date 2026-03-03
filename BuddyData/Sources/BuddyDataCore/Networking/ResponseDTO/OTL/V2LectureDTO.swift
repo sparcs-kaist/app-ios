@@ -43,7 +43,7 @@ public extension V2LectureDTO {
       subtitle: subtitle,
       code: code,
       department: department.toModel(),
-      type: LectureType(rawValue: type) ?? .etc,
+      type: LectureType.fromRawValue(type),
       capacity: limitPeople,
       enrolledCount: numPeople,
       credit: credit,

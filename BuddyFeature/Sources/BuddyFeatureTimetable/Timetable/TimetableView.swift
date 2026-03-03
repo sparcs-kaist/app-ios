@@ -48,18 +48,18 @@ public struct TimetableView: View {
 //            .frame(height: proxy.size.height * 0.8)
 //            .environment(viewModel)
 
-            TimetableCreditGraph()
-              .padding()
-              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-              .environment(viewModel)
+//            TimetableCreditGraph()
+//              .padding()
+//              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+//              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+//              .environment(viewModel)
 
             // Timetable Summary View
-            TimetableSummary()
-              .padding()
-              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-              .environment(viewModel)
+//            TimetableSummary()
+//              .padding()
+//              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+//              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+//              .environment(viewModel)
           }
           .padding()
         }
@@ -91,12 +91,12 @@ public struct TimetableView: View {
           }
         }
         .sheet(isPresented: $showSearchSheet) {
-          LectureSearchView(detent: $selectedDetent)
-            .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
-            .environment(viewModel)
-            .onAppear {
-              selectedDetent = .medium
-            }
+//          LectureSearchView(detent: $selectedDetent)
+//            .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
+//            .environment(viewModel)
+//            .onAppear {
+//              selectedDetent = .medium
+//            }
         }
         .task {
           // fetch data

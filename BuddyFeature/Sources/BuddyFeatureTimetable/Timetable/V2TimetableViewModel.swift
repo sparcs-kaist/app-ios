@@ -12,7 +12,7 @@ import BuddyDomain
 
 @MainActor
 @Observable
-final class V2TimetableViewModel {
+public final class V2TimetableViewModel {
   @ObservationIgnored @Injected(
     \.v2TimetableUseCase
   ) private var v2TimetableUseCase: V2TimetableUseCaseProtocol?
@@ -53,7 +53,9 @@ final class V2TimetableViewModel {
 
   var isLoading: Bool = true
 
-  func setup() async {
+  public init() { }
+
+  public func setup() async {
     guard let timetableUseCase = v2TimetableUseCase else { return }
 
     isLoading = true

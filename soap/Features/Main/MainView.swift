@@ -15,6 +15,7 @@ import BuddyFeatureSearch
 
 struct MainView: View {
   @State private var viewModel = MainViewModel()
+  @State private var timetableViewModel = V2TimetableViewModel()
   @State private var selectedTab: TabSelection = .feed
   @State private var extendTimetableView: Bool = false
 
@@ -38,9 +39,9 @@ struct MainView: View {
         BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
       }
 
-      Tab("Map", systemImage: "map", value: .map) {
-
-      }
+//      Tab("Map", systemImage: "map", value: .map) {
+//
+//      }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
         TaxiListView()
@@ -78,7 +79,7 @@ struct MainView: View {
       }
     }
     .fullScreenCover(isPresented: $extendTimetableView) {
-      V2TimetableView()
+      V2TimetableView(timetableViewModel)
         .safeAreaInset(edge: .top) {
           Capsule()
             .fill(.primary.secondary)
@@ -103,6 +104,9 @@ struct MainView: View {
       Button("Okay", role: .cancel) { }
     } message: {
       Text(viewModel.alertState?.message ?? "Unexpected Error")
+    }
+    .task {
+      await timetableViewModel.setup()
     }
     .tabViewStyle(.tabBarOnly)
   }
