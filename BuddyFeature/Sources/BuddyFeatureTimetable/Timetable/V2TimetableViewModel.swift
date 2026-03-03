@@ -28,6 +28,8 @@ final class V2TimetableViewModel {
   }
 
   @ObservationIgnored private var timetableListTask: Task<Void, Never>?
+  @ObservationIgnored private var timetableLoadTask: Task<Void, Never>?
+
   var timetables: [V2TimetableSummary] = [] {
     didSet {
       // Do not clear selectedTimetableID when it appears in timetables
@@ -39,7 +41,14 @@ final class V2TimetableViewModel {
       selectedTimetableID = nil
     }
   }
-  var selectedTimetableID: Int? = nil
+  var selectedTimetableID: Int? = nil {
+    didSet {
+      timetableLoadTask?.cancel()
+      timetableLoadTask = Task {
+        await loadTimetable()
+      }
+    }
+  }
   var timetable: V2Timetable? = nil
 
   var isLoading: Bool = true
@@ -55,6 +64,32 @@ final class V2TimetableViewModel {
       selectedSemester = try await timetableUseCase.getCurrentSemesters()
     } catch {
       // HANDLE EXCEPTION
+    }
+  }
+
+  func loadTimetable() async {
+    guard let timetableUseCase = v2TimetableUseCase else { return }
+
+    do {
+      let result: V2Timetable
+
+      if let selectedTimetableID {
+        result = try await timetableUseCase.getTable(id: selectedTimetableID)
+      } else if let selectedSemester {
+        result = try await timetableUseCase.getMyTable(semester: selectedSemester)
+      } else {
+        timetable = nil
+        return
+      }
+
+      try Task.checkCancellation()
+
+      timetable = result
+    } catch is CancellationError {
+      // ignore
+    } catch {
+      // HANDLE EXCEPTION
+      timetable = nil
     }
   }
 

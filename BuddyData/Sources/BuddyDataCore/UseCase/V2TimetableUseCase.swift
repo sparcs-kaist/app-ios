@@ -38,6 +38,15 @@ public final class V2TimetableUseCase: V2TimetableUseCaseProtocol, @unchecked Se
       .getTables(year: semester.year, semester: semester.semesterType)
   }
 
+  public func getTable(id: Int) async throws -> V2Timetable {
+    return try await otlTimetableRepository.getTable(timetableID: id)
+  }
+
+  public func getMyTable(semester: Semester) async throws -> V2Timetable {
+    return try await otlTimetableRepository
+      .getMyTable(year: semester.year, semester: semester.semesterType)
+  }
+
   public func deleteTable(id: Int) async throws {
     try await otlTimetableRepository.deleteTable(timetableID: id)
   }

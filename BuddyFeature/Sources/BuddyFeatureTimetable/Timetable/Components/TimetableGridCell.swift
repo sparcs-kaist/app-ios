@@ -9,7 +9,7 @@ import SwiftUI
 import BuddyDomain
 
 struct TimetableGridCell: View {
-  let lecture: Lecture
+  let lectureItem: V2LectureItem
   let isCandidate: Bool
   let onDeletion: (() -> Void)?
 
@@ -22,17 +22,17 @@ struct TimetableGridCell: View {
           .fill(colorScheme == .light ? .clear : backgroundColor.darkTransformedHSB())
 
         VStack(alignment: .leading, spacing: 4) {
-          Text(lecture.title)
+          Text(lectureItem.lecture.name)
             .font(.caption)
             .lineLimit(3)
 
-          Text(lecture.classTimes[0].classroomNameShort)
+          Text("\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.buildingName)")
             .minimumScaleFactor(0.8)
             .lineLimit(2)
             .font(.caption2)
             .opacity(0.8)
         }
-        .foregroundStyle(isCandidate ? .white : lecture.textColor)
+        .foregroundStyle(isCandidate ? .white : lectureItem.lecture.textColor)
         .padding(6)
       }
       .glassEffect(
@@ -50,23 +50,23 @@ struct TimetableGridCell: View {
   }
 
   var backgroundColor: Color {
-    isCandidate ? Color.accentColor : lecture.backgroundColor
+    isCandidate ? Color.accentColor : lectureItem.lecture.backgroundColor
   }
 }
 
-#Preview(traits: .fixedLayout(width: 88, height: 105)) {
-  TimetableGridCell(lecture: Lecture.mockList[0], isCandidate: false, onDeletion: nil)
-}
-
-#Preview(traits: .fixedLayout(width: 88, height: 105)) {
-  TimetableGridCell(lecture: Lecture.mockList[1], isCandidate: false, onDeletion: nil)
-}
-
-#Preview(traits: .fixedLayout(width: 88, height: 105)) {
-  TimetableGridCell(lecture: Lecture.mockList[2], isCandidate: false, onDeletion: nil)
-}
-
-#Preview(traits: .fixedLayout(width: 88, height: 105)) {
-  TimetableGridCell(lecture: Lecture.mockList[3], isCandidate: false, onDeletion: nil)
-}
+//#Preview(traits: .fixedLayout(width: 88, height: 105)) {
+//  TimetableGridCell(lecture: Lecture.mockList[0], isCandidate: false, onDeletion: nil)
+//}
+//
+//#Preview(traits: .fixedLayout(width: 88, height: 105)) {
+//  TimetableGridCell(lecture: Lecture.mockList[1], isCandidate: false, onDeletion: nil)
+//}
+//
+//#Preview(traits: .fixedLayout(width: 88, height: 105)) {
+//  TimetableGridCell(lecture: Lecture.mockList[2], isCandidate: false, onDeletion: nil)
+//}
+//
+//#Preview(traits: .fixedLayout(width: 88, height: 105)) {
+//  TimetableGridCell(lecture: Lecture.mockList[3], isCandidate: false, onDeletion: nil)
+//}
 

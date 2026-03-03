@@ -27,9 +27,26 @@ public struct TimetableConstructor {
     return (cellHeight <= 0) ? 0 : cellHeight - 4
   }
 
+  public static func getCellHeightV2(for item: V2LectureItem, in size: CGSize, of duration: Int) -> CGFloat {
+    let timetableHeight: CGFloat = size.height - daysHeight - 14
+    let cellHeight: CGFloat = (timetableHeight / CGFloat(duration)) * CGFloat(
+      item.lectureClass.duration
+    )
+
+    return (cellHeight <= 0) ? 0 : cellHeight - 4
+  }
+
   public static func getCellOffset(for item: LectureItem, in size: CGSize, at start: Int, of duration: Int) -> CGFloat {
     let timetableHeight: CGFloat = size.height - daysHeight - 14
     let difference: CGFloat = (timetableHeight / CGFloat(duration)) * CGFloat(item.lecture.classTimes[item.index].begin - start)
+    return daysHeight + 14 + difference
+  }
+
+  public static func getCellOffsetV2(for item: V2LectureItem, in size: CGSize, at start: Int, of duration: Int) -> CGFloat {
+    let timetableHeight: CGFloat = size.height - daysHeight - 14
+    let difference: CGFloat = (timetableHeight / CGFloat(duration)) * CGFloat(
+      item.lectureClass.begin - start
+    )
     return daysHeight + 14 + difference
   }
 }

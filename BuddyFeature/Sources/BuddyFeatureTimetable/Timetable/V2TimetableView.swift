@@ -13,6 +13,8 @@ import FirebaseAnalytics
 public struct V2TimetableView: View {
   @State private var viewModel = V2TimetableViewModel()
 
+  @Environment(\.colorScheme) private var colorScheme
+
   public var body: some View {
     GeometryReader { reader in
       NavigationStack {
@@ -34,6 +36,18 @@ public struct V2TimetableView: View {
               }
             )
             .redacted(reason: viewModel.isLoading ? .placeholder : [])
+
+            TimetableGrid(
+              selectedTimetable: viewModel.timetable,
+              candidateLecture: nil,
+              selectedLecture: { selectedLecture in
+
+              }
+            )
+            .padding()
+            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+            .frame(height: reader.size.height * 0.8)
           }
           .padding()
         }

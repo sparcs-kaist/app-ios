@@ -15,6 +15,10 @@ public struct V2LectureClass: Hashable, Sendable, Codable {
   public let buildingName: String
   public let roomName: String
 
+  public var duration: Int {
+    end - begin
+  }
+
   public init(
     day: DayType,
     begin: Int,

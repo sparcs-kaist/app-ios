@@ -10,8 +10,9 @@ import BuddyDomain
 import Haptica
 
 struct TimetableGrid: View {
-  @Environment(TimetableViewModel.self) private var timetableViewModel
-  var selectedLecture: ((LectureItem) -> Void)?
+  let selectedTimetable: V2Timetable?
+  let candidateLecture: V2Lecture?
+  var selectedLecture: ((V2LectureItem) -> Void)?
 
   private let defaultMinMinutes: Int = 540       // 8:00 AM
   private let defaultMaxMinutes: Int = 1080      // 6:00 PM
@@ -22,27 +23,27 @@ struct TimetableGrid: View {
       daysColumnHeader
       timesRowHeader
       HStack(spacing: 4) {
-        ForEach(timetableViewModel.selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
+        ForEach(selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
           ZStack(alignment: .top) {
             gridHorizontalLine
               .foregroundStyle(.separator)
-            if let selectedTimetable = timetableViewModel.selectedTimetable {
+            if let selectedTimetable = selectedTimetable {
               ForEach(selectedTimetable.getLectures(day: day)) { item in
                 TimetableGridCell(
-                  lecture: item.lecture,
-                  isCandidate: item.lecture.id == timetableViewModel.candidateLecture?.id,
+                  lectureItem: item,
+                  isCandidate: item.lecture.id == candidateLecture?.id,
                   onDeletion: {
                     Task {
-                      await timetableViewModel.deleteLecture(lecture: item.lecture)
+//                      await timetableViewModel.deleteLecture(lecture: item.lecture)
                     }
                   }
                 )
-                .frame(height: TimetableConstructor.getCellHeight(for: item, in: geometry.size, of: selectedTimetable.gappedDuration))
-                .offset(y: TimetableConstructor.getCellOffset(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration))
+                .frame(height: TimetableConstructor.getCellHeightV2(for: item, in: geometry.size, of: selectedTimetable.gappedDuration))
+                .offset(y: TimetableConstructor.getCellOffsetV2(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration))
                 .transition(.scale.combined(with: .opacity))
                 .onTapGesture {
                   Haptic.selection.generate()
-                  selectedLecture?(item)
+//                  selectedLecture?(item)
                 }
               }
             }
@@ -55,8 +56,8 @@ struct TimetableGrid: View {
 
   private var gridHorizontalLine: some View {
     VStack(spacing: 0) {
-      let minHour = (timetableViewModel.selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
-      let maxHour = (timetableViewModel.selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
+      let minHour = (selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
+      let maxHour = (selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
 
       ForEach(minHour..<maxHour, id: \.self) { hour in
         HorizontalLine()
@@ -73,7 +74,7 @@ struct TimetableGrid: View {
 
   private var daysColumnHeader: some View {
     HStack(spacing: 0) {
-      ForEach(timetableViewModel.selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
+      ForEach(selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
         Text(day.stringValue)
           .font(.caption)
           .frame(maxWidth: .infinity)
@@ -87,8 +88,8 @@ struct TimetableGrid: View {
 
   private var timesRowHeader: some View {
     VStack(spacing: 0) {
-      let minHour = (timetableViewModel.selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
-      let maxHour = (timetableViewModel.selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
+      let minHour = (selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
+      let maxHour = (selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
 
       ForEach(minHour..<maxHour, id: \.self) { hour in
         Text(String(hour))
@@ -114,8 +115,8 @@ private struct HorizontalLine: Shape {
   }
 }
 
-#Preview(traits: .fixedLayout(width: 402, height: 503)) {
-  TimetableGrid()
-    .environment(TimetableViewModel())
-}
+//#Preview(traits: .fixedLayout(width: 402, height: 503)) {
+//  TimetableGrid()
+//    .environment(TimetableViewModel())
+//}
 

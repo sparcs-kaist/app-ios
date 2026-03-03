@@ -39,14 +39,14 @@ public struct TimetableView: View {
 //              .environment(viewModel)
 
             // Timetable Gird View
-            TimetableGrid() { lectureItem in
-              selectedLecture = lectureItem
-            }
-            .padding()
-            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-            .frame(height: proxy.size.height * 0.8)
-            .environment(viewModel)
+//            TimetableGrid() { lectureItem in
+//              selectedLecture = lectureItem
+//            }
+//            .padding()
+//            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+//            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+//            .frame(height: proxy.size.height * 0.8)
+//            .environment(viewModel)
 
             TimetableCreditGraph()
               .padding()
