@@ -10,7 +10,9 @@ public struct PreviewUserUseCase: UserUseCaseProtocol {
   public init() {}
 
   public var araUser: AraUser? { nil }
-  public var taxiUser: TaxiUser? { nil }
+  public var taxiUser: TaxiUser? {
+    TaxiUser.mock
+  }
   public var feedUser: FeedUser? {
     FeedUser(id: "preview", nickname: "PreviewUser", profileImageURL: nil, karma: 42)
   }

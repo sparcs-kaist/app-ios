@@ -10,6 +10,7 @@ import BuddyDomain
 import BuddyFeatureShared
 import Haptica
 import FirebaseAnalytics
+import BuddyPreviewSupport
 
 public struct TaxiListView: View {
   @State var viewModel: TaxiListViewModelProtocol
@@ -267,29 +268,22 @@ public struct TaxiListView: View {
 
 
 // MARK: - Previews
-//#Preview("Loading State") {
-//  let vm = MockTaxiListViewModel()
-//  vm.state = .loading
-//  return TaxiListView(viewModel: vm)
-//}
-//
-//#Preview("Loaded State") {
-//  let vm = MockTaxiListViewModel()
-//  vm.state = .loaded(
-//    rooms: TaxiRoom.mockList,
-//    locations: TaxiLocation.mockList
-//  )
-//  return TaxiListView(viewModel: vm)
-//}
-//
-//#Preview("Empty State") {
-//  let vm = MockTaxiListViewModel()
-//  vm.state = .empty
-//  return TaxiListView(viewModel: vm)
-//}
-//
-//#Preview("Error State") {
-//  let vm = MockTaxiListViewModel()
-//  vm.state = .error(message: "Something went wrong")
-//  return TaxiListView(viewModel: vm)
-//}
+#Preview("Loading State") {
+  TaxiListView(viewModel: PreviewTaxiListViewModel(state: .loading))
+}
+
+#Preview("Loaded State") {
+  let state = TaxiListViewState.loaded(
+    rooms: TaxiRoom.mockList,
+    locations: TaxiLocation.mockList
+  )
+  TaxiListView(viewModel: PreviewTaxiListViewModel(state: state))
+}
+
+#Preview("Empty State") {
+  TaxiListView(viewModel: PreviewTaxiListViewModel(state: .empty))
+}
+
+#Preview("Error State") {
+  TaxiListView(viewModel: PreviewTaxiListViewModel(state: .error(message: "Something went wrong")))
+}

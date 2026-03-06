@@ -6,12 +6,11 @@
 //
 
 import Foundation
-import BuddyDomain
 
 @MainActor
 public protocol TaxiListViewModelProtocol: Observable {
   // MARK: - ViewModel Properties
-  var state: TaxiListViewModel.ViewState { get }
+  var state: TaxiListViewState { get }
   var week: [Date] { get }
   var rooms: [TaxiRoom] { get }
   var locations: [TaxiLocation] { get }
