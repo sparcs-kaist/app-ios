@@ -1,6 +1,6 @@
 //
 //  TaxiChatListViewModelProtocol.swift
-//  soap
+//  BuddyDomain
 //
 //  Created by Soongyu Kwon on 14/07/2025.
 //

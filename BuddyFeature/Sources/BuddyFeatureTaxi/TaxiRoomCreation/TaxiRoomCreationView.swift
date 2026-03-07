@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
+import BuddyPreviewSupport
 
 struct TaxiRoomCreationView: View {
   @State var viewModel: TaxiListViewModelProtocol
@@ -119,7 +120,11 @@ struct TaxiRoomCreationView: View {
   }
 }
 
-//#Preview {
-//  let vm = MockTaxiListViewModel()
-//  return TaxiRoomCreationView(viewModel: vm)
-//}
+#Preview {
+  let state = TaxiListViewState.loaded(
+    rooms: TaxiRoom.mockList,
+    locations: TaxiLocation.mockList
+  )
+  
+  TaxiRoomCreationView(viewModel: PreviewTaxiListViewModel(state: state))
+}
