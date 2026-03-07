@@ -11,9 +11,9 @@ import FirebaseAnalytics
 
 public struct CourseView: View {
   @State private var viewModel: CourseViewModel
-  @State private var course: Course
-  
-  public init(course: Course, viewModel: CourseViewModel = .init()) {
+  @State private var course: V2CourseSummary
+
+  public init(course: V2CourseSummary, viewModel: CourseViewModel = .init()) {
     self.viewModel = viewModel
     self.course = course
   }
@@ -31,10 +31,10 @@ public struct CourseView: View {
       }
       .padding(.horizontal)
     }
-    .navigationTitle(course.title.localized())
+    .navigationTitle(course.name)
     .navigationBarTitleDisplayMode(.inline)
     .task {
-      await viewModel.fetchReviews(courseId: course.id)
+      await viewModel.setup(courseID: course.id)
     }
     .analyticsScreen(name: "Course", class: String(describing: Self.self))
   }
@@ -43,12 +43,15 @@ public struct CourseView: View {
     Group {
       VStack(spacing: 20) {
         HStack {
-          lectureSummaryRowWrapper(title: "Hours", description: String(course.numClasses))
-          lectureSummaryRowWrapper(title: "Lab", description: String(course.numLabs))
-          if course.credit == 0 {
-            lectureSummaryRowWrapper(title: "AU", description: String(course.creditAU))
+          lectureSummaryRowWrapper(
+            title: "Hours",
+            description: String(viewModel.course?.classDuration ?? 0)
+          )
+          lectureSummaryRowWrapper(title: "Lab", description: String(viewModel.course?.expDuration ?? 0))
+          if viewModel.course?.credit == 0 {
+            lectureSummaryRowWrapper(title: "AU", description: String(viewModel.course?.creditAU ?? 0))
           } else {
-            lectureSummaryRowWrapper(title: "Credit", description: String(course.credit))
+            lectureSummaryRowWrapper(title: "Credit", description: String(viewModel.course?.credit ?? 0))
           }
         }
 
@@ -61,8 +64,8 @@ public struct CourseView: View {
           }
 
           LectureDetailRow(title: "Code", description: course.code)
-          LectureDetailRow(title: "Type", description: course.type.localized())
-          LectureDetailRow(title: "Department", description: course.department.name.localized())
+          LectureDetailRow(title: "Type", description: course.type.displayName.localized())
+          LectureDetailRow(title: "Department", description: course.department.name)
 
           if course.summary != "" {
             Text("Summary")
@@ -88,9 +91,9 @@ public struct CourseView: View {
           .fontWeight(.bold)
         Spacer()
 
-        lectureSummaryRowWrapper(title: "Grade", description: course.gradeLetter)
-        lectureSummaryRowWrapper(title: "Load", description: course.loadLetter)
-        lectureSummaryRowWrapper(title: "Speech", description: course.speechLetter)
+        lectureSummaryRowWrapper(title: "Grade", description: "?")
+        lectureSummaryRowWrapper(title: "Load", description: "?")
+        lectureSummaryRowWrapper(title: "Speech", description: "?")
       }
       
       Spacer()
@@ -102,7 +105,7 @@ public struct CourseView: View {
             LectureReviewCell(review: $review)
           }
         } else {
-          ForEach(LectureReview.mockList.prefix(3)) { review in
+          ForEach(V2LectureReview.mockList.prefix(3)) { review in
             LectureReviewCell(review: .constant(review))
               .redacted(reason: .placeholder)
           }
@@ -117,6 +120,6 @@ public struct CourseView: View {
   }
 }
 
-#Preview {
-  CourseView(course: .mock)
-}
+//#Preview {
+//  CourseView(course: .mock)
+//}

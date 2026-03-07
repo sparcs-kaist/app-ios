@@ -10,28 +10,31 @@ import BuddyDomain
 
 struct V2CourseDTO: Codable {
   let id: Int
-  let code: String
   let name: String
   let summary: String
-  let department: V2DepartmentDTO
-  let professors: [V2ProfessorDTO]
+  let code: String
   let type: String
-  let completed: Bool
-  let open: Bool
+  let department: V2DepartmentDTO
+  let classDuration: Int
+  let expDuration: Int
+  let credit: Int
+  let creditAU: Int
 }
+
 
 extension V2CourseDTO {
   func toModel() -> V2Course {
     V2Course(
       id: id,
-      code: code,
       name: name,
       summary: summary,
-      department: department.toModel(),
-      professors: professors.compactMap { $0.toModel() },
+      code: code,
       type: LectureType.fromRawValue(type),
-      completed: completed,
-      open: open
+      department: department.toModel(),
+      classDuration: classDuration,
+      expDuration: expDuration,
+      credit: credit,
+      creditAU: creditAU
     )
   }
 }

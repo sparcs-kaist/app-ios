@@ -13,6 +13,7 @@ struct TimetableGrid: View {
   let selectedTimetable: V2Timetable?
   let candidateLecture: V2Lecture?
   var selectedLecture: ((V2LectureItem) -> Void)?
+  var onDelete: (V2Lecture) -> Void
 
   private let defaultMinMinutes: Int = 540       // 8:00 AM
   private let defaultMaxMinutes: Int = 1080      // 6:00 PM
@@ -33,9 +34,7 @@ struct TimetableGrid: View {
                   lectureItem: item,
                   isCandidate: item.lecture.id == candidateLecture?.id,
                   onDeletion: {
-                    Task {
-//                      await timetableViewModel.deleteLecture(lecture: item.lecture)
-                    }
+                    onDelete(item.lecture)
                   }
                 )
                 .frame(height: TimetableConstructor.getCellHeightV2(for: item, in: geometry.size, of: selectedTimetable.gappedDuration))
@@ -43,7 +42,7 @@ struct TimetableGrid: View {
                 .transition(.scale.combined(with: .opacity))
                 .onTapGesture {
                   Haptic.selection.generate()
-//                  selectedLecture?(item)
+                  selectedLecture?(item)
                 }
               }
             }

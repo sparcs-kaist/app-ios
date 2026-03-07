@@ -19,20 +19,36 @@ public class CourseViewModel {
   }
   
   // MARK: - Dependencies
-  @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol?
+  @ObservationIgnored @Injected(
+    \.v2CourseUseCase
+  ) private var courseUseCase: V2CourseUseCaseProtocol?
+  @ObservationIgnored @Injected(\.v2ReviewUseCase) private var reviewUseCase: V2ReviewUseCaseProtocol?
 
   // MARK: - Properties
-  public var reviews: [LectureReview] = []
+  public var course: V2Course? = nil
+  public var reviews: [V2LectureReview] = []
   public var state: ViewState = .loading
 
   public init() { }
 
   // MARK: - Functions
-  public func fetchReviews(courseId: Int) async {
-    guard let otlCourseRepository else { return }
+
+  public func setup(courseID: Int) async {
+    guard let courseUseCase else { return }
+    do {
+      self.course = try await courseUseCase.getCourse(courseID: courseID)
+      await fetchReviews(courseID: courseID)
+    } catch {
+      self.state = .error(message: error.localizedDescription)
+    }
+  }
+
+  public func fetchReviews(courseID: Int) async {
+    guard let reviewUseCase else { return }
     do {
       self.state = .loading
-      self.reviews = try await otlCourseRepository.fetchReviews(courseId: courseId, offset: 0, limit: 100)
+      let page = try await reviewUseCase.fetchReviews(courseID: courseID, professorID: nil, offset: 0, limit: 100)
+      self.reviews = page.reviews
       self.state = .loaded
     } catch {
       self.state = .error(message: error.localizedDescription)

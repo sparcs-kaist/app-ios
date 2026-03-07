@@ -6,10 +6,8 @@
 //
 
 import Foundation
-import Observation
 import BuddyDomain
 
-@Observable
 public final class V2TimetableUseCase: V2TimetableUseCaseProtocol, @unchecked Sendable {
   // MARK: - Dependencies
   private let otlTimetableRepository: OTLV2TimetableRepositoryProtocol
@@ -57,5 +55,13 @@ public final class V2TimetableUseCase: V2TimetableUseCaseProtocol, @unchecked Se
 
   public func createTable(semester: Semester) async throws -> V2TableCreation {
     try await otlTimetableRepository.createTable(year: semester.year, semester: semester.semesterType)
+  }
+
+  public func addLecture(timetableID: Int, lectureID: Int) async throws {
+    try await otlTimetableRepository.addLecture(timetableID: timetableID, lectureID: lectureID)
+  }
+
+  public func deleteLecture(timetableID: Int, lectureID: Int) async throws {
+    try await otlTimetableRepository.deleteLecture(timetableID: timetableID, lectureID: lectureID)
   }
 }

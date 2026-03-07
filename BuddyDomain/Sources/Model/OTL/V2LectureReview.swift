@@ -14,14 +14,14 @@ public struct V2LectureReview: Identifiable, Hashable, Sendable, Codable {
   public let courseName: String
   public let professors: [V2Professor]
   public let year: Int
-  public let semester: Int
+  public let semester: SemesterType
   public let content: String
-  public let like: Int
+  public var like: Int
   public let grade: String
   public let load: String
   public let speech: String
   public let isDeleted: Bool
-  public let likedByUser: Bool
+  public var likedByUser: Bool
 
   public init(
     id: Int,
@@ -30,7 +30,7 @@ public struct V2LectureReview: Identifiable, Hashable, Sendable, Codable {
     courseName: String,
     professors: [V2Professor],
     year: Int,
-    semester: Int,
+    semester: SemesterType,
     content: String,
     like: Int,
     grade: String,

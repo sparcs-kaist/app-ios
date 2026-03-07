@@ -12,10 +12,9 @@ import FirebaseAnalytics
 
 struct ReviewComposeView: View {
   let lecture: V2Lecture
-  let onWrite: ((LectureReview) -> Void)
 
   @Environment(\.dismiss) private var dismiss
-  @Injected(\.otlLectureRepository) private var otlLectureRepository: OTLLectureRepositoryProtocol?
+  @Injected(\.v2ReviewUseCase) private var reviewUseCase: V2ReviewUseCaseProtocol?
 
   @State private var grade: Int = 5
   @State private var load: Int = 5
@@ -87,18 +86,18 @@ struct ReviewComposeView: View {
             role: .confirm,
             action: {
               Task {
-                guard let otlLectureRepository else { return }
+                guard let reviewUseCase else { return }
                 isUploading = true
                 defer { isUploading = false }
                 do {
-                  let review: LectureReview = try await otlLectureRepository.writeReview(
-                    lectureID: lecture.id,
-                    content: content,
-                    grade: grade,
-                    load: load,
-                    speech: speech
-                  )
-                  onWrite(review)
+                  try await reviewUseCase
+                    .writeReview(
+                      lectureID: lecture.id,
+                      content: content,
+                      grade: grade,
+                      load: load,
+                      speech: speech
+                    )
                   dismiss()
                 } catch {
                   showErrorAlert = true

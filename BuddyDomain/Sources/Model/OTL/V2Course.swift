@@ -7,36 +7,39 @@
 
 import Foundation
 
-public struct V2Course: Identifiable, Sendable, Hashable, Codable {
+public struct V2Course: Identifiable, Hashable, Sendable, Codable {
   public let id: Int
-  public let code: String
   public let name: String
   public let summary: String
-  public let department: V2Department
-  public let professors: [V2Professor]
+  public let code: String
   public let type: LectureType
-  public let completed: Bool
-  public let open: Bool
+  public let department: V2Department
+  public let classDuration: Int
+  public let expDuration: Int
+  public let credit: Int
+  public let creditAU: Int
 
   public init(
     id: Int,
-    code: String,
     name: String,
     summary: String,
-    department: V2Department,
-    professors: [V2Professor],
+    code: String,
     type: LectureType,
-    completed: Bool,
-    open: Bool
+    department: V2Department,
+    classDuration: Int,
+    expDuration: Int,
+    credit: Int,
+    creditAU: Int
   ) {
     self.id = id
-    self.code = code
     self.name = name
     self.summary = summary
-    self.department = department
-    self.professors = professors
+    self.code = code
     self.type = type
-    self.completed = completed
-    self.open = open
+    self.department = department
+    self.classDuration = classDuration
+    self.expDuration = expDuration
+    self.credit = credit
+    self.creditAU = creditAU
   }
 }

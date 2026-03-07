@@ -71,7 +71,7 @@ public struct SearchView: View {
     .analyticsScreen(name: "Search", class: String(describing: Self.self))
   }
   
-  private func courseSection(courses: [Course]) -> some View {
+  private func courseSection(courses: [V2CourseSummary]) -> some View {
     SearchSection(title: String(localized: "Courses"), searchScope: $viewModel.searchScope, targetScope: .courses) {
       SearchContent(results: courses) { course in
         NavigationLink {
@@ -135,9 +135,9 @@ public struct SearchView: View {
     ScrollView {
       LazyVStack(spacing: 16) {
         if viewModel.searchScope == .all {
-          courseSection(courses: viewModel.state == .loading ? Array(Course.mockList.prefix(3)) : Array(viewModel.courses.prefix(3)))
+          courseSection(courses: viewModel.state == .loading ? Array(V2CourseSummary.mockList.prefix(3)) : Array(viewModel.courses.prefix(3)))
         } else if viewModel.searchScope == .courses {
-          courseSection(courses: viewModel.state == .loading ? Course.mockList : viewModel.courses)
+          courseSection(courses: viewModel.state == .loading ? V2CourseSummary.mockList : viewModel.courses)
         }
 
         if viewModel.searchScope == .all {

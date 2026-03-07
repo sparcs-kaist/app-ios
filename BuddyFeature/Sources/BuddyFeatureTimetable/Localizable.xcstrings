@@ -588,6 +588,7 @@
 
     },
     "Report" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

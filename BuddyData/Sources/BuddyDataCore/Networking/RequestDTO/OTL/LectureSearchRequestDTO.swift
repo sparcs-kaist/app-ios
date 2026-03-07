@@ -8,7 +8,7 @@
 import Foundation
 import BuddyDomain
 
- public struct LectureSearchRequestDTO: Codable {
+public struct LectureSearchRequestDTO: Codable {
   let year: Int
   let semester: Int
   let keyword: String
@@ -34,3 +34,4 @@ extension LectureSearchRequestDTO {
     )
   }
 }
+

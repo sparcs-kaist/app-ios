@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct V2CourseLecture: Identifiable, Equatable, Sendable {
+public struct V2CourseLecture: Identifiable, Equatable, Hashable, Sendable {
   public let id: Int
   public let name: String
   public let code: String

@@ -20,23 +20,23 @@ class LectureSearchViewModel {
     case loaded
     case error(message: String)
   }
+
   var state: ViewState = .loading
-  var lectures: [Lecture] = []
+  var courses: [V2CourseLecture] = []
   var searchKeyword: String = "" {
     didSet { searchKeywordSubject.send(searchKeyword) }
   }
+
   @ObservationIgnored private var cancellables = Set<AnyCancellable>()
   @ObservationIgnored private let searchKeywordSubject = PassthroughSubject<String, Never>()
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
-    \.otlLectureRepository
-  ) private var otlLectureRepository: OTLLectureRepositoryProtocol?
-  @ObservationIgnored @Injected(
-    \.timetableUseCase
-  ) private var timetableUseCase: TimetableUseCaseProtocol?
+    \.v2LectureUseCase
+  ) private var lectureUseCase: V2LectureUseCaseProtocol?
 
-  func bind() {
+  func bind(selectedSemester: Semester) {
+    print("[HERE] BINDING")
     cancellables.removeAll()
 
     let searchPublisher = searchKeywordSubject
@@ -49,21 +49,22 @@ class LectureSearchViewModel {
         guard let self else { return }
         guard !searchKeyword.isEmpty else {
           self.state = .loading
-          self.lectures.removeAll()
+          self.courses.removeAll()
           return
         }
 
         Task {
-          await fetchLectures()
+          await fetchLectures(selectedSemester: selectedSemester)
         }
       }
       .store(in: &cancellables)
   }
 
-  func fetchLectures() async {
-    guard let otlLectureRepository, let timetableUseCase else { return }
-    guard let selectedSemester = timetableUseCase.selectedSemester,
-          !searchKeyword.isEmpty else { return }
+  func fetchLectures(selectedSemester: Semester) async {
+    guard let lectureUseCase else { return }
+    guard !searchKeyword.isEmpty else { return }
+
+    print("[HERE] fetching lectures")
 
     do {
       let request = LectureSearchRequest(
@@ -72,11 +73,12 @@ class LectureSearchViewModel {
         limit: 100,
         offset: 0
       )
-      let page: [Lecture] = try await otlLectureRepository.searchLectures(request: request)
-
-      self.lectures = page
+      let page: [V2CourseLecture] = try await lectureUseCase.searchLecture(request: request)
+      print("[HERE] got page")
+      self.courses = page
       self.state = .loaded
     } catch {
+      print(error)
       state = .error(message: error.localizedDescription)
     }
   }

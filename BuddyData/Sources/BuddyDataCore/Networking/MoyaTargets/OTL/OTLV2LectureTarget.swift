@@ -10,7 +10,6 @@ import Moya
 
 public enum OTLV2LectureTarget {
   case searchLecture(request: LectureSearchRequestDTO)
-
 }
 
 extension OTLV2LectureTarget: TargetType, AccessTokenAuthorizable {

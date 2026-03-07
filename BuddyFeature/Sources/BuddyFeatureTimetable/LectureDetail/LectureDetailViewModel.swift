@@ -19,20 +19,27 @@ class LectureDetailViewModel {
     case error(message: String)
   }
   var state: ViewState = .loading
-  var reviews: [LectureReview] = []
+  var reviews: [V2LectureReview] = []
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
-    \.otlLectureRepository
-  ) private var otlLectureRepository: OTLLectureRepositoryProtocol?
+    \.v2ReviewUseCase
+  ) private var reviewUseCase: V2ReviewUseCaseProtocol?
 
   // MARK: - Functions
 
-  func fetchReviews(lectureID: Int) async {
-    guard let otlLectureRepository else { return }
+  func fetchReviews(lecture: V2Lecture) async {
+    guard let reviewUseCase else { return }
 
     do {
-      self.reviews = try await otlLectureRepository.fetchLectures(lectureID: lectureID)
+      let page = try await reviewUseCase
+        .fetchReviews(
+          courseID: lecture.courseID,
+          professorID: lecture.professors.first?.id,
+          offset: 0,
+          limit: 100
+        )
+      self.reviews = page.reviews
       self.state = .loaded
     } catch {
       self.state = .error(message: error.localizedDescription)

@@ -20,7 +20,7 @@ class SearchViewModel {
     case loaded
     case error(message: String)
   }
-  var courses: [Course] = []
+  var courses: [V2CourseSummary] = []
   var posts: [AraPost] = []
   var taxiRooms: [TaxiRoom] = []
   
@@ -47,7 +47,9 @@ class SearchViewModel {
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol?
-  @ObservationIgnored @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol?
+  @ObservationIgnored @Injected(
+    \.v2CourseUseCase
+  ) private var courseUseCase: V2CourseUseCaseProtocol?
 
   func bind() {
     cancellables.removeAll()
@@ -80,7 +82,7 @@ class SearchViewModel {
   }
   
   func fetchInitialData() async {
-    guard let taxiRoomRepository, let araBoardUseCase, let otlCourseRepository, let taxiLocationUseCase else { return }
+    guard let taxiRoomRepository, let araBoardUseCase, let courseUseCase, let taxiLocationUseCase else { return }
     state = .loading
     
     do {
@@ -112,8 +114,9 @@ class SearchViewModel {
           self.taxiRooms.append(room)
         }
       }
-      
-      self.courses = try await otlCourseRepository.searchCourse(name: searchText, offset: 0, limit: 150)
+
+      let request = CourseSearchRequest(keyword: searchText, limit: 150, offset: 0)
+      self.courses = try await courseUseCase.searchCourse(request: request)
 
       self.state = .loaded
     } catch {

@@ -7,11 +7,15 @@
 
 import SwiftUI
 import FirebaseAnalytics
+import BuddyDomain
 
 struct LectureSearchView: View {
   @Binding var detent: PresentationDetent
+  let timetableDisplayName: String
+  let selectedSemester: Semester
+  @Binding var candidateLecture: V2Lecture?
+  let onAdd: (V2Lecture) -> Void
 
-  @Environment(TimetableViewModel.self) private var timetableViewModel: TimetableViewModel
   @State private var viewModel = LectureSearchViewModel()
 
   var body: some View {
@@ -23,7 +27,7 @@ struct LectureSearchView: View {
             systemImage: "magnifyingglass",
             description: Text("Search courses, codes or professors.")
           )
-        } else if viewModel.lectures.isEmpty && viewModel.state != .loading {
+        } else if viewModel.courses.isEmpty && viewModel.state != .loading {
           ContentUnavailableView.search(text: viewModel.searchKeyword)
         } else if viewModel.state == .loading {
           ProgressView()
@@ -31,12 +35,12 @@ struct LectureSearchView: View {
           searchResultView
         }
       }
-      .navigationTitle("Add to \"\(timetableViewModel.selectedTimetableDisplayName)\"")
+      .navigationTitle("Add to \"\(timetableDisplayName)\"")
       .navigationBarTitleDisplayMode(.inline)
       .searchable(text: $viewModel.searchKeyword)
       .scrollDismissesKeyboard(.immediately)
       .onAppear {
-        viewModel.bind()
+        viewModel.bind(selectedSemester: selectedSemester)
       }
     }
     .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
@@ -44,79 +48,70 @@ struct LectureSearchView: View {
 
   @ViewBuilder
   var searchResultView: some View {
-    let groupedByCourse = Dictionary(grouping: viewModel.lectures, by: { $0.course })
-    // Preserve the order of first appearance from the original list
-    let orderedCourses: [Int] = {
-      var seen = Set<Int>()
-      var result: [Int] = []
-      for lecture in viewModel.lectures {
-        if seen.insert(lecture.course).inserted {
-          result.append(lecture.course)
-        }
-      }
-      return result
-    }()
-
-    ForEach(orderedCourses, id: \.self) { course in
+    ForEach(viewModel.courses) { course in
       Section {
-        if let firstItem = groupedByCourse[course]?.first {
-          HStack {
-            Text(firstItem.title.localized())
-              .lineLimit(2)
-              .multilineTextAlignment(.leading)
-              .font(.callout)
-              .fontWeight(.semibold)
-
-            Spacer()
-
-            VStack(alignment: .trailing) {
-              Text(firstItem.code)
-              Text(firstItem.typeDetail.localized())
-            }
-            .foregroundStyle(.secondary)
-            .font(.footnote)
-          }
-        }
-        ForEach(groupedByCourse[course] ?? []) { lecture in
+        courseSectionHeader(course: course)
+        ForEach(course.lectures) { lecture in
           NavigationLink(destination: {
             LectureDetailView(
               lecture: lecture,
               onAdd: {
-                Task {
-                  await timetableViewModel.addLecture(lecture: lecture)
-                }
+                onAdd(lecture)
               },
-              isOverlapping: timetableViewModel.isCandidateOverlapping,
-              classTime: lecture.classTimes.first
+              isOverlapping: false,
+              lectureClass: lecture.classes.first
             )
             .onAppear {
-              timetableViewModel.candidateLecture = lecture
+              candidateLecture = lecture
               detent = .height(130)
             }
             .onDisappear {
-              timetableViewModel.candidateLecture = nil
+              candidateLecture = nil
               detent = .large
             }
           }, label: {
-            HStack {
-              Text(lecture.section ?? "A")
-                .fontDesign(.rounded)
-                .foregroundStyle(.secondary)
-
-              Text(lecture.professors.first?.name ?? String(localized: "Unknown"))
-
-              Spacer()
-            }
-            .font(.callout)
+            courseSectionLecture(lecture: lecture)
           })
         }
       }
     }
   }
+
+  private func courseSectionHeader(course: V2CourseLecture) -> some View {
+    HStack {
+      Text(course.name)
+        .lineLimit(2)
+        .multilineTextAlignment(.leading)
+        .font(.callout)
+        .fontWeight(.semibold)
+
+      Spacer()
+
+      VStack(alignment: .trailing) {
+        Text(course.code)
+        Text(course.type.displayName.localized())
+      }
+      .foregroundStyle(.secondary)
+      .font(.footnote)
+    }
+  }
+
+  private func courseSectionLecture(lecture: V2Lecture) -> some View {
+    HStack {
+      Text(lecture.section)
+        .fontDesign(.rounded)
+        .foregroundStyle(.secondary)
+
+      Text(lecture.professors.first?.name ?? String(localized: "Unknown"))
+
+      Spacer()
+    }
+    .font(.callout)
+  }
 }
 
-#Preview {
-  LectureSearchView(detent: .constant(.medium))
-    .environment(TimetableViewModel())
-}
-
+//#Preview {
+//  LectureSearchView(detent: .constant(.medium))
+//    .environment(TimetableViewModel())
+//}
+//

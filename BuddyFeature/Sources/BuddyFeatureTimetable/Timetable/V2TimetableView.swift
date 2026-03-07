@@ -13,6 +13,7 @@ import FirebaseAnalytics
 public struct V2TimetableView: View {
   @Bindable private var viewModel: V2TimetableViewModel
 
+  @State private var selectedLecture: V2LectureItem? = nil
   @State private var showSearchSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
 
@@ -41,10 +42,15 @@ public struct V2TimetableView: View {
             .redacted(reason: viewModel.isLoading ? .placeholder : [])
 
             TimetableGrid(
-              selectedTimetable: viewModel.timetable,
-              candidateLecture: nil,
+              selectedTimetable: viewModel.timetableWithCandidate,
+              candidateLecture: viewModel.candidateLecture,
               selectedLecture: { selectedLecture in
-
+                self.selectedLecture = selectedLecture
+              },
+              onDelete: { lecture in
+                Task {
+                  await viewModel.deleteLecture(lecture: lecture)
+                }
               }
             )
             .padding()
@@ -79,15 +85,50 @@ public struct V2TimetableView: View {
             .disabled(viewModel.selectedTimetableID == nil)
           }
         }
+        .sheet(item: $selectedLecture) { (item: V2LectureItem) in
+          NavigationStack {
+            LectureDetailView(
+              lecture: item.lecture,
+              onAdd: nil,
+              isOverlapping: false,
+              lectureClass: item.lectureClass
+            )
+            .presentationDragIndicator(.visible)
+            .presentationDetents([.medium, .large])
+          }
+        }
         .sheet(isPresented: $showSearchSheet) {
-          LectureSearchView(detent: $selectedDetent)
+          if let selectedSemester = viewModel.selectedSemester {
+            LectureSearchView(
+              detent: $selectedDetent,
+              timetableDisplayName: displayName,
+              selectedSemester: selectedSemester,
+              candidateLecture: $viewModel.candidateLecture,
+              onAdd: { lecture in
+                Task {
+                  await viewModel.addLecture(lecture: lecture)
+                }
+              }
+            )
             .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
             .onAppear {
               selectedDetent = .medium
             }
+          }
         }
       }
     }
+  }
+
+  private var displayName: String {
+    guard let timetable = selectedTimetable else {
+      return "My Table"
+    }
+    return timetable.title.isEmpty ? "Untitled" : timetable.title
+  }
+
+  private var selectedTimetable: V2TimetableSummary? {
+    viewModel.timetables.first(where: { $0.id == viewModel.selectedTimetableID })
   }
 
   public init(_ viewModel: V2TimetableViewModel) {

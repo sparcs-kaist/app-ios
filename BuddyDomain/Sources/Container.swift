@@ -121,6 +121,18 @@ extension Container {
     promised()
   }
 
+  public var v2ReviewUseCase: Factory<V2ReviewUseCaseProtocol?> {
+    promised()
+  }
+
+  public var v2LectureUseCase: Factory<V2LectureUseCaseProtocol?> {
+    promised()
+  }
+
+  public var v2CourseUseCase: Factory<V2CourseUseCaseProtocol?> {
+    promised()
+  }
+
   public var feedPostUseCase: Factory<FeedPostUseCaseProtocol?> {
     promised()
   }

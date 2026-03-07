@@ -35,7 +35,7 @@ extension V2LectureReviewDTO {
       courseName: courseName,
       professors: professors.compactMap { $0.toModel() },
       year: year,
-      semester: semester,
+      semester: SemesterType.fromRawValue(semester),
       content: content,
       like: like,
       grade: ratingToString(grade),

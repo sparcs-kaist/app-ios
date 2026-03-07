@@ -9,7 +9,7 @@ import Foundation
 import Moya
 
 public enum OTLV2ReviewTarget {
-  case fetchReviews(courseID: Int, professorID: Int, offset: Int, limit: Int)
+  case fetchReviews(courseID: Int, professorID: Int?, offset: Int, limit: Int)
   case writeReview(lectureID: Int, content: String, grade: Int, load: Int, speech: Int)
   case likeReview(reviewID: Int)
   case unlikeReview(reviewID: Int)
@@ -43,14 +43,18 @@ extension OTLV2ReviewTarget: TargetType, AccessTokenAuthorizable {
   public var task: Moya.Task {
     switch self {
     case .fetchReviews(let courseID, let professorID, let offset, let limit):
-        .requestParameters(parameters: [
-          "courseId": courseID,
-          "professorId": professorID,
-          "offset": offset,
-          "limit": limit
-        ], encoding: URLEncoding.default)
+      var parameters: [String: Any] = [
+        "mode": "default",
+        "courseId": courseID,
+        "offset": offset,
+        "limit": limit
+      ]
+      if let professorID {
+        parameters["professorId"] = professorID
+      }
+      return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
     case .writeReview(let lectureID, let content, let grade, let load, let speech):
-        .requestParameters(parameters: [
+        return .requestParameters(parameters: [
           "lecture": lectureID,
           "content": content,
           "grade": grade,
@@ -58,7 +62,7 @@ extension OTLV2ReviewTarget: TargetType, AccessTokenAuthorizable {
           "speech": speech
         ], encoding: JSONEncoding.default)
     case .likeReview, .unlikeReview:
-        .requestPlain
+        return .requestPlain
     }
   }
 

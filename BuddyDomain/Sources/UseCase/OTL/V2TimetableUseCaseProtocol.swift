@@ -16,4 +16,6 @@ public protocol V2TimetableUseCaseProtocol: Observable, Sendable {
   func deleteTable(id: Int) async throws
   func renameTable(id: Int, title: String) async throws
   func createTable(semester: Semester) async throws -> V2TableCreation
+  func addLecture(timetableID: Int, lectureID: Int) async throws
+  func deleteLecture(timetableID: Int, lectureID: Int) async throws
 }

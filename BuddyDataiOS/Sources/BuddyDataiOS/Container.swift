@@ -98,6 +98,30 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  private var otlV2ReviewRepository: Factory<OTLV2ReviewRepositoryProtocol> {
+    self {
+      OTLV2ReviewRepository(provider: MoyaProvider<OTLV2ReviewTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  private var otlV2LectureRepository: Factory<OTLV2LectureRepositoryProtocol> {
+    self {
+      OTLV2LectureRepository(provider: MoyaProvider<OTLV2LectureTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
+  private var otlV2CourseRepository: Factory<OTLV2CourseRepositoryProtocol> {
+    self {
+      OTLV2CourseRepository(provider: MoyaProvider<OTLV2CourseTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -280,6 +304,18 @@ extension Container: @retroactive AutoRegistering {
         otlTimetableRepository: self.otlV2TimetableRepository.resolve(),
         sessionBirdgeService: self.sessionBridgeService.resolve()
       )
+    }
+
+    v2ReviewUseCase.register {
+      V2ReviewUseCase(otlReviewRepository: self.otlV2ReviewRepository.resolve())
+    }
+
+    v2LectureUseCase.register {
+      V2LectureUseCase(otlLectureRepository: self.otlV2LectureRepository.resolve())
+    }
+
+    v2CourseUseCase.register {
+      V2CourseUseCase(otlCourseRepository: self.otlV2CourseRepository.resolve())
     }
 
     feedPostUseCase.register {

@@ -50,6 +50,19 @@ public final class V2TimetableViewModel {
     }
   }
   var timetable: V2Timetable? = nil
+  var timetableWithCandidate: V2Timetable? {
+    guard let timetable else { return nil }
+
+    if let candidateLecture {
+      var table = timetable
+      table.lectures.append(candidateLecture)
+
+      return table
+    }
+
+    return timetable
+  }
+  var candidateLecture: V2Lecture? = nil
 
   var isLoading: Bool = true
 
@@ -64,6 +77,36 @@ public final class V2TimetableViewModel {
     do {
       semesters = try await timetableUseCase.getSemesters()
       selectedSemester = try await timetableUseCase.getCurrentSemesters()
+    } catch {
+      // HANDLE EXCEPTION
+    }
+  }
+
+  func addLecture(lecture: V2Lecture) async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedTimetableID else { return }
+
+    do {
+      try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      timetableLoadTask?.cancel()
+      timetableLoadTask = Task {
+        await loadTimetable()
+      }
+    } catch {
+      // HANDLE EXCEPTION
+    }
+  }
+
+  func deleteLecture(lecture: V2Lecture) async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedTimetableID else { return }
+
+    do {
+      try await timetableUseCase.deleteLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      timetableLoadTask?.cancel()
+      timetableLoadTask = Task {
+        await loadTimetable()
+      }
     } catch {
       // HANDLE EXCEPTION
     }

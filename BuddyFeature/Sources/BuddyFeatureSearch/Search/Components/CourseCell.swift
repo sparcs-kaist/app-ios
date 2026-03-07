@@ -9,12 +9,12 @@ import SwiftUI
 import BuddyDomain
 
 struct CourseCell: View {
-  let course: Course
-  
+  let course: V2CourseSummary
+
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       HStack {
-        Text(course.title.localized())
+        Text(course.name)
           .lineLimit(2)
           .multilineTextAlignment(.leading)
           .font(.callout)
@@ -24,7 +24,7 @@ struct CourseCell: View {
 
         VStack(alignment: .trailing) {
           Text(course.code)
-          Text(course.type.localized())
+          Text(course.type.displayName.localized())
         }
         .lineLimit(1)
         .font(.footnote)
@@ -43,13 +43,13 @@ struct CourseCell: View {
   }
 }
 
-#Preview {
-  ZStack {
-    Color.secondarySystemBackground.ignoresSafeArea()
-    SearchSection(title: "Courses", searchScope: .constant(.all), targetScope: .courses) {
-      SearchContent<Course, CourseCell>(results: Course.mockList) {
-        CourseCell(course: $0)
-      }
-    }
-  }
-}
+//#Preview {
+//  ZStack {
+//    Color.secondarySystemBackground.ignoresSafeArea()
+//    SearchSection(title: "Courses", searchScope: .constant(.all), targetScope: .courses) {
+//      SearchContent<Course, CourseCell>(results: Course.mockList) {
+//        CourseCell(course: $0)
+//      }
+//    }
+//  }
+//}

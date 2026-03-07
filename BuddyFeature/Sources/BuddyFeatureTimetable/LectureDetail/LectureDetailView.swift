@@ -47,7 +47,7 @@ struct LectureDetailView: View {
       .padding([.horizontal, .bottom])
     }
     .task {
-      await viewModel.fetchReviews(lectureID: lecture.id)
+      await viewModel.fetchReviews(lecture: lecture)
       guard let userUseCase else { return }
       let otl = await userUseCase.otlUser
       canWriteReview = otl?.reviewWritableLectures.contains { $0.id == lecture.id } ?? false
@@ -74,10 +74,8 @@ struct LectureDetailView: View {
       Text("This lecture collides with an existing lecture in your timetable.")
     })
     .sheet(isPresented: $showReviewComposeView) {
-      ReviewComposeView(lecture: lecture, onWrite: { review in
-        viewModel.reviews.insert(review, at: 0)
-      })
-      .presentationDragIndicator(.visible)
+      ReviewComposeView(lecture: lecture)
+        .presentationDragIndicator(.visible)
     }
     .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
   }
@@ -120,7 +118,7 @@ struct LectureDetailView: View {
       LazyVStack(spacing: 16) {
         switch viewModel.state {
         case .loading:
-          ForEach(LectureReview.mockList.prefix(2)) { review in
+          ForEach(V2LectureReview.mockList.prefix(2)) { review in
             LectureReviewCell(review: .constant(review))
               .redacted(reason: .placeholder)
           }
