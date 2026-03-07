@@ -11,7 +11,7 @@ import BuddyDomain
 import FirebaseAnalytics
 
 struct ReviewComposeView: View {
-  let lecture: Lecture
+  let lecture: V2Lecture
   let onWrite: ((LectureReview) -> Void)
 
   @Environment(\.dismiss) private var dismiss
@@ -31,7 +31,7 @@ struct ReviewComposeView: View {
         TextField(
           "",
           text: $content,
-          prompt: Text("Share your thoughts on \(lecture.title.localized())..."),
+          prompt: Text("Share your thoughts on \(lecture.name)..."),
           axis: .vertical
         )
           .padding()
@@ -127,8 +127,8 @@ struct ReviewComposeView: View {
   }
 }
 
-#Preview {
-  ReviewComposeView(lecture: Lecture.mock, onWrite: { _ in
-
-  })
-}
+//#Preview {
+//  ReviewComposeView(lecture: Lecture.mock, onWrite: { _ in
+//
+//  })
+//}

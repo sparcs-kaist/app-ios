@@ -19,7 +19,7 @@ public struct Course: Identifiable, Equatable, Sendable, CourseRepresentable {
   public let load: Double
   public let speech: Double
   public let credit: Int
-  public let creditAu: Int
+  public let creditAU: Int
   public let numClasses: Int
   public let numLabs: Int
 
@@ -50,7 +50,7 @@ public struct Course: Identifiable, Equatable, Sendable, CourseRepresentable {
     self.load = load
     self.speech = speech
     self.credit = credit
-    self.creditAu = creditAu
+    self.creditAU = creditAu
     self.numClasses = numClasses
     self.numLabs = numLabs
   }

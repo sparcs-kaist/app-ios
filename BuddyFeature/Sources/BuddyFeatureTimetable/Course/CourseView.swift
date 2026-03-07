@@ -46,7 +46,7 @@ public struct CourseView: View {
           lectureSummaryRowWrapper(title: "Hours", description: String(course.numClasses))
           lectureSummaryRowWrapper(title: "Lab", description: String(course.numLabs))
           if course.credit == 0 {
-            lectureSummaryRowWrapper(title: "AU", description: String(course.creditAu))
+            lectureSummaryRowWrapper(title: "AU", description: String(course.creditAU))
           } else {
             lectureSummaryRowWrapper(title: "Credit", description: String(course.credit))
           }

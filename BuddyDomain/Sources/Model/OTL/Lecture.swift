@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct Lecture: Identifiable, CourseRepresentable, Sendable, Codable {
+public struct Lecture: Identifiable, Sendable, Codable, CourseRepresentable {
   public let id: Int
   public let course: Int
   public let code: String
@@ -18,7 +18,7 @@ public struct Lecture: Identifiable, CourseRepresentable, Sendable, Codable {
   public let department: Department
   public let isEnglish: Bool
   public let credit: Int
-  public let creditAu: Int
+  public let creditAU: Int
   public let capacity: Int
   public let numberOfPeople: Int
   public let grade: Double
@@ -76,7 +76,7 @@ public struct Lecture: Identifiable, CourseRepresentable, Sendable, Codable {
     self.department = department
     self.isEnglish = isEnglish
     self.credit = credit
-    self.creditAu = creditAu
+    self.creditAU = creditAu
     self.capacity = capacity
     self.numberOfPeople = numberOfPeople
     self.grade = grade

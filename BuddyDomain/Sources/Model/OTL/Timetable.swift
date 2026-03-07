@@ -89,7 +89,7 @@ public extension Timetable {
   // Get the sum of AUs
   var creditAUs: Int {
     lectures
-      .map { $0.creditAu }
+      .map { $0.creditAU }
       .reduce(0, +)
   }
 
@@ -99,7 +99,7 @@ public extension Timetable {
   var targetCredits: Int {
     lectures
       .filter { $0.reviewTotalWeight > 0 }
-      .map { $0.credit + $0.creditAu }
+      .map { $0.credit + $0.creditAU }
       .reduce(0, +)
   }
 
@@ -107,11 +107,11 @@ public extension Timetable {
     let relevantLectures = lectures.filter { $0.reviewTotalWeight > 0 }
 
     let numerator = relevantLectures
-      .map { $0[keyPath: keyPath] * Double($0.credit + (withCredits ? $0.creditAu : 0)) }
+      .map { $0[keyPath: keyPath] * Double($0.credit + (withCredits ? $0.creditAU : 0)) }
       .reduce(0.0, +)
 
     let denominator = relevantLectures
-      .map { $0.credit + (withCredits ? $0.creditAu : 0) }
+      .map { $0.credit + (withCredits ? $0.creditAU : 0) }
       .reduce(0, +)
 
     return denominator > 0 ? numerator / Double(denominator) : 0.0
@@ -142,7 +142,7 @@ public extension Timetable {
   func getCreditsFor(_ type: LectureType) -> Int {
     lectures
       .filter { $0.type == type }
-      .map { $0.credit + $0.creditAu }
+      .map { $0.credit + $0.creditAU }
       .reduce(0, +)
   }
 

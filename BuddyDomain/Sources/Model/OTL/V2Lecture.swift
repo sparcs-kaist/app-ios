@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct V2Lecture: Identifiable, Hashable, Sendable, Codable {
+public struct V2Lecture: Identifiable, CourseRepresentable, Hashable, Sendable, Codable {
   public let id: Int
   public let courseID: Int
   public let section: String

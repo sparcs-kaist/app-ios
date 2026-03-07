@@ -80,14 +80,14 @@ public struct TimetableView: View {
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
           NavigationStack {
-            LectureDetailView(
-              lecture: item.lecture,
-              onAdd: nil,
-              isOverlapping: false,
-              classTime: item.lecture.classTimes[item.index]
-            )
-              .presentationDragIndicator(.visible)
-              .presentationDetents([.medium, .large])
+//            LectureDetailView(
+//              lecture: item.lecture,
+//              onAdd: nil,
+//              isOverlapping: false,
+//              classTime: item.lecture.classTimes[item.index]
+//            )
+//              .presentationDragIndicator(.visible)
+//              .presentationDetents([.medium, .large])
           }
         }
         .sheet(isPresented: $showSearchSheet) {

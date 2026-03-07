@@ -11,16 +11,16 @@ import BuddyDomain
 import FirebaseAnalytics
 
 struct LectureDetailView: View {
-  let lecture: Lecture
+  let lecture: V2Lecture
   let onAdd: (() -> Void)?
   let isOverlapping: Bool
-  let classTime: ClassTime?
-  
-  init(lecture: Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, classTime: ClassTime? = nil) {
+  let lectureClass: V2LectureClass?
+
+  init(lecture: V2Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, lectureClass: V2LectureClass? = nil) {
     self.lecture = lecture
     self.onAdd = onAdd
     self.isOverlapping = isOverlapping
-    self.classTime = classTime
+    self.lectureClass = lectureClass
   }
 
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
@@ -52,7 +52,7 @@ struct LectureDetailView: View {
       let otl = await userUseCase.otlUser
       canWriteReview = otl?.reviewWritableLectures.contains { $0.id == lecture.id } ?? false
     }
-    .navigationTitle(lecture.title.localized())
+    .navigationTitle(lecture.name)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       if onAdd != nil {
@@ -150,23 +150,26 @@ struct LectureDetailView: View {
       }
 
       LectureDetailRow(title: String(localized: "Code"), description: lecture.code)
-      LectureDetailRow(title: String(localized: "Type"), description: lecture.typeDetail.localized())
-      LectureDetailRow(title: String(localized: "Department"), description: lecture.department.name.localized())
+      LectureDetailRow(
+        title: String(localized: "Type"),
+        description: lecture.type.displayName.localized()
+      )
+      LectureDetailRow(title: String(localized: "Department"), description: lecture.department.name)
       LectureDetailRow(
         title: String(localized: "Professor"),
-        description: lecture.professors.isEmpty ? String(localized: "Unknown") : lecture.professors.map { $0.name.localized() }.joined(separator: "\n")
+        description: lecture.professors.isEmpty ? String(localized: "Unknown") : lecture.professors.map { $0.name }.joined(separator: "\n")
       )
-      if let classTime {
+      if let lectureClass {
         LectureDetailRow(
           title: String(localized: "Classroom"),
-          description: classTime.classroomNameShort.localized()
+          description: "\(lectureClass.buildingCode) \(lectureClass.roomName)"
         )
       }
       LectureDetailRow(title: String(localized: "Capacity"), description: String(lecture.capacity))
       LectureDetailRow(
         title: String(localized: "Exams"),
-        description: lecture.examTimes.isEmpty ? String(localized: "Unknown") : lecture.examTimes
-          .map { $0.description.localized() }
+        description: lecture.exams.isEmpty ? String(localized: "Unknown") : lecture.exams
+          .map { $0.description }
           .joined(separator: "\n")
       )
 
@@ -196,6 +199,6 @@ struct LectureDetailView: View {
   }
 }
 
-#Preview {
-  LectureDetailView(lecture: Lecture.mock, onAdd: nil, isOverlapping: false)
-}
+//#Preview {
+//  LectureDetailView(lecture: Lecture.mock, onAdd: nil, isOverlapping: false)
+//}

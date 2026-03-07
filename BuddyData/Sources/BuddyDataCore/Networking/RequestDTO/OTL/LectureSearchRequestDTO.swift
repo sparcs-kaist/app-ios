@@ -8,12 +8,12 @@
 import Foundation
 import BuddyDomain
 
-public struct LectureSearchRequestDTO: Codable {
+ public struct LectureSearchRequestDTO: Codable {
   let year: Int
   let semester: Int
   let keyword: String
-  let type: String
-  let department: String
+  let type: [String]
+  let department: [String]
   let level: String
   let limit: Int
   let offset: Int
@@ -26,8 +26,8 @@ extension LectureSearchRequestDTO {
       year: model.semester.year,
       semester: model.semester.semesterType.intValue,
       keyword: model.keyword,
-      type: "ALL",
-      department: "ALL",
+      type: [],
+      department: [],
       level: "ALL",
       limit: model.limit,
       offset: model.offset

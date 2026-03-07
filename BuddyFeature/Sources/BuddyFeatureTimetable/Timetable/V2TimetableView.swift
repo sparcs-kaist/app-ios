@@ -79,13 +79,13 @@ public struct V2TimetableView: View {
             .disabled(viewModel.selectedTimetableID == nil)
           }
         }
-//        .sheet(isPresented: $showSearchSheet) {
-//          LectureSearchView(detent: $selectedDetent)
-//            .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
-//            .onAppear {
-//              selectedDetent = .medium
-//            }
-//        }
+        .sheet(isPresented: $showSearchSheet) {
+          LectureSearchView(detent: $selectedDetent)
+            .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
+            .onAppear {
+              selectedDetent = .medium
+            }
+        }
       }
     }
   }
