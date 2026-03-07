@@ -53,6 +53,7 @@ public struct V2TimetableView: View {
                 }
               }
             )
+            .animation(nil, value: viewModel.selectedSemester)
             .padding()
             .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
             .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
