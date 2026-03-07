@@ -9,6 +9,8 @@ import Foundation
 import BuddyDomain
 import UIKit
 
+@MainActor
+@Observable
 public final class PreviewTaxiChatViewModel: TaxiChatViewModelProtocol {
   public var state: TaxiChatViewState
   public var renderItems: [ChatRenderItem] {

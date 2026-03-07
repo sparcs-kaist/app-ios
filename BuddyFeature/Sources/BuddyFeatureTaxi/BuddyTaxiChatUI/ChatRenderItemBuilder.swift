@@ -1,5 +1,5 @@
 //
-//  ChatRenderItem.swift
+//  ChatRenderItemBuilder.swift
 //  BuddyTaxiChatUI
 //
 //  Created by Soongyu Kwon on 14/02/2026.
