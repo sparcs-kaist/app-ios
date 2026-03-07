@@ -9,33 +9,6 @@ import Foundation
 import BuddyDomain
 import Playgrounds
 
-enum ChatRenderItem: Hashable, Identifiable {
-  case daySeparator(Date)
-  case systemEvent(
-    id: UUID,
-    chat: TaxiChat
-  )
-  case message(
-    id: UUID,
-    chat: TaxiChat,
-    kind: TaxiChat.ChatType,
-    sender: SenderInfo,
-    position: ChatBubblePosition,
-    metadata: MetadataVisibility
-  )
-
-  var id: AnyHashable {
-    switch self {
-    case .daySeparator(let date):
-      return AnyHashable("day-\(date.timeIntervalSince1970)")
-    case .systemEvent(let id, _):
-      return AnyHashable("system-\(id)")
-    case .message(let id, _, _, _, _, _):
-      return AnyHashable("message-\(id)")
-    }
-  }
-}
-
 struct ChatRenderItemBuilder {
   let policy: ChatGroupingPolicy
   let positionResolver: ChatBubblePositionResolver
