@@ -6,12 +6,11 @@
 //
 
 import Foundation
-import BuddyDomain
 
 @MainActor
-protocol TaxiChatListViewModelProtocol: Observable {
+public protocol TaxiChatListViewModelProtocol: Observable {
   // MARK: - ViewModel Properties
-  var state: TaxiChatListViewModel.ViewState { get }
+  var state: TaxiChatListViewState { get }
   var taxiUser: TaxiUser? { get }
 
   // MARK: - Functions

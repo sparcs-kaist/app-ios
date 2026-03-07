@@ -12,13 +12,8 @@ import BuddyDomain
 
 @Observable
 class TaxiChatListViewModel: TaxiChatListViewModelProtocol {
-  enum ViewState {
-    case loading
-    case loaded(onGoing: [TaxiRoom], done: [TaxiRoom])
-    case error(message: String)
-  }
   // MARK: - ViewModel Properties
-  var state: ViewState = .loading
+  var state: TaxiChatListViewState = .loading
   var onGoingRooms: [TaxiRoom] = []
   var doneRooms: [TaxiRoom] = []
   var taxiUser: TaxiUser?
