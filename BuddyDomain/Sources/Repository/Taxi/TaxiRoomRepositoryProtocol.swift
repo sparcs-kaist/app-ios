@@ -18,4 +18,6 @@ public protocol TaxiRoomRepositoryProtocol: Sendable {
   func getPublicRoom(id: String) async throws -> TaxiRoom
   func commitSettlement(id: String) async throws -> TaxiRoom
   func commitPayment(id: String) async throws -> TaxiRoom
+  func updateArrival(id: String, isArrived: Bool) async throws -> TaxiRoom
+  func updateCarrier(id: String, hasCarrier: Bool) async throws -> TaxiRoom
 }

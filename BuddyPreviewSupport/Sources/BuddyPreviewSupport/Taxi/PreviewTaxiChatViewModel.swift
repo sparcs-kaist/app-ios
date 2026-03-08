@@ -25,6 +25,9 @@ public final class PreviewTaxiChatViewModel: TaxiChatViewModelProtocol {
   public var isLeaveRoomAvailable: Bool = true
   public var isCommitSettlementAvailable: Bool = true
   public var isCommitPaymentAvailable: Bool = true
+  public var isArrivalToggleEnabled: Bool = true
+  public var isArrived: Bool = false
+  public var hasCarrier: Bool = true
   public var account: String? = TaxiUser.mock.account
   public var topChatID: String?
   
@@ -39,6 +42,12 @@ public final class PreviewTaxiChatViewModel: TaxiChatViewModelProtocol {
   public func leaveRoom() async throws { }
   public func commitSettlement() { }
   public func commitPayment() { }
+  public func updateArrival(isArrived: Bool) {
+    self.isArrived = isArrived
+  }
+  public func updateCarrier(hasCarrier: Bool) {
+    self.hasCarrier = hasCarrier
+  }
   public func sendImage(_ image: UIImage) async throws { }
 }
 

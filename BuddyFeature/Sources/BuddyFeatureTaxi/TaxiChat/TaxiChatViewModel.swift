@@ -131,6 +131,18 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     return !room.isDeparted
   }
 
+  var isArrivalToggleEnabled: Bool {
+    room.departAt > Date()
+  }
+
+  var isArrived: Bool {
+    currentParticipant?.isArrived ?? false
+  }
+
+  var hasCarrier: Bool {
+    currentParticipant?.hasCarrier ?? false
+  }
+
   func commitSettlement() {
     guard let taxiRoomRepository, let taxiChatUseCase else { return }
 
@@ -176,6 +188,32 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     )
   }
 
+  func updateArrival(isArrived: Bool) {
+    guard let taxiRoomRepository else { return }
+
+    Task {
+      do {
+        room = try await taxiRoomRepository.updateArrival(id: room.id, isArrived: isArrived)
+      } catch {
+        alertState = AlertState(title: "Error", message: error.localizedDescription)
+        isAlertPresented = true
+      }
+    }
+  }
+
+  func updateCarrier(hasCarrier: Bool) {
+    guard let taxiRoomRepository else { return }
+
+    Task {
+      do {
+        room = try await taxiRoomRepository.updateCarrier(id: room.id, hasCarrier: hasCarrier)
+      } catch {
+        alertState = AlertState(title: "Error", message: error.localizedDescription)
+        isAlertPresented = true
+      }
+    }
+  }
+
   var account: String? {
     guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }),
           let taxiChatUseCase else {
@@ -194,5 +232,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     defer { isUploading = false }
 
     try await taxiChatUseCase.sendImage(image)
+  }
+
+  private var currentParticipant: TaxiParticipant? {
+    room.participants.first(where: { $0.id == taxiUser?.oid })
   }
 }

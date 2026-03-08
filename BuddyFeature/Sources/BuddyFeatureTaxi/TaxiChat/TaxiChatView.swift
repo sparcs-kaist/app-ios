@@ -73,6 +73,9 @@ struct TaxiChatView: View {
         isUploading: viewModel.isUploading,
         isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable,
         isCommitSettlementAvailable: viewModel.isCommitSettlementAvailable,
+        isArrivalToggleEnabled: viewModel.isArrivalToggleEnabled,
+        isArrived: viewModel.isArrived,
+        hasCarrier: viewModel.hasCarrier,
         onSendText: { message in
           viewModel.sendChat(message, type: .text)
         },
@@ -84,6 +87,12 @@ struct TaxiChatView: View {
         },
         onShowPayMoneyAlert: {
           showPayMoneyAlert = true
+        },
+        onUpdateArrival: { isArrived in
+          viewModel.updateArrival(isArrived: isArrived)
+        },
+        onUpdateCarrier: { hasCarrier in
+          viewModel.updateCarrier(hasCarrier: hasCarrier)
         },
         onError: { message in
           viewModel.alertState = AlertState(title: "Error", message: message)
@@ -191,7 +200,11 @@ struct TaxiChatView: View {
           systemImage: "person.3"
         ) {
           ForEach(viewModel.room.participants) { participant in
-            Text(participant.nickname)
+            if participant.hasCarrier {
+              Label(participant.nickname, systemImage: "suitcase.rolling.and.suitcase.fill")
+            } else {
+              Text(participant.nickname)
+            }
           }
         }
 

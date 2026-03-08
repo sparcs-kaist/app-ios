@@ -188,6 +188,9 @@
         }
       }
     },
+    "Arrived" : {
+
+    },
     "Call Taxi" : {
       "localizations" : {
         "en" : {
@@ -1422,6 +1425,12 @@
           }
         }
       }
+    },
+    "With Carrier" : {
+
+    },
+    "With Luggage" : {
+
     },
     "You are participating in more than 5 rooms. To create a room, please settle an existing room." : {
       "localizations" : {

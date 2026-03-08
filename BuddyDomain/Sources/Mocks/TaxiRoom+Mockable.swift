@@ -30,6 +30,8 @@ public extension TaxiRoom {
         withdraw: false,
         badge: true,
         isSettlement: nil,
+        isArrived: false,
+        hasCarrier: true,
         readAt: baseDate
       ),
       .init(
@@ -42,6 +44,8 @@ public extension TaxiRoom {
         withdraw: false,
         badge: true,
         isSettlement: nil,
+        isArrived: true,
+        hasCarrier: false,
         readAt: baseDate
       )
     ]

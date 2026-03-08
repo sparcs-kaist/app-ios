@@ -22,6 +22,8 @@ public struct TaxiParticipant: Identifiable, Hashable, Sendable {
   public let withdraw: Bool
   public let badge: Bool
   public let isSettlement: SettlementType?
+  public let isArrived: Bool
+  public let hasCarrier: Bool
   public let readAt: Date
 
   public init(
@@ -32,6 +34,8 @@ public struct TaxiParticipant: Identifiable, Hashable, Sendable {
     withdraw: Bool,
     badge: Bool,
     isSettlement: SettlementType?,
+    isArrived: Bool,
+    hasCarrier: Bool,
     readAt: Date
   ) {
     self.id = id
@@ -41,6 +45,8 @@ public struct TaxiParticipant: Identifiable, Hashable, Sendable {
     self.withdraw = withdraw
     self.badge = badge
     self.isSettlement = isSettlement
+    self.isArrived = isArrived
+    self.hasCarrier = hasCarrier
     self.readAt = readAt
   }
 }
