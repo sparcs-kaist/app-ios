@@ -1,17 +1,16 @@
 //
 //  TaxiChatListViewModelProtocol.swift
-//  soap
+//  BuddyDomain
 //
 //  Created by Soongyu Kwon on 14/07/2025.
 //
 
 import Foundation
-import BuddyDomain
 
 @MainActor
-protocol TaxiChatListViewModelProtocol: Observable {
+public protocol TaxiChatListViewModelProtocol: Observable {
   // MARK: - ViewModel Properties
-  var state: TaxiChatListViewModel.ViewState { get }
+  var state: TaxiChatListViewState { get }
   var taxiUser: TaxiUser? { get }
 
   // MARK: - Functions

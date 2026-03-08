@@ -1,18 +1,16 @@
 //
 //  TaxiChatViewModelProtocol.swift
-//  soap
+//  BuddyDomain
 //
 //  Created by Soongyu Kwon on 17/07/2025.
 //
 
-import Foundation
+import Observation
 import UIKit
-import BuddyDomain
 
 @MainActor
-protocol TaxiChatViewModelProtocol: Observable {
-  // MARK: - ViewModel Properties
-  var state: TaxiChatViewModel.ViewState { get }
+public protocol TaxiChatViewModelProtocol: Observable {
+  var state: TaxiChatViewState { get }
   var renderItems: [ChatRenderItem] { get }
   var taxiUser: TaxiUser? { get }
   var room: TaxiRoom { get }
@@ -23,14 +21,12 @@ protocol TaxiChatViewModelProtocol: Observable {
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
 
-  // MARK: - Computed Properties
   var isLeaveRoomAvailable: Bool { get }
   var isCommitSettlementAvailable: Bool { get }
   var isCommitPaymentAvailable: Bool { get }
   var account: String? { get }
   var topChatID: String? { get }
 
-  // MARK: - Functions
   func setup() async
 
   func loadMoreChats() async

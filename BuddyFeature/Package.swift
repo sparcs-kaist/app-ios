@@ -96,6 +96,7 @@ let package = Package(
           dependencies: [
             "BuddyDomain",
             "BuddyFeatureShared",
+            "BuddyPreviewSupport",
             "Haptica",
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),

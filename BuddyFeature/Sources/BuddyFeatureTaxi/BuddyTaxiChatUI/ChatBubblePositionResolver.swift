@@ -1,16 +1,11 @@
 //
-//  ChatBubblePosition.swift
-//  BuddyTaxiChatUI
+//  ChatBubblePositionResolver.swift
+//  BuddyFeatureTaxi
 //
 //  Created by Soongyu Kwon on 14/02/2026.
 //
 
-enum ChatBubblePosition: Hashable {
-  case single
-  case top
-  case middle
-  case bottom
-}
+import BuddyDomain
 
 struct ChatBubblePositionResolver {
   func resolve(index: Int, count: Int) -> ChatBubblePosition {

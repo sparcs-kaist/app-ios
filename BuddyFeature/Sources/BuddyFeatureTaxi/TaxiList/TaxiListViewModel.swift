@@ -12,15 +12,8 @@ import BuddyDomain
 
 @Observable
 public class TaxiListViewModel: TaxiListViewModelProtocol {
-  public enum ViewState {
-    case loading
-    case loaded(rooms: [TaxiRoom], locations: [TaxiLocation])
-    case empty
-    case error(message: String)
-  }
-
   // MARK: - ViewModel Properties
-  public var state: ViewState = .loading
+  public var state: TaxiListViewState = .loading
   public var week: [Date] {
     let calendar = Calendar.current
     return (0..<7).compactMap {

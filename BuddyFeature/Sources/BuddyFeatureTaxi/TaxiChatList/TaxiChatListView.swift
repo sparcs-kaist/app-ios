@@ -10,6 +10,7 @@ import Factory
 import BuddyDomain
 import BuddyFeatureShared
 import FirebaseAnalytics
+import BuddyPreviewSupport
 
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
@@ -200,26 +201,22 @@ struct TaxiChatListView: View {
 
 
 // MARK: - Previews
-//#Preview("Loading State") {
-//  let vm = MockTaxiChatListViewModel()
-//  vm.state = .loading
-//  return NavigationStack {
-//    TaxiChatListView(viewModel: vm)
-//  }
-//}
-//
-//#Preview("Loaded State") {
-//  let vm = MockTaxiChatListViewModel()
-//  vm.state = .loaded(onGoing: Array(TaxiRoom.mockList.prefix(3)), done: Array(TaxiRoom.mockList.suffix(5)))
-//  return NavigationStack {
-//    TaxiChatListView(viewModel: vm)
-//  }
-//}
-//
-//#Preview("Error State") {
-//  let vm = MockTaxiChatListViewModel()
-//  vm.state = .error(message: "Something went wrong")
-//  return NavigationStack {
-//    TaxiChatListView(viewModel: vm)
-//  }
-//}
+#Preview("Loading State") {
+  NavigationStack {
+    TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: .loading))
+  }
+}
+
+#Preview("Loaded State") {
+  let state = TaxiChatListViewState.loaded(onGoing: Array(TaxiRoom.mockList.prefix(3)), done: Array(TaxiRoom.mockList.suffix(5)))
+  
+  return NavigationStack {
+    TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: state))
+  }
+}
+
+#Preview("Error State") {
+  NavigationStack {
+    TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: .error(message: "Something went wrong")))
+  }
+}

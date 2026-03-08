@@ -14,13 +14,8 @@ import BuddyDomain
 @MainActor
 @Observable
 class TaxiChatViewModel: TaxiChatViewModelProtocol {
-  enum ViewState {
-    case loading
-    case loaded
-    case error(message: String)
-  }
   // MARK: - Properties
-  var state: ViewState = .loading
+  var state: TaxiChatViewState = .loading
   var renderItems: [ChatRenderItem] = []
   var taxiUser: TaxiUser?
   var isUploading: Bool = false
