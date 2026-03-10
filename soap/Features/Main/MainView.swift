@@ -6,18 +6,27 @@
 //
 
 import SwiftUI
+import Observation
+import Factory
 import BuddyDomain
 import BuddyFeatureTimetable
 import BuddyFeatureFeed
 import BuddyFeaturePost
 import BuddyFeatureTaxi
 import BuddyFeatureSearch
+import MapKit
 
 struct MainView: View {
   @State private var viewModel = MainViewModel()
   @State private var timetableViewModel = V2TimetableViewModel()
-  @State private var selectedTab: TabSelection = .feed
   @State private var extendTimetableView: Bool = false
+
+  @State private var selectedTab: TabSelection = .feed
+
+  @State private var feedPath = NavigationPath()
+  @State private var boardListPath = NavigationPath()
+  @State private var taxiPath = NavigationPath()
+  @State private var searchPath = NavigationPath()
 
   @Namespace private var namespace
 
@@ -32,51 +41,49 @@ struct MainView: View {
   var body: some View {
     TabView(selection: $selectedTab) {
       Tab("Feed", systemImage: "text.rectangle.page", value: .feed) {
-        FeedView(feedViewModel)
+        NavigationStack(path: $feedPath) {
+          FeedView(feedViewModel)
+        }
       }
 
       Tab("Boards", systemImage: "tray.full", value: .board) {
-        BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
+        NavigationStack(path: $boardListPath) {
+          BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
+        }
       }
 
-//      Tab("Map", systemImage: "map", value: .map) {
-//
-//      }
+      if UIDevice.current.userInterfaceIdiom != .phone {
+        Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
+          V2TimetableView(timetableViewModel)
+        }
+      }
+
+      Tab("Map", systemImage: "map", value: .map) {
+        Map()
+      }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
-        TaxiListView()
+        NavigationStack(path: $taxiPath) {
+          TaxiListView()
+        }
       }
 
       Tab(value: .search, role: .search) {
-        SearchView()
+        NavigationStack(path: $searchPath) {
+          SearchView()
+        }
       }
     }
     .tabBarMinimizeBehavior(.onScrollDown)
-    .tabViewBottomAccessory {
-      HStack {
-        Circle()
-          .fill(.indigo)
-          .frame(width: 12, height: 12)
-
-        VStack(alignment: .leading) {
-          Text("System Programming")
-            .font(.headline)
-          Text("E3-1 1201")
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-        }
-
-        Spacer()
-
-        Text("in 10m")
-          .fontDesign(.rounded)
-          .font(.callout)
+    .tabViewBottomAccessory(isEnabled: isTabViewAccessoryEnabled) {
+      TimelineView(.animation(minimumInterval: 1)) { context in
+        TodayLecturesAccessoryView(context: context)
+          .matchedTransitionSource(id: "TimetableViewSource", in: namespace)
+          .onTapGesture {
+            extendTimetableView = true
+          }
       }
-      .padding()
-      .matchedTransitionSource(id: "TimetableViewSource", in: namespace)
-      .onTapGesture {
-        extendTimetableView = true
-      }
+
     }
     .fullScreenCover(isPresented: $extendTimetableView) {
       V2TimetableView(timetableViewModel)
@@ -123,6 +130,26 @@ struct MainView: View {
       Task {
         await viewModel.resolvePost(id: id)
       }
+    }
+  }
+
+
+
+  private var isTabViewAccessoryEnabled: Bool {
+    guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
+    switch selectedTab {
+    case .feed:
+      return feedPath.isEmpty
+    case .board:
+      return boardListPath.isEmpty
+    case .taxi:
+      return taxiPath.isEmpty
+    case .search:
+      return searchPath.isEmpty
+    case .map:
+      return true
+    default:
+      return false
     }
   }
 }

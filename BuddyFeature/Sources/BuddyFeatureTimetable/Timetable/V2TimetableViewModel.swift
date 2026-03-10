@@ -17,8 +17,8 @@ public final class V2TimetableViewModel {
     \.v2TimetableUseCase
   ) private var v2TimetableUseCase: V2TimetableUseCaseProtocol?
 
-  var semesters: [Semester] = []
-  var selectedSemester: Semester? = nil {
+  public var semesters: [Semester] = []
+  public var selectedSemester: Semester? = nil {
     didSet {
       timetableListTask?.cancel()
       timetableListTask = Task {
@@ -49,7 +49,7 @@ public final class V2TimetableViewModel {
       }
     }
   }
-  var timetable: V2Timetable? = nil
+  public var timetable: V2Timetable? = nil
   var timetableWithCandidate: V2Timetable? {
     guard let timetable else { return nil }
 
@@ -64,7 +64,7 @@ public final class V2TimetableViewModel {
   }
   var candidateLecture: V2Lecture? = nil
 
-  var isLoading: Bool = true
+  public var isLoading: Bool = true
 
   public init() { }
 

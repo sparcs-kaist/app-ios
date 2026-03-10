@@ -125,9 +125,6 @@
         }
       }
     },
-    "E3-1 1201" : {
-
-    },
     "Error" : {
       "localizations" : {
         "en" : {
@@ -208,9 +205,6 @@
         }
       }
     },
-    "in 10m" : {
-
-    },
     "Invalid Invitation" : {
       "localizations" : {
         "en" : {
@@ -242,6 +236,9 @@
           }
         }
       }
+    },
+    "Map" : {
+
     },
     "Next Class" : {
       "localizations" : {
@@ -355,9 +352,6 @@
         }
       }
     },
-    "System Programming" : {
-
-    },
     "Taxi" : {
       "localizations" : {
         "en" : {
@@ -439,7 +433,6 @@
       }
     },
     "Timetable" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

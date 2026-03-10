@@ -11,44 +11,6 @@ import BuddyFeatureShared
 import BuddyPreviewSupport
 import FirebaseAnalytics
 
-struct ListGlassSection<Content: View>: View {
-  let header: Label<Text, Image>
-  let content: () -> Content
-
-  @Environment(\.colorScheme) private var colorScheme
-
-  init(
-    header: Label<Text, Image>,
-    @ViewBuilder content: @escaping () -> Content
-  ) {
-    self.header = header
-    self.content = content
-  }
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      HStack {
-        header
-          .font(.title2)
-          .fontWeight(.bold)
-        Spacer()
-      }
-
-      VStack(alignment: .leading, spacing: 0) {
-        content()
-          .padding(.vertical)
-      }
-      .padding(.horizontal)
-      .glassEffect(
-        colorScheme == .light ? .identity : .regular.interactive(),
-        in: .rect(cornerRadius: 28)
-      )
-      .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-    }
-    .analyticsScreen(name: "Board List", class: String(describing: Self.self))
-  }
-}
-
 public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @Binding var deepLinkedPost: AraPost?
@@ -60,50 +22,42 @@ public struct BoardListView: View {
   }
 
   public var body: some View {
-    NavigationSplitView(sidebar: {
-      ScrollView {
-        LazyVStack(spacing: 20) {
-          switch viewModel.state {
-          case .loading:
-            loadingView
-              .redacted(reason: .placeholder)
-              .disabled(true)
-          case .loaded(let boards, let groups):
-            loadedView(boards: boards, groups: groups)
-          case .error(let message):
-            ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
-          }
-        }
-        .padding()
-      }
-      .background {
-        if horizontalSizeClass == .compact {
-          BackgroundGradientView(color: .red)
-            .ignoresSafeArea()
+    ScrollView {
+      LazyVStack(spacing: 20) {
+        switch viewModel.state {
+        case .loading:
+          loadingView
+            .redacted(reason: .placeholder)
+            .disabled(true)
+        case .loaded(let boards, let groups):
+          loadedView(boards: boards, groups: groups)
+        case .error(let message):
+          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
-      .background(Color.systemGroupedBackground)
-      .disabled(viewModel.state == .loading)
-      .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Boards") : "")
-      .toolbarTitleDisplayMode(.inlineLarge)
-      .toolbar(horizontalSizeClass == .compact ? .automatic : .visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
-      .navigationDestination(item: $deepLinkedPost) { post in
-        PostView(post: post)
-          .toolbar(.hidden, for: .tabBar)
-      }
-    }, detail: {
-      NavigationStack {
-
-      }
-      .background {
-        BackgroundGradientView(color: .red)
-          .ignoresSafeArea()
-      }
-    })
+      .padding()
+    }
+    .background {
+      BackgroundGradientView(color: .red)
+        .ignoresSafeArea()
+    }
+    .background(Color.systemGroupedBackground)
+    .disabled(viewModel.state == .loading)
+    .navigationTitle("Boards")
+    .toolbarTitleDisplayMode(.inlineLarge)
+    .toolbar(horizontalSizeClass == .compact ? .automatic : .visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
+    .navigationDestination(for: AraBoard.self) { board in
+      PostListView(board: board)
+        .id(board.id)
+    }
+    .navigationDestination(item: $deepLinkedPost) { post in
+      PostView(post: post)
+        .toolbar(.hidden, for: .tabBar)
+    }
+    .analyticsScreen(name: "Board List", class: String(describing: Self.self))
     .task {
       await viewModel.fetchBoards()
     }
-    .ignoresSafeArea()
   }
 
   @ViewBuilder
@@ -113,10 +67,7 @@ public struct BoardListView: View {
         header: Label(group.name.localized(), systemImage: symbol(for: group.slug))
       ) {
         ForEach(boards.filter { $0.group.id == group.id }) { board in
-          NavigationLink(destination: {
-            PostListView(board: board)
-              .id(board.id)
-          }, label: {
+          NavigationLink(value: board) {
             HStack {
               Text(board.name.localized())
                 .multilineTextAlignment(.leading)
@@ -124,7 +75,7 @@ public struct BoardListView: View {
               Image(systemName: "chevron.right")
                 .opacity(0.3)
             }
-          })
+          }
           .tint(.primary)
         }
       }

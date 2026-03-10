@@ -13,6 +13,10 @@ import FirebaseAnalytics
 import BuddyPreviewSupport
 
 public struct TaxiListView: View {
+  private enum Destination: Hashable {
+    case chatList
+  }
+
   @State var viewModel: TaxiListViewModelProtocol
   @Namespace private var namespace
 
@@ -22,9 +26,6 @@ public struct TaxiListView: View {
   // show taxi room preview
   @State private var showRoomCreationSheet: Bool = false
   @State private var selectedRoom: TaxiRoom? = nil
-
-  // show taxi chats
-  @State private var showChat: Bool = false
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -56,98 +57,99 @@ public struct TaxiListView: View {
   }
 
   public var body: some View {
-    NavigationStack {
-      ScrollViewReader { scrollViewProxy in
-        ScrollView {
-          LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
-            TaxiDestinationPicker(
-              source: $viewModel.source,
-              destination: $viewModel.destination,
-              locations: viewModel.locations
-            )
-            .padding()
-            .background(
-              colorScheme == .light ? Color.secondarySystemGroupedBackground : Color.clear,
-              in: .rect(cornerRadius: 28)
-            )
-            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+    ScrollViewReader { scrollViewProxy in
+      ScrollView {
+        LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
+          TaxiDestinationPicker(
+            source: $viewModel.source,
+            destination: $viewModel.destination,
+            locations: viewModel.locations
+          )
+          .padding()
+          .background(
+            colorScheme == .light ? Color.secondarySystemGroupedBackground : Color.clear,
+            in: .rect(cornerRadius: 28)
+          )
+          .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+          .padding(.horizontal)
+          .redacted(reason: isInteractable ? [] : .placeholder)
+          .disabled(!isInteractable)
+
+          Section {
+            Group {
+              switch viewModel.state {
+              case .loading:
+                loadingView()
+              case .loaded(let rooms, let locations):
+                loadedView(rooms: rooms, locations: locations)
+              case .empty:
+                emptyView()
+              case .error(let message):
+                errorView(errorMessage: message)
+              }
+            }
+            .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+          } header: {
+            WeekDaySelector(selectedDate: $viewModel.selectedDate, week: viewModel.week)  { day in
+              scrollViewProxy.scrollTo(day.weekdaySymbol, anchor: .center)
+            }
             .padding(.horizontal)
             .redacted(reason: isInteractable ? [] : .placeholder)
             .disabled(!isInteractable)
-
-            Section {
-              Group {
-                switch viewModel.state {
-                case .loading:
-                  loadingView()
-                case .loaded(let rooms, let locations):
-                  loadedView(rooms: rooms, locations: locations)
-                case .empty:
-                  emptyView()
-                case .error(let message):
-                  errorView(errorMessage: message)
-                }
-              }
-              .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-            } header: {
-              WeekDaySelector(selectedDate: $viewModel.selectedDate, week: viewModel.week)  { day in
-                scrollViewProxy.scrollTo(day.weekdaySymbol, anchor: .center)
-              }
-              .padding(.horizontal)
-              .redacted(reason: isInteractable ? [] : .placeholder)
-              .disabled(!isInteractable)
-            }
           }
-          .padding(.bottom)
         }
-        .scrollPosition(id: $scrollTarget, anchor: .top)
-        .onChange(of: scrollTarget) {
-          withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) {
-            viewModel.selectedDate = viewModel.week.first(where: { $0.weekdaySymbol == scrollTarget }) ?? Date()
-          }
+        .padding(.bottom)
+      }
+      .scrollPosition(id: $scrollTarget, anchor: .top)
+      .onChange(of: scrollTarget) {
+        withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) {
+          viewModel.selectedDate = viewModel.week.first(where: { $0.weekdaySymbol == scrollTarget }) ?? Date()
         }
       }
-      .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
-          Button("Create", systemImage: "plus") {
-            showRoomCreationSheet = true
-          }
-        }
-        .matchedTransitionSource(id: "RoomCreationView", in: namespace)
-
-        ToolbarSpacer(.flexible, placement: .topBarTrailing)
-
-        ToolbarItem(placement: .topBarTrailing) {
-          Button("Chats", systemImage: "bubble.left.and.text.bubble.right") {
-            showChat = true
-          }
+    }
+    .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button("Create", systemImage: "plus") {
+          showRoomCreationSheet = true
         }
       }
-      .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Taxi") : "")
-      .toolbarTitleDisplayMode(.inlineLarge)
-      .background {
-        BackgroundGradientView(color: .purple)
-          .ignoresSafeArea()
+      .matchedTransitionSource(id: "RoomCreationView", in: namespace)
+
+      ToolbarSpacer(.flexible, placement: .topBarTrailing)
+
+      ToolbarItem(placement: .topBarTrailing) {
+        NavigationLink(value: Destination.chatList) {
+          Label("Chats", systemImage: "bubble.left.and.text.bubble.right")
+        }
       }
-      .background(Color.systemGroupedBackground)
-      .navigationDestination(isPresented: $showChat) {
+    }
+    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Taxi") : "")
+    .toolbarTitleDisplayMode(.inlineLarge)
+    .background {
+      BackgroundGradientView(color: .purple)
+        .ignoresSafeArea()
+    }
+    .background(Color.systemGroupedBackground)
+    .navigationDestination(for: Destination.self) { destination in
+      switch destination {
+      case .chatList:
         TaxiChatListView()
       }
-      .sheet(isPresented: $showRoomCreationSheet) {
-        TaxiRoomCreationView(viewModel: viewModel)
-          .navigationTransition(.zoom(sourceID: "RoomCreationView", in: namespace))
-          .presentationDragIndicator(.visible)
-      }
-      .sheet(item: $selectedRoom) { room in
-        TaxiPreviewView(room: room)
-          .onDisappear {
-            Task {
-              await viewModel.fetchData()
-            }
+    }
+    .sheet(isPresented: $showRoomCreationSheet) {
+      TaxiRoomCreationView(viewModel: viewModel)
+        .navigationTransition(.zoom(sourceID: "RoomCreationView", in: namespace))
+        .presentationDragIndicator(.visible)
+    }
+    .sheet(item: $selectedRoom) { room in
+      TaxiPreviewView(room: room)
+        .onDisappear {
+          Task {
+            await viewModel.fetchData()
           }
-          .presentationDragIndicator(.visible)
-          .presentationDetents([.height(400), .height(500)])
-      }
+        }
+        .presentationDragIndicator(.visible)
+        .presentationDetents([.height(400), .height(500)])
     }
     .task {
       await viewModel.fetchData()

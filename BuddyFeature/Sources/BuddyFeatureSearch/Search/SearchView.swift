@@ -23,48 +23,53 @@ public struct SearchView: View {
   public init() { }
 
   public var body: some View {
-    NavigationStack {
-      Group {
-        if case let .error(message) = viewModel.state {
-          ContentUnavailableView(
-            message,
-            systemImage: "exclamationmark.circle",
-            description: Text("Please try again later.")
-          )
-        } else if viewModel.searchText.isEmpty {
-          ContentUnavailableView(
-            "Search Anything",
-            systemImage: "magnifyingglass",
-            description: Text("Find courses, posts, rides and more.")
-          )
-        } else {
-          resultView
+    Group {
+      if case let .error(message) = viewModel.state {
+        ContentUnavailableView(
+          message,
+          systemImage: "exclamationmark.circle",
+          description: Text("Please try again later.")
+        )
+      } else if viewModel.searchText.isEmpty {
+        ContentUnavailableView(
+          "Search Anything",
+          systemImage: "magnifyingglass",
+          description: Text("Find courses, posts, rides and more.")
+        )
+      } else {
+        resultView
+      }
+    }
+    .background {
+      BackgroundGradientView(color: .blue)
+        .ignoresSafeArea()
+    }
+    .background {
+      Color.systemGroupedBackground
+        .ignoresSafeArea()
+    }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+    .safeAreaBar(edge: .top) {
+      Picker("Search Scope", selection: $viewModel.searchScope) {
+        ForEach(SearchScope.allCases) { scope in
+          Text(scope.description).tag(scope)
         }
       }
-      .background {
-        BackgroundGradientView(color: .blue)
-          .ignoresSafeArea()
-      }
-      .background {
-        Color.systemGroupedBackground
-          .ignoresSafeArea()
-      }
-      .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-      .safeAreaBar(edge: .top) {
-        Picker("Search Scope", selection: $viewModel.searchScope) {
-          ForEach(SearchScope.allCases) { scope in
-            Text(scope.description).tag(scope)
-          }
-        }
-        .pickerStyle(.segmented)
-        .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
-        .padding(.horizontal)
-        .opacity(hideScopeBar ? 0 : 1)
-        .disabled(hideScopeBar)
-      }
+      .pickerStyle(.segmented)
+      .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
+      .padding(.horizontal)
+      .opacity(hideScopeBar ? 0 : 1)
+      .disabled(hideScopeBar)
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search"))
     .searchFocused($isFocused)
+    .navigationDestination(for: V2CourseSummary.self) { course in
+      CourseView(course: course)
+    }
+    .navigationDestination(for: AraPost.self) { post in
+      PostView(post: post)
+        .toolbar(.hidden, for: .tabBar)
+    }
     .task {
       viewModel.bind()
     }
@@ -74,9 +79,7 @@ public struct SearchView: View {
   private func courseSection(courses: [V2CourseSummary]) -> some View {
     SearchSection(title: String(localized: "Courses"), searchScope: $viewModel.searchScope, targetScope: .courses) {
       SearchContent(results: courses) { course in
-        NavigationLink {
-          CourseView(course: course)
-        } label: {
+        NavigationLink(value: course) {
           CourseCell(course: course)
         }
         .foregroundStyle(.primary)
@@ -89,10 +92,7 @@ public struct SearchView: View {
   private func postSection(posts: [AraPost]) -> some View {
     SearchSection(title: String(localized: "Posts"), searchScope: $viewModel.searchScope, targetScope: .posts) {
       SearchContent(results: posts) { post in
-        NavigationLink(destination: {
-          PostView(post: post)
-            .toolbar(.hidden, for: .tabBar)
-        }) {
+        NavigationLink(value: post) {
           PostListRow(post: post)
         }
         .foregroundStyle(.primary)
