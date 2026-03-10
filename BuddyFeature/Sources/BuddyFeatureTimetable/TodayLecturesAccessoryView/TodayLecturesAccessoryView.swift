@@ -9,24 +9,23 @@ import SwiftUI
 import BuddyDomain
 
 public struct TodayLecturesAccessoryView: View {
-  @State private var viewModel = TodayLecturesAccessoryViewModel()
+  @Bindable var viewModel: TodayLecturesAccessoryViewModel
   let context: TimelineViewDefaultContext
 
   @Environment(\.tabViewBottomAccessoryPlacement) private var placement
 
   public init(
-    context: TimelineViewDefaultContext
+    context: TimelineViewDefaultContext,
+    viewModel: TodayLecturesAccessoryViewModel
   ) {
     self.context = context
+    self.viewModel = viewModel
   }
 
   public var body: some View {
     accessoryContent
       .padding(.horizontal)
       .contentShape(.capsule)
-      .task {
-        await viewModel.setup()
-      }
   }
 
   @ViewBuilder

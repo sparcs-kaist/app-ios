@@ -19,6 +19,7 @@ import MapKit
 struct MainView: View {
   @State private var viewModel = MainViewModel()
   @State private var timetableViewModel = V2TimetableViewModel()
+  @State private var todayLecturesAccessoryViewModel = TodayLecturesAccessoryViewModel()
   @State private var extendTimetableView: Bool = false
 
   @State private var selectedTab: TabSelection = .feed
@@ -77,7 +78,7 @@ struct MainView: View {
     .tabBarMinimizeBehavior(.onScrollDown)
     .tabViewBottomAccessory(isEnabled: isTabViewAccessoryEnabled) {
       TimelineView(.animation(minimumInterval: 1)) { context in
-        TodayLecturesAccessoryView(context: context)
+        TodayLecturesAccessoryView(context: context, viewModel: todayLecturesAccessoryViewModel)
           .matchedTransitionSource(id: "TimetableViewSource", in: namespace)
           .onTapGesture {
             extendTimetableView = true
@@ -113,6 +114,7 @@ struct MainView: View {
       Text(viewModel.alertState?.message ?? "Unexpected Error")
     }
     .task {
+      await todayLecturesAccessoryViewModel.setup()
       await timetableViewModel.setup()
     }
     .tabViewStyle(.tabBarOnly)

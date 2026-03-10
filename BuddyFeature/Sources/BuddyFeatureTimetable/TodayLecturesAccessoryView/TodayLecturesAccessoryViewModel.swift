@@ -22,6 +22,8 @@ public final class TodayLecturesAccessoryViewModel {
   public var timetable: V2Timetable? = nil
   public var isLoading: Bool = true
 
+  public init() { }
+
   public func setup() async {
     guard let timetableUseCase = v2TimetableUseCase else { return }
 
