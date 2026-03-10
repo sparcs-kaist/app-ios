@@ -32,8 +32,8 @@ public final class TodayLecturesAccessoryViewModel {
 
     do {
       semesters = try await timetableUseCase.getSemesters()
-//      selectedSemester = try await timetableUseCase.getCurrentSemesters()
-      selectedSemester = semesters.first(where: { $0.year == 2024} )
+      selectedSemester = try await timetableUseCase.getCurrentSemesters()
+//      selectedSemester = semesters.first(where: { $0.year == 2024} )
 
       if let selectedSemester {
         timetable = try await timetableUseCase.getMyTable(semester: selectedSemester)
