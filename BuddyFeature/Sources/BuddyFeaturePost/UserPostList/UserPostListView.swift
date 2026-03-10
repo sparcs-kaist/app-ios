@@ -52,7 +52,7 @@ struct UserPostListView: View {
             }, onRefresh: {
               await viewModel.fetchInitialPosts()
             }, onLoadMore: {
-              await viewModel.loadNextPage()
+              Task { await viewModel.loadNextPage() }
             }
           )
         case .error(let message):

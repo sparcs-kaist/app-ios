@@ -13,10 +13,11 @@ import BuddyDataCore
 @preconcurrency
 import Moya
 
-public actor AraBoardRepository: AraBoardRepositoryProtocol {
+public final class AraBoardRepository: AraBoardRepositoryProtocol, @unchecked Sendable {
   private let provider: MoyaProvider<AraBoardTarget>
 
   // MARK: - Caches
+  private let cacheLock = NSLock()
   private var cachedBoards: [AraBoard]? = nil
 
   public init(provider: MoyaProvider<AraBoardTarget>) {
@@ -24,14 +25,15 @@ public actor AraBoardRepository: AraBoardRepositoryProtocol {
   }
 
   public func fetchBoards() async throws -> [AraBoard] {
-    if let cachedBoards {
-      return cachedBoards
+    let cached = cacheLock.withLock { cachedBoards }
+    if let cached {
+      return cached
     }
 
     let response = try await provider.request(.fetchBoards)
     let boards: [AraBoard] = try response.map([AraBoardDTO].self).compactMap { $0.toModel() }
 
-    self.cachedBoards = boards
+    cacheLock.withLock { self.cachedBoards = boards }
     return boards
   }
 

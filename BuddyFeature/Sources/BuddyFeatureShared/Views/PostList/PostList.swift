@@ -11,19 +11,20 @@ import BuddyDomain
 public struct PostList<Destination: View>: View {
   let posts: [AraPost]?
   @ViewBuilder let destination: (AraPost) -> Destination
+  var isLoadingMore: Bool = false
   var onRefresh: (() async -> Void)? = nil
-  var onLoadMore: (() async -> Void)? = nil
-
-  @State private var isLoadingMore: Bool = false
+  var onLoadMore: (() -> Void)? = nil
 
   public init(
     posts: [AraPost]?,
     @ViewBuilder destination: @escaping (AraPost) -> Destination,
+    isLoadingMore: Bool = false,
     onRefresh: (() async -> Void)? = nil,
-    onLoadMore: (() async -> Void)? = nil
+    onLoadMore: (() -> Void)? = nil
   ) {
     self.posts = posts
     self.destination = destination
+    self.isLoadingMore = isLoadingMore
     self.onRefresh = onRefresh
     self.onLoadMore = onLoadMore
   }
@@ -37,11 +38,11 @@ public struct PostList<Destination: View>: View {
       )
     } else {
       List {
-        if posts == nil {
+        if let posts {
+          loadedView(posts)
+        } else {
           loadingView
             .redacted(reason: .placeholder)
-        } else if let posts {
-          loadedView(posts)
         }
       }
       .listStyle(.plain)
@@ -56,6 +57,7 @@ public struct PostList<Destination: View>: View {
     ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
       PostListRow(post: post)
         .tag(post)
+        .id(post.id)
         .selectionDisabled(post.isHidden)
         .listRowSeparator(.hidden, edges: .top)
         .listRowSeparator(.visible, edges: .bottom)
@@ -63,12 +65,8 @@ public struct PostList<Destination: View>: View {
         .onAppear {
           // loads more contents on 60% scroll
           let thresholdIndex = Int(Double(posts.count) * Constants.loadMoreThreshold)
-          if index >= thresholdIndex {
-            Task {
-              isLoadingMore = true
-              await onLoadMore?()
-              isLoadingMore = false
-            }
+          if index >= thresholdIndex && !isLoadingMore {
+            onLoadMore?()
           }
         }
         .background {
@@ -82,7 +80,6 @@ public struct PostList<Destination: View>: View {
           }
         }
     }
-
     if isLoadingMore {
       HStack {
         Spacer()

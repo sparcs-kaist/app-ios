@@ -93,7 +93,7 @@ struct AraMyPostView: View {
         await vm.fetchInitialPosts()
       },
       onLoadMore: {
-        await vm.loadNextPage()
+        Task { await vm.loadNextPage() }
       }
     )
   }

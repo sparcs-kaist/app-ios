@@ -51,10 +51,12 @@ struct PostListView: View {
                 .onDisappear {
                   viewModel.refreshItem(postID: post.id)
                 }
-            }, onRefresh: {
+            },
+            isLoadingMore: viewModel.isLoadingMore,
+            onRefresh: {
               await viewModel.fetchInitialPosts()
             }, onLoadMore: {
-              await viewModel.loadNextPage()
+              viewModel.loadNextPage()
             }
           )
         }

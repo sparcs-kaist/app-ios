@@ -18,7 +18,7 @@ public protocol PostListViewModelProtocol: Observable {
   var hasMorePages: Bool { get }
 
   func fetchInitialPosts() async
-  func loadNextPage() async
+  func loadNextPage()
   func refreshItem(postID: Int)
   func removePost(postID: Int)
   func bind()

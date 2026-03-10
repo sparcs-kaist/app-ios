@@ -87,29 +87,40 @@ class PostListViewModel: PostListViewModelProtocol {
     }
   }
 
-  func loadNextPage() async {
+  func loadNextPage() {
     guard !isLoadingMore && hasMorePages else { return }
     guard let araBoardUseCase else { return }
 
     isLoadingMore = true
 
-    do {
-      let nextPage = currentPage + 1
-      let page = try await araBoardUseCase.fetchPosts(
-        type: .board(boardID: board.id),
-        page: nextPage,
-        pageSize: pageSize,
-        searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
-      )
+    let nextPage = currentPage + 1
+    let boardID = board.id
+    let ps = pageSize
+    let sk = searchKeyword.isEmpty ? nil : searchKeyword
 
-      self.currentPage = page.currentPage
-      self.posts.append(contentsOf: page.results)
-      self.hasMorePages = currentPage < totalPages
-      self.state = .loaded(posts: self.posts)
-      self.isLoadingMore = false
-      analyticsService?.logEvent(PostListViewEvent.nextPageLoaded)
-    } catch {
-      self.isLoadingMore = false
+    Task.detached { [weak self] in
+      do {
+        let page = try await araBoardUseCase.fetchPosts(
+          type: .board(boardID: boardID),
+          page: nextPage,
+          pageSize: ps,
+          searchKeyword: sk
+        )
+
+        await MainActor.run {
+          guard let self else { return }
+          self.currentPage = page.currentPage
+          self.posts.append(contentsOf: page.results)
+          self.hasMorePages = self.currentPage < self.totalPages
+          self.state = .loaded(posts: self.posts)
+          self.analyticsService?.logEvent(PostListViewEvent.nextPageLoaded)
+          self.isLoadingMore = false
+        }
+      } catch {
+        await MainActor.run { [weak self] in
+          self?.isLoadingMore = false
+        }
+      }
     }
   }
 
