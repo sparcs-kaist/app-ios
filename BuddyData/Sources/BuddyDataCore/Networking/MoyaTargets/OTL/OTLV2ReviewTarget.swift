@@ -61,8 +61,16 @@ extension OTLV2ReviewTarget: TargetType, AccessTokenAuthorizable {
           "load": load,
           "speech": speech
         ], encoding: JSONEncoding.default)
-    case .likeReview, .unlikeReview:
-        return .requestPlain
+    case .likeReview(let reviewID):
+      return .requestParameters(parameters: [
+        "action": "like",
+        "reviewId": reviewID
+      ], encoding: JSONEncoding.default)
+    case .unlikeReview(let reviewID):
+      return .requestParameters(parameters: [
+        "action": "unlike",
+        "reviewId": reviewID
+      ], encoding: JSONEncoding.default)
     }
   }
 
