@@ -300,8 +300,11 @@ extension Container: @retroactive AutoRegistering {
     .scope(.singleton)
 
     v2TimetableUseCase.register {
-      V2TimetableUseCase(
-        otlTimetableRepository: self.otlV2TimetableRepository.resolve()
+      let cache: TimetableCache? = TimetableCacheContainer.shared
+        .map { TimetableCache(modelContainer: $0) }
+      return V2TimetableUseCase(
+        otlTimetableRepository: self.otlV2TimetableRepository.resolve(),
+        cache: cache
       )
     }
 
