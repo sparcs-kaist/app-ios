@@ -301,8 +301,7 @@ extension Container: @retroactive AutoRegistering {
 
     v2TimetableUseCase.register {
       V2TimetableUseCase(
-        otlTimetableRepository: self.otlV2TimetableRepository.resolve(),
-        sessionBirdgeService: self.sessionBridgeService.resolve()
+        otlTimetableRepository: self.otlV2TimetableRepository.resolve()
       )
     }
 

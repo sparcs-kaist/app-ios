@@ -11,15 +11,12 @@ import BuddyDomain
 public final class V2TimetableUseCase: V2TimetableUseCaseProtocol, @unchecked Sendable {
   // MARK: - Dependencies
   private let otlTimetableRepository: OTLV2TimetableRepositoryProtocol
-  private let sessionBirdgeService: SessionBridgeServiceProtocol?
 
   // MARK: - Initialiser
   public init(
-    otlTimetableRepository: OTLV2TimetableRepositoryProtocol,
-    sessionBirdgeService: SessionBridgeServiceProtocol?
+    otlTimetableRepository: OTLV2TimetableRepositoryProtocol
   ) {
     self.otlTimetableRepository = otlTimetableRepository
-    self.sessionBirdgeService = sessionBirdgeService
   }
 
   // MARK: - Functions
