@@ -15,6 +15,24 @@ public struct V2LectureReviewPage: Hashable, Codable, Sendable {
   public let department: V2Department?
   public let totalCount: Int
 
+  public func getGradeLetter(for credits: Int) -> String {
+    letter(for: round(Double(credits) * averageGrade))
+  }
+
+  public func getLoadLetter(for credits: Int) -> String {
+    letter(for: round(Double(credits) * averageLoad))
+  }
+
+  public func getSpeechLetter(for credits: Int) -> String {
+    letter(for: round(Double(credits) * averageSpeech))
+  }
+
+  // safely get letter grade string
+  private func letter(for value: Double) -> String {
+    let index = Int(round(value))
+    return Timetable.letters[safe: index] ?? "?"
+  }
+
   public init(
     reviews: [V2LectureReview],
     averageGrade: Double,

@@ -91,9 +91,27 @@ public struct CourseView: View {
           .fontWeight(.bold)
         Spacer()
 
-        lectureSummaryRowWrapper(title: "Grade", description: "?")
-        lectureSummaryRowWrapper(title: "Load", description: "?")
-        lectureSummaryRowWrapper(title: "Speech", description: "?")
+        lectureSummaryRowWrapper(
+          title: "Grade",
+          description: viewModel.reviewPage?
+            .getGradeLetter(
+              for: (viewModel.course?.credit ?? 0) + (viewModel.course?.creditAU ?? 0)
+            ) ?? "?"
+        )
+        lectureSummaryRowWrapper(
+          title: "Load", 
+          description: viewModel.reviewPage?
+            .getLoadLetter(
+              for: (viewModel.course?.credit ?? 0) + (viewModel.course?.creditAU ?? 0)
+            ) ?? "?"
+        )
+        lectureSummaryRowWrapper(
+          title: "Speech",
+          description: viewModel.reviewPage?
+            .getSpeechLetter(
+              for: (viewModel.course?.credit ?? 0) + (viewModel.course?.creditAU ?? 0)
+            ) ?? "?"
+        )
       }
       
       Spacer()

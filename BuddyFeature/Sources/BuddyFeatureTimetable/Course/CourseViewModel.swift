@@ -28,6 +28,7 @@ public class CourseViewModel {
   public var course: V2Course? = nil
   public var reviews: [V2LectureReview] = []
   public var state: ViewState = .loading
+  public var reviewPage: V2LectureReviewPage? = nil
 
   public init() { }
 
@@ -48,6 +49,7 @@ public class CourseViewModel {
     do {
       self.state = .loading
       let page = try await reviewUseCase.fetchReviews(courseID: courseID, professorID: nil, offset: 0, limit: 100)
+      self.reviewPage = page
       self.reviews = page.reviews
       self.state = .loaded
     } catch {
