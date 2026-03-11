@@ -98,7 +98,7 @@ class PostListViewModel: PostListViewModelProtocol {
     let ps = pageSize
     let sk = searchKeyword.isEmpty ? nil : searchKeyword
 
-    Task.detached { [weak self] in
+    Task.detached {
       do {
         let page = try await araBoardUseCase.fetchPosts(
           type: .board(boardID: boardID),
@@ -107,8 +107,7 @@ class PostListViewModel: PostListViewModelProtocol {
           searchKeyword: sk
         )
 
-        await MainActor.run {
-          guard let self else { return }
+        await MainActor.run { [page] in
           self.currentPage = page.currentPage
           self.posts.append(contentsOf: page.results)
           self.hasMorePages = self.currentPage < self.totalPages
@@ -117,8 +116,8 @@ class PostListViewModel: PostListViewModelProtocol {
           self.isLoadingMore = false
         }
       } catch {
-        await MainActor.run { [weak self] in
-          self?.isLoadingMore = false
+        await MainActor.run {
+          self.isLoadingMore = false
         }
       }
     }
