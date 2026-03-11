@@ -8,22 +8,19 @@
 import SwiftUI
 import BuddyDomain
 
-public struct PostList<Destination: View>: View {
+public struct PostList: View {
   let posts: [AraPost]?
-  @ViewBuilder let destination: (AraPost) -> Destination
   var isLoadingMore: Bool = false
   var onRefresh: (() async -> Void)? = nil
   var onLoadMore: (() -> Void)? = nil
 
   public init(
     posts: [AraPost]?,
-    @ViewBuilder destination: @escaping (AraPost) -> Destination,
     isLoadingMore: Bool = false,
     onRefresh: (() async -> Void)? = nil,
     onLoadMore: (() -> Void)? = nil
   ) {
     self.posts = posts
-    self.destination = destination
     self.isLoadingMore = isLoadingMore
     self.onRefresh = onRefresh
     self.onLoadMore = onLoadMore
@@ -71,9 +68,7 @@ public struct PostList<Destination: View>: View {
         }
         .background {
           if !post.isHidden {
-            NavigationLink {
-              destination(post)
-            } label: {
+            NavigationLink(value: post) {
               EmptyView()
             }
             .opacity(0)
@@ -103,20 +98,18 @@ public struct PostList<Destination: View>: View {
 
 
 #Preview("Loading") {
-  PostList(posts: nil, destination: { _ in
-    EmptyView()
-  })
+  PostList(posts: nil)
 }
 
 #Preview("Empty") {
-  PostList(posts: [], destination: { _ in
-    EmptyView()
-  })
+  PostList(posts: [])
 }
 
 #Preview("Loaded") {
-  PostList(posts: AraPost.mockList, destination: { post in
-//    PostView(post: post)
-//      .id(post.id)
-  })
+  NavigationStack {
+    PostList(posts: AraPost.mockList)
+      .navigationDestination(for: AraPost.self) { post in
+        Text("Post \(post.id)")
+      }
+  }
 }

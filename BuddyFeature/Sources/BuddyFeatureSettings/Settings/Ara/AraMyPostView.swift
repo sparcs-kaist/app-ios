@@ -75,20 +75,14 @@ struct AraMyPostView: View {
   }
   
   private var loadingView: some View {
-    PostList(posts: AraPost.mockList, destination: { _ in EmptyView()})
+    PostList(posts: AraPost.mockList)
       .redacted(reason: .placeholder)
   }
   
   private var loadedView: some View {
     PostList(
       posts: vm.posts,
-      destination: { post in
-        PostView(post: post)
-          .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-          .onDisappear() {
-            vm.refreshItem(postID: post.id)
-          }
-      },
+      isLoadingMore: vm.isLoadingMore,
       onRefresh: {
         await vm.fetchInitialPosts()
       },
@@ -96,5 +90,12 @@ struct AraMyPostView: View {
         Task { await vm.loadNextPage() }
       }
     )
+    .navigationDestination(for: AraPost.self) { post in
+      PostView(post: post)
+        .addKeyboardVisibilityToEnvironment()
+        .onDisappear {
+          vm.refreshItem(postID: post.id)
+        }
+    }
   }
 }
