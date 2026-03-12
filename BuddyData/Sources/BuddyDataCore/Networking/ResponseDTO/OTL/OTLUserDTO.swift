@@ -14,11 +14,6 @@ public struct OTLUserDTO: Codable {
   public let studentID: String
   public let firstName: String
   public let lastName: String
-  public let department: DepartmentDTO?
-  public let majors: [DepartmentDTO]
-  public let reviewWritableLectures: [LectureDTO]
-  public let myTimetableLectures: [LectureDTO]
-  public let reviews: [LectureReviewDTO]
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -26,11 +21,6 @@ public struct OTLUserDTO: Codable {
     case studentID = "student_id"
     case firstName
     case lastName
-    case department
-    case majors
-    case reviewWritableLectures = "review_writable_lectures"
-    case myTimetableLectures = "my_timetable_lectures"
-    case reviews
   }
 }
 
@@ -42,12 +32,7 @@ public extension OTLUserDTO {
       email: email,
       studentID: studentID,
       firstName: firstName,
-      lastName: lastName,
-      department: department?.toModel(),
-      majors: majors.compactMap { $0.toModel() },
-      reviewWritableLectures: reviewWritableLectures.compactMap { $0.toModel() },
-      myTimetableLectures: myTimetableLectures.compactMap { $0.toModel() },
-      reviews: reviews.compactMap { $0.toModel() }
+      lastName: lastName
     )
   }
 }

@@ -69,6 +69,7 @@
       }
     },
     "An unexpected error occurred while adding a lecture. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -91,6 +92,7 @@
       }
     },
     "An unexpected error occurred while creating a new timetable. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -113,6 +115,7 @@
       }
     },
     "An unexpected error occurred while deleting a timetable. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -135,6 +138,7 @@
       }
     },
     "An unexpected error occurred while loading timetables. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -157,6 +161,7 @@
       }
     },
     "An unexpected error occurred while removing a lecture. Please try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

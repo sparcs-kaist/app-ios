@@ -23,7 +23,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
         calendar: .current
       )!,
       signInRequired: false,
-      backgroundColor: Lecture.mock.backgroundColor,
+      backgroundColor: V2Lecture.mock.backgroundColor,
       relevance: .init(score: 50)
     )
   }
@@ -39,7 +39,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
         calendar: .current
       )!,
       signInRequired: false,
-      backgroundColor: Lecture.mock.backgroundColor,
+      backgroundColor: V2Lecture.mock.backgroundColor,
       relevance: .init(score: 50)
     )
   }

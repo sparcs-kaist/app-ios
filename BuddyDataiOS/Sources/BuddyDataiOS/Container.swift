@@ -193,24 +193,6 @@ extension Container: @retroactive AutoRegistering {
       ]))
     }
 
-    otlTimetableRepository.register {
-      OTLTimetableRepository(provider: MoyaProvider<OTLTimetableTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-
-    otlLectureRepository.register {
-      OTLLectureRepository(provider: MoyaProvider<OTLLectureTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-
-    otlCourseRepository.register {
-      OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
-    }
-
     // MARK: - Services
     sessionBridgeService.register {
       SessionBridgeService()
@@ -289,15 +271,6 @@ extension Container: @retroactive AutoRegistering {
     foundationModelsUseCase.register {
       FoundationModelsUseCase()
     }
-
-    timetableUseCase.register {
-      TimetableUseCase(
-        userUseCase: self.userUseCase.resolve(),
-        otlTimetableRepository: self.otlTimetableRepository.resolve(),
-        sessionBridgeService: self.sessionBridgeService.resolve()
-      )
-    }
-    .scope(.singleton)
 
     v2TimetableUseCase.register {
       let cache: TimetableCache? = TimetableCacheContainer.shared

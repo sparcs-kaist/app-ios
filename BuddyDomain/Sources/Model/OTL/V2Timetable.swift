@@ -120,7 +120,7 @@ public extension V2Timetable {
   // safely get letter grade string
   private func letter(for value: Double) -> String {
     let index = Int(round(value))
-    return Timetable.letters[safe: index] ?? "?"
+    return V2Timetable.letters[safe: index] ?? "?"
   }
 
   // Letter grade for the grade
@@ -146,10 +146,10 @@ public extension V2Timetable {
       .reduce(0, +)
   }
 
-  func hasCollision(with newLecture: Lecture) -> Bool {
+  func hasCollision(with newLecture: V2Lecture) -> Bool {
     for existingLecture in lectures {
       for existingTime in existingLecture.classes {
-        for newTime in newLecture.classTimes {
+        for newTime in newLecture.classes {
           if existingTime.day == newTime.day {
             // Overlap occurs if start < other.end && end > other.start
             if newTime.begin < existingTime.end && newTime.end > existingTime.begin {

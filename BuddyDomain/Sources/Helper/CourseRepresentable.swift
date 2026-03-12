@@ -26,7 +26,7 @@ public extension CourseRepresentable {
   // safely get letter grade string
   private func letter(for value: Double) -> String {
     let index = Int(round(value))
-    return Timetable.letters[safe: index] ?? "?"
+    return V2Timetable.letters[safe: index] ?? "?"
   }
 
   // Letter grade for the grade

@@ -16,7 +16,7 @@ import FirebaseAnalytics
 public struct SearchView: View {
   @State private var viewModel = SearchViewModel()
   @State private var selectedRoom: TaxiRoom? = nil
-  @State private var selectedCourse: Course? = nil
+//  @State private var selectedCourse: V2Course? = nil
   @State private var courseSheetDetent: PresentationDetent = .height(200)
   @FocusState private var isFocused
 

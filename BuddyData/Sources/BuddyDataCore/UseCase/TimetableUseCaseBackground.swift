@@ -9,10 +9,6 @@ import Foundation
 import BuddyDomain
 
 public final actor TimetableUseCaseBackground: TimetableUseCaseBackgroundProtocol {
-  private var store: [Semester.ID: [Timetable]] = [:]
-  public var semesters: [Semester] = []
-  public var currentSemester: Semester? = nil
-
   // MARK: - Dependencies
   private let otlTimetableRepository: OTLV2TimetableRepositoryProtocol
 
