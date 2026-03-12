@@ -10,18 +10,12 @@ import BuddyDomain
 
 public struct OTLUserDTO: Codable {
   public let id: Int
+  public let name: String
   public let email: String
-  public let studentID: String
-  public let firstName: String
-  public let lastName: String
-
-  enum CodingKeys: String, CodingKey {
-    case id
-    case email
-    case studentID = "student_id"
-    case firstName
-    case lastName
-  }
+  public let studentNumber: Int
+  public let degree: String
+  public let majorDepartments: [DepartmentDTO]
+  public let interestedDepartments: [DepartmentDTO]
 }
 
 
@@ -29,10 +23,12 @@ public extension OTLUserDTO {
   func toModel() -> OTLUser {
     OTLUser(
       id: id,
+      name: name,
       email: email,
-      studentID: studentID,
-      firstName: firstName,
-      lastName: lastName
+      studentNumber: studentNumber,
+      degree: degree,
+      majorDepartments: majorDepartments.compactMap { $0.toModel () },
+      interestedDepartments: interestedDepartments.compactMap { $0.toModel() }
     )
   }
 }

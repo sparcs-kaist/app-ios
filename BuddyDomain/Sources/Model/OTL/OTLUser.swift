@@ -9,22 +9,28 @@ import Foundation
 
 public struct OTLUser: Identifiable, Sendable {
   public let id: Int
+  public let name: String
   public let email: String
-  public let studentID: String
-  public let firstName: String
-  public let lastName: String
+  public let studentNumber: Int
+  public let degree: String
+  public let majorDepartments: [Department]
+  public let interestedDepartments: [Department]
 
   public init(
     id: Int,
+    name: String,
     email: String,
-    studentID: String,
-    firstName: String,
-    lastName: String
+    studentNumber: Int,
+    degree: String,
+    majorDepartments: [Department],
+    interestedDepartments: [Department]
   ) {
     self.id = id
+    self.name = name
     self.email = email
-    self.studentID = studentID
-    self.firstName = firstName
-    self.lastName = lastName
+    self.studentNumber = studentNumber
+    self.degree = degree
+    self.majorDepartments = majorDepartments
+    self.interestedDepartments = interestedDepartments
   }
 }
