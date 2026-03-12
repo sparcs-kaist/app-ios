@@ -11,10 +11,10 @@ import BuddyDomain
 import FirebaseAnalytics
 
 struct ReviewComposeView: View {
-  let lecture: V2Lecture
+  let lecture: Lecture
 
   @Environment(\.dismiss) private var dismiss
-  @Injected(\.v2ReviewUseCase) private var reviewUseCase: V2ReviewUseCaseProtocol?
+  @Injected(\.v2ReviewUseCase) private var reviewUseCase: ReviewUseCaseProtocol?
 
   @State private var grade: Int = 5
   @State private var load: Int = 5

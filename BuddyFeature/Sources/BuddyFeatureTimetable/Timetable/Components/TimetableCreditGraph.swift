@@ -10,7 +10,7 @@ import Charts
 import BuddyDomain
 
 struct TimetableCreditGraph: View {
-  let selectedTimetable: V2Timetable?
+  let selectedTimetable: Timetable?
 
   var body: some View {
     Chart([

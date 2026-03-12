@@ -1,5 +1,5 @@
 //
-//  V2Timetable.swift
+//  Timetable.swift
 //  BuddyDomain
 //
 //  Created by Soongyu Kwon on 24/02/2026.
@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-public struct V2Timetable: Identifiable, Hashable, Codable, Sendable {
+public struct Timetable: Identifiable, Hashable, Codable, Sendable {
   public var id: String
-  public var lectures: [V2Lecture]
+  public var lectures: [Lecture]
 
   private var defaultMinMinutes = 540 // 9:00 AM
   private var defaultMaxMinutes = 1080 // 6:00 PM
@@ -19,13 +19,13 @@ public struct V2Timetable: Identifiable, Hashable, Codable, Sendable {
     "B-", "B", "B+", "A-", "A", "A+"
   ]
 
-  public init(id: String, lectures: [V2Lecture]) {
+  public init(id: String, lectures: [Lecture]) {
     self.id = id
     self.lectures = lectures
   }
 }
 
-public extension V2Timetable {
+public extension Timetable {
   // Return the minimum start minutes.
   var minMinutes: Int {
     lectures
@@ -66,13 +66,13 @@ public extension V2Timetable {
 
 
   // Get all lectures for day. Return LectureItem that includes index of ClassTime of the Lecture.
-  func getLectures(day: DayType) -> [V2LectureItem] {
+  func getLectures(day: DayType) -> [LectureItem] {
     lectures
       .flatMap { lecture in
         lecture.classes.enumerated()
           .filter { $0.element.day == day }
           .map {
-            V2LectureItem(lecture: lecture, lectureClass: lecture.classes[$0.offset])
+            LectureItem(lecture: lecture, lectureClass: lecture.classes[$0.offset])
           }
       }
   }
@@ -104,7 +104,7 @@ public extension V2Timetable {
       .reduce(0, +)
   }
 
-  private func calculateWeightedAverage(for keyPath: KeyPath<V2Lecture, Double>, withCredits: Bool = true) -> Double {
+  private func calculateWeightedAverage(for keyPath: KeyPath<Lecture, Double>, withCredits: Bool = true) -> Double {
 
     let numerator = lectures
       .map { $0[keyPath: keyPath] * Double($0.credit + (withCredits ? $0.creditAU : 0)) }
@@ -120,7 +120,7 @@ public extension V2Timetable {
   // safely get letter grade string
   private func letter(for value: Double) -> String {
     let index = Int(round(value))
-    return V2Timetable.letters[safe: index] ?? "?"
+    return Timetable.letters[safe: index] ?? "?"
   }
 
   // Letter grade for the grade
@@ -146,7 +146,7 @@ public extension V2Timetable {
       .reduce(0, +)
   }
 
-  func hasCollision(with newLecture: V2Lecture) -> Bool {
+  func hasCollision(with newLecture: Lecture) -> Bool {
     for existingLecture in lectures {
       for existingTime in existingLecture.classes {
         for newTime in newLecture.classes {
@@ -162,13 +162,13 @@ public extension V2Timetable {
     return false
   }
 
-  func lectureItems(for date: Date = Date()) -> [V2LectureItem] {
+  func lectureItems(for date: Date = Date()) -> [LectureItem] {
     let today = DayType.from(date: date, calendar: .current)
 
-    var next: [V2LectureItem] = []
+    var next: [LectureItem] = []
     for lecture in self.lectures {
       for (i, ct) in lecture.classes.enumerated() where ct.day == today {
-        next.append(V2LectureItem(lecture: lecture, lectureClass: lecture.classes[i]))
+        next.append(LectureItem(lecture: lecture, lectureClass: lecture.classes[i]))
       }
     }
 

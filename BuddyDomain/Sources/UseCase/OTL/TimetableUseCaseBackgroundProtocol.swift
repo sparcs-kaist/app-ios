@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol TimetableUseCaseBackgroundProtocol {
-  func getCurrentMyTable() async -> V2Timetable
+  func getCurrentMyTable() async -> Timetable
 }

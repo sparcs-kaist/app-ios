@@ -1,5 +1,5 @@
 //
-//  V2Department.swift
+//  Department.swift
 //  BuddyDomain
 //
 //  Created by Soongyu Kwon on 28/02/2026.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct V2Department: Identifiable, Hashable, Sendable, Codable {
+public struct Department: Identifiable, Hashable, Sendable, Codable {
   public let id: Int
   public let name: String
 

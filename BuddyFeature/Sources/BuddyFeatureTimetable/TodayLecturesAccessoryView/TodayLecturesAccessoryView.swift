@@ -31,7 +31,7 @@ public struct TodayLecturesAccessoryView: View {
   @ViewBuilder
   private var accessoryContent: some View {
     if viewModel.isLoading {
-      TodayLectureCard(context: context, item: V2LectureItem.mock)
+      TodayLectureCard(context: context, item: LectureItem.mock)
         .redacted(reason: .placeholder)
     } else if let nextLecture = viewModel.nextLecture {
       TodayLectureCard(context: context, item: nextLecture)
@@ -42,7 +42,7 @@ public struct TodayLecturesAccessoryView: View {
     }
   }
 
-  private func semesterCard(timetable: V2Timetable, semester: Semester) -> some View {
+  private func semesterCard(timetable: Timetable, semester: Semester) -> some View {
     HStack(alignment: .center) {
       Circle()
         .fill(Color.accentColor)

@@ -1,5 +1,5 @@
 //
-//  V2TimetableSummary.swift
+//  TimetableSummary.swift
 //  BuddyDomain
 //
 //  Created by Soongyu Kwon on 28/02/2026.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct V2TimetableSummary: Identifiable, Hashable, Sendable, Codable {
+public struct TimetableSummary: Identifiable, Hashable, Sendable, Codable {
   public let id: Int
   public var title: String
   public let year: Int

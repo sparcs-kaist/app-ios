@@ -60,7 +60,7 @@ struct SearchSection<Content: View>: View {
 }
 
 //#Preview {
-//  let course: [V2CourseSummary] = V2CourseSummary.mockList
+//  let course: [CourseSummary] = CourseSummary.mockList
 //
 //  ZStack {
 //    Color.secondarySystemBackground.ignoresSafeArea()
@@ -73,7 +73,7 @@ struct SearchSection<Content: View>: View {
 //      }
 //      
 //      SearchSection(title: "Courses", searchScope: .constant(.all), targetScope: .courses) {
-//        SearchContent<V2CourseSummary, CourseCell>(results: course) {
+//        SearchContent<CourseSummary, CourseCell>(results: course) {
 //          CourseCell(course: $0)
 //        }
 //      }

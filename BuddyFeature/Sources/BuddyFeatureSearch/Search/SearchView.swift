@@ -16,7 +16,7 @@ import FirebaseAnalytics
 public struct SearchView: View {
   @State private var viewModel = SearchViewModel()
   @State private var selectedRoom: TaxiRoom? = nil
-//  @State private var selectedCourse: V2Course? = nil
+//  @State private var selectedCourse: Course? = nil
   @State private var courseSheetDetent: PresentationDetent = .height(200)
   @FocusState private var isFocused
 
@@ -63,7 +63,7 @@ public struct SearchView: View {
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search"))
     .searchFocused($isFocused)
-    .navigationDestination(for: V2CourseSummary.self) { course in
+    .navigationDestination(for: CourseSummary.self) { course in
       CourseView(course: course)
     }
     .navigationDestination(for: AraPost.self) { post in
@@ -76,7 +76,7 @@ public struct SearchView: View {
     .analyticsScreen(name: "Search", class: String(describing: Self.self))
   }
   
-  private func courseSection(courses: [V2CourseSummary]) -> some View {
+  private func courseSection(courses: [CourseSummary]) -> some View {
     SearchSection(title: String(localized: "Courses"), searchScope: $viewModel.searchScope, targetScope: .courses) {
       SearchContent(results: courses) { course in
         NavigationLink(value: course) {
@@ -135,9 +135,9 @@ public struct SearchView: View {
     ScrollView {
       LazyVStack(spacing: 16) {
         if viewModel.searchScope == .all {
-          courseSection(courses: viewModel.state == .loading ? Array(V2CourseSummary.mockList.prefix(3)) : Array(viewModel.courses.prefix(3)))
+          courseSection(courses: viewModel.state == .loading ? Array(CourseSummary.mockList.prefix(3)) : Array(viewModel.courses.prefix(3)))
         } else if viewModel.searchScope == .courses {
-          courseSection(courses: viewModel.state == .loading ? V2CourseSummary.mockList : viewModel.courses)
+          courseSection(courses: viewModel.state == .loading ? CourseSummary.mockList : viewModel.courses)
         }
 
         if viewModel.searchScope == .all {

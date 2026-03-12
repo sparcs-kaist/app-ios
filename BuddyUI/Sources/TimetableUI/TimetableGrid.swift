@@ -10,17 +10,17 @@ import BuddyDomain
 import Haptica
 
 public struct TimetableGrid: View {
-  let selectedTimetable: V2Timetable?
-  let candidateLecture: V2Lecture?
-  var selectedLecture: ((V2LectureItem) -> Void)?
-  var onDelete: (V2Lecture) -> Void
+  let selectedTimetable: Timetable?
+  let candidateLecture: Lecture?
+  var selectedLecture: ((LectureItem) -> Void)?
+  var onDelete: (Lecture) -> Void
   let placement: TimetablePlacement
 
   public init(
-    selectedTimetable: V2Timetable?,
-    candidateLecture: V2Lecture?,
-    selectedLecture: ((V2LectureItem) -> Void)? = nil,
-    onDelete: @escaping (V2Lecture) -> Void,
+    selectedTimetable: Timetable?,
+    candidateLecture: Lecture?,
+    selectedLecture: ((LectureItem) -> Void)? = nil,
+    onDelete: @escaping (Lecture) -> Void,
     placement: TimetablePlacement
   ) {
     self.selectedTimetable = selectedTimetable
@@ -69,32 +69,32 @@ public struct TimetableGrid: View {
     }
   }
 
-  private func getHeight(for item: V2LectureItem, in size: CGSize, of selectedTimetable: V2Timetable) -> CGFloat {
+  private func getHeight(for item: LectureItem, in size: CGSize, of selectedTimetable: Timetable) -> CGFloat {
     switch placement {
     case .widget:
       TimetableConstructor
-        .getCellHeightV2(
+        .getCellHeight(
           for: item,
           in: size,
           of: selectedTimetable.duration % 60 == 0 ? selectedTimetable.duration : selectedTimetable.duration + 60
         )
     default:
-      TimetableConstructor.getCellHeightV2(for: item, in: size, of: selectedTimetable.gappedDuration)
+      TimetableConstructor.getCellHeight(for: item, in: size, of: selectedTimetable.gappedDuration)
     }
   }
 
-  private func getOffset(for item: V2LectureItem, in size: CGSize, of selectedTimetable: V2Timetable) -> CGFloat {
+  private func getOffset(for item: LectureItem, in size: CGSize, of selectedTimetable: Timetable) -> CGFloat {
     switch placement {
     case .widget:
       TimetableConstructor
-        .getCellOffsetV2(
+        .getCellOffset(
           for: item,
           in: size,
           at: selectedTimetable.minMinutes,
           of: selectedTimetable.duration % 60 == 0 ? selectedTimetable.duration : selectedTimetable.duration + 60
         )
     default:
-      TimetableConstructor.getCellOffsetV2(for: item, in: size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration)
+      TimetableConstructor.getCellOffset(for: item, in: size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration)
     }
   }
 

@@ -21,14 +21,14 @@ public class CourseViewModel {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.v2CourseUseCase
-  ) private var courseUseCase: V2CourseUseCaseProtocol?
-  @ObservationIgnored @Injected(\.v2ReviewUseCase) private var reviewUseCase: V2ReviewUseCaseProtocol?
+  ) private var courseUseCase: CourseUseCaseProtocol?
+  @ObservationIgnored @Injected(\.v2ReviewUseCase) private var reviewUseCase: ReviewUseCaseProtocol?
 
   // MARK: - Properties
-  public var course: V2Course? = nil
-  public var reviews: [V2LectureReview] = []
+  public var course: Course? = nil
+  public var reviews: [LectureReview] = []
   public var state: ViewState = .loading
-  public var reviewPage: V2LectureReviewPage? = nil
+  public var reviewPage: LectureReviewPage? = nil
 
   public init() { }
 

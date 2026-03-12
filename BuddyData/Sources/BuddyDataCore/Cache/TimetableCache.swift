@@ -19,8 +19,8 @@ public final class TimetableCache: Sendable {
 
   // MARK: - Read
 
-  /// Returns the cached `V2Timetable` for the given key, or `nil` if not found.
-  public func timetable(forKey key: String) -> V2Timetable? {
+  /// Returns the cached `Timetable` for the given key, or `nil` if not found.
+  public func timetable(forKey key: String) -> Timetable? {
     let context = ModelContext(modelContainer)
     var descriptor = FetchDescriptor<CachedTimetable>(
       predicate: #Predicate { $0.cacheKey == key }
@@ -29,13 +29,13 @@ public final class TimetableCache: Sendable {
 
     guard let cached = try? context.fetch(descriptor).first else { return nil }
 
-    return try? JSONDecoder().decode(V2Timetable.self, from: cached.data)
+    return try? JSONDecoder().decode(Timetable.self, from: cached.data)
   }
 
   // MARK: - Write
 
-  /// Persists a `V2Timetable` under the given key, inserting or updating as needed.
-  public func store(_ timetable: V2Timetable, forKey key: String) {
+  /// Persists a `Timetable` under the given key, inserting or updating as needed.
+  public func store(_ timetable: Timetable, forKey key: String) {
     guard let data = try? JSONEncoder().encode(timetable) else { return }
 
     let context = ModelContext(modelContainer)

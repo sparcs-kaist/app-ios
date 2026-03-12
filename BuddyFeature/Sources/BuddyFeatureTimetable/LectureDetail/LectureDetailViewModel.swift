@@ -19,16 +19,16 @@ class LectureDetailViewModel {
     case error(message: String)
   }
   var state: ViewState = .loading
-  var reviews: [V2LectureReview] = []
-  var course: V2Course? = nil
+  var reviews: [LectureReview] = []
+  var course: Course? = nil
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.v2ReviewUseCase
-  ) private var reviewUseCase: V2ReviewUseCaseProtocol?
+  ) private var reviewUseCase: ReviewUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.v2CourseUseCase
-  ) private var courseUseCase: V2CourseUseCaseProtocol?
+  ) private var courseUseCase: CourseUseCaseProtocol?
 
   // MARK: - Functions
 
@@ -42,7 +42,7 @@ class LectureDetailViewModel {
     }
   }
 
-  func fetchReviews(lecture: V2Lecture) async {
+  func fetchReviews(lecture: Lecture) async {
     guard let reviewUseCase else { return }
 
     do {

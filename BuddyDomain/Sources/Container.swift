@@ -101,19 +101,19 @@ extension Container {
     promised()
   }
 
-  public var v2TimetableUseCase: Factory<V2TimetableUseCaseProtocol?> {
+  public var v2TimetableUseCase: Factory<TimetableUseCaseProtocol?> {
     promised()
   }
 
-  public var v2ReviewUseCase: Factory<V2ReviewUseCaseProtocol?> {
+  public var v2ReviewUseCase: Factory<ReviewUseCaseProtocol?> {
     promised()
   }
 
-  public var v2LectureUseCase: Factory<V2LectureUseCaseProtocol?> {
+  public var v2LectureUseCase: Factory<LectureUseCaseProtocol?> {
     promised()
   }
 
-  public var v2CourseUseCase: Factory<V2CourseUseCaseProtocol?> {
+  public var v2CourseUseCase: Factory<CourseUseCaseProtocol?> {
     promised()
   }
 

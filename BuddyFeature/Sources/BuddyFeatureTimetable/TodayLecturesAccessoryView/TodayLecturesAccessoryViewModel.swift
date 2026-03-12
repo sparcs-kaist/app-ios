@@ -15,11 +15,11 @@ import Factory
 public final class TodayLecturesAccessoryViewModel {
   @ObservationIgnored @Injected(
     \.v2TimetableUseCase
-  ) private var v2TimetableUseCase: V2TimetableUseCaseProtocol?
+  ) private var v2TimetableUseCase: TimetableUseCaseProtocol?
 
   public var semesters: [Semester] = []
   public var selectedSemester: Semester? = nil
-  public var timetable: V2Timetable? = nil
+  public var timetable: Timetable? = nil
   public var isLoading: Bool = true
 
   public init() { }
@@ -55,16 +55,16 @@ public final class TodayLecturesAccessoryViewModel {
     timetable?.lectures.isEmpty ?? true
   }
 
-  public var todayLectures: [V2LectureItem] {
+  public var todayLectures: [LectureItem] {
     timetable?.lectureItems(for: Date()) ?? []
   }
 
-  public var nextLecture: V2LectureItem? {
+  public var nextLecture: LectureItem? {
     nextLecture(for: Date())
   }
 
-  public func nextLecture(for date: Date) -> V2LectureItem? {
-    let timedLectures: [(item: V2LectureItem, start: Date, end: Date)] = todayLectures.map { item in
+  public func nextLecture(for date: Date) -> LectureItem? {
+    let timedLectures: [(item: LectureItem, start: Date, end: Date)] = todayLectures.map { item in
       let start = dateForMinutes(item.lectureClass.begin, on: date)
       let end = dateForMinutes(item.lectureClass.end, on: date)
       return (item: item, start: start, end: end)

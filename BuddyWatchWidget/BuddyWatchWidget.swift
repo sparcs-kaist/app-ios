@@ -17,15 +17,15 @@ struct UpcomingClassProvider: TimelineProvider {
   func placeholder(in context: Context) -> LectureEntry {
     LectureEntry(
       date: Date(),
-      lecture: V2Lecture.mock,
-      lectureClass: V2Lecture.mock.classes[0],
+      lecture: Lecture.mock,
+      lectureClass: Lecture.mock.classes[0],
       startDate: dateOnSameDay(
-        minutes: V2Lecture.mock.classes[0].begin,
+        minutes: Lecture.mock.classes[0].begin,
         date: Date(),
         calendar: .current
       )!,
       signInRequired: false,
-      backgroundColor: V2Lecture.mock.backgroundColor,
+      backgroundColor: Lecture.mock.backgroundColor,
       relevance: .init(score: 50)
     )
   }
@@ -42,7 +42,7 @@ struct UpcomingClassProvider: TimelineProvider {
     let data = ud?.data(forKey: key) ?? Data()
     guard
       !data.isEmpty,
-      let timetable: V2Timetable = try? JSONDecoder().decode(V2Timetable.self, from: data)
+      let timetable: Timetable = try? JSONDecoder().decode(Timetable.self, from: data)
     else {
       // failed to decode timetable
       let entry = LectureEntry(
@@ -58,7 +58,7 @@ struct UpcomingClassProvider: TimelineProvider {
       return
     }
 
-    let todayLectures: [V2LectureItem] = timetable.lectureItems(for: now)
+    let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
 
     var entries: [LectureEntry] = []
     if todayLectures.isEmpty {
@@ -173,7 +173,7 @@ struct BuddyUpcomingClassWidget: Widget {
 #Preview(as: .accessoryRectangular) {
   BuddyUpcomingClassWidget()
 } timeline: {
-  let lectures = Array(V2Lecture.mockList.suffix(5))
+  let lectures = Array(Lecture.mockList.suffix(5))
   LectureEntry(
     date: Date(),
     lecture: lectures[0],

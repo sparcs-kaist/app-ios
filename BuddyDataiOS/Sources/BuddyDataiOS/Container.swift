@@ -90,33 +90,33 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
-  private var otlV2TimetableRepository: Factory<OTLV2TimetableRepositoryProtocol> {
+  private var otlTimetableRepository: Factory<OTLTimetableRepositoryProtocol> {
     self {
-      OTLV2TimetableRepository(provider: MoyaProvider<OTLV2TimetableTarget>(plugins: [
+      OTLTimetableRepository(provider: MoyaProvider<OTLTimetableTarget>(plugins: [
         self.authPlugin.resolve()
       ]))
     }
   }
 
-  private var otlV2ReviewRepository: Factory<OTLV2ReviewRepositoryProtocol> {
+  private var otlReviewRepository: Factory<OTLReviewRepositoryProtocol> {
     self {
-      OTLV2ReviewRepository(provider: MoyaProvider<OTLV2ReviewTarget>(plugins: [
+      OTLReviewRepository(provider: MoyaProvider<OTLReviewTarget>(plugins: [
         self.authPlugin.resolve()
       ]))
     }
   }
 
-  private var otlV2LectureRepository: Factory<OTLV2LectureRepositoryProtocol> {
+  private var otlLectureRepository: Factory<OTLLectureRepositoryProtocol> {
     self {
-      OTLV2LectureRepository(provider: MoyaProvider<OTLV2LectureTarget>(plugins: [
+      OTLLectureRepository(provider: MoyaProvider<OTLLectureTarget>(plugins: [
         self.authPlugin.resolve()
       ]))
     }
   }
 
-  private var otlV2CourseRepository: Factory<OTLV2CourseRepositoryProtocol> {
+  private var otlCourseRepository: Factory<OTLCourseRepositoryProtocol> {
     self {
-      OTLV2CourseRepository(provider: MoyaProvider<OTLV2CourseTarget>(plugins: [
+      OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>(plugins: [
         self.authPlugin.resolve()
       ]))
     }
@@ -275,23 +275,23 @@ extension Container: @retroactive AutoRegistering {
     v2TimetableUseCase.register {
       let cache: TimetableCache? = TimetableCacheContainer.shared
         .map { TimetableCache(modelContainer: $0) }
-      return V2TimetableUseCase(
-        otlTimetableRepository: self.otlV2TimetableRepository.resolve(),
+      return TimetableUseCase(
+        otlTimetableRepository: self.otlTimetableRepository.resolve(),
         cache: cache,
         sessionBridgeService: self.sessionBridgeService.resolve()
       )
     }
 
     v2ReviewUseCase.register {
-      V2ReviewUseCase(otlReviewRepository: self.otlV2ReviewRepository.resolve())
+      ReviewUseCase(otlReviewRepository: self.otlReviewRepository.resolve())
     }
 
     v2LectureUseCase.register {
-      V2LectureUseCase(otlLectureRepository: self.otlV2LectureRepository.resolve())
+      LectureUseCase(otlLectureRepository: self.otlLectureRepository.resolve())
     }
 
     v2CourseUseCase.register {
-      V2CourseUseCase(otlCourseRepository: self.otlV2CourseRepository.resolve())
+      CourseUseCase(otlCourseRepository: self.otlCourseRepository.resolve())
     }
 
     feedPostUseCase.register {

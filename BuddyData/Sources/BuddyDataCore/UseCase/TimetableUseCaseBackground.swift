@@ -10,15 +10,15 @@ import BuddyDomain
 
 public final actor TimetableUseCaseBackground: TimetableUseCaseBackgroundProtocol {
   // MARK: - Dependencies
-  private let otlTimetableRepository: OTLV2TimetableRepositoryProtocol
+  private let otlTimetableRepository: OTLTimetableRepositoryProtocol
 
   public init(
-    otlTimetableRepository: OTLV2TimetableRepositoryProtocol
+    otlTimetableRepository: OTLTimetableRepositoryProtocol
   ) {
     self.otlTimetableRepository = otlTimetableRepository
   }
 
-  public func getCurrentMyTable() async -> V2Timetable {
+  public func getCurrentMyTable() async -> Timetable {
     do {
       let currentSemester = try await otlTimetableRepository.getCurrentSemester()
       let myTable = try await otlTimetableRepository.getMyTable(
@@ -28,7 +28,7 @@ public final actor TimetableUseCaseBackground: TimetableUseCaseBackgroundProtoco
 
       return myTable
     } catch {
-      return V2Timetable(id: "-myTable", lectures: [])
+      return Timetable(id: "-myTable", lectures: [])
     }
   }
 }

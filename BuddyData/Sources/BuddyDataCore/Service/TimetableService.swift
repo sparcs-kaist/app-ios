@@ -14,7 +14,7 @@ public class TimetableService: TimetableServiceProtocol {
   private let tokenStorage: TokenStorageProtocol = TokenStorage()
   private var authRepository: AuthRepositoryProtocol? = nil
   private var otlUserRepository: OTLUserRepositoryProtocol? = nil
-  private var otlTimetableRepository: OTLV2TimetableRepositoryProtocol? = nil
+  private var otlTimetableRepository: OTLTimetableRepositoryProtocol? = nil
   private var userUseCase: UserUseCaseProtocol? = nil
   public var timetableUseCase: TimetableUseCaseBackgroundProtocol? = nil
 
@@ -39,8 +39,8 @@ public class TimetableService: TimetableServiceProtocol {
     self.otlUserRepository = OTLUserRepository(
       provider: MoyaProvider<OTLUserTarget>(plugins: [authPlugin])
     )
-    self.otlTimetableRepository = OTLV2TimetableRepository(
-      provider: MoyaProvider<OTLV2TimetableTarget>(plugins: [authPlugin])
+    self.otlTimetableRepository = OTLTimetableRepository(
+      provider: MoyaProvider<OTLTimetableTarget>(plugins: [authPlugin])
     )
     self.userUseCase = TimetableUserUseCase(otlUserRepository: self.otlUserRepository!)
 

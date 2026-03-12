@@ -20,7 +20,7 @@ class SearchViewModel {
     case loaded
     case error(message: String)
   }
-  var courses: [V2CourseSummary] = []
+  var courses: [CourseSummary] = []
   var posts: [AraPost] = []
   var taxiRooms: [TaxiRoom] = []
   
@@ -49,7 +49,7 @@ class SearchViewModel {
   @ObservationIgnored @Injected(\.taxiLocationUseCase) private var taxiLocationUseCase: TaxiLocationUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.v2CourseUseCase
-  ) private var courseUseCase: V2CourseUseCaseProtocol?
+  ) private var courseUseCase: CourseUseCaseProtocol?
 
   func bind() {
     cancellables.removeAll()

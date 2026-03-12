@@ -9,7 +9,7 @@ import SwiftUI
 import BuddyDomain
 
 struct LectureView: View {
-  let item: V2LectureItem
+  let item: LectureItem
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -43,5 +43,5 @@ struct LectureView: View {
 }
 
 #Preview {
-  LectureView(item: V2LectureItem.mock)
+  LectureView(item: LectureItem.mock)
 }

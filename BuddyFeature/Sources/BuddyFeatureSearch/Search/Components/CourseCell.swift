@@ -9,7 +9,7 @@ import SwiftUI
 import BuddyDomain
 
 struct CourseCell: View {
-  let course: V2CourseSummary
+  let course: CourseSummary
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {

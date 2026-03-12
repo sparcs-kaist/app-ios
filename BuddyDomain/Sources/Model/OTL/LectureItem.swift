@@ -9,12 +9,12 @@ import SwiftUI
 
 // LectureItem is designed to deliver Lecture with specific ClassTimes index.
 
-public struct V2LectureItem: Identifiable {
+public struct LectureItem: Identifiable {
   public let id = UUID()
-  public let lecture: V2Lecture
-  public let lectureClass: V2LectureClass
+  public let lecture: Lecture
+  public let lectureClass: LectureClass
 
-  public init(lecture: V2Lecture, lectureClass: V2LectureClass) {
+  public init(lecture: Lecture, lectureClass: LectureClass) {
     self.lecture = lecture
     self.lectureClass = lectureClass
   }

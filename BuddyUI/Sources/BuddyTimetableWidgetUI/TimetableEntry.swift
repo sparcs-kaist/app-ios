@@ -11,13 +11,13 @@ import BuddyDomain
 
 public struct TimetableEntry: TimelineEntry {
   public let date: Date
-  public let timetable: V2Timetable?
+  public let timetable: Timetable?
   public let signInRequired: Bool
   public let relevance: TimelineEntryRelevance
 
   public init(
     date: Date,
-    timetable: V2Timetable?,
+    timetable: Timetable?,
     signInRequired: Bool,
     relevance: TimelineEntryRelevance
   ) {

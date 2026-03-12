@@ -1,5 +1,5 @@
 //
-//  V2Course.swift
+//  Course.swift
 //  BuddyDomain
 //
 //  Created by Soongyu Kwon on 07/03/2026.
@@ -7,14 +7,14 @@
 
 import Foundation
 
-public struct V2Course: Identifiable, Hashable, Sendable, Codable {
+public struct Course: Identifiable, Hashable, Sendable, Codable {
   public let id: Int
   public let name: String
   public let summary: String
   public let code: String
   public let type: LectureType
-  public let department: V2Department
-  public let history: [V2CourseHistory]
+  public let department: Department
+  public let history: [CourseHistory]
   public let classDuration: Int
   public let expDuration: Int
   public let credit: Int
@@ -26,8 +26,8 @@ public struct V2Course: Identifiable, Hashable, Sendable, Codable {
     summary: String,
     code: String,
     type: LectureType,
-    department: V2Department,
-    history: [V2CourseHistory],
+    department: Department,
+    history: [CourseHistory],
     classDuration: Int,
     expDuration: Int,
     credit: Int,

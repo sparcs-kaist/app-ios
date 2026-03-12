@@ -13,12 +13,12 @@ struct ContentView: View {
   @AppStorage("timetableData", store: UserDefaults(suiteName: "group.org.sparcs.soap")!) private var timetableData: Data = .init()
   @Environment(\.scenePhase) private var scenePhase
 
-  @State private var items: [V2LectureItem] = []
+  @State private var items: [LectureItem] = []
 
-  private var timetable: V2Timetable? {
+  private var timetable: Timetable? {
     print(timetableData)
     guard !timetableData.isEmpty else { return nil }
-    return try? JSONDecoder().decode(V2Timetable.self, from: timetableData)
+    return try? JSONDecoder().decode(Timetable.self, from: timetableData)
   }
 
   var body: some View {

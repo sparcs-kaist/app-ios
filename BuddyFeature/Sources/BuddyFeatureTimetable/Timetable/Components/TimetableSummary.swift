@@ -9,8 +9,8 @@ import SwiftUI
 import Charts
 import BuddyDomain
 
-struct TimetableSummary: View {
-  let selectedTimetable: V2Timetable?
+struct TimetableSummaryView: View {
+  let selectedTimetable: Timetable?
 
   var body: some View {
     content

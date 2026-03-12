@@ -12,7 +12,7 @@ import BuddyDomain
 struct CompactTimetableSelector: View {
   let semesters: [Semester]
   @Binding var selectedSemester: Semester?
-  let timetables: [V2TimetableSummary]
+  let timetables: [TimetableSummary]
   @Binding var selectedTimetableID: Int?
   let createTimetable: () async -> Void
   let renameTimetable: (String) async -> Void
@@ -179,7 +179,7 @@ struct CompactTimetableSelector: View {
     return timetable.title.isEmpty ? "Untitled" : timetable.title
   }
 
-  private var selectedTimetable: V2TimetableSummary? {
+  private var selectedTimetable: TimetableSummary? {
     timetables.first(where: { $0.id == selectedTimetableID })
   }
 }

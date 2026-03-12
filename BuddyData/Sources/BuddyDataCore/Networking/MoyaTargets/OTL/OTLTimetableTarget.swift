@@ -1,19 +1,22 @@
 //
 //  OTLTimetableTarget.swift
-//  soap
+//  BuddyData
 //
-//  Created by Soongyu Kwon on 29/09/2025.
+//  Created by Soongyu Kwon on 24/02/2026.
 //
 
 import Foundation
 import Moya
 
 public enum OTLTimetableTarget {
-  case fetchTables(userID: Int, year: Int, semester: Int)
-  case createTable(userID: Int, year: Int, semester: Int)
-  case deleteTable(userID: Int, timetableID: Int)
-  case addLecture(userID: Int, timetableID: Int, lectureID: Int)
-  case deleteLecture(userID: Int, timetableID: Int, lectureID: Int)
+  case fetchTables(year: Int, semester: Int)
+  case fetchTable(timetableID: Int)
+  case fetchMyTable(year: Int, semester: Int)
+  case createTable(year: Int, semester: Int)
+  case deleteTable(timetableID: Int)
+  case renameTable(timetableID: Int, title: String)
+  case addLecture(timetableID: Int, lectureID: Int)
+  case deleteLecture(timetableID: Int, lectureID: Int)
   case fetchSemesters
   case fetchCurrentSemester
 }
@@ -25,18 +28,16 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
 
   public var path: String {
     switch self {
-    case .fetchTables(let userID, _, _):
-      "/api/users/\(userID)/timetables"
-    case .createTable(let userID, _, _):
-      "/api/users/\(userID)/timetables"
-    case .deleteTable(let userID, let timetableID):
-      "/api/users/\(userID)/timetables/\(timetableID)"
-    case .addLecture(let userID, let timetableID, _):
-      "/api/users/\(userID)/timetables/\(timetableID)/add-lecture"
-    case .deleteLecture(let userID, let timetableID, _):
-      "/api/users/\(userID)/timetables/\(timetableID)/remove-lecture"
+    case .fetchTables, .deleteTable, .renameTable, .createTable:
+      "/api/v2/timetables"
+    case .fetchTable(let timetableID):
+      "/api/v2/timetables/\(timetableID)"
+    case .fetchMyTable:
+      "/api/v2/timetables/my-timetable"
+    case .addLecture(let timetableID, _), .deleteLecture(let timetableID, _):
+      "/api/v2/timetables/\(timetableID)"
     case .fetchSemesters:
-      "/api/semesters"
+      "/api/v2/semesters"
     case .fetchCurrentSemester:
       "/api/v2/semesters/current"
     }
@@ -44,10 +45,12 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
 
   public var method: Moya.Method {
     switch self {
-    case .fetchTables, .fetchSemesters, .fetchCurrentSemester:
+    case .fetchTables, .fetchTable, .fetchMyTable, .fetchSemesters, .fetchCurrentSemester:
         .get
-    case .createTable, .addLecture, .deleteLecture:
+    case .createTable:
         .post
+    case .renameTable, .addLecture, .deleteLecture:
+        .patch
     case .deleteTable:
         .delete
     }
@@ -55,30 +58,45 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
 
   public var task: Moya.Task {
     switch self {
-    case .fetchTables(_, let year, let semester):
+    case .fetchTables(let year, let semester), .fetchMyTable(let year, let semester):
         .requestParameters(parameters: [
           "year": year,
-          "semester": semester,
-          "order": "arrange_order"
+          "semester": semester
         ], encoding: URLEncoding.default)
-    case .createTable(_, let year, let semester):
+    case .addLecture(_, let lectureID):
+        .requestParameters(parameters: [
+          "action": "add",
+          "lectureId": lectureID
+        ], encoding: JSONEncoding.default)
+    case .createTable(let year, let semester):
         .requestParameters(parameters: [
           "year": year,
           "semester": semester,
-          "lectures": []
+          "lectureIds": []
         ], encoding: JSONEncoding.default)
-    case .addLecture(_, _, let lectureID):
-        .requestParameters(parameters: ["lecture": lectureID], encoding: JSONEncoding.default)
-    case .deleteLecture(_, _, let lectureID):
-        .requestParameters(parameters: ["lecture": lectureID], encoding: JSONEncoding.default)
-    case .fetchSemesters, .fetchCurrentSemester, .deleteTable:
+    case .deleteLecture(_, let lectureID):
+        .requestParameters(parameters: [
+          "action": "delete",
+          "lectureId": lectureID
+        ], encoding: JSONEncoding.default)
+    case .deleteTable(let timetableID):
+        .requestParameters(parameters: [
+          "id": timetableID
+        ], encoding: JSONEncoding.default)
+    case .renameTable(let timetableID, let title):
+        .requestParameters(parameters: [
+          "id": timetableID,
+          "name": title
+        ], encoding: JSONEncoding.default)
+    case .fetchTable, .fetchSemesters, .fetchCurrentSemester:
         .requestPlain
     }
   }
 
   public var headers: [String: String]? {
     [
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Accept-Language": Bundle.main.preferredLocalizations.first ?? "ko"
     ]
   }
 

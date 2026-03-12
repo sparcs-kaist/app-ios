@@ -1,5 +1,5 @@
 //
-//  V2LectureReviewPage.swift
+//  LectureReviewPage.swift
 //  BuddyDomain
 //
 //  Created by Soongyu Kwon on 07/03/2026.
@@ -7,12 +7,12 @@
 
 import Foundation
 
-public struct V2LectureReviewPage: Hashable, Codable, Sendable {
-  public let reviews: [V2LectureReview]
+public struct LectureReviewPage: Hashable, Codable, Sendable {
+  public let reviews: [LectureReview]
   public let averageGrade: Double
   public let averageLoad: Double
   public let averageSpeech: Double
-  public let department: V2Department?
+  public let department: Department?
   public let totalCount: Int
 
   public func getGradeLetter(for credits: Int) -> String {
@@ -30,15 +30,15 @@ public struct V2LectureReviewPage: Hashable, Codable, Sendable {
   // safely get letter grade string
   private func letter(for value: Double) -> String {
     let index = Int(round(value))
-    return V2Timetable.letters[safe: index] ?? "?"
+    return Timetable.letters[safe: index] ?? "?"
   }
 
   public init(
-    reviews: [V2LectureReview],
+    reviews: [LectureReview],
     averageGrade: Double,
     averageLoad: Double,
     averageSpeech: Double,
-    department: V2Department?,
+    department: Department?,
     totalCount: Int
   ) {
     self.reviews = reviews

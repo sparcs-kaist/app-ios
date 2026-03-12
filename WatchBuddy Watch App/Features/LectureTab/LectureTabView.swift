@@ -9,7 +9,7 @@ import SwiftUI
 import BuddyDomain
 
 struct LectureTabView: View {
-  let items: [V2LectureItem]
+  let items: [LectureItem]
 
   @State private var selection: UUID? = nil
 
@@ -37,7 +37,7 @@ struct LectureTabView: View {
     }
   }
 
-  private func defaultSelection() -> V2LectureItem? {
+  private func defaultSelection() -> LectureItem? {
     let now = Calendar.current.component(.hour, from: Date()) * 60 +
     Calendar.current.component(.minute, from: Date())
 
@@ -52,6 +52,6 @@ struct LectureTabView: View {
 
 #Preview {
   LectureTabView(
-    items: V2Lecture.mockList.map { V2LectureItem(lecture: $0, lectureClass: $0.classes.first!)
+    items: Lecture.mockList.map { LectureItem(lecture: $0, lectureClass: $0.classes.first!)
     })
 }

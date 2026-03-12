@@ -15,15 +15,15 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
   func placeholder(in context: Context) -> LectureEntry {
     LectureEntry(
       date: Date(),
-      lecture: V2Lecture.mock,
-      lectureClass: V2Lecture.mock.classes[0],
+      lecture: Lecture.mock,
+      lectureClass: Lecture.mock.classes[0],
       startDate: dateOnSameDay(
-        minutes: V2Lecture.mock.classes[0].begin,
+        minutes: Lecture.mock.classes[0].begin,
         date: Date(),
         calendar: .current
       )!,
       signInRequired: false,
-      backgroundColor: V2Lecture.mock.backgroundColor,
+      backgroundColor: Lecture.mock.backgroundColor,
       relevance: .init(score: 50)
     )
   }
@@ -31,15 +31,15 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
   func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> LectureEntry {
     LectureEntry(
       date: Date(),
-      lecture: V2Lecture.mock,
-      lectureClass: V2Lecture.mock.classes[0],
+      lecture: Lecture.mock,
+      lectureClass: Lecture.mock.classes[0],
       startDate: dateOnSameDay(
-        minutes: V2Lecture.mock.classes[0].begin,
+        minutes: Lecture.mock.classes[0].begin,
         date: Date(),
         calendar: .current
       )!,
       signInRequired: false,
-      backgroundColor: V2Lecture.mock.backgroundColor,
+      backgroundColor: Lecture.mock.backgroundColor,
       relevance: .init(score: 50)
     )
   }
@@ -65,9 +65,9 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
       return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
 
-    let timetable: V2Timetable = await timetableUseCase.getCurrentMyTable()
+    let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
 //    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Autumn")
-    let todayLectures: [V2LectureItem] = timetable.lectureItems(for: now)
+    let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
 
     var entries: [LectureEntry] = []
     if todayLectures.isEmpty {
@@ -182,7 +182,7 @@ struct BuddyUpcomingClassWidget: Widget {
 #Preview(as: .systemSmall) {
   BuddyUpcomingClassWidget()
 } timeline: {
-  let lectures = Array(V2Lecture.mockList.suffix(5))
+  let lectures = Array(Lecture.mockList.suffix(5))
   LectureEntry(
     date: Date(),
     lecture: lectures[0],

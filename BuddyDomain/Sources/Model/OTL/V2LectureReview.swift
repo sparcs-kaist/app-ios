@@ -1,5 +1,5 @@
 //
-//  V2LectureReview.swift
+//  LectureReview.swift
 //  BuddyDomain
 //
 //  Created by Soongyu Kwon on 06/03/2026.
@@ -7,12 +7,12 @@
 
 import Foundation
 
-public struct V2LectureReview: Identifiable, Hashable, Sendable, Codable {
+public struct LectureReview: Identifiable, Hashable, Sendable, Codable {
   public let id: Int
   public let courseID: Int
   public let lectureID: Int
   public let courseName: String
-  public let professors: [V2Professor]
+  public let professors: [Professor]
   public let year: Int
   public let semester: SemesterType
   public let content: String
@@ -28,7 +28,7 @@ public struct V2LectureReview: Identifiable, Hashable, Sendable, Codable {
     courseID: Int,
     lectureID: Int,
     courseName: String,
-    professors: [V2Professor],
+    professors: [Professor],
     year: Int,
     semester: SemesterType,
     content: String,

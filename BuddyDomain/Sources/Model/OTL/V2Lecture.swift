@@ -1,5 +1,5 @@
 //
-//  V2Lecture.swift
+//  Lecture.swift
 //  BuddyDomain
 //
 //  Created by Soongyu Kwon on 28/02/2026.
@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-public struct V2Lecture: Identifiable, CourseRepresentable, Hashable, Sendable, Codable {
+public struct Lecture: Identifiable, CourseRepresentable, Hashable, Sendable, Codable {
   public let id: Int
   public let courseID: Int
   public let section: String
   public let name: String
   public let subtitle: String
   public let code: String
-  public let department: V2Department
+  public let department: Department
   public let type: LectureType
   public let capacity: Int
   public let enrolledCount: Int
@@ -24,9 +24,9 @@ public struct V2Lecture: Identifiable, CourseRepresentable, Hashable, Sendable, 
   public let load: Double
   public let speech: Double
   public let isEnglish: Bool
-  public let professors: [V2Professor]
-  public let classes: [V2LectureClass]
-  public let exams: [V2LectureExam]
+  public let professors: [Professor]
+  public let classes: [LectureClass]
+  public let exams: [LectureExam]
   public let classDuration: Int
   public let expDuration: Int
 
@@ -48,7 +48,7 @@ public struct V2Lecture: Identifiable, CourseRepresentable, Hashable, Sendable, 
     name: String,
     subtitle: String,
     code: String,
-    department: V2Department,
+    department: Department,
     type: LectureType,
     capacity: Int,
     enrolledCount: Int,
@@ -58,9 +58,9 @@ public struct V2Lecture: Identifiable, CourseRepresentable, Hashable, Sendable, 
     load: Double,
     speech: Double,
     isEnglish: Bool,
-    professors: [V2Professor],
-    classes: [V2LectureClass],
-    exams: [V2LectureExam],
+    professors: [Professor],
+    classes: [LectureClass],
+    exams: [LectureExam],
     classDuration: Int,
     expDuration: Int
   ) {

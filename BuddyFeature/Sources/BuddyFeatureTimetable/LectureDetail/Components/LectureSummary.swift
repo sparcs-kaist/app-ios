@@ -9,7 +9,7 @@ import SwiftUI
 import BuddyDomain
 
 struct LectureSummary: View {
-  let lecture: V2Lecture
+  let lecture: Lecture
 
   var body: some View {
     HStack {

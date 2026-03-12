@@ -14,11 +14,11 @@ import FoundationModels
 import BuddyFeatureShared
 
 struct LectureReviewCell: View {
-  @Binding var review: V2LectureReview
+  @Binding var review: LectureReview
 
   @ObservationIgnored @Injected(
     \.v2ReviewUseCase
-  ) private var reviewUseCase: V2ReviewUseCaseProtocol?
+  ) private var reviewUseCase: ReviewUseCaseProtocol?
   @Injected(
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?

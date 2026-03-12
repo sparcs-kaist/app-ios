@@ -22,7 +22,7 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
     session.activate()
   }
 
-  public func updateTimetable(_ timetable: V2Timetable) {
+  public func updateTimetable(_ timetable: Timetable) {
     guard WCSession.default.activationState == .activated else {
       print("[updateTimetable] Session not activated. Skipping update.")
       return

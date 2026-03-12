@@ -10,7 +10,7 @@ import BuddyDomain
 
 struct TodayLectureCard: View {
   let context: TimelineViewDefaultContext
-  let item: V2LectureItem
+  let item: LectureItem
 
   var body: some View {
     HStack {

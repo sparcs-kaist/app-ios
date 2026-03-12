@@ -22,7 +22,7 @@ class LectureSearchViewModel {
   }
 
   var state: ViewState = .loading
-  var courses: [V2CourseLecture] = []
+  var courses: [CourseLecture] = []
   var searchKeyword: String = "" {
     didSet { searchKeywordSubject.send(searchKeyword) }
   }
@@ -33,7 +33,7 @@ class LectureSearchViewModel {
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.v2LectureUseCase
-  ) private var lectureUseCase: V2LectureUseCaseProtocol?
+  ) private var lectureUseCase: LectureUseCaseProtocol?
 
   func bind(selectedSemester: Semester) {
     print("[HERE] BINDING")
@@ -73,7 +73,7 @@ class LectureSearchViewModel {
         limit: 100,
         offset: 0
       )
-      let page: [V2CourseLecture] = try await lectureUseCase.searchLecture(request: request)
+      let page: [CourseLecture] = try await lectureUseCase.searchLecture(request: request)
       print("[HERE] got page")
       self.courses = page
       self.state = .loaded

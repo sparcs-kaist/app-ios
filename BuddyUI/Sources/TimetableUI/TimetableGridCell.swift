@@ -10,13 +10,13 @@ import WidgetKit
 import BuddyDomain
 
 public struct TimetableGridCell: View {
-  let lectureItem: V2LectureItem
+  let lectureItem: LectureItem
   let isCandidate: Bool
   let onDeletion: (() -> Void)?
   let placement: TimetablePlacement
 
   public init(
-    lectureItem: V2LectureItem,
+    lectureItem: LectureItem,
     isCandidate: Bool,
     onDeletion: (() -> Void)?,
     placement: TimetablePlacement

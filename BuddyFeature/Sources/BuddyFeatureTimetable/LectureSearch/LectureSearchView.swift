@@ -13,8 +13,8 @@ struct LectureSearchView: View {
   @Binding var detent: PresentationDetent
   let timetableDisplayName: String
   let selectedSemester: Semester
-  @Binding var candidateLecture: V2Lecture?
-  let onAdd: (V2Lecture) -> Void
+  @Binding var candidateLecture: Lecture?
+  let onAdd: (Lecture) -> Void
 
   @State private var viewModel = LectureSearchViewModel()
 
@@ -77,7 +77,7 @@ struct LectureSearchView: View {
     }
   }
 
-  private func courseSectionHeader(course: V2CourseLecture) -> some View {
+  private func courseSectionHeader(course: CourseLecture) -> some View {
     HStack {
       Text(course.name)
         .lineLimit(2)
@@ -96,7 +96,7 @@ struct LectureSearchView: View {
     }
   }
 
-  private func courseSectionLecture(lecture: V2Lecture) -> some View {
+  private func courseSectionLecture(lecture: Lecture) -> some View {
     HStack {
       Text(lecture.section)
         .fontDesign(.rounded)

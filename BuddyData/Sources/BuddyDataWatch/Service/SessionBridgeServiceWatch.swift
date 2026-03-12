@@ -27,7 +27,7 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
   ) {
     guard let data = applicationContext[BridgeKeys.timetable] as? Data else { return }
     do {
-      _ = try JSONDecoder().decode(V2Timetable.self, from: data)  // test if timetable is valid
+      _ = try JSONDecoder().decode(Timetable.self, from: data)  // test if timetable is valid
       UserDefaults(suiteName: "group.org.sparcs.soap")!.set(data, forKey: "timetableData")
     } catch {
       print("Failed to decode:", error)

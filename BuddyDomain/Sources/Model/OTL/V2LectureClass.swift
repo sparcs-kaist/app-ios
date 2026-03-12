@@ -1,5 +1,5 @@
 //
-//  V2LectureClass.swift
+//  LectureClass.swift
 //  BuddyDomain
 //
 //  Created by Soongyu Kwon on 28/02/2026.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct V2LectureClass: Hashable, Sendable, Codable {
+public struct LectureClass: Hashable, Sendable, Codable {
   public let day: DayType
   public let begin: Int
   public let end: Int

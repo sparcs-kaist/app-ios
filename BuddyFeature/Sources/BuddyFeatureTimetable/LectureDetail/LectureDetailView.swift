@@ -11,12 +11,12 @@ import BuddyDomain
 import FirebaseAnalytics
 
 struct LectureDetailView: View {
-  let lecture: V2Lecture
+  let lecture: Lecture
   let onAdd: (() -> Void)?
   let isOverlapping: Bool
-  let lectureClass: V2LectureClass?
+  let lectureClass: LectureClass?
 
-  init(lecture: V2Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, lectureClass: V2LectureClass? = nil) {
+  init(lecture: Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, lectureClass: LectureClass? = nil) {
     self.lecture = lecture
     self.onAdd = onAdd
     self.isOverlapping = isOverlapping
@@ -123,7 +123,7 @@ struct LectureDetailView: View {
       LazyVStack(spacing: 16) {
         switch viewModel.state {
         case .loading:
-          ForEach(V2LectureReview.mockList.prefix(2)) { review in
+          ForEach(LectureReview.mockList.prefix(2)) { review in
             LectureReviewCell(review: .constant(review))
               .redacted(reason: .placeholder)
           }

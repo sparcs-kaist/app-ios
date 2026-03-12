@@ -30,12 +30,12 @@ struct NextClassAppIntents: AppIntent {
     }
 
     let now = Date()
-    let timetable: V2Timetable = await timetableUseCase.getCurrentMyTable()
-    let items: [V2LectureItem] = timetable.lectureItems(for: now)
+    let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
+    let items: [LectureItem] = timetable.lectureItems(for: now)
 
-    if let nextItem: V2LectureItem = defaultSelection(items: items) {
+    if let nextItem: LectureItem = defaultSelection(items: items) {
       let lectureTitle: String = nextItem.lecture.name
-      let classtime: V2LectureClass = nextItem.lectureClass
+      let classtime: LectureClass = nextItem.lectureClass
       let startDate: Date = dateOnSameDay(minutes: classtime.begin, date: now, calendar: .current) ?? now
 
       // relative date string
@@ -62,7 +62,7 @@ struct NextClassAppIntents: AppIntent {
     )
   }
 
-  private func defaultSelection(items: [V2LectureItem]) -> V2LectureItem? {
+  private func defaultSelection(items: [LectureItem]) -> LectureItem? {
     let now = Calendar.current.component(.hour, from: Date()) * 60 +
     Calendar.current.component(.minute, from: Date())
 

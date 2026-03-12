@@ -11,9 +11,9 @@ import FirebaseAnalytics
 
 public struct CourseView: View {
   @State private var viewModel: CourseViewModel
-  @State private var course: V2CourseSummary
+  @State private var course: CourseSummary
 
-  public init(course: V2CourseSummary, viewModel: CourseViewModel = .init()) {
+  public init(course: CourseSummary, viewModel: CourseViewModel = .init()) {
     self.viewModel = viewModel
     self.course = course
   }
@@ -123,7 +123,7 @@ public struct CourseView: View {
             LectureReviewCell(review: $review)
           }
         } else {
-          ForEach(V2LectureReview.mockList.prefix(3)) { review in
+          ForEach(LectureReview.mockList.prefix(3)) { review in
             LectureReviewCell(review: .constant(review))
               .redacted(reason: .placeholder)
           }

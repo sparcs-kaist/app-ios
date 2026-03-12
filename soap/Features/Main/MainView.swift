@@ -18,7 +18,7 @@ import MapKit
 
 struct MainView: View {
   @State private var viewModel = MainViewModel()
-  @State private var timetableViewModel = V2TimetableViewModel()
+  @State private var timetableViewModel = TimetableViewModel()
   @State private var todayLecturesAccessoryViewModel = TodayLecturesAccessoryViewModel()
   @State private var extendTimetableView: Bool = false
 
@@ -55,7 +55,7 @@ struct MainView: View {
 
       if UIDevice.current.userInterfaceIdiom != .phone {
         Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
-          V2TimetableView(timetableViewModel)
+          TimetableView(timetableViewModel)
         }
       }
 
@@ -87,7 +87,7 @@ struct MainView: View {
 
     }
     .fullScreenCover(isPresented: $extendTimetableView) {
-      V2TimetableView(timetableViewModel)
+      TimetableView(timetableViewModel)
         .safeAreaInset(edge: .top) {
           Capsule()
             .fill(.primary.secondary)
