@@ -11,8 +11,8 @@ import BuddyDomain
 
 public struct LectureEntry: TimelineEntry {
   public let date: Date
-  public let lecture: Lecture?
-  public let classtime: ClassTime?
+  public let lecture: V2Lecture?
+  public let lectureClass: V2LectureClass?
   public let startDate: Date?
   public let signInRequired: Bool
   public let backgroundColor: Color
@@ -20,8 +20,8 @@ public struct LectureEntry: TimelineEntry {
 
   public init(
     date: Date,
-    lecture: Lecture?,
-    classtime: ClassTime?,
+    lecture: V2Lecture?,
+    lectureClass: V2LectureClass?,
     startDate: Date?,
     signInRequired: Bool,
     backgroundColor: Color,
@@ -29,7 +29,7 @@ public struct LectureEntry: TimelineEntry {
   ) {
     self.date = date
     self.lecture = lecture
-    self.classtime = classtime
+    self.lectureClass = lectureClass
     self.startDate = startDate
     self.signInRequired = signInRequired
     self.backgroundColor = backgroundColor

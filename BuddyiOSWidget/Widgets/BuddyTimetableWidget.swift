@@ -37,8 +37,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
       return entry
     }
 
-    let currentSemester = await timetableUseCase.currentSemester
-    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
+    let timetable: V2Timetable = await timetableUseCase.getCurrentMyTable()
     let entry = TimetableEntry(
       date: now,
       timetable: timetable,
@@ -65,8 +64,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
       return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
 
-    let currentSemester = await timetableUseCase.currentSemester
-    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
+    let timetable: V2Timetable = await timetableUseCase.getCurrentMyTable()
     let entry = TimetableEntry(
       date: now,
       timetable: timetable,
@@ -111,7 +109,7 @@ struct BuddyTimetableWidget: Widget {
 #Preview(as: .systemLarge) {
   BuddyTimetableWidget()
 } timeline: {
-  let timetables = Timetable.mockList
+  let timetables = V2Timetable.mockList
   for timetable in timetables {
     TimetableEntry(
       date: Date(),

@@ -20,7 +20,7 @@ public struct UpcomingClassCornerWidgetView: View {
     if let lecture = entry.lecture, let start = entry.startDate {
       Text(start, style: .time)
         .widgetCurvesContent()
-        .widgetLabel(lecture.title.localized())
+        .widgetLabel(lecture.name)
     } else if entry.signInRequired {
       signInRequiredView
     } else {

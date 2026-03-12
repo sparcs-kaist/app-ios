@@ -14,51 +14,25 @@ public final actor TimetableUseCaseBackground: TimetableUseCaseBackgroundProtoco
   public var currentSemester: Semester? = nil
 
   // MARK: - Dependencies
-  private let userUseCase: UserUseCaseProtocol
-  private let otlTimetableRepository: OTLTimetableRepositoryProtocol
+  private let otlTimetableRepository: OTLV2TimetableRepositoryProtocol
 
   public init(
-    userUseCase: UserUseCaseProtocol,
-    otlTimetableRepository: OTLTimetableRepositoryProtocol
+    otlTimetableRepository: OTLV2TimetableRepositoryProtocol
   ) {
-    self.userUseCase = userUseCase
     self.otlTimetableRepository = otlTimetableRepository
   }
 
-  public func load() async throws {
-    guard store.isEmpty || semesters.isEmpty else { return }
+  public func getCurrentMyTable() async -> V2Timetable {
+    do {
+      let currentSemester = try await otlTimetableRepository.getCurrentSemester()
+      let myTable = try await otlTimetableRepository.getMyTable(
+        year: currentSemester.year,
+        semester: currentSemester.semesterType
+      )
 
-    async let fetchSemesters = otlTimetableRepository.getSemesters()
-    async let fetchCurrentSemester = otlTimetableRepository.getCurrentSemester()
-
-    let (fetchedSemesters, fetchedCurrentSemester) = try await (
-      fetchSemesters,
-      fetchCurrentSemester
-    )
-
-    self.semesters = fetchedSemesters
-    self.currentSemester = fetchedCurrentSemester
-
-    let user: OTLUser? = await userUseCase.otlUser
-    self.store = Dictionary(uniqueKeysWithValues: semesters.map { semester in
-      (semester.id, [makeMyTable(for: semester, user: user)])
-    })
-  }
-
-  public func getMyTable(for semester: Semester.ID) -> Timetable {
-    if let existing = store[semester]?.first {
-      return existing
+      return myTable
+    } catch {
+      return V2Timetable(id: "-myTable", lectures: [])
     }
-
-    // return emtpy timetable
-    return Timetable(id: "\(semester)-myTable", lectures: [])
-  }
-  
-  /// Creates the local "My Table" for a semester using user's lectures.
-  private func makeMyTable(for semester: Semester, user: OTLUser?) -> Timetable {
-    let lectures = user?.myTimetableLectures.filter {
-      $0.year == semester.year && $0.semester == semester.semesterType
-    } ?? []
-    return Timetable(id: "\(semester.id)-myTable", lectures: lectures)
   }
 }

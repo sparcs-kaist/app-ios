@@ -10,7 +10,7 @@ import BuddyDomain
 
 struct NextClassResultView: View {
   enum ViewState {
-    case success(item: LectureItem?)
+    case success(item: V2LectureItem?)
     case error
   }
   let state: ViewState
@@ -21,10 +21,10 @@ struct NextClassResultView: View {
       case .success(let item):
         if let item {
           // success
-          let classtime: ClassTime = item.lecture.classTimes[item.index]
+          let classtime: V2LectureClass = item.lectureClass
           contentView(
-            title: item.lecture.title.localized(),
-            subtitle: classtime.classroomNameShort.localized(),
+            title: item.lecture.name,
+            subtitle: "\(classtime.buildingCode) \(classtime.roomName)",
             date: dateOnSameDay(minutes: classtime.begin, date: Date(), calendar: .current) ?? Date(),
             color: item.lecture.backgroundColor
           )

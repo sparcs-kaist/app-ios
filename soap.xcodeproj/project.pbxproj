@@ -14,6 +14,8 @@
 		8B3914E22E92F37500B7FB6B /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914E12E92F37500B7FB6B /* FactoryKit */; };
 		8B3914E82E93F4AA00B7FB6B /* BuddyDataWatch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */; };
 		8B3A62A22EFF98A4006427DF /* BuddyTimetableWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */; };
+		8B3A6AF22F62DB0E00C97C42 /* TimetableUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3A6AF12F62DB0E00C97C42 /* TimetableUI */; };
+		8B3A6AF42F62DB3000C97C42 /* Haptica in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3A6AF32F62DB3000C97C42 /* Haptica */; };
 		8B3FB11C2E94F1C200F57FD7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */; };
 		8B3FB11E2E94F1C200F57FD7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */; };
 		8B3FB1292E94F1C400F57FD7 /* BuddyWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -274,10 +276,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */,
+				8B3A6AF42F62DB3000C97C42 /* Haptica in Frameworks */,
 				8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */,
 				8B24D7652F27537A009B9889 /* BuddyDataCore in Frameworks */,
 				8B3A62A22EFF98A4006427DF /* BuddyTimetableWidgetUI in Frameworks */,
 				8B6637C82EFE721200795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */,
+				8B3A6AF22F62DB0E00C97C42 /* TimetableUI in Frameworks */,
 				8B6637C02EFD410800795A41 /* BuddyDomain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -450,6 +454,8 @@
 				8B6637C72EFE721200795A41 /* BuddyUpcomingClassWidgetUI */,
 				8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */,
 				8B24D7642F27537A009B9889 /* BuddyDataCore */,
+				8B3A6AF12F62DB0E00C97C42 /* TimetableUI */,
+				8B3A6AF32F62DB3000C97C42 /* Haptica */,
 			);
 			productName = BuddyiOSWidgetExtension;
 			productReference = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */;
@@ -1580,6 +1586,15 @@
 		8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyTimetableWidgetUI;
+		};
+		8B3A6AF12F62DB0E00C97C42 /* TimetableUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TimetableUI;
+		};
+		8B3A6AF32F62DB3000C97C42 /* Haptica */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B45B2802F161F8100A858F5 /* XCRemoteSwiftPackageReference "Haptica" */;
+			productName = Haptica;
 		};
 		8B3FB1322E951D7200F57FD7 /* BuddyDomain */ = {
 			isa = XCSwiftPackageProductDependency;
