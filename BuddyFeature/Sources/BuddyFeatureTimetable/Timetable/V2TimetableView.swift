@@ -9,6 +9,7 @@ import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
 import FirebaseAnalytics
+import TimetableUI
 
 public struct V2TimetableView: View {
   @Bindable private var viewModel: V2TimetableViewModel
@@ -51,7 +52,8 @@ public struct V2TimetableView: View {
                 Task {
                   await viewModel.deleteLecture(lecture: lecture)
                 }
-              }
+              },
+              placement: .view
             )
             .animation(nil, value: viewModel.selectedSemester)
             .padding()

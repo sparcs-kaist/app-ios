@@ -8,19 +8,33 @@
 import SwiftUI
 import BuddyDomain
 import Haptica
-import TimetableUI
 
-struct TimetableGrid: View {
+public struct TimetableGrid: View {
   let selectedTimetable: V2Timetable?
   let candidateLecture: V2Lecture?
   var selectedLecture: ((V2LectureItem) -> Void)?
   var onDelete: (V2Lecture) -> Void
+  let placement: TimetablePlacement
+
+  public init(
+    selectedTimetable: V2Timetable?,
+    candidateLecture: V2Lecture?,
+    selectedLecture: ((V2LectureItem) -> Void)? = nil,
+    onDelete: @escaping (V2Lecture) -> Void,
+    placement: TimetablePlacement
+  ) {
+    self.selectedTimetable = selectedTimetable
+    self.candidateLecture = candidateLecture
+    self.selectedLecture = selectedLecture
+    self.onDelete = onDelete
+    self.placement = placement
+  }
 
   private let defaultMinMinutes: Int = 540       // 8:00 AM
   private let defaultMaxMinutes: Int = 1080      // 6:00 PM
   private let defaultVisibleDays: [DayType] = [.mon, .tue, .wed, .thu, .fri]
 
-  var body: some View {
+  public var body: some View {
     GeometryReader { geometry in
       daysColumnHeader
       timesRowHeader
@@ -37,10 +51,10 @@ struct TimetableGrid: View {
                   onDeletion: {
                     onDelete(item.lecture)
                   },
-                  placement: .view
+                  placement: placement
                 )
-                .frame(height: TimetableConstructor.getCellHeightV2(for: item, in: geometry.size, of: selectedTimetable.gappedDuration))
-                .offset(y: TimetableConstructor.getCellOffsetV2(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration))
+                .frame(height: getHeight(for: item, in: geometry.size, of: selectedTimetable))
+                .offset(y: getOffset(for: item, in: geometry.size, of: selectedTimetable))
                 .transition(.scale.combined(with: .opacity))
                 .onTapGesture {
                   Haptic.selection.generate()
@@ -55,17 +69,58 @@ struct TimetableGrid: View {
     }
   }
 
+  private func getHeight(for item: V2LectureItem, in size: CGSize, of selectedTimetable: V2Timetable) -> CGFloat {
+    switch placement {
+    case .widget:
+      TimetableConstructor
+        .getCellHeightV2(
+          for: item,
+          in: size,
+          of: selectedTimetable.duration % 60 == 0 ? selectedTimetable.duration : selectedTimetable.duration + 60
+        )
+    default:
+      TimetableConstructor.getCellHeightV2(for: item, in: size, of: selectedTimetable.gappedDuration)
+    }
+  }
+
+  private func getOffset(for item: V2LectureItem, in size: CGSize, of selectedTimetable: V2Timetable) -> CGFloat {
+    switch placement {
+    case .widget:
+      TimetableConstructor
+        .getCellOffsetV2(
+          for: item,
+          in: size,
+          at: selectedTimetable.minMinutes,
+          of: selectedTimetable.duration % 60 == 0 ? selectedTimetable.duration : selectedTimetable.duration + 60
+        )
+    default:
+      TimetableConstructor.getCellOffsetV2(for: item, in: size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration)
+    }
+  }
+
+  private var minHour: Int {
+    (selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
+  }
+
+  private var maxHour: Int {
+    var maxHour = (selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
+
+    if placement == .widget {
+      maxHour = (selectedTimetable?.maxMinutes ?? defaultMaxMinutes) % 60 == 0 ? maxHour : maxHour + 1
+    }
+
+    return maxHour
+  }
+
   private var gridHorizontalLine: some View {
     VStack(spacing: 0) {
-      let minHour = (selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
-      let maxHour = (selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
-
       ForEach(minHour..<maxHour, id: \.self) { hour in
         HorizontalLine()
           .stroke(style: StrokeStyle(lineWidth: 1))
         HorizontalLine()
           .stroke(style: StrokeStyle(lineWidth: 1, dash: [2]))
-      }.padding(.top, 10)
+      }
+      .padding(.top, 10)
 
       Spacer()
         .frame(height: 10)
@@ -89,9 +144,6 @@ struct TimetableGrid: View {
 
   private var timesRowHeader: some View {
     VStack(spacing: 0) {
-      let minHour = (selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
-      let maxHour = (selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
-
       ForEach(minHour..<maxHour, id: \.self) { hour in
         Text(String(hour))
           .font(.caption)
