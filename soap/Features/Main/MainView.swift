@@ -59,9 +59,9 @@ struct MainView: View {
         }
       }
 
-      Tab("Map", systemImage: "map", value: .map) {
-        Map()
-      }
+//      Tab("Map", systemImage: "map", value: .map) {
+//        Map()
+//      }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
         NavigationStack(path: $taxiPath) {
