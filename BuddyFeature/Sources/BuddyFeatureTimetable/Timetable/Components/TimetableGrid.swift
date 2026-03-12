@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import Haptica
+import TimetableUI
 
 struct TimetableGrid: View {
   let selectedTimetable: V2Timetable?
@@ -35,7 +36,8 @@ struct TimetableGrid: View {
                   isCandidate: item.lecture.id == candidateLecture?.id,
                   onDeletion: {
                     onDelete(item.lecture)
-                  }
+                  },
+                  placement: .view
                 )
                 .frame(height: TimetableConstructor.getCellHeightV2(for: item, in: geometry.size, of: selectedTimetable.gappedDuration))
                 .offset(y: TimetableConstructor.getCellOffsetV2(for: item, in: geometry.size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration))

@@ -569,6 +569,7 @@
       }
     },
     "Remove from Table" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
