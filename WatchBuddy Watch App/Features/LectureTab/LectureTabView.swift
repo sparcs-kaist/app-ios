@@ -9,7 +9,7 @@ import SwiftUI
 import BuddyDomain
 
 struct LectureTabView: View {
-  let items: [LectureItem]
+  let items: [V2LectureItem]
 
   @State private var selection: UUID? = nil
 
@@ -20,7 +20,7 @@ struct LectureTabView: View {
           ForEach(items) { item in
             LectureView(item: item)
               .containerBackground(item.lecture.backgroundColor.gradient, for: .tabView)
-              .navigationTitle(item.lecture.classTimes[item.index].description)
+              .navigationTitle(item.lectureClass.description)
               .tag(item.id)
           }
         }
@@ -37,12 +37,12 @@ struct LectureTabView: View {
     }
   }
 
-  private func defaultSelection() -> LectureItem? {
+  private func defaultSelection() -> V2LectureItem? {
     let now = Calendar.current.component(.hour, from: Date()) * 60 +
     Calendar.current.component(.minute, from: Date())
 
     // Look for the next class that starts after `now`
-    if let next = items.first(where: { $0.lecture.classTimes[$0.index].begin >= now }) {
+    if let next = items.first(where: { $0.lectureClass.begin >= now }) {
       return next
     }
     // Otherwise, fallback to the last one (probably already ongoing/just ended)
@@ -51,5 +51,7 @@ struct LectureTabView: View {
 }
 
 #Preview {
-  LectureTabView(items: Lecture.mockList.map { LectureItem(lecture: $0, index: 0) })
+  LectureTabView(
+    items: V2Lecture.mockList.map { V2LectureItem(lecture: $0, lectureClass: $0.classes.first!)
+    })
 }

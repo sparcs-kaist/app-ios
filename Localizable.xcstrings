@@ -1,6 +1,16 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "%@ %@" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
     "%@ at %@" : {
       "localizations" : {
         "en" : {

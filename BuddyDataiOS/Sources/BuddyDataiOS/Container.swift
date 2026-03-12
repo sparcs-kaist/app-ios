@@ -304,7 +304,8 @@ extension Container: @retroactive AutoRegistering {
         .map { TimetableCache(modelContainer: $0) }
       return V2TimetableUseCase(
         otlTimetableRepository: self.otlV2TimetableRepository.resolve(),
-        cache: cache
+        cache: cache,
+        sessionBridgeService: self.sessionBridgeService.resolve()
       )
     }
 

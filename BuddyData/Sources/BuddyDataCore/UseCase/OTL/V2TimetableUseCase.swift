@@ -12,23 +12,55 @@ public final class V2TimetableUseCase: V2TimetableUseCaseProtocol, @unchecked Se
   // MARK: - Dependencies
   private let otlTimetableRepository: OTLV2TimetableRepositoryProtocol
   private let cache: TimetableCache?
+  private let sessionBridgeService: SessionBridgeServiceProtocol?
+  
+  // MARK: - Cached State
+  private let semesterCache = SemesterCache()
 
   // MARK: - Initialiser
   public init(
     otlTimetableRepository: OTLV2TimetableRepositoryProtocol,
-    cache: TimetableCache? = nil
+    cache: TimetableCache? = nil,
+    sessionBridgeService: SessionBridgeServiceProtocol? = nil
   ) {
     self.otlTimetableRepository = otlTimetableRepository
     self.cache = cache
+    self.sessionBridgeService = sessionBridgeService
   }
 
   // MARK: - Functions
   public func getSemesters() async throws -> [Semester] {
-    return try await otlTimetableRepository.getSemesters()
+    if let cached = await semesterCache.getSemesters() {
+      // Refresh in background
+      Task.detached(priority: .background) { [weak self] in
+        guard let self else { return }
+        if let fresh = try? await self.otlTimetableRepository.getSemesters() {
+          await self.semesterCache.setSemesters(fresh)
+        }
+      }
+      return cached
+    }
+    
+    let result = try await otlTimetableRepository.getSemesters()
+    await semesterCache.setSemesters(result)
+    return result
   }
 
   public func getCurrentSemesters() async throws -> Semester {
-    return try await otlTimetableRepository.getCurrentSemester()
+    if let cached = await semesterCache.getCurrentSemester() {
+      // Refresh in background
+      Task.detached(priority: .background) { [weak self] in
+        guard let self else { return }
+        if let fresh = try? await self.otlTimetableRepository.getCurrentSemester() {
+          await self.semesterCache.setCurrentSemester(fresh)
+        }
+      }
+      return cached
+    }
+    
+    let result = try await otlTimetableRepository.getCurrentSemester()
+    await semesterCache.setCurrentSemester(result)
+    return result
   }
 
   public func getTimetableList(semester: Semester) async throws -> [V2TimetableSummary] {
@@ -62,19 +94,48 @@ public final class V2TimetableUseCase: V2TimetableUseCaseProtocol, @unchecked Se
     let key = "\(semester.year)-\(semester.semesterType.rawValue)-myTable"
 
     if let cached = cache?.timetable(forKey: key) {
+      // Refresh in background and check if we should update watchOS
       Task.detached(priority: .background) { [weak self] in
         guard let self else { return }
-        if let fresh = try? await self.otlTimetableRepository
-          .getMyTable(year: semester.year, semester: semester.semesterType) {
+        
+        // Fetch both fresh timetable and current semester in parallel
+        async let freshTimetable = try? await self.otlTimetableRepository
+          .getMyTable(year: semester.year, semester: semester.semesterType)
+        async let currentSemester = try? await self.otlTimetableRepository.getCurrentSemester()
+        
+        let (fresh, current) = await (freshTimetable, currentSemester)
+        
+        if let fresh {
           self.cache?.store(fresh, forKey: key)
+          
+          // Update watchOS if this is the current semester
+          let isCurrentSemester = current?.year == semester.year 
+            && current?.semesterType == semester.semesterType
+          if isCurrentSemester {
+            self.sessionBridgeService?.updateTimetable(fresh)
+          }
         }
       }
       return cached
     }
 
+    // No cache - fetch from network
     let result = try await otlTimetableRepository
       .getMyTable(year: semester.year, semester: semester.semesterType)
     cache?.store(result, forKey: key)
+    
+    // Check if this is the current semester and update watchOS in background
+    Task.detached(priority: .background) { [weak self] in
+      guard let self else { return }
+      if let currentSemester = try? await self.otlTimetableRepository.getCurrentSemester() {
+        let isCurrentSemester = currentSemester.year == semester.year 
+          && currentSemester.semesterType == semester.semesterType
+        if isCurrentSemester {
+          self.sessionBridgeService?.updateTimetable(result)
+        }
+      }
+    }
+    
     return result
   }
 
@@ -104,3 +165,26 @@ public final class V2TimetableUseCase: V2TimetableUseCaseProtocol, @unchecked Se
     cache?.invalidate(key: String(timetableID))
   }
 }
+
+// MARK: - SemesterCache Actor
+private actor SemesterCache {
+  private var semesters: [Semester]?
+  private var currentSemester: Semester?
+  
+  func getSemesters() -> [Semester]? {
+    return semesters
+  }
+  
+  func setSemesters(_ value: [Semester]) {
+    semesters = value
+  }
+  
+  func getCurrentSemester() -> Semester? {
+    return currentSemester
+  }
+  
+  func setCurrentSemester(_ value: Semester) {
+    currentSemester = value
+  }
+}
+

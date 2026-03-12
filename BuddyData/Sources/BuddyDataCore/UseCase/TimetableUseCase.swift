@@ -130,7 +130,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
     // update watchOS data
     if let timetable: Timetable = store[fetchedCurrentSemester.id]?.first {
-      sessionBridgeService?.updateTimetable(timetable)
+//      sessionBridgeService?.updateTimetable(timetable)
     }
   }
 
