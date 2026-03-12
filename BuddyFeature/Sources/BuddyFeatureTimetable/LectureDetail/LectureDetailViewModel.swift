@@ -20,13 +20,27 @@ class LectureDetailViewModel {
   }
   var state: ViewState = .loading
   var reviews: [V2LectureReview] = []
+  var course: V2Course? = nil
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
     \.v2ReviewUseCase
   ) private var reviewUseCase: V2ReviewUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.v2CourseUseCase
+  ) private var courseUseCase: V2CourseUseCaseProtocol?
 
   // MARK: - Functions
+
+  func fetchCourse(courseID: Int) async {
+    guard let courseUseCase else { return }
+
+    do {
+      self.course = try await courseUseCase.getCourse(courseID: courseID)
+    } catch {
+      self.state = .error(message: error.localizedDescription)
+    }
+  }
 
   func fetchReviews(lecture: V2Lecture) async {
     guard let reviewUseCase else { return }

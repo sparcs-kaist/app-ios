@@ -23,8 +23,6 @@ struct LectureDetailView: View {
     self.lectureClass = lectureClass
   }
 
-  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
-
   @Environment(\.dismiss) private var dismiss
   @State private var viewModel = LectureDetailViewModel()
   @State private var showReviewComposeView: Bool = false
@@ -47,10 +45,17 @@ struct LectureDetailView: View {
       .padding([.horizontal, .bottom])
     }
     .task {
-      await viewModel.fetchReviews(lecture: lecture)
-      guard let userUseCase else { return }
-      let otl = await userUseCase.otlUser
-      canWriteReview = otl?.reviewWritableLectures.contains { $0.id == lecture.id } ?? false
+      async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
+      async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)
+
+      await courseFetch
+      await reviewsFetch
+
+      canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
+      print(canWriteReview)
+      print(viewModel.course)
+      print(viewModel.course?.history.first(where: { $0.myLectureID != nil }))
+      print("shit")
     }
     .navigationTitle(lecture.name)
     .navigationBarTitleDisplayMode(.inline)

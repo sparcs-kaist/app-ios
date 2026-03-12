@@ -14,6 +14,7 @@ public struct V2Course: Identifiable, Hashable, Sendable, Codable {
   public let code: String
   public let type: LectureType
   public let department: V2Department
+  public let history: [V2CourseHistory]
   public let classDuration: Int
   public let expDuration: Int
   public let credit: Int
@@ -26,6 +27,7 @@ public struct V2Course: Identifiable, Hashable, Sendable, Codable {
     code: String,
     type: LectureType,
     department: V2Department,
+    history: [V2CourseHistory],
     classDuration: Int,
     expDuration: Int,
     credit: Int,
@@ -37,6 +39,7 @@ public struct V2Course: Identifiable, Hashable, Sendable, Codable {
     self.code = code
     self.type = type
     self.department = department
+    self.history = history
     self.classDuration = classDuration
     self.expDuration = expDuration
     self.credit = credit

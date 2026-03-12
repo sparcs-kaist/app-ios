@@ -15,6 +15,7 @@ struct V2CourseDTO: Codable {
   let code: String
   let type: String
   let department: V2DepartmentDTO
+  let history: [V2CourseHistoryDTO]
   let classDuration: Int
   let expDuration: Int
   let credit: Int
@@ -31,6 +32,7 @@ extension V2CourseDTO {
       code: code,
       type: LectureType.fromRawValue(type),
       department: department.toModel(),
+      history: history.compactMap { $0.toModel() },
       classDuration: classDuration,
       expDuration: expDuration,
       credit: credit,
