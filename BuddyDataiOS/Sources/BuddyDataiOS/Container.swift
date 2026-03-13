@@ -278,20 +278,30 @@ extension Container: @retroactive AutoRegistering {
       return TimetableUseCase(
         otlTimetableRepository: self.otlTimetableRepository.resolve(),
         cache: cache,
-        sessionBridgeService: self.sessionBridgeService.resolve()
+        sessionBridgeService: self.sessionBridgeService.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
       )
     }
 
     v2ReviewUseCase.register {
-      ReviewUseCase(otlReviewRepository: self.otlReviewRepository.resolve())
+      ReviewUseCase(
+        otlReviewRepository: self.otlReviewRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
     }
 
     v2LectureUseCase.register {
-      LectureUseCase(otlLectureRepository: self.otlLectureRepository.resolve())
+      LectureUseCase(
+        otlLectureRepository: self.otlLectureRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
     }
 
     v2CourseUseCase.register {
-      CourseUseCase(otlCourseRepository: self.otlCourseRepository.resolve())
+      CourseUseCase(
+        otlCourseRepository: self.otlCourseRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
     }
 
     feedPostUseCase.register {
