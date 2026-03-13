@@ -30,13 +30,12 @@ struct NextClassAppIntents: AppIntent {
     }
 
     let now = Date()
-    let currentSemester = await timetableUseCase.currentSemester
-    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
+    let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
     let items: [LectureItem] = timetable.lectureItems(for: now)
 
     if let nextItem: LectureItem = defaultSelection(items: items) {
-      let lectureTitle: String = nextItem.lecture.title.localized()
-      let classtime: ClassTime = nextItem.lecture.classTimes[nextItem.index]
+      let lectureTitle: String = nextItem.lecture.name
+      let classtime: LectureClass = nextItem.lectureClass
       let startDate: Date = dateOnSameDay(minutes: classtime.begin, date: now, calendar: .current) ?? now
 
       // relative date string
@@ -46,7 +45,7 @@ struct NextClassAppIntents: AppIntent {
 
       let value = NextClassResult(
         title: lectureTitle,
-        location: classtime.classroomName.localized()
+        location: "\(classtime.buildingCode) \(classtime.roomName)"
       )
 
       return .result(
@@ -68,7 +67,7 @@ struct NextClassAppIntents: AppIntent {
     Calendar.current.component(.minute, from: Date())
 
     // Look for the next class that starts after `now`
-    if let next = items.first(where: { $0.lecture.classTimes[$0.index].begin >= now }) {
+    if let next = items.first(where: { $0.lectureClass.begin >= now }) {
       return next
     }
 

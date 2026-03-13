@@ -1,8 +1,8 @@
 //
 //  OTLLectureTarget.swift
-//  soap
+//  BuddyData
 //
-//  Created by Soongyu Kwon on 30/09/2025.
+//  Created by Soongyu Kwon on 06/03/2026.
 //
 
 import Foundation
@@ -10,8 +10,6 @@ import Moya
 
 public enum OTLLectureTarget {
   case searchLecture(request: LectureSearchRequestDTO)
-  case fetchReviews(lectureID: Int)
-  case writeReview(lectureID: Int, content: String, grade: Int, load: Int, speech: Int)
 }
 
 extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
@@ -22,20 +20,14 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
   public var path: String {
     switch self {
     case .searchLecture:
-      "/api/lectures"
-    case .fetchReviews(let lectureID):
-      "/api/lectures/\(lectureID)/related-reviews"
-    case .writeReview:
-      "/api/reviews"
+      "/api/v2/lectures"
     }
   }
 
   public var method: Moya.Method {
     switch self {
-    case .searchLecture, .fetchReviews:
+    case .searchLecture:
         .get
-    case .writeReview:
-        .post
     }
   }
 
@@ -46,31 +38,17 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
           "year": request.year,
           "semester": request.semester,
           "keyword": request.keyword,
-          "type": request.type,
-          "department": request.department,
-          "level": request.level,
           "limit": request.limit,
           "offset": request.offset
         ], encoding: URLEncoding.default)
-    case .fetchReviews:
-        .requestParameters(parameters: [
-          "order": "-written_datetime",
-          "limit": 100
-        ], encoding: URLEncoding.default)
-    case .writeReview(let lectureID, let content, let grade, let load, let speech):
-        .requestParameters(parameters: [
-          "lecture": lectureID,
-          "content": content,
-          "grade": grade,
-          "load": load,
-          "speech": speech
-        ], encoding: JSONEncoding.default)
+
     }
   }
 
   public var headers: [String: String]? {
     [
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Accept-Language": Bundle.main.preferredLocalizations.first ?? "ko"
     ]
   }
 

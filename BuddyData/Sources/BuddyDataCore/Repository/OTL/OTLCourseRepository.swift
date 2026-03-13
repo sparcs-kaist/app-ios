@@ -1,8 +1,8 @@
 //
 //  OTLCourseRepository.swift
-//  soap
+//  BuddyData
 //
-//  Created by 하정우 on 10/1/25.
+//  Created by Soongyu Kwon on 07/03/2026.
 //
 
 import Foundation
@@ -13,34 +13,23 @@ import Moya
 
 public final class OTLCourseRepository: OTLCourseRepositoryProtocol, Sendable {
   private let provider: MoyaProvider<OTLCourseTarget>
-  
+
   public init(provider: MoyaProvider<OTLCourseTarget>) {
     self.provider = provider
   }
-  
-  public func searchCourse(name: String, offset: Int, limit: Int) async throws -> [Course] {
-    let response = try await self.provider.request(
-      .searchCourse(name: name, offset: offset, limit: limit)
-    )
-    let result = try response.map([CourseDTO].self).compactMap { $0.toModel() }
-    
-    return result
-  }
-  
-  public func fetchReviews(courseId: Int, offset: Int, limit: Int) async throws -> [LectureReview]{
-    let response = try await self.provider.request(
-      .fetchReviews(courseId: courseId, offset: offset, limit: limit)
-    )
-    let result = try response.map([LectureReviewDTO].self).compactMap { $0.toModel() }
 
-    return result
+  public func searchCourse(request: CourseSearchRequest) async throws -> [CourseSummary] {
+    let response = try await self.provider.request(
+      .searchCourse(request: CourseSearchRequestDTO.fromModel(model: request))
+    )
+    let result = try response.map(CoursePageDTO.self)
+
+    return result.courses.compactMap { $0.toModel() }
   }
-  
-  public func likeReview(reviewId: Int) async throws {
-    _ = try await self.provider.request(.likeReview(reviewId: reviewId)).filterSuccessfulStatusCodes()
-  }
-  
-  public func unlikeReview(reviewId: Int) async throws {
-    _ = try await self.provider.request(.unlikeReview(reviewId: reviewId)).filterSuccessfulStatusCodes()
+
+  public func getCourse(courseID: Int) async throws -> Course {
+    let response = try await self.provider.request(.fetchCourse(courseID: courseID))
+
+    return try response.map(CourseDTO.self).toModel()
   }
 }

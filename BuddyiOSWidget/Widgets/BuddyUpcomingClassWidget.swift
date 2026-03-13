@@ -16,9 +16,9 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
     LectureEntry(
       date: Date(),
       lecture: Lecture.mock,
-      classtime: Lecture.mock.classTimes[0],
+      lectureClass: Lecture.mock.classes[0],
       startDate: dateOnSameDay(
-        minutes: Lecture.mock.classTimes[0].begin,
+        minutes: Lecture.mock.classes[0].begin,
         date: Date(),
         calendar: .current
       )!,
@@ -32,9 +32,9 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
     LectureEntry(
       date: Date(),
       lecture: Lecture.mock,
-      classtime: Lecture.mock.classTimes[0],
+      lectureClass: Lecture.mock.classes[0],
       startDate: dateOnSameDay(
-        minutes: Lecture.mock.classTimes[0].begin,
+        minutes: Lecture.mock.classes[0].begin,
         date: Date(),
         calendar: .current
       )!,
@@ -56,7 +56,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
       let entry = LectureEntry(
         date: now,
         lecture: nil,
-        classtime: nil,
+        lectureClass: nil,
         startDate: nil,
         signInRequired: true,
         backgroundColor: .black,
@@ -65,8 +65,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
       return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
 
-    let currentSemester = await timetableUseCase.currentSemester
-    let timetable: Timetable = await timetableUseCase.getMyTable(for: currentSemester?.id ?? "")
+    let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
 //    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Autumn")
     let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
 
@@ -75,7 +74,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
       let entry = LectureEntry(
         date: now,
         lecture: nil,
-        classtime: nil,
+        lectureClass: nil,
         startDate: Date(),
         signInRequired: false,
         backgroundColor: .black,
@@ -84,7 +83,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
       entries.append(entry)
     } else {
       for item in todayLectures {
-        let ct = item.lecture.classTimes[item.index]
+        let ct = item.lectureClass
         guard let start = dateOnSameDay(minutes: ct.begin, date: now, calendar: calendar)
         else { continue }
 
@@ -96,7 +95,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
               LectureEntry(
                 date: pre,
                 lecture: item.lecture,
-                classtime: ct,
+                lectureClass: ct,
                 startDate: start,
                 signInRequired: false,
                 backgroundColor: item.lecture.backgroundColor,
@@ -112,7 +111,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
               LectureEntry(
                 date: start,
                 lecture: item.lecture,
-                classtime: ct,
+                lectureClass: ct,
                 startDate: start,
                 signInRequired: false,
                 backgroundColor: item.lecture.backgroundColor,
@@ -126,7 +125,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
         let entry = LectureEntry(
           date: now,
           lecture: nil,
-          classtime: nil,
+          lectureClass: nil,
           startDate: nil,
           signInRequired: false,
           backgroundColor: .black,
@@ -187,9 +186,9 @@ struct BuddyUpcomingClassWidget: Widget {
   LectureEntry(
     date: Date(),
     lecture: lectures[0],
-    classtime: lectures[0].classTimes.first!,
+    lectureClass: lectures[0].classes.first!,
     startDate: dateOnSameDay(
-      minutes: lectures[0].classTimes.first!.begin,
+      minutes: lectures[0].classes.first!.begin,
       date: Date(),
       calendar: .current
     ),
@@ -200,9 +199,9 @@ struct BuddyUpcomingClassWidget: Widget {
   LectureEntry(
     date: Date().addingTimeInterval(60*10),
     lecture: lectures[1],
-    classtime: lectures[1].classTimes.first!,
+    lectureClass: lectures[1].classes.first!,
     startDate: dateOnSameDay(
-      minutes: lectures[1].classTimes.first!.begin,
+      minutes: lectures[1].classes.first!.begin,
       date: Date(),
       calendar: .current
     ),
@@ -213,9 +212,9 @@ struct BuddyUpcomingClassWidget: Widget {
   LectureEntry(
     date: Date().addingTimeInterval(60*20),
     lecture: lectures[2],
-    classtime: lectures[2].classTimes.first!,
+    lectureClass: lectures[2].classes.first!,
     startDate: dateOnSameDay(
-      minutes: lectures[2].classTimes.first!.begin,
+      minutes: lectures[2].classes.first!.begin,
       date: Date(),
       calendar: .current
     ),
@@ -226,9 +225,9 @@ struct BuddyUpcomingClassWidget: Widget {
   LectureEntry(
     date: Date().addingTimeInterval(60*20),
     lecture: lectures[3],
-    classtime: lectures[3].classTimes.first!,
+    lectureClass: lectures[3].classes.first!,
     startDate: dateOnSameDay(
-      minutes: lectures[3].classTimes.first!.begin,
+      minutes: lectures[3].classes.first!.begin,
       date: Date(),
       calendar: .current
     ),
@@ -239,7 +238,7 @@ struct BuddyUpcomingClassWidget: Widget {
   LectureEntry(
     date: Date().addingTimeInterval(60*20),
     lecture: nil,
-    classtime: nil,
+    lectureClass: nil,
     startDate: nil,
     signInRequired: false,
     backgroundColor: .black,
@@ -248,7 +247,7 @@ struct BuddyUpcomingClassWidget: Widget {
   LectureEntry(
     date: Date().addingTimeInterval(60*20),
     lecture: nil,
-    classtime: nil,
+    lectureClass: nil,
     startDate: nil,
     signInRequired: true,
     backgroundColor: .black,

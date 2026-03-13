@@ -20,7 +20,7 @@ struct LectureTabView: View {
           ForEach(items) { item in
             LectureView(item: item)
               .containerBackground(item.lecture.backgroundColor.gradient, for: .tabView)
-              .navigationTitle(item.lecture.classTimes[item.index].description)
+              .navigationTitle(item.lectureClass.description)
               .tag(item.id)
           }
         }
@@ -42,7 +42,7 @@ struct LectureTabView: View {
     Calendar.current.component(.minute, from: Date())
 
     // Look for the next class that starts after `now`
-    if let next = items.first(where: { $0.lecture.classTimes[$0.index].begin >= now }) {
+    if let next = items.first(where: { $0.lectureClass.begin >= now }) {
       return next
     }
     // Otherwise, fallback to the last one (probably already ongoing/just ended)
@@ -51,5 +51,7 @@ struct LectureTabView: View {
 }
 
 #Preview {
-  LectureTabView(items: Lecture.mockList.map { LectureItem(lecture: $0, index: 0) })
+  LectureTabView(
+    items: Lecture.mockList.map { LectureItem(lecture: $0, lectureClass: $0.classes.first!)
+    })
 }

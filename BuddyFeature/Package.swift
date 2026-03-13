@@ -24,6 +24,7 @@ let package = Package(
       .package(path: "../BuddyDomain"),
       .package(path: "../BuddyTestSupport"),
       .package(path: "../BuddyPreviewSupport"),
+      .package(path: "../BuddyUI"),
       .package(url: "https://github.com/efremidze/Haptica.git", .upToNextMajor(from: "4.0.1")),
       .package(url: "https://github.com/kean/Nuke.git", .upToNextMajor(from: "12.0.0")),
       .package(
@@ -40,6 +41,10 @@ let package = Package(
               "BuddyDomain",
               "Haptica",
               "BuddyFeatureShared",
+              .product(
+                name: "TimetableUI",
+                package: "BuddyUI"
+              ),
               .product(
                 name: "FirebaseAnalytics",
                 package: "firebase-ios-sdk"

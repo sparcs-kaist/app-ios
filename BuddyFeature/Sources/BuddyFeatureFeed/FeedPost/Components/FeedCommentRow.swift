@@ -198,7 +198,6 @@ struct FeedCommentRow: View {
             await viewModel.upvote(comment: $comment)
           }
         )
-        .disabled(comment.isMyComment)
       }
     }
     .font(.caption)

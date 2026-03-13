@@ -16,6 +16,7 @@ struct ContentView: View {
   @State private var items: [LectureItem] = []
 
   private var timetable: Timetable? {
+    print(timetableData)
     guard !timetableData.isEmpty else { return nil }
     return try? JSONDecoder().decode(Timetable.self, from: timetableData)
   }

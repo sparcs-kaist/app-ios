@@ -59,24 +59,24 @@ struct SearchSection<Content: View>: View {
   }
 }
 
-#Preview {
-  let course: [Course] = Course.mockList
-  
-  ZStack {
-    Color.secondarySystemBackground.ignoresSafeArea()
-    
-    ScrollView {
-      SearchSection(title: "Rides", searchScope: .constant(.all), targetScope: .taxi) {
-        SearchContent(results: Array(TaxiRoom.mockList[..<3])) {
-          TaxiRoomCell(room: $0, withOutBackground: true)
-        }
-      }
-      
-      SearchSection(title: "Courses", searchScope: .constant(.all), targetScope: .courses) {
-        SearchContent<Course, CourseCell>(results: course) {
-          CourseCell(course: $0)
-        }
-      }
-    }
-  }
-}
+//#Preview {
+//  let course: [CourseSummary] = CourseSummary.mockList
+//
+//  ZStack {
+//    Color.secondarySystemBackground.ignoresSafeArea()
+//    
+//    ScrollView {
+//      SearchSection(title: "Rides", searchScope: .constant(.all), targetScope: .taxi) {
+//        SearchContent(results: Array(TaxiRoom.mockList[..<3])) {
+//          TaxiRoomCell(room: $0, withOutBackground: true)
+//        }
+//      }
+//      
+//      SearchSection(title: "Courses", searchScope: .constant(.all), targetScope: .courses) {
+//        SearchContent<CourseSummary, CourseCell>(results: course) {
+//          CourseCell(course: $0)
+//        }
+//      }
+//    }
+//  }
+//}

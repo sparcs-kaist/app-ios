@@ -1,0 +1,33 @@
+//
+//  CourseLecture.swift
+//  BuddyDomain
+//
+//  Created by Soongyu Kwon on 06/03/2026.
+//
+
+import Foundation
+
+public struct CourseLecture: Identifiable, Equatable, Hashable, Sendable {
+  public let id: Int
+  public let name: String
+  public let code: String
+  public let type: LectureType
+  public let lectures: [Lecture]
+  public let completed: Bool
+
+  public init(
+    id: Int,
+    name: String,
+    code: String,
+    type: LectureType,
+    lectures: [Lecture],
+    completed: Bool
+  ) {
+    self.id = id
+    self.name = name
+    self.code = code
+    self.type = type
+    self.lectures = lectures
+    self.completed = completed
+  }
+}

@@ -14,16 +14,14 @@ struct LectureDetailView: View {
   let lecture: Lecture
   let onAdd: (() -> Void)?
   let isOverlapping: Bool
-  let classTime: ClassTime?
-  
-  init(lecture: Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, classTime: ClassTime? = nil) {
+  let lectureClass: LectureClass?
+
+  init(lecture: Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, lectureClass: LectureClass? = nil) {
     self.lecture = lecture
     self.onAdd = onAdd
     self.isOverlapping = isOverlapping
-    self.classTime = classTime
+    self.lectureClass = lectureClass
   }
-
-  @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   @Environment(\.dismiss) private var dismiss
   @State private var viewModel = LectureDetailViewModel()
@@ -47,12 +45,19 @@ struct LectureDetailView: View {
       .padding([.horizontal, .bottom])
     }
     .task {
-      await viewModel.fetchReviews(lectureID: lecture.id)
-      guard let userUseCase else { return }
-      let otl = await userUseCase.otlUser
-      canWriteReview = otl?.reviewWritableLectures.contains { $0.id == lecture.id } ?? false
+      async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
+      async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)
+
+      await courseFetch
+      await reviewsFetch
+
+      canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
+      print(canWriteReview)
+      print(viewModel.course)
+      print(viewModel.course?.history.first(where: { $0.myLectureID != nil }))
+      print("shit")
     }
-    .navigationTitle(lecture.title.localized())
+    .navigationTitle(lecture.name)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       if onAdd != nil {
@@ -74,10 +79,8 @@ struct LectureDetailView: View {
       Text("This lecture collides with an existing lecture in your timetable.")
     })
     .sheet(isPresented: $showReviewComposeView) {
-      ReviewComposeView(lecture: lecture, onWrite: { review in
-        viewModel.reviews.insert(review, at: 0)
-      })
-      .presentationDragIndicator(.visible)
+      ReviewComposeView(lecture: lecture)
+        .presentationDragIndicator(.visible)
     }
     .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
   }
@@ -150,23 +153,26 @@ struct LectureDetailView: View {
       }
 
       LectureDetailRow(title: String(localized: "Code"), description: lecture.code)
-      LectureDetailRow(title: String(localized: "Type"), description: lecture.typeDetail.localized())
-      LectureDetailRow(title: String(localized: "Department"), description: lecture.department.name.localized())
+      LectureDetailRow(
+        title: String(localized: "Type"),
+        description: lecture.type.displayName.localized()
+      )
+      LectureDetailRow(title: String(localized: "Department"), description: lecture.department.name)
       LectureDetailRow(
         title: String(localized: "Professor"),
-        description: lecture.professors.isEmpty ? String(localized: "Unknown") : lecture.professors.map { $0.name.localized() }.joined(separator: "\n")
+        description: lecture.professors.isEmpty ? String(localized: "Unknown") : lecture.professors.map { $0.name }.joined(separator: "\n")
       )
-      if let classTime {
+      if let lectureClass {
         LectureDetailRow(
           title: String(localized: "Classroom"),
-          description: classTime.classroomNameShort.localized()
+          description: "\(lectureClass.buildingCode) \(lectureClass.roomName)"
         )
       }
       LectureDetailRow(title: String(localized: "Capacity"), description: String(lecture.capacity))
       LectureDetailRow(
         title: String(localized: "Exams"),
-        description: lecture.examTimes.isEmpty ? String(localized: "Unknown") : lecture.examTimes
-          .map { $0.description.localized() }
+        description: lecture.exams.isEmpty ? String(localized: "Unknown") : lecture.exams
+          .map { $0.description }
           .joined(separator: "\n")
       )
 
@@ -196,6 +202,6 @@ struct LectureDetailView: View {
   }
 }
 
-#Preview {
-  LectureDetailView(lecture: Lecture.mock, onAdd: nil, isOverlapping: false)
-}
+//#Preview {
+//  LectureDetailView(lecture: Lecture.mock, onAdd: nil, isOverlapping: false)
+//}

@@ -12,8 +12,10 @@ import FirebaseMessaging
 import UserNotifications
 import Factory
 import BuddyDomain
+import BuddyDataCore
 import AppIntents
 import FirebaseAnalytics
+import SwiftData
 
 #if DEBUG
 import FirebaseCrashlytics
@@ -128,6 +130,9 @@ struct soapApp: App {
 
     // App Intents
     BuddyShortcuts.updateAppShortcutParameters()
+
+    // SwiftData – timetable cache
+    TimetableCacheContainer.shared = try? ModelContainer(for: CachedTimetable.self)
   }
 
   var body: some Scene {

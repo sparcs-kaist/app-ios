@@ -36,7 +36,7 @@ public final class PreviewPostListViewModel: PostListViewModelProtocol {
 
   public func fetchInitialPosts() async { }
 
-  public func loadNextPage() async { }
+  public func loadNextPage() { }
 
   public func refreshItem(postID: Int) { }
 

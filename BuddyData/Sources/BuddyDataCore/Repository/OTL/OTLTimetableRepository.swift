@@ -1,8 +1,8 @@
 //
 //  OTLTimetableRepository.swift
-//  soap
+//  BuddyData
 //
-//  Created by Soongyu Kwon on 29/09/2025.
+//  Created by Soongyu Kwon on 24/02/2026.
 //
 
 import Foundation
@@ -12,64 +12,64 @@ import BuddyDomain
 import Moya
 
 public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Sendable {
-  private let provider: MoyaProvider<OTLTimetableTarget>
+  public let provider: MoyaProvider<OTLTimetableTarget>
 
   public init(provider: MoyaProvider<OTLTimetableTarget>) {
     self.provider = provider
   }
 
-  public func getTables(userID: Int, year: Int, semester: SemesterType) async throws -> [Timetable] {
-    let response = try await self.provider.request(.fetchTables(userID: userID, year: year, semester: semester.intValue))
-    let result = try response.map([TimetableDTO].self).compactMap { $0.toModel() }
+  public func getTables(year: Int, semester: SemesterType) async throws -> [TimetableSummary] {
+    let response = try await self.provider.request(
+      .fetchTables(year: year, semester: semester.intValue)
+    )
+    let result = try response.map(TimetableSummaryListDTO.self)
 
-    return result
+    return result.timetables.compactMap { $0.toModel() }
   }
 
-  public func createTable(userID: Int, year: Int, semester: SemesterType) async throws -> Timetable {
-    let response = try await self.provider.request(
-      .createTable(userID: userID, year: year, semester: semester.intValue)
-    )
-    let result = try response.map(TimetableDTO.self).toModel()
-
-    return result
+  public func getTable(timetableID: Int) async throws -> Timetable {
+    let response = try await self.provider.request(.fetchTable(timetableID: timetableID))
+    return try response.map(TimetableDTO.self).toModel(id: String(timetableID))
   }
 
-  public func deleteTable(userID: Int, timetableID: Int) async throws {
+  public func createTable(year: Int, semester: SemesterType) async throws -> TableCreation {
     let response = try await self.provider.request(
-      .deleteTable(userID: userID, timetableID: timetableID)
+      .createTable(year: year, semester: semester.intValue)
     )
-    _ = try response.filterSuccessfulStatusCodes()
+    return try response.map(TableCreationDTO.self).toModel()
   }
 
-  public func addLecture(userID: Int, timetableID: Int, lectureID: Int) async throws -> Timetable {
+  public func getMyTable(year: Int, semester: SemesterType) async throws -> Timetable {
     let response = try await self.provider.request(
-      .addLecture(userID: userID, timetableID: timetableID, lectureID: lectureID)
+      .fetchMyTable(year: year, semester: semester.intValue)
     )
-    let result = try response.map(TimetableDTO.self).toModel()
-
-    return result
+    return try response.map(TimetableDTO.self).toModel(id: "\(year)-\(semester.rawValue)-myTable")
   }
 
-  public func deleteLecture(userID: Int, timetableID: Int, lectureID: Int) async throws -> Timetable {
-    let response = try await self.provider.request(
-      .deleteLecture(userID: userID, timetableID: timetableID, lectureID: lectureID)
-    )
-    let result = try response.map(TimetableDTO.self).toModel()
+  public func deleteTable(timetableID: Int) async throws {
+    _ = try await self.provider.request(.deleteTable(timetableID: timetableID))
+  }
 
-    return result
+  public func renameTable(timetableID: Int, title: String) async throws {
+    _ = try await self.provider.request(.renameTable(timetableID: timetableID, title: title))
+  }
+
+  public func addLecture(timetableID: Int, lectureID: Int) async throws {
+    _ = try await self.provider.request(.addLecture(timetableID: timetableID, lectureID: lectureID))
+  }
+
+  public func deleteLecture(timetableID: Int, lectureID: Int) async throws {
+    _ = try await self.provider
+      .request(.deleteLecture(timetableID: timetableID, lectureID: lectureID))
   }
 
   public func getSemesters() async throws -> [Semester] {
     let response = try await self.provider.request(.fetchSemesters)
-    let result = try response.map([SemesterDTO].self).compactMap { $0.toModel() }
-
-    return result
+    return try response.map(SemesterListDTO.self).semesters.compactMap { $0.toModel() }
   }
 
   public func getCurrentSemester() async throws -> Semester {
     let response = try await self.provider.request(.fetchCurrentSemester)
-    let result = try response.map(SemesterDTO.self).toModel()
-
-    return result
+    return try response.map(SemesterDTO.self).toModel()
   }
 }

@@ -19,7 +19,7 @@ struct LectureView: View {
           .foregroundStyle(item.lecture.backgroundColor)
           .padding(.top, 4)
 
-        Text(item.lecture.title.localized())
+        Text(item.lecture.name)
           .font(.headline)
           .lineLimit(4)
           .minimumScaleFactor(0.8)
@@ -30,11 +30,11 @@ struct LectureView: View {
       Spacer()
 
       TimelineView(.everyMinute) { context in
-        Text(item.lecture.classTimes[item.index].statusString(at: context.date))
+        Text(item.lectureClass.statusString(at: context.date))
           .foregroundStyle(item.lecture.backgroundColor)
           .font(.caption)
       }
-      Text(item.lecture.classTimes[item.index].classroomNameShort.localized())
+      Text("\(item.lectureClass.buildingCode) \(item.lectureClass.roomName)")
         .lineLimit(1)
         .minimumScaleFactor(0.8)
     }
@@ -43,5 +43,5 @@ struct LectureView: View {
 }
 
 #Preview {
-  LectureView(item: LectureItem(lecture: Lecture.mock, index: 0))
+  LectureView(item: LectureItem.mock)
 }

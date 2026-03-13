@@ -55,18 +55,6 @@ extension Container {
     promised()
   }
 
-  public var otlTimetableRepository: Factory<OTLTimetableRepositoryProtocol?> {
-    promised()
-  }
-
-  public var otlLectureRepository: Factory<OTLLectureRepositoryProtocol?> {
-    promised()
-  }
-
-  public var otlCourseRepository: Factory<OTLCourseRepositoryProtocol?> {
-    promised()
-  }
-
   // MARK: - Services
   public var sessionBridgeService: Factory<SessionBridgeServiceProtocol?> {
     promised()
@@ -113,7 +101,19 @@ extension Container {
     promised()
   }
 
-  public var timetableUseCase: Factory<TimetableUseCaseProtocol?> {
+  public var v2TimetableUseCase: Factory<TimetableUseCaseProtocol?> {
+    promised()
+  }
+
+  public var v2ReviewUseCase: Factory<ReviewUseCaseProtocol?> {
+    promised()
+  }
+
+  public var v2LectureUseCase: Factory<LectureUseCaseProtocol?> {
+    promised()
+  }
+
+  public var v2CourseUseCase: Factory<CourseUseCaseProtocol?> {
     promised()
   }
 

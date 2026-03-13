@@ -9,7 +9,7 @@ import Foundation
 
 public protocol CourseRepresentable {
   var credit: Int { get }
-  var creditAu: Int { get }
+  var creditAU: Int { get }
   var grade: Double { get }
   var load: Double { get }
   var speech: Double { get }
@@ -17,8 +17,8 @@ public protocol CourseRepresentable {
 
 public extension CourseRepresentable {
   private func calculateWeightedAverage(for value: Double) -> Double {
-    let numerator = value * Double(credit + creditAu)
-    let denominator = credit + creditAu
+    let numerator = value * Double(credit + creditAU)
+    let denominator = credit + creditAU
 
     return denominator > 0 ? numerator / Double(denominator) : 0.0
   }

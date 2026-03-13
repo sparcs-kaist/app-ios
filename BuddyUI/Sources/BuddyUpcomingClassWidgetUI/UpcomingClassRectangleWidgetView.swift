@@ -16,7 +16,7 @@ public struct UpcomingClassRectangleWidgetView: View {
   }
   
   public var body: some View {
-    if let lecture = entry.lecture, let ct = entry.classtime {
+    if let lecture = entry.lecture, let ct = entry.lectureClass {
       VStack(alignment: .leading, spacing: 2) {
         HStack(alignment: .center) {
           Circle()
@@ -30,10 +30,10 @@ public struct UpcomingClassRectangleWidgetView: View {
         .foregroundStyle(entry.backgroundColor)
 
         Group {
-          Text(lecture.title.localized())
+          Text(lecture.name)
             .fontWeight(.semibold)
           HStack {
-            Text(ct.classroomNameShort.localized())
+            Text("\(ct.buildingCode) \(ct.roomName)")
               .foregroundStyle(.secondary)
             Spacer()
           }

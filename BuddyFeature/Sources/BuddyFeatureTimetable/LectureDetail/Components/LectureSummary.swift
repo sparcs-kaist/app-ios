@@ -10,7 +10,7 @@ import BuddyDomain
 
 struct LectureSummary: View {
   let lecture: Lecture
-  
+
   var body: some View {
     HStack {
       Spacer()
@@ -18,18 +18,18 @@ struct LectureSummary: View {
       Spacer()
       LectureSummaryRow(
         title: String(localized: "Credits"),
-        description: String(lecture.credit + lecture.creditAu)
+        description: String(lecture.credit + lecture.creditAU)
       )
       Spacer()
       LectureSummaryRow(
         title: String(localized: "Competition"),
-        description: (lecture.capacity == 0 || lecture.numberOfPeople == 0)
+        description: (lecture.capacity == 0 || lecture.enrolledCount == 0)
         ?
         "0.0:1"
         :
           String(
             format: "%.1f",
-            Float(lecture.numberOfPeople) / Float(lecture.capacity)
+            Float(lecture.enrolledCount) / Float(lecture.capacity)
           ) + ":1"
       )
       Spacer()
@@ -37,6 +37,6 @@ struct LectureSummary: View {
   }
 }
 
-#Preview {
-  LectureSummary(lecture: .mock)
-}
+//#Preview {
+//  LectureSummary(lecture: .mock)
+//}

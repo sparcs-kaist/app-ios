@@ -1,21 +1,19 @@
 //
 //  TimetableDTO.swift
-//  soap
+//  BuddyData
 //
-//  Created by Soongyu Kwon on 28/12/2024.
+//  Created by Soongyu Kwon on 24/02/2026.
 //
 
 import Foundation
 import BuddyDomain
 
-struct TimetableDTO: Codable {
-  let id: Int
-  var lectures: [LectureDTO]
+public struct TimetableDTO: Codable {
+  public var lectures: [LectureDTO]
 }
 
-
-extension TimetableDTO {
-  func toModel() -> Timetable {
-    Timetable(id: String(id), lectures: lectures.map { $0.toModel() })
+public extension TimetableDTO {
+  func toModel(id: String) -> Timetable {
+    Timetable(id: id, lectures: lectures.compactMap { $0.toModel() })
   }
 }

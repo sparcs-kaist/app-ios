@@ -7,31 +7,27 @@
 
 import SwiftUI
 import Charts
+import BuddyDomain
 
-struct TimetableSummary: View {
-  @Environment(TimetableViewModel.self) private var timetableViewModel
+struct TimetableSummaryView: View {
+  let selectedTimetable: Timetable?
 
   var body: some View {
-    Group {
-      content
-        .transition(.opacity)
-        .redacted(reason: timetableViewModel.isLoading ? .placeholder : [])
-        .animation(.easeInOut(duration: 0.3), value: timetableViewModel.isLoading)
-    }
+    content
   }
 
   private var content: some View {
     HStack {
       Spacer()
-      BigSummary(label: String(localized: "Credit"), grade: "\(timetableViewModel.selectedTimetable?.credits ?? 0)")
+      BigSummary(label: String(localized: "Credit"), grade: "\(selectedTimetable?.credits ?? 0)")
       Spacer()
-      BigSummary(label: String(localized: "AU"), grade: "\(timetableViewModel.selectedTimetable?.creditAUs ?? 0)")
+      BigSummary(label: String(localized: "AU"), grade: "\(selectedTimetable?.creditAUs ?? 0)")
       Spacer()
-      BigSummary(label: String(localized: "Grade"), grade: timetableViewModel.selectedTimetable?.gradeLetter ?? "?")
+      BigSummary(label: String(localized: "Grade"), grade: selectedTimetable?.gradeLetter ?? "?")
       Spacer()
-      BigSummary(label: String(localized: "Load"), grade: timetableViewModel.selectedTimetable?.loadLetter ?? "?")
+      BigSummary(label: String(localized: "Load"), grade: selectedTimetable?.loadLetter ?? "?")
       Spacer()
-      BigSummary(label: String(localized: "Speech"), grade: timetableViewModel.selectedTimetable?.speechLetter ?? "?")
+      BigSummary(label: String(localized: "Speech"), grade: selectedTimetable?.speechLetter ?? "?")
       Spacer()
     }
   }
@@ -56,8 +52,8 @@ fileprivate struct BigSummary: View {
   }
 }
 
-#Preview {
-  TimetableSummary()
-    .environment(TimetableViewModel())
-}
+//#Preview {
+//  TimetableSummary()
+//    .environment(TimetableViewModel())
+//}
 

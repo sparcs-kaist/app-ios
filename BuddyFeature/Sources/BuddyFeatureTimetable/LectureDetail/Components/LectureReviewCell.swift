@@ -16,7 +16,9 @@ import BuddyFeatureShared
 struct LectureReviewCell: View {
   @Binding var review: LectureReview
 
-  @Injected(\.otlCourseRepository) private var otlCourseRepository: OTLCourseRepositoryProtocol?
+  @ObservationIgnored @Injected(
+    \.v2ReviewUseCase
+  ) private var reviewUseCase: ReviewUseCaseProtocol?
   @Injected(
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?
@@ -30,10 +32,10 @@ struct LectureReviewCell: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
-        Text(review.lecture.professors.first?.name.localized() ?? String(localized: "Unknown"))
+        Text(review.professors.first?.name ?? String(localized: "Unknown"))
           .font(.headline)
 
-        Text(String(review.lecture.year).suffix(2) + review.lecture.semester.shortCode)
+        Text(String(review.year).suffix(2) + review.semester.shortCode)
           .foregroundStyle(.secondary)
           .fontDesign(.rounded)
           .fontWeight(.semibold)
@@ -56,8 +58,8 @@ struct LectureReviewCell: View {
             }
             .disabled(summarisedContent != nil)
           }
-          Divider()
-          Button("Report", systemImage: "exclamationmark.triangle.fill") { report() }
+//          Divider()
+//          Button("Report", systemImage: "exclamationmark.triangle.fill") { report() }
         } label: {
           Label("More", systemImage: "ellipsis")
             .padding(8)
@@ -80,9 +82,9 @@ struct LectureReviewCell: View {
         .textSelection(.enabled)
 
       HStack(alignment: .bottom) {
-        reviewRatingLetter(title: String(localized: "Grade"), rating: review.gradeLetter)
-        reviewRatingLetter(title: String(localized: "Load"), rating: review.loadLetter)
-        reviewRatingLetter(title: String(localized: "Speech"), rating: review.speechLetter)
+        reviewRatingLetter(title: String(localized: "Grade"), rating: review.grade)
+        reviewRatingLetter(title: String(localized: "Load"), rating: review.load)
+        reviewRatingLetter(title: String(localized: "Speech"), rating: review.speech)
 
         Spacer()
 
@@ -97,13 +99,13 @@ struct LectureReviewCell: View {
         }, label: {
           HStack {
             Text("\(review.like)")
-            Image(systemName: review.isLiked ? "arrowshape.up.fill" : "arrowshape.up")
+            Image(systemName: review.likedByUser ? "arrowshape.up.fill" : "arrowshape.up")
           }
         })
-        .tint(review.isLiked ? Color.upvote : .primary)
+        .tint(review.likedByUser ? Color.upvote : .primary)
         .contentTransition(.numericText(value: Double(review.like)))
         .buttonStyle(.glass)
-        .animation(.spring, value: review.isLiked)
+        .animation(.spring, value: review.likedByUser)
       }
     }
     .padding()
@@ -130,46 +132,46 @@ struct LectureReviewCell: View {
   }
 
   // MARK: - Helpers
-  private func report() {
-    if let urlString = ReportMailComposer.compose(
-      title: review.lecture.title.localized(),
-      code: review.lecture.code,
-      year: review.lecture.year,
-      semester: review.lecture.semester,
-      professorName: review.lecture.professors.first?.name.localized() ?? String(localized: "Unknown"),
-      content: review.content
-    ), let url = URL(string: urlString),
-       UIApplication.shared.canOpenURL(url) {
-      openURL(url)
-    }
-  }
+//  private func report() {
+//    if let urlString = ReportMailComposer.compose(
+//      title: review.title.localized(),
+//      code: review.lecture.code,
+//      year: review.lecture.year,
+//      semester: review.lecture.semester,
+//      professorName: review.lecture.professors.first?.name.localized() ?? String(localized: "Unknown"),
+//      content: review.content
+//    ), let url = URL(string: urlString),
+//       UIApplication.shared.canOpenURL(url) {
+//      openURL(url)
+//    }
+//  }
 
   private func toggleLike() async {
-    guard let otlCourseRepository else { return }
+    guard let reviewUseCase else { return }
 
-    let prevLiked = review.isLiked
+    let prevLiked = review.likedByUser
     let prevLikeCount = review.like
 
     do {
       if prevLiked {
         Haptic.decrease.generate()
-        review.isLiked = false
+        review.likedByUser = false
         review.like -= 1
-        try await otlCourseRepository.unlikeReview(reviewId: review.id)
+        try await reviewUseCase.unlikeReview(reviewID: review.id)
       } else {
         Haptic.increase.generate()
-        review.isLiked = true
+        review.likedByUser = true
         review.like += 1
-        try await otlCourseRepository.likeReview(reviewId: review.id)
+        try await reviewUseCase.likeReview(reviewID: review.id)
       }
     } catch {
-      review.isLiked = prevLiked
+      review.likedByUser = prevLiked
       review.like = prevLikeCount
     }
   }
 }
-
-#Preview {
-  LectureReviewCell(review: .constant(LectureReview.mock))
-}
+//
+//#Preview {
+//  LectureReviewCell(review: .constant(LectureReview.mock))
+//}
 

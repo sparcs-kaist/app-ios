@@ -12,10 +12,9 @@ import FirebaseAnalytics
 
 struct ReviewComposeView: View {
   let lecture: Lecture
-  let onWrite: ((LectureReview) -> Void)
 
   @Environment(\.dismiss) private var dismiss
-  @Injected(\.otlLectureRepository) private var otlLectureRepository: OTLLectureRepositoryProtocol?
+  @Injected(\.v2ReviewUseCase) private var reviewUseCase: ReviewUseCaseProtocol?
 
   @State private var grade: Int = 5
   @State private var load: Int = 5
@@ -31,7 +30,7 @@ struct ReviewComposeView: View {
         TextField(
           "",
           text: $content,
-          prompt: Text("Share your thoughts on \(lecture.title.localized())..."),
+          prompt: Text("Share your thoughts on \(lecture.name)..."),
           axis: .vertical
         )
           .padding()
@@ -87,18 +86,18 @@ struct ReviewComposeView: View {
             role: .confirm,
             action: {
               Task {
-                guard let otlLectureRepository else { return }
+                guard let reviewUseCase else { return }
                 isUploading = true
                 defer { isUploading = false }
                 do {
-                  let review: LectureReview = try await otlLectureRepository.writeReview(
-                    lectureID: lecture.id,
-                    content: content,
-                    grade: grade,
-                    load: load,
-                    speech: speech
-                  )
-                  onWrite(review)
+                  try await reviewUseCase
+                    .writeReview(
+                      lectureID: lecture.id,
+                      content: content,
+                      grade: grade,
+                      load: load,
+                      speech: speech
+                    )
                   dismiss()
                 } catch {
                   showErrorAlert = true
@@ -127,8 +126,8 @@ struct ReviewComposeView: View {
   }
 }
 
-#Preview {
-  ReviewComposeView(lecture: Lecture.mock, onWrite: { _ in
-
-  })
-}
+//#Preview {
+//  ReviewComposeView(lecture: Lecture.mock, onWrite: { _ in
+//
+//  })
+//}

@@ -1,8 +1,8 @@
 //
 //  TimetableViewModel.swift
-//  soap
+//  BuddyFeature
 //
-//  Created by Soongyu Kwon on 31/12/2024.
+//  Created by Soongyu Kwon on 28/02/2026.
 //
 
 import SwiftUI
@@ -12,182 +12,250 @@ import BuddyDomain
 
 @MainActor
 @Observable
-final class TimetableViewModel {
-  enum ErrorType: Equatable {
-    case addLecture
-    case createTable
-    case deleteTable
-    case deleteLecture
-    case fetchData
+public final class TimetableViewModel {
+  @ObservationIgnored @Injected(
+    \.v2TimetableUseCase
+  ) private var v2TimetableUseCase: TimetableUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.crashlyticsService
+  ) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
+
+  public var alertState: AlertState? = nil
+  public var isAlertPresented: Bool = false
+
+  public var semesters: [Semester] = []
+  public var selectedSemester: Semester? = nil {
+    didSet {
+      timetableListTask?.cancel()
+      timetableListTask = Task {
+        await updateTimetableList()
+      }
+    }
   }
-  
-  var isLoading: Bool = false
-  public var showAlert: Bool = false
-  public var alertMessage: LocalizedStringResource = ""
-  
-  var semesters: [Semester] {
-    guard let timetableUseCase else { return [] }
 
-    return timetableUseCase.semesters
+  @ObservationIgnored private var timetableListTask: Task<Void, Never>?
+  @ObservationIgnored private var timetableLoadTask: Task<Void, Never>?
+
+  var timetables: [TimetableSummary] = [] {
+    didSet {
+      // Do not clear selectedTimetableID when it appears in timetables
+      if let selectedID = selectedTimetableID,
+         timetables.contains(where: { $0.id == selectedID }) {
+        return
+      }
+
+      selectedTimetableID = nil
+    }
   }
-
-  var selectedSemester: Semester? {
-    guard let timetableUseCase else { return nil }
-
-    return timetableUseCase.selectedSemester
+  var selectedTimetableID: Int? = nil {
+    didSet {
+      timetableLoadTask?.cancel()
+      timetableLoadTask = Task {
+        await loadTimetable()
+      }
+    }
   }
+  public var timetable: Timetable? = nil
+  var timetableWithCandidate: Timetable? {
+    guard let timetable else { return nil }
 
-  var selectedTimetable: Timetable? {
-    guard let timetableUseCase else { return nil }
+    if let candidateLecture {
+      var table = timetable
+      table.lectures.append(candidateLecture)
 
-    if let candidateLecture,
-       var timetable = timetableUseCase.selectedTimetable {
-      timetable.lectures.append(candidateLecture)
-
-      return timetable
+      return table
     }
 
-    return timetableUseCase.selectedTimetable
+    return timetable
   }
-
-  var timetableIDsForSelectedSemester: [String] {
-    guard let timetableUseCase else { return [] }
-
-    return timetableUseCase.timetableIDsForSelectedSemester
-  }
-
-  var selectedTimetableDisplayName: String {
-    guard let timetableUseCase else { return "" }
-
-    return timetableUseCase.selectedTimetableDisplayName
-  }
-
   var candidateLecture: Lecture? = nil
-  var isCandidateOverlapping: Bool {
-    guard let timetableUseCase,
-          let timetable = timetableUseCase.selectedTimetable,
-          let candidateLecture = candidateLecture else { return false }
 
-    return timetable.hasCollision(with: candidateLecture)
-  }
+  public var isLoading: Bool = true
 
-  var isEditable: Bool {
-    guard let timetableUseCase else { return false }
-    return timetableUseCase.isEditable
-  }
+  public init() { }
 
-  // MARK: - Dependencies
-  @ObservationIgnored @Injected(
-    \.timetableUseCase
-  ) private var timetableUseCase: TimetableUseCaseProtocol?
-  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
-
-  // MARK: - Functions
-
-  func fetchData() async {
-    guard let timetableUseCase else { return }
+  public func setup() async {
+    guard let timetableUseCase = v2TimetableUseCase else { return }
 
     isLoading = true
     defer { isLoading = false }
 
     do {
-      try await timetableUseCase.load()
+      semesters = try await timetableUseCase.getSemesters()
+      selectedSemester = try await timetableUseCase.getCurrentSemesters()
     } catch {
-      handleException(error: error, type: .fetchData) // TODO: Display error in a way other than .alert()
-    }
-  }
-
-  func selectPreviousSemester() async {
-    guard let timetableUseCase,
-          let selectedSemesterID = timetableUseCase.selectedSemesterID,
-          let currentIndex = timetableUseCase.semesters.firstIndex(where: { $0.id == selectedSemesterID }),
-          currentIndex > 0 else {
-      return
-    }
-    await timetableUseCase.selectSemester(timetableUseCase.semesters[currentIndex - 1].id)
-  }
-
-  func selectNextSemester() async {
-    guard let timetableUseCase,
-          let selectedSemesterID = timetableUseCase.selectedSemesterID,
-          let currentIndex = timetableUseCase.semesters.firstIndex(where: { $0.id == selectedSemesterID }),
-          currentIndex < timetableUseCase.semesters.count - 1 else {
-      return
-    }
-    await timetableUseCase.selectSemester(timetableUseCase.semesters[currentIndex + 1].id)
-  }
-
-  func selectTimetable(id: String) {
-    guard var timetableUseCase else { return }
-
-    timetableUseCase.selectedTimetableID = id
-  }
-
-  func createTable() async {
-    guard let timetableUseCase else { return }
-
-    do {
-      try await timetableUseCase.createTable()
-    } catch {
-      handleException(error: error, type: .createTable)
-    }
-  }
-
-  func deleteTable() async {
-    guard let timetableUseCase else { return }
-
-    do {
-      try await timetableUseCase.deleteTable()
-    } catch {
-      handleException(error: error, type: .deleteTable)
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to load semesters."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 
   func addLecture(lecture: Lecture) async {
-    guard let timetableUseCase else { return }
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedTimetableID else { return }
 
     do {
-      try await timetableUseCase.addLecture(lecture: lecture)
+      try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
+      timetableLoadTask?.cancel()
+      timetableLoadTask = Task {
+        await loadTimetable()
+      }
     } catch {
-      handleException(error: error, type: .addLecture)
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to add lecture."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 
   func deleteLecture(lecture: Lecture) async {
-    guard let timetableUseCase else { return }
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedTimetableID else { return }
 
     do {
-      try await timetableUseCase.deleteLecture(lecture: lecture)
+      try await timetableUseCase.deleteLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      analyticsService?.logEvent(TimetableViewEvent.lectureDeleted)
+      timetableLoadTask?.cancel()
+      timetableLoadTask = Task {
+        await loadTimetable()
+      }
     } catch {
-      handleException(error: error, type: .deleteLecture)
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to delete lecture."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
-  
-  private func handleException(error: Error, type: ErrorType) {
-    defer { showAlert = true }
-    
-    self.alertMessage = {
-      switch type {
-      case .addLecture:
-        "An unexpected error occurred while adding a lecture. Please try again later."
-      case .createTable:
-        "An unexpected error occurred while creating a new timetable. Please try again later."
-      case .deleteLecture:
-        "An unexpected error occurred while removing a lecture. Please try again later."
-      case .deleteTable:
-        "An unexpected error occurred while deleting a timetable. Please try again later."
-      case .fetchData:
-        "An unexpected error occurred while loading timetables. Please try again later."
-      }
-    }()
-      
-//    if error.isNetworkMoyaError {
-//      alertMessage = "You are not connected to the Internet."
-//      return
-//    }
 
-    crashlyticsService?.recordException(error: error)
+  func loadTimetable() async {
+    guard let timetableUseCase = v2TimetableUseCase else { return }
+
+    do {
+      let result: Timetable
+
+      if let selectedTimetableID {
+        result = try await timetableUseCase.getTable(id: selectedTimetableID)
+      } else if let selectedSemester {
+        result = try await timetableUseCase.getMyTable(semester: selectedSemester)
+      } else {
+        timetable = nil
+        return
+      }
+
+      try Task.checkCancellation()
+
+      timetable = result
+    } catch is CancellationError {
+      // ignore
+    } catch {
+      crashlyticsService?.recordException(error: error)
+      timetable = nil
+    }
+  }
+
+  func updateTimetableList() async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedSemester
+    else { return }
+
+    do {
+      let result = try await timetableUseCase.getTimetableList(semester: selectedSemester)
+
+      try Task.checkCancellation()
+
+      timetables = result
+    } catch is CancellationError {
+      // ignore
+    } catch {
+      crashlyticsService?.recordException(error: error)
+    }
+  }
+
+  func renameTable(title: String) async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedTimetableID
+    else { return }
+
+    do {
+      try await timetableUseCase.renameTable(id: selectedTimetableID, title: title)
+
+      if let index = timetables.firstIndex(where: { $0.id == selectedTimetableID }) {
+        withAnimation(.spring) {
+          timetables[index].title = title
+        }
+      }
+
+      analyticsService?.logEvent(TimetableViewEvent.tableRenamed)
+      timetableListTask?.cancel()
+      timetableListTask = Task {
+        await updateTimetableList()
+      }
+    } catch {
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to rename timetable."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
+    }
+  }
+
+  func deleteTable() async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedTimetableID
+    else { return }
+
+    do {
+      try await timetableUseCase.deleteTable(id: selectedTimetableID)
+      if let index = timetables.firstIndex(where: { $0.id == selectedTimetableID }) {
+        timetables.remove(at: index)
+      }
+
+      analyticsService?.logEvent(TimetableViewEvent.tableDeleted)
+      timetableListTask?.cancel()
+      timetableListTask = Task {
+        await updateTimetableList()
+      }
+    } catch {
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to delete timetable."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
+    }
+  }
+
+  func createTable() async {
+    guard let timetableUseCase = v2TimetableUseCase,
+          let selectedSemester else { return }
+
+    do {
+      let creation = try await timetableUseCase.createTable(semester: selectedSemester)
+      analyticsService?.logEvent(TimetableViewEvent.tableCreated)
+      timetableListTask?.cancel()
+      timetableListTask = Task {
+        await updateTimetableList()
+        selectedTimetableID = creation.id
+      }
+    } catch {
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to create timetable."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
+    }
   }
 }
-
-

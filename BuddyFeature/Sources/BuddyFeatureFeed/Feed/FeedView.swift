@@ -28,79 +28,77 @@ public struct FeedView: View {
   }
 
   public var body: some View {
-    NavigationStack {
-      ScrollView {
-        LazyVStack(spacing: 0) {
-          switch viewModel.state {
-          case .loading:
-            loadingView
-          case .loaded:
-            contentView
-          case .error(let message):
-            errorView(message: message)
-          }
-        }
-        .animation(.spring, value: viewModel.posts)
-      }
-      .disabled(viewModel.state == .loading)
-      .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed") : "")
-      .toolbarTitleDisplayMode(.inlineLarge)
-      .navigationDestination(for: String.self) { postID in
-        if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
-          FeedPostView(post: $viewModel.posts[index], onDelete: {
-            await viewModel.deletePost(postID: postID)
-          })
-          .environment(spoilerContents)
-          .addKeyboardVisibilityToEnvironment()
+    ScrollView {
+      LazyVStack(spacing: 0) {
+        switch viewModel.state {
+        case .loading:
+          loadingView
+        case .loaded:
+          contentView
+        case .error(let message):
+          errorView(message: message)
         }
       }
-      .task {
-        guard viewModel.state == .loading else { return }
+      .animation(.spring, value: viewModel.posts)
+    }
+    .disabled(viewModel.state == .loading)
+    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed") : "")
+    .toolbarTitleDisplayMode(.inlineLarge)
+    .navigationDestination(for: String.self) { postID in
+      if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
+        FeedPostView(post: $viewModel.posts[index], onDelete: {
+          await viewModel.deletePost(postID: postID)
+        })
+        .environment(spoilerContents)
+        .addKeyboardVisibilityToEnvironment()
+      }
+    }
+    .task {
+      guard viewModel.state == .loading else { return }
+      await viewModel.fetchInitialData()
+    }
+    .refreshable {
+      await viewModel.refreshFeed()
+    }
+    .toolbar {
+      ToolbarItem {
+        Button("Write", systemImage: "square.and.pencil") {
+          viewModel.writeFeedButtonTapped()
+          showComposeView = true
+        }
+      }
+      .matchedTransitionSource(id: "ComposeView", in: namespace)
+
+      ToolbarSpacer(.fixed)
+
+      ToolbarItem {
+        Button("Settings", systemImage: "gear") {
+          viewModel.openSettingsTapped()
+          showSettingsSheet = true
+        }
+      }
+    }
+    .sheet(isPresented: $showSettingsSheet) {
+      SettingsView()
+        .presentationDragIndicator(.visible)
+    }
+    .sheet(isPresented: $showComposeView, onDismiss: {
+      Task {
         await viewModel.fetchInitialData()
       }
-      .refreshable {
-        await viewModel.refreshFeed()
-      }
-      .toolbar {
-        ToolbarItem {
-          Button("Write", systemImage: "square.and.pencil") {
-            viewModel.writeFeedButtonTapped()
-            showComposeView = true
-          }
-        }
-        .matchedTransitionSource(id: "ComposeView", in: namespace)
-
-        ToolbarSpacer(.fixed)
-        
-        ToolbarItem {
-          Button("Settings", systemImage: "gear") {
-            viewModel.openSettingsTapped()
-            showSettingsSheet = true
-          }
-        }
-      }
-      .sheet(isPresented: $showSettingsSheet) {
-        SettingsView()
-          .presentationDragIndicator(.visible)
-      }
-      .sheet(isPresented: $showComposeView, onDismiss: {
-        Task {
-          await viewModel.fetchInitialData()
-        }
-      }) {
-        FeedPostComposeView()
-          .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
-          .interactiveDismissDisabled()
-      }
-      .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented, actions: {
-        Button("Okay", role: .close) { }
-      }, message: {
-        Text(viewModel.alertState?.message ?? "Unexpected Error")
-      })
-      .background {
-        BackgroundGradientView(color: .accentColor)
-          .ignoresSafeArea()
-      }
+    }) {
+      FeedPostComposeView()
+        .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
+        .interactiveDismissDisabled()
+    }
+    .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented, actions: {
+      Button("Okay", role: .close) { }
+    }, message: {
+      Text(viewModel.alertState?.message ?? "Unexpected Error")
+    })
+    .background {
+      BackgroundGradientView(color: .accentColor)
+        .ignoresSafeArea()
     }
     .analyticsScreen(name: "Feed", class: String(describing: Self.self))
   }

@@ -1,50 +1,65 @@
 //
 //  LectureReviewDTO.swift
-//  soap
+//  BuddyData
 //
-//  Created by Soongyu Kwon on 16/09/2025.
+//  Created by Soongyu Kwon on 06/03/2026.
 //
 
 import Foundation
 import BuddyDomain
 
-public struct LectureReviewDTO: Codable {
-  public let id: Int
-  public let lecture: LectureDTO
-  public let content: String
-  public let like: Int
-  public let grade: Int
-  public let load: Int
-  public let speech: Int
-  public let isDeleted: Int
-  public let isLiked: Bool
-
-  enum CodingKeys: String, CodingKey {
-    case id
-    case lecture
-    case content
-    case like
-    case grade
-    case load
-    case speech
-    case isDeleted = "is_deleted"
-    case isLiked = "userspecific_is_liked"
-  }
+struct LectureReviewDTO: Codable {
+  let id: Int
+  let courseId: Int
+  let lectureId: Int
+  let courseName: String
+  let professors: [ProfessorDTO]
+  let year: Int
+  let semester: Int
+  let content: String
+  let like: Int
+  let grade: Int
+  let load: Int
+  let speech: Int
+  let isDeleted: Bool
+  let likedByUser: Bool
 }
 
 
-public extension LectureReviewDTO {
+extension LectureReviewDTO {
   func toModel() -> LectureReview {
     LectureReview(
       id: id,
-      lecture: lecture.toModel(),
+      courseID: courseId,
+      lectureID: lectureId,
+      courseName: courseName,
+      professors: professors.compactMap { $0.toModel() },
+      year: year,
+      semester: SemesterType.fromRawValue(semester),
       content: content,
       like: like,
-      grade: grade,
-      load: load,
-      speech: speech,
-      isDeleted: isDeleted != 0,
-      isLiked: isLiked
+      grade: ratingToString(grade),
+      load: ratingToString(load),
+      speech: ratingToString(speech),
+      isDeleted: isDeleted,
+      likedByUser: likedByUser
     )
+  }
+
+  private func ratingToString(_ rating: Int) -> String {
+    switch rating {
+    case 1:
+      "F"
+    case 2:
+      "D"
+    case 3:
+      "C"
+    case 4:
+      "B"
+    case 5:
+      "A"
+    default:
+      "?"
+    }
   }
 }

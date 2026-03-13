@@ -12,10 +12,10 @@ import SwiftUI
 public struct LectureItem: Identifiable {
   public let id = UUID()
   public let lecture: Lecture
-  public let index: Int         // Index for ClassTime
+  public let lectureClass: LectureClass
 
-  public init(lecture: Lecture, index: Int) {
+  public init(lecture: Lecture, lectureClass: LectureClass) {
     self.lecture = lecture
-    self.index = index
+    self.lectureClass = lectureClass
   }
 }

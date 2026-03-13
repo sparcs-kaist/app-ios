@@ -45,10 +45,8 @@ public class TimetableService: TimetableServiceProtocol {
     self.userUseCase = TimetableUserUseCase(otlUserRepository: self.otlUserRepository!)
 
     self.timetableUseCase = TimetableUseCaseBackground(
-      userUseCase: self.userUseCase!,
       otlTimetableRepository: self.otlTimetableRepository!
     )
-    try await self.timetableUseCase!.load()
   }
 
   // MARK: - Helpers

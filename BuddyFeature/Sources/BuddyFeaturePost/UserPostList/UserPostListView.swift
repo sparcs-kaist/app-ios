@@ -34,31 +34,29 @@ struct UserPostListView: View {
       } else {
         switch viewModel.state {
         case .loading:
-          PostList(
-            posts: nil,
-            destination: { _ in
-              EmptyView()
-            }
-          )
+          PostList(posts: nil)
         case .loaded(let posts):
           PostList(
             posts: posts,
-            destination: { post in
-              PostView(post: post)
-                .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-                .onDisappear {
-                  viewModel.refreshItem(postID: post.id)
-                }
-            }, onRefresh: {
+            isLoadingMore: viewModel.isLoadingMore,
+            onRefresh: {
               await viewModel.fetchInitialPosts()
-            }, onLoadMore: {
-              await viewModel.loadNextPage()
+            },
+            onLoadMore: {
+              Task { await viewModel.loadNextPage() }
             }
           )
         case .error(let message):
           ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
+    }
+    .navigationDestination(for: AraPost.self) { post in
+      PostView(post: post)
+        .addKeyboardVisibilityToEnvironment()
+        .onDisappear {
+          viewModel.refreshItem(postID: post.id)
+        }
     }
     .disabled(viewModel.state == .loading)
     .navigationTitle(viewModel.user.profile.nickname)

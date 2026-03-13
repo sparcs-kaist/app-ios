@@ -34,9 +34,9 @@ struct PostListView: View {
       case .loading:
         PostList(
           posts: nil,
-          destination: { _ in
-            EmptyView()
-          }
+          isLoadingMore: false,
+          onRefresh: nil,
+          onLoadMore: nil
         )
       case .loaded(let posts):
         if viewModel.posts.isEmpty && !viewModel.searchKeyword.isEmpty {
@@ -44,22 +44,27 @@ struct PostListView: View {
         } else {
           PostList(
             posts: posts,
-            destination: { post in
-              PostView(post: post)
-                .id(post.id)
-                .addKeyboardVisibilityToEnvironment() // TODO: This should be changed to @FocusState, but it's somehow doesn't work with .safeAreaBar in the early stage of iOS 26.
-                .onDisappear {
-                  viewModel.refreshItem(postID: post.id)
-                }
-            }, onRefresh: {
+            isLoadingMore: viewModel.isLoadingMore,
+            onRefresh: {
               await viewModel.fetchInitialPosts()
-            }, onLoadMore: {
-              await viewModel.loadNextPage()
+            },
+            onLoadMore: {
+              viewModel.loadNextPage()
             }
           )
         }
       case .error(let message):
         ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+      }
+    }
+    .navigationDestination(for: AraPost.self) { post in
+      PostView(post: post, onPostDeleted: { postID in
+        viewModel.removePost(postID: postID)
+      })
+      .id(post.id)
+      .addKeyboardVisibilityToEnvironment()
+      .onDisappear {
+        viewModel.refreshItem(postID: post.id)
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))

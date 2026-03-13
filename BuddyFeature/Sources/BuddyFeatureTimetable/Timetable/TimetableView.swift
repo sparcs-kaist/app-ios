@@ -1,65 +1,75 @@
 //
 //  TimetableView.swift
-//  soap
+//  BuddyFeature
 //
-//  Created by Soongyu Kwon on 30/10/2024.
+//  Created by Soongyu Kwon on 28/02/2026.
 //
 
 import SwiftUI
 import BuddyDomain
-import AppIntents
 import BuddyFeatureShared
 import FirebaseAnalytics
+import TimetableUI
 
 public struct TimetableView: View {
-  @State private var viewModel = TimetableViewModel()
+  @Bindable private var viewModel: TimetableViewModel
 
-  @State private var showSearchSheet: Bool = false
   @State private var selectedLecture: LectureItem? = nil
-
+  @State private var showSearchSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
-  @FocusState private var isFocused: Bool
 
   @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
-  @AppStorage("NextClassAppIntentsSuggestion") private var siriSuggestion: Bool = true
-
-  public init() { }
 
   public var body: some View {
-    GeometryReader { proxy in
+    GeometryReader { reader in
       NavigationStack {
         ScrollView {
           VStack(spacing: 28) {
-//            SiriTipView(intent: NextClassAppIntents(), isVisible: $siriSuggestion)
+            CompactTimetableSelector(
+              semesters: viewModel.semesters,
+              selectedSemester: $viewModel.selectedSemester,
+              timetables: viewModel.timetables,
+              selectedTimetableID: $viewModel.selectedTimetableID,
+              createTimetable: {
+                await viewModel.createTable()
+              },
+              renameTimetable: { title in
+                await viewModel.renameTable(title: title)
+              },
+              deleteTimetable: {
+                await viewModel.deleteTable()
+              }
+            )
+            .redacted(reason: viewModel.isLoading ? .placeholder : [])
 
-            // Timetable Selector
-            CompactTimetableSelector()
-              .environment(viewModel)
-
-            // Timetable Gird View
-            TimetableGrid() { lectureItem in
-              selectedLecture = lectureItem
-            }
+            TimetableGrid(
+              selectedTimetable: viewModel.timetableWithCandidate,
+              candidateLecture: viewModel.candidateLecture,
+              selectedLecture: { selectedLecture in
+                self.selectedLecture = selectedLecture
+              },
+              onDelete: { lecture in
+                Task {
+                  await viewModel.deleteLecture(lecture: lecture)
+                }
+              },
+              placement: .view
+            )
+            .animation(nil, value: viewModel.selectedSemester)
             .padding()
             .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
             .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-            .frame(height: proxy.size.height * 0.8)
-            .environment(viewModel)
+            .frame(height: reader.size.height * 0.8)
 
-            TimetableCreditGraph()
+            TimetableCreditGraph(selectedTimetable: viewModel.timetable)
               .padding()
               .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
               .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-              .environment(viewModel)
 
-            // Timetable Summary View
-            TimetableSummary()
+            TimetableSummaryView(selectedTimetable: viewModel.timetable)
               .padding()
               .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
               .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-              .environment(viewModel)
           }
           .padding()
         }
@@ -67,7 +77,7 @@ public struct TimetableView: View {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
         }
-        .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Timetable") : "")
+        .navigationTitle("Timetable")
         .toolbarTitleDisplayMode(.inlineLarge)
         .background(Color.systemGroupedBackground)
         .toolbar {
@@ -75,7 +85,7 @@ public struct TimetableView: View {
             Button("Add Lecture", systemImage: "plus") {
               showSearchSheet = true
             }
-            .disabled(!viewModel.isEditable)
+            .disabled(viewModel.selectedTimetableID == nil)
           }
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
@@ -84,35 +94,57 @@ public struct TimetableView: View {
               lecture: item.lecture,
               onAdd: nil,
               isOverlapping: false,
-              classTime: item.lecture.classTimes[item.index]
+              lectureClass: item.lectureClass
             )
-              .presentationDragIndicator(.visible)
-              .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+            .presentationDetents([.medium, .large])
           }
         }
         .sheet(isPresented: $showSearchSheet) {
-          LectureSearchView(detent: $selectedDetent)
+          if let selectedSemester = viewModel.selectedSemester {
+            LectureSearchView(
+              detent: $selectedDetent,
+              timetableDisplayName: displayName,
+              selectedSemester: selectedSemester,
+              candidateLecture: $viewModel.candidateLecture,
+              onAdd: { lecture in
+                Task {
+                  await viewModel.addLecture(lecture: lecture)
+                }
+              }
+            )
             .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
-            .environment(viewModel)
             .onAppear {
               selectedDetent = .medium
             }
+          }
         }
-        .task {
-          // fetch data
-          await viewModel.fetchData()
-        }
+        .alert(
+          viewModel.alertState?.title ?? "Error",
+          isPresented: $viewModel.isAlertPresented,
+          actions: {
+            Button("Okay", role: .close) { }
+          }, message: {
+            Text(viewModel.alertState?.message ?? "Unexpected Error")
+          }
+        )
+        .analyticsScreen(name: "Timetable", class: String(describing: Self.self))
       }
     }
-    .alert("Error", isPresented: $viewModel.showAlert, actions: {
-      Button("Okay", role: .close) { }
-    }, message: {
-      Text(viewModel.alertMessage)
-    })
-    .analyticsScreen(name: "Timetable", class: String(describing: Self.self))
   }
-}
 
-#Preview {
-  TimetableView()
+  private var displayName: String {
+    guard let timetable = selectedTimetable else {
+      return "My Table"
+    }
+    return timetable.title.isEmpty ? "Untitled" : timetable.title
+  }
+
+  private var selectedTimetable: TimetableSummary? {
+    viewModel.timetables.first(where: { $0.id == viewModel.selectedTimetableID })
+  }
+
+  public init(_ viewModel: TimetableViewModel) {
+    self.viewModel = viewModel
+  }
 }

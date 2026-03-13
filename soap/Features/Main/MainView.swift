@@ -6,16 +6,30 @@
 //
 
 import SwiftUI
+import Observation
+import Factory
 import BuddyDomain
 import BuddyFeatureTimetable
 import BuddyFeatureFeed
 import BuddyFeaturePost
 import BuddyFeatureTaxi
 import BuddyFeatureSearch
+import MapKit
 
 struct MainView: View {
   @State private var viewModel = MainViewModel()
+  @State private var timetableViewModel = TimetableViewModel()
+  @State private var todayLecturesAccessoryViewModel = TodayLecturesAccessoryViewModel()
+  @State private var extendTimetableView: Bool = false
+
   @State private var selectedTab: TabSelection = .feed
+
+  @State private var feedPath = NavigationPath()
+  @State private var boardListPath = NavigationPath()
+  @State private var taxiPath = NavigationPath()
+  @State private var searchPath = NavigationPath()
+
+  @Namespace private var namespace
 
   private var feedViewModel: FeedViewModelProtocol
   private var boardListViewModel: BoardListViewModelProtocol
@@ -28,26 +42,59 @@ struct MainView: View {
   var body: some View {
     TabView(selection: $selectedTab) {
       Tab("Feed", systemImage: "text.rectangle.page", value: .feed) {
-        FeedView(feedViewModel)
+        NavigationStack(path: $feedPath) {
+          FeedView(feedViewModel)
+        }
       }
 
       Tab("Boards", systemImage: "tray.full", value: .board) {
-        BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
+        NavigationStack(path: $boardListPath) {
+          BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
+        }
       }
 
-      Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
-        TimetableView()
-      }
+//      if UIDevice.current.userInterfaceIdiom != .phone {
+        Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
+          TimetableView(timetableViewModel)
+        }
+//      }
+
+//      Tab("Map", systemImage: "map", value: .map) {
+//        Map()
+//      }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
-        TaxiListView()
+        NavigationStack(path: $taxiPath) {
+          TaxiListView()
+        }
       }
 
       Tab(value: .search, role: .search) {
-        SearchView()
+        NavigationStack(path: $searchPath) {
+          SearchView()
+        }
       }
     }
     .tabBarMinimizeBehavior(.onScrollDown)
+//    .tabViewBottomAccessory(isEnabled: isTabViewAccessoryEnabled) {
+//      TimelineView(.animation(minimumInterval: 1)) { context in
+//        TodayLecturesAccessoryView(context: context, viewModel: todayLecturesAccessoryViewModel)
+//          .matchedTransitionSource(id: "TimetableViewSource", in: namespace)
+//          .onTapGesture {
+//            extendTimetableView = true
+//          }
+//      }
+//
+//    }
+    .fullScreenCover(isPresented: $extendTimetableView) {
+      TimetableView(timetableViewModel)
+        .safeAreaInset(edge: .top) {
+          Capsule()
+            .fill(.primary.secondary)
+            .frame(width: 36, height: 4)
+        }
+        .navigationTransition(.zoom(sourceID: "TimetableViewSource", in: namespace))
+    }
     .onOpenURL { url in
       guard let deepLink = DeepLink(url: url) else { return }
       handle(deepLink: deepLink)
@@ -66,6 +113,10 @@ struct MainView: View {
     } message: {
       Text(viewModel.alertState?.message ?? "Unexpected Error")
     }
+    .task {
+//      await todayLecturesAccessoryViewModel.setup()
+      await timetableViewModel.setup()
+    }
     .tabViewStyle(.tabBarOnly)
   }
 
@@ -81,6 +132,26 @@ struct MainView: View {
       Task {
         await viewModel.resolvePost(id: id)
       }
+    }
+  }
+
+
+
+  private var isTabViewAccessoryEnabled: Bool {
+    guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
+    switch selectedTab {
+    case .feed:
+      return feedPath.isEmpty
+    case .board:
+      return boardListPath.isEmpty
+    case .taxi:
+      return taxiPath.isEmpty
+    case .search:
+      return searchPath.isEmpty
+    case .map:
+      return true
+    default:
+      return false
     }
   }
 }

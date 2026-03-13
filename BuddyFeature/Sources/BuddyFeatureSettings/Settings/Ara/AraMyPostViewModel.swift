@@ -18,6 +18,7 @@ protocol AraMyPostViewModelProtocol: Observable {
   var user: AraUser? { get }
   
   var searchKeyword: String { get set }
+  var isLoadingMore: Bool { get }
   
   func bind()
   func fetchInitialPosts() async

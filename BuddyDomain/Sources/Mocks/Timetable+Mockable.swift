@@ -1,8 +1,8 @@
 //
 //  Timetable+Mockable.swift
-//  soap
+//  BuddyDomain
 //
-//  Created by Soongyu Kwon on 28/12/2024.
+//  Created by Soongyu Kwon on 12/03/2026.
 //
 
 import Foundation
@@ -16,7 +16,7 @@ public extension Timetable {
             lectures: Lecture.mockList
         )
     }
-    
+
     static var mockList: [Timetable] {
         [
             Timetable(
@@ -25,15 +25,11 @@ public extension Timetable {
             ),
             Timetable(
                 id: "1",
-                lectures: Array(Lecture.mockList.prefix(4))
-            ),
-            Timetable(
-                id: "2",
                 lectures: Array(Lecture.mockList.prefix(1))
             ),
             Timetable(
-                id: "3",
-                lectures: Array(Lecture.mockList.prefix(5))
+                id: "2",
+                lectures: []
             )
         ]
     }
