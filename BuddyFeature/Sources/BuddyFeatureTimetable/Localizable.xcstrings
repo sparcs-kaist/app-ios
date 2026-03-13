@@ -924,22 +924,100 @@
       }
     },
     "Unable to add lecture." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to add lecture."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의를 추가할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to create timetable." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to create timetable."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표를 생성할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to delete lecture." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to delete lecture."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의를 삭제할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to delete timetable." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to delete timetable."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표를 삭제할 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to load semesters." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to load semesters."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "학기를 불러올 수 없습니다."
+          }
+        }
+      }
     },
     "Unable to rename timetable." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to rename timetable."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표 이름을 변경할 수 없습니다."
+          }
+        }
+      }
     },
     "Unknown" : {
       "localizations" : {
