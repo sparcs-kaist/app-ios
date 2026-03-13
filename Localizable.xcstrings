@@ -9,7 +9,8 @@
             "value" : "%1$@ %2$@"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "%@ at %@" : {
       "localizations" : {
@@ -246,9 +247,6 @@
           }
         }
       }
-    },
-    "Map" : {
-
     },
     "Next Class" : {
       "localizations" : {
