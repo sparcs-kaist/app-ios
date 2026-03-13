@@ -53,11 +53,11 @@ struct MainView: View {
         }
       }
 
-      if UIDevice.current.userInterfaceIdiom != .phone {
+//      if UIDevice.current.userInterfaceIdiom != .phone {
         Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
           TimetableView(timetableViewModel)
         }
-      }
+//      }
 
 //      Tab("Map", systemImage: "map", value: .map) {
 //        Map()
@@ -76,16 +76,16 @@ struct MainView: View {
       }
     }
     .tabBarMinimizeBehavior(.onScrollDown)
-    .tabViewBottomAccessory(isEnabled: isTabViewAccessoryEnabled) {
-      TimelineView(.animation(minimumInterval: 1)) { context in
-        TodayLecturesAccessoryView(context: context, viewModel: todayLecturesAccessoryViewModel)
-          .matchedTransitionSource(id: "TimetableViewSource", in: namespace)
-          .onTapGesture {
-            extendTimetableView = true
-          }
-      }
-
-    }
+//    .tabViewBottomAccessory(isEnabled: isTabViewAccessoryEnabled) {
+//      TimelineView(.animation(minimumInterval: 1)) { context in
+//        TodayLecturesAccessoryView(context: context, viewModel: todayLecturesAccessoryViewModel)
+//          .matchedTransitionSource(id: "TimetableViewSource", in: namespace)
+//          .onTapGesture {
+//            extendTimetableView = true
+//          }
+//      }
+//
+//    }
     .fullScreenCover(isPresented: $extendTimetableView) {
       TimetableView(timetableViewModel)
         .safeAreaInset(edge: .top) {
@@ -114,7 +114,7 @@ struct MainView: View {
       Text(viewModel.alertState?.message ?? "Unexpected Error")
     }
     .task {
-      await todayLecturesAccessoryViewModel.setup()
+//      await todayLecturesAccessoryViewModel.setup()
       await timetableViewModel.setup()
     }
     .tabViewStyle(.tabBarOnly)
