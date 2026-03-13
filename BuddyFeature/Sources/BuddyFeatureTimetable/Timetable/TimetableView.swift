@@ -119,6 +119,15 @@ public struct TimetableView: View {
             }
           }
         }
+        .alert(
+          viewModel.alertState?.title ?? "Error",
+          isPresented: $viewModel.isAlertPresented,
+          actions: {
+            Button("Okay", role: .close) { }
+          }, message: {
+            Text(viewModel.alertState?.message ?? "Unexpected Error")
+          }
+        )
         .analyticsScreen(name: "Timetable", class: String(describing: Self.self))
       }
     }
