@@ -53,6 +53,9 @@
         }
       }
     },
+    "Add My Schedule" : {
+
+    },
     "Add to \"%@\"" : {
       "localizations" : {
         "en" : {
@@ -356,6 +359,9 @@
     "D" : {
       "shouldTranslate" : false
     },
+    "Day" : {
+
+    },
     "Delete" : {
       "localizations" : {
         "en" : {
@@ -530,6 +536,9 @@
         }
       }
     },
+    "Location" : {
+
+    },
     "More" : {
       "localizations" : {
         "en" : {
@@ -561,6 +570,9 @@
           }
         }
       }
+    },
+    "New Schedule" : {
+
     },
     "New Table" : {
       "localizations" : {
@@ -890,6 +902,9 @@
           }
         }
       }
+    },
+    "Title" : {
+
     },
     "Translate" : {
       "localizations" : {

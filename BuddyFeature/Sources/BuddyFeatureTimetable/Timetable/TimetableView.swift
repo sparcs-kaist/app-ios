@@ -16,6 +16,7 @@ public struct TimetableView: View {
 
   @State private var selectedLecture: LectureItem? = nil
   @State private var showSearchSheet: Bool = false
+  @State private var showScheduleCreationSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
 
   @Environment(\.colorScheme) private var colorScheme
@@ -82,8 +83,16 @@ public struct TimetableView: View {
         .background(Color.systemGroupedBackground)
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
-            Button("Add Lecture", systemImage: "plus") {
-              showSearchSheet = true
+            Menu {
+              Button("Add Lecture", systemImage: "plus") {
+                showSearchSheet = true
+              }
+
+              Button("Add My Schedule", systemImage: "calendar.badge.plus") {
+                showScheduleCreationSheet = true
+              }
+            } label: {
+              Label("Add", systemImage: "plus")
             }
             .disabled(viewModel.selectedTimetableID == nil)
           }
@@ -118,6 +127,9 @@ public struct TimetableView: View {
               selectedDetent = .medium
             }
           }
+        }
+        .sheet(isPresented: $showScheduleCreationSheet) {
+          ScheduleCreationView()
         }
         .alert(
           viewModel.alertState?.title ?? "Error",
