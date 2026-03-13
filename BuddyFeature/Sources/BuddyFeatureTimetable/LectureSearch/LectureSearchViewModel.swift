@@ -34,9 +34,14 @@ class LectureSearchViewModel {
   @ObservationIgnored @Injected(
     \.v2LectureUseCase
   ) private var lectureUseCase: LectureUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.crashlyticsService
+  ) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   func bind(selectedSemester: Semester) {
-    print("[HERE] BINDING")
     cancellables.removeAll()
 
     let searchPublisher = searchKeywordSubject
@@ -64,8 +69,6 @@ class LectureSearchViewModel {
     guard let lectureUseCase else { return }
     guard !searchKeyword.isEmpty else { return }
 
-    print("[HERE] fetching lectures")
-
     do {
       let request = LectureSearchRequest(
         semester: selectedSemester,
@@ -74,11 +77,11 @@ class LectureSearchViewModel {
         offset: 0
       )
       let page: [CourseLecture] = try await lectureUseCase.searchLecture(request: request)
-      print("[HERE] got page")
       self.courses = page
       self.state = .loaded
+      analyticsService?.logEvent(LectureSearchViewEvent.lecturesSearched)
     } catch {
-      print(error)
+      crashlyticsService?.recordException(error: error)
       state = .error(message: error.localizedDescription)
     }
   }

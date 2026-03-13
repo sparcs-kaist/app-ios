@@ -29,6 +29,12 @@ class LectureDetailViewModel {
   @ObservationIgnored @Injected(
     \.v2CourseUseCase
   ) private var courseUseCase: CourseUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.crashlyticsService
+  ) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   // MARK: - Functions
 
@@ -37,7 +43,9 @@ class LectureDetailViewModel {
 
     do {
       self.course = try await courseUseCase.getCourse(courseID: courseID)
+      analyticsService?.logEvent(LectureDetailViewEvent.courseLoaded)
     } catch {
+      crashlyticsService?.recordException(error: error)
       self.state = .error(message: error.localizedDescription)
     }
   }
@@ -55,7 +63,9 @@ class LectureDetailViewModel {
         )
       self.reviews = page.reviews
       self.state = .loaded
+      analyticsService?.logEvent(LectureDetailViewEvent.reviewsLoaded)
     } catch {
+      crashlyticsService?.recordException(error: error)
       self.state = .error(message: error.localizedDescription)
     }
   }

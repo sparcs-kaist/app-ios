@@ -16,6 +16,15 @@ public final class TimetableViewModel {
   @ObservationIgnored @Injected(
     \.v2TimetableUseCase
   ) private var v2TimetableUseCase: TimetableUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.crashlyticsService
+  ) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
+
+  public var alertState: AlertState? = nil
+  public var isAlertPresented: Bool = false
 
   public var semesters: [Semester] = []
   public var selectedSemester: Semester? = nil {
@@ -78,7 +87,12 @@ public final class TimetableViewModel {
       semesters = try await timetableUseCase.getSemesters()
       selectedSemester = try await timetableUseCase.getCurrentSemesters()
     } catch {
-      // HANDLE EXCEPTION
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to load semesters."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 
@@ -88,12 +102,18 @@ public final class TimetableViewModel {
 
     do {
       try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
       timetableLoadTask?.cancel()
       timetableLoadTask = Task {
         await loadTimetable()
       }
     } catch {
-      // HANDLE EXCEPTION
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to add lecture."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 
@@ -103,12 +123,18 @@ public final class TimetableViewModel {
 
     do {
       try await timetableUseCase.deleteLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      analyticsService?.logEvent(TimetableViewEvent.lectureDeleted)
       timetableLoadTask?.cancel()
       timetableLoadTask = Task {
         await loadTimetable()
       }
     } catch {
-      // HANDLE EXCEPTION
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to delete lecture."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 
@@ -133,7 +159,7 @@ public final class TimetableViewModel {
     } catch is CancellationError {
       // ignore
     } catch {
-      // HANDLE EXCEPTION
+      crashlyticsService?.recordException(error: error)
       timetable = nil
     }
   }
@@ -152,7 +178,7 @@ public final class TimetableViewModel {
     } catch is CancellationError {
       // ignore
     } catch {
-      // HANDLE EXCCEPTION
+      crashlyticsService?.recordException(error: error)
     }
   }
 
@@ -170,12 +196,18 @@ public final class TimetableViewModel {
         }
       }
 
+      analyticsService?.logEvent(TimetableViewEvent.tableRenamed)
       timetableListTask?.cancel()
       timetableListTask = Task {
         await updateTimetableList()
       }
     } catch {
-      // HANDLE EXCEPTION
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to rename timetable."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 
@@ -190,12 +222,18 @@ public final class TimetableViewModel {
         timetables.remove(at: index)
       }
 
+      analyticsService?.logEvent(TimetableViewEvent.tableDeleted)
       timetableListTask?.cancel()
       timetableListTask = Task {
         await updateTimetableList()
       }
     } catch {
-      // HANDLE EXCEPTION
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to delete timetable."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 
@@ -205,13 +243,19 @@ public final class TimetableViewModel {
 
     do {
       let creation = try await timetableUseCase.createTable(semester: selectedSemester)
+      analyticsService?.logEvent(TimetableViewEvent.tableCreated)
       timetableListTask?.cancel()
       timetableListTask = Task {
         await updateTimetableList()
         selectedTimetableID = creation.id
       }
     } catch {
-      // HANDLE EXCEPTION
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to create timetable."),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
     }
   }
 }

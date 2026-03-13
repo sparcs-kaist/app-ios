@@ -16,6 +16,9 @@ public final class TodayLecturesAccessoryViewModel {
   @ObservationIgnored @Injected(
     \.v2TimetableUseCase
   ) private var v2TimetableUseCase: TimetableUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.crashlyticsService
+  ) private var crashlyticsService: CrashlyticsServiceProtocol?
 
   public var semesters: [Semester] = []
   public var selectedSemester: Semester? = nil
@@ -41,6 +44,7 @@ public final class TodayLecturesAccessoryViewModel {
         timetable = nil
       }
     } catch {
+      crashlyticsService?.recordException(error: error)
       semesters = []
       selectedSemester = nil
       timetable = nil

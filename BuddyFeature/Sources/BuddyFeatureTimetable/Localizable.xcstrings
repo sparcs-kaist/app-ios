@@ -923,6 +923,24 @@
         }
       }
     },
+    "Unable to add lecture." : {
+
+    },
+    "Unable to create timetable." : {
+
+    },
+    "Unable to delete lecture." : {
+
+    },
+    "Unable to delete timetable." : {
+
+    },
+    "Unable to load semesters." : {
+
+    },
+    "Unable to rename timetable." : {
+
+    },
     "Unknown" : {
       "localizations" : {
         "en" : {

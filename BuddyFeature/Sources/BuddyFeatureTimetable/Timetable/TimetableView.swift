@@ -119,6 +119,7 @@ public struct TimetableView: View {
             }
           }
         }
+        .analyticsScreen(name: "Timetable", class: String(describing: Self.self))
       }
     }
   }

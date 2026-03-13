@@ -23,6 +23,12 @@ public class CourseViewModel {
     \.v2CourseUseCase
   ) private var courseUseCase: CourseUseCaseProtocol?
   @ObservationIgnored @Injected(\.v2ReviewUseCase) private var reviewUseCase: ReviewUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.crashlyticsService
+  ) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.analyticsService
+  ) private var analyticsService: AnalyticsServiceProtocol?
 
   // MARK: - Properties
   public var course: Course? = nil
@@ -38,8 +44,10 @@ public class CourseViewModel {
     guard let courseUseCase else { return }
     do {
       self.course = try await courseUseCase.getCourse(courseID: courseID)
+      analyticsService?.logEvent(CourseViewEvent.courseLoaded)
       await fetchReviews(courseID: courseID)
     } catch {
+      crashlyticsService?.recordException(error: error)
       self.state = .error(message: error.localizedDescription)
     }
   }
@@ -52,7 +60,9 @@ public class CourseViewModel {
       self.reviewPage = page
       self.reviews = page.reviews
       self.state = .loaded
+      analyticsService?.logEvent(CourseViewEvent.reviewsLoaded)
     } catch {
+      crashlyticsService?.recordException(error: error)
       self.state = .error(message: error.localizedDescription)
     }
   }
