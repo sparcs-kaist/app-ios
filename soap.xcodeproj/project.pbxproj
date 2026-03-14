@@ -55,6 +55,7 @@
 		8BE5395B2F2B95A600735E7A /* BuddyFeatureSettings in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE5395A2F2B95A600735E7A /* BuddyFeatureSettings */; };
 		8BE5395D2F2CA4D300735E7A /* BuddyFeaturePost in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE5395C2F2CA4D300735E7A /* BuddyFeaturePost */; };
 		8BE804172E49EE3A00904AC6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
+		8BFA41022F656BC80008D1B9 /* BuddyFeatureMap in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFA41012F656BC80008D1B9 /* BuddyFeatureMap */; };
 		8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2682E92A3A0005D8639 /* BuddyDataCore */; };
 		8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26C2E92A52D005D8639 /* BuddyDataCore */; };
 		8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26E2E92A52D005D8639 /* BuddyDomain */; };
@@ -307,6 +308,7 @@
 				8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */,
 				8B2AF3602E1DB70200648F86 /* SwiftyBeaver in Frameworks */,
 				8B6B2B4F2E2878CD00D13D50 /* NukeUI in Frameworks */,
+				8BFA41022F656BC80008D1B9 /* BuddyFeatureMap in Frameworks */,
 				8BE537AF2F27833F00735E7A /* BuddyDataiOS in Frameworks */,
 				8BE5395D2F2CA4D300735E7A /* BuddyFeaturePost in Frameworks */,
 				8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */,
@@ -541,6 +543,7 @@
 				8BE5395C2F2CA4D300735E7A /* BuddyFeaturePost */,
 				8B89693C2F2CCC8A00955B84 /* BuddyFeatureTaxi */,
 				8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */,
+				8BFA41012F656BC80008D1B9 /* BuddyFeatureMap */,
 			);
 			productName = soap;
 			productReference = 8B8DFBE62CCF771700AB82CC /* soap.app */;
@@ -1722,6 +1725,10 @@
 		8BE5395C2F2CA4D300735E7A /* BuddyFeaturePost */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyFeaturePost;
+		};
+		8BFA41012F656BC80008D1B9 /* BuddyFeatureMap */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyFeatureMap;
 		};
 		8BFAD2682E92A3A0005D8639 /* BuddyDataCore */ = {
 			isa = XCSwiftPackageProductDependency;

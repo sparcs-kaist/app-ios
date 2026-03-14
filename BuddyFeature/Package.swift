@@ -18,6 +18,7 @@ let package = Package(
         .library(name: "BuddyFeatureTaxi", targets: ["BuddyFeatureTaxi"]),
         .library(name: "BuddyFeatureSettings", targets: ["BuddyFeatureSettings"]),
         .library(name: "BuddyFeatureSearch", targets: ["BuddyFeatureSearch"]),
+        .library(name: "BuddyFeatureMap", targets: ["BuddyFeatureMap"]),
         .library(name: "BuddyFeatureShared", targets: ["BuddyFeatureShared"])
     ],
     dependencies: [
@@ -119,6 +120,17 @@ let package = Package(
             "BuddyFeatureTimetable",
             "BuddyFeaturePost",
             "BuddyFeatureTaxi",
+            .product(
+              name: "FirebaseAnalytics",
+              package: "firebase-ios-sdk"
+            ),
+          ]
+        ),
+        .target(
+          name: "BuddyFeatureMap",
+          dependencies: [
+            "BuddyDomain",
+            "BuddyFeatureShared",
             .product(
               name: "FirebaseAnalytics",
               package: "firebase-ios-sdk"
