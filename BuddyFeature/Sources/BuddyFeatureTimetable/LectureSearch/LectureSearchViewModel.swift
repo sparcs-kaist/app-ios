@@ -71,7 +71,10 @@ class LectureSearchViewModel {
 
     do {
       let request = LectureSearchRequest(
-        semester: selectedSemester,
+        year: selectedSemester.year,
+        semester: selectedSemester.semesterType.intValue,
+        department: [],
+        level: [],
         keyword: searchKeyword,
         limit: 100,
         offset: 0
