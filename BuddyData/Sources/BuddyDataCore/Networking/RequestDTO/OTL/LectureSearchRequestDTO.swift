@@ -14,7 +14,7 @@ public struct LectureSearchRequestDTO: Codable {
   let keyword: String
   let type: [String]
   let department: [String]
-  let level: String
+  let level: [String]
   let limit: Int
   let offset: Int
 }
@@ -23,12 +23,12 @@ public struct LectureSearchRequestDTO: Codable {
 extension LectureSearchRequestDTO {
   static func fromModel(model: LectureSearchRequest) -> LectureSearchRequestDTO {
     LectureSearchRequestDTO(
-      year: model.semester.year,
-      semester: model.semester.semesterType.intValue,
+      year: model.year,
+      semester: model.semester,
       keyword: model.keyword,
       type: [],
-      department: [],
-      level: "ALL",
+      department: model.department,
+      level: model.level,
       limit: model.limit,
       offset: model.offset
     )

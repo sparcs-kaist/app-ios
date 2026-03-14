@@ -38,6 +38,8 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
           "year": request.year,
           "semester": request.semester,
           "keyword": request.keyword,
+          "department": request.department,
+          "level": request.level,
           "limit": request.limit,
           "offset": request.offset
         ], encoding: URLEncoding.default)
