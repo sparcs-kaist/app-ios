@@ -530,8 +530,12 @@ struct MapView: View {
     )
   ]
 
+  @State private var selectedLocation: CampusLocation?
+  @State private var showActionSheet: Bool = true
+  @State private var actionSheetDetent: PresentationDetent = .height(80)
+
   var body: some View {
-    Map(position: $position) {
+    Map(position: $position, selection: $selectedLocation) {
       UserAnnotation()
 
       ForEach(locations, id: \.id) { location in
@@ -547,6 +551,18 @@ struct MapView: View {
     .mapStyle(.standard(pointsOfInterest: .excludingAll))
     .mapControls {
       MapUserLocationButton()
+    }
+    .sheet(isPresented: $showActionSheet) {
+      actionSheet
+        .interactiveDismissDisabled()
+        .presentationBackgroundInteraction(.enabled)
+        .presentationDetents([.height(80), .height(350), .medium, .large], selection: $actionSheetDetent)
+    }
+  }
+
+  var actionSheet: some View {
+    VStack {
+
     }
   }
 }
