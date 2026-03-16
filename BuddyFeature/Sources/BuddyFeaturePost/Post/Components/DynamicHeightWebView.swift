@@ -35,73 +35,73 @@ struct DynamicHeightWebView: UIViewRepresentable {
   func updateUIView(_ uiView: WKWebView, context: Context) {
     // Construct the full HTML document with the necessary viewport and styling.
     // This ensures content scales correctly and avoids unwanted margins.
-    let fullHTML = """
-        <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-          <style>
-            html, body {
-              margin: 0;
-              padding: 0;
-              width: 100%;
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-              background-color: #fff;
-              color: #000;
-            }
-        
-            @media (prefers-color-scheme: dark) {
-              html, body {
-                background-color: #000;
-                color: #fff;
-              }
-        
-              html, body,
-              [style*="background-color"],
-              [style*="background:#fff"],
-              [style*="background:white"],
-              [style*="background-color: white"],
-              [style*="background-color:#fff"],
-              [style*="background-color:#ffffff"],
-              [style*="background-color:rgb(255,255,255)"] {
-                background-color: transparent !important;
-                color: #fff !important;
-              }
-        
-              [style*="color:#000"],
-              [style*="color:#000000"],
-              [style*="color:#000000;"],
-              [style*="color:#111"],
-              [style*="color:#111111"],
-              [style*="color:rgb(0,0,0)"],
-              [style*="color:hsl(0,0%,0%)"],
-              [style*="color:hsl(0, 0%, 0%)"] {
-                color: #fff !important;
-              }
-        
-              *, *::before, *::after {
-                color: #fff !important;
-              }
-        
-              a { color: #80bfff; }
-            }
-        
-            img {
-              max-width: 100%;
-              height: auto;
-              display: block;
-            }
-        
-            p {
-              margin: 0 0 1em;
-            }
-          </style>
-        </head>
-        <body>
-          \(htmlString)
-        </body>
-        </html>
-        """
-    uiView.loadHTMLString(fullHTML, baseURL: nil)
+//    let fullHTML = """
+//        <html>
+//        <head>
+//          <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+//          <style>
+//            html, body {
+//              margin: 0;
+//              padding: 0;
+//              width: 100%;
+//              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+//              background-color: #fff;
+//              color: #000;
+//            }
+//        
+//            @media (prefers-color-scheme: dark) {
+//              html, body {
+//                background-color: #000;
+//                color: #fff;
+//              }
+//        
+//              html, body,
+//              [style*="background-color"],
+//              [style*="background:#fff"],
+//              [style*="background:white"],
+//              [style*="background-color: white"],
+//              [style*="background-color:#fff"],
+//              [style*="background-color:#ffffff"],
+//              [style*="background-color:rgb(255,255,255)"] {
+//                background-color: transparent !important;
+//                color: #fff !important;
+//              }
+//        
+//              [style*="color:#000"],
+//              [style*="color:#000000"],
+//              [style*="color:#000000;"],
+//              [style*="color:#111"],
+//              [style*="color:#111111"],
+//              [style*="color:rgb(0,0,0)"],
+//              [style*="color:hsl(0,0%,0%)"],
+//              [style*="color:hsl(0, 0%, 0%)"] {
+//                color: #fff !important;
+//              }
+//        
+//              *, *::before, *::after {
+//                color: #fff !important;
+//              }
+//        
+//              a { color: #80bfff; }
+//            }
+//        
+//            img {
+//              max-width: 100%;
+//              height: auto;
+//              display: block;
+//            }
+//        
+//            p {
+//              margin: 0 0 1em;
+//            }
+//          </style>
+//        </head>
+//        <body>
+//          \(htmlString)
+//        </body>
+//        </html>
+//        """
+//    uiView.loadHTMLString(fullHTML, baseURL: nil)
   }
   
   // Creates the coordinator that acts as the WKNavigationDelegate.

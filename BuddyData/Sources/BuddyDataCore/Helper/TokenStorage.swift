@@ -10,7 +10,10 @@ import Combine
 import KeychainSwift
 import BuddyDomain
 
-public final class TokenStorage: TokenStorageProtocol {
+/// TokenStorage stores non-Sendable types (KeychainSwift, CurrentValueSubject).
+/// We assert thread-safety at the call sites and confine usage appropriately.
+/// Use @unchecked Sendable to satisfy protocol conformance under Swift's strict concurrency checking.
+public final class TokenStorage: @unchecked Sendable, TokenStorageProtocol {
   private let keychain = KeychainSwift()
   private static let accessTokenKey = "accessToken"
   private static let refreshTokenKey = "refreshToken"
@@ -108,3 +111,4 @@ public final class TokenStorage: TokenStorageProtocol {
     return Date(timeIntervalSince1970: exp)
   }
 }
+

@@ -12,14 +12,21 @@ import BuddyDomain
 public final class AraBoardUseCase: AraBoardUseCaseProtocol {
   private let feature: String = "AraBoard"
   private let araBoardRepository: AraBoardRepositoryProtocol
+  private let tokenStorage: TokenStorageProtocol
   private let crashlyticsService: CrashlyticsServiceProtocol?
 
   public init(
     araBoardRepository: AraBoardRepositoryProtocol,
+    tokenStorage: TokenStorageProtocol,
     crashlyticsService: CrashlyticsServiceProtocol?
   ) {
     self.araBoardRepository = araBoardRepository
+    self.tokenStorage = tokenStorage
     self.crashlyticsService = crashlyticsService
+  }
+
+  public func getAccessToken() -> String? {
+    tokenStorage.getAccessToken()
   }
 
   public func fetchBoards() async throws -> [AraBoard] {

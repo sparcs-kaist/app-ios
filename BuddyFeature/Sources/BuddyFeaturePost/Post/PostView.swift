@@ -246,18 +246,14 @@ public struct PostView: View {
         ))
     }
 
-    if let content = viewModel.post.content {
-      DynamicHeightWebView(
-        htmlString: content,
-        dynamicHeight: $htmlHeight,
-        onLinkTapped: { url in
-          self.tappedURL = url
-        }
-      )
-      .frame(height: htmlHeight)
-    } else {
-      ProgressView()
-    }
+    WebView(viewModel.page)
+      .scrollDisabled(true)
+      .webViewOnScrollGeometryChange(for: CGFloat.self, of: { geometry in
+        geometry.contentSize.height
+      }, action: { _, newHeight in
+        htmlHeight = newHeight
+      })
+      .frame(height: max(1, htmlHeight))
   }
 
   private var header: some View {
