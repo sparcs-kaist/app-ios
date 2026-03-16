@@ -46,16 +46,27 @@ struct MapView: View {
     .mapStyle(.standard(pointsOfInterest: .excludingAll))
     .mapControls {
       MapUserLocationButton()
+      MapScaleView()
+      MapCompass()
+    }
+    .safeAreaInset(edge: .bottom, spacing: 0) {
+      Rectangle()
+        .foregroundStyle(.clear)
+        .frame(height: 64)
     }
     .sheet(isPresented: $showActionSheet) {
-      actionSheet
+      BottomSheetView(sheetDetent: $actionSheetDetent)
         .interactiveDismissDisabled()
         .presentationBackgroundInteraction(.enabled)
-        .presentationDetents([.height(80), .height(350), .medium, .large], selection: $actionSheetDetent)
+        .presentationDetents([.height(80), .height(350), .large], selection: $actionSheetDetent)
     }
   }
+}
 
-  var actionSheet: some View {
+struct BottomSheetView: View {
+  @Binding var sheetDetent: PresentationDetent
+
+  var body: some View {
     VStack {
 
     }
