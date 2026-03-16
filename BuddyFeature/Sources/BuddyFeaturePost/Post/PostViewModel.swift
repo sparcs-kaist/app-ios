@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import WebKit
 
 @MainActor
 protocol PostViewModelProtocol: Observable {
@@ -16,6 +17,7 @@ protocol PostViewModelProtocol: Observable {
   var isFoundationModelsAvailable: Bool { get }
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
+  var page: WebPage { get set }
 
   func fetchPost() async
   func upvote() async
@@ -42,6 +44,7 @@ class PostViewModel: PostViewModelProtocol {
   var isFoundationModelsAvailable: Bool = false
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
+  var page: WebPage = WebPage()
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -64,6 +67,15 @@ class PostViewModel: PostViewModelProtocol {
   // MARK: - Initialiser
   init(post: AraPost) {
     self.post = post
+    
+    if let url = URL(string: "https://newara.sparcs.org/web_view/PostFrame/\(post.id)"),
+       let token = araBoardUseCase?.getAccessToken() {
+      var request = URLRequest(url: url)
+
+      request.addValue("access=\(token)" , forHTTPHeaderField: "Cookie")
+      self.page.load(request)
+    }
+
     Task {
       await refreshFoundationModelsAvailability()
     }
