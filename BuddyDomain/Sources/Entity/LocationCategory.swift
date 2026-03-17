@@ -40,7 +40,7 @@ public enum LocationCategory: Hashable {
     case .cafeteria:
         .orange
     case .dormitory:
-        .purple
+        .indigo
     case .library:
         .brown
     case .sportsField:

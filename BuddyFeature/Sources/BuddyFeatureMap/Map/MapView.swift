@@ -10,6 +10,9 @@ import BuddyDomain
 import MapKit
 
 struct MapView: View {
+  let locations: [CampusLocation]
+  @Binding private var selectedLocation: CampusLocation?
+
   @State private var position: MapCameraPosition = .region(
     MKCoordinateRegion(
       center: CLLocationCoordinate2D(
@@ -23,11 +26,13 @@ struct MapView: View {
     )
   )
 
-  @State private var locations: [CampusLocation] = CampusLocation.mockList
-
-  @State private var selectedLocation: CampusLocation?
-  @State private var showActionSheet: Bool = true
-  @State private var actionSheetDetent: PresentationDetent = .height(80)
+  init(
+    locations: [CampusLocation],
+    selectedLocation: Binding<CampusLocation?>
+  ) {
+    self.locations = locations
+    self._selectedLocation = selectedLocation
+  }
 
   var body: some View {
     Map(position: $position, selection: $selectedLocation) {
@@ -43,36 +48,5 @@ struct MapView: View {
         .tag(location)
       }
     }
-    .mapStyle(.standard(pointsOfInterest: .excludingAll))
-    .mapControls {
-      MapUserLocationButton()
-      MapScaleView()
-      MapCompass()
-    }
-    .safeAreaInset(edge: .bottom, spacing: 0) {
-      Rectangle()
-        .foregroundStyle(.clear)
-        .frame(height: 64)
-    }
-    .sheet(isPresented: $showActionSheet) {
-      BottomSheetView(sheetDetent: $actionSheetDetent)
-        .interactiveDismissDisabled()
-        .presentationBackgroundInteraction(.enabled)
-        .presentationDetents([.height(80), .height(350), .large], selection: $actionSheetDetent)
-    }
   }
-}
-
-struct BottomSheetView: View {
-  @Binding var sheetDetent: PresentationDetent
-
-  var body: some View {
-    VStack {
-
-    }
-  }
-}
-
-#Preview {
-  MapView()
 }
