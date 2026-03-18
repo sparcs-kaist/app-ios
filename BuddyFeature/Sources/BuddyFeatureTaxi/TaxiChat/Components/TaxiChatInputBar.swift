@@ -59,7 +59,7 @@ struct TaxiChatInputBar: View {
             set: { onUpdateCarrier($0) }
           )
         ) {
-          Label("With Carrier", systemImage: hasCarrier ? "suitcase.fill" : "suitcase")
+          Label("With Luggage", systemImage: hasCarrier ? "suitcase.fill" : "suitcase")
         }
 
         Button("Photo Library", systemImage: "photo.on.rectangle") {

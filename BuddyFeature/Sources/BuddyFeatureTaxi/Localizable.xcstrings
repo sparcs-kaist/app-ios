@@ -189,7 +189,20 @@
       }
     },
     "Arrived" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrived"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착함"
+          }
+        }
+      }
     },
     "Call Taxi" : {
       "localizations" : {
@@ -901,35 +914,24 @@
         }
       }
     },
-    "Participants %lld/%lld" : {
-      "extractionState" : "stale",
+    "Participants %lld/%lld\nArrived %lld/%lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Participants %1$lld/%2$lld"
+            "value" : "Participants %1$lld/%2$lld\nArrived %3$lld/%4$lld"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Participants %1$lld/%2$lld"
+            "value" : "Participants %1$lld/%2$lld\nArrived %3$lld/%4$lld"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "참여 %1$lld/%2$lld"
-          }
-        }
-      }
-    },
-    "Participants %lld/%lld\nArrived %lld/%lld" : {
-      "localizations" : {
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Participants %1$lld/%2$lld\nArrived %3$lld/%4$lld"
+            "value" : "참여 %1$lld/%2$lld\n도착 %3$lld/%4$lld"
           }
         }
       }
@@ -967,7 +969,20 @@
       }
     },
     "Please check the room identifier." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please check the room identifier."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "방 식별자를 확인해 주세요."
+          }
+        }
+      }
     },
     "Reason" : {
       "localizations" : {
@@ -1066,7 +1081,20 @@
       }
     },
     "Room Identifier" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room Identifier"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "방 식별자"
+          }
+        }
+      }
     },
     "Room Limit Reached" : {
       "localizations" : {
@@ -1443,11 +1471,21 @@
         }
       }
     },
-    "With Carrier" : {
-
-    },
     "With Luggage" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With Luggage"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "캐리어 있음"
+          }
+        }
+      }
     },
     "You are participating in more than 5 rooms. To create a room, please settle an existing room." : {
       "localizations" : {
