@@ -10,6 +10,7 @@ import Foundation
 public struct TaxiRoom: Identifiable, Hashable, Sendable {
   public let id: String
   public let title: String
+  public let emojiIdentifier: TaxiRoomEmojiIdentifier?
   public let source: TaxiLocation
   public let destination: TaxiLocation
   public let departAt: Date
@@ -23,6 +24,7 @@ public struct TaxiRoom: Identifiable, Hashable, Sendable {
   public init(
     id: String,
     title: String,
+    emojiIdentifier: TaxiRoomEmojiIdentifier? = nil,
     source: TaxiLocation,
     destination: TaxiLocation,
     departAt: Date,
@@ -35,6 +37,7 @@ public struct TaxiRoom: Identifiable, Hashable, Sendable {
   ) {
     self.id = id
     self.title = title
+    self.emojiIdentifier = emojiIdentifier
     self.source = source
     self.destination = destination
     self.departAt = departAt

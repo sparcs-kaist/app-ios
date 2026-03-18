@@ -54,6 +54,7 @@ public extension TaxiRoom {
       TaxiRoom(
         id: UUID().uuidString,
         title: "Mock Room \(index + 1)",
+        emojiIdentifier: TaxiRoomEmojiIdentifier.allCases[index % TaxiRoomEmojiIdentifier.allCases.count],
         source: locations[index % locations.count],
         destination: locations[(index + 3) % locations.count],
         departAt: Calendar.current.date(byAdding: .day, value: index % 7, to: baseDate)!,

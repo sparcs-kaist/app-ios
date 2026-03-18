@@ -62,7 +62,7 @@ struct TaxiChatView: View {
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-    .navigationTitle(Text(viewModel.room.title))
+    .navigationTitle(Text(chatTitle))
     .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
     .navigationBarTitleDisplayMode(.inline)
     .toolbar { toolbarContent }
@@ -224,6 +224,14 @@ struct TaxiChatView: View {
         .disabled(!viewModel.isLeaveRoomAvailable)
       }
     }
+  }
+
+  private var chatTitle: String {
+    guard let emoji = viewModel.room.emojiIdentifier?.rawValue else {
+      return viewModel.room.title
+    }
+
+    return "\(viewModel.room.title) \(emoji)"
   }
 
   private static let placeholderItems: [ChatRenderItem] = {
