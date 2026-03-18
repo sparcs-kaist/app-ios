@@ -47,6 +47,10 @@ struct MainView: View {
         }
       }
 
+      Tab("Discovery", systemImage: "binoculars", value: .map) {
+        MapDiscoveryView()
+      }
+
       Tab("Boards", systemImage: "tray.full", value: .board) {
         NavigationStack(path: $boardListPath) {
           BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
@@ -57,10 +61,6 @@ struct MainView: View {
         Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
           TimetableView(timetableViewModel)
         }
-      }
-
-      Tab("Map", systemImage: "map", value: .map) {
-        MapDiscoveryView()
       }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {

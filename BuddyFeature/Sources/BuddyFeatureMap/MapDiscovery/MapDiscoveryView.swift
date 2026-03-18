@@ -30,6 +30,11 @@ public struct MapDiscoveryView: View {
                 .foregroundStyle(.clear)
                 .frame(height: 4)
             }
+            .safeAreaInset(edge: .leading, spacing: 0) {
+              Rectangle()
+                .foregroundStyle(.clear)
+                .frame(width: 4)
+            }
           }
           .frame(height: 280)
           .clipShape(.rect(cornerRadius: 28))
@@ -46,6 +51,7 @@ public struct MapDiscoveryView: View {
         }
       }
       .navigationTitle("Discovery")
+      .toolbarTitleDisplayMode(.inlineLarge)
     }
     .fullScreenCover(isPresented: $showMap) {
       MapExplorerView(locations: viewModel.locations, selectedLocation: $viewModel.selectedLocation)

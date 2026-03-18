@@ -21,17 +21,19 @@ struct MapExplorerView: View {
   var body: some View {
     NavigationStack {
       MapView(locations: locations, selectedLocation: $selectedLocation)
-        .mapStyle(.standard(pointsOfInterest: .excludingAll))
         .safeAreaInset(edge: .bottom, spacing: 0) {
           Rectangle()
             .foregroundStyle(.clear)
             .frame(height: 64)
         }
         .sheet(isPresented: $showActionSheet) {
-          BottomSheetView(sheetDetent: $actionSheetDetent)
+          MapDetailView(sheetDetent: $actionSheetDetent)
             .interactiveDismissDisabled()
             .presentationBackgroundInteraction(.enabled)
-            .presentationDetents([.height(80), .height(350), .large], selection: $actionSheetDetent)
+            .presentationDetents([.height(80), .fraction(0.6), .large], selection: $actionSheetDetent)
+        }
+        .onChange(of: showActionSheet) {
+          showActionSheet = true
         }
         .toolbar {
           ToolbarItem(placement: .topBarLeading) {

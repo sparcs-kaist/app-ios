@@ -136,6 +136,9 @@
         }
       }
     },
+    "Discovery" : {
+
+    },
     "Error" : {
       "localizations" : {
         "en" : {
@@ -247,9 +250,6 @@
           }
         }
       }
-    },
-    "Map" : {
-
     },
     "Next Class" : {
       "localizations" : {

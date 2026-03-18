@@ -48,5 +48,6 @@ struct MapView: View {
         .tag(location)
       }
     }
+    .mapStyle(.standard(pointsOfInterest: .excludingAll))
   }
 }
