@@ -142,6 +142,10 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   var hasCarrier: Bool {
     currentParticipant?.hasCarrier ?? false
   }
+  
+  var arrivedCount: Int {
+    room.participants.filter(\.self.isArrived).count
+  }
 
   func commitSettlement() {
     guard let taxiRoomRepository, let taxiChatUseCase else { return }

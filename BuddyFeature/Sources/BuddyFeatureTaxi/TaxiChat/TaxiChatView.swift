@@ -196,7 +196,7 @@ struct TaxiChatView: View {
         Label(viewModel.room.departAt.formattedString, systemImage: "calendar.badge.clock")
 
         Menu(
-          "Participants \(viewModel.room.participants.count)/\(viewModel.room.capacity)",
+          "Participants \(viewModel.room.participants.count)/\(viewModel.room.capacity)\nArrived \(viewModel.arrivedCount)/\(viewModel.room.participants.count)",
           systemImage: "person.3"
         ) {
           ForEach(viewModel.room.participants) { participant in

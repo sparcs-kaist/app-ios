@@ -902,6 +902,7 @@
       }
     },
     "Participants %lld/%lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -919,6 +920,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "참여 %1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "Participants %lld/%lld\nArrived %lld/%lld" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Participants %1$lld/%2$lld\nArrived %3$lld/%4$lld"
           }
         }
       }
@@ -954,6 +965,9 @@
           }
         }
       }
+    },
+    "Please check the room identifier." : {
+
     },
     "Reason" : {
       "localizations" : {
@@ -1050,6 +1064,9 @@
           }
         }
       }
+    },
+    "Room Identifier" : {
+
     },
     "Room Limit Reached" : {
       "localizations" : {

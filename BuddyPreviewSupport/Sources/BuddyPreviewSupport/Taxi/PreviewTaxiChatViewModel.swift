@@ -28,6 +28,7 @@ public final class PreviewTaxiChatViewModel: TaxiChatViewModelProtocol {
   public var isArrivalToggleEnabled: Bool = true
   public var isArrived: Bool = false
   public var hasCarrier: Bool = true
+  public var arrivedCount: Int = 1
   public var account: String? = TaxiUser.mock.account
   public var topChatID: String?
   
