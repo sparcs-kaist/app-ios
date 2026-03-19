@@ -49,5 +49,8 @@ struct MapView: View {
       }
     }
     .mapStyle(.standard(pointsOfInterest: .excludingAll))
+    .onMapCameraChange(frequency: .continuous) { context in
+      print(context.region.span.latitudeDelta)
+    }
   }
 }
