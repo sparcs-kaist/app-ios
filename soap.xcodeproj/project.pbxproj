@@ -54,6 +54,7 @@
 		8BE539592F2B8A2000735E7A /* BuddyFeatureFeed in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539582F2B8A2000735E7A /* BuddyFeatureFeed */; };
 		8BE5395B2F2B95A600735E7A /* BuddyFeatureSettings in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE5395A2F2B95A600735E7A /* BuddyFeatureSettings */; };
 		8BE5395D2F2CA4D300735E7A /* BuddyFeaturePost in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE5395C2F2CA4D300735E7A /* BuddyFeaturePost */; };
+		8BE6EC342F6CAD140068024C /* Nubzuki Stickers.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8BE6EC2D2F6CAD120068024C /* Nubzuki Stickers.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8BE804172E49EE3A00904AC6 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
 		8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2682E92A3A0005D8639 /* BuddyDataCore */; };
 		8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26C2E92A52D005D8639 /* BuddyDataCore */; };
@@ -99,6 +100,13 @@
 			remoteGlobalIDString = 8B8DFBE52CCF771700AB82CC;
 			remoteInfo = soap;
 		};
+		8BE6EC322F6CAD140068024C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B8DFBDE2CCF771700AB82CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8BE6EC2C2F6CAD120068024C;
+			remoteInfo = "Nubzuki Stickers";
+		};
 		F6339A662F544AC600655DBB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8B8DFBDE2CCF771700AB82CC /* Project object */;
@@ -126,6 +134,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				8BE6EC342F6CAD140068024C /* Nubzuki Stickers.appex in Embed Foundation Extensions */,
 				8B6637B42EFD159600795A41 /* BuddyiOSWidgetExtension.appex in Embed Foundation Extensions */,
 				F6339A682F544AC600655DBB /* NotificationServiceExtension.appex in Embed Foundation Extensions */,
 			);
@@ -173,6 +182,7 @@
 		8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		8BE537AD2F2780A700735E7A /* BuddyDataiOS */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyDataiOS; sourceTree = "<group>"; };
 		8BE539512F2B75DA00735E7A /* BuddyFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyFeature; sourceTree = "<group>"; };
+		8BE6EC2D2F6CAD120068024C /* Nubzuki Stickers.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nubzuki Stickers.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BE804162E49EE3A00904AC6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		8BFAD2612E927C41005D8639 /* BuddyData */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyData; sourceTree = "<group>"; };
 		F6339A612F544AC600655DBB /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -199,6 +209,13 @@
 				Info.plist,
 			);
 			target = 8B6637A02EFD159400795A41 /* BuddyiOSWidgetExtension */;
+		};
+		8BE6EC382F6CAD140068024C /* Exceptions for "Nubzuki Stickers" folder in "Nubzuki Stickers" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8BE6EC2C2F6CAD120068024C /* Nubzuki Stickers */;
 		};
 		F6339A6C2F544AC600655DBB /* Exceptions for "NotificationServiceExtension" folder in "NotificationServiceExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -247,6 +264,14 @@
 		8B8DFC052CCF771800AB82CC /* soapUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = soapUITests;
+			sourceTree = "<group>";
+		};
+		8BE6EC2E2F6CAD120068024C /* Nubzuki Stickers */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8BE6EC382F6CAD140068024C /* Exceptions for "Nubzuki Stickers" folder in "Nubzuki Stickers" target */,
+			);
+			path = "Nubzuki Stickers";
 			sourceTree = "<group>";
 		};
 		F6339A622F544AC600655DBB /* NotificationServiceExtension */ = {
@@ -386,6 +411,7 @@
 				8B3FB11F2E94F1C200F57FD7 /* BuddyWatchWidget */,
 				8B6637A42EFD159400795A41 /* BuddyiOSWidget */,
 				F6339A622F544AC600655DBB /* NotificationServiceExtension */,
+				8BE6EC2E2F6CAD120068024C /* Nubzuki Stickers */,
 				8B8DFBE72CCF771700AB82CC /* Products */,
 				8BE804162E49EE3A00904AC6 /* AppIcon.icon */,
 				8B8368002E9247A900892B70 /* Frameworks */,
@@ -402,6 +428,7 @@
 				8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */,
 				8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */,
 				F6339A612F544AC600655DBB /* NotificationServiceExtension.appex */,
+				8BE6EC2D2F6CAD120068024C /* Nubzuki Stickers.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -508,6 +535,7 @@
 				8B83650C2E914F1300892B70 /* PBXTargetDependency */,
 				8B6637B32EFD159600795A41 /* PBXTargetDependency */,
 				F6339A672F544AC600655DBB /* PBXTargetDependency */,
+				8BE6EC332F6CAD140068024C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8B8DFBE82CCF771700AB82CC /* soap */,
@@ -592,6 +620,26 @@
 			productReference = 8B8DFC022CCF771800AB82CC /* soapUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		8BE6EC2C2F6CAD120068024C /* Nubzuki Stickers */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8BE6EC372F6CAD140068024C /* Build configuration list for PBXNativeTarget "Nubzuki Stickers" */;
+			buildPhases = (
+				8BE6EC2B2F6CAD120068024C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8BE6EC2E2F6CAD120068024C /* Nubzuki Stickers */,
+			);
+			name = "Nubzuki Stickers";
+			packageProductDependencies = (
+			);
+			productName = "Nubzuki Stickers";
+			productReference = 8BE6EC2D2F6CAD120068024C /* Nubzuki Stickers.appex */;
+			productType = "com.apple.product-type.app-extension.messages-sticker-pack";
+		};
 		F6339A602F544AC600655DBB /* NotificationServiceExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F6339A6B2F544AC600655DBB /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
@@ -645,6 +693,9 @@
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 8B8DFBE52CCF771700AB82CC;
 					};
+					8BE6EC2C2F6CAD120068024C = {
+						CreatedOnToolsVersion = 26.3;
+					};
 					F6339A602F544AC600655DBB = {
 						CreatedOnToolsVersion = 26.3;
 					};
@@ -682,6 +733,7 @@
 				8B3FB1192E94F1C200F57FD7 /* BuddyWatchWidgetExtension */,
 				8B6637A02EFD159400795A41 /* BuddyiOSWidgetExtension */,
 				F6339A602F544AC600655DBB /* NotificationServiceExtension */,
+				8BE6EC2C2F6CAD120068024C /* Nubzuki Stickers */,
 			);
 		};
 /* End PBXProject section */
@@ -728,6 +780,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		8B8DFC002CCF771800AB82CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8BE6EC2B2F6CAD120068024C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -848,6 +907,11 @@
 			isa = PBXTargetDependency;
 			target = 8B8DFBE52CCF771700AB82CC /* soap */;
 			targetProxy = 8B8DFC032CCF771800AB82CC /* PBXContainerItemProxy */;
+		};
+		8BE6EC332F6CAD140068024C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8BE6EC2C2F6CAD120068024C /* Nubzuki Stickers */;
+			targetProxy = 8BE6EC322F6CAD140068024C /* PBXContainerItemProxy */;
 		};
 		F6339A672F544AC600655DBB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1361,6 +1425,50 @@
 			};
 			name = Release;
 		};
+		8BE6EC352F6CAD140068024C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5V8W52U3U;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Nubzuki Stickers/Info.plist";
+				INFOPLIST_KEY_NSStickerSharingLevel = OS;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.sparcs.soap.Nubzuki-Stickers";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8BE6EC362F6CAD140068024C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N5V8W52U3U;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Nubzuki Stickers/Info.plist";
+				INFOPLIST_KEY_NSStickerSharingLevel = OS;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.sparcs.soap.Nubzuki-Stickers";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		F6339A692F544AC600655DBB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1485,6 +1593,15 @@
 			buildConfigurations = (
 				8B8DFC132CCF771800AB82CC /* Debug */,
 				8B8DFC142CCF771800AB82CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8BE6EC372F6CAD140068024C /* Build configuration list for PBXNativeTarget "Nubzuki Stickers" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8BE6EC352F6CAD140068024C /* Debug */,
+				8BE6EC362F6CAD140068024C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
