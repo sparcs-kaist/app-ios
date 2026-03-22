@@ -23,7 +23,8 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(path: "../BuddyDomain")
+    .package(path: "../BuddyDomain"),
+    .package(url: "https://github.com/efremidze/Haptica.git", .upToNextMajor(from: "4.0.1")),
   ],
   targets: [
     .target(
@@ -37,12 +38,14 @@ let package = Package(
       dependencies: [
         "TimetableUI",
         "BuddyDomain",
+        "Haptica",
       ]
     ),
     .target(
       name: "TimetableUI",
       dependencies: [
         "BuddyDomain",
+        "Haptica",
       ]
     ),
     .testTarget(

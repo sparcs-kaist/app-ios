@@ -7,7 +7,6 @@
 
 import Foundation
 import BuddyDomain
-import Playgrounds
 
 struct ChatRenderItemBuilder {
   let policy: ChatGroupingPolicy
@@ -124,15 +123,5 @@ struct ChatRenderItemBuilder {
     flushCluster()
     return items
   }
-}
-
-#Playground {
-  let mock: [TaxiChat] = TaxiChat.mockList
-  let builder = ChatRenderItemBuilder(
-    policy: TaxiGroupingPolicy(),
-    positionResolver: ChatBubblePositionResolver(),
-    presentationPolicy: DefaultMessagePresentationPolicy()
-  )
-  _ = builder.build(chats: mock, myUserID: "user2")
 }
 
