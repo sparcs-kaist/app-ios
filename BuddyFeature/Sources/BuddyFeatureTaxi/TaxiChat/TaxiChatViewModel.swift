@@ -144,7 +144,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
   
   var arrivedCount: Int {
-    room.participants.filter(\.self.isArrived).count
+    room.participants.filter(\.isArrived).count
   }
 
   func commitSettlement() {
