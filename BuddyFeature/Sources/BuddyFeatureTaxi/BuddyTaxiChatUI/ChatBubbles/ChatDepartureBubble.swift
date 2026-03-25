@@ -23,7 +23,7 @@ struct ChatDepartureBubble: View {
           Text("Room Identifier")
             .fontWeight(.bold)
             .font(.headline)
-          Text(emojiIdentifier.rawValue)
+          Text(emojiIdentifier.emoji)
             .font(.largeTitle)
           Text("Please check the room identifier.")
             .font(.caption)

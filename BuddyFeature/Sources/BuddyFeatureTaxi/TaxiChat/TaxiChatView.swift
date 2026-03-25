@@ -227,7 +227,7 @@ struct TaxiChatView: View {
   }
 
   private var chatTitle: String {
-    guard let emoji = viewModel.room.emojiIdentifier?.rawValue else {
+    guard let emoji = viewModel.room.emojiIdentifier?.emoji else {
       return viewModel.room.title
     }
 
