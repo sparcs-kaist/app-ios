@@ -74,8 +74,8 @@ struct TaxiChatView: View {
         isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable,
         isCommitSettlementAvailable: viewModel.isCommitSettlementAvailable,
         isArrivalToggleEnabled: viewModel.isArrivalToggleEnabled,
-        isArrived: viewModel.isArrived,
-        hasCarrier: viewModel.hasCarrier,
+        isArrived: $viewModel.isArrived,
+        hasCarrier: $viewModel.hasCarrier,
         onSendText: { message in
           viewModel.sendChat(message, type: .text)
         },

@@ -25,8 +25,8 @@ public protocol TaxiChatViewModelProtocol: Observable {
   var isCommitSettlementAvailable: Bool { get }
   var isCommitPaymentAvailable: Bool { get }
   var isArrivalToggleEnabled: Bool { get }
-  var isArrived: Bool { get }
-  var hasCarrier: Bool { get }
+  var isArrived: Bool { get set }
+  var hasCarrier: Bool { get set }
   var arrivedCount: Int { get }
   var account: String? { get }
   var topChatID: String? { get }

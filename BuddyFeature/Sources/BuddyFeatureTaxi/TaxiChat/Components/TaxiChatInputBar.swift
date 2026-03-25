@@ -15,8 +15,8 @@ struct TaxiChatInputBar: View {
   let isCommitPaymentAvailable: Bool
   let isCommitSettlementAvailable: Bool
   let isArrivalToggleEnabled: Bool
-  let isArrived: Bool
-  let hasCarrier: Bool
+  @Binding var isArrived: Bool
+  @Binding var hasCarrier: Bool
 
   var onSendText: (String) -> Void
   var onSendImage: (UIImage) async throws -> Void
@@ -43,23 +43,19 @@ struct TaxiChatInputBar: View {
         }
         .disabled(!isCommitSettlementAvailable)
 
-        Toggle(
-          isOn: Binding(
-            get: { isArrived },
-            set: { onUpdateArrival($0) }
-          )
-        ) {
+        Toggle(isOn: $isArrived) {
           Label("Arrived", systemImage: isArrived ? "checkmark.circle.fill" : "circle")
         }
         .disabled(!isArrivalToggleEnabled)
+        .onChange(of: isArrived) {
+          onUpdateArrival(isArrived)
+        }
 
-        Toggle(
-          isOn: Binding(
-            get: { hasCarrier },
-            set: { onUpdateCarrier($0) }
-          )
-        ) {
+        Toggle(isOn: $hasCarrier) {
           Label("With Luggage", systemImage: hasCarrier ? "suitcase.fill" : "suitcase")
+        }
+        .onChange(of: hasCarrier) {
+          onUpdateCarrier(hasCarrier)
         }
 
         Button("Photo Library", systemImage: "photo.on.rectangle") {

@@ -24,6 +24,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
+  
+  var isArrived: Bool = false
+  var hasCarrier: Bool = false
 
   private(set) var topChatID: String? = nil
   private var fetchedDateSet: Set<Date> = []
@@ -106,6 +109,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   func fetchInitialChats() async {
     guard let taxiChatUseCase else { return }
+    
+    isArrived = currentParticipant?.isArrived ?? false
+    hasCarrier = currentParticipant?.hasCarrier ?? false
 
     await taxiChatUseCase.fetchInitialChats()
   }
@@ -133,14 +139,6 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   var isArrivalToggleEnabled: Bool {
     room.departAt > Date()
-  }
-
-  var isArrived: Bool {
-    currentParticipant?.isArrived ?? false
-  }
-
-  var hasCarrier: Bool {
-    currentParticipant?.hasCarrier ?? false
   }
   
   var arrivedCount: Int {
