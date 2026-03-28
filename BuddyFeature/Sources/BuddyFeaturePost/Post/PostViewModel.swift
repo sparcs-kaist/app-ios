@@ -9,7 +9,6 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
-import WebKit
 
 @MainActor
 protocol PostViewModelProtocol: Observable {
@@ -17,7 +16,7 @@ protocol PostViewModelProtocol: Observable {
   var isFoundationModelsAvailable: Bool { get }
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
-  var page: WebPage { get set }
+  var postRequest: URLRequest? { get }
 
   func fetchPost() async
   func upvote() async
@@ -37,6 +36,8 @@ protocol PostViewModelProtocol: Observable {
   func deleteComment(comment: Binding<AraPostComment>) async
 }
 
+
+
 @Observable
 class PostViewModel: PostViewModelProtocol {
   // MARK: - Properties
@@ -44,7 +45,7 @@ class PostViewModel: PostViewModelProtocol {
   var isFoundationModelsAvailable: Bool = false
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
-  var page: WebPage = WebPage()
+  var postRequest: URLRequest?
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -67,13 +68,12 @@ class PostViewModel: PostViewModelProtocol {
   // MARK: - Initialiser
   init(post: AraPost) {
     self.post = post
-    
+
     if let url = URL(string: "https://newara.dev.sparcs.org/api/users/exchange?next=/web_view/PostFrame/\(post.id)"),
        let token = araBoardUseCase?.getAccessToken() {
       var request = URLRequest(url: url)
-
-      request.addValue("Bearer \(token)" , forHTTPHeaderField: "Authorization")
-      self.page.load(request)
+      request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+      self.postRequest = request
     }
 
     Task {
@@ -366,3 +366,4 @@ class PostViewModel: PostViewModelProtocol {
     isAlertPresented = true
   }
 }
+

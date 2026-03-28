@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 import NukeUI
-import WebKit
 import BuddyDomain
 import Haptica
 import FirebaseAnalytics
@@ -247,14 +246,13 @@ public struct PostView: View {
         ))
     }
 
-    WebView(viewModel.page)
-      .scrollDisabled(true)
-      .webViewOnScrollGeometryChange(for: CGFloat.self, of: { geometry in
-        geometry.contentSize.height
-      }, action: { _, newHeight in
-        htmlHeight = newHeight
-      })
-      .frame(height: max(1, htmlHeight))
+    DynamicHeightWebView(
+      htmlString: "",
+      dynamicHeight: $htmlHeight,
+      request: viewModel.postRequest,
+      onLinkTapped: { tappedURL = $0 }
+    )
+    .frame(height: max(1, htmlHeight))
   }
 
   private var header: some View {
