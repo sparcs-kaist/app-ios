@@ -20,6 +20,8 @@ struct DynamicHeightWebView: UIViewRepresentable {
 
   var onLinkTapped: ((URL) -> Void)?
 
+  @Environment(\.colorScheme) private var colorScheme
+
   func makeUIView(context: Context) -> WKWebView {
     let configuration = WKWebViewConfiguration()
     configuration.userContentController.add(context.coordinator, name: "HeightChannel")
@@ -30,17 +32,22 @@ struct DynamicHeightWebView: UIViewRepresentable {
     webView.isOpaque = false
     webView.backgroundColor = UIColor.clear
     webView.scrollView.backgroundColor = UIColor.clear
+    webView.underPageBackgroundColor = UIColor.clear
 
     return webView
   }
 
   func updateUIView(_ uiView: WKWebView, context: Context) {
+    // Re-apply theme whenever the system color scheme changes.
+    context.coordinator.applyTheme(webView: uiView, isDark: colorScheme == .dark)
+
     guard !context.coordinator.hasLoaded else { return }
     context.coordinator.hasLoaded = true
 
     if let request {
       uiView.load(request)
     } else {
+      let textColor = colorScheme == .dark ? "#e0e0e0" : "#000000"
       let fullHTML = """
           <html>
           <head>
@@ -49,12 +56,7 @@ struct DynamicHeightWebView: UIViewRepresentable {
               html, body {
                 margin: 0; padding: 0; width: 100%;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background-color: #fff; color: #000;
-              }
-              @media (prefers-color-scheme: dark) {
-                html, body { background-color: #000; color: #fff; }
-                *, *::before, *::after { color: #fff !important; }
-                a { color: #80bfff; }
+                background: transparent; color: \(textColor);
               }
               img { max-width: 100%; height: auto; display: block; }
               p { margin: 0 0 1em; }
@@ -85,10 +87,51 @@ struct DynamicHeightWebView: UIViewRepresentable {
       self.parent = parent
     }
 
+    // MARK: - Theme injection
+
+    /// Imperatively injects CSS overrides after the page has loaded.
+    /// Called from updateUIView so it re-runs whenever colorScheme changes.
+    func applyTheme(webView: WKWebView, isDark: Bool) {
+      // Only inject once the page has actually finished loading.
+      guard isFitted else { return }
+
+      let textColor = isDark ? "#e0e0e0" : "#1a1a1a"
+      let linkColor = isDark ? "#80bfff" : "#0066cc"
+
+      let js = """
+        (function() {
+          var id = '__ara_theme_style__';
+          var existing = document.getElementById(id);
+          if (existing) existing.remove();
+          var s = document.createElement('style');
+          s.id = id;
+          s.textContent = `
+            html, body, body * {
+              background: transparent !important;
+              background-color: transparent !important;
+            }
+            body, body * {
+              color: \(textColor) !important;
+            }
+            a, a * { color: \(linkColor) !important; }
+            img { max-width: 100% !important; height: auto !important; }
+          `;
+          document.head.appendChild(s);
+        })();
+        """
+      webView.evaluateJavaScript(js, completionHandler: nil)
+    }
+
     // MARK: - WKNavigationDelegate
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
       guard !isFitted else { return }
+
+      // Mark as fitted before applyTheme so it proceeds.
+      isFitted = true
+
+      // Apply theme immediately after page load.
+      applyTheme(webView: webView, isDark: parent.colorScheme == .dark)
 
       // Initial height measurement.
       updatePageHeight(webView: webView)
@@ -98,8 +141,6 @@ struct DynamicHeightWebView: UIViewRepresentable {
       if parent.request != nil {
         injectResizeObserver(webView: webView)
       }
-
-      isFitted = true
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void) {
