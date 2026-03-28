@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8B3E34E82F77EBC3001332F1 /* BuddyFeatureAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3E34E72F77EBC3001332F1 /* BuddyFeatureAuth */; };
+		8B3E34EA2F77EF36001332F1 /* BuddyCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3E34E92F77EF36001332F1 /* BuddyCore */; };
+		8B694FC62F77892900244009 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8B694FC52F77892900244009 /* AppIcon.icon */; };
+		8BF2AAD12F77A56E00B82636 /* BuddyCoreAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8BF2AAD02F77A56E00B82636 /* BuddyCoreAuth */; };
+		8BF2AAD32F77A56E00B82636 /* BuddyCoreNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 8BF2AAD22F77A56E00B82636 /* BuddyCoreNetworking */; };
+		8BF2AAD52F77A56E00B82636 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8BF2AAD42F77A56E00B82636 /* BuddyDomain */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		8B9F77162F7787FB00270A7D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,9 +33,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8B3E34E62F77EB9C001332F1 /* BuddyFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyFeature; sourceTree = "<group>"; };
+		8B694FC52F77892900244009 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		8B9F77062F7787F900270A7D /* soap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = soap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B9F77152F7787FB00270A7D /* soapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B9F771F2F7787FB00270A7D /* soapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BF2AABF2F778C4400B82636 /* BuddyCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyCore; sourceTree = "<group>"; };
+		8BF2AAC12F779F7000B82636 /* BuddyDomain */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyDomain; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +65,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BF2AAD32F77A56E00B82636 /* BuddyCoreNetworking in Frameworks */,
+				8BF2AAD52F77A56E00B82636 /* BuddyDomain in Frameworks */,
+				8B3E34E82F77EBC3001332F1 /* BuddyFeatureAuth in Frameworks */,
+				8B3E34EA2F77EF36001332F1 /* BuddyCore in Frameworks */,
+				8BF2AAD12F77A56E00B82636 /* BuddyCoreAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,10 +93,15 @@
 		8B9F76FD2F7787F900270A7D = {
 			isa = PBXGroup;
 			children = (
+				8B3E34E62F77EB9C001332F1 /* BuddyFeature */,
+				8BF2AAC12F779F7000B82636 /* BuddyDomain */,
+				8BF2AABF2F778C4400B82636 /* BuddyCore */,
 				8B9F77082F7787F900270A7D /* soap */,
 				8B9F77182F7787FB00270A7D /* soapTests */,
 				8B9F77222F7787FB00270A7D /* soapUITests */,
 				8B9F77072F7787F900270A7D /* Products */,
+				8B694FC52F77892900244009 /* AppIcon.icon */,
+				8BF2AACF2F77A56E00B82636 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -90,6 +113,13 @@
 				8B9F771F2F7787FB00270A7D /* soapUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8BF2AACF2F77A56E00B82636 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +142,11 @@
 			);
 			name = soap;
 			packageProductDependencies = (
+				8BF2AAD02F77A56E00B82636 /* BuddyCoreAuth */,
+				8BF2AAD22F77A56E00B82636 /* BuddyCoreNetworking */,
+				8BF2AAD42F77A56E00B82636 /* BuddyDomain */,
+				8B3E34E72F77EBC3001332F1 /* BuddyFeatureAuth */,
+				8B3E34E92F77EF36001332F1 /* BuddyCore */,
 			);
 			productName = soap;
 			productReference = 8B9F77062F7787F900270A7D /* soap.app */;
@@ -212,6 +247,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B694FC62F77892900244009 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +366,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -386,6 +423,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -395,21 +433,24 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = soap/soap.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N5V8W52U3U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -417,7 +458,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -427,21 +468,24 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = soap/soap.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N5V8W52U3U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -449,7 +493,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -578,6 +622,29 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8B3E34E72F77EBC3001332F1 /* BuddyFeatureAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyFeatureAuth;
+		};
+		8B3E34E92F77EF36001332F1 /* BuddyCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyCore;
+		};
+		8BF2AAD02F77A56E00B82636 /* BuddyCoreAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyCoreAuth;
+		};
+		8BF2AAD22F77A56E00B82636 /* BuddyCoreNetworking */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyCoreNetworking;
+		};
+		8BF2AAD42F77A56E00B82636 /* BuddyDomain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDomain;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8B9F76FE2F7787F900270A7D /* Project object */;
 }
