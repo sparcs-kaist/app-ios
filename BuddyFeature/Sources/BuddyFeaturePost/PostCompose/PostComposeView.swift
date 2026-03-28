@@ -43,7 +43,7 @@ struct PostComposeView: View {
           Spacer()
             .frame(maxHeight: 16)
 
-          TextField("Please enter the title", text: $viewModel.title)
+          TextField(String(localized: "Please enter the title", bundle: .module), text: $viewModel.title)
             .font(.title3)
             .focused($isTitleFocused)
             .submitLabel(.next)
@@ -57,7 +57,7 @@ struct PostComposeView: View {
           Divider()
             .padding(.horizontal)
 
-          TextField("What's happening?", text: $viewModel.content, axis: .vertical)
+          TextField(String(localized: "What's happening?", bundle: .module), text: $viewModel.content, axis: .vertical)
             .focused($isDescriptionFocused)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
@@ -87,7 +87,7 @@ struct PostComposeView: View {
         .padding(.vertical)
       }
       .scrollDismissesKeyboard(.interactively)
-      .navigationTitle("Write")
+      .navigationTitle(String(localized: "Write", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         // Top tool bar
@@ -148,7 +148,7 @@ struct PostComposeView: View {
         }
 
         ToolbarItem(placement: .bottomBar) {
-          Menu("More", systemImage: "ellipsis") {
+          Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
             Button(action: {
               viewModel.writeAsAnonymous.toggle()
             }, label: {
@@ -184,7 +184,7 @@ struct PostComposeView: View {
         matching: .images,
         photoLibrary: .shared()
       )
-      .alert("Error", isPresented: $showErrorAlert, actions: {
+      .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(errorMessage)

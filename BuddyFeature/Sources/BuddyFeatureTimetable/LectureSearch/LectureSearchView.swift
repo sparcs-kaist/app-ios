@@ -36,7 +36,7 @@ struct LectureSearchView: View {
           searchResultView
         }
       }
-      .navigationTitle("Add to \"\(timetableDisplayName)\"")
+      .navigationTitle(String(localized: "Add to \"\(timetableDisplayName)\"", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .searchable(text: $viewModel.searchKeyword)
       .scrollDismissesKeyboard(.immediately)

@@ -137,7 +137,7 @@ public struct TaxiPreviewView: View {
       }
       .padding()
     }
-    .alert("Error", isPresented: $showErrorAlert, actions: {
+    .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
       Text(errorMessage)

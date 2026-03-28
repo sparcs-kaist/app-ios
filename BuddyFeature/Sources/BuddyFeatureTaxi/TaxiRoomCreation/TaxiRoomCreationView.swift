@@ -38,13 +38,13 @@ struct TaxiRoomCreationView: View {
 
         Section("Title") {
           HStack {
-            TextField("Title", text: $title)
+            TextField(String(localized: "Title", bundle: .module), text: $title)
           }
         }
 
         Section {
           TaxiDepartureTimePicker(departureTime: $viewModel.roomDepartureTime)
-          Picker("Capacity", selection: $viewModel.roomCapacity) {
+          Picker(String(localized: "Capacity", bundle: .module), selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in
               Text(String(localized: "\(number) people", bundle: .module))
                 .tag(number)
@@ -53,7 +53,7 @@ struct TaxiRoomCreationView: View {
           Toggle("With Luggage", isOn: $viewModel.hasCarrier)
         }
       }
-      .navigationTitle("New Group")
+      .navigationTitle(String(localized: "New Group", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {

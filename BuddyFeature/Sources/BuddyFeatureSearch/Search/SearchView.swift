@@ -51,7 +51,7 @@ public struct SearchView: View {
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .safeAreaBar(edge: .top) {
-      Picker("Search Scope", selection: $viewModel.searchScope) {
+      Picker(String(localized: "Search Scope", bundle: .module), selection: $viewModel.searchScope) {
         ForEach(SearchScope.allCases) { scope in
           Text(scope.description).tag(scope)
         }

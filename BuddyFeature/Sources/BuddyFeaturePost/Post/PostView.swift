@@ -73,7 +73,7 @@ public struct PostView: View {
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
           actionsMenu
-            .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+            .confirmationDialog(String(localized: "Delete Post", bundle: .module), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
               Button(String(localized: "Delete", bundle: .module), role: .destructive) {
                 Task {
                   do {
@@ -99,10 +99,10 @@ public struct PostView: View {
         BackgroundGradientView(color: .red)
           .ignoresSafeArea()
       }
-      .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented, actions: {
+      .alert(viewModel.alertState?.title ?? String(localized: "Error", bundle: .module), isPresented: $viewModel.isAlertPresented, actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
-        Text(viewModel.alertState?.message ?? "Unexpected Error")
+        Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
       })
       .sheet(item: $tappedURL) { url in
         SafariViewWrapper(url: url)
@@ -127,10 +127,10 @@ public struct PostView: View {
   }
 
   private var actionsMenu: some View {
-    Menu("More", systemImage: "ellipsis") {
+    Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
       if viewModel.post.isMine == false {
         // show report and block menus
-        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+        Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
           ForEach(AraContentReportType.allCases, id: \.self) { type in
             Button(type.prettyString) {
               Task {
@@ -505,5 +505,4 @@ public struct PostView: View {
     PostView(post: .mockWithoutComments, onPostDeleted: nil)
   }
 }
-
 

@@ -92,10 +92,10 @@ public struct FeedView: View {
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
         .interactiveDismissDisabled()
     }
-    .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented, actions: {
+    .alert(viewModel.alertState?.title ?? String(localized: "Error", bundle: .module), isPresented: $viewModel.isAlertPresented, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
-      Text(viewModel.alertState?.message ?? "Unexpected Error")
+      Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
     })
     .background {
       BackgroundGradientView(color: .accentColor)
@@ -152,7 +152,7 @@ public struct FeedView: View {
 
   private func errorView(message: String) -> some View {
     ContentUnavailableView(
-      "Error",
+      String(localized: "Error", bundle: .module),
       systemImage: "questionmark.text.page",
       description: Text(message)
     )

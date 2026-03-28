@@ -20,7 +20,7 @@ struct TaxiReportListView: View {
   
   var body: some View {
     ScrollView {
-      Picker("Report Type", selection: $taxiReportType) {
+      Picker(String(localized: "Report Type", bundle: .module), selection: $taxiReportType) {
         ForEach(TaxiReportType.allCases, id: \.rawValue) { item in
           Text(item.description).tag(item)
         }

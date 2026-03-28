@@ -49,7 +49,7 @@ struct FeedPostView: View {
       .refreshable {
         await viewModel.fetchComments(postID: post.id, initial: false)
       }
-      .navigationTitle("Post")
+      .navigationTitle(String(localized: "Post", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbarVisibility(.hidden, for: .tabBar)
       .toolbar {
@@ -63,12 +63,12 @@ struct FeedPostView: View {
         inputBar(proxy: proxy)
       }
       .alert(
-        viewModel.alertState?.title ?? "Error",
+        viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
         isPresented: $viewModel.isAlertPresented,
         actions: {
           Button(String(localized: "Okay", bundle: .module), role: .close) { }
         }, message: {
-          Text(viewModel.alertState?.message ?? "Unexpected Error")
+          Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
         }
       )
     }
@@ -83,7 +83,7 @@ struct FeedPostView: View {
   }
 
   private var moreMenu: some View {
-    Menu("More", systemImage: "ellipsis") {
+    Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
       Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
       Divider()
       if post.isAuthor {
@@ -91,7 +91,7 @@ struct FeedPostView: View {
           showDeleteConfirmation = true
         }
       } else {
-        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+        Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
           ForEach(FeedReportType.allCases) { reason in
             Button(reason.description) {
               Task {
@@ -102,7 +102,7 @@ struct FeedPostView: View {
         }
       }
     }
-    .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+    .confirmationDialog(String(localized: "Delete Post", bundle: .module), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
       Button(String(localized: "Delete", bundle: .module), role: .destructive) {
         Task {
           do {
@@ -131,7 +131,9 @@ struct FeedPostView: View {
         TextField(
           text: $viewModel.text,
           prompt: Text(
-            targetComment != nil ? "Write a reply to \(targetComment?.authorName ?? "unknown")" : "Write a comment"
+            targetComment != nil
+              ? String(localized: "Write a reply to \(targetComment?.authorName ?? String(localized: "unknown", bundle: .module))", bundle: .module)
+              : String(localized: "Write a comment", bundle: .module)
           ),
           axis: .vertical,
           label: {
@@ -140,7 +142,7 @@ struct FeedPostView: View {
         .focused($isWritingCommentFocusState)
 
         if keyboardShowing {
-          Toggle("Write Anonymously", isOn: $viewModel.isAnonymous)
+          Toggle(String(localized: "Write Anonymously", bundle: .module), isOn: $viewModel.isAnonymous)
             .foregroundStyle(.secondary)
             .textCase(.uppercase)
             .fontDesign(.rounded)

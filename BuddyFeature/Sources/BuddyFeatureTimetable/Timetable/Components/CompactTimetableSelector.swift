@@ -33,7 +33,7 @@ struct CompactTimetableSelector: View {
       }
     }
     .frame(height: 30)
-    .alert("Rename \"\(displayName)\"", isPresented: $showRenameAlert, actions: {
+    .alert(String(localized: "Rename \"\(displayName)\"", bundle: .module), isPresented: $showRenameAlert, actions: {
       TextField(displayName, text: $renameText)
 
       Button(String(localized: "Confirm", bundle: .module), role: .confirm, action: {
@@ -71,7 +71,7 @@ struct CompactTimetableSelector: View {
             if selectedTimetableID == timetable.id {
               Image(systemName: "checkmark")
             }
-            Text(timetable.title.isEmpty ? "Untitled" : timetable.title)
+            Text(timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title)
           }
         })
       }
@@ -126,7 +126,7 @@ struct CompactTimetableSelector: View {
 
       Spacer()
 
-      Text(selectedSemester?.description ?? "Unknown")
+      Text(selectedSemester?.description ?? String(localized: "Unknown", bundle: .module))
         .contentTransition(.numericText())
         .animation(.spring, value: selectedSemester?.id)
 
@@ -175,9 +175,9 @@ struct CompactTimetableSelector: View {
 
   private var displayName: String {
     guard let timetable = selectedTimetable else {
-      return "My Table"
+      return String(localized: "My Table", bundle: .module)
     }
-    return timetable.title.isEmpty ? "Untitled" : timetable.title
+    return timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title
   }
 
   private var selectedTimetable: TimetableSummary? {
@@ -192,4 +192,3 @@ struct CompactTimetableSelector: View {
 //      Color(UIColor.systemGroupedBackground)
 //    )
 }
-

@@ -37,7 +37,7 @@ struct ReviewComposeView: View {
           .padding()
       }
       .scrollDismissesKeyboard(.immediately)
-      .navigationTitle("Write a Review")
+      .navigationTitle(String(localized: "Write a Review", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .safeAreaBar(edge: .top) {
         HStack {
@@ -46,7 +46,7 @@ struct ReviewComposeView: View {
             .fontWeight(.medium)
             .textCase(.uppercase)
 
-          Picker("Grade", selection: $grade) {
+          Picker(String(localized: "Grade", bundle: .module), selection: $grade) {
             Text(String(localized: "A", bundle: .module)).tag(5)
             Text(String(localized: "B", bundle: .module)).tag(4)
             Text(String(localized: "C", bundle: .module)).tag(3)
@@ -58,7 +58,7 @@ struct ReviewComposeView: View {
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
-          Picker("Load", selection: $load) {
+          Picker(String(localized: "Load", bundle: .module), selection: $load) {
             Text(String(localized: "A", bundle: .module)).tag(5)
             Text(String(localized: "B", bundle: .module)).tag(4)
             Text(String(localized: "C", bundle: .module)).tag(3)
@@ -70,7 +70,7 @@ struct ReviewComposeView: View {
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
-          Picker("Speech", selection: $speech) {
+          Picker(String(localized: "Speech", bundle: .module), selection: $speech) {
             Text(String(localized: "A", bundle: .module)).tag(5)
             Text(String(localized: "B", bundle: .module)).tag(4)
             Text(String(localized: "C", bundle: .module)).tag(3)
@@ -117,7 +117,7 @@ struct ReviewComposeView: View {
           .disabled(content.isEmpty)
         }
       }
-      .alert("Error", isPresented: $showErrorAlert, actions: {
+      .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(String(localized: "There was an error. Please try again later.", bundle: .module))

@@ -49,7 +49,7 @@ struct ChatDepartureBubble: View {
     .padding(12)
     .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 24))
     .alert(
-      "Call Taxi",
+      String(localized: "Call Taxi", bundle: .module),
       isPresented: $showAlert,
       actions: {
         Button(String(localized: "Open Kakao T", bundle: .module), role: .confirm) {
@@ -66,7 +66,7 @@ struct ChatDepartureBubble: View {
       },
       message: {
         Text(
-          "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from \(room.source.title.localized()) to \(room.destination.title.localized())."
+          String(localized: "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from \(room.source.title.localized()) to \(room.destination.title.localized()).", bundle: .module)
         )
       }
     )

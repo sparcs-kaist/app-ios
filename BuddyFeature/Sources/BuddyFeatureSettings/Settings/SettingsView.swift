@@ -63,7 +63,7 @@ public struct SettingsView: View {
         }
       }
       .navigationTitle(Text(String(localized: "Settings", bundle: .module)))
-      .alert("Error", isPresented: $showLogoutError) {
+      .alert(String(localized: "Error", bundle: .module), isPresented: $showLogoutError) {
         Button(role: .confirm) { }
       } message: {
         Text(String(localized: "An error occurred while signing out. Please try again later.", bundle: .module))

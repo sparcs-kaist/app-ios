@@ -29,7 +29,7 @@ struct FeedPostComposeView: View {
             .padding(.horizontal)
             .disabled(viewModel.isUploading)
 
-          TextField("What's happening?", text: $viewModel.text, axis: .vertical)
+          TextField(String(localized: "What's happening?", bundle: .module), text: $viewModel.text, axis: .vertical)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
             .padding(.horizontal)
@@ -53,7 +53,7 @@ struct FeedPostComposeView: View {
         .padding(.vertical)
       }
       .scrollDismissesKeyboard(.interactively)
-      .navigationTitle("Write")
+      .navigationTitle(String(localized: "Write", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
@@ -97,12 +97,12 @@ struct FeedPostComposeView: View {
       }
     }
     .alert(
-      viewModel.alertState?.title ?? "Error",
+      viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
       isPresented: $viewModel.isAlertPresented,
       actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
-        Text(viewModel.alertState?.message ?? "Unexpected Error")
+        Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
       }
     )
     .task {

@@ -5,7 +5,7 @@
       "shouldTranslate" : false
     },
     "%@" : {
-
+      "shouldTranslate" : false
     },
     "%@ → %@" : {
       "localizations" : {
@@ -805,7 +805,20 @@
       }
     },
     "not supported" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not supported"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지원되지 않는 메시지"
+          }
+        }
+      }
     },
     "Notice" : {
       "localizations" : {
@@ -1403,6 +1416,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "다시 시도"
+          }
+        }
+      }
+    },
+    "unknown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unknown"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(알 수 없음)"
           }
         }
       }

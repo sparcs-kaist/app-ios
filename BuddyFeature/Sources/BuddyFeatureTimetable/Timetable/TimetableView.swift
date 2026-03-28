@@ -78,7 +78,7 @@ public struct TimetableView: View {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
         }
-        .navigationTitle("Timetable")
+        .navigationTitle(String(localized: "Timetable", bundle: .module))
         .toolbarTitleDisplayMode(.inlineLarge)
         .background(Color.systemGroupedBackground)
         .toolbar {
@@ -121,12 +121,12 @@ public struct TimetableView: View {
           }
         }
         .alert(
-          viewModel.alertState?.title ?? "Error",
+          viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
           isPresented: $viewModel.isAlertPresented,
           actions: {
             Button(String(localized: "Okay", bundle: .module), role: .close) { }
           }, message: {
-            Text(viewModel.alertState?.message ?? "Unexpected Error")
+            Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
           }
         )
         .analyticsScreen(name: "Timetable", class: String(describing: Self.self))
@@ -136,9 +136,9 @@ public struct TimetableView: View {
 
   private var displayName: String {
     guard let timetable = selectedTimetable else {
-      return "My Table"
+      return String(localized: "My Table", bundle: .module)
     }
-    return timetable.title.isEmpty ? "Untitled" : timetable.title
+    return timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title
   }
 
   private var selectedTimetable: TimetableSummary? {

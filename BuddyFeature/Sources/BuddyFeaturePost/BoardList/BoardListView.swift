@@ -44,7 +44,7 @@ public struct BoardListView: View {
     }
     .background(Color.systemGroupedBackground)
     .disabled(viewModel.state == .loading)
-    .navigationTitle("Boards")
+    .navigationTitle(String(localized: "Boards", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
     .toolbar(horizontalSizeClass == .compact ? .automatic : .visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
     .navigationDestination(for: AraBoard.self) { board in

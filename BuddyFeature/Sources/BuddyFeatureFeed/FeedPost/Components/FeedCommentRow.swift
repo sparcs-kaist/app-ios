@@ -42,12 +42,12 @@ struct FeedCommentRow: View {
     }
     .translationPresentation(isPresented: $showTranslateSheet, text: comment.content)
     .alert(
-      viewModel.alertState?.title ?? "Error",
+      viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
       isPresented: $viewModel.isAlertPresented,
       actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
-        Text(viewModel.alertState?.message ?? "Unexpected Error")
+        Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
       }
     )
     .sheet(item: $safariSheetURL) { url in
@@ -128,7 +128,7 @@ struct FeedCommentRow: View {
             }
           }
         } else {
-          Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+          Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
             ForEach(FeedReportType.allCases) { reason in
               Button(reason.description) {
                 Task {
@@ -149,25 +149,29 @@ struct FeedCommentRow: View {
 
   @ViewBuilder
   var content: some View {
-    Text(comment.isDeleted ?
-         "This comment has been deleted."
-         : comment.content.toDetectedAttributedString())
-      .lineLimit(showFullContent ? nil : 3)
-      .textSelection(.enabled)
-      .foregroundStyle(comment.isDeleted ? .secondary : .primary)
-      .contentTransition(.numericText())
-      .animation(.spring, value: comment)
-      .background {
-        ViewThatFits(in: .vertical) {
-          Text(comment.content)
-            .hidden()
+    Group {
+      if comment.isDeleted {
+        Text(String(localized: "This comment has been deleted.", bundle: .module))
+      } else {
+        Text(comment.content.toDetectedAttributedString())
+      }
+    }
+    .lineLimit(showFullContent ? nil : 3)
+    .textSelection(.enabled)
+    .foregroundStyle(comment.isDeleted ? .secondary : .primary)
+    .contentTransition(.numericText())
+    .animation(.spring, value: comment)
+    .background {
+      ViewThatFits(in: .vertical) {
+        Text(comment.content)
+          .hidden()
 
-          Color.clear.onAppear {
-            canBeExpanded = true
-          }
+        Color.clear.onAppear {
+          canBeExpanded = true
         }
       }
-      .environment(\.openURL, OpenURLAction(handler: handleURL))
+    }
+    .environment(\.openURL, OpenURLAction(handler: handleURL))
 
     if canBeExpanded && !showFullContent && !comment.isDeleted {
       Button(String(localized: "more", bundle: .module)) {

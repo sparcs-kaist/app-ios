@@ -42,12 +42,12 @@ struct FeedPostRow: View {
       text: post.content
     )
     .alert(
-      viewModel.alertState?.title ?? "Error",
+      viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
       isPresented: $viewModel.isAlertPresented,
       actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
-        Text(viewModel.alertState?.message ?? "Unexpected Error")
+        Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
       }
     )
     .sheet(item: $safariSheetURL) { url in
@@ -121,7 +121,7 @@ struct FeedPostRow: View {
               showDeleteConfirmation = true
             }
           } else {
-            Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+            Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
               ForEach(FeedReportType.allCases) { reason in
                 Button(reason.description) {
                   Task {
@@ -137,7 +137,7 @@ struct FeedPostRow: View {
             .padding(8)
             .contentShape(.rect)
         }
-        .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+        .confirmationDialog(String(localized: "Delete Post", bundle: .module), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
           Button(String(localized: "Delete", bundle: .module), role: .destructive) {
             Task {
               onPostDeleted?(post.id)

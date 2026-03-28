@@ -30,8 +30,8 @@ struct TaxiReportView: View {
   var body: some View {
     NavigationStack {
       Form {
-        Section("Who?") {
-          Picker("Select", selection: $viewModel.selectedUser) {
+        Section(String(localized: "Who?", bundle: .module)) {
+          Picker(String(localized: "Select", bundle: .module), selection: $viewModel.selectedUser) {
             ForEach(room.participants.filter { $0.id != taxiUser?.oid }) { part in
               TaxiReportUser(user: part).tag(part)
             }
@@ -46,7 +46,7 @@ struct TaxiReportView: View {
         }
         
         Section {
-          Picker("Reason", selection: $viewModel.selectedReason) {
+          Picker(String(localized: "Reason", bundle: .module), selection: $viewModel.selectedReason) {
             Text(String(localized: "Select", bundle: .module))
               .tag(TaxiReport.Reason?.none)
               .selectionDisabled()
@@ -61,7 +61,7 @@ struct TaxiReportView: View {
           
           if viewModel.selectedReason == .etcReason {
             HStack {
-              TextField("Details", text: $viewModel.etcDetails)
+              TextField(String(localized: "Details", bundle: .module), text: $viewModel.etcDetails)
               Text(String(localized: "\(viewModel.etcDetails.count)/\(viewModel.maxEtcDetailsLength)", bundle: .module))
                 .foregroundStyle(viewModel.etcDetails.count > viewModel.maxEtcDetailsLength ? .orange : .secondary)
             }
@@ -79,7 +79,7 @@ struct TaxiReportView: View {
           }
         }
       }
-      .navigationTitle("Report")
+      .navigationTitle(String(localized: "Report", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {        
         ToolbarItem(placement: .topBarTrailing) {

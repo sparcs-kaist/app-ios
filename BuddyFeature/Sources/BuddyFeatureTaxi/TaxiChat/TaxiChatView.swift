@@ -70,7 +70,7 @@ struct TaxiChatView: View {
     .safeAreaBar(edge: .bottom) {
       TaxiChatInputBar(
         text: $text,
-        nickname: viewModel.taxiUser?.nickname ?? "unknown",
+        nickname: viewModel.taxiUser?.nickname ?? String(localized: "unknown", bundle: .module),
         isUploading: viewModel.isUploading,
         isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable,
         isCommitSettlementAvailable: viewModel.isCommitSettlementAvailable,
@@ -96,7 +96,7 @@ struct TaxiChatView: View {
           viewModel.updateCarrier(hasCarrier: hasCarrier)
         },
         onError: { message in
-          viewModel.alertState = AlertState(title: "Error", message: message)
+          viewModel.alertState = AlertState(title: String(localized: "Error", bundle: .module), message: message)
           viewModel.isAlertPresented = true
         }
       )
@@ -107,7 +107,7 @@ struct TaxiChatView: View {
         .navigationTransition(.zoom(sourceID: id, in: namespace))
     }
     .alert(
-      "Call Taxi",
+      String(localized: "Call Taxi", bundle: .module),
       isPresented: $showCallTaxiAlert,
       actions: {
         Button(String(localized: "Open Kakao T", bundle: .module), role: .confirm) {
@@ -124,12 +124,12 @@ struct TaxiChatView: View {
       },
       message: {
         Text(
-          "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from \(viewModel.room.source.title.localized()) to \(viewModel.room.destination.title.localized())."
+          String(localized: "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from \(viewModel.room.source.title.localized()) to \(viewModel.room.destination.title.localized()).", bundle: .module)
         )
       }
     )
     .alert(
-      "Send Payment",
+      String(localized: "Send Payment", bundle: .module),
       isPresented: $showPayMoneyAlert,
       actions: {
         Button(String(localized: "Open Kakao Pay", bundle: .module), role: .confirm) {
@@ -149,18 +149,18 @@ struct TaxiChatView: View {
       },
       message: {
         Text(
-          "Select the app to send your payment. Tap Already Sent once you've completed the transfer."
+          String(localized: "Select the app to send your payment. Tap Already Sent once you've completed the transfer.", bundle: .module)
         )
       }
     )
     .alert(
-      viewModel.alertState?.title ?? "Error",
+      viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
       isPresented: $viewModel.isAlertPresented,
       actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       },
       message: {
-        Text(viewModel.alertState?.message ?? "")
+        Text(viewModel.alertState?.message ?? String(localized: "", bundle: .module))
       }
     )
     .sheet(isPresented: $showReportSheet) {
@@ -178,7 +178,7 @@ struct TaxiChatView: View {
   @ToolbarContentBuilder
   private var toolbarContent: some ToolbarContent {
     ToolbarItem(placement: .topBarTrailing) {
-      Menu("More", systemImage: "ellipsis") {
+      Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
         ControlGroup {
           ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + viewModel.room.id)!, message: Text(String(localized: "🚕 Looking for someone to ride with on \(viewModel.room.departAt.formattedString) from \(viewModel.room.source.title) to \(viewModel.room.destination.title)! 🚕", bundle: .module))) {
             Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
@@ -197,7 +197,7 @@ struct TaxiChatView: View {
         Label(viewModel.room.departAt.formattedString, systemImage: "calendar.badge.clock")
 
         Menu(
-          "Participants \(viewModel.room.participants.count)/\(viewModel.room.capacity)\nArrived \(viewModel.arrivedCount)/\(viewModel.room.participants.count)",
+          String(localized: "Participants \(viewModel.room.participants.count)/\(viewModel.room.capacity)", bundle: .module),
           systemImage: "person.3"
         ) {
           ForEach(viewModel.room.participants) { participant in
@@ -217,7 +217,7 @@ struct TaxiChatView: View {
               try await viewModel.leaveRoom()
               dismiss()
             } catch {
-              viewModel.alertState = AlertState(title: "Error", message: error.localizedDescription)
+              viewModel.alertState = AlertState(title: String(localized: "Error", bundle: .module), message: error.localizedDescription)
               viewModel.isAlertPresented = true
             }
           }

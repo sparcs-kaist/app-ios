@@ -46,7 +46,7 @@ struct CreditView: View {
       }
       .padding()
     }
-    .navigationTitle("Acknowledgements")
+    .navigationTitle(String(localized: "Acknowledgements", bundle: .module))
     .analyticsScreen(name: "Credit", class: String(describing: Self.self))
   }
 }

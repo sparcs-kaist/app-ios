@@ -39,7 +39,7 @@ struct AraSettingsView: View {
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-    .alert("Warning", isPresented: $showNicknameAlert) {
+    .alert(String(localized: "Warning", bundle: .module), isPresented: $showNicknameAlert) {
       Button(role: .cancel) {
         showNicknameAlert = false
       }
@@ -49,7 +49,7 @@ struct AraSettingsView: View {
     } message: {
       Text(String(localized: "Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?", bundle: .module))
     }
-    .navigationTitle("Ara")
+    .navigationTitle(String(localized: "Ara", bundle: .module))
     .analyticsScreen(name: "Ara Settings", class: String(describing: Self.self))
   }
   
@@ -59,13 +59,13 @@ struct AraSettingsView: View {
         HStack {
           Text(String(localized: "Nickname", bundle: .module))
           Spacer()
-          TextField("Nickname", text: .constant("Unknown"))
+          TextField(String(localized: "Nickname", bundle: .module), text: .constant(String(localized: "Unknown", bundle: .module)))
         }
       }
 
       Section(header: Text(String(localized: "Posts", bundle: .module))) {
-        Toggle("Allow NSFW", isOn: .constant(true))
-        Toggle("Allow Political", isOn: .constant(true))
+        Toggle(String(localized: "Allow NSFW", bundle: .module), isOn: .constant(true))
+        Toggle(String(localized: "Allow Political", bundle: .module), isOn: .constant(true))
       }
     }
     .redacted(reason: .placeholder)
@@ -77,7 +77,7 @@ struct AraSettingsView: View {
         HStack {
           Text(String(localized: "Nickname", bundle: .module))
           Spacer()
-          TextField("Nickname", text: $vm.nickname)
+          TextField(String(localized: "Nickname", bundle: .module), text: $vm.nickname)
           .autocorrectionDisabled()
           .onSubmit {
             showNicknameAlert = true
@@ -98,21 +98,21 @@ struct AraSettingsView: View {
       }
 
       Section(header: Text(String(localized: "Content Preferences", bundle: .module))) {
-        Toggle("Allow NSFW", isOn: $vm.allowNSFW)
-        Toggle("Allow Political", isOn: $vm.allowPolitical)
+        Toggle(String(localized: "Allow NSFW", bundle: .module), isOn: $vm.allowNSFW)
+        Toggle(String(localized: "Allow Political", bundle: .module), isOn: $vm.allowPolitical)
       }
       
       Section(header: Text(String(localized: "Posts", bundle: .module))){
         NavigationLink(
-          "My Posts",
+          String(localized: "My Posts", bundle: .module),
           destination: AraMyPostView(user: vm.user, type: .all)
-            .navigationTitle("My Posts")
+            .navigationTitle(String(localized: "My Posts", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
         )
         NavigationLink(
-          "Bookmarked Posts",
+          String(localized: "Bookmarked Posts", bundle: .module),
           destination: AraMyPostView(user: vm.user, type: .bookmark)
-            .navigationTitle("Bookmarked Posts")
+            .navigationTitle(String(localized: "Bookmarked Posts", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
         )
       }

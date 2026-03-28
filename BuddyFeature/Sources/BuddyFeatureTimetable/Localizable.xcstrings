@@ -1019,6 +1019,22 @@
         }
       }
     },
+    "Unexpected Error" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unexpected Error"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알 수 없는 오류"
+          }
+        }
+      }
+    },
     "Unknown" : {
       "localizations" : {
         "en" : {
@@ -1031,6 +1047,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "알 수 없음"
+          }
+        }
+      }
+    },
+    "Untitled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Untitled"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목 없음"
           }
         }
       }

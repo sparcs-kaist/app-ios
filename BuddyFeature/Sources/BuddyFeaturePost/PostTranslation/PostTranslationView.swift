@@ -112,9 +112,9 @@ struct PostTranslationView: View {
           showErrorAlert = true
         }
       }
-      .navigationTitle("Translate")
+      .navigationTitle(String(localized: "Translate", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
-      .alert("Error", isPresented: $showErrorAlert, actions: {
+      .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(errorMessage)
@@ -135,7 +135,7 @@ struct PostTranslationView: View {
   }
 
   private var languageSelector: some View {
-    Picker("", selection: $selectedTarget) {
+    Picker(String(localized: "", bundle: .module), selection: $selectedTarget) {
       ForEach(availableLanguages, id: \.minimalIdentifier) { language in
         Text(String(localized: "\(displayName(for: language))", bundle: .module))
           .tag(language)

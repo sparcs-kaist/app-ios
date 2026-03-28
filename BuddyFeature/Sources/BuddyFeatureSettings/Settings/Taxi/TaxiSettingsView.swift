@@ -60,8 +60,8 @@ struct TaxiSettingsView: View {
     .fullScreenCover(item: $safariURL) {
       SafariViewWrapper(url: $0)
     }
-    .navigationTitle("Taxi")
-    .alert("Warning", isPresented: $showAlert, actions: {
+    .navigationTitle(String(localized: "Taxi", bundle: .module))
+    .alert(String(localized: "Warning", bundle: .module), isPresented: $showAlert, actions: {
       Button(role: .cancel) { }
       
       Button(role: .confirm, action: {
@@ -82,8 +82,8 @@ struct TaxiSettingsView: View {
   var loadingView: some View {
     List {
       RowElementView(title: "Nickname", content: "Unknown")
-      RowElementView(title: "Bank Account", content: "Unknown")
-      RowElementView(title: "Phone Number", content: "Unknown")
+      RowElementView(title: "Bank Account", content: String.LocalizationValue(String(localized: "Unknown", bundle: .module)))
+      RowElementView(title: "Phone Number", content: String.LocalizationValue(String(localized: "Unknown", bundle: .module)))
     }
   }
   
@@ -145,7 +145,7 @@ struct TaxiSettingsView: View {
         navigationLinkWithIcon(destination: TaxiReportListView(), text: String(localized: "Report Details", bundle: .module), systemImage: "exclamationmark.bubble")
       }
     }
-    .alert("Error", isPresented: $vm.showAlert, actions: {
+    .alert(String(localized: "Error", bundle: .module), isPresented: $vm.showAlert, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
       Text(vm.alertContent)

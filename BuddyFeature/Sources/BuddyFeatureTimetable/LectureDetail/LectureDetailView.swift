@@ -70,7 +70,7 @@ struct LectureDetailView: View {
         }
       }
     }
-    .alert("Cannot Add Lecture", isPresented: $showCannotAddLectureAlert, actions: {
+    .alert(String(localized: "Cannot Add Lecture", bundle: .module), isPresented: $showCannotAddLectureAlert, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
       Text(String(localized: "This lecture collides with an existing lecture in your timetable.", bundle: .module))
