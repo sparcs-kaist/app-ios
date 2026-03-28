@@ -68,7 +68,7 @@ class PostViewModel: PostViewModelProtocol {
   init(post: AraPost) {
     self.post = post
     
-    if let url = URL(string: "https://newara.dev.sparcs.org/api/users/exchange?next=/board/\(post.id)"),
+    if let url = URL(string: "https://newara.dev.sparcs.org/api/users/exchange?next=/web_view/PostFrame/\(post.id)"),
        let token = araBoardUseCase?.getAccessToken() {
       var request = URLRequest(url: url)
 
