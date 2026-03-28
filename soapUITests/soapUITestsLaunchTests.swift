@@ -2,7 +2,7 @@
 //  soapUITestsLaunchTests.swift
 //  soapUITests
 //
-//  Created by Soongyu Kwon on 28/10/2024.
+//  Created by Soongyu Kwon on 28/03/2026.
 //
 
 import XCTest
@@ -24,6 +24,8 @@ final class soapUITestsLaunchTests: XCTestCase {
 
         // Insert steps here to perform after app launch but before taking a screenshot,
         // such as logging into a test account or navigating somewhere in the app
+        // XCUIAutomation Documentation
+        // https://developer.apple.com/documentation/xcuiautomation
 
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Launch Screen"

@@ -2,7 +2,7 @@
 //  soapUITests.swift
 //  soapUITests
 //
-//  Created by Soongyu Kwon on 28/10/2024.
+//  Created by Soongyu Kwon on 28/03/2026.
 //
 
 import XCTest
@@ -29,15 +29,15 @@ final class soapUITests: XCTestCase {
         app.launch()
 
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+        // XCUIAutomation Documentation
+        // https://developer.apple.com/documentation/xcuiautomation
     }
 
     @MainActor
     func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
+        // This measures how long it takes to launch your application.
+        measure(metrics: [XCTApplicationLaunchMetric()]) {
+            XCUIApplication().launch()
         }
     }
 }

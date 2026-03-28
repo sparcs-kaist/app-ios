@@ -2,54 +2,60 @@
 //  ContentView.swift
 //  soap
 //
-//  Created by Soongyu Kwon on 30/10/2024.
+//  Created by Soongyu Kwon on 28/03/2026.
 //
 
 import SwiftUI
-import Combine
-import Factory
-import BuddyDomain
+import SwiftData
 
 struct ContentView: View {
-  @Bindable private var viewModel = ContentViewModel()
-  @Environment(\.scenePhase) private var scenePhase
-  @Injected(\.crashlyticsService) private var crashlyticsService
+    @Environment(\.modelContext) private var modelContext
+    @Query private var items: [Item]
 
-  var body: some View {
-    ZStack {
-      if viewModel.isAuthenticated {
-        MainView()
-      } else if viewModel.isLoading {
-        // MARK: THIS PLAYS CRUCIAL ROLE HIDING SIGN IN VIEW ON LOADING
-      } else {
-        SignInView()
-      }
+    var body: some View {
+        NavigationSplitView {
+            List {
+                ForEach(items) { item in
+                    NavigationLink {
+                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                    } label: {
+                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                    }
+                }
+                .onDelete(perform: deleteItems)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    EditButton()
+                }
+                ToolbarItem {
+                    Button(action: addItem) {
+                        Label("Add Item", systemImage: "plus")
+                    }
+                }
+            }
+        } detail: {
+            Text("Select an item")
+        }
     }
-    .task {
-      await viewModel.onActivation()
+
+    private func addItem() {
+        withAnimation {
+            let newItem = Item(timestamp: Date())
+            modelContext.insert(newItem)
+        }
     }
-    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-    .onChange(of: scenePhase) { oldPhase, newPhase in
-      guard newPhase == .active, oldPhase != .active else { return }
-      Task {
-        await viewModel.onActivation()
-      }
+
+    private func deleteItems(offsets: IndexSet) {
+        withAnimation {
+            for index in offsets {
+                modelContext.delete(items[index])
+            }
+        }
     }
-    .alert("Update Required", isPresented: $viewModel.isUpdateRequired, actions: {
-      Button(action: {
-        viewModel.resetTimer()
-        UIApplication.shared.open(Constants.appStoreURL, options: [:], completionHandler: nil)
-      }, label: {
-        Text("Open App Store")
-      })
-    }, message: {
-      Text("A new version is available. Please update to continue.")
-    })
-  }
 }
 
 #Preview {
-  ContentView()
+    ContentView()
+        .modelContainer(for: Item.self, inMemory: true)
 }
-
-
