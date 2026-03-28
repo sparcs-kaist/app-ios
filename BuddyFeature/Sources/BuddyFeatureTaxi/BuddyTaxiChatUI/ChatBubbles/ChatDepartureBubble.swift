@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 18/07/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -16,16 +17,16 @@ struct ChatDepartureBubble: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Text("⏰ It's 15 minutes before your taxi leaves! If everyone's gathered, go ahead and call the taxi to head out together.")
+      Text("⏰ It's 15 minutes before your taxi leaves! If everyone's gathered, go ahead and call the taxi to head out together.", bundle: .module)
       
       if let emojiIdentifier = room.emojiIdentifier {
         VStack(alignment: .center) {
-          Text("Room Identifier")
+          Text("Room Identifier", bundle: .module)
             .fontWeight(.bold)
             .font(.headline)
           Text(emojiIdentifier.emoji)
             .font(.largeTitle)
-          Text("Please check the room identifier.")
+          Text("Please check the room identifier.", bundle: .module)
             .font(.caption)
         }
         .frame(maxWidth: .infinity)
@@ -39,7 +40,7 @@ struct ChatDepartureBubble: View {
       Button(action: {
         showAlert = true
       }, label: {
-        Label("Call Taxi", systemImage: "car.fill")
+        Label(String(localized: "Call Taxi", bundle: .module), systemImage: "car.fill")
           .frame(maxWidth: .infinity)
       })
       .fontWeight(.medium)
@@ -51,17 +52,17 @@ struct ChatDepartureBubble: View {
       "Call Taxi",
       isPresented: $showAlert,
       actions: {
-        Button("Open Kakao T", role: .confirm) {
+        Button(String(localized: "Open Kakao T", bundle: .module), role: .confirm) {
           if let url = TaxiDeepLinkHelper.kakaoTURL(source: room.source, destination: room.destination) {
             openURL(url)
           }
         }
-        Button("Open Uber", role: .confirm) {
+        Button(String(localized: "Open Uber", bundle: .module), role: .confirm) {
           if let url = TaxiDeepLinkHelper.uberURL(source: room.source, destination: room.destination) {
             openURL(url)
           }
         }
-        Button("Cancel", role: .cancel) { }
+        Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
       },
       message: {
         Text(

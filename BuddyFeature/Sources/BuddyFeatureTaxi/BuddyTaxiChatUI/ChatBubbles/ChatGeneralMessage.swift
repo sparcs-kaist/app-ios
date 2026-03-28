@@ -18,9 +18,9 @@ struct ChatGeneralMessage: View {
 
       switch type {
       case .entrance:
-        Text("\(authorName ?? "unknown") has joined")
+        Text(String(localized: "\(authorName ?? "unknown") has joined", bundle: .module))
       case .exit:
-        Text("\(authorName ?? "unknown") has left")
+        Text(String(localized: "\(authorName ?? "unknown") has left", bundle: .module))
       default:
         EmptyView()
       }

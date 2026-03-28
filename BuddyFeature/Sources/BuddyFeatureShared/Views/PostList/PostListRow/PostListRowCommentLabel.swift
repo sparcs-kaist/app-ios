@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 15/02/2025.
 //
 
+import Foundation
 import SwiftUI
 
 struct PostListRowCommentLabel: View {
@@ -16,7 +17,7 @@ struct PostListRowCommentLabel: View {
         HStack(spacing: 4) {
           Image(systemName: "bubble")
             .scaleEffect(0.9)
-          Text("\(commentCount)")
+          Text(String(localized: "\(commentCount)", bundle: .module))
         }
         .foregroundStyle(.primary)
       }

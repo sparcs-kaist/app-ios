@@ -5,6 +5,7 @@
 //  Created by 하정우 on 8/8/25.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
@@ -26,7 +27,7 @@ struct AraSettingsView: View {
       case .loaded:
         loadedView
       case .error(let message):
-        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .task {
@@ -46,7 +47,7 @@ struct AraSettingsView: View {
         updateAraNickname()
       }
     } message: {
-      Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?")
+      Text(String(localized: "Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?", bundle: .module))
     }
     .navigationTitle("Ara")
     .analyticsScreen(name: "Ara Settings", class: String(describing: Self.self))
@@ -54,15 +55,15 @@ struct AraSettingsView: View {
   
   private var loadingView: some View {
     List {
-      Section(header: Text("Profile")) {
+      Section(header: Text(String(localized: "Profile", bundle: .module))) {
         HStack {
-          Text("Nickname")
+          Text(String(localized: "Nickname", bundle: .module))
           Spacer()
           TextField("Nickname", text: .constant("Unknown"))
         }
       }
 
-      Section(header: Text("Posts")) {
+      Section(header: Text(String(localized: "Posts", bundle: .module))) {
         Toggle("Allow NSFW", isOn: .constant(true))
         Toggle("Allow Political", isOn: .constant(true))
       }
@@ -74,7 +75,7 @@ struct AraSettingsView: View {
     List {
       Section {
         HStack {
-          Text("Nickname")
+          Text(String(localized: "Nickname", bundle: .module))
           Spacer()
           TextField("Nickname", text: $vm.nickname)
           .autocorrectionDisabled()
@@ -86,22 +87,22 @@ struct AraSettingsView: View {
           .disabled(vm.nicknameUpdatable == false)
         }
       } header: {
-        Text("Profile")
+        Text(String(localized: "Profile", bundle: .module))
       } footer: {
         VStack(alignment: .leading) {
           if vm.nicknameUpdatable == false, let date = vm.nicknameUpdatableFrom {
-            Text("You can't change nickname until \(date.formatted(.iso8601.year().month().day())).")
+            Text(String(localized: "You can't change nickname until \(date.formatted(.iso8601.year().month().day())).", bundle: .module))
           }
-          Text("Nicknames can only be changed every 3 months.")
+          Text(String(localized: "Nicknames can only be changed every 3 months.", bundle: .module))
         }
       }
 
-      Section(header: Text("Content Preferences")) {
+      Section(header: Text(String(localized: "Content Preferences", bundle: .module))) {
         Toggle("Allow NSFW", isOn: $vm.allowNSFW)
         Toggle("Allow Political", isOn: $vm.allowPolitical)
       }
       
-      Section(header: Text("Posts")){
+      Section(header: Text(String(localized: "Posts", bundle: .module))){
         NavigationLink(
           "My Posts",
           destination: AraMyPostView(user: vm.user, type: .all)

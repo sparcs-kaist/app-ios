@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 03/06/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
@@ -32,7 +33,7 @@ public struct BoardListView: View {
         case .loaded(let boards, let groups):
           loadedView(boards: boards, groups: groups)
         case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+          ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
       .padding()
@@ -86,12 +87,12 @@ public struct BoardListView: View {
   @ViewBuilder
   var loadingView: some View {
     ForEach(0..<5) { _ in
-      ListGlassSection(header: Label("Notice", systemImage: "bell.badge.fill")) {
+      ListGlassSection(header: Label(String(localized: "Notice", bundle: .module), systemImage: "bell.badge.fill")) {
         ForEach(0..<3) { _ in
           NavigationLink(destination: {
           }, label: {
             HStack {
-              Text("Portal Notice")
+              Text(String(localized: "Portal Notice", bundle: .module))
               Spacer()
               Image(systemName: "chevron.right")
                 .opacity(0.3)

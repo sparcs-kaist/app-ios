@@ -134,13 +134,13 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
       try await feedPostUseCase.reportPost(postID: postID, reason: reason, detail: "")
       analyticsService?.logEvent(FeedPostViewEvent.postReported(reason: reason.description))
       alertState = .init(
-        title: String(localized: "Report Submitted"),
-        message: String(localized: "Your report has been submitted successfully.")
+        title: String(localized: "Report Submitted", bundle: .module),
+        message: String(localized: "Your report has been submitted successfully.", bundle: .module)
       )
       isAlertPresented = true
     } catch {
       alertState = .init(
-        title: String(localized: "Unable to submit report."),
+        title: String(localized: "Unable to submit report.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -168,7 +168,7 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
       return uploadedComment
     } catch {
       alertState = .init(
-        title: String(localized: "Unable to write comment."),
+        title: String(localized: "Unable to write comment.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true

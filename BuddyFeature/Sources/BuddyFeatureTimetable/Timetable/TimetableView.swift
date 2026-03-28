@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 28/02/2026.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
@@ -82,7 +83,7 @@ public struct TimetableView: View {
         .background(Color.systemGroupedBackground)
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
-            Button("Add Lecture", systemImage: "plus") {
+            Button(String(localized: "Add Lecture", bundle: .module), systemImage: "plus") {
               showSearchSheet = true
             }
             .disabled(viewModel.selectedTimetableID == nil)
@@ -123,7 +124,7 @@ public struct TimetableView: View {
           viewModel.alertState?.title ?? "Error",
           isPresented: $viewModel.isAlertPresented,
           actions: {
-            Button("Okay", role: .close) { }
+            Button(String(localized: "Okay", bundle: .module), role: .close) { }
           }, message: {
             Text(viewModel.alertState?.message ?? "Unexpected Error")
           }

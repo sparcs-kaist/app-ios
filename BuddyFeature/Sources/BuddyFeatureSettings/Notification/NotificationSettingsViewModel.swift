@@ -49,7 +49,7 @@ public final class NotificationSettingsViewModel {
       updateToggleState(for: service, isActive: isActive)
     } catch {
       alertState = .init(
-        title: String(localized: "Failed to update toggle status"),
+        title: String(localized: "Failed to update toggle status", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -62,8 +62,8 @@ public final class NotificationSettingsViewModel {
       toggleState[service] = isActive
     } else {
       alertState = .init(
-        title: String(localized: "Failed to save toggle status"),
-        message: String(localized: "Failed to encode toggle status")
+        title: String(localized: "Failed to save toggle status", bundle: .module),
+        message: String(localized: "Failed to encode toggle status", bundle: .module)
       )
       isAlertPresented = true
     }

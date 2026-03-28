@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 16/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import Observation
 import BuddyDomain
@@ -47,7 +48,7 @@ struct UserPostListView: View {
             }
           )
         case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+          ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
     }

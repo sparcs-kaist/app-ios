@@ -61,7 +61,7 @@ final class FeedCommentRowViewModel: FeedCommentRowViewModelProtocol {
       comment.wrappedValue.upvotes = previousUpvotes
       comment.wrappedValue.downvotes = previousDownvotes
       alertState = .init(
-        title: String(localized: "Failed to upvote"),
+        title: String(localized: "Failed to upvote", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -95,7 +95,7 @@ final class FeedCommentRowViewModel: FeedCommentRowViewModelProtocol {
       comment.wrappedValue.upvotes = previousUpvotes
       comment.wrappedValue.downvotes = previousDownvotes
       alertState = .init(
-        title: String(localized: "Failed to downvote"),
+        title: String(localized: "Failed to downvote", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -111,7 +111,7 @@ final class FeedCommentRowViewModel: FeedCommentRowViewModelProtocol {
     } catch {
       comment.wrappedValue.isDeleted = false
       alertState = .init(
-        title: String(localized: "Unable to delete comment."),
+        title: String(localized: "Unable to delete comment.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -124,13 +124,13 @@ final class FeedCommentRowViewModel: FeedCommentRowViewModelProtocol {
     do {
       try await feedCommentUseCase.reportComment(commentID: commentID, reason: reason, detail: "")
       alertState = .init(
-        title: String(localized: "Report Submitted"),
-        message: String(localized: "Your report has been submitted successfully.")
+        title: String(localized: "Report Submitted", bundle: .module),
+        message: String(localized: "Your report has been submitted successfully.", bundle: .module)
       )
       isAlertPresented = true
     } catch {
       alertState = .init(
-        title: String(localized: "Unable to submit report."),
+        title: String(localized: "Unable to submit report.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true

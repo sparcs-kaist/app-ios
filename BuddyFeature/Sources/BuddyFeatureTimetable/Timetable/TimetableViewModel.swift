@@ -89,7 +89,7 @@ public final class TimetableViewModel {
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
-        title: String(localized: "Unable to load semesters."),
+        title: String(localized: "Unable to load semesters.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -110,7 +110,7 @@ public final class TimetableViewModel {
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
-        title: String(localized: "Unable to add lecture."),
+        title: String(localized: "Unable to add lecture.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -131,7 +131,7 @@ public final class TimetableViewModel {
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
-        title: String(localized: "Unable to delete lecture."),
+        title: String(localized: "Unable to delete lecture.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -204,7 +204,7 @@ public final class TimetableViewModel {
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
-        title: String(localized: "Unable to rename timetable."),
+        title: String(localized: "Unable to rename timetable.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -230,7 +230,7 @@ public final class TimetableViewModel {
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
-        title: String(localized: "Unable to delete timetable."),
+        title: String(localized: "Unable to delete timetable.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -252,7 +252,7 @@ public final class TimetableViewModel {
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
-        title: String(localized: "Unable to create timetable."),
+        title: String(localized: "Unable to create timetable.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true

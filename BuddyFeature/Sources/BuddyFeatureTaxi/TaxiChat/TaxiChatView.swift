@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 14/07/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
@@ -109,17 +110,17 @@ struct TaxiChatView: View {
       "Call Taxi",
       isPresented: $showCallTaxiAlert,
       actions: {
-        Button("Open Kakao T", role: .confirm) {
+        Button(String(localized: "Open Kakao T", bundle: .module), role: .confirm) {
           if let url = TaxiDeepLinkHelper.kakaoTURL(source: viewModel.room.source, destination: viewModel.room.destination) {
             openURL(url)
           }
         }
-        Button("Open Uber", role: .confirm) {
+        Button(String(localized: "Open Uber", bundle: .module), role: .confirm) {
           if let url = TaxiDeepLinkHelper.uberURL(source: viewModel.room.source, destination: viewModel.room.destination) {
             openURL(url)
           }
         }
-        Button("Cancel", role: .cancel) { }
+        Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
       },
       message: {
         Text(
@@ -131,20 +132,20 @@ struct TaxiChatView: View {
       "Send Payment",
       isPresented: $showPayMoneyAlert,
       actions: {
-        Button("Open Kakao Pay", role: .confirm) {
+        Button(String(localized: "Open Kakao Pay", bundle: .module), role: .confirm) {
           if let url = TaxiDeepLinkHelper.kakaoPayURL(account: viewModel.account) {
             openURL(url)
           }
         }
-        Button("Open Toss", role: .confirm) {
+        Button(String(localized: "Open Toss", bundle: .module), role: .confirm) {
           if let url = TaxiDeepLinkHelper.tossURL(account: viewModel.account) {
             openURL(url)
           }
         }
-        Button("Already Sent", role: .confirm) {
+        Button(String(localized: "Already Sent", bundle: .module), role: .confirm) {
           viewModel.commitPayment()
         }
-        Button("Cancel", role: .cancel) { }
+        Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
       },
       message: {
         Text(
@@ -156,7 +157,7 @@ struct TaxiChatView: View {
       viewModel.alertState?.title ?? "Error",
       isPresented: $viewModel.isAlertPresented,
       actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       },
       message: {
         Text(viewModel.alertState?.message ?? "")
@@ -179,13 +180,13 @@ struct TaxiChatView: View {
     ToolbarItem(placement: .topBarTrailing) {
       Menu("More", systemImage: "ellipsis") {
         ControlGroup {
-          ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + viewModel.room.id)!, message: Text(LocalizedStringResource("🚕 Looking for someone to ride with on \(viewModel.room.departAt.formattedString) from \(viewModel.room.source.title) to \(viewModel.room.destination.title)! 🚕"))) {
-            Label("Share", systemImage: "square.and.arrow.up")
+          ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + viewModel.room.id)!, message: Text(String(localized: "🚕 Looking for someone to ride with on \(viewModel.room.departAt.formattedString) from \(viewModel.room.source.title) to \(viewModel.room.destination.title)! 🚕", bundle: .module))) {
+            Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
           }
-          Button("Call Taxi", systemImage: "car.fill") {
+          Button(String(localized: "Call Taxi", bundle: .module), systemImage: "car.fill") {
             showCallTaxiAlert = true
           }
-          Button("Report", systemImage: "exclamationmark.triangle.fill") {
+          Button(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
             showReportSheet = true
           }
           .disabled(viewModel.room.participants.count <= 1)
@@ -210,7 +211,7 @@ struct TaxiChatView: View {
 
         Divider()
 
-        Button("Leave", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) {
+        Button(String(localized: "Leave", bundle: .module), systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) {
           Task {
             do {
               try await viewModel.leaveRoom()
@@ -246,13 +247,13 @@ struct TaxiChatView: View {
   private func errorView(errorMessage: String) -> some View {
     ContentUnavailableView(
       label: {
-        Label("Error", systemImage: "exclamationmark.triangle.fill")
+        Label(String(localized: "Error", bundle: .module), systemImage: "exclamationmark.triangle.fill")
       },
       description: {
         Text(errorMessage)
       },
       actions: {
-        Button("Try Again") {
+        Button(String(localized: "Try Again", bundle: .module)) {
           Task {
             await viewModel.fetchInitialChats()
           }

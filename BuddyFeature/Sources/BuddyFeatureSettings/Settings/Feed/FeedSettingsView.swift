@@ -5,6 +5,7 @@
 //  Created by 하정우 on 2/20/26.
 //
 
+import Foundation
 import SwiftUI
 import PhotosUI
 import UIKit
@@ -31,7 +32,7 @@ struct FeedSettingsView: View {
       case .loaded:
         loadedView
       case .error(let message):
-        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .analyticsScreen(name: "Feed Settings", class: String(describing: Self.self))
@@ -62,7 +63,7 @@ struct FeedSettingsView: View {
       viewModel.alertState?.title ?? "Error",
       isPresented: $viewModel.isAlertPresented,
       actions: {
-        Button("Okay", role: .close) {
+        Button(String(localized: "Okay", bundle: .module), role: .close) {
           dismiss()
         }
       }, message: {
@@ -119,7 +120,7 @@ struct FeedSettingsView: View {
     .listRowBackground(Color.clear)
     .buttonStyle(.plain)
     HStack {
-      Text("Nickname")
+      Text(String(localized: "Nickname", bundle: .module))
       Spacer()
       TextField("Nickname", text: $viewModel.nickname)
         .autocorrectionDisabled(true)

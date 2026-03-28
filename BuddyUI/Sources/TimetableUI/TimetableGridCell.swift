@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 28/12/2024.
 //
 
+import Foundation
 import SwiftUI
 import WidgetKit
 import BuddyDomain
@@ -37,15 +38,15 @@ public struct TimetableGridCell: View {
           .foregroundStyle(backgroundColor)
           .widgetAccentable()
           .opacity(renderingMode == .accented ? 0.2 : 1)
-
+        
         VStack(alignment: .leading, spacing: placement == .widget ? 2 : 4) {
           Text(lectureItem.lecture.name)
             .minimumScaleFactor(placement == .widget ? 0.8 : 1)
             .font(.caption)
             .lineLimit(3)
-
+          
           if geometry.size.height > 40 {
-            Text("\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.buildingName)")
+            Text(String(localized: "\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.buildingName)", bundle: .module))
               .minimumScaleFactor(0.8)
               .lineLimit(2)
               .font(.caption2)
@@ -92,7 +93,7 @@ private struct TimetableContextMenuModifier: ViewModifier {
     } else {
       content
         .contextMenu {
-          Button("Remove from Table", systemImage: "trash", role: .destructive) {
+          Button(String(localized: "Remove from Table", bundle: .module), systemImage: "trash", role: .destructive) {
             onDeletion?()
           }
         }

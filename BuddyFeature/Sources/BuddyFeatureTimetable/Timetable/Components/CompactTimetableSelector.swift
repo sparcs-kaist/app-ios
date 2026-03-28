@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 05/01/2025.
 //
 
+import Foundation
 import SwiftUI
 import Haptica
 import BuddyDomain
@@ -35,7 +36,7 @@ struct CompactTimetableSelector: View {
     .alert("Rename \"\(displayName)\"", isPresented: $showRenameAlert, actions: {
       TextField(displayName, text: $renameText)
 
-      Button("Confirm", role: .confirm, action: {
+      Button(String(localized: "Confirm", bundle: .module), role: .confirm, action: {
         Task {
           await renameTimetable(renameText)
           renameText = ""
@@ -43,9 +44,9 @@ struct CompactTimetableSelector: View {
       })
       .disabled(renameText.isEmpty)
 
-      Button("Cancel", role: .cancel, action: {})
+      Button(String(localized: "Cancel", bundle: .module), role: .cancel, action: {})
     }, message: {
-      Text("Enter a new name for this timetable.")
+      Text(String(localized: "Enter a new name for this timetable.", bundle: .module))
     })
   }
 
@@ -58,7 +59,7 @@ struct CompactTimetableSelector: View {
           if selectedTimetableID == nil {
             Image(systemName: "checkmark")
           }
-          Text("My Table")
+          Text(String(localized: "My Table", bundle: .module))
         }
       })
 
@@ -75,7 +76,7 @@ struct CompactTimetableSelector: View {
         })
       }
 
-      Button("New Table", systemImage: "plus") {
+      Button(String(localized: "New Table", bundle: .module), systemImage: "plus") {
         Task {
           await createTimetable()
         }
@@ -83,12 +84,12 @@ struct CompactTimetableSelector: View {
 
       Divider()
 
-      Button("Rename", systemImage: "square.and.pencil") {
+      Button(String(localized: "Rename", bundle: .module), systemImage: "square.and.pencil") {
         showRenameAlert = true
       }
       .disabled(selectedTimetableID == nil)
 
-      Button("Delete", systemImage: "trash", role: .destructive) {
+      Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
         Task {
           await deleteTimetable()
         }

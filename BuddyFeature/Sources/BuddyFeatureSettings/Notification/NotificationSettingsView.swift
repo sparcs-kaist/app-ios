@@ -5,6 +5,7 @@
 //  Created by 하정우 on 2/6/26.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
@@ -24,7 +25,7 @@ struct NotificationSettingsView: View {
       viewModel.alertState?.title ?? "Error",
       isPresented: $viewModel.isAlertPresented,
       actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(viewModel.alertState?.message ?? "Unexpected Error")
       }

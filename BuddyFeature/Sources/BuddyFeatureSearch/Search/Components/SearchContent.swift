@@ -5,6 +5,7 @@
 //  Created by 하정우 on 9/29/25.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
@@ -17,7 +18,7 @@ struct SearchContent<Element: Identifiable, Cell: View>: View {
   
   var body: some View {
     if results.count == 0 {
-      Text("No results")
+      Text(String(localized: "No results", bundle: .module))
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, minHeight: 100)
     }

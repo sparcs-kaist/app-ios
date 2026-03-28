@@ -14,7 +14,7 @@ public enum ReviewUseCaseError: Error, LocalizedError, SourcedError, Sendable {
   public var errorDescription: String? {
     switch self {
     case .unknown:
-      return String(localized: "Unknown error occurred. Please try again.")
+      return String(localized: "Unknown error occurred. Please try again.", bundle: .module)
     }
   }
 }

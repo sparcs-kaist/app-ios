@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 25/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import Translation
@@ -44,7 +45,7 @@ struct FeedCommentRow: View {
       viewModel.alertState?.title ?? "Error",
       isPresented: $viewModel.isAlertPresented,
       actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(viewModel.alertState?.message ?? "Unexpected Error")
       }
@@ -74,7 +75,7 @@ struct FeedCommentRow: View {
         .fill(Color.secondarySystemBackground)
         .frame(width: 24, height: 24)
         .overlay {
-          Text("😀")
+          Text(String(localized: "😀", bundle: .module))
             .font(.caption)
         }
     }
@@ -100,7 +101,7 @@ struct FeedCommentRow: View {
           .foregroundStyle(.tint)
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
-            Text("This post was created from within the KAIST network.")
+            Text(String(localized: "This post was created from within the KAIST network.", bundle: .module))
               .frame(width: 200)
               .presentationCompactAdaptation(.popover)
               .padding()
@@ -108,7 +109,7 @@ struct FeedCommentRow: View {
           .onTapGesture {
             showPopover = true
           }
-          .accessibilityLabel(Text("This post was created from within the KAIST network."))
+          .accessibilityLabel(Text(String(localized: "This post was created from within the KAIST network.", bundle: .module)))
       }
 
       Text(comment.createdAt.timeAgoDisplay)
@@ -118,10 +119,10 @@ struct FeedCommentRow: View {
       Spacer()
 
       Menu {
-        Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+        Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
         Divider()
         if comment.isMyComment {
-          Button("Delete", systemImage: "trash", role: .destructive) {
+          Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
             Task {
               await viewModel.delete(comment: $comment)
             }
@@ -138,7 +139,7 @@ struct FeedCommentRow: View {
           }
         }
       } label: {
-        Label("More", systemImage: "ellipsis")
+        Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
           .labelStyle(.iconOnly)
           .padding(8)
           .contentShape(.rect)
@@ -169,7 +170,7 @@ struct FeedCommentRow: View {
       .environment(\.openURL, OpenURLAction(handler: handleURL))
 
     if canBeExpanded && !showFullContent && !comment.isDeleted {
-      Button("more") {
+      Button(String(localized: "more", bundle: .module)) {
         withAnimation {
           showFullContent = true
         }

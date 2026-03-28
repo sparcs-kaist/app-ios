@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 26/06/2025.
 //
 
+import Foundation
 import SwiftUI
 import Factory
 import BuddyDomain
@@ -58,7 +59,7 @@ struct LectureDetailView: View {
     .toolbar {
       if onAdd != nil {
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Add", systemImage: "plus", role: isOverlapping ? .close : .confirm) {
+          Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
             if isOverlapping {
               showCannotAddLectureAlert = true
             } else {
@@ -70,9 +71,9 @@ struct LectureDetailView: View {
       }
     }
     .alert("Cannot Add Lecture", isPresented: $showCannotAddLectureAlert, actions: {
-      Button("Okay", role: .close) { }
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
-      Text("This lecture collides with an existing lecture in your timetable.")
+      Text(String(localized: "This lecture collides with an existing lecture in your timetable.", bundle: .module))
     })
     .sheet(isPresented: $showReviewComposeView) {
       ReviewComposeView(lecture: lecture)
@@ -84,24 +85,24 @@ struct LectureDetailView: View {
   var lectureReviews: some View {
     VStack {
       HStack {
-        Text("Reviews")
+        Text(String(localized: "Reviews", bundle: .module))
           .font(.title3)
           .fontWeight(.bold)
         Spacer()
       }
 
       HStack {
-        LectureSummaryRow(title: String(localized: "Grade"), description: lecture.gradeLetter)
+        LectureSummaryRow(title: String(localized: "Grade", bundle: .module), description: lecture.gradeLetter)
         Spacer()
-        LectureSummaryRow(title: String(localized: "Load"), description: lecture.loadLetter)
+        LectureSummaryRow(title: String(localized: "Load", bundle: .module), description: lecture.loadLetter)
         Spacer()
-        LectureSummaryRow(title: String(localized: "Speech"), description: lecture.speechLetter)
+        LectureSummaryRow(title: String(localized: "Speech", bundle: .module), description: lecture.speechLetter)
         Spacer()
 
         Button(action: {
           showReviewComposeView = true
         }, label: {
-          Label("Write a Review", systemImage: "square.and.pencil")
+          Label(String(localized: "Write a Review", bundle: .module), systemImage: "square.and.pencil")
             .foregroundStyle(canWriteReview ? .primary : .secondary)
             .padding(8)
         })
@@ -126,14 +127,14 @@ struct LectureDetailView: View {
         case .loaded:
           if viewModel.reviews.isEmpty {
             // loaded but empty
-            ContentUnavailableView("No Reviews", systemImage: "text.book.closed", description: Text("There are no reviews for this lecture yet."))
+            ContentUnavailableView(String(localized: "No Reviews", bundle: .module), systemImage: "text.book.closed", description: Text(String(localized: "There are no reviews for this lecture yet.", bundle: .module)))
           } else {
             ForEach($viewModel.reviews) { $review in
               LectureReviewCell(review: $review)
             }
           }
         case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+          ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
     }
@@ -142,32 +143,32 @@ struct LectureDetailView: View {
   var lectureInformation: some View {
     VStack {
       HStack {
-        Text("Information")
+        Text(String(localized: "Information", bundle: .module))
           .font(.title3)
           .fontWeight(.bold)
         Spacer()
       }
 
-      LectureDetailRow(title: String(localized: "Code"), description: lecture.code)
+      LectureDetailRow(title: String(localized: "Code", bundle: .module), description: lecture.code)
       LectureDetailRow(
-        title: String(localized: "Type"),
+        title: String(localized: "Type", bundle: .module),
         description: lecture.type.displayName.localized()
       )
-      LectureDetailRow(title: String(localized: "Department"), description: lecture.department.name)
+      LectureDetailRow(title: String(localized: "Department", bundle: .module), description: lecture.department.name)
       LectureDetailRow(
-        title: String(localized: "Professor"),
-        description: lecture.professors.isEmpty ? String(localized: "Unknown") : lecture.professors.map { $0.name }.joined(separator: "\n")
+        title: String(localized: "Professor", bundle: .module),
+        description: lecture.professors.isEmpty ? String(localized: "Unknown", bundle: .module) : lecture.professors.map { $0.name }.joined(separator: "\n")
       )
       if let lectureClass {
         LectureDetailRow(
-          title: String(localized: "Classroom"),
+          title: String(localized: "Classroom", bundle: .module),
           description: "\(lectureClass.buildingCode) \(lectureClass.roomName)"
         )
       }
-      LectureDetailRow(title: String(localized: "Capacity"), description: String(lecture.capacity))
+      LectureDetailRow(title: String(localized: "Capacity", bundle: .module), description: String(lecture.capacity))
       LectureDetailRow(
-        title: String(localized: "Exams"),
-        description: lecture.exams.isEmpty ? String(localized: "Unknown") : lecture.exams
+        title: String(localized: "Exams", bundle: .module),
+        description: lecture.exams.isEmpty ? String(localized: "Unknown", bundle: .module) : lecture.exams
           .map { $0.description }
           .joined(separator: "\n")
       )
@@ -175,7 +176,7 @@ struct LectureDetailView: View {
       // Lecture Action Buttons
 //      Button(action: { }, label: {
 //        HStack {
-//          Text("View Dictionary")
+//          Text(String(localized: "View Dictionary", bundle: .module))
 //          Spacer()
 //          Image(systemName: "text.book.closed")
 //        }
@@ -186,7 +187,7 @@ struct LectureDetailView: View {
 //
 //      Button(action: { }, label: {
 //        HStack {
-//          Text("View Syllabus")
+//          Text(String(localized: "View Syllabus", bundle: .module))
 //          Spacer()
 //          Image(systemName: "append.page")
 //        }

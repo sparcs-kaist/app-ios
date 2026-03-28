@@ -5,6 +5,8 @@
 //  Created by Soongyu Kwon on 29/12/2024.
 //
 
+import Foundation
+
 public enum LectureType: String, Equatable, Sendable, Codable {
   case br = "BR"
   case be = "BE"

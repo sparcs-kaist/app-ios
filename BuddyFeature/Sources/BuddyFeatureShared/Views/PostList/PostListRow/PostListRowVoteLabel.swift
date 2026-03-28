@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 15/02/2025.
 //
 
+import Foundation
 import SwiftUI
 
 /// PostListRowVoteLabel
@@ -20,7 +21,7 @@ struct PostListRowVoteLabel: View {
 
         HStack(spacing: 4) {
           Image(systemName: "arrowshape.up.fill")
-          Text("\(voteCount)")
+          Text(String(localized: "\(voteCount)", bundle: .module))
             .lineLimit(1)
         }
         .foregroundStyle(Color.upvote)
@@ -28,7 +29,7 @@ struct PostListRowVoteLabel: View {
         // downvoted
         HStack(spacing: 4) {
           Image(systemName: "arrowshape.down.fill")
-          Text("\(voteCount)")
+          Text(String(localized: "\(voteCount)", bundle: .module))
             .lineLimit(1)
         }
         .foregroundStyle(Color.downvote)

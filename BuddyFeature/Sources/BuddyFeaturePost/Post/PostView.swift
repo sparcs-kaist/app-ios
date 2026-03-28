@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 15/05/2025.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import WebKit
@@ -73,7 +74,7 @@ public struct PostView: View {
         ToolbarItem(placement: .topBarTrailing) {
           actionsMenu
             .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-              Button("Delete", role: .destructive) {
+              Button(String(localized: "Delete", bundle: .module), role: .destructive) {
                 Task {
                   do {
                     try await viewModel.deletePost()
@@ -81,16 +82,16 @@ public struct PostView: View {
                     dismiss()
                   } catch {
                     viewModel.alertState = .init(
-                      title: String(localized: "Unable to delete post."),
+                      title: String(localized: "Unable to delete post.", bundle: .module),
                       message: error.localizedDescription
                     )
                     viewModel.isAlertPresented = true
                   }
                 }
               }
-              Button("Cancel", role: .cancel) { }
+              Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
             } message: {
-              Text("Are you sure you want to delete this post?")
+              Text(String(localized: "Are you sure you want to delete this post?", bundle: .module))
             }
         }
       }
@@ -99,7 +100,7 @@ public struct PostView: View {
           .ignoresSafeArea()
       }
       .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented, actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(viewModel.alertState?.message ?? "Unexpected Error")
       })
@@ -142,12 +143,12 @@ public struct PostView: View {
 
       if viewModel.post.isMine == false { Divider () }
 
-      Button("Translate", systemImage: "translate") {
+      Button(String(localized: "Translate", bundle: .module), systemImage: "translate") {
         showTranslationView = true
       }
 
       if viewModel.isFoundationModelsAvailable {
-        Button("Summarise", systemImage: "text.append") {
+        Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
           summarisedContent = ""
           Task {
             Haptic.start.generate()
@@ -161,7 +162,7 @@ public struct PostView: View {
       if viewModel.post.isMine == true { Divider () }
 
       if viewModel.post.isMine == true {
-        Button("Delete", systemImage: "trash", role: .destructive) {
+        Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
           showDeleteConfirmation = true
         }
       }
@@ -266,7 +267,7 @@ public struct PostView: View {
 
       HStack {
         Text(viewModel.post.createdAt.formattedString)
-        Text("\(viewModel.post.views) views")
+        Text(String(localized: "\(viewModel.post.views) views", bundle: .module))
       }
       .font(.caption)
       .foregroundStyle(.secondary)
@@ -317,7 +318,7 @@ public struct PostView: View {
       VStack(alignment: .leading) {
         if commentOnEdit != nil {
           HStack {
-            Text("Editing")
+            Text(String(localized: "Editing", bundle: .module))
               .textCase(.uppercase)
               .font(.footnote)
               .fontWeight(.semibold)
@@ -325,7 +326,7 @@ public struct PostView: View {
 
             Spacer()
 
-            Button("Cancel", systemImage: "xmark") {
+            Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark") {
               withAnimation(.spring) {
                 comment = ""
                 commentOnEdit = nil
@@ -380,7 +381,7 @@ public struct PostView: View {
               }
             } catch {
               viewModel.alertState = .init(
-                title: String(localized: "Unable to write comment."),
+                title: String(localized: "Unable to write comment.", bundle: .module),
                 message: error.localizedDescription
               )
               viewModel.isAlertPresented = true
@@ -391,7 +392,7 @@ public struct PostView: View {
             ProgressView()
               .tint(.white)
           } else {
-            Label("Send", systemImage: "paperplane")
+            Label(String(localized: "Send", bundle: .module), systemImage: "paperplane")
               .labelStyle(.iconOnly)
               .tint(.white)
           }
@@ -441,14 +442,14 @@ public struct PostView: View {
 
   var placeholder: String {
     if let targetComment = targetComment {
-      return String(localized: "reply to \(targetComment.author.profile.nickname)")
+      return String(localized: "reply to \(targetComment.author.profile.nickname)", bundle: .module)
     }
 
     if let commentOnEdit = commentOnEdit {
       return commentOnEdit.content ?? ""
     }
 
-    return String(localized: "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")")
+    return String(localized: "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")", bundle: .module)
   }
 
   var title: AttributedString {
@@ -461,7 +462,7 @@ public struct PostView: View {
       result.append(topicAttr)
     }
 
-    var titleAttr = AttributedString(viewModel.post.title ?? String(localized: "Untitled"))
+    var titleAttr = AttributedString(viewModel.post.title ?? String(localized: "Untitled", bundle: .module))
     titleAttr.font = .headline
     titleAttr.foregroundColor = .primary
     result.append(titleAttr)
@@ -473,13 +474,13 @@ public struct PostView: View {
     do {
       try await viewModel.report(type: type)
       viewModel.alertState = .init(
-        title: String(localized: "Report Submitted"),
-        message: String(localized: "Your report has been submitted successfully.")
+        title: String(localized: "Report Submitted", bundle: .module),
+        message: String(localized: "Your report has been submitted successfully.", bundle: .module)
       )
       viewModel.isAlertPresented = true
     } catch {
       viewModel.alertState = .init(
-        title: String(localized: "Unable to submit report."),
+        title: String(localized: "Unable to submit report.", bundle: .module),
         message: error.localizedDescription
       )
       viewModel.isAlertPresented = true
@@ -504,6 +505,5 @@ public struct PostView: View {
     PostView(post: .mockWithoutComments, onPostDeleted: nil)
   }
 }
-
 
 

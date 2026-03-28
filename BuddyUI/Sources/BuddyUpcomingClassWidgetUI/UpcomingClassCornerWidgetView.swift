@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 07/10/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import WidgetKit
@@ -29,14 +30,14 @@ public struct UpcomingClassCornerWidgetView: View {
   }
 
   var signInRequiredView: some View {
-    Text("")
+    Text(String(localized: "", bundle: .module))
       .widgetCurvesContent()
-      .widgetLabel("Sign in Required")
+      .widgetLabel(String(localized: "Sign in Required", bundle: .module))
   }
 
   var emptyView: some View {
-    Text("")
+    Text(String(localized: "", bundle: .module))
       .widgetCurvesContent()
-      .widgetLabel("No more classes")
+      .widgetLabel(String(localized: "No more classes", bundle: .module))
   }
 }

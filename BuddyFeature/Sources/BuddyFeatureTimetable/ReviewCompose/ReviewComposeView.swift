@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 02/10/2025.
 //
 
+import Foundation
 import SwiftUI
 import Factory
 import BuddyDomain
@@ -30,7 +31,7 @@ struct ReviewComposeView: View {
         TextField(
           "",
           text: $content,
-          prompt: Text("Share your thoughts on \(lecture.name)..."),
+          prompt: Text(String(localized: "Share your thoughts on \(lecture.name)...", bundle: .module)),
           axis: .vertical
         )
           .padding()
@@ -40,41 +41,41 @@ struct ReviewComposeView: View {
       .navigationBarTitleDisplayMode(.inline)
       .safeAreaBar(edge: .top) {
         HStack {
-          Text("Grade")
+          Text(String(localized: "Grade", bundle: .module))
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
 
           Picker("Grade", selection: $grade) {
-            Text("A").tag(5)
-            Text("B").tag(4)
-            Text("C").tag(3)
-            Text("D").tag(2)
-            Text("F").tag(1)
+            Text(String(localized: "A", bundle: .module)).tag(5)
+            Text(String(localized: "B", bundle: .module)).tag(4)
+            Text(String(localized: "C", bundle: .module)).tag(3)
+            Text(String(localized: "D", bundle: .module)).tag(2)
+            Text(String(localized: "F", bundle: .module)).tag(1)
           }
 
-          Text("Load")
+          Text(String(localized: "Load", bundle: .module))
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
           Picker("Load", selection: $load) {
-            Text("A").tag(5)
-            Text("B").tag(4)
-            Text("C").tag(3)
-            Text("D").tag(2)
-            Text("F").tag(1)
+            Text(String(localized: "A", bundle: .module)).tag(5)
+            Text(String(localized: "B", bundle: .module)).tag(4)
+            Text(String(localized: "C", bundle: .module)).tag(3)
+            Text(String(localized: "D", bundle: .module)).tag(2)
+            Text(String(localized: "F", bundle: .module)).tag(1)
           }
 
-          Text("Speech")
+          Text(String(localized: "Speech", bundle: .module))
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
           Picker("Speech", selection: $speech) {
-            Text("A").tag(5)
-            Text("B").tag(4)
-            Text("C").tag(3)
-            Text("D").tag(2)
-            Text("F").tag(1)
+            Text(String(localized: "A", bundle: .module)).tag(5)
+            Text(String(localized: "B", bundle: .module)).tag(4)
+            Text(String(localized: "C", bundle: .module)).tag(3)
+            Text(String(localized: "D", bundle: .module)).tag(2)
+            Text(String(localized: "F", bundle: .module)).tag(1)
           }
         }
         .font(.callout)
@@ -108,7 +109,7 @@ struct ReviewComposeView: View {
               if isUploading {
                 ProgressView()
               } else {
-                Label("Done", systemImage: "arrow.up")
+                Label(String(localized: "Done", bundle: .module), systemImage: "arrow.up")
               }
             }
           )
@@ -117,9 +118,9 @@ struct ReviewComposeView: View {
         }
       }
       .alert("Error", isPresented: $showErrorAlert, actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
-        Text("There was an error. Please try again later.")
+        Text(String(localized: "There was an error. Please try again later.", bundle: .module))
       })
     }
     .analyticsScreen(name: "Review Compose", class: String(describing: Self.self))

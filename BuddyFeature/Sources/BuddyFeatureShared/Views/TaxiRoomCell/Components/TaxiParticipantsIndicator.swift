@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 13/07/2025.
 //
 
+import Foundation
 import SwiftUI
 
 public struct TaxiParticipantsIndicator: View {
@@ -18,7 +19,7 @@ public struct TaxiParticipantsIndicator: View {
 
   public var body: some View {
     HStack(spacing: 4) {
-      Text("\(participants)/\(capacity)")
+      Text(String(localized: "\(participants)/\(capacity)", bundle: .module))
       Image(systemName: "person.2")
     }
     .font(.footnote)

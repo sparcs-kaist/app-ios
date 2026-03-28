@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 09/03/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
@@ -45,7 +46,7 @@ struct TaxiRoomCreationView: View {
           TaxiDepartureTimePicker(departureTime: $viewModel.roomDepartureTime)
           Picker("Capacity", selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in
-              Text("\(number) people")
+              Text(String(localized: "\(number) people", bundle: .module))
                 .tag(number)
             }
           }
@@ -56,20 +57,20 @@ struct TaxiRoomCreationView: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
-          Button("Cancel", systemImage: "xmark", role: .close) {
+          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
             dismiss()
           }
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Done", systemImage: "arrow.up", role: .confirm) {
+          Button(String(localized: "Done", bundle: .module), systemImage: "arrow.up", role: .confirm) {
             Task {
               do {
                 try await viewModel.createRoom(title: title)
                 await viewModel.fetchData()
                 dismiss()
               } catch {
-                self.alertTitle = String(localized: "Error")
+                self.alertTitle = String(localized: "Error", bundle: .module)
                 self.alertMessage = error.localizedDescription
                 self.showAlert = true
               }
@@ -88,16 +89,16 @@ struct TaxiRoomCreationView: View {
       await roomCreationViewModel.fetchBlockStatus()
       switch roomCreationViewModel.blockStatus {
       case .error(let errorMessage):
-        showAlert(title: String(localized: "Error"), message: errorMessage)
+        showAlert(title: String(localized: "Error", bundle: .module), message: errorMessage)
       case .notPaid:
-        showAlert(title: String(localized: "Notice"), message: String(localized: "There are rooms for which settlement has not been completed. To create a room, please settle an existing room."))
+        showAlert(title: String(localized: "Notice", bundle: .module), message: String(localized: "There are rooms for which settlement has not been completed. To create a room, please settle an existing room.", bundle: .module))
       case .tooManyRooms:
-        showAlert(title: String(localized: "Notice"), message: String(localized: "You are participating in more than 5 rooms. To create a room, please settle an existing room."))
+        showAlert(title: String(localized: "Notice", bundle: .module), message: String(localized: "You are participating in more than 5 rooms. To create a room, please settle an existing room.", bundle: .module))
       default: break
       }
     }
     .alert(alertTitle, isPresented: $showAlert, actions: {
-      Button("Okay", role: .close) { }
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
       Text(alertMessage)
     })

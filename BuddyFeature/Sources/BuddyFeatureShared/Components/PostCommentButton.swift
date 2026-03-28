@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 27/05/2025.
 //
 
+import Foundation
 import SwiftUI
 import Haptica
 
@@ -18,7 +19,7 @@ public struct PostCommentButton: View {
   }
 
   public var body: some View {
-    Button("\(commentCount)", systemImage: "text.bubble") {
+    Button(String(localized: "\(commentCount)", bundle: .module), systemImage: "text.bubble") {
       Haptic.impact(.light).generate()
       onClick()
     }

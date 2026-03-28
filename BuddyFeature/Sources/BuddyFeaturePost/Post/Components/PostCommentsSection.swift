@@ -5,6 +5,7 @@
 //  Created by Codex on 13/02/2026.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -26,7 +27,7 @@ struct PostCommentsSection: View {
         ContentUnavailableView(
           "No one has commented yet.",
           systemImage: "text.bubble",
-          description: Text("Be the first one to share your thoughts.")
+          description: Text(String(localized: "Be the first one to share your thoughts.", bundle: .module))
         )
         .scaleEffect(0.8)
       } else {

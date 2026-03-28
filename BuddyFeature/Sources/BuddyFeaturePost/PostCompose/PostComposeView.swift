@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 26/01/2025.
 //
 
+import Foundation
 import SwiftUI
 import PhotosUI
 import BuddyDomain
@@ -91,7 +92,7 @@ struct PostComposeView: View {
       .toolbar {
         // Top tool bar
         ToolbarItem(placement: .topBarLeading) {
-          Button("Cancel", systemImage: "xmark", role: .close) {
+          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
             isShowingCancelDialog = true
           }
           .confirmationDialog(
@@ -99,7 +100,7 @@ struct PostComposeView: View {
             isPresented: $isShowingCancelDialog,
             titleVisibility: .hidden
           ) {
-            Button("Discard Post", role: .destructive) {
+            Button(String(localized: "Discard Post", bundle: .module), role: .destructive) {
               dismiss()
             }
           }
@@ -126,7 +127,7 @@ struct PostComposeView: View {
               if isUploading {
                 ProgressView()
               } else {
-                Label("Done", systemImage: "arrow.up")
+                Label(String(localized: "Done", bundle: .module), systemImage: "arrow.up")
               }
             }
           )
@@ -140,7 +141,7 @@ struct PostComposeView: View {
         ToolbarSpacer(.flexible, placement: .bottomBar)
 
         ToolbarItem(placement: .bottomBar) {
-          Button("Photo Library", systemImage: "photo.on.rectangle") {
+          Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
           .disabled(isUploading)
@@ -154,7 +155,7 @@ struct PostComposeView: View {
               if viewModel.writeAsAnonymous {
                 Image(systemName: "checkmark")
               }
-              Text("Anonymous")
+              Text(String(localized: "Anonymous", bundle: .module))
             })
             Button(action: {
               viewModel.isNSFW.toggle()
@@ -162,7 +163,7 @@ struct PostComposeView: View {
               if viewModel.isNSFW {
                 Image(systemName: "checkmark")
               }
-              Text("NSFW")
+              Text(String(localized: "NSFW", bundle: .module))
             })
             Button(action: {
               viewModel.isPolitical.toggle()
@@ -170,7 +171,7 @@ struct PostComposeView: View {
               if viewModel.isPolitical {
                 Image(systemName: "checkmark")
               }
-              Text("Political")
+              Text(String(localized: "Political", bundle: .module))
             })
           }
           .disabled(isUploading)
@@ -184,7 +185,7 @@ struct PostComposeView: View {
         photoLibrary: .shared()
       )
       .alert("Error", isPresented: $showErrorAlert, actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(errorMessage)
       })
@@ -198,7 +199,7 @@ struct PostComposeView: View {
       Button {
         openURL(Constants.termsOfUseURL)
       } label: {
-        Text("terms of use")
+        Text(String(localized: "terms of use", bundle: .module))
           .underline()
       }
       .tint(.secondary)
@@ -207,7 +208,7 @@ struct PostComposeView: View {
 
   private var topicSelector: some View {
     Picker(selection: $viewModel.selectedTopic, label: EmptyView()) {
-      Text("No topic")
+      Text(String(localized: "No topic", bundle: .module))
         .tag(nil as AraBoardTopic?)
 
       ForEach(viewModel.board.topics ?? []) { topic in

@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 01/11/2024.
 //
 
+import Foundation
 import SwiftUI
 import MapKit
 import BuddyDomain
@@ -80,7 +81,7 @@ public struct TaxiPreviewView: View {
 
         TaxiInfoSection(items: [
           .plain(
-            label: String(localized: "Depart at"),
+            label: String(localized: "Depart at", bundle: .module),
             value: room.departAt.formattedString
           ),
         ])
@@ -88,8 +89,8 @@ public struct TaxiPreviewView: View {
         Spacer()
 
         HStack {
-          ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text(LocalizedStringResource("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕"))) {
-            Label("Share", systemImage: "square.and.arrow.up")
+          ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text(String(localized: "🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module))) {
+            Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
               .labelStyle(.iconOnly)
               .frame(width: 44, height: 44)
           }
@@ -110,21 +111,21 @@ public struct TaxiPreviewView: View {
             Group {
               if viewModel
                 .isJoined(participants: room.participants) {
-                Label("Joined", systemImage: "car.2.fill")
+                Label(String(localized: "Joined", bundle: .module), systemImage: "car.2.fill")
               } else if room.participants.count >= room.capacity || viewModel.isJoined(participants: room.participants) {
-                Label("This group is full", systemImage: "car.2.fill")
+                Label(String(localized: "This group is full", bundle: .module), systemImage: "car.2.fill")
               }
               else if room.isDeparted {
-                Label("Already Departed", systemImage: "car.2.fill")
+                Label(String(localized: "Already Departed", bundle: .module), systemImage: "car.2.fill")
               }
               else if viewModel.blockStatus == .tooManyRooms {
-                Label("Room Limit Reached", systemImage: "car.2.fill")
+                Label(String(localized: "Room Limit Reached", bundle: .module), systemImage: "car.2.fill")
               }
               else if viewModel.blockStatus == .notPaid {
-                Label("Room Settlement Required", systemImage: "car.2.fill")
+                Label(String(localized: "Room Settlement Required", bundle: .module), systemImage: "car.2.fill")
               }
               else {
-                Label("Join", systemImage: "car.2.fill")
+                Label(String(localized: "Join", bundle: .module), systemImage: "car.2.fill")
               }
             }
             .frame(maxWidth: .infinity, maxHeight: 44)
@@ -137,7 +138,7 @@ public struct TaxiPreviewView: View {
       .padding()
     }
     .alert("Error", isPresented: $showErrorAlert, actions: {
-      Button("Okay", role: .close) { }
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
       Text(errorMessage)
     })

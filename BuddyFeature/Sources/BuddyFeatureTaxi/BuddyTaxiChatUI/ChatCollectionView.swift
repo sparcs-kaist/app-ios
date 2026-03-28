@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 17/02/2026.
 //
 
+import Foundation
 import SwiftUI
 import UIKit
 import BuddyDomain
@@ -173,7 +174,7 @@ struct ChatCollectionView: UIViewRepresentable {
           case .share:
             ChatShareBubble(room: self.room)
           default:
-            Text("not supported")
+            Text(String(localized: "not supported", bundle: .module))
           }
         }
         .padding(.horizontal, 8)

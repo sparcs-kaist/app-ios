@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 24/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import Factory
@@ -65,7 +66,7 @@ struct FeedPostView: View {
         viewModel.alertState?.title ?? "Error",
         isPresented: $viewModel.isAlertPresented,
         actions: {
-          Button("Okay", role: .close) { }
+          Button(String(localized: "Okay", bundle: .module), role: .close) { }
         }, message: {
           Text(viewModel.alertState?.message ?? "Unexpected Error")
         }
@@ -83,10 +84,10 @@ struct FeedPostView: View {
 
   private var moreMenu: some View {
     Menu("More", systemImage: "ellipsis") {
-      Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+      Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
       Divider()
       if post.isAuthor {
-        Button("Delete", systemImage: "trash", role: .destructive) {
+        Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
           showDeleteConfirmation = true
         }
       } else {
@@ -102,23 +103,23 @@ struct FeedPostView: View {
       }
     }
     .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-      Button("Delete", role: .destructive) {
+      Button(String(localized: "Delete", bundle: .module), role: .destructive) {
         Task {
           do {
             try await onDelete?()
             dismiss()
           } catch {
             viewModel.alertState = .init(
-              title: String(localized: "Unable to delete post."),
+              title: String(localized: "Unable to delete post.", bundle: .module),
               message: error.localizedDescription
             )
             viewModel.isAlertPresented = true
           }
         }
       }
-      Button("Cancel", role: .cancel) { }
+      Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
     } message: {
-      Text("Are you sure you want to delete this post?")
+      Text(String(localized: "Are you sure you want to delete this post?", bundle: .module))
     }
   }
 
@@ -172,7 +173,7 @@ struct FeedPostView: View {
               ProgressView()
                 .tint(.white)
             } else {
-              Label("Send", systemImage: "paperplane")
+              Label(String(localized: "Send", bundle: .module), systemImage: "paperplane")
                 .labelStyle(.iconOnly)
                 .tint(.white)
             }
@@ -202,7 +203,7 @@ struct FeedPostView: View {
           Divider()
             .padding(.horizontal)
 
-          Text("\(post.commentCount) comments")
+          Text(String(localized: "\(post.commentCount) comments", bundle: .module))
             .font(.headline)
             .padding(.horizontal)
 
@@ -220,7 +221,7 @@ struct FeedPostView: View {
           Divider()
             .padding(.horizontal)
 
-          Text("\(post.commentCount) comments")
+          Text(String(localized: "\(post.commentCount) comments", bundle: .module))
             .font(.headline)
             .padding(.horizontal)
             .contentTransition(.numericText(value: Double(post.commentCount)))
@@ -250,7 +251,7 @@ struct FeedPostView: View {
         }
         .animation(.spring, value: viewModel.comments)
       case .error(let message):
-        ContentUnavailableView("Error", systemImage: "text.bubble", description: Text(message))
+        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "text.bubble", description: Text(message))
           .scaleEffect(0.8)
       }
     }

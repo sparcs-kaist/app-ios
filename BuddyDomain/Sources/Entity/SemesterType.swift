@@ -5,6 +5,8 @@
 //  Created by Soongyu Kwon on 04/01/2025.
 //
 
+import Foundation
+
 public enum SemesterType: String, Comparable, Sendable, Codable {
   case spring = "Spring"
   case summer = "Summer"

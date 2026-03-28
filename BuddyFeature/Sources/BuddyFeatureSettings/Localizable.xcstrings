@@ -12,6 +12,15 @@
       },
       "shouldTranslate" : false
     },
+    "%@" : {
+      "shouldTranslate" : false
+    },
+    "%lld" : {
+      "shouldTranslate" : false
+    },
+    "0" : {
+      "shouldTranslate" : false
+    },
     "Acknowledgements" : {
       "localizations" : {
         "en" : {
@@ -84,6 +93,22 @@
     },
     "Ara" : {
       "shouldTranslate" : false
+    },
+    "Bank Account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bank Account"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계좌 번호"
+          }
+        }
+      }
     },
     "Bank Name" : {
       "localizations" : {
@@ -460,6 +485,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "강제로 오류 발생시키기"
+          }
+        }
+      }
+    },
+    "Karma" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karma"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카르마"
           }
         }
       }

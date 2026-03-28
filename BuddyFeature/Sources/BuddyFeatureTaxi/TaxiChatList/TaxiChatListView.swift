@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 13/07/2025.
 //
 
+import Foundation
 import SwiftUI
 import Factory
 import BuddyDomain
@@ -27,7 +28,7 @@ struct TaxiChatListView: View {
       switch viewModel.state {
       case .loading:
         loadingView
-        .navigationTitle(Text("Chats"))
+        .navigationTitle(Text(String(localized: "Chats", bundle: .module)))
         .background(Color.systemGroupedBackground)
       case .loaded(let onGoing, let done):
         if horizontalSizeClass == .compact {
@@ -35,7 +36,7 @@ struct TaxiChatListView: View {
             .navigationDestination(item: $selectedRoom, destination: { room in
               TaxiChatView(room: room)
             })
-            .navigationTitle(Text("Chats"))
+            .navigationTitle(Text(String(localized: "Chats", bundle: .module)))
         } else {
           loadedLargeView(onGoing: onGoing, done: done)
         }
@@ -62,7 +63,7 @@ struct TaxiChatListView: View {
           .id(selectedRoom.id)
           .toolbar(removing: .title)
       } else {
-        Text("Select a room")
+        Text(String(localized: "Select a room", bundle: .module))
           .frame(maxWidth: .infinity)
           .foregroundStyle(.secondary)
       }
@@ -75,7 +76,7 @@ struct TaxiChatListView: View {
       LazyVStack(spacing: 16) {
         LazyVStack(spacing: 12) {
           HStack {
-            Text("Active Groups")
+            Text(String(localized: "Active Groups", bundle: .module))
               .font(.title3)
               .fontWeight(.bold)
 
@@ -90,7 +91,7 @@ struct TaxiChatListView: View {
 
         LazyVStack(spacing: 12) {
           HStack {
-            Text("Past Groups")
+            Text(String(localized: "Past Groups", bundle: .module))
               .font(.title3)
               .fontWeight(.bold)
 
@@ -112,7 +113,7 @@ struct TaxiChatListView: View {
     ScrollView {
       if horizontalSizeClass != .compact {
         HStack {
-          Text("Chats")
+          Text(String(localized: "Chats", bundle: .module))
             .font(.largeTitle)
             .bold()
             .padding()
@@ -124,7 +125,7 @@ struct TaxiChatListView: View {
         if !onGoing.isEmpty {
           LazyVStack(spacing: 12) {
             HStack {
-              Text("Active Groups")
+              Text(String(localized: "Active Groups", bundle: .module))
                 .font(.title3)
                 .fontWeight(.bold)
 
@@ -148,7 +149,7 @@ struct TaxiChatListView: View {
         if !done.isEmpty {
           LazyVStack(spacing: 12) {
             HStack {
-              Text("Past Groups")
+              Text(String(localized: "Past Groups", bundle: .module))
                 .font(.title3)
                 .fontWeight(.bold)
 
@@ -183,13 +184,13 @@ struct TaxiChatListView: View {
   private func errorView(errorMessage: String) -> some View {
     ContentUnavailableView(
       label: {
-        Label("Error", systemImage: "fuelpump.exclamationmark.fill")
+        Label(String(localized: "Error", bundle: .module), systemImage: "fuelpump.exclamationmark.fill")
       },
       description: {
         Text(errorMessage)
       },
       actions: {
-        Button("Try Again") {
+        Button(String(localized: "Try Again", bundle: .module)) {
           Task {
             await viewModel.fetchData()
           }

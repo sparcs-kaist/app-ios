@@ -15,9 +15,9 @@ public enum FeedCommentUseCaseError: Error, LocalizedError, SourcedError, Sendab
   public var errorDescription: String? {
     switch self {
     case .cannotDeleteCommentWithVote:
-      return String(localized: "Cannot delete comment that has votes.")
+      return String(localized: "Cannot delete comment that has votes.", bundle: .module)
     case .unknown:
-      return String(localized: "Unknown error occurred. Please try again.")
+      return String(localized: "Unknown error occurred. Please try again.", bundle: .module)
     }
   }
 }

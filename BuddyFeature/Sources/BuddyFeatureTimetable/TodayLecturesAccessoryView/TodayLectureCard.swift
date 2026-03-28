@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 09/03/2026.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -26,7 +27,7 @@ struct TodayLectureCard: View {
           .animation(.spring, value: context.date)
           .contentTransition(.numericText())
 
-        Text("\(item.lectureClass.buildingCode) \(item.lectureClass.roomName)")
+        Text(String(localized: "\(item.lectureClass.buildingCode) \(item.lectureClass.roomName)", bundle: .module))
           .font(.footnote)
           .foregroundStyle(.secondary)
           .animation(.spring, value: context.date)

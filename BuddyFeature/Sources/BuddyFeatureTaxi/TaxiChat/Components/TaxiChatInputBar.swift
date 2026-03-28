@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 14/02/2026.
 //
 
+import Foundation
 import SwiftUI
 import PhotosUI
 
@@ -34,17 +35,17 @@ struct TaxiChatInputBar: View {
   var body: some View {
     HStack(alignment: .bottom) {
       Menu {
-        Button("Send Payment", systemImage: "wonsign.circle") {
+        Button(String(localized: "Send Payment", bundle: .module), systemImage: "wonsign.circle") {
           onShowPayMoneyAlert()
         }
         .disabled(!isCommitPaymentAvailable)
-        Button("Request Settlement", systemImage: "square.and.pencil") {
+        Button(String(localized: "Request Settlement", bundle: .module), systemImage: "square.and.pencil") {
           onCommitSettlement()
         }
         .disabled(!isCommitSettlementAvailable)
 
         Toggle(isOn: $isArrived) {
-          Label("Arrived", systemImage: isArrived ? "checkmark.circle.fill" : "circle")
+          Label(String(localized: "Arrived", bundle: .module), systemImage: isArrived ? "checkmark.circle.fill" : "circle")
         }
         .disabled(!isArrivalToggleEnabled)
         .onChange(of: isArrived) {
@@ -52,17 +53,17 @@ struct TaxiChatInputBar: View {
         }
 
         Toggle(isOn: $hasCarrier) {
-          Label("With Luggage", systemImage: hasCarrier ? "suitcase.fill" : "suitcase")
+          Label(String(localized: "With Luggage", bundle: .module), systemImage: hasCarrier ? "suitcase.fill" : "suitcase")
         }
         .onChange(of: hasCarrier) {
           onUpdateCarrier(hasCarrier)
         }
 
-        Button("Photo Library", systemImage: "photo.on.rectangle") {
+        Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
           showPhotosPicker = true
         }
       } label: {
-        Label("More", systemImage: "plus")
+        Label(String(localized: "More", bundle: .module), systemImage: "plus")
           .labelStyle(.iconOnly)
           .fontWeight(.semibold)
           .frame(width: 48, height: 48)
@@ -78,7 +79,7 @@ struct TaxiChatInputBar: View {
             .frame(maxHeight: 200)
             .clipShape(.containerRelative)
             .overlay(alignment: .topTrailing) {
-              Button("Remove", systemImage: "xmark") {
+              Button(String(localized: "Remove", bundle: .module), systemImage: "xmark") {
                 selectedItem = nil
                 selectedImage = nil
               }
@@ -101,7 +102,7 @@ struct TaxiChatInputBar: View {
             .focused($isFocused)
         }
 
-        Button("Send", systemImage: "arrow.up") {
+        Button(String(localized: "Send", bundle: .module), systemImage: "arrow.up") {
           if let image = selectedImage {
             Task {
               do {

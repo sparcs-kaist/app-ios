@@ -100,7 +100,7 @@ class PostViewModel: PostViewModelProtocol {
       self.post = post
     } catch {
       presentAlert(
-        title: String(localized: "Unable to fetch post."),
+        title: String(localized: "Unable to fetch post.", bundle: .module),
         message: error.localizedDescription
       )
     }

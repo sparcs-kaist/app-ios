@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 01/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -13,9 +14,9 @@ struct ChatShareBubble: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text("Share now and create a pleasant taxi-sharing experience!")
-      ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text(LocalizedStringResource("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕"))) {
-        Label("Share", systemImage: "square.and.arrow.up")
+      Text(String(localized: "Share now and create a pleasant taxi-sharing experience!", bundle: .module))
+      ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text(String(localized: "🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module))) {
+        Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
           .frame(maxWidth: .infinity)
       }
       .fontWeight(.medium)

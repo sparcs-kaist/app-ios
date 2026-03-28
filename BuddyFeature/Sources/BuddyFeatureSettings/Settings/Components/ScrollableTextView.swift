@@ -5,6 +5,7 @@
 //  Created by 하정우 on 8/9/25.
 //
 
+import Foundation
 import SwiftUI
 
 struct ScrollableTextView: View {
@@ -18,7 +19,7 @@ struct ScrollableTextView: View {
     if let text = text {
       bodyText(text: text)
     } else {
-      ContentUnavailableView("Failed to load content", systemImage: "exclamationmark.triangle.text.page")
+      ContentUnavailableView(String(localized: "Failed to load content", bundle: .module), systemImage: "exclamationmark.triangle.text.page")
     }
   }
   

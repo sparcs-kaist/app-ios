@@ -40,7 +40,7 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
     func prettyString(nickname: String?) -> String {
       switch self {
       case .anonymously:
-        return String(localized: "Anonymous")
+        return String(localized: "Anonymous", bundle: .module)
       case .publicly:
         return nickname ?? ""
       }
@@ -131,7 +131,7 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
       return true
     } catch {
       alertState = .init(
-        title: String(localized: "Unable to write post."),
+        title: String(localized: "Unable to write post.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true

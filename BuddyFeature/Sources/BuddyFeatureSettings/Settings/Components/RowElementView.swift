@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct RowElementView: View {
-  var title: String
-  var content: String
+  var title: String.LocalizationValue
+  var content: String.LocalizationValue
   
   var body: some View {
     HStack {
-      Text(title)
+      Text(String(localized: title, bundle: .module))
       Spacer()
-      Text(content)
+      Text(String(localized: content, bundle: .module))
         .foregroundStyle(.secondary)
     }
   }

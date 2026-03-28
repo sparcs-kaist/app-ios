@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 16/02/2026.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import BuddyDomain
@@ -51,7 +52,7 @@ struct ChatAvatarImage: View {
         .fill(.indigo.opacity(0.1))
         .frame(width: 36, height: 36)
 
-      Text("🤖")
+      Text(String(localized: "🤖", bundle: .module))
         .font(.system(size: 20))
     }
   }
@@ -62,7 +63,7 @@ struct ChatAvatarImage: View {
         .fill(.indigo.opacity(0.1))
         .frame(width: 36, height: 36)
 
-      Text("👻")
+      Text(String(localized: "👻", bundle: .module))
         .font(.system(size: 20))
     }
   }

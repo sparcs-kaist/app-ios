@@ -17,13 +17,13 @@ public enum FeedProfileUseCaseError: Error, LocalizedError, SourcedError, Sendab
   public var errorDescription: String? {
     switch self {
     case .imageCompressionFailed:
-      return String(localized: "Failed to compress image for upload.")
+      return String(localized: "Failed to compress image for upload.", bundle: .module)
     case .reserved:
-      return String(localized: "This nickname is not available.")
+      return String(localized: "This nickname is not available.", bundle: .module)
     case .conflict:
-      return String(localized: "This nickname is already in use.")
+      return String(localized: "This nickname is already in use.", bundle: .module)
     case .unknown:
-      return String(localized: "Unknown error occurred. Please try again.")
+      return String(localized: "Unknown error occurred. Please try again.", bundle: .module)
     }
   }
 }

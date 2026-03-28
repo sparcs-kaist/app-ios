@@ -5,6 +5,7 @@
 //  Created by 김민찬 on 8/11/25.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import Factory
@@ -46,34 +47,34 @@ struct TaxiReportView: View {
         
         Section {
           Picker("Reason", selection: $viewModel.selectedReason) {
-            Text("Select")
+            Text(String(localized: "Select", bundle: .module))
               .tag(TaxiReport.Reason?.none)
               .selectionDisabled()
-            Text("Didn't send money")
+            Text(String(localized: "Didn't send money", bundle: .module))
               .tag(TaxiReport.Reason.noSettlement)
               .selectionDisabled(!room.isDeparted)
-            Text("Didn't come on time")
+            Text(String(localized: "Didn't come on time", bundle: .module))
               .tag(TaxiReport.Reason.noShow)
               .selectionDisabled(!room.isDeparted)
-            Text("ETC").tag(TaxiReport.Reason.etcReason)
+            Text(String(localized: "ETC", bundle: .module)).tag(TaxiReport.Reason.etcReason)
           }
           
           if viewModel.selectedReason == .etcReason {
             HStack {
               TextField("Details", text: $viewModel.etcDetails)
-              Text("\(viewModel.etcDetails.count)/\(viewModel.maxEtcDetailsLength)")
+              Text(String(localized: "\(viewModel.etcDetails.count)/\(viewModel.maxEtcDetailsLength)", bundle: .module))
                 .foregroundStyle(viewModel.etcDetails.count > viewModel.maxEtcDetailsLength ? .orange : .secondary)
             }
           }
         } header: {
-          Text("Why?")
+          Text(String(localized: "Why?", bundle: .module))
         } footer: {
           VStack(alignment: .leading, spacing: 8) {
             if !room.isDeparted {
-              Text("Reports for unsettled payments and no-shows can only be submitted after the departure time.")
+              Text(String(localized: "Reports for unsettled payments and no-shows can only be submitted after the departure time.", bundle: .module))
             }
             if viewModel.selectedReason == .noSettlement {
-              Text("An email will be sent asking them to send you the money.")
+              Text(String(localized: "An email will be sent asking them to send you the money.", bundle: .module))
             }
           }
         }
@@ -93,10 +94,10 @@ struct TaxiReportView: View {
                   dismiss()
                 } catch {
 //                  if error.isNetworkMoyaError {
-//                    showAlert(title: String(localized: "Error"), content: String(localized: "You are not connected to the Internet."))
+//                    showAlert(title: String(localized: "Error", bundle: .module), content: String(localized: "You are not connected to the Internet.", bundle: .module))
 //                  } else {
 //                    viewModel.handleException(error)
-//                    showAlert(title: String(localized: "Error"), content: String(localized: "An unexpected error occurred while reporting a user. Please try again later."))
+//                    showAlert(title: String(localized: "Error", bundle: .module), content: String(localized: "An unexpected error occurred while reporting a user. Please try again later.", bundle: .module))
 //                  }
                 }
               }
@@ -105,7 +106,7 @@ struct TaxiReportView: View {
                 ProgressView()
                   .tint(.white)
               } else {
-                Label("Done", systemImage: "arrow.up")
+                Label(String(localized: "Done", bundle: .module), systemImage: "arrow.up")
               }
             }
           )
@@ -114,7 +115,7 @@ struct TaxiReportView: View {
       }
     }
     .alert(alertTitle, isPresented: $presentAlert, actions: {
-      Button("Okay", role: .close) { }
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
       Text(alertContent)
     })

@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 14/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import Factory
@@ -81,7 +82,7 @@ struct PostTranslationView: View {
       }
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
-          Button("Dismiss", systemImage: "xmark") {
+          Button(String(localized: "Dismiss", bundle: .module), systemImage: "xmark") {
             dismiss()
           }
         }
@@ -114,7 +115,7 @@ struct PostTranslationView: View {
       .navigationTitle("Translate")
       .navigationBarTitleDisplayMode(.inline)
       .alert("Error", isPresented: $showErrorAlert, actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(errorMessage)
       })
@@ -136,7 +137,7 @@ struct PostTranslationView: View {
   private var languageSelector: some View {
     Picker("", selection: $selectedTarget) {
       ForEach(availableLanguages, id: \.minimalIdentifier) { language in
-        Text("\(displayName(for: language))")
+        Text(String(localized: "\(displayName(for: language))", bundle: .module))
           .tag(language)
       }
     }

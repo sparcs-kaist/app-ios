@@ -20,17 +20,17 @@ extension AraContentReportType {
   public var prettyString: String {
     switch self {
     case .hateSpeech:
-      String(localized: "Hate Speech")
+      String(localized: "Hate Speech", bundle: .module)
     case .unauthorizedSales:
-      String(localized: "Unauthorized Sales")
+      String(localized: "Unauthorized Sales", bundle: .module)
     case .spam:
-      String(localized: "Spam")
+      String(localized: "Spam", bundle: .module)
     case .falseInformation:
-      String(localized: "False Information")
+      String(localized: "False Information", bundle: .module)
     case .defamation:
-      String(localized: "Defamation")
+      String(localized: "Defamation", bundle: .module)
     case .other:
-      String(localized: "Other")
+      String(localized: "Other", bundle: .module)
     }
   }
 }

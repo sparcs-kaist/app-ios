@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 20/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import PhotosUI
@@ -38,7 +39,7 @@ struct FeedPostComposeView: View {
           HStack {
             Spacer()
 
-            Text("\(viewModel.text.count)/280")
+            Text(String(localized: "\(viewModel.text.count)/280", bundle: .module))
               .font(.footnote)
               .foregroundStyle(.secondary)
           }
@@ -56,7 +57,7 @@ struct FeedPostComposeView: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
-          Button("Close", systemImage: "xmark") {
+          Button(String(localized: "Close", bundle: .module), systemImage: "xmark") {
             dismiss()
           }
           .disabled(viewModel.isUploading)
@@ -76,7 +77,7 @@ struct FeedPostComposeView: View {
                 ProgressView()
                   .tint(.white)
               } else {
-                Label("Done", systemImage: "arrow.up")
+                Label(String(localized: "Done", bundle: .module), systemImage: "arrow.up")
               }
             }
           )
@@ -88,7 +89,7 @@ struct FeedPostComposeView: View {
       .toolbar {
         ToolbarItemGroup(placement: .keyboard) {
           Spacer()
-          Button("Photo Library", systemImage: "photo.on.rectangle") {
+          Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
           .disabled(viewModel.isUploading)
@@ -99,7 +100,7 @@ struct FeedPostComposeView: View {
       viewModel.alertState?.title ?? "Error",
       isPresented: $viewModel.isAlertPresented,
       actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(viewModel.alertState?.message ?? "Unexpected Error")
       }
@@ -144,7 +145,7 @@ struct FeedPostComposeView: View {
       Button {
         openURL(Constants.termsOfUseURL)
       } label: {
-        Text("terms of use")
+        Text(String(localized: "terms of use", bundle: .module))
           .underline()
       }
       .tint(.secondary)
@@ -173,7 +174,7 @@ struct FeedPostComposeView: View {
           .fill(Color.secondarySystemBackground)
           .frame(width: 24, height: 24)
           .overlay {
-            Text("😀")
+            Text(String(localized: "😀", bundle: .module))
               .font(.caption)
           }
       }
@@ -182,7 +183,7 @@ struct FeedPostComposeView: View {
         .fill(Color.secondarySystemBackground)
         .frame(width: 24, height: 24)
         .overlay {
-          Text("😀")
+          Text(String(localized: "😀", bundle: .module))
             .font(.caption)
         }
     }

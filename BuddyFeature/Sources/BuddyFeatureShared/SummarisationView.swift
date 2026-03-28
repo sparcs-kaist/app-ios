@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 14/08/2025.
 //
 
+import Foundation
 import SwiftUI
 
 public struct SummarisationView: View {
@@ -28,7 +29,7 @@ public struct SummarisationView: View {
 
       Group {
         if isLoading {
-          Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus.")
+          Text(String(localized: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus.", bundle: .module))
             .redacted(reason: .placeholder)
         } else {
           Text(text)
@@ -36,7 +37,7 @@ public struct SummarisationView: View {
       }
       .transition(.opacity)
 
-      Text("**Note:** May contain errors, please double-check facts.")
+      Text(String(localized: "**Note:** May contain errors, please double-check facts.", bundle: .module))
         .font(.footnote)
         .foregroundStyle(.secondary)
     }

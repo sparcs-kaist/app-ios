@@ -20,17 +20,17 @@ public enum NetworkError: Error, LocalizedError, SourcedError, Sendable {
   public var errorDescription: String? {
     switch self {
     case .noConnection:
-      return String(localized: "No internet connection.")
+      return String(localized: "No internet connection.", bundle: .module)
     case .timeout:
-      return String(localized: "Request timed out.")
+      return String(localized: "Request timed out.", bundle: .module)
     case .serverError(let code):
-      return String(localized: "Server error (\(code)).")
+      return String(localized: "Server error (\(code)).", bundle: .module)
     case .unauthorized:
-      return String(localized: "Session expired. Please sign in again.")
+      return String(localized: "Session expired. Please sign in again.", bundle: .module)
     case .notFound:
-      return String(localized: "Resources not found.")
+      return String(localized: "Resources not found.", bundle: .module)
     case .unknown:
-      return String(localized: "An unexpected error occurred.")
+      return String(localized: "An unexpected error occurred.", bundle: .module)
     }
   }
 

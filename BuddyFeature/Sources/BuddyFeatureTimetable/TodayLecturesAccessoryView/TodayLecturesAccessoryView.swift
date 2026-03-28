@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 09/03/2026.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -54,7 +55,7 @@ public struct TodayLecturesAccessoryView: View {
       Spacer()
 
       HStack(alignment: .bottom, spacing: 4) {
-        Text("\(timetable.credits)")
+        Text(String(localized: "\(timetable.credits)", bundle: .module))
           .font(.callout)
         Text(placement == .expanded ? "Credits" : "CR")
           .textCase(.uppercase)
@@ -63,9 +64,9 @@ public struct TodayLecturesAccessoryView: View {
         Spacer()
           .frame(width: placement == .expanded ? 4 : 0)
 
-        Text("\(timetable.creditAUs)")
+        Text(String(localized: "\(timetable.creditAUs)", bundle: .module))
           .font(.callout)
-        Text("AU")
+        Text(String(localized: "AU", bundle: .module))
           .textCase(.uppercase)
           .font(.caption2)
       }

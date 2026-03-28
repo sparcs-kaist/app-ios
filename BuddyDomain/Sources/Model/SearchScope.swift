@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 28/09/2025.
 //
 
+import Foundation
 import SwiftUI
 
 public enum SearchScope: String, Codable, CaseIterable, Identifiable, Hashable {

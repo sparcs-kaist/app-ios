@@ -5,11 +5,12 @@
 //  Created by Soongyu Kwon on 25/07/2025.
 //
 
+import Foundation
 import SwiftUI
 
 struct ChatPaymentBubble: View {
   var body: some View {
-    Label("I sent the money!", systemImage: "paperplane.fill")
+    Label(String(localized: "I sent the money!", bundle: .module), systemImage: "paperplane.fill")
       .padding(12)
       .background(
         Color.accentColor,

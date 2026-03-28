@@ -5,6 +5,7 @@
 //  Created by 하정우 on 9/30/25.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
@@ -26,7 +27,7 @@ public struct CourseView: View {
           courseSummary
           courseReview
         case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+          ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
       .padding(.horizontal)
@@ -57,7 +58,7 @@ public struct CourseView: View {
 
         VStack(alignment: .leading) {
           HStack {
-            Text("Information")
+            Text(String(localized: "Information", bundle: .module))
               .font(.title3)
               .fontWeight(.bold)
             Spacer()
@@ -68,7 +69,7 @@ public struct CourseView: View {
           LectureDetailRow(title: "Department", description: course.department.name)
 
           if course.summary != "" {
-            Text("Summary")
+            Text(String(localized: "Summary", bundle: .module))
               .foregroundStyle(.secondary)
               .font(.callout)
               .padding(.vertical, 4)
@@ -86,7 +87,7 @@ public struct CourseView: View {
   private var courseReview: some View {
     VStack {
       HStack {
-        Text("Reviews")
+        Text(String(localized: "Reviews", bundle: .module))
           .font(.title3)
           .fontWeight(.bold)
         Spacer()

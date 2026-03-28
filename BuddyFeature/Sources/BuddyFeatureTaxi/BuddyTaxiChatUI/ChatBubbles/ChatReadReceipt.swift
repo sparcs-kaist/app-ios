@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 14/02/2026.
 //
 
+import Foundation
 import SwiftUI
 
 struct ChatReadReceipt: View {
@@ -16,7 +17,7 @@ struct ChatReadReceipt: View {
   var body: some View {
     VStack(alignment: alignment) {
       if readCount > 0 {
-        Text("\(readCount)")
+        Text(String(localized: "\(readCount)", bundle: .module))
           .font(.caption2)
       }
 

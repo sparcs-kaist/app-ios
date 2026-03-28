@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 21/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import BuddyDomain
@@ -39,7 +40,7 @@ struct FeedPostPhotoItemStrip: View {
             .clipped()
             .clipShape(.rect(cornerRadius: 12))
             .overlay(alignment: .topTrailing) {
-              Button("Toggle Spoiler", systemImage: item.spoiler ? "eye.slash" : "eye") {
+              Button(String(localized: "Toggle Spoiler", bundle: .module), systemImage: item.spoiler ? "eye.slash" : "eye") {
                 item.spoiler.toggle()
               }
               .labelStyle(.iconOnly)

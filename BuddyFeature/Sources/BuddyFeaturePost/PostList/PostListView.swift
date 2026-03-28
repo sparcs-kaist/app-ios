@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 05/01/2025.
 //
 
+import Foundation
 import SwiftUI
 import Observation
 import BuddyDomain
@@ -54,7 +55,7 @@ struct PostListView: View {
           )
         }
       case .error(let message):
-        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .navigationDestination(for: AraPost.self) { post in
@@ -79,7 +80,7 @@ struct PostListView: View {
       if !viewModel.board.isReadOnly && viewModel.board.userWritable == true {
         ToolbarSpacer(.flexible, placement: .bottomBar)
         ToolbarItem(placement: .bottomBar) {
-          Button("Write", systemImage: "square.and.pencil") {
+          Button(String(localized: "Write", bundle: .module), systemImage: "square.and.pencil") {
             showsComposeView = true
           }
         }

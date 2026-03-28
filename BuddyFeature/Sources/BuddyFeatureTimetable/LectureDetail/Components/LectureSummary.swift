@@ -14,15 +14,15 @@ struct LectureSummary: View {
   var body: some View {
     HStack {
       Spacer()
-      LectureSummaryRow(title: String(localized: "Language"), description: lecture.isEnglish ? "EN" : "한")
+      LectureSummaryRow(title: String(localized: "Language", bundle: .module), description: lecture.isEnglish ? "EN" : "한")
       Spacer()
       LectureSummaryRow(
-        title: String(localized: "Credits"),
+        title: String(localized: "Credits", bundle: .module),
         description: String(lecture.credit + lecture.creditAU)
       )
       Spacer()
       LectureSummaryRow(
-        title: String(localized: "Competition"),
+        title: String(localized: "Competition", bundle: .module),
         description: (lecture.capacity == 0 || lecture.enrolledCount == 0)
         ?
         "0.0:1"

@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 11/07/2025.
 //
 
+import Foundation
 import SwiftUI
 import Haptica
 
@@ -36,7 +37,7 @@ struct WeekDaySelector: View {
         }()
 
         VStack(spacing: 4) {
-          Text("\(calendar.component(.day, from: day))")
+          Text(String(localized: "\(calendar.component(.day, from: day))", bundle: .module))
             .font(.title3)
             .fontWeight(.semibold)
             .fontDesign(.rounded)
