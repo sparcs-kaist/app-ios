@@ -17,6 +17,8 @@ struct TaxiParticipantDTO: Codable {
   let badge: Bool?
   let isSettlement: String?
   let readAt: String
+  let isArrived: Bool?
+  let hasCarrier: Bool
 
   enum CodingKeys: String, CodingKey {
     case id = "_id"
@@ -27,6 +29,8 @@ struct TaxiParticipantDTO: Codable {
     case badge
     case isSettlement
     case readAt
+    case isArrived
+    case hasCarrier
   }
 }
 
@@ -42,6 +46,8 @@ extension TaxiParticipantDTO {
       badge: badge ?? false, // treat as false when nil
       isSettlement: isSettlement != nil ? TaxiParticipant
         .SettlementType(rawValue: isSettlement!) : nil,
+      isArrived: isArrived ?? false,
+      hasCarrier: hasCarrier,
       readAt: readAt.toDate() ?? Date()
     )
   }

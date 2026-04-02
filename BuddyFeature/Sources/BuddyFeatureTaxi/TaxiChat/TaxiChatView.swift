@@ -62,7 +62,7 @@ struct TaxiChatView: View {
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-    .navigationTitle(Text(viewModel.room.title))
+    .navigationTitle(Text(chatTitle))
     .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
     .navigationBarTitleDisplayMode(.inline)
     .toolbar { toolbarContent }
@@ -73,6 +73,9 @@ struct TaxiChatView: View {
         isUploading: viewModel.isUploading,
         isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable,
         isCommitSettlementAvailable: viewModel.isCommitSettlementAvailable,
+        isArrivalToggleEnabled: viewModel.isArrivalToggleEnabled,
+        isArrived: $viewModel.isArrived,
+        hasCarrier: $viewModel.hasCarrier,
         onSendText: { message in
           viewModel.sendChat(message, type: .text)
         },
@@ -84,6 +87,12 @@ struct TaxiChatView: View {
         },
         onShowPayMoneyAlert: {
           showPayMoneyAlert = true
+        },
+        onUpdateArrival: { isArrived in
+          viewModel.updateArrival(isArrived: isArrived)
+        },
+        onUpdateCarrier: { hasCarrier in
+          viewModel.updateCarrier(hasCarrier: hasCarrier)
         },
         onError: { message in
           viewModel.alertState = AlertState(title: "Error", message: message)
@@ -187,11 +196,15 @@ struct TaxiChatView: View {
         Label(viewModel.room.departAt.formattedString, systemImage: "calendar.badge.clock")
 
         Menu(
-          "Participants \(viewModel.room.participants.count)/\(viewModel.room.capacity)",
+          "Participants \(viewModel.room.participants.count)/\(viewModel.room.capacity)\nArrived \(viewModel.arrivedCount)/\(viewModel.room.participants.count)",
           systemImage: "person.3"
         ) {
           ForEach(viewModel.room.participants) { participant in
-            Text(participant.nickname)
+            if participant.hasCarrier {
+              Label(participant.nickname, systemImage: "suitcase.rolling.and.suitcase.fill")
+            } else {
+              Text(participant.nickname)
+            }
           }
         }
 
@@ -211,6 +224,14 @@ struct TaxiChatView: View {
         .disabled(!viewModel.isLeaveRoomAvailable)
       }
     }
+  }
+
+  private var chatTitle: String {
+    guard let emoji = viewModel.room.emojiIdentifier?.emoji else {
+      return viewModel.room.title
+    }
+
+    return "\(viewModel.room.title) \(emoji)"
   }
 
   private static let placeholderItems: [ChatRenderItem] = {

@@ -24,6 +24,10 @@ public protocol TaxiChatViewModelProtocol: Observable {
   var isLeaveRoomAvailable: Bool { get }
   var isCommitSettlementAvailable: Bool { get }
   var isCommitPaymentAvailable: Bool { get }
+  var isArrivalToggleEnabled: Bool { get }
+  var isArrived: Bool { get set }
+  var hasCarrier: Bool { get set }
+  var arrivedCount: Int { get }
   var account: String? { get }
   var topChatID: String? { get }
 
@@ -35,5 +39,7 @@ public protocol TaxiChatViewModelProtocol: Observable {
   func leaveRoom() async throws
   func commitSettlement()
   func commitPayment()
+  func updateArrival(isArrived: Bool)
+  func updateCarrier(hasCarrier: Bool)
   func sendImage(_ image: UIImage) async throws
 }

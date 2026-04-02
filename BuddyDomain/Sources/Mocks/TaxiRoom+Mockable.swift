@@ -30,6 +30,8 @@ public extension TaxiRoom {
         withdraw: false,
         badge: true,
         isSettlement: nil,
+        isArrived: false,
+        hasCarrier: true,
         readAt: baseDate
       ),
       .init(
@@ -42,6 +44,8 @@ public extension TaxiRoom {
         withdraw: false,
         badge: true,
         isSettlement: nil,
+        isArrived: true,
+        hasCarrier: false,
         readAt: baseDate
       )
     ]
@@ -50,6 +54,7 @@ public extension TaxiRoom {
       TaxiRoom(
         id: UUID().uuidString,
         title: "Mock Room \(index + 1)",
+        emojiIdentifier: TaxiRoomEmojiIdentifier.allCases[index % TaxiRoomEmojiIdentifier.allCases.count],
         source: locations[index % locations.count],
         destination: locations[(index + 3) % locations.count],
         departAt: Calendar.current.date(byAdding: .day, value: index % 7, to: baseDate)!,

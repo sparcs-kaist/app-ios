@@ -24,6 +24,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
+  
+  var isArrived: Bool = false
+  var hasCarrier: Bool = false
 
   private(set) var topChatID: String? = nil
   private var fetchedDateSet: Set<Date> = []
@@ -106,6 +109,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   func fetchInitialChats() async {
     guard let taxiChatUseCase else { return }
+    
+    isArrived = currentParticipant?.isArrived ?? false
+    hasCarrier = currentParticipant?.hasCarrier ?? false
 
     await taxiChatUseCase.fetchInitialChats()
   }
@@ -129,6 +135,14 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   var isLeaveRoomAvailable: Bool {
     return !room.isDeparted
+  }
+
+  var isArrivalToggleEnabled: Bool {
+    room.departAt > Date()
+  }
+  
+  var arrivedCount: Int {
+    room.participants.filter(\.isArrived).count
   }
 
   func commitSettlement() {
@@ -176,6 +190,32 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     )
   }
 
+  func updateArrival(isArrived: Bool) {
+    guard let taxiRoomRepository else { return }
+
+    Task {
+      do {
+        room = try await taxiRoomRepository.updateArrival(id: room.id, isArrived: isArrived)
+      } catch {
+        alertState = AlertState(title: "Error", message: error.localizedDescription)
+        isAlertPresented = true
+      }
+    }
+  }
+
+  func updateCarrier(hasCarrier: Bool) {
+    guard let taxiRoomRepository else { return }
+
+    Task {
+      do {
+        room = try await taxiRoomRepository.updateCarrier(id: room.id, hasCarrier: hasCarrier)
+      } catch {
+        alertState = AlertState(title: "Error", message: error.localizedDescription)
+        isAlertPresented = true
+      }
+    }
+  }
+
   var account: String? {
     guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }),
           let taxiChatUseCase else {
@@ -194,5 +234,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     defer { isUploading = false }
 
     try await taxiChatUseCase.sendImage(image)
+  }
+
+  private var currentParticipant: TaxiParticipant? {
+    room.participants.first(where: { $0.id == taxiUser?.oid })
   }
 }

@@ -18,6 +18,7 @@ public class PreviewTaxiListViewModel: TaxiListViewModelProtocol {
   public var selectedDate: Date = Date()
   public var roomDepartureTime: Date = Date().ceilToNextTenMinutes()
   public var roomCapacity: Int = 4
+  public var hasCarrier: Bool = false
   
   public var locations: [TaxiLocation] = [
     .init(

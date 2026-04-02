@@ -31,6 +31,7 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
   // Room Creation
   public var roomDepartureTime: Date = Date().ceilToNextTenMinutes()
   public var roomCapacity: Int = 4
+  public var hasCarrier: Bool = false
 
   public init() { }
 
@@ -78,6 +79,8 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
       capacity: capacity
     )
 
-    let _ = try await taxiRoomRepository.createRoom(with: requestModel)
+    let room = try await taxiRoomRepository.createRoom(with: requestModel)
+
+    _ = try await taxiRoomRepository.updateCarrier(id: room.id, hasCarrier: hasCarrier)
   }
 }

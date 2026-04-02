@@ -11,6 +11,7 @@ import BuddyDomain
 struct TaxiRoomDTO: Codable {
   let id: String
   let name: String
+  let emojiIdentifier: TaxiRoomEmojiIdentifier?
   let from: TaxiLocationDTO
   let to: TaxiLocationDTO
   let time: String
@@ -24,6 +25,7 @@ struct TaxiRoomDTO: Codable {
   enum CodingKeys: String, CodingKey {
     case id = "_id"
     case name
+    case emojiIdentifier
     case from
     case to
     case time
@@ -42,6 +44,7 @@ extension TaxiRoomDTO {
     TaxiRoom(
       id: id,
       title: name,
+      emojiIdentifier: emojiIdentifier,
       source: from.toModel(),
       destination: to.toModel(),
       departAt: time.toDate() ?? Date(),

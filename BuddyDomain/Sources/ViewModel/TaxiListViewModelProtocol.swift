@@ -22,6 +22,7 @@ public protocol TaxiListViewModelProtocol: Observable {
 
   var roomDepartureTime: Date { get set }
   var roomCapacity: Int { get set }
+  var hasCarrier: Bool { get set }
 
   // MARK: - Functions
   func fetchData() async

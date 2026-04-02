@@ -19,6 +19,8 @@ public enum TaxiRoomTarget {
   case getPublicRoom(roomID: String)
   case commitSettlement(roomID: String)
   case commitPayment(roomID: String)
+  case updateArrival(roomID: String, isArrived: Bool)
+  case updateCarrier(roomID: String, hasCarrier: Bool)
 }
 
 extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
@@ -48,6 +50,10 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       "/rooms/commitSettlement"
     case .commitPayment:
       "/rooms/commitPayment"
+    case .updateArrival:
+      "/rooms/updateArrival"
+    case .updateCarrier:
+      "/rooms/carrier/toggle"
     }
   }
 
@@ -55,7 +61,7 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchRooms, .fetchMyRooms, .getRoom, .fetchLocations, .getPublicRoom:
       .get
-    case .createRoom, .joinRoom, .leaveRoom, .commitSettlement, .commitPayment:
+    case .createRoom, .joinRoom, .leaveRoom, .commitSettlement, .commitPayment, .updateArrival, .updateCarrier:
       .post
     }
   }
@@ -80,6 +86,16 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .commitPayment(let roomID):
       .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+    case .updateArrival(let roomID, let isArrived):
+      .requestParameters(
+        parameters: ["roomId": roomID, "isArrived": isArrived],
+        encoding: JSONEncoding.default
+      )
+    case .updateCarrier(let roomID, let hasCarrier):
+      .requestParameters(
+        parameters: ["roomId": roomID, "hasCarrier": hasCarrier],
+        encoding: JSONEncoding.default
+      )
     }
   }
 

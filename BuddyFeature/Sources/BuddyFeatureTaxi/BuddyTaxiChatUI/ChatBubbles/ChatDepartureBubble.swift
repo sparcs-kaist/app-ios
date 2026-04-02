@@ -17,6 +17,24 @@ struct ChatDepartureBubble: View {
   var body: some View {
     VStack(alignment: .leading) {
       Text("⏰ It's 15 minutes before your taxi leaves! If everyone's gathered, go ahead and call the taxi to head out together.")
+      
+      if let emojiIdentifier = room.emojiIdentifier {
+        VStack(alignment: .center) {
+          Text("Room Identifier")
+            .fontWeight(.bold)
+            .font(.headline)
+          Text(emojiIdentifier.emoji)
+            .font(.largeTitle)
+          Text("Please check the room identifier.")
+            .font(.caption)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(
+          RoundedRectangle(cornerRadius: 8)
+            .fill(.background)
+        )
+      }
 
       Button(action: {
         showAlert = true

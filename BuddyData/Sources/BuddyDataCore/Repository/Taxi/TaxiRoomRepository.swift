@@ -154,4 +154,30 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
       throw error
     }
   }
+
+  public func updateArrival(id: String, isArrived: Bool) async throws -> TaxiRoom {
+    do {
+      let response = try await provider.request(.updateArrival(roomID: id, isArrived: isArrived))
+      let result = try response.map(TaxiRoomDTO.self).toModel()
+
+      return result
+    } catch let moyaError as MoyaError {
+      throw moyaError.toAPIError
+    } catch {
+      throw error
+    }
+  }
+
+  public func updateCarrier(id: String, hasCarrier: Bool) async throws -> TaxiRoom {
+    do {
+      let response = try await provider.request(.updateCarrier(roomID: id, hasCarrier: hasCarrier))
+      let result = try response.map(TaxiRoomDTO.self).toModel()
+
+      return result
+    } catch let moyaError as MoyaError {
+      throw moyaError.toAPIError
+    } catch {
+      throw error
+    }
+  }
 }

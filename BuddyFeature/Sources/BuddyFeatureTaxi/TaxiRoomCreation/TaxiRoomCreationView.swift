@@ -49,6 +49,7 @@ struct TaxiRoomCreationView: View {
                 .tag(number)
             }
           }
+          Toggle("With Luggage", isOn: $viewModel.hasCarrier)
         }
       }
       .navigationTitle("New Group")
