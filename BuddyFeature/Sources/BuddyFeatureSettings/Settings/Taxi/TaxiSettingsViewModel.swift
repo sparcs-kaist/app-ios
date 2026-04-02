@@ -11,6 +11,7 @@ import BuddyDomain
 
 @MainActor
 protocol TaxiSettingsViewModelProtocol: Observable {
+  var nickname: String { get set }
   var bankName: String? { get set }
   var bankNumber: String { get set }
   var phoneNumber: String { get set }
@@ -26,7 +27,7 @@ protocol TaxiSettingsViewModelProtocol: Observable {
 
 @Observable
 class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
-  enum ViewState {
+  enum ViewState: Equatable {
     case loading
     case loaded
     case error(message: LocalizedStringResource)
@@ -37,6 +38,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     case bank
     case badge
     case phone
+    case nickname
   }
   
   // MARK: - Dependencies
@@ -45,6 +47,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
   
   // MARK: - Properties
+  var nickname: String = ""
   var bankName: String?
   var bankNumber: String = ""
   var phoneNumber: String = ""
@@ -64,6 +67,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       state = .error(message: "Taxi User Information Not Found.")
       return
     }
+    nickname = user.nickname
     bankName = user.account.split(separator: " ").first.map { String($0) }
     bankNumber = String(user.account.split(separator: " ").last ?? "")
     phoneNumber = (user.phoneNumber ?? "").filter { $0.isASCIINumber }
@@ -83,11 +87,24 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     if user?.badge != showBadge {
       await editBadge(showBadge: showBadge)
     }
+    if user?.nickname != nickname {
+      await editNickname()
+    }
     do {
       try await userUseCase.fetchTaxiUser()
     } catch {
 //      logger.debug("Failed to fetch user information: \(error.localizedDescription)")
       handleException(error: error, type: .fetch)
+    }
+  }
+  
+  private func editNickname() async {
+    guard let taxiUserRepository else { return }
+    
+    do {
+      try await taxiUserRepository.editNickname(nickname: nickname)
+    } catch {
+      handleException(error: error, type: .nickname)
     }
   }
   

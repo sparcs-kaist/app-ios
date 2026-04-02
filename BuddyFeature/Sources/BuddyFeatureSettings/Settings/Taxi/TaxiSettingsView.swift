@@ -90,7 +90,13 @@ struct TaxiSettingsView: View {
   var loadedView: some View {
     List {
       Section(header: Text("Profile")) {
-        RowElementView(title: String(localized: "Nickname"), content: vm.user?.nickname ?? String(localized: "Unknown"))
+        HStack {
+          Text("Nickname")
+          Spacer()
+          TextField("Enter Nickname", text: $vm.nickname)
+            .multilineTextAlignment(.trailing)
+            .foregroundStyle(.secondary)
+        }
         Picker("Bank Name", selection: $vm.bankName) {
           Text("Select Bank").tag(Optional<String>(nil))
           ForEach(Constants.taxiBankNameList, id: \.self) {
@@ -155,8 +161,12 @@ struct TaxiSettingsView: View {
   }
   
   private var isValid: Bool {
-    (isBankAccountValid && isPhoneNumberValid)
-    && (hasNumberChanged || hasBankAccountChanged || (hasNumberRegistered && hasBadgeChanged))
+    guard let regex = Constants.taxiNicknameRegex else { return false }
+    guard vm.state == .loaded else { return false }
+    
+    return (isBankAccountValid && isPhoneNumberValid)
+    && (hasNumberChanged || hasBankAccountChanged || (hasNumberRegistered && hasBadgeChanged) || hasNicknameChanged)
+    && (vm.nickname.wholeMatch(of: regex) != nil)
   }
   
   private var isBankAccountValid: Bool {
@@ -179,6 +189,10 @@ struct TaxiSettingsView: View {
   
   private var hasBadgeChanged: Bool {
     vm.user?.badge != vm.showBadge
+  }
+  
+  private var hasNicknameChanged: Bool {
+    vm.user?.nickname != vm.nickname
   }
   
   private var hasBankAccountChanged: Bool {

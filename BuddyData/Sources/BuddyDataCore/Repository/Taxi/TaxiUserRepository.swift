@@ -15,6 +15,7 @@ public enum TaxiUserErrorCode: Int {
   case editBankAccountFailed = 2001
   case editBadgeFailed = 2002
   case registerPhoneNumberFailed = 2003
+  case editNicknameFailed = 2004
 }
 
 public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
@@ -63,6 +64,18 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
         domain: "TaxiUserRepository",
         code: TaxiUserErrorCode.registerPhoneNumberFailed.rawValue,
         userInfo: [NSLocalizedDescriptionKey : "Failed to register phone number"]
+      )
+    }
+  }
+  
+  public func editNickname(nickname: String) async throws {
+    let response = try await provider.request(.editNickname(nickname: nickname))
+    
+    if response.statusCode != 200 {
+      throw NSError(
+        domain: "TaxiUserRepository",
+        code: TaxiUserErrorCode.editNicknameFailed.rawValue,
+        userInfo: [NSLocalizedDescriptionKey : "Failure to edit nickname"]
       )
     }
   }
