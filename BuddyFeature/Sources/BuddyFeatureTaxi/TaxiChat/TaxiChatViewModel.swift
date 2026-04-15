@@ -78,7 +78,6 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         let filtered = chats.filter { $0.roomID == self.room.id }
         let builtItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
         self.renderItems = builtItems
-        print("[HERE] \(self.renderItems)")
         self.state = .loaded
       }
       .store(in: &cancellables)

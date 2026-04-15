@@ -52,10 +52,6 @@ struct LectureDetailView: View {
       await reviewsFetch
 
       canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
-      print(canWriteReview)
-      print(viewModel.course)
-      print(viewModel.course?.history.first(where: { $0.myLectureID != nil }))
-      print("shit")
     }
     .navigationTitle(lecture.name)
     .navigationBarTitleDisplayMode(.inline)
