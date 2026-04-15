@@ -35,7 +35,7 @@ struct TaxiRoomCreationView: View {
           )
         }
 
-        Section {
+        Section("Title") {
           HStack {
             TextField("Title", text: $title)
           }
@@ -77,6 +77,11 @@ struct TaxiRoomCreationView: View {
           }
           .disabled(!isValid)
         }
+      }
+    }
+    .onAppear {
+      if let randomTitle = Constants.taxiDefaultRoomNames.randomElement() {
+        title = randomTitle
       }
     }
     .task {

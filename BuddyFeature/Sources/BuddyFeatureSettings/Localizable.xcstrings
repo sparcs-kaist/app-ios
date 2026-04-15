@@ -272,6 +272,22 @@
         }
       }
     },
+    "Enter Nickname" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter Nickname"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "닉네임 입력"
+          }
+        }
+      }
+    },
     "Enter Phone Number" : {
       "localizations" : {
         "en" : {
