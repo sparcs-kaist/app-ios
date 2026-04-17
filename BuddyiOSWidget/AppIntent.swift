@@ -8,27 +8,40 @@
 import WidgetKit
 import AppIntents
 
-struct ConfigurationAppIntent: WidgetConfigurationIntent {
-  static var title: LocalizedStringResource { "Configuration" }
-  static var description: IntentDescription { "This is an example widget." }
-
-//  @Parameter(title: "Mirror Timetable", default: true)
-//  var mirrorTimetable: Bool
-//
-//  @Parameter(title: "Semester", default: "2026")
-//  var semester: String
-//
-//  static var parameterSummary: some ParameterSummary {
-//    When(\.$mirrorTimetable, .equalTo, false) {
-//      Summary {
-//        \.$mirrorTimetable
-//        \.$semester
-//      }
-//    } otherwise: {
-//      Summary {
-//        \.$mirrorTimetable
-//      }
-//    }
-//  }
+struct SemesterOptionsProvider: DynamicOptionsProvider {
+	func results() async throws -> [String] {
+		return [
+			"2026 Spring",
+			"2025 Autumn"
+		]
+	}
 }
+
+struct ConfigurationAppIntent: WidgetConfigurationIntent {
+	static var title: LocalizedStringResource { "Configuration" }
+	static var description: IntentDescription { "This is an example widget." }
+	
+	@Parameter(title: "Mirror My Table", default: true)
+	var mirrorTimetable: Bool
+	
+	@Parameter(title: "Semester", optionsProvider: SemesterOptionsProvider())
+	var semester: String?
+	
+	static var parameterSummary: some ParameterSummary {
+		When(\.$mirrorTimetable, .equalTo, false) {
+			Summary {
+				\.$mirrorTimetable
+				\.$semester
+			}
+		} otherwise: {
+			Summary {
+				\.$mirrorTimetable
+			}
+		}
+	}
+}
+
+
+
+
 
