@@ -60,11 +60,7 @@ public struct TimetableGridCell: View {
         colorScheme: colorScheme,
         cellColor: cellColor
       ))
-      .contextMenu {
-        Button("Remove from Table", systemImage: "trash", role: .destructive) {
-          onDeletion?()
-        }
-      }
+      .modifier(TimetableContextMenuModifier(placement: placement, onDeletion: onDeletion))
     }
   }
 
@@ -83,6 +79,24 @@ public struct TimetableGridCell: View {
     }
 
     return color
+  }
+}
+
+private struct TimetableContextMenuModifier: ViewModifier {
+  let placement: TimetablePlacement
+  let onDeletion: (() -> Void)?
+
+  func body(content: Content) -> some View {
+    if placement == .widget {
+      content
+    } else {
+      content
+        .contextMenu {
+          Button("Remove from Table", systemImage: "trash", role: .destructive) {
+            onDeletion?()
+          }
+        }
+    }
   }
 }
 

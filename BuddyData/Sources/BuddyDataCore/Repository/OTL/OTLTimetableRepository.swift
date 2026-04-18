@@ -45,6 +45,12 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
     )
     return try response.map(TimetableDTO.self).toModel(id: "\(year)-\(semester.rawValue)-myTable")
   }
+	
+	public func getTableList() async throws -> [SemesterWithTimetables] {
+		let response = try await self.provider.request(.fetchTablesBySemester)
+		
+		return try response.map(TimetableBySemesterListDTO.self).toModel().semesters
+	}
 
   public func deleteTable(timetableID: Int) async throws {
     _ = try await self.provider.request(.deleteTable(timetableID: timetableID))

@@ -12,6 +12,7 @@ public protocol OTLTimetableRepositoryProtocol: Sendable {
   func getTable(timetableID: Int) async throws -> Timetable
   func createTable(year: Int, semester: SemesterType) async throws -> TableCreation
   func getMyTable(year: Int, semester: SemesterType) async throws -> Timetable
+	func getTableList() async throws -> [SemesterWithTimetables]
   func deleteTable(timetableID: Int) async throws
   func renameTable(timetableID: Int, title: String) async throws
   func addLecture(timetableID: Int, lectureID: Int) async throws

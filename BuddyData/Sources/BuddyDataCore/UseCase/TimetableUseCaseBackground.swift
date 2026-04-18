@@ -31,4 +31,20 @@ public final actor TimetableUseCaseBackground: TimetableUseCaseBackgroundProtoco
       return Timetable(id: "-myTable", lectures: [])
     }
   }
+	
+	public func getTable(timetableID: Int) async -> Timetable {
+		do {
+			return try await otlTimetableRepository.getTable(timetableID: timetableID)
+		} catch {
+			return Timetable(id: "0", lectures: [])
+		}
+	}
+	
+	public func getTableList() async -> [SemesterWithTimetables] {
+		do {
+			return try await otlTimetableRepository.getTableList()
+		} catch {
+			return []
+		}
+	}
 }
