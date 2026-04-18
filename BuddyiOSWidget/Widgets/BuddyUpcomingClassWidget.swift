@@ -28,7 +28,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
     )
   }
 
-  func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> LectureEntry {
+  func snapshot(for configuration: TimetableConfigurationIntent, in context: Context) async -> LectureEntry {
     LectureEntry(
       date: Date(),
       lecture: Lecture.mock,
@@ -44,10 +44,9 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
     )
   }
 
-  func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<LectureEntry> {
-    let now = Date()
-    let calendar = Calendar.current
-
+  func timeline(for configuration: TimetableConfigurationIntent, in context: Context) async -> Timeline<LectureEntry> {
+		let now = Date()
+		
     let timetableService = TimetableService()
     try? await timetableService.setup()
 
@@ -64,81 +63,95 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
       )
       return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
+		
+		if !configuration.mirrorTimetable,
+			 let entity = configuration.timetable {
+			let timetable: Timetable = await timetableUseCase.getTable(timetableID: entity.id)
+			let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
+			let entries = getLectureEntries(from: todayLectures)
+			
+			return Timeline(entries: entries, policy: .atEnd)
+		}
 
     let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
-//    let timetable: Timetable = await timetableUseCase.getMyTable(for: "2024-Autumn")
     let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
-
-    var entries: [LectureEntry] = []
-    if todayLectures.isEmpty {
-      let entry = LectureEntry(
-        date: now,
-        lecture: nil,
-        lectureClass: nil,
-        startDate: Date(),
-        signInRequired: false,
-        backgroundColor: .black,
-        relevance: .init(score: 10)
-      )
-      entries.append(entry)
-    } else {
-      for item in todayLectures {
-        let ct = item.lectureClass
-        guard let start = dateOnSameDay(minutes: ct.begin, date: now, calendar: calendar)
-        else { continue }
-
-        // Upcoming Lectures (30 minutes before the start)
-        let pre = max(now, start.addingTimeInterval(-30*60))
-        if pre <= start {
-          entries
-            .append(
-              LectureEntry(
-                date: pre,
-                lecture: item.lecture,
-                lectureClass: ct,
-                startDate: start,
-                signInRequired: false,
-                backgroundColor: item.lecture.backgroundColor,
-                relevance: .init(score: 100)
-              )
-            )
-        }
-
-        // Start-of-class entry
-        if start >= now {
-          entries
-            .append(
-              LectureEntry(
-                date: start,
-                lecture: item.lecture,
-                lectureClass: ct,
-                startDate: start,
-                signInRequired: false,
-                backgroundColor: item.lecture.backgroundColor,
-                relevance: .init(score: 80)
-              )
-            )
-        }
-      }
-
-      if entries.isEmpty {
-        let entry = LectureEntry(
-          date: now,
-          lecture: nil,
-          lectureClass: nil,
-          startDate: nil,
-          signInRequired: false,
-          backgroundColor: .black,
-          relevance: .init(score: 20)
-        )
-        entries.append(entry)
-      }
-    }
-
-    entries.sort { $0.date < $1.date }
+		let entries = getLectureEntries(from: todayLectures)
 
     return Timeline(entries: entries, policy: .atEnd)
   }
+	
+	func getLectureEntries(from items: [LectureItem]) -> [LectureEntry] {
+		let now = Date()
+		let calendar = Calendar.current
+
+		var entries: [LectureEntry] = []
+		if items.isEmpty {
+			let entry = LectureEntry(
+				date: now,
+				lecture: nil,
+				lectureClass: nil,
+				startDate: Date(),
+				signInRequired: false,
+				backgroundColor: .black,
+				relevance: .init(score: 10)
+			)
+			entries.append(entry)
+		} else {
+			for item in items {
+				let ct = item.lectureClass
+				guard let start = dateOnSameDay(minutes: ct.begin, date: now, calendar: calendar)
+				else { continue }
+				
+				// Upcoming Lectures (30 minutes before the start)
+				let pre = max(now, start.addingTimeInterval(-30*60))
+				if pre <= start {
+					entries
+						.append(
+							LectureEntry(
+								date: pre,
+								lecture: item.lecture,
+								lectureClass: ct,
+								startDate: start,
+								signInRequired: false,
+								backgroundColor: item.lecture.backgroundColor,
+								relevance: .init(score: 100)
+							)
+						)
+				}
+				
+				// Start-of-class entry
+				if start >= now {
+					entries
+						.append(
+							LectureEntry(
+								date: start,
+								lecture: item.lecture,
+								lectureClass: ct,
+								startDate: start,
+								signInRequired: false,
+								backgroundColor: item.lecture.backgroundColor,
+								relevance: .init(score: 80)
+							)
+						)
+				}
+			}
+			
+			if entries.isEmpty {
+				let entry = LectureEntry(
+					date: now,
+					lecture: nil,
+					lectureClass: nil,
+					startDate: nil,
+					signInRequired: false,
+					backgroundColor: .black,
+					relevance: .init(score: 20)
+				)
+				entries.append(entry)
+			}
+		}
+		
+		entries.sort { $0.date < $1.date }
+	}
 }
 
 struct BuddyUpcomingClassWidgetEntryView: View {
@@ -167,7 +180,7 @@ struct BuddyUpcomingClassWidget: Widget {
   let kind: String = "BuddyUpcomingClassWidget"
 
   var body: some WidgetConfiguration {
-    AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: UpcomingClassProvider()) { entry in
+    AppIntentConfiguration(kind: kind, intent: TimetableConfigurationIntent.self, provider: UpcomingClassProvider()) { entry in
       BuddyUpcomingClassWidgetEntryView(entry: entry)
         .containerBackground(.fill.tertiary, for: .widget)
     }

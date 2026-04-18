@@ -21,7 +21,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
     )
   }
 
-  func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> TimetableEntry {
+  func snapshot(for configuration: TimetableConfigurationIntent, in context: Context) async -> TimetableEntry {
     let now = Date()
 
     let timetableService = TimetableService()
@@ -48,7 +48,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
     return entry
   }
 
-  func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<TimetableEntry> {
+  func timeline(for configuration: TimetableConfigurationIntent, in context: Context) async -> Timeline<TimetableEntry> {
     let now = Date()
 
     let timetableService = TimetableService()
@@ -63,7 +63,21 @@ struct TimetableProvider: AppIntentTimelineProvider {
       )
       return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
-
+		
+		if !configuration.mirrorTimetable,
+			 let entity = configuration.timetable {
+			// user selected timetable
+			let timetable: Timetable = await timetableUseCase.getTable(timetableID: entity.id)
+			let entry = TimetableEntry(
+				date: now,
+				timetable: timetable,
+				signInRequired: false,
+				relevance: .init(score: 100)
+			)
+			
+			return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*60)))
+		}
+		
     let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
     let entry = TimetableEntry(
       date: now,
@@ -96,7 +110,7 @@ struct BuddyTimetableWidget: Widget {
   let kind: String = "BuddyTimetableWidget"
 
   var body: some WidgetConfiguration {
-    AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: TimetableProvider()) { entry in
+    AppIntentConfiguration(kind: kind, intent: TimetableConfigurationIntent.self, provider: TimetableProvider()) { entry in
       BuddyTimetableWidgetEntryView(entry: entry)
         .containerBackground(.fill.tertiary, for: .widget)
     }
