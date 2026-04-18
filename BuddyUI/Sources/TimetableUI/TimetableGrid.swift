@@ -76,7 +76,7 @@ public struct TimetableGrid: View {
         .getCellHeight(
           for: item,
           in: size,
-          of: selectedTimetable.duration % 60 == 0 ? selectedTimetable.duration : selectedTimetable.duration + 60
+          of: (maxHour - minHour) * 60
         )
     default:
       TimetableConstructor.getCellHeight(for: item, in: size, of: selectedTimetable.gappedDuration)
@@ -91,7 +91,7 @@ public struct TimetableGrid: View {
           for: item,
           in: size,
           at: selectedTimetable.minMinutes,
-          of: selectedTimetable.duration % 60 == 0 ? selectedTimetable.duration : selectedTimetable.duration + 60
+          of: (maxHour - minHour) * 60
         )
     default:
       TimetableConstructor.getCellOffset(for: item, in: size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration)
@@ -120,12 +120,8 @@ public struct TimetableGrid: View {
         HorizontalLine()
           .stroke(style: StrokeStyle(lineWidth: 1, dash: [2]))
       }
-      .padding(.top, 10)
-
-      Spacer()
-        .frame(height: 10)
     }
-    .padding(.top, TimetableConstructor.daysHeight + 4)
+    .padding(.top, TimetableConstructor.daysHeight + 14)
   }
 
   private var daysColumnHeader: some View {
