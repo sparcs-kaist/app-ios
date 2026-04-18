@@ -37,7 +37,7 @@ public struct TimetableGrid: View {
   public var body: some View {
     GeometryReader { geometry in
       daysColumnHeader
-      timesRowHeader
+      timesRowHeader(in: geometry.size)
       HStack(spacing: 4) {
         ForEach(selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
           ZStack(alignment: .top) {
@@ -138,20 +138,24 @@ public struct TimetableGrid: View {
     }.padding(.leading, TimetableConstructor.hoursWidth + 8)
   }
 
-  private var timesRowHeader: some View {
-    VStack(spacing: 0) {
+  private func timesRowHeader(in size: CGSize) -> some View {
+    let totalHours = maxHour - minHour
+    let timetableHeight = size.height - TimetableConstructor.daysHeight - 14
+    let slotHeight = totalHours > 0 ? timetableHeight / CGFloat(totalHours) : 0
+    let skipAlternate = placement == .widget && totalHours > 8
+
+    return ZStack(alignment: .topLeading) {
       ForEach(minHour..<maxHour, id: \.self) { hour in
-        Text(String(hour))
-          .font(.caption)
-          .frame(width: TimetableConstructor.hoursWidth)
-          .fontDesign(.rounded)
-
-        Spacer()
+        let index = hour - minHour
+        if !skipAlternate || index % 2 == 0 {
+          Text(String(hour))
+            .font(.caption)
+            .frame(width: TimetableConstructor.hoursWidth)
+            .fontDesign(.rounded)
+            .offset(y: TimetableConstructor.daysHeight + 8 + CGFloat(index) * slotHeight)
+        }
       }
-
-      Spacer()
-        .frame(height: 6)
-    }.padding(.top, TimetableConstructor.daysHeight + 8)
+    }
   }
 }
 
