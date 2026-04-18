@@ -10,6 +10,7 @@ import Moya
 
 public enum OTLTimetableTarget {
   case fetchTables(year: Int, semester: Int)
+  case fetchTablesBySemester
   case fetchTable(timetableID: Int)
   case fetchMyTable(year: Int, semester: Int)
   case createTable(year: Int, semester: Int)
@@ -30,6 +31,8 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchTables, .deleteTable, .renameTable, .createTable:
       "/api/v2/timetables"
+    case .fetchTablesBySemester:
+      "/api/v2/timetables/by-semester"
     case .fetchTable(let timetableID):
       "/api/v2/timetables/\(timetableID)"
     case .fetchMyTable:
@@ -45,7 +48,12 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
 
   public var method: Moya.Method {
     switch self {
-    case .fetchTables, .fetchTable, .fetchMyTable, .fetchSemesters, .fetchCurrentSemester:
+    case .fetchTables,
+         .fetchTablesBySemester,
+         .fetchTable,
+         .fetchMyTable,
+         .fetchSemesters,
+         .fetchCurrentSemester:
         .get
     case .createTable:
         .post
@@ -88,7 +96,7 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
           "id": timetableID,
           "name": title
         ], encoding: JSONEncoding.default)
-    case .fetchTable, .fetchSemesters, .fetchCurrentSemester:
+    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester:
         .requestPlain
     }
   }

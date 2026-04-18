@@ -8,15 +8,6 @@
 import WidgetKit
 import AppIntents
 
-struct SemesterOptionsProvider: DynamicOptionsProvider {
-	func results() async throws -> [String] {
-		return [
-			"2026 Spring",
-			"2025 Autumn"
-		]
-	}
-}
-
 struct ConfigurationAppIntent: WidgetConfigurationIntent {
 	static var title: LocalizedStringResource { "Configuration" }
 	static var description: IntentDescription { "This is an example widget." }
@@ -24,14 +15,14 @@ struct ConfigurationAppIntent: WidgetConfigurationIntent {
 	@Parameter(title: "Mirror My Table", default: true)
 	var mirrorTimetable: Bool
 	
-	@Parameter(title: "Semester", optionsProvider: SemesterOptionsProvider())
-	var semester: String?
+	@Parameter(title: "Timetable", optionsProvider: TimetableOptionsProvider())
+	var timetable: TimetableEntity?
 	
 	static var parameterSummary: some ParameterSummary {
 		When(\.$mirrorTimetable, .equalTo, false) {
 			Summary {
 				\.$mirrorTimetable
-				\.$semester
+				\.$timetable
 			}
 		} otherwise: {
 			Summary {

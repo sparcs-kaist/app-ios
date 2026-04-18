@@ -9,4 +9,5 @@ import Foundation
 
 public protocol TimetableUseCaseBackgroundProtocol {
   func getCurrentMyTable() async -> Timetable
+	func getTableList() async -> [SemesterWithTimetables]
 }
