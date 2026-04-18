@@ -151,6 +151,8 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
 		}
 		
 		entries.sort { $0.date < $1.date }
+		
+		return entries
 	}
 }
 
