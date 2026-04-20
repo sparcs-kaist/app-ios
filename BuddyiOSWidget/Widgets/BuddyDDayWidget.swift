@@ -11,8 +11,8 @@ import BuddyDomain
 import BuddyDataCore
 
 public enum DDayEntryType {
-	case endOfSemester(date: Date)
-	case startOfSemester(date: Date)
+	case endOfSemester(daysLeft: Int)
+	case startOfSemester(daysUntil: Int)
 	case error
 }
 
@@ -33,7 +33,7 @@ struct DDayProvider: TimelineProvider {
 	func placeholder(in context: Context) -> DDayEntry {
 		DDayEntry(
 			date: Date(),
-			type: .endOfSemester(date: Date().addingTimeInterval(600000)),
+			type: .endOfSemester(daysLeft: 0),
 			relevance: .init(score: 100)
 		)
 	}
@@ -61,6 +61,7 @@ struct DDayProvider: TimelineProvider {
 	
 	private func makeEntry() async -> DDayEntry {
 		let now = Date()
+		let calendar = Calendar.current
 		
 		let timetableService = TimetableService()
 		try? await timetableService.setup()
@@ -70,24 +71,32 @@ struct DDayProvider: TimelineProvider {
 			return DDayEntry(date: now, type: .error, relevance: .init(score: 20))
 		}
 		
-		let begin = semester.beginDate
-		let end = semester.endDate
+		// Normalize dates to the start of the day for accurate "day" counting
+		let startOfToday = calendar.startOfDay(for: now)
+		let startOfBegin = calendar.startOfDay(for: semester.beginDate)
+		let startOfEnd = calendar.startOfDay(for: semester.endDate)
 		
-		// before start of semester
-		if now < begin {
+		// Before start of semester
+		if startOfToday < startOfBegin {
+			let components = calendar.dateComponents([.day], from: startOfToday, to: startOfBegin)
+			let daysUntil = components.day ?? 0
 			return DDayEntry(
 				date: now,
-				type: .startOfSemester(date: begin),
+				type: .startOfSemester(daysUntil: daysUntil),
 				relevance: .init(score: 100)
 			)
 		}
 		
+		// During semester (counting down to the end)
+		let components = calendar.dateComponents([.day], from: startOfToday, to: startOfEnd)
+		let daysLeft = components.day ?? 0
 		return DDayEntry(
 			date: now,
-			type: .endOfSemester(date: end),
+			type: .endOfSemester(daysLeft: daysLeft),
 			relevance: .init(score: 100)
 		)
 	}
+
 }
 
 
