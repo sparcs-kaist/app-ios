@@ -13,6 +13,7 @@ struct BuddyiOSWidgetBundle: WidgetBundle {
   var body: some Widget {
     BuddyUpcomingClassWidget()
     BuddyTimetableWidget()
+		BuddyDDayWidget()
     //        BuddyiOSWidgetControl()
     //        BuddyiOSWidgetLiveActivity()
   }

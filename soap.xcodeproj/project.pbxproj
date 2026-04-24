@@ -22,6 +22,7 @@
 		8B3FB1332E951D7200F57FD7 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3FB1322E951D7200F57FD7 /* BuddyDomain */; };
 		8B3FB13D2E953D1500F57FD7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
 		8B3FB13E2E953D1500F57FD7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
+		8B3FD7FE2F96461F00AFDF23 /* BuddyDDayWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3FD7FD2F96461F00AFDF23 /* BuddyDDayWidgetUI */; };
 		8B45B2822F161F8100A858F5 /* Haptica in Frameworks */ = {isa = PBXBuildFile; productRef = 8B45B2812F161F8100A858F5 /* Haptica */; };
 		8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073DE2E851F79007E9C27 /* FirebaseAnalytics */; };
 		8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E02E851F79007E9C27 /* FirebaseAnalyticsCore */; };
@@ -302,6 +303,7 @@
 			files = (
 				8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */,
 				8B3A6AF42F62DB3000C97C42 /* Haptica in Frameworks */,
+				8B3FD7FE2F96461F00AFDF23 /* BuddyDDayWidgetUI in Frameworks */,
 				8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */,
 				8B24D7652F27537A009B9889 /* BuddyDataCore in Frameworks */,
 				8B3A62A22EFF98A4006427DF /* BuddyTimetableWidgetUI in Frameworks */,
@@ -483,6 +485,7 @@
 				8B24D7642F27537A009B9889 /* BuddyDataCore */,
 				8B3A6AF12F62DB0E00C97C42 /* TimetableUI */,
 				8B3A6AF32F62DB3000C97C42 /* Haptica */,
+				8B3FD7FD2F96461F00AFDF23 /* BuddyDDayWidgetUI */,
 			);
 			productName = BuddyiOSWidgetExtension;
 			productReference = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */;
@@ -1726,6 +1729,10 @@
 		8B3FB1322E951D7200F57FD7 /* BuddyDomain */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDomain;
+		};
+		8B3FD7FD2F96461F00AFDF23 /* BuddyDDayWidgetUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyDDayWidgetUI;
 		};
 		8B45B2812F161F8100A858F5 /* Haptica */ = {
 			isa = XCSwiftPackageProductDependency;

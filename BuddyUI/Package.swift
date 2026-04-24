@@ -17,6 +17,10 @@ let package = Package(
       name: "BuddyTimetableWidgetUI",
       targets: ["BuddyTimetableWidgetUI"]
     ),
+		.library(
+			name: "BuddyDDayWidgetUI",
+			targets: ["BuddyDDayWidgetUI"]
+		),
     .library(
       name: "TimetableUI",
       targets: ["TimetableUI"]
@@ -33,6 +37,12 @@ let package = Package(
         "BuddyDomain",
       ]
     ),
+		.target(
+			name: "BuddyDDayWidgetUI",
+			dependencies: [
+				"BuddyDomain",
+			]
+		),
     .target(
       name: "BuddyTimetableWidgetUI",
       dependencies: [
