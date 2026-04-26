@@ -47,7 +47,7 @@ public struct UpcomingClassRectangleWidgetView: View {
     }
   }
 
-  var signInRequiredView: some View {
+  private var signInRequiredView: some View {
     VStack(alignment: .leading, spacing: 2) {
       HStack(alignment: .center) {
         Circle()
