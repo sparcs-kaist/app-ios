@@ -23,6 +23,14 @@ public class TimetableService: TimetableServiceProtocol {
   }
 
   public func setup() async throws {
+#if os(watchOS)
+    self.otlTimetableRepository = OTLTimetableRepository(
+      provider: MoyaProvider<OTLTimetableTarget>()
+    )
+    self.timetableUseCase = TimetableUseCaseBackground(
+      otlTimetableRepository: self.otlTimetableRepository!
+    )
+#else
     guard let refreshToken = tokenStorage.getRefreshToken() else { return }
 
     // refresh token
@@ -47,6 +55,7 @@ public class TimetableService: TimetableServiceProtocol {
     self.timetableUseCase = TimetableUseCaseBackground(
       otlTimetableRepository: self.otlTimetableRepository!
     )
+#endif
   }
 
   // MARK: - Helpers

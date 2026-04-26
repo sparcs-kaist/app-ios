@@ -12,6 +12,7 @@ import SwiftUI
 struct BuddyWatchWidgetBundle: WidgetBundle {
   var body: some Widget {
     BuddyUpcomingClassWidget()
+		BuddyDDayWidget()
   }
 }
 
