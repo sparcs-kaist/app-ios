@@ -19,7 +19,7 @@ public struct DDaySmallWidgetView: View {
 		switch entry.type {
 		case .endOfSemester(let daysLeft, _, let description):
 			VStack(alignment: .leading, spacing: 2) {
-				Text("Ends in")
+				Text("Ends in", bundle: .module)
 					.font(.caption)
 					.fontWeight(.medium)
 					.foregroundStyle(.indigo)
@@ -32,7 +32,7 @@ public struct DDaySmallWidgetView: View {
 						.frame(height: 48, alignment: .center)
 						.offset(x: -2)
 					
-					Text("days")
+					Text("days", bundle: .module)
 						.font(.callout)
 						.fontDesign(.rounded)
 						.padding(.bottom, 2)
@@ -53,7 +53,7 @@ public struct DDaySmallWidgetView: View {
 			}
 		case .startOfSemester(let daysUntil, let description):
 			VStack(alignment: .leading, spacing: 2) {
-				Text("Starts in")
+				Text("Starts in", bundle: .module)
 					.font(.caption)
 					.fontWeight(.medium)
 					.foregroundStyle(.indigo)
@@ -66,7 +66,7 @@ public struct DDaySmallWidgetView: View {
 						.frame(height: 48, alignment: .center)
 						.offset(x: -2)
 					
-					Text("days")
+					Text("days", bundle: .module)
 						.font(.callout)
 						.fontDesign(.rounded)
 						.padding(.bottom, 2)
@@ -91,7 +91,7 @@ public struct DDaySmallWidgetView: View {
 	}
 	
 	private var signInRequiredView: some View {
-		Text("Sign in to see upcoming classes.")
+		Text("Sign in to see upcoming classes.", bundle: .module)
 			.multilineTextAlignment(.center)
 	}
 }

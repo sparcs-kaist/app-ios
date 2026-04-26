@@ -148,7 +148,7 @@ struct BuddyUpcomingClassWidgetEntryView: View {
       case .accessoryCorner:
         UpcomingClassCornerWidgetView(entry: entry)
       default:
-        Text("Not supported")
+        Text("Not supported", bundle: .module)
       }
     }
     .containerBackground(entry.backgroundColor.gradient, for: .widget)

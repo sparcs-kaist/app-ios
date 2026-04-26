@@ -77,7 +77,7 @@ public struct SettingsView: View {
   
   private var appSettings: some View {
     Group {
-//      NavigationLink("Notifications") { NotificationSettingsView() }
+//      NavigationLink(String(localized: "Notifications", bundle: .module)) { NotificationSettingsView() }
 
       Button(String(localized: "Change Language", bundle: .module), systemImage: "globe") {
         if let url = URL(string: UIApplication.openSettingsURLString) {

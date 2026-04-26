@@ -93,7 +93,7 @@ struct TaxiChatInputBar: View {
           Spacer()
         } else {
           TextField(
-            "Chat as \(nickname)",
+            String(localized: "Chat as \(nickname)", bundle: .module),
             text: $text,
             axis: .vertical
           )

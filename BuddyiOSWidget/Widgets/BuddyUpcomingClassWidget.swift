@@ -172,7 +172,7 @@ struct BuddyUpcomingClassWidgetEntryView: View {
       case .systemSmall:
         UpcomingClassSmallWidgetView(entry: entry)
       default:
-        Text("Not supported")
+        Text("Not supported", bundle: .module)
       }
     }
   }

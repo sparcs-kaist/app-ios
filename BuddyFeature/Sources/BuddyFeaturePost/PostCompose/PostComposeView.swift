@@ -96,7 +96,7 @@ struct PostComposeView: View {
             isShowingCancelDialog = true
           }
           .confirmationDialog(
-            "Are you sure you want to discard this post?",
+            String(localized: "Are you sure you want to discard this post?", bundle: .module),
             isPresented: $isShowingCancelDialog,
             titleVisibility: .hidden
           ) {

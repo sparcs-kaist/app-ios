@@ -38,7 +38,7 @@ struct NextClassResultView: View {
           )
         }
       case .error:
-        Text("Failed to load classes for this semester.")
+        Text("Failed to load classes for this semester.", bundle: .module)
       }
     }
     .padding()
@@ -67,7 +67,7 @@ struct NextClassResultView: View {
 
       Group {
         if let date {
-          Text("\(date, style: .time) at \(subtitle)")
+          Text("\(date, style: .time) at \(subtitle)", bundle: .module)
         } else {
           Text(subtitle)
         }

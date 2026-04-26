@@ -27,7 +27,7 @@ struct ContentView: View {
           LectureTabView(items: items)
         }
       } else {
-        Text("Please open Buddy app on your iPhone to sync your timetable for this semester.")
+        Text("Please open Buddy app on your iPhone to sync your timetable for this semester.", bundle: .module)
           .multilineTextAlignment(.center)
       }
     }

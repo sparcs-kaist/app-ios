@@ -36,7 +36,7 @@ struct TaxiRoomCreationView: View {
           )
         }
 
-        Section("Title") {
+        Section(String(localized: "Title", bundle: .module)) {
           HStack {
             TextField(String(localized: "Title", bundle: .module), text: $title)
           }
@@ -50,7 +50,7 @@ struct TaxiRoomCreationView: View {
                 .tag(number)
             }
           }
-          Toggle("With Luggage", isOn: $viewModel.hasCarrier)
+          Toggle(String(localized: "With Luggage", bundle: .module), isOn: $viewModel.hasCarrier)
         }
       }
       .navigationTitle(String(localized: "New Group", bundle: .module))
