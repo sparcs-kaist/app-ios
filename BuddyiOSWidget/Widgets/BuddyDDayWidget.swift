@@ -16,7 +16,7 @@ struct DDayProvider: TimelineProvider {
 	func placeholder(in context: Context) -> DDayEntry {
 		DDayEntry(
 			date: Date(),
-			type: .endOfSemester(daysLeft: 0, progress: 1),
+			type: .endOfSemester(daysLeft: 0, progress: 1, description: "2026 Spring"),
 			relevance: .init(score: 100)
 		)
 	}
@@ -58,7 +58,7 @@ struct DDayProvider: TimelineProvider {
 		// 1. Before start of semester
 		if now < begin {
 			let daysUntil = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: begin)).day ?? 0
-			return DDayEntry(date: now, type: .startOfSemester(daysUntil: daysUntil), relevance: .init(score: 100))
+			return DDayEntry(date: now, type: .startOfSemester(daysUntil: daysUntil, description: semester.description), relevance: .init(score: 100))
 		}
 		
 		// 2. During semester: Calculate Percentage
@@ -71,7 +71,7 @@ struct DDayProvider: TimelineProvider {
 		
 		return DDayEntry(
 			date: now,
-			type: .endOfSemester(daysLeft: daysLeft, progress: progress),
+			type: .endOfSemester(daysLeft: daysLeft, progress: progress, description: semester.description),
 			relevance: .init(score: 100)
 		)
 	}
@@ -88,6 +88,10 @@ struct BuddyDDayWidgetEntryView: View {
 				DDayInlineWidgetView(entry: entry)
 			case .accessoryCircular:
 				DDayCircularWidgetView(entry: entry)
+			case .accessoryRectangular:
+				DDayRectangleWidgetView(entry: entry)
+			case .systemSmall:
+				DDaySmallWidgetView(entry: entry)
 			default:
 				Text("Not supported")
 			}
@@ -101,17 +105,18 @@ struct BuddyDDayWidget: Widget {
 	var body: some WidgetConfiguration {
 		StaticConfiguration(kind: kind, provider: DDayProvider()) { entry in
 			BuddyDDayWidgetEntryView(entry: entry)
+				.containerBackground(.fill.tertiary, for: .widget)
 		}
 		.supportedFamilies([
-			.accessoryInline, .accessoryCircular
+			.accessoryInline, .accessoryCircular, .accessoryRectangular, .systemSmall
 		])
 		.configurationDisplayName("D-Day")
 		.description("Track D-Day for this semester.")
 	}
 }
 
-#Preview(as: .accessoryCircular) {
+#Preview(as: .systemSmall) {
 	BuddyDDayWidget()
 } timeline: {
-	DDayEntry(date: Date(), type: .endOfSemester(daysLeft: 10, progress: 0.8), relevance: .init(score: 100))
+	DDayEntry(date: Date(), type: .endOfSemester(daysLeft: 54, progress: 0.8, description: "2026 Spring"), relevance: .init(score: 100))
 }

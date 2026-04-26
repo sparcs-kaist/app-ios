@@ -1,0 +1,88 @@
+//
+//  DDayRectangleWidgetView.swift
+//  BuddyUI
+//
+//  Created by Soongyu Kwon on 4/26/26.
+//
+
+import SwiftUI
+import BuddyDomain
+import BuddySharedUI
+
+public struct DDayRectangleWidgetView: View {
+	@Environment(\.widgetRenderingMode) var renderingMode
+	
+	var entry: DDayEntry
+	
+	public init(entry: DDayEntry) {
+		self.entry = entry
+	}
+	
+	public var body: some View {
+		switch entry.type {
+		case .endOfSemester(let daysLeft, let progress, let description):
+			VStack(alignment: .leading, spacing: 2) {
+				HStack(alignment: .center) {
+					Circle()
+						.frame(width: 12, height: 12)
+					
+					Text(description)
+						.fontDesign(.rounded)
+						.lineLimit(1)
+						.fontWeight(.semibold)
+				}
+				.foregroundStyle(renderingMode == .accented ? Color.indigo : .primary)
+				
+				Text("Ends in \(daysLeft) days")
+				
+				BuddyLinearGauge(progress: progress, foregroundColor: renderingMode == .accented ? Color.indigo : .primary)
+					.frame(height: 8)
+					.padding(.top, 4)
+			}
+		case .startOfSemester(let daysUntil, let description):
+			VStack(alignment: .leading, spacing: 2) {
+				HStack(alignment: .center) {
+					Circle()
+						.frame(width: 12, height: 12)
+					
+					Text(description)
+						.fontDesign(.rounded)
+						.lineLimit(1)
+						.fontWeight(.semibold)
+				}
+				.foregroundStyle(renderingMode == .accented ? Color.indigo : .primary)
+				
+				Text("Starts in \(daysUntil) days")
+				
+				BuddyLinearGauge(progress: 0, foregroundColor: renderingMode == .accented ? Color.indigo : .primary)
+					.frame(height: 8)
+					.padding(.top, 4)
+			}
+		case .error:
+			signInRequiredView
+		}
+	}
+	
+	private var signInRequiredView: some View {
+		VStack(alignment: .leading, spacing: 2) {
+			HStack(alignment: .center) {
+				Circle()
+					.frame(width: 12, height: 12)
+					.padding(.top, 2)
+				
+				Text("Sign in Required")
+					.minimumScaleFactor(0.9)
+					.lineLimit(1)
+					.fontWeight(.semibold)
+			}
+			.foregroundStyle(Color.accentColor)
+			
+			HStack {
+				Text("Open Buddy on your iPhone to continue")
+					.multilineTextAlignment(.leading)
+				Spacer()
+			}
+			.minimumScaleFactor(0.8)
+		}
+	}
+}

@@ -16,7 +16,7 @@ public struct DDayCircularWidgetView: View {
 	
 	public var body: some View {
 		switch entry.type {
-		case .endOfSemester(let daysLeft, let progress):
+		case .endOfSemester(let daysLeft, let progress, _):
 			Gauge(
 				value: progress,
 				label: {},
@@ -25,7 +25,7 @@ public struct DDayCircularWidgetView: View {
 				}
 			)
 			.gaugeStyle(.accessoryCircularCapacity)
-		case .startOfSemester(let daysUntil):
+		case .startOfSemester(let daysUntil, _):
 			Gauge(
 				value: 0,
 				label: {},
@@ -50,7 +50,7 @@ public struct DDayCircularWidgetView: View {
 	}
 	
 	private var signInRequiredView: some View {
-		VStack {
+		VStack(spacing: 4) {
 			Image(systemName: "arrow.up.right.square")
 			Text("Sign in")
 		}

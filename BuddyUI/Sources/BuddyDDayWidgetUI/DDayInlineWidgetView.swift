@@ -17,9 +17,9 @@ public struct DDayInlineWidgetView: View {
 	
 	public var body: some View {
 		switch entry.type {
-		case .endOfSemester(let daysLeft, _):
+		case .endOfSemester(let daysLeft, _, _):
 			Text("Ends in \(daysLeft) days")
-		case .startOfSemester(let daysUntil):
+		case .startOfSemester(let daysUntil, _):
 			Text("Starts in \(daysUntil) days")
 		case .error:
 			Text("Sign in Required")
