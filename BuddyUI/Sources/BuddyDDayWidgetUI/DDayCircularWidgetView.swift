@@ -15,33 +15,41 @@ public struct DDayCircularWidgetView: View {
 	}
 	
 	public var body: some View {
-		Group {
-			switch entry.type {
-			case .endOfSemester(let daysLeft, let progress):
-				Gauge(
-					value: progress,
-					label: {},
-					currentValueLabel: {
-						Text("D-\(daysLeft)")
-					}
-				)
-				.gaugeStyle(.accessoryCircularCapacity)
-			case .startOfSemester(let daysUntil):
-				Gauge(
-					value: 0,
-					label: {},
-					currentValueLabel: {
-						Text("D-\(daysLeft)")
-					}
-				)
-				.gaugeStyle(.accessoryCircularCapacity)
-			case .error:
-				signInRequiredView
-			}
+		switch entry.type {
+		case .endOfSemester(let daysLeft, let progress):
+			Gauge(
+				value: progress,
+				label: {},
+				currentValueLabel: {
+					Text(formattedDDay(from: daysLeft))
+				}
+			)
+			.gaugeStyle(.accessoryCircularCapacity)
+		case .startOfSemester(let daysUntil):
+			Gauge(
+				value: 0,
+				label: {},
+				currentValueLabel: {
+					Text(formattedDDay(from: daysUntil))
+				}
+			)
+			.gaugeStyle(.accessoryCircularCapacity)
+		case .error:
+			signInRequiredView
 		}
 	}
 	
-	var signInRequiredView: some View {
+	private func formattedDDay(from days: Int) -> String {
+		if days > 0 {
+			return "D-\(days)"
+		} else if days < 0 {
+			return "D+\(abs(days))"
+		}
+		
+		return "D-Day"
+	}
+	
+	private var signInRequiredView: some View {
 		VStack {
 			Image(systemName: "arrow.up.right.square")
 			Text("Sign in")
