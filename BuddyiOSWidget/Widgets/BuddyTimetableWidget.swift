@@ -100,7 +100,7 @@ struct BuddyTimetableWidgetEntryView: View {
       case .systemLarge:
         TimetableLargeWidgetView(entry: entry)
       default:
-        Text("Not supported", bundle: .module)
+        Text("Not supported")
       }
     }
   }

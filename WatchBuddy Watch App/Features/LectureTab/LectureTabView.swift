@@ -31,7 +31,7 @@ struct LectureTabView: View {
           }
         }
       } else {
-        Text("There is no class today.", bundle: .module)
+        Text("There is no class today.")
           .multilineTextAlignment(.center)
       }
     }

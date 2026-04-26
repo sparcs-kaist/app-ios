@@ -32,8 +32,8 @@ final class MainViewModel {
       invitedRoom = try await taxiRoomRepository.getPublicRoom(id: code)
     } catch {
       alertState = .init(
-        title: String(localized: "Invalid Invitation", bundle: .module),
-        message: String(localized: "The link you followed is invalid. Please try again.", bundle: .module)
+        title: String(localized: "Invalid Invitation"),
+        message: String(localized: "The link you followed is invalid. Please try again.")
       )
       isAlertPresented = true
     }
@@ -46,8 +46,8 @@ final class MainViewModel {
       deepLinkedPost = try await araBoardUseCase.fetchPost(origin: nil, postID: id)
     } catch {
       alertState = .init(
-        title: String(localized: "Post Not Found", bundle: .module),
-        message: String(localized: "The post you are looking for could not be found.", bundle: .module)
+        title: String(localized: "Post Not Found"),
+        message: String(localized: "The post you are looking for could not be found.")
       )
       isAlertPresented = true
     }

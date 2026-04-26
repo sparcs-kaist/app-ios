@@ -82,8 +82,8 @@ struct TaxiSettingsView: View {
   var loadingView: some View {
     List {
       RowElementView(title: "Nickname", content: "Unknown")
-      RowElementView(title: "Bank Account", content: String.LocalizationValue(String(localized: "Unknown", bundle: .module)))
-      RowElementView(title: "Phone Number", content: String.LocalizationValue(String(localized: "Unknown", bundle: .module)))
+      RowElementView(title: "Bank Account", content: "Unknown")
+      RowElementView(title: "Phone Number", content: "Unknown")
     }
   }
   

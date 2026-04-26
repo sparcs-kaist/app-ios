@@ -39,10 +39,10 @@ struct SignInView: View {
         .frame(height: 16)
 
       Group {
-        if let attributed = try? AttributedString(markdown: String(localized: "By continuing, you agree to our [Terms of Use](\(Constants.termsOfUseURL.absoluteString)) and [Privacy Policy](\(Constants.privacyPolicyURL.absoluteString)).", bundle: .module)) {
+        if let attributed = try? AttributedString(markdown: String(localized: "By continuing, you agree to our [Terms of Use](\(Constants.termsOfUseURL.absoluteString)) and [Privacy Policy](\(Constants.privacyPolicyURL.absoluteString)).")) {
           Text(attributed)
         } else {
-          Text("By continuing, you agree to our Terms of Use and Privacy Policy.", bundle: .module)
+          Text("By continuing, you agree to our Terms of Use and Privacy Policy.")
         }
       }
         .foregroundStyle(.secondary)
@@ -64,7 +64,7 @@ struct SignInView: View {
             ProgressView()
               .tint(.white)
           } else {
-            Text("Continue with SPARCS SSO", bundle: .module)
+            Text("Continue with SPARCS SSO")
               .fontWeight(.medium)
           }
         }
@@ -76,7 +76,7 @@ struct SignInView: View {
     }
     .padding()
     .alert("Error", isPresented: $showErrorAlert, actions: {
-      Button(String(localized: "Okay", bundle: .module), role: .close) { }
+      Button(String(localized: "Okay"), role: .close) { }
     }, message: {
       Text(errorMessage)
     })

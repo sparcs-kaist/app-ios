@@ -109,7 +109,7 @@ struct MainView: View {
         .presentationDetents([.height(400), .height(500)])
     }
     .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented) {
-      Button(String(localized: "Okay", bundle: .module), role: .cancel) { }
+      Button(String(localized: "Okay"), role: .cancel) { }
     } message: {
       Text(viewModel.alertState?.message ?? "Unexpected Error")
     }

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct RowElementView: View {
-  var title: String.LocalizationValue
-  var content: String.LocalizationValue
+  var title: LocalizedStringKey
+  var content: LocalizedStringKey
   
   var body: some View {
     HStack {

@@ -40,10 +40,10 @@ struct ContentView: View {
         viewModel.resetTimer()
         UIApplication.shared.open(Constants.appStoreURL, options: [:], completionHandler: nil)
       }, label: {
-        Text("Open App Store", bundle: .module)
+        Text("Open App Store")
       })
     }, message: {
-      Text("A new version is available. Please update to continue.", bundle: .module)
+      Text("A new version is available. Please update to continue.")
     })
   }
 }

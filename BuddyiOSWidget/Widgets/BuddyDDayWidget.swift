@@ -95,7 +95,7 @@ struct BuddyDDayWidgetEntryView: View {
 				DDaySmallWidgetView(entry: entry)
 #endif
 			default:
-				Text("Not supported", bundle: .module)
+				Text("Not supported")
 			}
 		}
 	}

@@ -1,0 +1,33 @@
+{
+  "sourceLanguage" : "en-GB",
+  "strings" : {
+    "days" : {
+
+    },
+    "Ends in" : {
+
+    },
+    "Ends in %lld days" : {
+
+    },
+    "Open Buddy on your iPhone to continue" : {
+
+    },
+    "Sign in" : {
+
+    },
+    "Sign in Required" : {
+
+    },
+    "Sign in to see upcoming classes." : {
+
+    },
+    "Starts in" : {
+
+    },
+    "Starts in %lld days" : {
+
+    }
+  },
+  "version" : "1.0"
+}

@@ -23,6 +23,17 @@
       },
       "shouldTranslate" : false
     },
+    "%@ • %@" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ • %2$@"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
     "0 left" : {
       "localizations" : {
         "en" : {

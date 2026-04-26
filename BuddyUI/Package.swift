@@ -73,6 +73,6 @@ let package = Package(
 			name: "BuddyUITests",
 			dependencies: ["BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI"]
 		),
-	]
+  ]
 )
 
