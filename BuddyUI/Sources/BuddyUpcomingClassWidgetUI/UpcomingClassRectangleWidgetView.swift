@@ -6,15 +6,22 @@
 //
 
 import SwiftUI
+import WidgetKit
 import BuddyDomain
 
 public struct UpcomingClassRectangleWidgetView: View {
+  @Environment(\.widgetRenderingMode) var renderingMode
+
   var entry: LectureEntry
 
   public init(entry: LectureEntry) {
     self.entry = entry
   }
-  
+
+  private var accentColor: Color {
+    renderingMode == .fullColor ? entry.backgroundColor : .primary
+  }
+
   public var body: some View {
     if let lecture = entry.lecture, let ct = entry.lectureClass {
       VStack(alignment: .leading, spacing: 2) {
@@ -27,7 +34,8 @@ public struct UpcomingClassRectangleWidgetView: View {
             .lineLimit(1)
             .fontWeight(.semibold)
         }
-        .foregroundStyle(entry.backgroundColor)
+        .foregroundStyle(accentColor)
+        .widgetAccentable()
 
         Group {
           Text(lecture.name)
@@ -59,7 +67,8 @@ public struct UpcomingClassRectangleWidgetView: View {
           .lineLimit(1)
           .fontWeight(.semibold)
       }
-      .foregroundStyle(Color.accentColor)
+			.foregroundStyle(Color.indigo)
+			.widgetAccentable()
 
       HStack {
         Text("Open Buddy on your iPhone to continue")
@@ -83,7 +92,8 @@ public struct UpcomingClassRectangleWidgetView: View {
           .lineLimit(1)
           .fontWeight(.semibold)
       }
-      .foregroundStyle(Color.accentColor)
+			.foregroundStyle(Color.indigo)
+			.widgetAccentable()
 
       HStack {
         Text("Enjoy your day")
