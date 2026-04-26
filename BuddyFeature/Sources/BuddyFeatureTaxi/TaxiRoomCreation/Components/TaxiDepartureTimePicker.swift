@@ -22,7 +22,7 @@ struct TaxiDepartureTimePicker: View {
 
   var body: some View {
     HStack {
-      Text(String(localized: "Departure Time", bundle: .module))
+      Text("Departure Time", bundle: .module)
 
       Spacer()
 

@@ -26,7 +26,7 @@ struct LectureSearchView: View {
           ContentUnavailableView(
             "Search",
             systemImage: "magnifyingglass",
-            description: Text(String(localized: "Search courses, codes or professors.", bundle: .module))
+            description: Text("Search courses, codes or professors.", bundle: .module)
           )
         } else if viewModel.courses.isEmpty && viewModel.state != .loading {
           ContentUnavailableView.search(text: viewModel.searchKeyword)

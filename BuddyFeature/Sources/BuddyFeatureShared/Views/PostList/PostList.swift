@@ -32,7 +32,7 @@ public struct PostList: View {
       ContentUnavailableView(
         "Nothing Here Yet",
         systemImage: "questionmark.text.page",
-        description: Text(String(localized: "It looks like there are no posts on this page right now.", bundle: .module))
+        description: Text("It looks like there are no posts on this page right now.", bundle: .module)
       )
     } else {
       List {
@@ -110,7 +110,7 @@ public struct PostList: View {
   NavigationStack {
     PostList(posts: AraPost.mockList)
       .navigationDestination(for: AraPost.self) { post in
-        Text(String(localized: "Post \(post.id)", bundle: .module))
+        Text("Post \(post.id)", bundle: .module)
       }
   }
 }

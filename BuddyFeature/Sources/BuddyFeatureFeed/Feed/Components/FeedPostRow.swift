@@ -75,7 +75,7 @@ struct FeedPostRow: View {
         .fill(Color.secondarySystemBackground)
         .frame(width: 24, height: 24)
         .overlay {
-          Text(String(localized: "😀", bundle: .module))
+          Text("😀", bundle: .module)
             .font(.caption)
         }
     }
@@ -94,7 +94,7 @@ struct FeedPostRow: View {
           .foregroundStyle(.tint)
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
-            Text(String(localized: "This post was created from within the KAIST network.", bundle: .module))
+            Text("This post was created from within the KAIST network.", bundle: .module)
               .frame(width: 200)
               .presentationCompactAdaptation(.popover)
               .padding()
@@ -102,7 +102,7 @@ struct FeedPostRow: View {
           .onTapGesture {
             showPopover = true
           }
-          .accessibilityLabel(Text(String(localized: "This post was created from within the KAIST network.", bundle: .module)))
+          .accessibilityLabel(Text("This post was created from within the KAIST network.", bundle: .module))
       }
 
       // onPostDeleted == nil here means FeedPostRow is in the FeedPostView.
@@ -145,7 +145,7 @@ struct FeedPostRow: View {
           }
           Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
         } message: {
-          Text(String(localized: "Are you sure you want to delete this post?", bundle: .module))
+          Text("Are you sure you want to delete this post?", bundle: .module)
         }
       }
     }

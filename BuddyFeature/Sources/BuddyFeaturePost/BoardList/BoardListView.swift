@@ -92,7 +92,7 @@ public struct BoardListView: View {
           NavigationLink(destination: {
           }, label: {
             HStack {
-              Text(String(localized: "Portal Notice", bundle: .module))
+              Text("Portal Notice", bundle: .module)
               Spacer()
               Image(systemName: "chevron.right")
                 .opacity(0.3)

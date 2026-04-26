@@ -17,7 +17,7 @@ struct ChatReadReceipt: View {
   var body: some View {
     VStack(alignment: alignment) {
       if readCount > 0 {
-        Text(String(localized: "\(readCount)", bundle: .module))
+        Text("\(readCount)", bundle: .module)
           .font(.caption2)
       }
 

@@ -46,7 +46,7 @@ struct TaxiRoomCreationView: View {
           TaxiDepartureTimePicker(departureTime: $viewModel.roomDepartureTime)
           Picker(String(localized: "Capacity", bundle: .module), selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in
-              Text(String(localized: "\(number) people", bundle: .module))
+              Text("\(number) people", bundle: .module)
                 .tag(number)
             }
           }

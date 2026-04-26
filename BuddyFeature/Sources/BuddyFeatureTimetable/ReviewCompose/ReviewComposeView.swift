@@ -31,7 +31,7 @@ struct ReviewComposeView: View {
         TextField(
           "",
           text: $content,
-          prompt: Text(String(localized: "Share your thoughts on \(lecture.name)...", bundle: .module)),
+          prompt: Text("Share your thoughts on \(lecture.name)...", bundle: .module),
           axis: .vertical
         )
           .padding()
@@ -41,41 +41,41 @@ struct ReviewComposeView: View {
       .navigationBarTitleDisplayMode(.inline)
       .safeAreaBar(edge: .top) {
         HStack {
-          Text(String(localized: "Grade", bundle: .module))
+          Text("Grade", bundle: .module)
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
 
           Picker(String(localized: "Grade", bundle: .module), selection: $grade) {
-            Text(String(localized: "A", bundle: .module)).tag(5)
-            Text(String(localized: "B", bundle: .module)).tag(4)
-            Text(String(localized: "C", bundle: .module)).tag(3)
-            Text(String(localized: "D", bundle: .module)).tag(2)
-            Text(String(localized: "F", bundle: .module)).tag(1)
+            Text("A", bundle: .module).tag(5)
+            Text("B", bundle: .module).tag(4)
+            Text("C", bundle: .module).tag(3)
+            Text("D", bundle: .module).tag(2)
+            Text("F", bundle: .module).tag(1)
           }
 
-          Text(String(localized: "Load", bundle: .module))
+          Text("Load", bundle: .module)
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
           Picker(String(localized: "Load", bundle: .module), selection: $load) {
-            Text(String(localized: "A", bundle: .module)).tag(5)
-            Text(String(localized: "B", bundle: .module)).tag(4)
-            Text(String(localized: "C", bundle: .module)).tag(3)
-            Text(String(localized: "D", bundle: .module)).tag(2)
-            Text(String(localized: "F", bundle: .module)).tag(1)
+            Text("A", bundle: .module).tag(5)
+            Text("B", bundle: .module).tag(4)
+            Text("C", bundle: .module).tag(3)
+            Text("D", bundle: .module).tag(2)
+            Text("F", bundle: .module).tag(1)
           }
 
-          Text(String(localized: "Speech", bundle: .module))
+          Text("Speech", bundle: .module)
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
           Picker(String(localized: "Speech", bundle: .module), selection: $speech) {
-            Text(String(localized: "A", bundle: .module)).tag(5)
-            Text(String(localized: "B", bundle: .module)).tag(4)
-            Text(String(localized: "C", bundle: .module)).tag(3)
-            Text(String(localized: "D", bundle: .module)).tag(2)
-            Text(String(localized: "F", bundle: .module)).tag(1)
+            Text("A", bundle: .module).tag(5)
+            Text("B", bundle: .module).tag(4)
+            Text("C", bundle: .module).tag(3)
+            Text("D", bundle: .module).tag(2)
+            Text("F", bundle: .module).tag(1)
           }
         }
         .font(.callout)
@@ -120,7 +120,7 @@ struct ReviewComposeView: View {
       .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
-        Text(String(localized: "There was an error. Please try again later.", bundle: .module))
+        Text("There was an error. Please try again later.", bundle: .module)
       })
     }
     .analyticsScreen(name: "Review Compose", class: String(describing: Self.self))

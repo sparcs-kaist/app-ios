@@ -24,11 +24,11 @@ public struct SettingsView: View {
   public var body: some View {
     NavigationStack {
       List {
-        Section(header: Text(String(localized: "Miscellaneous", bundle: .module))) {
+        Section(header: Text("Miscellaneous", bundle: .module)) {
           appSettings
         }
         
-        Section(header: Text(String(localized: "Services", bundle: .module))) {
+        Section(header: Text("Services", bundle: .module)) {
           NavigationLink(String(localized: "Feed", bundle: .module)) { FeedSettingsView() }
           NavigationLink(String(localized: "Ara", bundle: .module)) { AraSettingsView() }
           NavigationLink(String(localized: "Taxi", bundle: .module)) { TaxiSettingsView() }
@@ -39,7 +39,7 @@ public struct SettingsView: View {
         }
         
         if !Status.isProduction {
-          Section(header: Text(String(localized: "Debug Menu", bundle: .module))) {
+          Section(header: Text("Debug Menu", bundle: .module)) {
             Button(String(localized: "Force Crash", bundle: .module), systemImage: "exclamationmark.triangle") {
               fatalError("DEBUG: User forced a crash")
             }
@@ -62,11 +62,11 @@ public struct SettingsView: View {
           .foregroundStyle(.red)
         }
       }
-      .navigationTitle(Text(String(localized: "Settings", bundle: .module)))
+      .navigationTitle(Text("Settings", bundle: .module))
       .alert(String(localized: "Error", bundle: .module), isPresented: $showLogoutError) {
         Button(role: .confirm) { }
       } message: {
-        Text(String(localized: "An error occurred while signing out. Please try again later.", bundle: .module))
+        Text("An error occurred while signing out. Please try again later.", bundle: .module)
       }
       .navigationDestination(isPresented: $showCreditView) {
         CreditView()

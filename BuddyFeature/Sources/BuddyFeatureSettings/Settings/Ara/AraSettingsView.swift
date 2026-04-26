@@ -47,7 +47,7 @@ struct AraSettingsView: View {
         updateAraNickname()
       }
     } message: {
-      Text(String(localized: "Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?", bundle: .module))
+      Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?", bundle: .module)
     }
     .navigationTitle(String(localized: "Ara", bundle: .module))
     .analyticsScreen(name: "Ara Settings", class: String(describing: Self.self))
@@ -55,15 +55,15 @@ struct AraSettingsView: View {
   
   private var loadingView: some View {
     List {
-      Section(header: Text(String(localized: "Profile", bundle: .module))) {
+      Section(header: Text("Profile", bundle: .module)) {
         HStack {
-          Text(String(localized: "Nickname", bundle: .module))
+          Text("Nickname", bundle: .module)
           Spacer()
           TextField(String(localized: "Nickname", bundle: .module), text: .constant(String(localized: "Unknown", bundle: .module)))
         }
       }
 
-      Section(header: Text(String(localized: "Posts", bundle: .module))) {
+      Section(header: Text("Posts", bundle: .module)) {
         Toggle(String(localized: "Allow NSFW", bundle: .module), isOn: .constant(true))
         Toggle(String(localized: "Allow Political", bundle: .module), isOn: .constant(true))
       }
@@ -75,7 +75,7 @@ struct AraSettingsView: View {
     List {
       Section {
         HStack {
-          Text(String(localized: "Nickname", bundle: .module))
+          Text("Nickname", bundle: .module)
           Spacer()
           TextField(String(localized: "Nickname", bundle: .module), text: $vm.nickname)
           .autocorrectionDisabled()
@@ -87,22 +87,22 @@ struct AraSettingsView: View {
           .disabled(vm.nicknameUpdatable == false)
         }
       } header: {
-        Text(String(localized: "Profile", bundle: .module))
+        Text("Profile", bundle: .module)
       } footer: {
         VStack(alignment: .leading) {
           if vm.nicknameUpdatable == false, let date = vm.nicknameUpdatableFrom {
-            Text(String(localized: "You can't change nickname until \(date.formatted(.iso8601.year().month().day())).", bundle: .module))
+            Text("You can't change nickname until \(date.formatted(.iso8601.year().month().day())).", bundle: .module)
           }
-          Text(String(localized: "Nicknames can only be changed every 3 months.", bundle: .module))
+          Text("Nicknames can only be changed every 3 months.", bundle: .module)
         }
       }
 
-      Section(header: Text(String(localized: "Content Preferences", bundle: .module))) {
+      Section(header: Text("Content Preferences", bundle: .module)) {
         Toggle(String(localized: "Allow NSFW", bundle: .module), isOn: $vm.allowNSFW)
         Toggle(String(localized: "Allow Political", bundle: .module), isOn: $vm.allowPolitical)
       }
       
-      Section(header: Text(String(localized: "Posts", bundle: .module))){
+      Section(header: Text("Posts", bundle: .module)){
         NavigationLink(
           String(localized: "My Posts", bundle: .module),
           destination: AraMyPostView(user: vm.user, type: .all)

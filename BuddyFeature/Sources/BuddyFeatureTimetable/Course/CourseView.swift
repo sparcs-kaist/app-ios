@@ -58,7 +58,7 @@ public struct CourseView: View {
 
         VStack(alignment: .leading) {
           HStack {
-            Text(String(localized: "Information", bundle: .module))
+            Text("Information", bundle: .module)
               .font(.title3)
               .fontWeight(.bold)
             Spacer()
@@ -69,7 +69,7 @@ public struct CourseView: View {
           LectureDetailRow(title: "Department", description: course.department.name)
 
           if course.summary != "" {
-            Text(String(localized: "Summary", bundle: .module))
+            Text("Summary", bundle: .module)
               .foregroundStyle(.secondary)
               .font(.callout)
               .padding(.vertical, 4)
@@ -87,7 +87,7 @@ public struct CourseView: View {
   private var courseReview: some View {
     VStack {
       HStack {
-        Text(String(localized: "Reviews", bundle: .module))
+        Text("Reviews", bundle: .module)
           .font(.title3)
           .fontWeight(.bold)
         Spacer()

@@ -39,7 +39,7 @@ struct FeedPostComposeView: View {
           HStack {
             Spacer()
 
-            Text(String(localized: "\(viewModel.text.count)/280", bundle: .module))
+            Text("\(viewModel.text.count)/280", bundle: .module)
               .font(.footnote)
               .foregroundStyle(.secondary)
           }
@@ -145,7 +145,7 @@ struct FeedPostComposeView: View {
       Button {
         openURL(Constants.termsOfUseURL)
       } label: {
-        Text(String(localized: "terms of use", bundle: .module))
+        Text("terms of use", bundle: .module)
           .underline()
       }
       .tint(.secondary)
@@ -174,7 +174,7 @@ struct FeedPostComposeView: View {
           .fill(Color.secondarySystemBackground)
           .frame(width: 24, height: 24)
           .overlay {
-            Text(String(localized: "😀", bundle: .module))
+            Text("😀", bundle: .module)
               .font(.caption)
           }
       }
@@ -183,7 +183,7 @@ struct FeedPostComposeView: View {
         .fill(Color.secondarySystemBackground)
         .frame(width: 24, height: 24)
         .overlay {
-          Text(String(localized: "😀", bundle: .module))
+          Text("😀", bundle: .module)
             .font(.caption)
         }
     }

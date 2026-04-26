@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ChatArrivalBubble: View {
   var body: some View {
-    Text(String(localized: "There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment.", bundle: .module))
+    Text("There are users who have not yet requested the settlement or have not completed the payment.\n\nPlease tap the **+ button** at the bottom left and press **Request Settlement** or **Send Payment** to complete the settlement request or payment.", bundle: .module)
       .padding(12)
       .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 24))
   }

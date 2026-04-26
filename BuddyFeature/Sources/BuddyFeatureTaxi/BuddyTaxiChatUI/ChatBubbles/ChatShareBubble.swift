@@ -14,8 +14,8 @@ struct ChatShareBubble: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text(String(localized: "Share now and create a pleasant taxi-sharing experience!", bundle: .module))
-      ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text(String(localized: "🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module))) {
+      Text("Share now and create a pleasant taxi-sharing experience!", bundle: .module)
+      ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module)) {
         Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
           .frame(maxWidth: .infinity)
       }

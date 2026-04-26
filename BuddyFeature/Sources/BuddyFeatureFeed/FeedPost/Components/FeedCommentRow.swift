@@ -75,7 +75,7 @@ struct FeedCommentRow: View {
         .fill(Color.secondarySystemBackground)
         .frame(width: 24, height: 24)
         .overlay {
-          Text(String(localized: "😀", bundle: .module))
+          Text("😀", bundle: .module)
             .font(.caption)
         }
     }
@@ -101,7 +101,7 @@ struct FeedCommentRow: View {
           .foregroundStyle(.tint)
           .scaleEffect(0.9)
           .popover(isPresented: $showPopover) {
-            Text(String(localized: "This post was created from within the KAIST network.", bundle: .module))
+            Text("This post was created from within the KAIST network.", bundle: .module)
               .frame(width: 200)
               .presentationCompactAdaptation(.popover)
               .padding()
@@ -109,7 +109,7 @@ struct FeedCommentRow: View {
           .onTapGesture {
             showPopover = true
           }
-          .accessibilityLabel(Text(String(localized: "This post was created from within the KAIST network.", bundle: .module)))
+          .accessibilityLabel(Text("This post was created from within the KAIST network.", bundle: .module))
       }
 
       Text(comment.createdAt.timeAgoDisplay)
@@ -151,7 +151,7 @@ struct FeedCommentRow: View {
   var content: some View {
     Group {
       if comment.isDeleted {
-        Text(String(localized: "This comment has been deleted.", bundle: .module))
+        Text("This comment has been deleted.", bundle: .module)
       } else {
         Text(comment.content.toDetectedAttributedString())
       }

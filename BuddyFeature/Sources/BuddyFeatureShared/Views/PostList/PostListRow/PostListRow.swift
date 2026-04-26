@@ -20,7 +20,7 @@ public struct PostListRow: View {
     VStack(alignment: .leading, spacing: 4) {
       HStack(spacing: 4) {
         if let topic = post.topic {
-          Text(String(localized: "[\(topic.name.localized())]", bundle: .module))
+          Text("[\(topic.name.localized())]", bundle: .module)
             .font(.subheadline)
             .fontWeight(.medium)
             .lineLimit(1)
@@ -62,7 +62,7 @@ public struct PostListRow: View {
         Spacer()
         
         HStack(spacing: 12) {
-          Text(String(localized: "\(post.views) views", bundle: .module))
+          Text("\(post.views) views", bundle: .module)
 
           Text(post.createdAt.timeAgoDisplay)
 

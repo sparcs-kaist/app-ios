@@ -27,7 +27,7 @@ struct PostCommentsSection: View {
         ContentUnavailableView(
           "No one has commented yet.",
           systemImage: "text.bubble",
-          description: Text(String(localized: "Be the first one to share your thoughts.", bundle: .module))
+          description: Text("Be the first one to share your thoughts.", bundle: .module)
         )
         .scaleEffect(0.8)
       } else {

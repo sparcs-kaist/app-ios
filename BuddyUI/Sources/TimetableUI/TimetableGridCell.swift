@@ -46,7 +46,7 @@ public struct TimetableGridCell: View {
             .lineLimit(3)
           
           if geometry.size.height > 40 {
-            Text(String(localized: "\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.buildingName)", bundle: .module))
+            Text("\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.buildingName)", bundle: .module)
               .minimumScaleFactor(0.8)
               .lineLimit(2)
               .font(.caption2)

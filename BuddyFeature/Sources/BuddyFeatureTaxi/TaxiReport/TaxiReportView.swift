@@ -47,34 +47,34 @@ struct TaxiReportView: View {
         
         Section {
           Picker(String(localized: "Reason", bundle: .module), selection: $viewModel.selectedReason) {
-            Text(String(localized: "Select", bundle: .module))
+            Text("Select", bundle: .module)
               .tag(TaxiReport.Reason?.none)
               .selectionDisabled()
-            Text(String(localized: "Didn't send money", bundle: .module))
+            Text("Didn't send money", bundle: .module)
               .tag(TaxiReport.Reason.noSettlement)
               .selectionDisabled(!room.isDeparted)
-            Text(String(localized: "Didn't come on time", bundle: .module))
+            Text("Didn't come on time", bundle: .module)
               .tag(TaxiReport.Reason.noShow)
               .selectionDisabled(!room.isDeparted)
-            Text(String(localized: "ETC", bundle: .module)).tag(TaxiReport.Reason.etcReason)
+            Text("ETC", bundle: .module).tag(TaxiReport.Reason.etcReason)
           }
           
           if viewModel.selectedReason == .etcReason {
             HStack {
               TextField(String(localized: "Details", bundle: .module), text: $viewModel.etcDetails)
-              Text(String(localized: "\(viewModel.etcDetails.count)/\(viewModel.maxEtcDetailsLength)", bundle: .module))
+              Text("\(viewModel.etcDetails.count)/\(viewModel.maxEtcDetailsLength)", bundle: .module)
                 .foregroundStyle(viewModel.etcDetails.count > viewModel.maxEtcDetailsLength ? .orange : .secondary)
             }
           }
         } header: {
-          Text(String(localized: "Why?", bundle: .module))
+          Text("Why?", bundle: .module)
         } footer: {
           VStack(alignment: .leading, spacing: 8) {
             if !room.isDeparted {
-              Text(String(localized: "Reports for unsettled payments and no-shows can only be submitted after the departure time.", bundle: .module))
+              Text("Reports for unsettled payments and no-shows can only be submitted after the departure time.", bundle: .module)
             }
             if viewModel.selectedReason == .noSettlement {
-              Text(String(localized: "An email will be sent asking them to send you the money.", bundle: .module))
+              Text("An email will be sent asking them to send you the money.", bundle: .module)
             }
           }
         }

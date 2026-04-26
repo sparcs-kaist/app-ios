@@ -46,7 +46,7 @@ struct CompactTimetableSelector: View {
 
       Button(String(localized: "Cancel", bundle: .module), role: .cancel, action: {})
     }, message: {
-      Text(String(localized: "Enter a new name for this timetable.", bundle: .module))
+      Text("Enter a new name for this timetable.", bundle: .module)
     })
   }
 
@@ -59,7 +59,7 @@ struct CompactTimetableSelector: View {
           if selectedTimetableID == nil {
             Image(systemName: "checkmark")
           }
-          Text(String(localized: "My Table", bundle: .module))
+          Text("My Table", bundle: .module)
         }
       })
 

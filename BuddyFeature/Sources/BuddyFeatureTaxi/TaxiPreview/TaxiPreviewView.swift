@@ -89,7 +89,7 @@ public struct TaxiPreviewView: View {
         Spacer()
 
         HStack {
-          ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text(String(localized: "🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module))) {
+          ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module)) {
             Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
               .labelStyle(.iconOnly)
               .frame(width: 44, height: 44)

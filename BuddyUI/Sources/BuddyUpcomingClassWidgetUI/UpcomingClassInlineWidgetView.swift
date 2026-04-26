@@ -22,9 +22,9 @@ public struct UpcomingClassInlineWidgetView: View {
         + Text(verbatim: " • ")
         + Text(lecture.name)
     } else if entry.signInRequired {
-      Text(String(localized: "Sign in Required", bundle: .module))
+      Text("Sign in Required", bundle: .module)
     } else {
-      Text(String(localized: "No more classes", bundle: .module))
+      Text("No more classes", bundle: .module)
     }
   }
 }

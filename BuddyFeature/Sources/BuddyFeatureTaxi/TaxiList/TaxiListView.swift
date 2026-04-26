@@ -226,7 +226,7 @@ public struct TaxiListView: View {
   }
 
   private func emptyView() -> some View {
-    ContentUnavailableView(String(localized: "No Rides This Week", bundle: .module), systemImage: "car.2.fill", description: Text(String(localized: "Looks like there are no groups scheduled for this week. Be the first to create one!", bundle: .module)))
+    ContentUnavailableView(String(localized: "No Rides This Week", bundle: .module), systemImage: "car.2.fill", description: Text("Looks like there are no groups scheduled for this week. Be the first to create one!", bundle: .module))
   }
 
   private func errorView(errorMessage: String) -> some View {

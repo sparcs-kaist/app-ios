@@ -30,7 +30,7 @@ struct TaxiReportDetailRow: View {
       RowElementView(title: "Date", content: "\(report.time.formattedString)").padding(.bottom, 4)
       if report.reason == .etcReason {
         HStack(alignment: .top) {
-          Text(String(localized: "Other reasons", bundle: .module))
+          Text("Other reasons", bundle: .module)
           Spacer()
           Text(report.etcDetails)
             .foregroundStyle(.secondary)

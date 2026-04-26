@@ -180,7 +180,7 @@ struct TaxiChatView: View {
     ToolbarItem(placement: .topBarTrailing) {
       Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
         ControlGroup {
-          ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + viewModel.room.id)!, message: Text(String(localized: "🚕 Looking for someone to ride with on \(viewModel.room.departAt.formattedString) from \(viewModel.room.source.title) to \(viewModel.room.destination.title)! 🚕", bundle: .module))) {
+          ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + viewModel.room.id)!, message: Text("🚕 Looking for someone to ride with on \(viewModel.room.departAt.formattedString) from \(viewModel.room.source.title) to \(viewModel.room.destination.title)! 🚕", bundle: .module)) {
             Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
           }
           Button(String(localized: "Call Taxi", bundle: .module), systemImage: "car.fill") {

@@ -31,14 +31,14 @@ public struct UpcomingClassCircularWidgetView: View {
   var signInRequiredView: some View {
 		VStack(spacing: 4) {
       Image(systemName: "arrow.up.right.square")
-      Text(String(localized: "Sign in", bundle: .module))
+      Text("Sign in", bundle: .module)
     }
   }
 
   var emptyView: some View {
 		VStack(spacing: 4) {
       Image(systemName: "graduationcap")
-      Text(String(localized: "0 left", bundle: .module))
+      Text("0 left", bundle: .module)
     }
   }
 }

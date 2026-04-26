@@ -28,7 +28,7 @@ struct TaxiChatListView: View {
       switch viewModel.state {
       case .loading:
         loadingView
-        .navigationTitle(Text(String(localized: "Chats", bundle: .module)))
+        .navigationTitle(Text("Chats", bundle: .module))
         .background(Color.systemGroupedBackground)
       case .loaded(let onGoing, let done):
         if horizontalSizeClass == .compact {
@@ -36,7 +36,7 @@ struct TaxiChatListView: View {
             .navigationDestination(item: $selectedRoom, destination: { room in
               TaxiChatView(room: room)
             })
-            .navigationTitle(Text(String(localized: "Chats", bundle: .module)))
+            .navigationTitle(Text("Chats", bundle: .module))
         } else {
           loadedLargeView(onGoing: onGoing, done: done)
         }
@@ -63,7 +63,7 @@ struct TaxiChatListView: View {
           .id(selectedRoom.id)
           .toolbar(removing: .title)
       } else {
-        Text(String(localized: "Select a room", bundle: .module))
+        Text("Select a room", bundle: .module)
           .frame(maxWidth: .infinity)
           .foregroundStyle(.secondary)
       }
@@ -76,7 +76,7 @@ struct TaxiChatListView: View {
       LazyVStack(spacing: 16) {
         LazyVStack(spacing: 12) {
           HStack {
-            Text(String(localized: "Active Groups", bundle: .module))
+            Text("Active Groups", bundle: .module)
               .font(.title3)
               .fontWeight(.bold)
 
@@ -91,7 +91,7 @@ struct TaxiChatListView: View {
 
         LazyVStack(spacing: 12) {
           HStack {
-            Text(String(localized: "Past Groups", bundle: .module))
+            Text("Past Groups", bundle: .module)
               .font(.title3)
               .fontWeight(.bold)
 
@@ -113,7 +113,7 @@ struct TaxiChatListView: View {
     ScrollView {
       if horizontalSizeClass != .compact {
         HStack {
-          Text(String(localized: "Chats", bundle: .module))
+          Text("Chats", bundle: .module)
             .font(.largeTitle)
             .bold()
             .padding()
@@ -125,7 +125,7 @@ struct TaxiChatListView: View {
         if !onGoing.isEmpty {
           LazyVStack(spacing: 12) {
             HStack {
-              Text(String(localized: "Active Groups", bundle: .module))
+              Text("Active Groups", bundle: .module)
                 .font(.title3)
                 .fontWeight(.bold)
 
@@ -149,7 +149,7 @@ struct TaxiChatListView: View {
         if !done.isEmpty {
           LazyVStack(spacing: 12) {
             HStack {
-              Text(String(localized: "Past Groups", bundle: .module))
+              Text("Past Groups", bundle: .module)
                 .font(.title3)
                 .fontWeight(.bold)
 

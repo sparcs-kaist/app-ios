@@ -18,17 +18,17 @@ struct TaxiRoomStatusIndicator: View {
     Group {
       switch settlementType {
       case .notDeparted:
-        Text(String(localized: "Settlement Required", bundle: .module))
+        Text("Settlement Required", bundle: .module)
       case .requestedSettlement:
         if settlementCount >= participantsCount {
-          Text(String(localized: "Settlement Completed", bundle: .module))
+          Text("Settlement Completed", bundle: .module)
         } else {
-          Text(String(localized: "Settlement Requested", bundle: .module))
+          Text("Settlement Requested", bundle: .module)
         }
       case .paymentRequired:
-        Text(String(localized: "Payment Required", bundle: .module))
+        Text("Payment Required", bundle: .module)
       case .paymentSent:
-        Text(String(localized: "Payment Settled", bundle: .module))
+        Text("Payment Settled", bundle: .module)
       }
     }
     .font(.footnote)

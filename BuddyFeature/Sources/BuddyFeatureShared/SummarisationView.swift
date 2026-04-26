@@ -29,7 +29,7 @@ public struct SummarisationView: View {
 
       Group {
         if isLoading {
-          Text(String(localized: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus.", bundle: .module))
+          Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus.", bundle: .module)
             .redacted(reason: .placeholder)
         } else {
           Text(text)
@@ -37,7 +37,7 @@ public struct SummarisationView: View {
       }
       .transition(.opacity)
 
-      Text(String(localized: "**Note:** May contain errors, please double-check facts.", bundle: .module))
+      Text("**Note:** May contain errors, please double-check facts.", bundle: .module)
         .font(.footnote)
         .foregroundStyle(.secondary)
     }

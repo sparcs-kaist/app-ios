@@ -33,7 +33,7 @@ struct CreditView: View {
           .foregroundStyle(.secondary)
 
         VStack(alignment: .leading, spacing: 0) {
-          Text(String(localized: "Sponsored By", bundle: .module))
+          Text("Sponsored By", bundle: .module)
             .font(.caption)
             .foregroundStyle(.secondary)
           Image(.hyundaiMobis)

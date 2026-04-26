@@ -155,7 +155,7 @@ struct PostComposeView: View {
               if viewModel.writeAsAnonymous {
                 Image(systemName: "checkmark")
               }
-              Text(String(localized: "Anonymous", bundle: .module))
+              Text("Anonymous", bundle: .module)
             })
             Button(action: {
               viewModel.isNSFW.toggle()
@@ -163,7 +163,7 @@ struct PostComposeView: View {
               if viewModel.isNSFW {
                 Image(systemName: "checkmark")
               }
-              Text(String(localized: "NSFW", bundle: .module))
+              Text("NSFW", bundle: .module)
             })
             Button(action: {
               viewModel.isPolitical.toggle()
@@ -171,7 +171,7 @@ struct PostComposeView: View {
               if viewModel.isPolitical {
                 Image(systemName: "checkmark")
               }
-              Text(String(localized: "Political", bundle: .module))
+              Text("Political", bundle: .module)
             })
           }
           .disabled(isUploading)
@@ -199,7 +199,7 @@ struct PostComposeView: View {
       Button {
         openURL(Constants.termsOfUseURL)
       } label: {
-        Text(String(localized: "terms of use", bundle: .module))
+        Text("terms of use", bundle: .module)
           .underline()
       }
       .tint(.secondary)
@@ -208,7 +208,7 @@ struct PostComposeView: View {
 
   private var topicSelector: some View {
     Picker(selection: $viewModel.selectedTopic, label: EmptyView()) {
-      Text(String(localized: "No topic", bundle: .module))
+      Text("No topic", bundle: .module)
         .tag(nil as AraBoardTopic?)
 
       ForEach(viewModel.board.topics ?? []) { topic in

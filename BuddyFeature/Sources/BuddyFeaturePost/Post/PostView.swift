@@ -91,7 +91,7 @@ public struct PostView: View {
               }
               Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
             } message: {
-              Text(String(localized: "Are you sure you want to delete this post?", bundle: .module))
+              Text("Are you sure you want to delete this post?", bundle: .module)
             }
         }
       }
@@ -267,7 +267,7 @@ public struct PostView: View {
 
       HStack {
         Text(viewModel.post.createdAt.formattedString)
-        Text(String(localized: "\(viewModel.post.views) views", bundle: .module))
+        Text("\(viewModel.post.views) views", bundle: .module)
       }
       .font(.caption)
       .foregroundStyle(.secondary)
@@ -318,7 +318,7 @@ public struct PostView: View {
       VStack(alignment: .leading) {
         if commentOnEdit != nil {
           HStack {
-            Text(String(localized: "Editing", bundle: .module))
+            Text("Editing", bundle: .module)
               .textCase(.uppercase)
               .font(.footnote)
               .fontWeight(.semibold)

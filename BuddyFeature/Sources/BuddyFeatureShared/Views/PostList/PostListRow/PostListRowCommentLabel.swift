@@ -17,7 +17,7 @@ struct PostListRowCommentLabel: View {
         HStack(spacing: 4) {
           Image(systemName: "bubble")
             .scaleEffect(0.9)
-          Text(String(localized: "\(commentCount)", bundle: .module))
+          Text("\(commentCount)", bundle: .module)
         }
         .foregroundStyle(.primary)
       }

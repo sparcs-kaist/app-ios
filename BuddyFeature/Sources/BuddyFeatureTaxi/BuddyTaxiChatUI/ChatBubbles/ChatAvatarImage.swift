@@ -52,7 +52,7 @@ struct ChatAvatarImage: View {
         .fill(.indigo.opacity(0.1))
         .frame(width: 36, height: 36)
 
-      Text(String(localized: "🤖", bundle: .module))
+      Text("🤖", bundle: .module)
         .font(.system(size: 20))
     }
   }
@@ -63,7 +63,7 @@ struct ChatAvatarImage: View {
         .fill(.indigo.opacity(0.1))
         .frame(width: 36, height: 36)
 
-      Text(String(localized: "👻", bundle: .module))
+      Text("👻", bundle: .module)
         .font(.system(size: 20))
     }
   }

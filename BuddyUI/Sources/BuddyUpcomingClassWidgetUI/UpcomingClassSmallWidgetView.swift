@@ -18,7 +18,7 @@ public struct UpcomingClassSmallWidgetView: View {
   public var body: some View {
     if let lecture = entry.lecture, let ct = entry.lectureClass {
       VStack(alignment: .leading) {
-        Text(String(localized: "Up Next", bundle: .module))
+        Text("Up Next", bundle: .module)
           .font(.caption)
           .fontWeight(.medium)
           .foregroundStyle(entry.backgroundColor)
@@ -39,14 +39,14 @@ public struct UpcomingClassSmallWidgetView: View {
           .fontDesign(.rounded)
           .foregroundStyle(entry.backgroundColor)
 
-        Text(String(localized: "\(ct.buildingCode) \(ct.roomName)", bundle: .module))
+        Text("\(ct.buildingCode) \(ct.roomName)", bundle: .module)
           .lineLimit(1)
           .minimumScaleFactor(0.8)
           .foregroundStyle(.secondary)
           .font(.callout)
       }
     } else if entry.signInRequired {
-      Text(String(localized: "Sign in to see upcoming classes.", bundle: .module))
+      Text("Sign in to see upcoming classes.", bundle: .module)
         .multilineTextAlignment(.center)
     } else {
       VStack(alignment: .leading) {
@@ -65,12 +65,12 @@ public struct UpcomingClassSmallWidgetView: View {
 
         Spacer()
 
-        Text(String(localized: "No more classes", bundle: .module))
+        Text("No more classes", bundle: .module)
           .fontWeight(.medium)
           .fontDesign(.rounded)
           .foregroundStyle(.indigo)
 
-        Text(String(localized: "Enjoy your day", bundle: .module))
+        Text("Enjoy your day", bundle: .module)
           .lineLimit(1)
           .minimumScaleFactor(0.8)
           .foregroundStyle(.secondary)

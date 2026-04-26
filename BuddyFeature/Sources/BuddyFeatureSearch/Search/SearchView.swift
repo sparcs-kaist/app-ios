@@ -29,13 +29,13 @@ public struct SearchView: View {
         ContentUnavailableView(
           message,
           systemImage: "exclamationmark.circle",
-          description: Text(String(localized: "Please try again later.", bundle: .module))
+          description: Text("Please try again later.", bundle: .module)
         )
       } else if viewModel.searchText.isEmpty {
         ContentUnavailableView(
           "Search Anything",
           systemImage: "magnifyingglass",
-          description: Text(String(localized: "Find courses, posts, rides and more.", bundle: .module))
+          description: Text("Find courses, posts, rides and more.", bundle: .module)
         )
       } else {
         resultView
@@ -62,7 +62,7 @@ public struct SearchView: View {
       .opacity(hideScopeBar ? 0 : 1)
       .disabled(hideScopeBar)
     }
-    .searchable(text: $viewModel.searchText, prompt: Text(String(localized: "Search", bundle: .module)))
+    .searchable(text: $viewModel.searchText, prompt: Text("Search", bundle: .module))
     .searchFocused($isFocused)
     .navigationDestination(for: CourseSummary.self) { course in
       CourseView(course: course)

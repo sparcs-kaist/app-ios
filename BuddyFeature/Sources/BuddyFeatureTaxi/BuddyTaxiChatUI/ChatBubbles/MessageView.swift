@@ -47,7 +47,7 @@ struct MessageView<Content: View>: View {
                 showPopover = true
               }
               .popover(isPresented: $showPopover) {
-                Text(String(localized: "Members with this badge can resolve issues through SPARCS mediation when problems arise.", bundle: .module))
+                Text("Members with this badge can resolve issues through SPARCS mediation when problems arise.", bundle: .module)
                   .font(.caption)
                   .padding()
                   .frame(width: 250)
@@ -78,13 +78,13 @@ struct MessageView<Content: View>: View {
   private var authorNameplace: some View {
     Group {
       if sender.isWithdrew {
-        Text(String(localized: "Unknown", bundle: .module))
+        Text("Unknown", bundle: .module)
       } else if let name = sender.name {
         Text(name)
       } else if sender.id == nil {
-        Text(String(localized: "Taxi Bot", bundle: .module))
+        Text("Taxi Bot", bundle: .module)
       } else {
-        Text(String(localized: "Unknown", bundle: .module))
+        Text("Unknown", bundle: .module)
       }
     }
   }

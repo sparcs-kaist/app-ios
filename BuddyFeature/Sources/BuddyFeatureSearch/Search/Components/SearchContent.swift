@@ -18,7 +18,7 @@ struct SearchContent<Element: Identifiable, Cell: View>: View {
   
   var body: some View {
     if results.count == 0 {
-      Text(String(localized: "No results", bundle: .module))
+      Text("No results", bundle: .module)
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, minHeight: 100)
     }

@@ -120,7 +120,7 @@ struct FeedSettingsView: View {
     .listRowBackground(Color.clear)
     .buttonStyle(.plain)
     HStack {
-      Text(String(localized: "Nickname", bundle: .module))
+      Text("Nickname", bundle: .module)
       Spacer()
       TextField(String(localized: "Nickname", bundle: .module), text: $viewModel.nickname)
         .autocorrectionDisabled(true)

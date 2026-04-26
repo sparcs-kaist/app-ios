@@ -42,7 +42,7 @@ public struct UpcomingClassRectangleWidgetView: View {
           Text(lecture.name)
             .fontWeight(.semibold)
           HStack {
-            Text(String(localized: "\(ct.buildingCode) \(ct.roomName)", bundle: .module))
+            Text("\(ct.buildingCode) \(ct.roomName)", bundle: .module)
               .foregroundStyle(.secondary)
             Spacer()
           }
@@ -63,7 +63,7 @@ public struct UpcomingClassRectangleWidgetView: View {
           .frame(width: 12, height: 12)
           .padding(.top, 2)
 
-        Text(String(localized: "Sign in Required", bundle: .module))
+        Text("Sign in Required", bundle: .module)
           .minimumScaleFactor(0.9)
           .lineLimit(1)
           .fontWeight(.semibold)
@@ -72,7 +72,7 @@ public struct UpcomingClassRectangleWidgetView: View {
 			.widgetAccentable()
 
       HStack {
-        Text(String(localized: "Open Buddy on your iPhone to continue", bundle: .module))
+        Text("Open Buddy on your iPhone to continue", bundle: .module)
           .multilineTextAlignment(.leading)
         Spacer()
       }
@@ -88,7 +88,7 @@ public struct UpcomingClassRectangleWidgetView: View {
           .frame(width: 12, height: 12)
           .padding(.top, 2)
 
-        Text(String(localized: "No more classes", bundle: .module))
+        Text("No more classes", bundle: .module)
           .minimumScaleFactor(0.9)
           .lineLimit(1)
           .fontWeight(.semibold)
@@ -97,7 +97,7 @@ public struct UpcomingClassRectangleWidgetView: View {
 			.widgetAccentable()
 
       HStack {
-        Text(String(localized: "Enjoy your day", bundle: .module))
+        Text("Enjoy your day", bundle: .module)
           .multilineTextAlignment(.leading)
         Spacer()
       }

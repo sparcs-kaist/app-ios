@@ -15,7 +15,7 @@ struct ChatAccountBubble: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text(String(localized: "Settlement", bundle: .module))
+      Text("Settlement", bundle: .module)
         .textCase(.uppercase)
         .font(.footnote)
         .fontWeight(.semibold)
@@ -41,7 +41,7 @@ struct ChatAccountBubble: View {
         .minimumScaleFactor(0.75)
         .scaledToFit()
       } else {
-        Text(String(localized: "Failed to parse account information.", bundle: .module))
+        Text("Failed to parse account information.", bundle: .module)
       }
 
       Button(action: {

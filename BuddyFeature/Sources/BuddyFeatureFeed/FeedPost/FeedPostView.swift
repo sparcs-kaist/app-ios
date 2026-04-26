@@ -119,7 +119,7 @@ struct FeedPostView: View {
       }
       Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
     } message: {
-      Text(String(localized: "Are you sure you want to delete this post?", bundle: .module))
+      Text("Are you sure you want to delete this post?", bundle: .module)
     }
   }
 
@@ -205,7 +205,7 @@ struct FeedPostView: View {
           Divider()
             .padding(.horizontal)
 
-          Text(String(localized: "\(post.commentCount) comments", bundle: .module))
+          Text("\(post.commentCount) comments", bundle: .module)
             .font(.headline)
             .padding(.horizontal)
 
@@ -223,7 +223,7 @@ struct FeedPostView: View {
           Divider()
             .padding(.horizontal)
 
-          Text(String(localized: "\(post.commentCount) comments", bundle: .module))
+          Text("\(post.commentCount) comments", bundle: .module)
             .font(.headline)
             .padding(.horizontal)
             .contentTransition(.numericText(value: Double(post.commentCount)))

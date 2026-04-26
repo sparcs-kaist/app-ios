@@ -70,10 +70,10 @@ struct TaxiSettingsView: View {
           dismiss()
         }
       }, label: {
-        Text(String(localized: "Confirm", bundle: .module))
+        Text("Confirm", bundle: .module)
       })
     }, message: {
-      Text(String(localized: "Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber.formatPhoneNumber())", bundle: .module))
+      Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber.formatPhoneNumber())", bundle: .module)
     })
     .analyticsScreen(name: "Taxi Settings", class: String(describing: Self.self))
   }
@@ -105,7 +105,7 @@ struct TaxiSettingsView: View {
           }
         }
         HStack {
-          Text(String(localized: "Bank Number", bundle: .module))
+          Text("Bank Number", bundle: .module)
           Spacer()
           TextField(String(localized: "Enter Bank Number", bundle: .module), text: $vm.bankNumber)
             .multilineTextAlignment(.trailing)
@@ -116,7 +116,7 @@ struct TaxiSettingsView: View {
             }
         }
         HStack {
-          Text(String(localized: "Phone Number", bundle: .module))
+          Text("Phone Number", bundle: .module)
           Spacer()
           TextField(String(localized: "Enter Phone Number", bundle: .module), text: $vm.phoneNumber)
             .keyboardType(.numberPad)
@@ -134,14 +134,14 @@ struct TaxiSettingsView: View {
         if showToggle {
           HStack {
             Toggle(isOn: $vm.showBadge, label: {
-              Text(String(localized: "Show Badge", bundle: .module))
+              Text("Show Badge", bundle: .module)
             })
           }
           .transition(.slide)
         }
       }
       
-      Section(header: Text(String(localized: "Service", bundle: .module))) {
+      Section(header: Text("Service", bundle: .module)) {
         navigationLinkWithIcon(destination: TaxiReportListView(), text: String(localized: "Report Details", bundle: .module), systemImage: "exclamationmark.bubble")
       }
     }

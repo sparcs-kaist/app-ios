@@ -174,7 +174,7 @@ struct ChatCollectionView: UIViewRepresentable {
           case .share:
             ChatShareBubble(room: self.room)
           default:
-            Text(String(localized: "not supported", bundle: .module))
+            Text("not supported", bundle: .module)
           }
         }
         .padding(.horizontal, 8)

@@ -73,7 +73,7 @@ struct LectureDetailView: View {
     .alert(String(localized: "Cannot Add Lecture", bundle: .module), isPresented: $showCannotAddLectureAlert, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
-      Text(String(localized: "This lecture collides with an existing lecture in your timetable.", bundle: .module))
+      Text("This lecture collides with an existing lecture in your timetable.", bundle: .module)
     })
     .sheet(isPresented: $showReviewComposeView) {
       ReviewComposeView(lecture: lecture)
@@ -85,7 +85,7 @@ struct LectureDetailView: View {
   var lectureReviews: some View {
     VStack {
       HStack {
-        Text(String(localized: "Reviews", bundle: .module))
+        Text("Reviews", bundle: .module)
           .font(.title3)
           .fontWeight(.bold)
         Spacer()
@@ -127,7 +127,7 @@ struct LectureDetailView: View {
         case .loaded:
           if viewModel.reviews.isEmpty {
             // loaded but empty
-            ContentUnavailableView(String(localized: "No Reviews", bundle: .module), systemImage: "text.book.closed", description: Text(String(localized: "There are no reviews for this lecture yet.", bundle: .module)))
+            ContentUnavailableView(String(localized: "No Reviews", bundle: .module), systemImage: "text.book.closed", description: Text("There are no reviews for this lecture yet.", bundle: .module))
           } else {
             ForEach($viewModel.reviews) { $review in
               LectureReviewCell(review: $review)
@@ -143,7 +143,7 @@ struct LectureDetailView: View {
   var lectureInformation: some View {
     VStack {
       HStack {
-        Text(String(localized: "Information", bundle: .module))
+        Text("Information", bundle: .module)
           .font(.title3)
           .fontWeight(.bold)
         Spacer()
@@ -176,7 +176,7 @@ struct LectureDetailView: View {
       // Lecture Action Buttons
 //      Button(action: { }, label: {
 //        HStack {
-//          Text(String(localized: "View Dictionary", bundle: .module))
+//          Text("View Dictionary", bundle: .module)
 //          Spacer()
 //          Image(systemName: "text.book.closed")
 //        }
@@ -187,7 +187,7 @@ struct LectureDetailView: View {
 //
 //      Button(action: { }, label: {
 //        HStack {
-//          Text(String(localized: "View Syllabus", bundle: .module))
+//          Text("View Syllabus", bundle: .module)
 //          Spacer()
 //          Image(systemName: "append.page")
 //        }

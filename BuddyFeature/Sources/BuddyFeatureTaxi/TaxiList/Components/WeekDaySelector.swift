@@ -37,7 +37,7 @@ struct WeekDaySelector: View {
         }()
 
         VStack(spacing: 4) {
-          Text(String(localized: "\(calendar.component(.day, from: day))", bundle: .module))
+          Text("\(calendar.component(.day, from: day))", bundle: .module)
             .font(.title3)
             .fontWeight(.semibold)
             .fontDesign(.rounded)

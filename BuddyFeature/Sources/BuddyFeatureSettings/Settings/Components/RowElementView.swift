@@ -13,9 +13,9 @@ struct RowElementView: View {
   
   var body: some View {
     HStack {
-      Text(String(localized: title, bundle: .module))
+      Text(title, bundle: .module)
       Spacer()
-      Text(String(localized: content, bundle: .module))
+      Text(content, bundle: .module)
         .foregroundStyle(.secondary)
     }
   }

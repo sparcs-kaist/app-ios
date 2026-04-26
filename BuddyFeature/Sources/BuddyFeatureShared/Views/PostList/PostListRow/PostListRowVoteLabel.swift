@@ -21,7 +21,7 @@ struct PostListRowVoteLabel: View {
 
         HStack(spacing: 4) {
           Image(systemName: "arrowshape.up.fill")
-          Text(String(localized: "\(voteCount)", bundle: .module))
+          Text("\(voteCount)", bundle: .module)
             .lineLimit(1)
         }
         .foregroundStyle(Color.upvote)
@@ -29,7 +29,7 @@ struct PostListRowVoteLabel: View {
         // downvoted
         HStack(spacing: 4) {
           Image(systemName: "arrowshape.down.fill")
-          Text(String(localized: "\(voteCount)", bundle: .module))
+          Text("\(voteCount)", bundle: .module)
             .lineLimit(1)
         }
         .foregroundStyle(Color.downvote)
