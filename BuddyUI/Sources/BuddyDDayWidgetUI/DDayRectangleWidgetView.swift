@@ -11,13 +11,17 @@ import BuddySharedUI
 
 public struct DDayRectangleWidgetView: View {
 	@Environment(\.widgetRenderingMode) var renderingMode
-	
+
 	var entry: DDayEntry
-	
+
 	public init(entry: DDayEntry) {
 		self.entry = entry
 	}
-	
+
+	private var accentColor: Color {
+		renderingMode == .fullColor ? .indigo : .primary
+	}
+
 	public var body: some View {
 		switch entry.type {
 		case .endOfSemester(let daysLeft, let progress, let description):
@@ -25,17 +29,18 @@ public struct DDayRectangleWidgetView: View {
 				HStack(alignment: .center) {
 					Circle()
 						.frame(width: 12, height: 12)
-					
+
 					Text(description)
 						.fontDesign(.rounded)
 						.lineLimit(1)
 						.fontWeight(.semibold)
 				}
-				.foregroundStyle(renderingMode == .accented ? Color.indigo : .primary)
-				
+				.foregroundStyle(accentColor)
+				.widgetAccentable()
+
 				Text("Ends in \(daysLeft) days")
-				
-				BuddyLinearGauge(progress: progress, foregroundColor: renderingMode == .accented ? Color.indigo : .primary)
+
+				BuddyLinearGauge(progress: progress, foregroundColor: accentColor)
 					.frame(height: 8)
 					.padding(.top, 4)
 			}
@@ -44,17 +49,18 @@ public struct DDayRectangleWidgetView: View {
 				HStack(alignment: .center) {
 					Circle()
 						.frame(width: 12, height: 12)
-					
+
 					Text(description)
 						.fontDesign(.rounded)
 						.lineLimit(1)
 						.fontWeight(.semibold)
 				}
-				.foregroundStyle(renderingMode == .accented ? Color.indigo : .primary)
-				
+				.foregroundStyle(accentColor)
+				.widgetAccentable()
+
 				Text("Starts in \(daysUntil) days")
-				
-				BuddyLinearGauge(progress: 0, foregroundColor: renderingMode == .accented ? Color.indigo : .primary)
+
+				BuddyLinearGauge(progress: 0, foregroundColor: accentColor)
 					.frame(height: 8)
 					.padding(.top, 4)
 			}

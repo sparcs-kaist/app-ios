@@ -80,7 +80,7 @@ struct DDayProvider: TimelineProvider {
 struct BuddyDDayWidgetEntryView: View {
 	@Environment(\.widgetFamily) private var familiy
 	var entry: DDayProvider.Entry
-	
+
 	var body: some View {
 		Group {
 			switch familiy {
@@ -90,8 +90,10 @@ struct BuddyDDayWidgetEntryView: View {
 				DDayCircularWidgetView(entry: entry)
 			case .accessoryRectangular:
 				DDayRectangleWidgetView(entry: entry)
+#if os(iOS)
 			case .systemSmall:
 				DDaySmallWidgetView(entry: entry)
+#endif
 			default:
 				Text("Not supported")
 			}
@@ -107,16 +109,28 @@ struct BuddyDDayWidget: Widget {
 			BuddyDDayWidgetEntryView(entry: entry)
 				.containerBackground(.fill.tertiary, for: .widget)
 		}
-		.supportedFamilies([
-			.accessoryInline, .accessoryCircular, .accessoryRectangular, .systemSmall
-		])
+		.supportedFamilies({
+#if os(iOS)
+			return [.accessoryInline, .accessoryCircular, .accessoryRectangular, .systemSmall]
+#else
+			return [.accessoryInline, .accessoryCircular, .accessoryRectangular]
+#endif
+		}())
 		.configurationDisplayName("D-Day")
 		.description("Track D-Day for this semester.")
 	}
 }
 
+#if os(iOS)
 #Preview(as: .systemSmall) {
 	BuddyDDayWidget()
 } timeline: {
 	DDayEntry(date: Date(), type: .endOfSemester(daysLeft: 54, progress: 0.8, description: "2026 Spring"), relevance: .init(score: 100))
 }
+#else
+#Preview(as: .accessoryRectangular) {
+	BuddyDDayWidget()
+} timeline: {
+	DDayEntry(date: Date(), type: .endOfSemester(daysLeft: 54, progress: 0.8, description: "2026 Spring"), relevance: .init(score: 100))
+}
+#endif

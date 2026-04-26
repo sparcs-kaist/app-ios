@@ -6,14 +6,21 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 public struct DDayCircularWidgetView: View {
+	@Environment(\.widgetRenderingMode) var renderingMode
+
 	var entry: DDayEntry
-	
+
 	public init(entry: DDayEntry) {
 		self.entry = entry
 	}
-	
+
+	private var accentColor: Color {
+		renderingMode == .fullColor ? .indigo : .primary
+	}
+
 	public var body: some View {
 		switch entry.type {
 		case .endOfSemester(let daysLeft, let progress, _):
@@ -25,6 +32,8 @@ public struct DDayCircularWidgetView: View {
 				}
 			)
 			.gaugeStyle(.accessoryCircularCapacity)
+			.tint(accentColor)
+			.widgetAccentable()
 		case .startOfSemester(let daysUntil, _):
 			Gauge(
 				value: 0,
@@ -34,6 +43,8 @@ public struct DDayCircularWidgetView: View {
 				}
 			)
 			.gaugeStyle(.accessoryCircularCapacity)
+			.tint(accentColor)
+			.widgetAccentable()
 		case .error:
 			signInRequiredView
 		}
