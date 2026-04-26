@@ -19,7 +19,7 @@ public struct TaxiParticipantsIndicator: View {
 
   public var body: some View {
     HStack(spacing: 4) {
-      Text("\(participants)/\(capacity)", bundle: .module)
+      Text("\(participants)/\(capacity)")
       Image(systemName: "person.2")
     }
     .font(.footnote)

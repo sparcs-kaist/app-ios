@@ -44,7 +44,7 @@ public struct PostVoteButton: View {
           Image(systemName: upvoteImage)
             .foregroundStyle(myVote == true ? Color.upvote : .primary)
 
-          Text("\(votes)", bundle: .module)
+          Text("\(votes)")
             .foregroundStyle(myVote != nil ? tintColor : .primary)
             .contentTransition(.numericText(value: Double(votes)))
             .animation(.spring(), value: votes)

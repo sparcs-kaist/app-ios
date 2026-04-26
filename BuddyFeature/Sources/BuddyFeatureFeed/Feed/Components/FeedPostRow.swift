@@ -75,7 +75,7 @@ struct FeedPostRow: View {
         .fill(Color.secondarySystemBackground)
         .frame(width: 24, height: 24)
         .overlay {
-          Text("😀", bundle: .module)
+          Text("😀")
             .font(.caption)
         }
     }

@@ -39,7 +39,7 @@ public struct UpcomingClassSmallWidgetView: View {
           .fontDesign(.rounded)
           .foregroundStyle(entry.backgroundColor)
 
-        Text("\(ct.buildingCode) \(ct.roomName)", bundle: .module)
+        Text("\(ct.buildingCode) \(ct.roomName)")
           .lineLimit(1)
           .minimumScaleFactor(0.8)
           .foregroundStyle(.secondary)

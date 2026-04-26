@@ -47,11 +47,11 @@ struct ReviewComposeView: View {
             .textCase(.uppercase)
 
           Picker(String(localized: "Grade", bundle: .module), selection: $grade) {
-            Text("A", bundle: .module).tag(5)
-            Text("B", bundle: .module).tag(4)
-            Text("C", bundle: .module).tag(3)
-            Text("D", bundle: .module).tag(2)
-            Text("F", bundle: .module).tag(1)
+            Text("A").tag(5)
+            Text("B").tag(4)
+            Text("C").tag(3)
+            Text("D").tag(2)
+            Text("F").tag(1)
           }
 
           Text("Load", bundle: .module)
@@ -59,11 +59,11 @@ struct ReviewComposeView: View {
             .fontWeight(.medium)
             .textCase(.uppercase)
           Picker(String(localized: "Load", bundle: .module), selection: $load) {
-            Text("A", bundle: .module).tag(5)
-            Text("B", bundle: .module).tag(4)
-            Text("C", bundle: .module).tag(3)
-            Text("D", bundle: .module).tag(2)
-            Text("F", bundle: .module).tag(1)
+            Text("A").tag(5)
+            Text("B").tag(4)
+            Text("C").tag(3)
+            Text("D").tag(2)
+            Text("F").tag(1)
           }
 
           Text("Speech", bundle: .module)
@@ -71,11 +71,11 @@ struct ReviewComposeView: View {
             .fontWeight(.medium)
             .textCase(.uppercase)
           Picker(String(localized: "Speech", bundle: .module), selection: $speech) {
-            Text("A", bundle: .module).tag(5)
-            Text("B", bundle: .module).tag(4)
-            Text("C", bundle: .module).tag(3)
-            Text("D", bundle: .module).tag(2)
-            Text("F", bundle: .module).tag(1)
+            Text("A").tag(5)
+            Text("B").tag(4)
+            Text("C").tag(3)
+            Text("D").tag(2)
+            Text("F").tag(1)
           }
         }
         .font(.callout)

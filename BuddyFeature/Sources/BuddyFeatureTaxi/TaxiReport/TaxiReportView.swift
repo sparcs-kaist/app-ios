@@ -62,7 +62,7 @@ struct TaxiReportView: View {
           if viewModel.selectedReason == .etcReason {
             HStack {
               TextField(String(localized: "Details", bundle: .module), text: $viewModel.etcDetails)
-              Text("\(viewModel.etcDetails.count)/\(viewModel.maxEtcDetailsLength)", bundle: .module)
+              Text("\(viewModel.etcDetails.count)/\(viewModel.maxEtcDetailsLength)")
                 .foregroundStyle(viewModel.etcDetails.count > viewModel.maxEtcDetailsLength ? .orange : .secondary)
             }
           }

@@ -27,7 +27,7 @@ struct TodayLectureCard: View {
           .animation(.spring, value: context.date)
           .contentTransition(.numericText())
 
-        Text("\(item.lectureClass.buildingCode) \(item.lectureClass.roomName)", bundle: .module)
+        Text("\(item.lectureClass.buildingCode) \(item.lectureClass.roomName)")
           .font(.footnote)
           .foregroundStyle(.secondary)
           .animation(.spring, value: context.date)

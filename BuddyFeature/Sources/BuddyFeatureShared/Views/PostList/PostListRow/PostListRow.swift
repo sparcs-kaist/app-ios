@@ -20,7 +20,7 @@ public struct PostListRow: View {
     VStack(alignment: .leading, spacing: 4) {
       HStack(spacing: 4) {
         if let topic = post.topic {
-          Text("[\(topic.name.localized())]", bundle: .module)
+          Text("[\(topic.name.localized())]")
             .font(.subheadline)
             .fontWeight(.medium)
             .lineLimit(1)

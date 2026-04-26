@@ -19,7 +19,7 @@ public struct PostCommentButton: View {
   }
 
   public var body: some View {
-    Button(String(localized: "\(commentCount)", bundle: .module), systemImage: "text.bubble") {
+    Button("\(commentCount)", systemImage: "text.bubble") {
       Haptic.impact(.light).generate()
       onClick()
     }

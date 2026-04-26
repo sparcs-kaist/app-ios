@@ -99,7 +99,7 @@ struct LectureReviewCell: View {
           }
         }, label: {
           HStack {
-            Text("\(review.like)", bundle: .module)
+            Text("\(review.like)")
             Image(systemName: review.likedByUser ? "arrowshape.up.fill" : "arrowshape.up")
           }
         })

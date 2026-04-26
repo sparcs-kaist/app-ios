@@ -29,7 +29,7 @@ public struct SummarisationView: View {
 
       Group {
         if isLoading {
-          Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus.", bundle: .module)
+          Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam posuere pharetra aliquam. Aliquam nec mauris aliquam, efficitur sapien venenatis, feugiat purus.")
             .redacted(reason: .placeholder)
         } else {
           Text(text)

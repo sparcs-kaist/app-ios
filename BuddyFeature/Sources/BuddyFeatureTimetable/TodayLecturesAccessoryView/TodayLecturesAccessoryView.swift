@@ -55,7 +55,7 @@ public struct TodayLecturesAccessoryView: View {
       Spacer()
 
       HStack(alignment: .bottom, spacing: 4) {
-        Text("\(timetable.credits)", bundle: .module)
+        Text("\(timetable.credits)")
           .font(.callout)
         Text(placement == .expanded ? "Credits" : "CR")
           .textCase(.uppercase)
@@ -64,9 +64,9 @@ public struct TodayLecturesAccessoryView: View {
         Spacer()
           .frame(width: placement == .expanded ? 4 : 0)
 
-        Text("\(timetable.creditAUs)", bundle: .module)
+        Text("\(timetable.creditAUs)")
           .font(.callout)
-        Text("AU", bundle: .module)
+        Text("AU")
           .textCase(.uppercase)
           .font(.caption2)
       }

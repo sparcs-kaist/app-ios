@@ -160,7 +160,7 @@ struct TaxiChatView: View {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       },
       message: {
-        Text(viewModel.alertState?.message ?? String(localized: "", bundle: .module))
+        Text(viewModel.alertState?.message ?? "")
       }
     )
     .sheet(isPresented: $showReportSheet) {

@@ -42,7 +42,7 @@ public struct UpcomingClassRectangleWidgetView: View {
           Text(lecture.name)
             .fontWeight(.semibold)
           HStack {
-            Text("\(ct.buildingCode) \(ct.roomName)", bundle: .module)
+            Text("\(ct.buildingCode) \(ct.roomName)")
               .foregroundStyle(.secondary)
             Spacer()
           }

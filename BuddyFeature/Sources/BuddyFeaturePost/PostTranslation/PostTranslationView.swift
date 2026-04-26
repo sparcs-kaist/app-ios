@@ -135,9 +135,9 @@ struct PostTranslationView: View {
   }
 
   private var languageSelector: some View {
-    Picker(String(localized: "", bundle: .module), selection: $selectedTarget) {
+    Picker("", selection: $selectedTarget) {
       ForEach(availableLanguages, id: \.minimalIdentifier) { language in
-        Text("\(displayName(for: language))", bundle: .module)
+        Text("\(displayName(for: language))")
           .tag(language)
       }
     }

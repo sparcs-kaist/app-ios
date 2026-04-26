@@ -39,7 +39,7 @@ struct FeedPostComposeView: View {
           HStack {
             Spacer()
 
-            Text("\(viewModel.text.count)/280", bundle: .module)
+            Text("\(viewModel.text.count)/280")
               .font(.footnote)
               .foregroundStyle(.secondary)
           }
@@ -174,7 +174,7 @@ struct FeedPostComposeView: View {
           .fill(Color.secondarySystemBackground)
           .frame(width: 24, height: 24)
           .overlay {
-            Text("😀", bundle: .module)
+            Text("😀")
               .font(.caption)
           }
       }
@@ -183,7 +183,7 @@ struct FeedPostComposeView: View {
         .fill(Color.secondarySystemBackground)
         .frame(width: 24, height: 24)
         .overlay {
-          Text("😀", bundle: .module)
+          Text("😀")
             .font(.caption)
         }
     }

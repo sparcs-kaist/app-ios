@@ -30,13 +30,13 @@ public struct UpcomingClassCornerWidgetView: View {
   }
 
   var signInRequiredView: some View {
-    Text("", bundle: .module)
+    Text("")
       .widgetCurvesContent()
       .widgetLabel(String(localized: "Sign in Required", bundle: .module))
   }
 
   var emptyView: some View {
-    Text("", bundle: .module)
+    Text("")
       .widgetCurvesContent()
       .widgetLabel(String(localized: "No more classes", bundle: .module))
   }
