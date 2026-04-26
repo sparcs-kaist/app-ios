@@ -15,8 +15,8 @@ public struct UpcomingClassCircularWidgetView: View {
   }
 
   public var body: some View {
-    if let start = entry.startDate {
-      VStack {
+		if let start = entry.startDate, let _ = entry.lecture {
+			VStack(spacing: 4) {
         Image(systemName: "calendar")
         Text(start, style: .time)
       }
@@ -28,14 +28,14 @@ public struct UpcomingClassCircularWidgetView: View {
   }
 
   var signInRequiredView: some View {
-    VStack {
+		VStack(spacing: 4) {
       Image(systemName: "arrow.up.right.square")
       Text("Sign in")
     }
   }
 
   var emptyView: some View {
-    VStack {
+		VStack(spacing: 4) {
       Image(systemName: "graduationcap")
       Text("0 left")
     }

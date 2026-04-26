@@ -47,4 +47,8 @@ public final actor TimetableUseCaseBackground: TimetableUseCaseBackgroundProtoco
 			return []
 		}
 	}
+	
+	public func getCurrentSemester() async -> Semester? {
+		try? await otlTimetableRepository.getCurrentSemester()
+	}
 }

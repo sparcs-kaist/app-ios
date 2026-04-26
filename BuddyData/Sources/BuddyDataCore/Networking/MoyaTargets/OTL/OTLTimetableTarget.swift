@@ -109,6 +109,11 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
   }
 
   public var authorizationType: Moya.AuthorizationType? {
-    .bearer
+		switch self {
+		case .fetchCurrentSemester:
+				.none
+		default:
+				.bearer
+		}
   }
 }

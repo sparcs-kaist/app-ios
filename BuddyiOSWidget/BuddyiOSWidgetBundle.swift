@@ -12,6 +12,7 @@ import SwiftUI
 struct BuddyiOSWidgetBundle: WidgetBundle {
   var body: some Widget {
     BuddyUpcomingClassWidget()
+		BuddyDDayWidget()
     BuddyTimetableWidget()
     //        BuddyiOSWidgetControl()
     //        BuddyiOSWidgetLiveActivity()
