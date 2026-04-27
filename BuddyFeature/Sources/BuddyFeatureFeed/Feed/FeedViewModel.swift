@@ -58,7 +58,7 @@ public final class FeedViewModel: FeedViewModelProtocol {
       self.nextCursor = page.nextCursor
       self.hasNext = page.hasNext
     } catch {
-      self.alertState = .init(title: String(localized: "Unable to load more posts."), message: error.localizedDescription)
+      self.alertState = .init(title: String(localized: "Unable to load more posts.", bundle: .module), message: error.localizedDescription)
       self.isAlertPresented = true
     }
   }
@@ -70,7 +70,7 @@ public final class FeedViewModel: FeedViewModelProtocol {
       try await feedPostUseCase.deletePost(postID: postID)
       self.posts.removeAll { $0.id == postID }
     } catch {
-      self.alertState = .init(title: String(localized: "Unable to delete post."), message: error.localizedDescription)
+      self.alertState = .init(title: String(localized: "Unable to delete post.", bundle: .module), message: error.localizedDescription)
       self.isAlertPresented = true
     }
   }

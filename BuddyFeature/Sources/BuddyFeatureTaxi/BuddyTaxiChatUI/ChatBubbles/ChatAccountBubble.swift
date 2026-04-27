@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 01/08/2025.
 //
 
+import Foundation
 import SwiftUI
 
 struct ChatAccountBubble: View {
@@ -14,7 +15,7 @@ struct ChatAccountBubble: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text("Settlement")
+      Text("Settlement", bundle: .module)
         .textCase(.uppercase)
         .font(.footnote)
         .fontWeight(.semibold)
@@ -40,17 +41,17 @@ struct ChatAccountBubble: View {
         .minimumScaleFactor(0.75)
         .scaledToFit()
       } else {
-        Text("Failed to parse account information.")
+        Text("Failed to parse account information.", bundle: .module)
       }
 
       Button(action: {
         markAsSent()
       }, label: {
         if isCommitPaymentAvailable {
-          Label("Send Payment", systemImage: "wonsign.circle")
+          Label(String(localized: "Send Payment", bundle: .module), systemImage: "wonsign.circle")
             .frame(maxWidth: .infinity)
         } else {
-          Label("Already Sent", systemImage: "checkmark")
+          Label(String(localized: "Already Sent", bundle: .module), systemImage: "checkmark")
             .frame(maxWidth: .infinity)
         }
       })
@@ -61,7 +62,7 @@ struct ChatAccountBubble: View {
     .padding(12)
     .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 24))
 //    .contextMenu {
-//      Button("Copy Account Info", systemImage: "doc.on.doc") {
+//      Button(String(localized: "Copy Account Info", bundle: .module), systemImage: "doc.on.doc") {
 //        let parts = content.split(separator: " ", maxSplits: 1)
 //        UIPasteboard.general.string = String(parts[1])
 //      }

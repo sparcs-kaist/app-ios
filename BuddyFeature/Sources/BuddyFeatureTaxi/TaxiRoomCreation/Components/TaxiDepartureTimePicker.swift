@@ -5,6 +5,7 @@
 //  Created by 김민찬 on 3/23/25.
 //
 
+import Foundation
 import SwiftUI
 
 struct TaxiDepartureTimePicker: View {
@@ -21,7 +22,7 @@ struct TaxiDepartureTimePicker: View {
 
   var body: some View {
     HStack {
-      Text("Departure Time")
+      Text("Departure Time", bundle: .module)
 
       Spacer()
 

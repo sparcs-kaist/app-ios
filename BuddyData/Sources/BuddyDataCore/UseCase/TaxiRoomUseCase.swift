@@ -22,11 +22,11 @@ public final class TaxiRoomUseCase: TaxiRoomUseCaseProtocol {
   
   // MARK: - Functions
   public func isBlocked() async -> TaxiRoomBlockStatus {
-    guard let taxiRoomRepository else { return TaxiRoomBlockStatus.error(errorMessage: String(localized: "Failed to load user information.")) }
+    guard let taxiRoomRepository else { return TaxiRoomBlockStatus.error(errorMessage: String(localized: "Failed to load user information.", bundle: .module)) }
 
     guard let taxiUser = await userStorage.getTaxiUser(),
           let taxiRooms = try? await taxiRoomRepository.fetchMyRooms().onGoing else {
-      return .error(errorMessage: String(localized: "Failed to load user information."))
+      return .error(errorMessage: String(localized: "Failed to load user information.", bundle: .module))
     }
     
     if !taxiUser.hasUserPaid(taxiRooms) {

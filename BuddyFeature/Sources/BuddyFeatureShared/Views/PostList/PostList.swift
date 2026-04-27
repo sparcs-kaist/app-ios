@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 15/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -31,7 +32,7 @@ public struct PostList: View {
       ContentUnavailableView(
         "Nothing Here Yet",
         systemImage: "questionmark.text.page",
-        description: Text("It looks like there are no posts on this page right now.")
+        description: Text("It looks like there are no posts on this page right now.", bundle: .module)
       )
     } else {
       List {
@@ -109,7 +110,7 @@ public struct PostList: View {
   NavigationStack {
     PostList(posts: AraPost.mockList)
       .navigationDestination(for: AraPost.self) { post in
-        Text("Post \(post.id)")
+        Text("Post \(post.id)", bundle: .module)
       }
   }
 }

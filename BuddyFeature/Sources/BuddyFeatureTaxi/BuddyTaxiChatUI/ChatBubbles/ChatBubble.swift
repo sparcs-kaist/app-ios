@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 14/02/2026.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
@@ -35,7 +36,7 @@ struct ChatBubble: View {
         SafariViewWrapper(url: url)
       }
       .contextMenu {
-        Button("Copy", systemImage: "doc.on.doc") {
+        Button(String(localized: "Copy", bundle: .module), systemImage: "doc.on.doc") {
           UIPasteboard.general.string = chat.content
         }
       }

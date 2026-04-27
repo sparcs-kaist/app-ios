@@ -63,7 +63,7 @@ public struct DDayCircularWidgetView: View {
 	private var signInRequiredView: some View {
 		VStack(spacing: 4) {
 			Image(systemName: "arrow.up.right.square")
-			Text("Sign in")
+			Text("Sign in", bundle: .module)
 		}
 	}
 }

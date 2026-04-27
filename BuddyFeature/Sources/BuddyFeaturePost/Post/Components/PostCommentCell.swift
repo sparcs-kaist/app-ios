@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 07/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import Translation
@@ -40,7 +41,7 @@ struct PostCommentCell: View {
 
         header
 
-        Text(comment.content ?? "This comment has been deleted.")
+        Text(comment.content ?? String(localized: "This comment has been deleted.", bundle: .module))
           .foregroundStyle(isDeleted ? .secondary : .primary)
           .font(.callout)
           .contentTransition(.numericText())
@@ -49,10 +50,10 @@ struct PostCommentCell: View {
         footer
       }
     }
-    .alert(alertState?.title ?? "Error", isPresented: $isAlertPresented, actions: {
-      Button("Okay", role: .close) { }
+    .alert(alertState?.title ?? String(localized: "Error", bundle: .module), isPresented: $isAlertPresented, actions: {
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
-      Text(alertState?.message ?? "Unexpected Error")
+      Text(alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
     })
     .translationPresentation(isPresented: $showTranslateSheet, text: comment.content ?? "")
   }
@@ -114,7 +115,7 @@ struct PostCommentCell: View {
     Menu {
       if comment.isMine == false {
         // show report menu
-        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+        Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
           ForEach(AraContentReportType.allCases, id: \.self) { type in
             Button(type.prettyString) {
               Task {
@@ -125,21 +126,21 @@ struct PostCommentCell: View {
         }
       } else if comment.isMine == true {
         // show edit button
-        Button("Edit", systemImage: "square.and.pencil") {
+        Button(String(localized: "Edit", bundle: .module), systemImage: "square.and.pencil") {
           onEdit?()
         }
       }
 
       Divider()
 
-      Button("Translate", systemImage: "translate") {
+      Button(String(localized: "Translate", bundle: .module), systemImage: "translate") {
         showTranslateSheet = true
       }
 
       if comment.isMine == true {
         Divider()
 
-        Button("Delete", systemImage: "trash", role: .destructive) {
+        Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
           Task {
             onDelete?()
             await onDeleteComment()
@@ -147,7 +148,7 @@ struct PostCommentCell: View {
         }
       }
     } label: {
-      Label("More", systemImage: "ellipsis")
+      Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
         .padding(8)
         .contentShape(.rect)
     }
@@ -181,9 +182,9 @@ struct PostCommentCell: View {
   private func report(type: AraContentReportType) async {
     do {
       try await onReport(type)
-      showAlert(title: String(localized: "Report Submitted"), content: String(localized: "Your report has been submitted successfully."))
+      showAlert(title: String(localized: "Report Submitted", bundle: .module), content: String(localized: "Your report has been submitted successfully.", bundle: .module))
     } catch {
-      showAlert(title: String(localized: "Unable to submit report."), content: error.localizedDescription)
+      showAlert(title: String(localized: "Unable to submit report.", bundle: .module), content: error.localizedDescription)
     }
   }
 

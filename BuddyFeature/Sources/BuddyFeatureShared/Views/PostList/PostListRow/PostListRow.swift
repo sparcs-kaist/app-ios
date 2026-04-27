@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 15/02/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -61,7 +62,7 @@ public struct PostListRow: View {
         Spacer()
         
         HStack(spacing: 12) {
-          Text("\(post.views) views")
+          Text("\(post.views) views", bundle: .module)
 
           Text(post.createdAt.timeAgoDisplay)
 
@@ -79,16 +80,16 @@ public struct PostListRow: View {
   var title: String {
     if post.isHidden {
       if post.isNSFW {
-        return String(localized: "This post contains NSFW content")
+        return String(localized: "This post contains NSFW content", bundle: .module)
       }
 
       if post.isPolitical {
-        return String(localized: "This post contains political content")
+        return String(localized: "This post contains political content", bundle: .module)
       }
 
-      return String(localized: "This post is hidden")
+      return String(localized: "This post is hidden", bundle: .module)
     }
 
-    return post.title ?? String(localized: "Untitled")
+    return post.title ?? String(localized: "Untitled", bundle: .module)
   }
 }

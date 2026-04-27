@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 27/05/2025.
 //
 
+import Foundation
 import SwiftUI
 import Haptica
 
@@ -52,7 +53,7 @@ public struct PostVoteButton: View {
 
       Divider()
 
-      Button("downvote", systemImage: downvoteImage) {
+      Button(String(localized: "downvote", bundle: .module), systemImage: downvoteImage) {
         Task { @MainActor in
           guard !isRunning else { return }
           isRunning = true

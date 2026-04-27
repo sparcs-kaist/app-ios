@@ -13,7 +13,7 @@ public enum FeedDeletionError: Error, LocalizedError {
   public var errorDescription: String? {
     switch self {
     case .hasComments:
-      String(localized: "Posts with comments cannot be deleted.")
+      String(localized: "Posts with comments cannot be deleted.", bundle: .module)
     }
   }
 }

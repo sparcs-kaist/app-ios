@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 03/07/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
@@ -46,13 +47,13 @@ public struct TaxiListView: View {
   var description: String {
     switch (viewModel.source, viewModel.destination) {
     case let (source?, destination?):
-      return String(localized: "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!")
+      return String(localized: "No rooms found from \(source.title.localized()) to \(destination.title.localized()). Be the first one to create one!", bundle: .module)
     case let (source?, nil):
-      return String(localized: "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!")
+      return String(localized: "No rooms found from \(source.title.localized()) to any destination. Be the first one to create one!", bundle: .module)
     case let (nil, destination?):
-      return String(localized: "No rooms found heading to \(destination.title.localized()). Be the first one to create one!")
+      return String(localized: "No rooms found heading to \(destination.title.localized()). Be the first one to create one!", bundle: .module)
     case (nil, nil):
-      return String(localized: "No rooms found for this week. Be the first one to create one!")
+      return String(localized: "No rooms found for this week. Be the first one to create one!", bundle: .module)
     }
   }
 
@@ -109,7 +110,7 @@ public struct TaxiListView: View {
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
-        Button("Create", systemImage: "plus") {
+        Button(String(localized: "Create", bundle: .module), systemImage: "plus") {
           showRoomCreationSheet = true
         }
       }
@@ -119,11 +120,11 @@ public struct TaxiListView: View {
 
       ToolbarItem(placement: .topBarTrailing) {
         NavigationLink(value: Destination.chatList) {
-          Label("Chats", systemImage: "bubble.left.and.text.bubble.right")
+          Label(String(localized: "Chats", bundle: .module), systemImage: "bubble.left.and.text.bubble.right")
         }
       }
     }
-    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Taxi") : "")
+    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Taxi", bundle: .module) : "")
     .toolbarTitleDisplayMode(.inlineLarge)
     .background {
       BackgroundGradientView(color: .purple)
@@ -225,19 +226,19 @@ public struct TaxiListView: View {
   }
 
   private func emptyView() -> some View {
-    ContentUnavailableView("No Rides This Week", systemImage: "car.2.fill", description: Text("Looks like there are no groups scheduled for this week. Be the first to create one!"))
+    ContentUnavailableView(String(localized: "No Rides This Week", bundle: .module), systemImage: "car.2.fill", description: Text("Looks like there are no groups scheduled for this week. Be the first to create one!", bundle: .module))
   }
 
   private func errorView(errorMessage: String) -> some View {
     ContentUnavailableView(
       label: {
-        Label("Error", systemImage: "fuelpump.exclamationmark.fill")
+        Label(String(localized: "Error", bundle: .module), systemImage: "fuelpump.exclamationmark.fill")
       },
       description: {
         Text(errorMessage)
       },
       actions: {
-        Button("Try Again") {
+        Button(String(localized: "Try Again", bundle: .module)) {
           Task {
             await viewModel.fetchData()
           }
@@ -249,17 +250,17 @@ public struct TaxiListView: View {
   private var emptyResultView: some View {
     ContentUnavailableView(
       label: {
-        Label("No Rides Found", systemImage: "car.2.fill")
+        Label(String(localized: "No Rides Found", bundle: .module), systemImage: "car.2.fill")
       },
       description: {
         Text(description)
       },
       actions: {
-        Button("Create a New Group") {
+        Button(String(localized: "Create a New Group", bundle: .module)) {
           showRoomCreationSheet = true
         }
 
-        Button("Clear Selection") {
+        Button(String(localized: "Clear Selection", bundle: .module)) {
           viewModel.source = nil
           viewModel.destination = nil
         }

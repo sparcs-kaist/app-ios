@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 26/01/2025.
 //
 
+import Foundation
 import SwiftUI
 import PhotosUI
 import BuddyDomain
@@ -42,7 +43,7 @@ struct PostComposeView: View {
           Spacer()
             .frame(maxHeight: 16)
 
-          TextField("Please enter the title", text: $viewModel.title)
+          TextField(String(localized: "Please enter the title", bundle: .module), text: $viewModel.title)
             .font(.title3)
             .focused($isTitleFocused)
             .submitLabel(.next)
@@ -56,7 +57,7 @@ struct PostComposeView: View {
           Divider()
             .padding(.horizontal)
 
-          TextField("What's happening?", text: $viewModel.content, axis: .vertical)
+          TextField(String(localized: "What's happening?", bundle: .module), text: $viewModel.content, axis: .vertical)
             .focused($isDescriptionFocused)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
@@ -86,20 +87,20 @@ struct PostComposeView: View {
         .padding(.vertical)
       }
       .scrollDismissesKeyboard(.interactively)
-      .navigationTitle("Write")
+      .navigationTitle(String(localized: "Write", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         // Top tool bar
         ToolbarItem(placement: .topBarLeading) {
-          Button("Cancel", systemImage: "xmark", role: .close) {
+          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
             isShowingCancelDialog = true
           }
           .confirmationDialog(
-            "Are you sure you want to discard this post?",
+            String(localized: "Are you sure you want to discard this post?", bundle: .module),
             isPresented: $isShowingCancelDialog,
             titleVisibility: .hidden
           ) {
-            Button("Discard Post", role: .destructive) {
+            Button(String(localized: "Discard Post", bundle: .module), role: .destructive) {
               dismiss()
             }
           }
@@ -126,7 +127,7 @@ struct PostComposeView: View {
               if isUploading {
                 ProgressView()
               } else {
-                Label("Done", systemImage: "arrow.up")
+                Label(String(localized: "Done", bundle: .module), systemImage: "arrow.up")
               }
             }
           )
@@ -140,21 +141,21 @@ struct PostComposeView: View {
         ToolbarSpacer(.flexible, placement: .bottomBar)
 
         ToolbarItem(placement: .bottomBar) {
-          Button("Photo Library", systemImage: "photo.on.rectangle") {
+          Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
           .disabled(isUploading)
         }
 
         ToolbarItem(placement: .bottomBar) {
-          Menu("More", systemImage: "ellipsis") {
+          Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
             Button(action: {
               viewModel.writeAsAnonymous.toggle()
             }, label: {
               if viewModel.writeAsAnonymous {
                 Image(systemName: "checkmark")
               }
-              Text("Anonymous")
+              Text("Anonymous", bundle: .module)
             })
             Button(action: {
               viewModel.isNSFW.toggle()
@@ -162,7 +163,7 @@ struct PostComposeView: View {
               if viewModel.isNSFW {
                 Image(systemName: "checkmark")
               }
-              Text("NSFW")
+              Text("NSFW", bundle: .module)
             })
             Button(action: {
               viewModel.isPolitical.toggle()
@@ -170,7 +171,7 @@ struct PostComposeView: View {
               if viewModel.isPolitical {
                 Image(systemName: "checkmark")
               }
-              Text("Political")
+              Text("Political", bundle: .module)
             })
           }
           .disabled(isUploading)
@@ -183,8 +184,8 @@ struct PostComposeView: View {
         matching: .images,
         photoLibrary: .shared()
       )
-      .alert("Error", isPresented: $showErrorAlert, actions: {
-        Button("Okay", role: .close) { }
+      .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
         Text(errorMessage)
       })
@@ -198,7 +199,7 @@ struct PostComposeView: View {
       Button {
         openURL(Constants.termsOfUseURL)
       } label: {
-        Text("terms of use")
+        Text("terms of use", bundle: .module)
           .underline()
       }
       .tint(.secondary)
@@ -207,7 +208,7 @@ struct PostComposeView: View {
 
   private var topicSelector: some View {
     Picker(selection: $viewModel.selectedTopic, label: EmptyView()) {
-      Text("No topic")
+      Text("No topic", bundle: .module)
         .tag(nil as AraBoardTopic?)
 
       ForEach(viewModel.board.topics ?? []) { topic in

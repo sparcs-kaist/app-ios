@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 13/07/2025.
 //
 
+import Foundation
 import SwiftUI
 
 public struct TaxiParticipantsIndicator: View {

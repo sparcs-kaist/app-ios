@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 26/12/2025.
 //
 
+import Foundation
 import SwiftUI
 
 public struct UpcomingClassSmallWidgetView: View {
@@ -17,7 +18,7 @@ public struct UpcomingClassSmallWidgetView: View {
   public var body: some View {
     if let lecture = entry.lecture, let ct = entry.lectureClass {
       VStack(alignment: .leading) {
-        Text("Up Next")
+        Text("Up Next", bundle: .module)
           .font(.caption)
           .fontWeight(.medium)
           .foregroundStyle(entry.backgroundColor)
@@ -45,7 +46,7 @@ public struct UpcomingClassSmallWidgetView: View {
           .font(.callout)
       }
     } else if entry.signInRequired {
-      Text("Sign in to see upcoming classes.")
+      Text("Sign in to see upcoming classes.", bundle: .module)
         .multilineTextAlignment(.center)
     } else {
       VStack(alignment: .leading) {
@@ -64,12 +65,12 @@ public struct UpcomingClassSmallWidgetView: View {
 
         Spacer()
 
-        Text("No more classes")
+        Text("No more classes", bundle: .module)
           .fontWeight(.medium)
           .fontDesign(.rounded)
           .foregroundStyle(.indigo)
 
-        Text("Enjoy your day")
+        Text("Enjoy your day", bundle: .module)
           .lineLimit(1)
           .minimumScaleFactor(0.8)
           .foregroundStyle(.secondary)

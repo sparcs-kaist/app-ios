@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 23/03/2025.
 //
 
+import Foundation
 import SwiftUI
 import MapKit
 import BuddyDomain
@@ -20,15 +21,15 @@ struct TaxiDestinationPicker: View {
   var body: some View {
     HStack {
       VStack(alignment: .leading) {
-        LocationMenu(title: String(localized: "meeting point"), selection: $source, locations: locations)
+        LocationMenu(title: String(localized: "meeting point", bundle: .module), selection: $source, locations: locations)
 
         Divider()
 
-        LocationMenu(title: String(localized: "where to?"), selection: $destination, locations: locations)
+        LocationMenu(title: String(localized: "where to?", bundle: .module), selection: $destination, locations: locations)
       }
 
       Button(action: swapLocations) {
-        Label("swap", systemImage: "arrow.trianglehead.swap")
+        Label(String(localized: "swap", bundle: .module), systemImage: "arrow.trianglehead.swap")
           .labelStyle(.iconOnly)
           .rotation3DEffect(
             .degrees(isFlipped ? 180 : 0),

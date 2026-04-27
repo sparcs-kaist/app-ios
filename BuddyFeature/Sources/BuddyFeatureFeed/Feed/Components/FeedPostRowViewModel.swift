@@ -52,7 +52,7 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
       post.wrappedValue.upvotes = previousUpvotes
       post.wrappedValue.downvotes = previousDownvotes
       alertState = .init(
-        title: String(localized: "Failed to upvote"),
+        title: String(localized: "Failed to upvote", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -87,7 +87,7 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
       post.wrappedValue.upvotes = previousUpvotes
       post.wrappedValue.downvotes = previousDownvotes
       alertState = .init(
-        title: String(localized: "Failed to downvote"),
+        title: String(localized: "Failed to downvote", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
@@ -101,13 +101,13 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
       try await feedPostUseCase.reportPost(postID: postID, reason: reason, detail: "")
       analyticsService?.logEvent(FeedPostRowEvent.postReported(reason: reason.description))
       alertState = .init(
-        title: String(localized: "Report Submitted"),
-        message: String(localized: "Your report has been submitted successfully.")
+        title: String(localized: "Report Submitted", bundle: .module),
+        message: String(localized: "Your report has been submitted successfully.", bundle: .module)
       )
       isAlertPresented = true
     } catch {
       alertState = .init(
-        title: String(localized: "Unable to submit report."),
+        title: String(localized: "Unable to submit report.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true

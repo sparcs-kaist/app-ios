@@ -38,7 +38,7 @@ public struct DDayRectangleWidgetView: View {
 				.foregroundStyle(accentColor)
 				.widgetAccentable()
 
-				Text("Ends in \(daysLeft) days")
+				Text("Ends in \(daysLeft) days", bundle: .module)
 
 				BuddyLinearGauge(progress: progress, foregroundColor: accentColor)
 					.frame(height: 8)
@@ -58,7 +58,7 @@ public struct DDayRectangleWidgetView: View {
 				.foregroundStyle(accentColor)
 				.widgetAccentable()
 
-				Text("Starts in \(daysUntil) days")
+				Text("Starts in \(daysUntil) days", bundle: .module)
 
 				BuddyLinearGauge(progress: 0, foregroundColor: accentColor)
 					.frame(height: 8)
@@ -76,7 +76,7 @@ public struct DDayRectangleWidgetView: View {
 					.frame(width: 12, height: 12)
 					.padding(.top, 2)
 				
-				Text("Sign in Required")
+				Text("Sign in Required", bundle: .module)
 					.minimumScaleFactor(0.9)
 					.lineLimit(1)
 					.fontWeight(.semibold)
@@ -84,7 +84,7 @@ public struct DDayRectangleWidgetView: View {
 			.foregroundStyle(Color.accentColor)
 			
 			HStack {
-				Text("Open Buddy on your iPhone to continue")
+				Text("Open Buddy on your iPhone to continue", bundle: .module)
 					.multilineTextAlignment(.leading)
 				Spacer()
 			}

@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 13/07/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -17,17 +18,17 @@ struct TaxiRoomStatusIndicator: View {
     Group {
       switch settlementType {
       case .notDeparted:
-        Text("Settlement Required")
+        Text("Settlement Required", bundle: .module)
       case .requestedSettlement:
         if settlementCount >= participantsCount {
-          Text("Settlement Completed")
+          Text("Settlement Completed", bundle: .module)
         } else {
-          Text("Settlement Requested")
+          Text("Settlement Requested", bundle: .module)
         }
       case .paymentRequired:
-        Text("Payment Required")
+        Text("Payment Required", bundle: .module)
       case .paymentSent:
-        Text("Payment Settled")
+        Text("Payment Settled", bundle: .module)
       }
     }
     .font(.footnote)

@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 26/09/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
@@ -28,13 +29,13 @@ public struct SearchView: View {
         ContentUnavailableView(
           message,
           systemImage: "exclamationmark.circle",
-          description: Text("Please try again later.")
+          description: Text("Please try again later.", bundle: .module)
         )
       } else if viewModel.searchText.isEmpty {
         ContentUnavailableView(
           "Search Anything",
           systemImage: "magnifyingglass",
-          description: Text("Find courses, posts, rides and more.")
+          description: Text("Find courses, posts, rides and more.", bundle: .module)
         )
       } else {
         resultView
@@ -50,7 +51,7 @@ public struct SearchView: View {
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .safeAreaBar(edge: .top) {
-      Picker("Search Scope", selection: $viewModel.searchScope) {
+      Picker(String(localized: "Search Scope", bundle: .module), selection: $viewModel.searchScope) {
         ForEach(SearchScope.allCases) { scope in
           Text(scope.description).tag(scope)
         }
@@ -61,7 +62,7 @@ public struct SearchView: View {
       .opacity(hideScopeBar ? 0 : 1)
       .disabled(hideScopeBar)
     }
-    .searchable(text: $viewModel.searchText, prompt: Text("Search"))
+    .searchable(text: $viewModel.searchText, prompt: Text("Search", bundle: .module))
     .searchFocused($isFocused)
     .navigationDestination(for: CourseSummary.self) { course in
       CourseView(course: course)
@@ -77,7 +78,7 @@ public struct SearchView: View {
   }
   
   private func courseSection(courses: [CourseSummary]) -> some View {
-    SearchSection(title: String(localized: "Courses"), searchScope: $viewModel.searchScope, targetScope: .courses) {
+    SearchSection(title: String(localized: "Courses", bundle: .module), searchScope: $viewModel.searchScope, targetScope: .courses) {
       SearchContent(results: courses) { course in
         NavigationLink(value: course) {
           CourseCell(course: course)
@@ -90,7 +91,7 @@ public struct SearchView: View {
   }
   
   private func postSection(posts: [AraPost]) -> some View {
-    SearchSection(title: String(localized: "Posts"), searchScope: $viewModel.searchScope, targetScope: .posts) {
+    SearchSection(title: String(localized: "Posts", bundle: .module), searchScope: $viewModel.searchScope, targetScope: .posts) {
       SearchContent(results: posts) { post in
         NavigationLink(value: post) {
           PostListRow(post: post)
@@ -110,7 +111,7 @@ public struct SearchView: View {
   }
   
   private func taxiSection(rooms: [TaxiRoom]) -> some View {
-    SearchSection(title: String(localized: "Rides"), searchScope: $viewModel.searchScope, targetScope: .taxi) {
+    SearchSection(title: String(localized: "Rides", bundle: .module), searchScope: $viewModel.searchScope, targetScope: .taxi) {
       SearchContent(results: rooms) { room in
         TaxiRoomCell(room: room, withOutBackground: true)
           .onTapGesture {

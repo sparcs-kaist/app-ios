@@ -5,6 +5,7 @@
 //  Created by 하정우 on 2/20/26.
 //
 
+import Foundation
 import SwiftUI
 import PhotosUI
 import UIKit
@@ -31,7 +32,7 @@ struct FeedSettingsView: View {
       case .loaded:
         loadedView
       case .error(let message):
-        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .analyticsScreen(name: "Feed Settings", class: String(describing: Self.self))
@@ -39,7 +40,7 @@ struct FeedSettingsView: View {
     .task {
       await viewModel.fetchUser()
     }
-    .navigationTitle("Feed")
+    .navigationTitle(String(localized: "Feed", bundle: .module))
     .navigationBarBackButtonHidden(viewModel.isUpdatingProfile)
     .toolbar {
       ToolbarItem(placement: .confirmationAction, content: {
@@ -59,14 +60,14 @@ struct FeedSettingsView: View {
       })
     }
     .alert(
-      viewModel.alertState?.title ?? "Error",
+      viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
       isPresented: $viewModel.isAlertPresented,
       actions: {
-        Button("Okay", role: .close) {
+        Button(String(localized: "Okay", bundle: .module), role: .close) {
           dismiss()
         }
       }, message: {
-        Text(viewModel.alertState?.message ?? "Unexpected Error")
+        Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
       }
     )
   }
@@ -119,9 +120,9 @@ struct FeedSettingsView: View {
     .listRowBackground(Color.clear)
     .buttonStyle(.plain)
     HStack {
-      Text("Nickname")
+      Text("Nickname", bundle: .module)
       Spacer()
-      TextField("Nickname", text: $viewModel.nickname)
+      TextField(String(localized: "Nickname", bundle: .module), text: $viewModel.nickname)
         .autocorrectionDisabled(true)
         .multilineTextAlignment(.trailing)
         .foregroundStyle(.secondary)

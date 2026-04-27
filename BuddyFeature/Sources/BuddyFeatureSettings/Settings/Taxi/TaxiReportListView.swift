@@ -5,6 +5,7 @@
 //  Created by 하정우 on 8/9/25.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
@@ -19,7 +20,7 @@ struct TaxiReportListView: View {
   
   var body: some View {
     ScrollView {
-      Picker("Report Type", selection: $taxiReportType) {
+      Picker(String(localized: "Report Type", bundle: .module), selection: $taxiReportType) {
         ForEach(TaxiReportType.allCases, id: \.rawValue) { item in
           Text(item.description).tag(item)
         }
@@ -33,7 +34,7 @@ struct TaxiReportListView: View {
           case .loading:
             loadingView
           case .error(let message):
-          ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+          ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
@@ -67,7 +68,7 @@ struct TaxiReportListView: View {
   private func reportViewList(reports: [TaxiReport]) -> some View {
     Group {
       if (reports.isEmpty) {
-        ContentUnavailableView("No Reports", systemImage: "list.bullet.clipboard")
+        ContentUnavailableView(String(localized: "No Reports", bundle: .module), systemImage: "list.bullet.clipboard")
       }
       ForEach(reports) {
         TaxiReportDetailRow(report: $0, reportType: taxiReportType)

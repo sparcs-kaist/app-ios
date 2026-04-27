@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 20/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import PhotosUI
@@ -28,7 +29,7 @@ struct FeedPostComposeView: View {
             .padding(.horizontal)
             .disabled(viewModel.isUploading)
 
-          TextField("What's happening?", text: $viewModel.text, axis: .vertical)
+          TextField(String(localized: "What's happening?", bundle: .module), text: $viewModel.text, axis: .vertical)
             .submitLabel(.return)
             .writingToolsBehavior(.complete)
             .padding(.horizontal)
@@ -52,11 +53,11 @@ struct FeedPostComposeView: View {
         .padding(.vertical)
       }
       .scrollDismissesKeyboard(.interactively)
-      .navigationTitle("Write")
+      .navigationTitle(String(localized: "Write", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
-          Button("Close", systemImage: "xmark") {
+          Button(String(localized: "Close", bundle: .module), systemImage: "xmark") {
             dismiss()
           }
           .disabled(viewModel.isUploading)
@@ -76,7 +77,7 @@ struct FeedPostComposeView: View {
                 ProgressView()
                   .tint(.white)
               } else {
-                Label("Done", systemImage: "arrow.up")
+                Label(String(localized: "Done", bundle: .module), systemImage: "arrow.up")
               }
             }
           )
@@ -88,7 +89,7 @@ struct FeedPostComposeView: View {
       .toolbar {
         ToolbarItemGroup(placement: .keyboard) {
           Spacer()
-          Button("Photo Library", systemImage: "photo.on.rectangle") {
+          Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
           .disabled(viewModel.isUploading)
@@ -96,12 +97,12 @@ struct FeedPostComposeView: View {
       }
     }
     .alert(
-      viewModel.alertState?.title ?? "Error",
+      viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
       isPresented: $viewModel.isAlertPresented,
       actions: {
-        Button("Okay", role: .close) { }
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
-        Text(viewModel.alertState?.message ?? "Unexpected Error")
+        Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
       }
     )
     .task {
@@ -144,7 +145,7 @@ struct FeedPostComposeView: View {
       Button {
         openURL(Constants.termsOfUseURL)
       } label: {
-        Text("terms of use")
+        Text("terms of use", bundle: .module)
           .underline()
       }
       .tint(.secondary)

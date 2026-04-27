@@ -31,18 +31,18 @@ public extension Date {
     }
 
     if let day = components.day, day > 0 {
-      return String(localized: "\(day) day\(day > 1 ? "s" : "") ago")
+      return String(localized: "\(day) day\(day > 1 ? "s" : "") ago", bundle: .module)
     }
 
     if let hour = components.hour, hour > 0 {
-      return String(localized: "\(hour) hour\(hour > 1 ? "s" : "") ago")
+      return String(localized: "\(hour) hour\(hour > 1 ? "s" : "") ago", bundle: .module)
     }
 
     if let minute = components.minute, minute > 0 {
-      return String(localized: "\(minute) min ago")
+      return String(localized: "\(minute) min ago", bundle: .module)
     }
 
-    return String(localized: "just now")
+    return String(localized: "just now", bundle: .module)
   }
 
   func ceilToNextTenMinutes() -> Date {
@@ -85,11 +85,11 @@ public extension Date {
     let calendar = Calendar.current
 
     if calendar.isDateInToday(self) {
-      return String(localized: "Today at \(self.localizedTime)")
+      return String(localized: "Today at \(self.localizedTime)", bundle: .module)
     } else if calendar.isDateInTomorrow(self) {
-      return String(localized: "Tomorrow at \(self.localizedTime)")
+      return String(localized: "Tomorrow at \(self.localizedTime)", bundle: .module)
     } else if let weekday = self.weekdayNameIfWithinAWeek {
-      return String(localized: "\(weekday) at \(self.localizedTime)")
+      return String(localized: "\(weekday) at \(self.localizedTime)", bundle: .module)
     }
 
     return self.formatted(.dateTime

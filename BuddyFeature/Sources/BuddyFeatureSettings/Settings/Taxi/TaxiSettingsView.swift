@@ -5,6 +5,7 @@
 //  Created by 하정우 on 8/8/25.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
@@ -30,7 +31,7 @@ struct TaxiSettingsView: View {
       case .loaded:
         loadedView
       case .error(let message):
-        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .animation(.spring, value: showToggle)
@@ -42,7 +43,7 @@ struct TaxiSettingsView: View {
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
-        Button("Done", systemImage: "checkmark", role: .confirm) {
+        Button(String(localized: "Done", bundle: .module), systemImage: "checkmark", role: .confirm) {
           Task {
             if hasNumberChanged {
               showAlert = true
@@ -59,8 +60,8 @@ struct TaxiSettingsView: View {
     .fullScreenCover(item: $safariURL) {
       SafariViewWrapper(url: $0)
     }
-    .navigationTitle("Taxi")
-    .alert("Warning", isPresented: $showAlert, actions: {
+    .navigationTitle(String(localized: "Taxi", bundle: .module))
+    .alert(String(localized: "Warning", bundle: .module), isPresented: $showAlert, actions: {
       Button(role: .cancel) { }
       
       Button(role: .confirm, action: {
@@ -69,10 +70,10 @@ struct TaxiSettingsView: View {
           dismiss()
         }
       }, label: {
-        Text("Confirm")
+        Text("Confirm", bundle: .module)
       })
     }, message: {
-      Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber.formatPhoneNumber())")
+      Text("Phone number can be set only once. Is the number you want to use correct?\n\n\(vm.phoneNumber.formatPhoneNumber())", bundle: .module)
     })
     .analyticsScreen(name: "Taxi Settings", class: String(describing: Self.self))
   }
@@ -89,24 +90,24 @@ struct TaxiSettingsView: View {
   @ViewBuilder
   var loadedView: some View {
     List {
-      Section(header: Text("Profile")) {
+      Section(header: Text("Profile", bundle: .module)) {
         HStack {
-          Text("Nickname")
+          Text("Nickname", bundle: .module)
           Spacer()
-          TextField("Enter Nickname", text: $vm.nickname)
+          TextField(String(localized: "Enter Nickname", bundle: .module), text: $vm.nickname)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
         }
-        Picker("Bank Name", selection: $vm.bankName) {
-          Text("Select Bank").tag(Optional<String>(nil))
+        Picker(String(localized: "Bank Name", bundle: .module), selection: $vm.bankName) {
+          Text("Select Bank", bundle: .module).tag(Optional<String>(nil))
           ForEach(Constants.taxiBankNameList, id: \.self) {
             Text($0).tag($0)
           }
         }
         HStack {
-          Text("Bank Number")
+          Text("Bank Number", bundle: .module)
           Spacer()
-          TextField("Enter Bank Number", text: $vm.bankNumber)
+          TextField(String(localized: "Enter Bank Number", bundle: .module), text: $vm.bankNumber)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
             .keyboardType(.numberPad)
@@ -115,9 +116,9 @@ struct TaxiSettingsView: View {
             }
         }
         HStack {
-          Text("Phone Number")
+          Text("Phone Number", bundle: .module)
           Spacer()
-          TextField("Enter Phone Number", text: $vm.phoneNumber)
+          TextField(String(localized: "Enter Phone Number", bundle: .module), text: $vm.phoneNumber)
             .keyboardType(.numberPad)
             .multilineTextAlignment(.trailing)
             .foregroundStyle(.secondary)
@@ -133,19 +134,19 @@ struct TaxiSettingsView: View {
         if showToggle {
           HStack {
             Toggle(isOn: $vm.showBadge, label: {
-              Text("Show Badge")
+              Text("Show Badge", bundle: .module)
             })
           }
           .transition(.slide)
         }
       }
       
-      Section(header: Text("Service")) {
-        navigationLinkWithIcon(destination: TaxiReportListView(), text: String(localized: "Report Details"), systemImage: "exclamationmark.bubble")
+      Section(header: Text("Service", bundle: .module)) {
+        navigationLinkWithIcon(destination: TaxiReportListView(), text: String(localized: "Report Details", bundle: .module), systemImage: "exclamationmark.bubble")
       }
     }
-    .alert("Error", isPresented: $vm.showAlert, actions: {
-      Button("Okay", role: .close) { }
+    .alert(String(localized: "Error", bundle: .module), isPresented: $vm.showAlert, actions: {
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
       Text(vm.alertContent)
     })

@@ -5,6 +5,7 @@
 //  Created by 하정우 on 8/8/25.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
@@ -26,7 +27,7 @@ struct AraSettingsView: View {
       case .loaded:
         loadedView
       case .error(let message):
-        ContentUnavailableView("Error", systemImage: "wifi.exclamationmark", description: Text(message))
+        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
       }
     }
     .task {
@@ -38,7 +39,7 @@ struct AraSettingsView: View {
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-    .alert("Warning", isPresented: $showNicknameAlert) {
+    .alert(String(localized: "Warning", bundle: .module), isPresented: $showNicknameAlert) {
       Button(role: .cancel) {
         showNicknameAlert = false
       }
@@ -46,25 +47,25 @@ struct AraSettingsView: View {
         updateAraNickname()
       }
     } message: {
-      Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?")
+      Text("Nicknames can only be changed every 3 months. Change nickname to \(vm.nickname)?", bundle: .module)
     }
-    .navigationTitle("Ara")
+    .navigationTitle(String(localized: "Ara", bundle: .module))
     .analyticsScreen(name: "Ara Settings", class: String(describing: Self.self))
   }
   
   private var loadingView: some View {
     List {
-      Section(header: Text("Profile")) {
+      Section(header: Text("Profile", bundle: .module)) {
         HStack {
-          Text("Nickname")
+          Text("Nickname", bundle: .module)
           Spacer()
-          TextField("Nickname", text: .constant("Unknown"))
+          TextField(String(localized: "Nickname", bundle: .module), text: .constant(String(localized: "Unknown", bundle: .module)))
         }
       }
 
-      Section(header: Text("Posts")) {
-        Toggle("Allow NSFW", isOn: .constant(true))
-        Toggle("Allow Political", isOn: .constant(true))
+      Section(header: Text("Posts", bundle: .module)) {
+        Toggle(String(localized: "Allow NSFW", bundle: .module), isOn: .constant(true))
+        Toggle(String(localized: "Allow Political", bundle: .module), isOn: .constant(true))
       }
     }
     .redacted(reason: .placeholder)
@@ -74,9 +75,9 @@ struct AraSettingsView: View {
     List {
       Section {
         HStack {
-          Text("Nickname")
+          Text("Nickname", bundle: .module)
           Spacer()
-          TextField("Nickname", text: $vm.nickname)
+          TextField(String(localized: "Nickname", bundle: .module), text: $vm.nickname)
           .autocorrectionDisabled()
           .onSubmit {
             showNicknameAlert = true
@@ -86,32 +87,32 @@ struct AraSettingsView: View {
           .disabled(vm.nicknameUpdatable == false)
         }
       } header: {
-        Text("Profile")
+        Text("Profile", bundle: .module)
       } footer: {
         VStack(alignment: .leading) {
           if vm.nicknameUpdatable == false, let date = vm.nicknameUpdatableFrom {
-            Text("You can't change nickname until \(date.formatted(.iso8601.year().month().day())).")
+            Text("You can't change nickname until \(date.formatted(.iso8601.year().month().day())).", bundle: .module)
           }
-          Text("Nicknames can only be changed every 3 months.")
+          Text("Nicknames can only be changed every 3 months.", bundle: .module)
         }
       }
 
-      Section(header: Text("Content Preferences")) {
-        Toggle("Allow NSFW", isOn: $vm.allowNSFW)
-        Toggle("Allow Political", isOn: $vm.allowPolitical)
+      Section(header: Text("Content Preferences", bundle: .module)) {
+        Toggle(String(localized: "Allow NSFW", bundle: .module), isOn: $vm.allowNSFW)
+        Toggle(String(localized: "Allow Political", bundle: .module), isOn: $vm.allowPolitical)
       }
       
-      Section(header: Text("Posts")){
+      Section(header: Text("Posts", bundle: .module)){
         NavigationLink(
-          "My Posts",
+          String(localized: "My Posts", bundle: .module),
           destination: AraMyPostView(user: vm.user, type: .all)
-            .navigationTitle("My Posts")
+            .navigationTitle(String(localized: "My Posts", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
         )
         NavigationLink(
-          "Bookmarked Posts",
+          String(localized: "Bookmarked Posts", bundle: .module),
           destination: AraMyPostView(user: vm.user, type: .bookmark)
-            .navigationTitle("Bookmarked Posts")
+            .navigationTitle(String(localized: "Bookmarked Posts", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
         )
       }

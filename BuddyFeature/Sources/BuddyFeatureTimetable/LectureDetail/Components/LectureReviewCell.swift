@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 02/10/2025.
 //
 
+import Foundation
 import SwiftUI
 import Translation
 import Factory
@@ -32,7 +33,7 @@ struct LectureReviewCell: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
-        Text(review.professors.first?.name ?? String(localized: "Unknown"))
+        Text(review.professors.first?.name ?? String(localized: "Unknown", bundle: .module))
           .font(.headline)
 
         Text(String(review.year).suffix(2) + review.semester.shortCode)
@@ -43,9 +44,9 @@ struct LectureReviewCell: View {
         Spacer()
 
         Menu {
-          Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+          Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
           if SystemLanguageModel.default.isAvailable {
-            Button("Summarise", systemImage: "text.append") {
+            Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
               guard let foundationModelsUseCase else { return }
               
               summarisedContent = ""
@@ -59,9 +60,9 @@ struct LectureReviewCell: View {
             .disabled(summarisedContent != nil)
           }
 //          Divider()
-//          Button("Report", systemImage: "exclamationmark.triangle.fill") { report() }
+//          Button(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") { report() }
         } label: {
-          Label("More", systemImage: "ellipsis")
+          Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
             .padding(8)
             .contentShape(.rect)
         }
@@ -82,9 +83,9 @@ struct LectureReviewCell: View {
         .textSelection(.enabled)
 
       HStack(alignment: .bottom) {
-        reviewRatingLetter(title: String(localized: "Grade"), rating: review.grade)
-        reviewRatingLetter(title: String(localized: "Load"), rating: review.load)
-        reviewRatingLetter(title: String(localized: "Speech"), rating: review.speech)
+        reviewRatingLetter(title: String(localized: "Grade", bundle: .module), rating: review.grade)
+        reviewRatingLetter(title: String(localized: "Load", bundle: .module), rating: review.load)
+        reviewRatingLetter(title: String(localized: "Speech", bundle: .module), rating: review.speech)
 
         Spacer()
 
@@ -138,7 +139,7 @@ struct LectureReviewCell: View {
 //      code: review.lecture.code,
 //      year: review.lecture.year,
 //      semester: review.lecture.semester,
-//      professorName: review.lecture.professors.first?.name.localized() ?? String(localized: "Unknown"),
+//      professorName: review.lecture.professors.first?.name.localized() ?? String(localized: "Unknown", bundle: .module),
 //      content: review.content
 //    ), let url = URL(string: urlString),
 //       UIApplication.shared.canOpenURL(url) {

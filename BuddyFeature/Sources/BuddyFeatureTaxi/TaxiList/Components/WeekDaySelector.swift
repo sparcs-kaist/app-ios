@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 11/07/2025.
 //
 
+import Foundation
 import SwiftUI
 import Haptica
 

@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 15/02/2025.
 //
 
+import Foundation
 import SwiftUI
 
 struct PostListRowCommentLabel: View {

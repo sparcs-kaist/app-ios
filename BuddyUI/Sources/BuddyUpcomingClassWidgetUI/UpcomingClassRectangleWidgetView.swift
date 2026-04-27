@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 07/10/2025.
 //
 
+import Foundation
 import SwiftUI
 import WidgetKit
 import BuddyDomain
@@ -62,7 +63,7 @@ public struct UpcomingClassRectangleWidgetView: View {
           .frame(width: 12, height: 12)
           .padding(.top, 2)
 
-        Text("Sign in Required")
+        Text("Sign in Required", bundle: .module)
           .minimumScaleFactor(0.9)
           .lineLimit(1)
           .fontWeight(.semibold)
@@ -71,7 +72,7 @@ public struct UpcomingClassRectangleWidgetView: View {
 			.widgetAccentable()
 
       HStack {
-        Text("Open Buddy on your iPhone to continue")
+        Text("Open Buddy on your iPhone to continue", bundle: .module)
           .multilineTextAlignment(.leading)
         Spacer()
       }
@@ -87,7 +88,7 @@ public struct UpcomingClassRectangleWidgetView: View {
           .frame(width: 12, height: 12)
           .padding(.top, 2)
 
-        Text("No more classes")
+        Text("No more classes", bundle: .module)
           .minimumScaleFactor(0.9)
           .lineLimit(1)
           .fontWeight(.semibold)
@@ -96,7 +97,7 @@ public struct UpcomingClassRectangleWidgetView: View {
 			.widgetAccentable()
 
       HStack {
-        Text("Enjoy your day")
+        Text("Enjoy your day", bundle: .module)
           .multilineTextAlignment(.leading)
         Spacer()
       }

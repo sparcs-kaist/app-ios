@@ -76,7 +76,7 @@ struct SignInView: View {
     }
     .padding()
     .alert("Error", isPresented: $showErrorAlert, actions: {
-      Button("Okay", role: .close) { }
+      Button(String(localized: "Okay"), role: .close) { }
     }, message: {
       Text(errorMessage)
     })

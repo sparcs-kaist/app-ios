@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 24/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import NukeUI
 import Factory
@@ -48,7 +49,7 @@ struct FeedPostView: View {
       .refreshable {
         await viewModel.fetchComments(postID: post.id, initial: false)
       }
-      .navigationTitle("Post")
+      .navigationTitle(String(localized: "Post", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbarVisibility(.hidden, for: .tabBar)
       .toolbar {
@@ -62,12 +63,12 @@ struct FeedPostView: View {
         inputBar(proxy: proxy)
       }
       .alert(
-        viewModel.alertState?.title ?? "Error",
+        viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
         isPresented: $viewModel.isAlertPresented,
         actions: {
-          Button("Okay", role: .close) { }
+          Button(String(localized: "Okay", bundle: .module), role: .close) { }
         }, message: {
-          Text(viewModel.alertState?.message ?? "Unexpected Error")
+          Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
         }
       )
     }
@@ -82,15 +83,15 @@ struct FeedPostView: View {
   }
 
   private var moreMenu: some View {
-    Menu("More", systemImage: "ellipsis") {
-      Button("Translate", systemImage: "translate") { showTranslateSheet = true }
+    Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
+      Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
       Divider()
       if post.isAuthor {
-        Button("Delete", systemImage: "trash", role: .destructive) {
+        Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
           showDeleteConfirmation = true
         }
       } else {
-        Menu("Report", systemImage: "exclamationmark.triangle.fill") {
+        Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
           ForEach(FeedReportType.allCases) { reason in
             Button(reason.description) {
               Task {
@@ -101,24 +102,24 @@ struct FeedPostView: View {
         }
       }
     }
-    .confirmationDialog("Delete Post", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-      Button("Delete", role: .destructive) {
+    .confirmationDialog(String(localized: "Delete Post", bundle: .module), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+      Button(String(localized: "Delete", bundle: .module), role: .destructive) {
         Task {
           do {
             try await onDelete?()
             dismiss()
           } catch {
             viewModel.alertState = .init(
-              title: String(localized: "Unable to delete post."),
+              title: String(localized: "Unable to delete post.", bundle: .module),
               message: error.localizedDescription
             )
             viewModel.isAlertPresented = true
           }
         }
       }
-      Button("Cancel", role: .cancel) { }
+      Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
     } message: {
-      Text("Are you sure you want to delete this post?")
+      Text("Are you sure you want to delete this post?", bundle: .module)
     }
   }
 
@@ -130,7 +131,9 @@ struct FeedPostView: View {
         TextField(
           text: $viewModel.text,
           prompt: Text(
-            targetComment != nil ? "Write a reply to \(targetComment?.authorName ?? "unknown")" : "Write a comment"
+            targetComment != nil
+              ? String(localized: "Write a reply to \(targetComment?.authorName ?? String(localized: "unknown", bundle: .module))", bundle: .module)
+              : String(localized: "Write a comment", bundle: .module)
           ),
           axis: .vertical,
           label: {
@@ -139,7 +142,7 @@ struct FeedPostView: View {
         .focused($isWritingCommentFocusState)
 
         if keyboardShowing {
-          Toggle("Write Anonymously", isOn: $viewModel.isAnonymous)
+          Toggle(String(localized: "Write Anonymously", bundle: .module), isOn: $viewModel.isAnonymous)
             .foregroundStyle(.secondary)
             .textCase(.uppercase)
             .fontDesign(.rounded)
@@ -172,7 +175,7 @@ struct FeedPostView: View {
               ProgressView()
                 .tint(.white)
             } else {
-              Label("Send", systemImage: "paperplane")
+              Label(String(localized: "Send", bundle: .module), systemImage: "paperplane")
                 .labelStyle(.iconOnly)
                 .tint(.white)
             }
@@ -202,7 +205,7 @@ struct FeedPostView: View {
           Divider()
             .padding(.horizontal)
 
-          Text("\(post.commentCount) comments")
+          Text("\(post.commentCount) comments", bundle: .module)
             .font(.headline)
             .padding(.horizontal)
 
@@ -220,7 +223,7 @@ struct FeedPostView: View {
           Divider()
             .padding(.horizontal)
 
-          Text("\(post.commentCount) comments")
+          Text("\(post.commentCount) comments", bundle: .module)
             .font(.headline)
             .padding(.horizontal)
             .contentTransition(.numericText(value: Double(post.commentCount)))
@@ -250,7 +253,7 @@ struct FeedPostView: View {
         }
         .animation(.spring, value: viewModel.comments)
       case .error(let message):
-        ContentUnavailableView("Error", systemImage: "text.bubble", description: Text(message))
+        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "text.bubble", description: Text(message))
           .scaleEffect(0.8)
       }
     }

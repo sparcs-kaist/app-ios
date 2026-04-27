@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 17/08/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
@@ -42,7 +43,7 @@ public struct FeedView: View {
       .animation(.spring, value: viewModel.posts)
     }
     .disabled(viewModel.state == .loading)
-    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed") : "")
+    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed", bundle: .module) : "")
     .toolbarTitleDisplayMode(.inlineLarge)
     .navigationDestination(for: String.self) { postID in
       if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
@@ -62,7 +63,7 @@ public struct FeedView: View {
     }
     .toolbar {
       ToolbarItem {
-        Button("Write", systemImage: "square.and.pencil") {
+        Button(String(localized: "Write", bundle: .module), systemImage: "square.and.pencil") {
           viewModel.writeFeedButtonTapped()
           showComposeView = true
         }
@@ -72,7 +73,7 @@ public struct FeedView: View {
       ToolbarSpacer(.fixed)
 
       ToolbarItem {
-        Button("Settings", systemImage: "gear") {
+        Button(String(localized: "Settings", bundle: .module), systemImage: "gear") {
           viewModel.openSettingsTapped()
           showSettingsSheet = true
         }
@@ -91,10 +92,10 @@ public struct FeedView: View {
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
         .interactiveDismissDisabled()
     }
-    .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented, actions: {
-      Button("Okay", role: .close) { }
+    .alert(viewModel.alertState?.title ?? String(localized: "Error", bundle: .module), isPresented: $viewModel.isAlertPresented, actions: {
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
-      Text(viewModel.alertState?.message ?? "Unexpected Error")
+      Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
     })
     .background {
       BackgroundGradientView(color: .accentColor)
@@ -151,7 +152,7 @@ public struct FeedView: View {
 
   private func errorView(message: String) -> some View {
     ContentUnavailableView(
-      "Error",
+      String(localized: "Error", bundle: .module),
       systemImage: "questionmark.text.page",
       description: Text(message)
     )

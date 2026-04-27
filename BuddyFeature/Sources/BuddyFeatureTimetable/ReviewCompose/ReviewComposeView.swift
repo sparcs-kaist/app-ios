@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 02/10/2025.
 //
 
+import Foundation
 import SwiftUI
 import Factory
 import BuddyDomain
@@ -30,22 +31,22 @@ struct ReviewComposeView: View {
         TextField(
           "",
           text: $content,
-          prompt: Text("Share your thoughts on \(lecture.name)..."),
+          prompt: Text("Share your thoughts on \(lecture.name)...", bundle: .module),
           axis: .vertical
         )
           .padding()
       }
       .scrollDismissesKeyboard(.immediately)
-      .navigationTitle("Write a Review")
+      .navigationTitle(String(localized: "Write a Review", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .safeAreaBar(edge: .top) {
         HStack {
-          Text("Grade")
+          Text("Grade", bundle: .module)
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
 
-          Picker("Grade", selection: $grade) {
+          Picker(String(localized: "Grade", bundle: .module), selection: $grade) {
             Text("A").tag(5)
             Text("B").tag(4)
             Text("C").tag(3)
@@ -53,11 +54,11 @@ struct ReviewComposeView: View {
             Text("F").tag(1)
           }
 
-          Text("Load")
+          Text("Load", bundle: .module)
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
-          Picker("Load", selection: $load) {
+          Picker(String(localized: "Load", bundle: .module), selection: $load) {
             Text("A").tag(5)
             Text("B").tag(4)
             Text("C").tag(3)
@@ -65,11 +66,11 @@ struct ReviewComposeView: View {
             Text("F").tag(1)
           }
 
-          Text("Speech")
+          Text("Speech", bundle: .module)
             .foregroundStyle(.tertiary)
             .fontWeight(.medium)
             .textCase(.uppercase)
-          Picker("Speech", selection: $speech) {
+          Picker(String(localized: "Speech", bundle: .module), selection: $speech) {
             Text("A").tag(5)
             Text("B").tag(4)
             Text("C").tag(3)
@@ -108,7 +109,7 @@ struct ReviewComposeView: View {
               if isUploading {
                 ProgressView()
               } else {
-                Label("Done", systemImage: "arrow.up")
+                Label(String(localized: "Done", bundle: .module), systemImage: "arrow.up")
               }
             }
           )
@@ -116,10 +117,10 @@ struct ReviewComposeView: View {
           .disabled(content.isEmpty)
         }
       }
-      .alert("Error", isPresented: $showErrorAlert, actions: {
-        Button("Okay", role: .close) { }
+      .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
+        Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
-        Text("There was an error. Please try again later.")
+        Text("There was an error. Please try again later.", bundle: .module)
       })
     }
     .analyticsScreen(name: "Review Compose", class: String(describing: Self.self))

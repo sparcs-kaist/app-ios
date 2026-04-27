@@ -5,6 +5,7 @@
 //  Created by 하정우 on 8/9/25.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 
@@ -16,20 +17,20 @@ struct TaxiReportDetailRow: View {
     VStack {
       switch report.reason {
       case .etcReason:
-        RowElementView(title: String(localized: "Reason"), content: String(localized: "ETC"))
+        RowElementView(title: "Reason", content: "ETC")
       case .noShow:
-        RowElementView(title: String(localized: "Reason"), content: String(localized: "Didn't come on time"))
+        RowElementView(title: "Reason", content: "Didn't come on time")
       case .noSettlement:
-        RowElementView(title: String(localized: "Reason"), content: String(localized: "Didn't send money"))
+        RowElementView(title: "Reason", content: "Didn't send money")
       }
       Divider().padding(.vertical, 4)
       if reportType == .outgoing {
-        RowElementView(title: String(localized: "Nickname"), content: report.reportedUser.nickname).padding(.bottom, 4)
+        RowElementView(title: "Nickname", content: "\(report.reportedUser.nickname)").padding(.bottom, 4)
       }
-      RowElementView(title: String(localized: "Date"), content: report.time.formattedString).padding(.bottom, 4)
+      RowElementView(title: "Date", content: "\(report.time.formattedString)").padding(.bottom, 4)
       if report.reason == .etcReason {
         HStack(alignment: .top) {
-          Text("Other reasons")
+          Text("Other reasons", bundle: .module)
           Spacer()
           Text(report.etcDetails)
             .foregroundStyle(.secondary)

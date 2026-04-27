@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 09/03/2025.
 //
 
+import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
@@ -35,41 +36,41 @@ struct TaxiRoomCreationView: View {
           )
         }
 
-        Section("Title") {
+        Section(String(localized: "Title", bundle: .module)) {
           HStack {
-            TextField("Title", text: $title)
+            TextField(String(localized: "Title", bundle: .module), text: $title)
           }
         }
 
         Section {
           TaxiDepartureTimePicker(departureTime: $viewModel.roomDepartureTime)
-          Picker("Capacity", selection: $viewModel.roomCapacity) {
+          Picker(String(localized: "Capacity", bundle: .module), selection: $viewModel.roomCapacity) {
             ForEach(2...4, id: \.self) { number in
-              Text("\(number) people")
+              Text("\(number) people", bundle: .module)
                 .tag(number)
             }
           }
-          Toggle("With Luggage", isOn: $viewModel.hasCarrier)
+          Toggle(String(localized: "With Luggage", bundle: .module), isOn: $viewModel.hasCarrier)
         }
       }
-      .navigationTitle("New Group")
+      .navigationTitle(String(localized: "New Group", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
-          Button("Cancel", systemImage: "xmark", role: .close) {
+          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
             dismiss()
           }
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Done", systemImage: "arrow.up", role: .confirm) {
+          Button(String(localized: "Done", bundle: .module), systemImage: "arrow.up", role: .confirm) {
             Task {
               do {
                 try await viewModel.createRoom(title: title)
                 await viewModel.fetchData()
                 dismiss()
               } catch {
-                self.alertTitle = String(localized: "Error")
+                self.alertTitle = String(localized: "Error", bundle: .module)
                 self.alertMessage = error.localizedDescription
                 self.showAlert = true
               }
@@ -88,16 +89,16 @@ struct TaxiRoomCreationView: View {
       await roomCreationViewModel.fetchBlockStatus()
       switch roomCreationViewModel.blockStatus {
       case .error(let errorMessage):
-        showAlert(title: String(localized: "Error"), message: errorMessage)
+        showAlert(title: String(localized: "Error", bundle: .module), message: errorMessage)
       case .notPaid:
-        showAlert(title: String(localized: "Notice"), message: String(localized: "There are rooms for which settlement has not been completed. To create a room, please settle an existing room."))
+        showAlert(title: String(localized: "Notice", bundle: .module), message: String(localized: "There are rooms for which settlement has not been completed. To create a room, please settle an existing room.", bundle: .module))
       case .tooManyRooms:
-        showAlert(title: String(localized: "Notice"), message: String(localized: "You are participating in more than 5 rooms. To create a room, please settle an existing room."))
+        showAlert(title: String(localized: "Notice", bundle: .module), message: String(localized: "You are participating in more than 5 rooms. To create a room, please settle an existing room.", bundle: .module))
       default: break
       }
     }
     .alert(alertTitle, isPresented: $showAlert, actions: {
-      Button("Okay", role: .close) { }
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
       Text(alertMessage)
     })

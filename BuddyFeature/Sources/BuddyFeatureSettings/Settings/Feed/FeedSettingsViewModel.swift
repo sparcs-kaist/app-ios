@@ -82,7 +82,7 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
       return true
     } catch {
       alertState = .init(
-        title: String(localized: "Failed to update profile."),
+        title: String(localized: "Failed to update profile.", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true

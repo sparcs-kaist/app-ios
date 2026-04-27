@@ -19,15 +19,15 @@ struct TimetableSummaryView: View {
   private var content: some View {
     HStack {
       Spacer()
-      BigSummary(label: String(localized: "Credit"), grade: "\(selectedTimetable?.credits ?? 0)")
+      BigSummary(label: String(localized: "Credit", bundle: .module), grade: "\(selectedTimetable?.credits ?? 0)")
       Spacer()
-      BigSummary(label: String(localized: "AU"), grade: "\(selectedTimetable?.creditAUs ?? 0)")
+      BigSummary(label: String(localized: "AU", bundle: .module), grade: "\(selectedTimetable?.creditAUs ?? 0)")
       Spacer()
-      BigSummary(label: String(localized: "Grade"), grade: selectedTimetable?.gradeLetter ?? "?")
+      BigSummary(label: String(localized: "Grade", bundle: .module), grade: selectedTimetable?.gradeLetter ?? "?")
       Spacer()
-      BigSummary(label: String(localized: "Load"), grade: selectedTimetable?.loadLetter ?? "?")
+      BigSummary(label: String(localized: "Load", bundle: .module), grade: selectedTimetable?.loadLetter ?? "?")
       Spacer()
-      BigSummary(label: String(localized: "Speech"), grade: selectedTimetable?.speechLetter ?? "?")
+      BigSummary(label: String(localized: "Speech", bundle: .module), grade: selectedTimetable?.speechLetter ?? "?")
       Spacer()
     }
   }

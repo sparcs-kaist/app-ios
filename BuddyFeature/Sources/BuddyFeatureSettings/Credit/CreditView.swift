@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 18/01/2026.
 //
 
+import Foundation
 import SwiftUI
 import FirebaseAnalytics
 
@@ -32,7 +33,7 @@ struct CreditView: View {
           .foregroundStyle(.secondary)
 
         VStack(alignment: .leading, spacing: 0) {
-          Text("Sponsored By")
+          Text("Sponsored By", bundle: .module)
             .font(.caption)
             .foregroundStyle(.secondary)
           Image(.hyundaiMobis)
@@ -45,7 +46,7 @@ struct CreditView: View {
       }
       .padding()
     }
-    .navigationTitle("Acknowledgements")
+    .navigationTitle(String(localized: "Acknowledgements", bundle: .module))
     .analyticsScreen(name: "Credit", class: String(describing: Self.self))
   }
 }

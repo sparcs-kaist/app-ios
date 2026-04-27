@@ -5,6 +5,8 @@
 //  Created by 하정우 on 9/10/25.
 //
 
+import Foundation
+
 public enum TaxiReportType: String, CaseIterable {
   case incoming = "Received"
   case outgoing = "Submitted"

@@ -5,6 +5,7 @@
 //  Created by Soongyu Kwon on 20/09/2025.
 //
 
+import Foundation
 import SwiftUI
 import FirebaseAnalytics
 import BuddyDomain
@@ -25,7 +26,7 @@ struct LectureSearchView: View {
           ContentUnavailableView(
             "Search",
             systemImage: "magnifyingglass",
-            description: Text("Search courses, codes or professors.")
+            description: Text("Search courses, codes or professors.", bundle: .module)
           )
         } else if viewModel.courses.isEmpty && viewModel.state != .loading {
           ContentUnavailableView.search(text: viewModel.searchKeyword)
@@ -35,7 +36,7 @@ struct LectureSearchView: View {
           searchResultView
         }
       }
-      .navigationTitle("Add to \"\(timetableDisplayName)\"")
+      .navigationTitle(String(localized: "Add to \"\(timetableDisplayName)\"", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .searchable(text: $viewModel.searchKeyword)
       .scrollDismissesKeyboard(.immediately)
@@ -102,7 +103,7 @@ struct LectureSearchView: View {
         .fontDesign(.rounded)
         .foregroundStyle(.secondary)
 
-      Text(lecture.professors.first?.name ?? String(localized: "Unknown"))
+      Text(lecture.professors.first?.name ?? String(localized: "Unknown", bundle: .module))
 
       Spacer()
     }
