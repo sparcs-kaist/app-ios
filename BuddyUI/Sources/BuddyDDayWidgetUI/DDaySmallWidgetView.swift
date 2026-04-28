@@ -91,7 +91,7 @@ public struct DDaySmallWidgetView: View {
 	}
 	
 	private var signInRequiredView: some View {
-		Text("Sign in to see upcoming classes.", bundle: .module)
+		Text("Sign in to check D-Day.", bundle: .module)
 			.multilineTextAlignment(.center)
 	}
 }
