@@ -189,7 +189,7 @@ struct BuddyUpcomingClassWidget: Widget {
     .supportedFamilies(
       [.accessoryRectangular, .accessoryInline, .accessoryCircular, .systemSmall]
     )
-    .configurationDisplayName("Upcoming Class")
+    .configurationDisplayName("Next Class")
     .description("Keep track of your classes.")
   }
 }
