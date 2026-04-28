@@ -24,21 +24,22 @@ public class TimetableService: TimetableServiceProtocol {
 
   public func setup() async throws {
 #if os(watchOS)
-    self.otlTimetableRepository = OTLTimetableRepository(
-      provider: MoyaProvider<OTLTimetableTarget>()
-    )
-    self.timetableUseCase = TimetableUseCaseBackground(
-      otlTimetableRepository: self.otlTimetableRepository!
-    )
+    configureTimetableUseCase()
 #else
-    guard let refreshToken = tokenStorage.getRefreshToken() else { return }
+    guard let refreshToken = tokenStorage.getRefreshToken() else {
+      configureTimetableUseCase()
+      return
+    }
 
     // refresh token
     self.authRepository = AuthRepository(provider: MoyaProvider<AuthTarget>())
     try await tokenRefresh(refreshToken)
 
     // access token
-    guard let accessToken = tokenStorage.getAccessToken() else { return }
+    guard let accessToken = tokenStorage.getAccessToken() else {
+      configureTimetableUseCase()
+      return
+    }
     let authPlugin = AccessTokenPlugin { _ in
       return accessToken
     }
@@ -51,10 +52,7 @@ public class TimetableService: TimetableServiceProtocol {
       provider: MoyaProvider<OTLTimetableTarget>(plugins: [authPlugin])
     )
     self.userUseCase = TimetableUserUseCase(otlUserRepository: self.otlUserRepository!)
-
-    self.timetableUseCase = TimetableUseCaseBackground(
-      otlTimetableRepository: self.otlTimetableRepository!
-    )
+    configureTimetableUseCase()
 #endif
   }
 
@@ -69,5 +67,19 @@ public class TimetableService: TimetableServiceProtocol {
 
     tokenStorage
       .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
+  }
+
+  private func configureTimetableUseCase() {
+    if self.otlTimetableRepository == nil {
+      self.otlTimetableRepository = OTLTimetableRepository(
+        provider: MoyaProvider<OTLTimetableTarget>()
+      )
+    }
+
+    if let otlTimetableRepository = self.otlTimetableRepository {
+      self.timetableUseCase = TimetableUseCaseBackground(
+        otlTimetableRepository: otlTimetableRepository
+      )
+    }
   }
 }
