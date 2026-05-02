@@ -11,6 +11,7 @@ import Observation
 import Synchronization
 import BuddyDomain
 import BuddyDataCore
+import WidgetKit
 
 @Observable
 public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
@@ -235,6 +236,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
 
       _isAuthenticatedSubject.value = true
       print("[AuthUseCase] Signed In")
+			WidgetCenter.shared.reloadAllTimelines()
       scheduleRefreshTimer() // set timer on success
     } catch {
       tokenStorage.clearTokens()
@@ -246,6 +248,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   }
 
   public func signOut() async throws {
+		WidgetCenter.shared.reloadAllTimelines()
     tokenStorage.clearTokens()
     _isAuthenticatedSubject.value = false
     cancelRefreshTimer()

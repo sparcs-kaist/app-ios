@@ -9,13 +9,14 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import WidgetKit
 
 @MainActor
 @Observable
 public final class TimetableViewModel {
   @ObservationIgnored @Injected(
     \.v2TimetableUseCase
-  ) private var v2TimetableUseCase: TimetableUseCaseProtocol?
+  ) private var timetableUseCase: TimetableUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.crashlyticsService
   ) private var crashlyticsService: CrashlyticsServiceProtocol?
@@ -78,7 +79,7 @@ public final class TimetableViewModel {
   public init() { }
 
   public func setup() async {
-    guard let timetableUseCase = v2TimetableUseCase else { return }
+    guard let timetableUseCase else { return }
 
     isLoading = true
     defer { isLoading = false }
@@ -97,7 +98,7 @@ public final class TimetableViewModel {
   }
 
   func addLecture(lecture: Lecture) async {
-    guard let timetableUseCase = v2TimetableUseCase,
+    guard let timetableUseCase,
           let selectedTimetableID else { return }
 
     do {
@@ -107,6 +108,7 @@ public final class TimetableViewModel {
       timetableLoadTask = Task {
         await loadTimetable()
       }
+			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
@@ -118,7 +120,7 @@ public final class TimetableViewModel {
   }
 
   func deleteLecture(lecture: Lecture) async {
-    guard let timetableUseCase = v2TimetableUseCase,
+    guard let timetableUseCase,
           let selectedTimetableID else { return }
 
     do {
@@ -128,6 +130,7 @@ public final class TimetableViewModel {
       timetableLoadTask = Task {
         await loadTimetable()
       }
+			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
@@ -139,7 +142,7 @@ public final class TimetableViewModel {
   }
 
   func loadTimetable() async {
-    guard let timetableUseCase = v2TimetableUseCase else { return }
+    guard let timetableUseCase else { return }
 
     do {
       let result: Timetable
@@ -156,6 +159,7 @@ public final class TimetableViewModel {
       try Task.checkCancellation()
 
       timetable = result
+			WidgetCenter.shared.reloadAllTimelines()
     } catch is CancellationError {
       // ignore
     } catch {
@@ -165,7 +169,7 @@ public final class TimetableViewModel {
   }
 
   func updateTimetableList() async {
-    guard let timetableUseCase = v2TimetableUseCase,
+    guard let timetableUseCase,
           let selectedSemester
     else { return }
 
@@ -183,7 +187,7 @@ public final class TimetableViewModel {
   }
 
   func renameTable(title: String) async {
-    guard let timetableUseCase = v2TimetableUseCase,
+    guard let timetableUseCase,
           let selectedTimetableID
     else { return }
 
@@ -201,6 +205,7 @@ public final class TimetableViewModel {
       timetableListTask = Task {
         await updateTimetableList()
       }
+			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
@@ -212,7 +217,7 @@ public final class TimetableViewModel {
   }
 
   func deleteTable() async {
-    guard let timetableUseCase = v2TimetableUseCase,
+    guard let timetableUseCase,
           let selectedTimetableID
     else { return }
 
@@ -227,6 +232,7 @@ public final class TimetableViewModel {
       timetableListTask = Task {
         await updateTimetableList()
       }
+			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
@@ -238,7 +244,7 @@ public final class TimetableViewModel {
   }
 
   func createTable() async {
-    guard let timetableUseCase = v2TimetableUseCase,
+    guard let timetableUseCase,
           let selectedSemester else { return }
 
     do {
@@ -249,6 +255,7 @@ public final class TimetableViewModel {
         await updateTimetableList()
         selectedTimetableID = creation.id
       }
+			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
