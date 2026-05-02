@@ -236,6 +236,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
 
       _isAuthenticatedSubject.value = true
       print("[AuthUseCase] Signed In")
+			WidgetCenter.shared.reloadAllTimelines()
       scheduleRefreshTimer() // set timer on success
     } catch {
       tokenStorage.clearTokens()
