@@ -164,17 +164,25 @@ public struct FeedView: View {
 // MARK: - Previews
 
 #Preview("Loading") {
-  FeedView(PreviewFeedViewModel(state: .loading, posts: FeedPost.mockList))
+  NavigationStack {
+    FeedView(PreviewFeedViewModel(state: .loading, posts: FeedPost.mockList))
+  }
 }
 
 #Preview("Loaded") {
-  FeedView(PreviewFeedViewModel(state: .loaded, posts: FeedPost.mockList))
+  NavigationStack {
+    FeedView(PreviewFeedViewModel(state: .loaded, posts: FeedPost.mockList))
+  }
 }
 
 #Preview("Error") {
-  FeedView(PreviewFeedViewModel(state: .error(message: "Something went wrong")))
+  NavigationStack {
+    FeedView(PreviewFeedViewModel(state: .error(message: "Something went wrong")))
+  }
 }
 
 #Preview("Empty") {
-  FeedView(PreviewFeedViewModel(state: .loaded, posts: []))
+  NavigationStack {
+    FeedView(PreviewFeedViewModel(state: .loaded, posts: []))
+  }
 }
