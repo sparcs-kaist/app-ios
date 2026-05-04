@@ -10,39 +10,39 @@ import NukeUI
 import BuddyDomain
 
 struct FeedLazyImage: View {
-  private let hPadding: CGFloat = 16 // match your .padding(.horizontal, 16)
-  @State private var parentWidth: CGFloat = 0
-
   let item: FeedImage
+  let maxWidth: CGFloat
+  let maxHeight: CGFloat
+  let onTap: () -> Void
+
   @Environment(SpoilerContents.self) private var spoilerContents
-  
+
+  private let minWidth: CGFloat = 100
+  private let placeholderAspect: CGFloat = 4.0 / 3.0
+
   var body: some View {
-    // Fallback to screen width until we read the actual width
-    let pw = parentWidth > 0 ? parentWidth : CGFloat.screenWidth
-    let contentWidth = max(0, pw - hPadding * 2)
-    let maxW = contentWidth
-    let minW: CGFloat = 100
-    let height = maxW * 3 / 4
-    
-    return LazyImage(url: item.url) { state in
+    LazyImage(url: item.url) { state in
       Group {
         if let swiftUIImage = state.image {
           // Try to get the real pixel size to decide fit vs fill
           let pixelSize = state.imageContainer?.image.size ?? .zero
-          let aspect = pixelSize.height > 0 ? pixelSize.width / pixelSize.height : 16.0 / 9.0
-          let fitWidth = height * aspect
-          let clampedWidth = min(max(fitWidth, minW), maxW)
-          let shouldFill = !(minW...maxW).contains(fitWidth)
+          let aspect = pixelSize.height > 0 ? pixelSize.width / pixelSize.height : placeholderAspect
+          let cell = fitSize(aspect: aspect)
+          let imageWidth = min(cell.width, cell.height * aspect)
 
           swiftUIImage
             .resizable()
-            .aspectRatio(contentMode: shouldFill ? .fill : .fit)
-            .frame(width: clampedWidth, height: height)
-            .clipped()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: imageWidth, height: cell.height)
+            .background(Color(.systemBackground))
+            .frame(width: cell.width, height: cell.height)
+            .background(Color(.secondarySystemBackground))
         } else if state.error != nil {
-          Placeholder(width: minW, height: height, systemImage: "exclamationmark.triangle")
+          let size = fitSize(aspect: placeholderAspect)
+          Placeholder(width: size.width, height: size.height, systemImage: "exclamationmark.triangle")
         } else {
-          Placeholder(width: minW, height: height)
+          let size = fitSize(aspect: placeholderAspect)
+          Placeholder(width: size.width, height: size.height)
             .redacted(reason: .placeholder)
         }
       }
@@ -51,13 +51,31 @@ struct FeedLazyImage: View {
           Rectangle()
             .fill(.ultraThinMaterial)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onTapGesture {
-              withAnimation(.easeInOut(duration: 0.3)) {
-                spoilerContents.add(item.id)
-              }
-            }
         }
       }
+      .contentShape(.rect)
+      .highPriorityGesture(
+        TapGesture().onEnded {
+          if item.spoiler == true && !spoilerContents.contains(item.id) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+              spoilerContents.add(item.id)
+            }
+          } else {
+            onTap()
+          }
+        }
+      )
+    }
+  }
+
+  private func fitSize(aspect: CGFloat) -> CGSize {
+    let naturalHeight = maxWidth / aspect
+    if naturalHeight <= maxHeight {
+      return CGSize(width: maxWidth, height: naturalHeight)
+    } else {
+      let height = maxHeight
+      let width = max(minWidth, height * aspect)
+      return CGSize(width: width, height: height)
     }
   }
 }
@@ -80,4 +98,3 @@ private struct Placeholder: View {
     .frame(width: width, height: height)
   }
 }
-
