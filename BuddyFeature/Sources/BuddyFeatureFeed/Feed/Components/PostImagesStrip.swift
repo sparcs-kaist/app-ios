@@ -11,26 +11,33 @@ import BuddyDomain
 struct PostImagesStrip: View {
   let images: [FeedImage]
   private let hPadding: CGFloat = 16 // match your .padding(.horizontal, 16)
+  private let maxImageHeight: CGFloat = 400
 
   @State private var parentWidth: CGFloat = 0
+  @State private var selectedImage: FeedImage?
 
   var body: some View {
     // Fallback to screen width until we read the actual width
     let pw = parentWidth > 0 ? parentWidth : CGFloat.screenWidth
     let contentWidth = max(0, pw - hPadding * 2)
-    let maxW = contentWidth
-    let height = maxW * 3 / 4
     
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 12) {
         ForEach(images) { item in
-          FeedLazyImage(item: item)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+          FeedLazyImage(
+            item: item,
+            maxWidth: contentWidth,
+            maxHeight: maxImageHeight,
+            onTap: { selectedImage = item }
+          )
+          .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
       }
       .padding(.horizontal, hPadding)
     }
-    .frame(height: height)                 // fixes row height to 16:9 of parent width (minus padding)
-    .measureWidth { parentWidth = $0 }     // read parent width
+    .measureWidth { parentWidth = $0 }
+    .fullScreenCover(item: $selectedImage) { item in
+      FullScreenImageViewer(url: item.url)
+    }
   }
 }
