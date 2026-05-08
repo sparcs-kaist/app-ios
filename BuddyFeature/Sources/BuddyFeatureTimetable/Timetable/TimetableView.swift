@@ -61,6 +61,11 @@ public struct TimetableView: View {
             .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
             .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
             .frame(height: reader.size.height * 0.8)
+						
+						LectureList(lectures: viewModel.timetable?.lectures)
+							.padding()
+							.background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+							.glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
 
             TimetableCreditGraph(selectedTimetable: viewModel.timetable)
               .padding()

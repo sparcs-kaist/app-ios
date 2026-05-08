@@ -27,6 +27,10 @@ public struct LectureClass: Hashable, Sendable, Codable {
     }
     return "\(formatTime(begin))-\(formatTime(end))"
   }
+	
+	public var location: String {
+		"\(buildingCode) \(roomName)"
+	}
 
   public func statusString(at now: Date) -> String {
     let calendar = Calendar.current

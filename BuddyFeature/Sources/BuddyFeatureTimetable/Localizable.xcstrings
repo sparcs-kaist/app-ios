@@ -837,6 +837,9 @@
         }
       }
     },
+    "There is no lecture for this timetable." : {
+
+    },
     "There was an error. Please try again later." : {
       "localizations" : {
         "en" : {
