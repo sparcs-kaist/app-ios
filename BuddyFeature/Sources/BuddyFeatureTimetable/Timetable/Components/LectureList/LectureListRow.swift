@@ -1,40 +1,17 @@
 //
-//  LectureList.swift
+//  LectureListRow.swift
 //  BuddyFeature
 //
-//  Created by Soongyu Kwon on 5/8/26.
+//  Created by Soongyu Kwon on 5/9/26.
 //
 
 import SwiftUI
 import BuddyDomain
 
-struct LectureList: View {
-	let lectures: [Lecture]?
+struct LectureListRow: View {
+	let lecture: Lecture
 	
 	var body: some View {
-		VStack(alignment: .leading) {
-			Text("^[\(lectures?.count ?? 0) Lecture](inflect: true)")
-				.font(.title3)
-				.fontWeight(.bold)
-			
-			if let lectures, !lectures.isEmpty {
-				ForEach(Array(lectures.enumerated()), id: \.element.id) { index, lecture in
-					
-					makeRow(lecture: lecture)
-					
-					if index != lectures.count - 1 {
-						Divider()
-							.padding(.leading, 20)
-					}
-				}
-			} else {
-				Text("There is no lecture for this timetable.")
-					.frame(maxWidth: .infinity)
-			}
-		}
-	}
-	
-	func makeRow(lecture: Lecture) -> some View {
 		HStack(alignment: .center) {
 			Circle()
 				.frame(width: 12, height: 12)
@@ -66,7 +43,7 @@ struct LectureList: View {
 		}
 	}
 	
-	func makeLabel(_ text: String, systemImage: String) -> some View {
+	private func makeLabel(_ text: String, systemImage: String) -> some View {
 		HStack(alignment: .center, spacing: 4) {
 			Image(systemName: systemImage)
 			Text(text)
@@ -74,7 +51,7 @@ struct LectureList: View {
 		}
 	}
 	
-	func creditLabel(credits: Int, label: String) -> some View {
+	private func creditLabel(credits: Int, label: String) -> some View {
 		HStack(alignment: .bottom, spacing: 2) {
 			Text("\(credits)")
 				.fontDesign(.rounded)
@@ -84,9 +61,4 @@ struct LectureList: View {
 				.font(.caption)
 		}
 	}
-}
-
-
-#Preview {
-	LectureList(lectures: Lecture.mockList)
 }
