@@ -59,6 +59,7 @@ struct LectureListRow: View {
 			
 			Text(label)
 				.font(.caption)
+				.offset(y: -1)
 		}
 	}
 }
