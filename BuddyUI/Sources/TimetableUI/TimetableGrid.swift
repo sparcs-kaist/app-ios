@@ -56,6 +56,7 @@ public struct TimetableGrid: View {
                 .frame(height: getHeight(for: item, in: geometry.size, of: selectedTimetable))
                 .offset(y: getOffset(for: item, in: geometry.size, of: selectedTimetable))
                 .transition(.scale.combined(with: .opacity))
+								.contentShape(.rect)
                 .onTapGesture {
                   Haptic.selection.generate()
                   selectedLecture?(item)
