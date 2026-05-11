@@ -18,6 +18,34 @@
     "%lld" : {
       "shouldTranslate" : false
     },
+    "%lld Lectures" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Lecture"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Lectures"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개의 강의"
+          }
+        }
+      }
+    },
     "A" : {
       "shouldTranslate" : false
     },
@@ -838,7 +866,20 @@
       }
     },
     "There is no lecture for this timetable." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is no lecture for this timetable."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 시간표에는 강의가 없습니다."
+          }
+        }
+      }
     },
     "There was an error. Please try again later." : {
       "localizations" : {

@@ -14,7 +14,7 @@ struct LectureList: View {
 	
 	var body: some View {
 		VStack(alignment: .leading) {
-			Text("^[\(lectures?.count ?? 0) Lecture](inflect: true)")
+			Text("\(lectures?.count ?? 0) Lectures", bundle: .module)
 				.font(.title3)
 				.fontWeight(.bold)
 			
@@ -35,7 +35,7 @@ struct LectureList: View {
 					}
 				}
 			} else {
-				Text("There is no lecture for this timetable.")
+				Text("There is no lecture for this timetable.", bundle: .module)
 					.padding()
 					.frame(maxWidth: .infinity)
 			}
