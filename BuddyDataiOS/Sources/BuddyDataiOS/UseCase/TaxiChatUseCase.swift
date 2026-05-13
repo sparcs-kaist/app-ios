@@ -62,15 +62,19 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
 
   public func fetchInitialChats() async {
     guard !hasInitialChatsBeenFetched, let room else { return }
-    guard let taxiChatRepository else { return }
-
-    hasInitialChatsBeenFetched = true
+    guard let taxiChatRepository, let taxiChatService else { return }
 
     bind()
 
+    guard await taxiChatService.ensureConnectedWithLatestToken() else {
+      return
+    }
+
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id)
+      hasInitialChatsBeenFetched = true
     } catch {
+      hasInitialChatsBeenFetched = false
       print(error)
     }
   }
