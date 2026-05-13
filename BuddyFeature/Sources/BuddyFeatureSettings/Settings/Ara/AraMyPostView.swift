@@ -17,8 +17,8 @@ struct AraMyPostView: View {
   @State private var loadedInitialPosts: Bool = false
   @State private var selectedPost: AraPost?
   
-  init(user: AraUser?, type: AraMyPostViewModel.PostType = .all) {
-    _vm = State(initialValue: AraMyPostViewModel(user: user, type: type))
+  init(type: AraMyPostViewModel.PostType = .all) {
+    _vm = State(initialValue: AraMyPostViewModel(type: type))
   }
   
   var body: some View {
@@ -71,7 +71,10 @@ struct AraMyPostView: View {
       }
     }
     .task {
-      await vm.fetchInitialPosts()
+      if !loadedInitialPosts {
+        await vm.fetchInitialPosts()
+        loadedInitialPosts = true
+      }
     }
   }
   
@@ -99,4 +102,8 @@ struct AraMyPostView: View {
         }
     }
   }
+}
+
+#Preview {
+  AraMyPostView()
 }

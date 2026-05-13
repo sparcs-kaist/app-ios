@@ -105,13 +105,13 @@ struct AraSettingsView: View {
       Section(header: Text("Posts", bundle: .module)){
         NavigationLink(
           String(localized: "My Posts", bundle: .module),
-          destination: AraMyPostView(user: vm.user, type: .all)
+          destination: AraMyPostView(type: .all)
             .navigationTitle(String(localized: "My Posts", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
         )
         NavigationLink(
           String(localized: "Bookmarked Posts", bundle: .module),
-          destination: AraMyPostView(user: vm.user, type: .bookmark)
+          destination: AraMyPostView(type: .bookmark)
             .navigationTitle(String(localized: "Bookmarked Posts", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
         )

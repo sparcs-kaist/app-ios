@@ -15,12 +15,12 @@ protocol AraMyPostViewModelProtocol: Observable {
   var posts: [AraPost] { get }
   var state: AraMyPostViewModel.ViewState { get }
   var type: AraMyPostViewModel.PostType { get set }
-  var user: AraUser? { get }
   
   var searchKeyword: String { get set }
   var isLoadingMore: Bool { get }
   
   func bind()
+  func fetchUserIfNeeded() async
   func fetchInitialPosts() async
   func loadNextPage() async
   func refreshItem(postID: Int)
@@ -40,11 +40,12 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   }
   
   @ObservationIgnored @Injected(\.araBoardUseCase) private var araBoardUseCase: AraBoardUseCaseProtocol?
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   var posts: [AraPost] = []
   var state: ViewState = .loading
   var type: PostType = .all
-  var user: AraUser?
+  private var user: AraUser?
   
   // Search Properties
   var searchKeyword: String = "" {
@@ -62,9 +63,15 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   var totalPages: Int = 0
   var pageSize: Int = 30
   
-  init(user: AraUser?, type: PostType) {
-    self.user = user
+  init(type: PostType) {
     self.type = type
+  }
+
+  func fetchUserIfNeeded() async {
+    guard user == nil, type == .all else { return }
+    guard let userUseCase else { return }
+
+    user = await userUseCase.araUser
   }
   
   func bind() {
@@ -93,13 +100,18 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   }
   
   func fetchInitialPosts() async {
-    guard let user = user else { return }
     guard let araBoardUseCase else { return }
+    await fetchUserIfNeeded()
+    guard type == .bookmark || user != nil else {
+      state = .error(message: "Ara User Information Not Found. ")
+      return
+    }
 
     do {
       var page: AraPostPage
       switch self.type {
       case .all:
+        guard let user else { return }
         page = try await araBoardUseCase.fetchPosts(
           type: .user(userID: user.id),
           page: 1,
@@ -123,9 +135,13 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   }
   
   func loadNextPage() async {
-    guard let user = user else { return }
     guard !isLoadingMore && hasMorePages else { return }
     guard let araBoardUseCase else { return }
+    await fetchUserIfNeeded()
+    guard type == .bookmark || user != nil else {
+      state = .error(message: "Ara User Information Not Found. ")
+      return
+    }
 
     isLoadingMore = true
     
@@ -134,6 +150,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
       var page: AraPostPage
       switch self.type {
       case .all:
+        guard let user else { return }
         page = try await araBoardUseCase.fetchPosts(
           type: .user(userID: user.id),
           page: nextPage,
