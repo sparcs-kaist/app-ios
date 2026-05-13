@@ -16,33 +16,21 @@ struct FeedLazyImage: View {
   let onTap: () -> Void
 
   @Environment(SpoilerContents.self) private var spoilerContents
-
-  private let minWidth: CGFloat = 100
-  private let placeholderAspect: CGFloat = 4.0 / 3.0
-
+  
   var body: some View {
     LazyImage(url: item.url) { state in
       Group {
         if let swiftUIImage = state.image {
-          // Try to get the real pixel size to decide fit vs fill
-          let pixelSize = state.imageContainer?.image.size ?? .zero
-          let aspect = pixelSize.height > 0 ? pixelSize.width / pixelSize.height : placeholderAspect
-          let cell = fitSize(aspect: aspect)
-          let imageWidth = min(cell.width, cell.height * aspect)
-
           swiftUIImage
             .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: imageWidth, height: cell.height)
-            .background(Color(.systemBackground))
+            .aspectRatio(contentMode: .fill)
             .frame(width: cell.width, height: cell.height)
+            .clipped()
             .background(Color(.secondarySystemBackground))
         } else if state.error != nil {
-          let size = fitSize(aspect: placeholderAspect)
-          Placeholder(width: size.width, height: size.height, systemImage: "exclamationmark.triangle")
+          Placeholder(width: cell.width, height: cell.height, systemImage: "exclamationmark.triangle")
         } else {
-          let size = fitSize(aspect: placeholderAspect)
-          Placeholder(width: size.width, height: size.height)
+          Placeholder(width: cell.width, height: cell.height)
             .redacted(reason: .placeholder)
         }
       }
@@ -67,16 +55,9 @@ struct FeedLazyImage: View {
       )
     }
   }
-
-  private func fitSize(aspect: CGFloat) -> CGSize {
-    let naturalHeight = maxWidth / aspect
-    if naturalHeight <= maxHeight {
-      return CGSize(width: maxWidth, height: naturalHeight)
-    } else {
-      let height = maxHeight
-      let width = max(minWidth, height * aspect)
-      return CGSize(width: width, height: height)
-    }
+  
+  private var cell: CGSize {
+    CGSize(width: maxWidth, height: maxHeight)
   }
 }
 
