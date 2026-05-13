@@ -23,6 +23,8 @@ struct CreditView: View {
     양채빈(yatcha)
     서인성(cheese)
     임가은(casio)
+    이준엽(orca)
+    박찬혁(bonk)
     """
 
   var body: some View {
