@@ -36,7 +36,7 @@ struct FeedSettingsView: View {
       }
     }
     .analyticsScreen(name: "Feed Settings", class: String(describing: Self.self))
-    .disabled(viewModel.isUpdatingProfile)
+    .disabled(viewModel.state != .loaded || viewModel.isUpdatingProfile)
     .task {
       await viewModel.fetchUser()
     }
@@ -56,7 +56,7 @@ struct FeedSettingsView: View {
             Image(systemName: "checkmark")
           }
         })
-        .disabled(!editButtonEnabled || viewModel.isUpdatingProfile)
+        .disabled(viewModel.state != .loaded || !editButtonEnabled || viewModel.isUpdatingProfile)
       })
     }
     .alert(
@@ -145,7 +145,7 @@ struct FeedSettingsView: View {
       .fill(Color.secondarySystemGroupedBackground)
       .frame(width: 200, height: 200)
       .overlay {
-        Image(systemName: "exclamationmark.triangle.fill")
+        Text(verbatim: "⚠️")
           .font(.largeTitle)
       }
   }

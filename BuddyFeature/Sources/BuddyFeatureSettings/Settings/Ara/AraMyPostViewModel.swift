@@ -7,44 +7,18 @@
 
 import Foundation
 import Combine
+import Observation
 import Factory
 import BuddyDomain
 
-@MainActor
-protocol AraMyPostViewModelProtocol: Observable {
-  var posts: [AraPost] { get }
-  var state: AraMyPostViewModel.ViewState { get }
-  var type: AraMyPostViewModel.PostType { get set }
-  
-  var searchKeyword: String { get set }
-  var isLoadingMore: Bool { get }
-  
-  func bind()
-  func fetchUserIfNeeded() async
-  func fetchInitialPosts() async
-  func loadNextPage() async
-  func refreshItem(postID: Int)
-}
-
 @Observable
 class AraMyPostViewModel: AraMyPostViewModelProtocol {
-  enum ViewState: Equatable {
-    case loading
-    case loaded(posts: [AraPost])
-    case error(message: String)
-  }
-  
-  enum PostType: String, CaseIterable {
-    case all = "All"
-    case bookmark = "Bookmarked"
-  }
-  
   @ObservationIgnored @Injected(\.araBoardUseCase) private var araBoardUseCase: AraBoardUseCaseProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
   var posts: [AraPost] = []
-  var state: ViewState = .loading
-  var type: PostType = .all
+  var state: AraMyPostViewState = .loading
+  var type: AraMyPostType = .all
   private var user: AraUser?
   
   // Search Properties
@@ -63,7 +37,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   var totalPages: Int = 0
   var pageSize: Int = 30
   
-  init(type: PostType) {
+  init(type: AraMyPostType) {
     self.type = type
   }
 

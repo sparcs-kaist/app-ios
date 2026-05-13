@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import BuddyPreviewSupport
 import FirebaseAnalytics
 import BuddyFeatureShared
 import BuddyFeaturePost
@@ -17,8 +18,13 @@ struct AraMyPostView: View {
   @State private var loadedInitialPosts: Bool = false
   @State private var selectedPost: AraPost?
   
-  init(type: AraMyPostViewModel.PostType = .all) {
+  init(type: AraMyPostType = .all) {
     _vm = State(initialValue: AraMyPostViewModel(type: type))
+  }
+
+  init(vm: AraMyPostViewModelProtocol) {
+    _vm = State(initialValue: vm)
+    _loadedInitialPosts = State(initialValue: true)
   }
   
   var body: some View {
@@ -30,6 +36,7 @@ struct AraMyPostView: View {
         bookmarkedPostView
       }
     }
+    .disabled(!isLoaded)
     .analyticsScreen(name: "Ara My Post", class: String(describing: Self.self))
   }
   
@@ -102,8 +109,39 @@ struct AraMyPostView: View {
         }
     }
   }
+
+  private var isLoaded: Bool {
+    if case .loaded = vm.state {
+      return true
+    }
+    return false
+  }
 }
 
-#Preview {
-  AraMyPostView()
+#Preview("My Posts") {
+  NavigationStack {
+    AraMyPostView(vm: PreviewAraMyPostViewModel(type: .all))
+      .navigationTitle(String(localized: "My Posts", bundle: .module))
+      .navigationBarTitleDisplayMode(.inline)
+  }
+}
+
+#Preview("Bookmarked Posts") {
+  NavigationStack {
+    AraMyPostView(vm: PreviewAraMyPostViewModel(type: .bookmark))
+      .navigationTitle(String(localized: "Bookmarked Posts", bundle: .module))
+      .navigationBarTitleDisplayMode(.inline)
+  }
+}
+
+#Preview("Loading State") {
+  NavigationStack {
+    AraMyPostView(vm: PreviewAraMyPostViewModel(type: .all, state: .loading))
+  }
+}
+
+#Preview("Error State") {
+  NavigationStack {
+    AraMyPostView(vm: PreviewAraMyPostViewModel(type: .all, state: .error(message: "Network error")))
+  }
 }

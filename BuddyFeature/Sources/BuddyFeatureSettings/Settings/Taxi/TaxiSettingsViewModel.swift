@@ -9,30 +9,8 @@ import Foundation
 import Factory
 import BuddyDomain
 
-@MainActor
-protocol TaxiSettingsViewModelProtocol: Observable {
-  var nickname: String { get set }
-  var bankName: String? { get set }
-  var bankNumber: String { get set }
-  var phoneNumber: String { get set }
-  var showBadge: Bool { get set }
-  var showAlert: Bool { get set }
-  var alertContent: LocalizedStringResource { get set }
-  var user: TaxiUser? { get }
-  var state: TaxiSettingsViewModel.ViewState { get }
-  
-  func fetchUser() async
-  func editInformation() async
-}
-
 @Observable
 class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
-  enum ViewState: Equatable {
-    case loading
-    case loaded
-    case error(message: LocalizedStringResource)
-  }
-  
   enum ErrorType {
     case fetch
     case bank
@@ -55,7 +33,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
   var showAlert: Bool = false
   var alertContent: LocalizedStringResource = ""
   var user: TaxiUser?
-  var state: ViewState = .loading
+  var state: TaxiSettingsViewState = .loading
 
   // MARK: - Functions
   func fetchUser() async {

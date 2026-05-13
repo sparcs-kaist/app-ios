@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import BuddyPreviewSupport
 import FirebaseAnalytics
 
 struct TaxiReportListView: View {
@@ -36,13 +37,15 @@ struct TaxiReportListView: View {
           case .error(let message):
           ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
-      }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
+      }
+      .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
     .padding()
     .background(Color.secondarySystemBackground)
     .task {
       await vm.fetchReports()
     }
+    .disabled(vm.state != .loaded)
     .analyticsScreen(name: "Taxi Report List", class: String(describing: Self.self))
   }
   
@@ -75,26 +78,17 @@ struct TaxiReportListView: View {
       }
     }
   }
+
 }
 
-//#Preview("Loading State") {
-//  let vm = MockTaxiReportDetailViewModel()
-//  vm.state = .loading
-//  
-//  return TaxiReportListView(vm: vm)
-//}
-//
-//#Preview("Loaded State") {
-//  let vm = MockTaxiReportDetailViewModel()
-//  vm.reports = (incoming: TaxiReport.mockList, outgoing: TaxiReport.mockList)
-//  vm.state = .loaded
-//  
-//  return TaxiReportListView(vm: vm)
-//}
-//
-//#Preview("Error State") {
-//  let vm = MockTaxiReportDetailViewModel()
-//  vm.state = .error(message: "Network error")
-//  
-//  return TaxiReportListView(vm: vm)
-//}
+#Preview("Loading State") {
+  TaxiReportListView(vm: PreviewTaxiReportListViewModel(state: .loading))
+}
+
+#Preview("Loaded State") {
+  TaxiReportListView(vm: PreviewTaxiReportListViewModel(state: .loaded))
+}
+
+#Preview("Error State") {
+  TaxiReportListView(vm: PreviewTaxiReportListViewModel(state: .error(message: "Network error")))
+}

@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import BuddyPreviewSupport
 import BuddyFeatureShared
 import FirebaseAnalytics
 
@@ -41,6 +42,7 @@ struct TaxiSettingsView: View {
         vm.showBadge = true // showBadge defaults to true for users without a registered phone number
       }
     }
+    .disabled(vm.state != .loaded)
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Button(String(localized: "Done", bundle: .module), systemImage: "checkmark", role: .confirm) {
@@ -53,7 +55,7 @@ struct TaxiSettingsView: View {
             dismiss()
           }
         }
-        .disabled(!isValid)
+        .disabled(vm.state != .loaded || !isValid)
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
@@ -216,31 +218,20 @@ struct TaxiSettingsView: View {
   }
 }
 
-//#Preview("Loading State") {
-//  let vm = MockTaxiSettingsViewModel()
-//  vm.state = .loading
-//  
-//  return NavigationStack {
-//    TaxiSettingsView(vm: vm)
-//  }
-//}
-//
-//#Preview("Loaded State") {
-//  let vm = MockTaxiSettingsViewModel()
-//  vm.state = .loaded
-//  vm.bankName = String(vm.user!.account.split(separator: " ").first!)
-//  vm.bankNumber = String(vm.user!.account.split(separator: " ").last!)
-//  
-//  return NavigationStack {
-//    TaxiSettingsView(vm: vm)
-//  }
-//}
-//
-//#Preview("Error State") {
-//  let vm = MockTaxiSettingsViewModel()
-//  vm.state = .error(message: "Network error")
-//  
-//  return NavigationStack {
-//    TaxiSettingsView(vm: vm)
-//  }
-//}
+#Preview("Loading State") {
+  NavigationStack {
+    TaxiSettingsView(vm: PreviewTaxiSettingsViewModel(state: .loading))
+  }
+}
+
+#Preview("Loaded State") {
+  NavigationStack {
+    TaxiSettingsView(vm: PreviewTaxiSettingsViewModel(state: .loaded))
+  }
+}
+
+#Preview("Error State") {
+  NavigationStack {
+    TaxiSettingsView(vm: PreviewTaxiSettingsViewModel(state: .error(message: "Network error")))
+  }
+}

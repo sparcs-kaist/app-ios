@@ -10,23 +10,9 @@ import Factory
 import BuddyDomain
 
 @MainActor
-protocol TaxiReportListViewModelProtocol: Observable {
-  var state: TaxiReportListViewModel.ViewState { get set }
-  var reports: (incoming: [TaxiReport], outgoing: [TaxiReport]) { get set }
-  
-  func fetchReports() async
-}
-
-@MainActor
 class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
-  enum ViewState {
-    case loading
-    case loaded
-    case error(message: String)
-  }
-  
   // MARK: - Properties
-  var state: ViewState = .loading
+  var state: TaxiReportListViewState = .loading
   var reports: (incoming: [TaxiReport], outgoing: [TaxiReport]) = (incoming: [], outgoing: [])
   
   // MARK: - Dependencies

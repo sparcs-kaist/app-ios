@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import BuddyPreviewSupport
 import FirebaseAnalytics
 
 struct AraSettingsView: View {
@@ -33,6 +34,7 @@ struct AraSettingsView: View {
     .task {
       await vm.fetchUser()
     }
+    .disabled(vm.state != .loaded)
     .onChange(of: [vm.allowNSFW, vm.allowPolitical]) {
       Task {
         await vm.updateContentPreference()
@@ -130,32 +132,20 @@ struct AraSettingsView: View {
   }
 }
 
-//#Preview("Loading State") {
-//  let vm = MockAraSettingsViewModel()
-//  vm.state = .loading
-//  
-//  return NavigationStack {
-//    AraSettingsView(vm: vm)
-//  }
-//}
-//
-//#Preview("Loaded State") {
-//  let vm = MockAraSettingsViewModel()
-//  vm.state = .loaded
-//  vm.nickname = "오열하는 운영체제 및 실험"
-//  vm.allowNSFW = false
-//  vm.allowPolitical = true
-//  
-//  return NavigationStack {
-//    AraSettingsView(vm: vm)
-//  }
-//}
-//
-//#Preview("Error State") {
-//  let vm = MockAraSettingsViewModel()
-//  vm.state = .error(message: "Network error")
-//  
-//  return NavigationStack {
-//    AraSettingsView(vm: vm)
-//  }
-//}
+#Preview("Loading State") {
+  NavigationStack {
+    AraSettingsView(vm: PreviewAraSettingsViewModel(state: .loading))
+  }
+}
+
+#Preview("Loaded State") {
+  NavigationStack {
+    AraSettingsView(vm: PreviewAraSettingsViewModel(state: .loaded))
+  }
+}
+
+#Preview("Error State") {
+  NavigationStack {
+    AraSettingsView(vm: PreviewAraSettingsViewModel(state: .error(message: "Network error")))
+  }
+}

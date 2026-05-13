@@ -5,35 +5,13 @@
 //  Created by 하정우 on 8/28/25.
 //
 
-import SwiftUI
-import Combine
+import Foundation
 import Observation
 import Factory
 import BuddyDomain
 
-@MainActor
-protocol AraSettingsViewModelProtocol: Observable {
-  var user: AraUser? { get }
-  var allowNSFW: Bool { get set }
-  var allowPolitical: Bool { get set }
-  var nickname: String { get set }
-  var nicknameUpdatable: Bool { get }
-  var nicknameUpdatableFrom: Date? { get }
-  var state: AraSettingsViewModel.ViewState { get }
-  
-  func fetchUser() async
-  func updateNickname() async throws
-  func updateContentPreference() async
-}
-
 @Observable
 class AraSettingsViewModel: AraSettingsViewModelProtocol {
-  enum ViewState: Equatable {
-    case loading
-    case loaded
-    case error(message: String)
-  }
-  
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
@@ -54,7 +32,7 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     }
     return nil
   }
-  var state: ViewState = .loading
+  var state: AraSettingsViewState = .loading
   
   // MARK: - Functions
   func fetchUser() async {
