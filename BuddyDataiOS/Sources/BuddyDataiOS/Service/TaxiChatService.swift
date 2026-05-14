@@ -44,6 +44,11 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
 
   // MARK: - State
   private var hasAttemptedReconnect: Bool = false
+  private var shouldReconnectAfterDisconnect: Bool = true
+  
+  // prevent connection loss on token refresh
+  private var connectedToken: String?
+  private var connectingToken: String?
 
   // MARK: - Dependency
   private let tokenStorage: TokenStorageProtocol
@@ -53,21 +58,15 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
   // MARK: - Initialiser
   public init(tokenStorage: TokenStorageProtocol) {
     self.tokenStorage = tokenStorage
+    let accessToken = self.tokenStorage.getAccessToken()
 
     self.manager = SocketManager(
       socketURL: BackendURL.taxiSocketURL,
-      config: [
-        .log(false),
-        .compress,
-        .forceWebsockets(true),
-        .extraHeaders([
-          "Origin": "taxi.sparcs.org",
-          "Authorization": "Bearer \(self.tokenStorage.getAccessToken() ?? "")"
-        ])
-      ]
+      config: Self.socketConfig(accessToken: accessToken)
     )
 
     self.socket = self.manager.defaultSocket
+    self.connectingToken = accessToken
 
     setupSocketEvents()
 
@@ -79,31 +78,60 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
   }
 
   public func disconnect() {
+    shouldReconnectAfterDisconnect = false
+    connectedToken = nil
+    connectingToken = nil
+    isConnected = false
     socket.disconnect()
   }
 
   public func reconnect() {
+    let accessToken = tokenStorage.getAccessToken()
+    guard accessToken?.isEmpty == false else {
+      disconnect()
+      return
+    }
+
+    connectedToken = nil
+    connectingToken = accessToken
+    isConnected = false
+    shouldReconnectAfterDisconnect = false
     socket.disconnect()
-    manager.config = [
-      .log(false),
-      .compress,
-      .forceWebsockets(true),
-      .extraHeaders([
-        "Origin": "taxi.sparcs.org",
-        "Authorization": "Bearer \(tokenStorage.getAccessToken() ?? "")"
-      ])
-    ]
+    manager.config = Self.socketConfig(accessToken: accessToken)
     socket.connect()
+  }
+
+  public func ensureConnectedWithLatestToken() async -> Bool {
+    guard let accessToken = tokenStorage.getAccessToken(), !accessToken.isEmpty else {
+      disconnect()
+      return false
+    }
+
+    if isConnected, connectedToken == accessToken {
+      return true
+    }
+
+    reconnect()
+
+    return await waitUntilConnected(with: accessToken)
   }
 
   private func setupSocketEvents() {
     socket.on(clientEvent: .connect) { _, _ in
       self.hasAttemptedReconnect = false
+      self.shouldReconnectAfterDisconnect = true
+      self.connectedToken = self.connectingToken
       self.isConnected = true
     }
 
     socket.on(clientEvent: .disconnect) { _, _ in
       self.isConnected = false
+      self.connectedToken = nil
+
+      guard self.shouldReconnectAfterDisconnect else {
+        self.shouldReconnectAfterDisconnect = true
+        return
+      }
 
       if !self.hasAttemptedReconnect {
         self.hasAttemptedReconnect = true
@@ -171,5 +199,31 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
     } catch {
       return []
     }
+  }
+
+  private func waitUntilConnected(with accessToken: String, timeoutSeconds: UInt64 = 5) async -> Bool {
+    let deadline = Date().addingTimeInterval(TimeInterval(timeoutSeconds))
+
+    while Date() < deadline {
+      if isConnected, connectedToken == accessToken {
+        return true
+      }
+
+      try? await Task.sleep(nanoseconds: 100_000_000)
+    }
+
+    return isConnected && connectedToken == accessToken
+  }
+
+  private static func socketConfig(accessToken: String?) -> SocketIOClientConfiguration {
+    [
+      .log(false),
+      .compress,
+      .forceWebsockets(true),
+      .extraHeaders([
+        "Origin": "taxi.sparcs.org",
+        "Authorization": "Bearer \(accessToken ?? "")"
+      ])
+    ]
   }
 }
