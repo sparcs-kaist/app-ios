@@ -31,7 +31,9 @@ public final class AraBoardRepository: AraBoardRepositoryProtocol, @unchecked Se
     }
 
     let response = try await provider.request(.fetchBoards)
-    let boards: [AraBoard] = try response.map([AraBoardDTO].self).compactMap { $0.toModel() }
+    let boards: [AraBoard] = try response.map([AraBoardDTO].self)
+      .compactMap { $0.toModel() }
+      .filter { !$0.slug.contains("internal") } // FIXME: temporary workaround for filtering internal board
 
     cacheLock.withLock { self.cachedBoards = boards }
     return boards

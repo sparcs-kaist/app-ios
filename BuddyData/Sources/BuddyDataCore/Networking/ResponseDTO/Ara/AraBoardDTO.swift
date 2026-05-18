@@ -14,7 +14,7 @@ public struct AraBoardDTO: Codable {
   public let koName: String
   public let enName: String
   public let isReadOnly: Bool
-  public let group: AraBoardGroupDTO
+  public let group: AraBoardGroupDTO?
   public let topics: [AraBoardTopicDTO]?
   public let userReadable: Bool?
   public let userWritable: Bool?
@@ -35,14 +35,16 @@ public struct AraBoardDTO: Codable {
 
 public extension AraBoardDTO {
   func toModel() -> AraBoard {
-    AraBoard(
+    let name = LocalizedString([
+      "ko": koName,
+      "en": enName
+    ])
+
+    return AraBoard(
       id: id,
       slug: slug,
-      name: LocalizedString([
-        "ko": koName,
-        "en": enName
-      ]),
-      group: group.toModel(),
+      name: name,
+      group: group?.toModel() ?? .empty,
       topics: topics?.compactMap { $0.toModel() },
       isReadOnly: isReadOnly,
       userReadable: userReadable,
