@@ -18,3 +18,10 @@ public struct AraBoardGroup: Identifiable, Hashable, Sendable {
     self.name = name
   }
 }
+
+public extension AraBoardGroup {
+  static let empty = Self(id: 999, slug: "extra", name: LocalizedString([
+    "ko": "기타",
+    "en": "Extra"
+  ]))
+}
