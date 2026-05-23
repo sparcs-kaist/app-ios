@@ -68,4 +68,11 @@ public final class TimetableCache: Sendable {
     context.delete(existing)
     try? context.save()
   }
+	
+	/// Removes all cached timetable entries.
+	public func clear() {
+		let context = ModelContext(modelContainer)
+		try? context.delete(model: CachedTimetable.self)
+		try? context.save()
+	}
 }
