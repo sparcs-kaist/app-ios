@@ -103,6 +103,7 @@ struct BuddyTimetableWidgetEntryView: View {
         Text("Not supported")
       }
     }
+    .widgetURL(URL(string: "sparcsapp://timetable"))
   }
 }
 

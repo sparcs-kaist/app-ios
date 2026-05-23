@@ -175,6 +175,7 @@ struct BuddyUpcomingClassWidgetEntryView: View {
         Text("Not supported")
       }
     }
+    .widgetURL(URL(string: "sparcsapp://timetable"))
   }
 }
 
