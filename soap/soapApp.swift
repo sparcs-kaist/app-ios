@@ -16,10 +16,8 @@ import BuddyDataCore
 import AppIntents
 import FirebaseAnalytics
 import SwiftData
-
-#if DEBUG
+import ChannelIOFront
 import FirebaseCrashlytics
-#endif
 
 let logger = SwiftyBeaver.self
 
@@ -37,9 +35,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     FirebaseApp.configure()
 
     // Firebase Crashlytics
-    #if DEBUG
     Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
-    #endif
 
     Analytics.setAnalyticsCollectionEnabled(true)
 
@@ -59,7 +55,30 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     Task {
       try? await authUseCase?.refreshAccessToken(force: true)
       await userUseCase?.fetchUsers()
+			
+			// ChannelTalk
+			ChannelIO.initialize(application)
+			
+			let profile = await CHTProfile()
+				.set(name: userUseCase?.taxiUser?.name ?? "Unknown")
+				.set(email: userUseCase?.taxiUser?.email ?? "Unknown")
+				.set(mobileNumber: userUseCase?.taxiUser?.phoneNumber ?? "Unknown")
+			
+			let bootConfig = await CHTBootConfig(
+				pluginKey: "b817c62b-ceb6-42a2-9781-d335b96f576f",
+				memberId: userUseCase?.feedUser?.id,
+				memberHash: nil,
+				profile: profile,
+				channelButtonOption: nil,
+				hidePopup: false,
+				trackDefaultEvent: true,
+				language: .device
+			)
+			
+			ChannelIO.boot(with: bootConfig)
+			ChannelIO.hideChannelButton()
     }
+	
 
     return true
   }
