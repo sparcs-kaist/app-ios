@@ -248,6 +248,9 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   }
 
   public func signOut() async throws {
+		if let container = TimetableCacheContainer.shared {
+			TimetableCache(modelContainer: container).clear()
+		}
 		WidgetCenter.shared.reloadAllTimelines()
     tokenStorage.clearTokens()
     _isAuthenticatedSubject.value = false
