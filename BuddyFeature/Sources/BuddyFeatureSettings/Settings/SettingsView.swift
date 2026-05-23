@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
+import ChannelIOFront
 
 public struct SettingsView: View {
   @Environment(\.openURL) private var openURL
@@ -33,6 +34,12 @@ public struct SettingsView: View {
           NavigationLink(String(localized: "Ara", bundle: .module)) { AraSettingsView() }
           NavigationLink(String(localized: "Taxi", bundle: .module)) { TaxiSettingsView() }
         }
+				
+				Section {
+					Button(String(localized: "Chat with Us", bundle: .module), systemImage: "bubble.left.and.text.bubble.right") {
+						ChannelIO.showMessenger()
+					}
+				}
         
         Section() {
           terms

@@ -60,11 +60,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 			ChannelIO.initialize(application)
 			
 			let profile = await CHTProfile()
-				.set(name: userUseCase?.feedUser?.nickname ?? "Unknown")
-				.set(email: userUseCase?.otlUser?.email ?? "Unknown")
+				.set(name: userUseCase?.taxiUser?.name ?? "Unknown")
+				.set(email: userUseCase?.taxiUser?.email ?? "Unknown")
+				.set(mobileNumber: userUseCase?.taxiUser?.phoneNumber ?? "Unknown")
 			
 			let bootConfig = await CHTBootConfig(
-				pluginKey: "0abc4b50-9e66-4b45-b910-eb654a481f08",
+				pluginKey: "b817c62b-ceb6-42a2-9781-d335b96f576f",
 				memberId: userUseCase?.feedUser?.id,
 				memberHash: nil,
 				profile: profile,

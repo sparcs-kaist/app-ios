@@ -31,6 +31,10 @@ let package = Package(
         url: "https://github.com/firebase/firebase-ios-sdk.git",
         .upToNextMajor(from: "12.3.0")
       ),
+			.package(
+				url: "https://github.com/channel-io/channel-talk-ios-framework",
+				.upToNextMajor(from: "13.1.1")
+			),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -80,6 +84,10 @@ let package = Package(
             ),
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
+						.product(
+							name: "ChannelIOSDK",
+							package: "channel-talk-ios-framework"
+						),
           ]
         ),
         .target(
