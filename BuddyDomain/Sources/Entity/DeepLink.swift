@@ -14,11 +14,12 @@ public extension Notification.Name {
 public enum DeepLink {
   case taxiInvite(code: String)
   case araPost(id: Int)
+  case timetable
 
   public init?(url: URL) {
     let taxiBaseURL = Bundle.main.object(forInfoDictionaryKey: "TaxiBaseURL") as? String ?? "taxi.sparcs.org"
     let araBaseURL = Bundle.main.object(forInfoDictionaryKey: "AraBaseURL") as? String ?? "newara.sparcs.org"
-    
+
     switch url.host {
     case taxiBaseURL:
       guard url.pathComponents.count == 3,
@@ -34,6 +35,9 @@ public enum DeepLink {
         return nil
       }
       self = .araPost(id: id)
+
+    case "timetable":
+      self = .timetable
 
     default:
       return nil

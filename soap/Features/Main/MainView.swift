@@ -132,6 +132,8 @@ struct MainView: View {
       Task {
         await viewModel.resolvePost(id: id)
       }
+    case .timetable:
+      selectedTab = .timetable
     }
   }
 
