@@ -1,0 +1,33 @@
+{
+  "originHash" : "523ce9568ab4d5cbedf2db508064055108fbec03b46cf19a187a12abd4f8e656",
+  "pins" : [
+    {
+      "identity" : "factory",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hmlongco/Factory.git",
+      "state" : {
+        "revision" : "ccc898f21992ebc130bc04cc197460a5ae230bcf",
+        "version" : "2.5.3"
+      }
+    },
+    {
+      "identity" : "haptica",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/efremidze/Haptica.git",
+      "state" : {
+        "revision" : "8fbb3286d1fe525925aea9bd64b0defdd545db5a",
+        "version" : "4.0.1"
+      }
+    },
+    {
+      "identity" : "version",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mxcl/Version.git",
+      "state" : {
+        "revision" : "3043fcd2a50375db76d89ff206a612471833d1c2",
+        "version" : "2.2.1"
+      }
+    }
+  ],
+  "version" : 3
+}
