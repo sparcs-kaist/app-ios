@@ -17,6 +17,7 @@ protocol PostViewModelProtocol: Observable {
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
 
+  func makePostRequest() -> URLRequest?
   func fetchPost() async
   func upvote() async
   func downvote() async
@@ -34,6 +35,8 @@ protocol PostViewModelProtocol: Observable {
   func reportComment(commentID: Int, type: AraContentReportType) async throws
   func deleteComment(comment: Binding<AraPostComment>) async
 }
+
+
 
 @Observable
 class PostViewModel: PostViewModelProtocol {
@@ -64,9 +67,20 @@ class PostViewModel: PostViewModelProtocol {
   // MARK: - Initialiser
   init(post: AraPost) {
     self.post = post
+
     Task {
       await refreshFoundationModelsAvailability()
     }
+  }
+
+  func makePostRequest() -> URLRequest? {
+    guard let url = Constants.araPostFrameURL(postID: post.id),
+          let token = araBoardUseCase?.getAccessToken() else {
+      return nil
+    }
+    var request = URLRequest(url: url)
+    request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    return request
   }
 
   private func refreshFoundationModelsAvailability() async {
@@ -354,3 +368,4 @@ class PostViewModel: PostViewModelProtocol {
     isAlertPresented = true
   }
 }
+

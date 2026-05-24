@@ -224,4 +224,12 @@ public enum Constants {
       return URL(string: "https://newara.dev.sparcs.org/post/")!
     }
   }()
+
+  public static func araPostFrameURL(postID: Int) -> URL? {
+    if Status.isProduction {
+      return URL(string: "https://newara.sparcs.org/api/users/exchange?next=/web_view/PostFrame/\(postID)")
+    } else {
+      return URL(string: "https://newara.dev.sparcs.org/api/users/exchange?next=/web_view/PostFrame/\(postID)")
+    }
+  }
 }

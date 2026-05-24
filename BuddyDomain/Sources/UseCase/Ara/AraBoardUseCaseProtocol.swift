@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 public protocol AraBoardUseCaseProtocol: Sendable {
+  func getAccessToken() -> String?
   func fetchBoards() async throws -> [AraBoard]
   func fetchPosts(type: PostListType, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
   func fetchPost(origin: PostOrigin?, postID: Int) async throws -> AraPost

@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-public protocol TokenStorageProtocol {
+public protocol TokenStorageProtocol: Sendable {
   var tokenStatePublisher: AnyPublisher<TokenState?, Never> { get }
   var currentTokenState: TokenState? { get }
 

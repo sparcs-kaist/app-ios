@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 import NukeUI
-import WebKit
 import BuddyDomain
 import Haptica
 import FirebaseAnalytics
@@ -22,6 +21,10 @@ public struct PostView: View {
 
   @State private var htmlHeight: CGFloat = .zero
   @State private var tappedURL: URL?
+
+  @State private var isWebViewLoading: Bool = false
+  @State private var webViewLoadError: DynamicHeightWebView.LoadError?
+  @State private var webViewReloadToken: Int = 0
 
   @State private var comment: String = ""
   @FocusState private var isWritingCommentFocusState: Bool
@@ -247,17 +250,40 @@ public struct PostView: View {
         ))
     }
 
-    if let content = viewModel.post.content {
+    ZStack {
       DynamicHeightWebView(
-        htmlString: content,
+        htmlString: "",
         dynamicHeight: $htmlHeight,
-        onLinkTapped: { url in
-          self.tappedURL = url
-        }
+        requestProvider: { viewModel.makePostRequest() },
+        isLoading: $isWebViewLoading,
+        loadError: $webViewLoadError,
+        reloadToken: webViewReloadToken,
+        onLinkTapped: { tappedURL = $0 }
       )
-      .frame(height: htmlHeight)
-    } else {
-      ProgressView()
+      .frame(height: max(1, htmlHeight))
+      .opacity(webViewLoadError == nil ? 1 : 0)
+
+      if isWebViewLoading && webViewLoadError == nil {
+        ProgressView()
+          .padding()
+      }
+
+      if let webViewLoadError {
+        VStack(spacing: 12) {
+          Text(webViewLoadError.errorDescription ?? String(localized: "Unable to load post.", bundle: .module))
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+          Button {
+            self.webViewLoadError = nil
+            webViewReloadToken += 1
+          } label: {
+            Text("Retry", bundle: .module)
+          }
+          .buttonStyle(.bordered)
+        }
+        .padding()
+      }
     }
   }
 
