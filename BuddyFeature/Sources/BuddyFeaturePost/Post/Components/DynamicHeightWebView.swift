@@ -9,14 +9,35 @@ import SwiftUI
 import WebKit
 
 struct DynamicHeightWebView: UIViewRepresentable {
-  // The HTML content to display. Ignored when `request` is set.
+  enum LoadError: Error, LocalizedError {
+    case notReady
+    case underlying(Error)
+
+    var errorDescription: String? {
+      switch self {
+      case .notReady:
+        return String(localized: "Unable to prepare the request.", bundle: .module)
+      case .underlying(let error):
+        return error.localizedDescription
+      }
+    }
+  }
+
+  // The HTML content to display. Used only when `requestProvider` is nil.
   let htmlString: String
 
   // A binding to communicate the calculated height of the web content back to the parent view.
   @Binding var dynamicHeight: CGFloat
 
-  // When set, loads this request instead of `htmlString`.
-  var request: URLRequest? = nil
+  // Called each time the webview needs to (re)load, so callers can supply
+  // up-to-date auth headers. Returning nil surfaces `LoadError.notReady`.
+  var requestProvider: (() -> URLRequest?)? = nil
+
+  @Binding var isLoading: Bool
+  @Binding var loadError: LoadError?
+
+  // Bump to force a reload (e.g. retry after failure).
+  var reloadToken: Int = 0
 
   var onLinkTapped: ((URL) -> Void)?
 
@@ -41,12 +62,21 @@ struct DynamicHeightWebView: UIViewRepresentable {
     // Re-apply theme whenever the system color scheme changes.
     context.coordinator.applyTheme(webView: uiView, isDark: colorScheme == .dark)
 
-    guard !context.coordinator.hasLoaded else { return }
-    context.coordinator.hasLoaded = true
+    let shouldLoad = !context.coordinator.hasLoaded
+      || context.coordinator.lastReloadToken != reloadToken
+    guard shouldLoad else { return }
+    context.coordinator.lastReloadToken = reloadToken
 
-    if let request {
-      uiView.load(request)
+    if let requestProvider {
+      if let request = requestProvider() {
+        context.coordinator.beginLoad()
+        uiView.load(request)
+      } else {
+        context.coordinator.reportNotReady()
+      }
     } else {
+      // Local HTML fallback — no remote loading state to track.
+      context.coordinator.hasLoaded = true
       let textColor = colorScheme == .dark ? "#e0e0e0" : "#000000"
       let fullHTML = """
           <html>
@@ -76,6 +106,7 @@ struct DynamicHeightWebView: UIViewRepresentable {
   class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     var parent: DynamicHeightWebView
     var hasLoaded = false
+    var lastReloadToken: Int = -1
 
     // Once fitted from onPageFinished, further updates come only via HeightChannel.
     private var isFitted = false
@@ -85,6 +116,35 @@ struct DynamicHeightWebView: UIViewRepresentable {
 
     init(_ parent: DynamicHeightWebView) {
       self.parent = parent
+    }
+
+    // MARK: - Load lifecycle helpers
+
+    func beginLoad() {
+      hasLoaded = true
+      isFitted = false
+      heightReportCount = 0
+      Task { @MainActor in
+        parent.isLoading = true
+        parent.loadError = nil
+      }
+    }
+
+    func reportNotReady() {
+      hasLoaded = true
+      Task { @MainActor in
+        parent.isLoading = false
+        parent.loadError = .notReady
+      }
+    }
+
+    private func reportFailure(_ error: Error) {
+      // Allow the next updateUIView to retry by clearing hasLoaded.
+      hasLoaded = false
+      Task { @MainActor in
+        parent.isLoading = false
+        parent.loadError = .underlying(error)
+      }
     }
 
     // MARK: - Theme injection
@@ -129,6 +189,9 @@ struct DynamicHeightWebView: UIViewRepresentable {
 
       // Mark as fitted before applyTheme so it proceeds.
       isFitted = true
+      Task { @MainActor in
+        parent.isLoading = false
+      }
 
       // Apply theme immediately after page load.
       applyTheme(webView: webView, isDark: parent.colorScheme == .dark)
@@ -138,9 +201,17 @@ struct DynamicHeightWebView: UIViewRepresentable {
 
       // For remote URLs, inject the ResizeObserver + MutationObserver + polling
       // script — exactly mirroring the Flutter _injectResizeObserver approach.
-      if parent.request != nil {
+      if parent.requestProvider != nil {
         injectResizeObserver(webView: webView)
       }
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+      reportFailure(error)
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+      reportFailure(error)
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void) {

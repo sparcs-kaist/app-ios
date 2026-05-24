@@ -1,5 +1,5 @@
 {
-  "originHash" : "9b0ecb97485d2ae34e473005c15e6d1d4faf4be70cf87433319b47f1878d932f",
+  "originHash" : "d07627fbefbddb6ad63130d6ba59428d6cd11e459c12059d9e66886709b43b0a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "channel-talk-ios-framework",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/channel-io/channel-talk-ios-framework",
+      "state" : {
+        "revision" : "61645b9aa0346ef8c3912fb2f1eb8674c8e3f915",
+        "version" : "13.1.1"
       }
     },
     {

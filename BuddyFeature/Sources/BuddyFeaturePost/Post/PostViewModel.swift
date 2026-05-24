@@ -16,8 +16,8 @@ protocol PostViewModelProtocol: Observable {
   var isFoundationModelsAvailable: Bool { get }
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
-  var postRequest: URLRequest? { get }
 
+  func makePostRequest() -> URLRequest?
   func fetchPost() async
   func upvote() async
   func downvote() async
@@ -45,7 +45,6 @@ class PostViewModel: PostViewModelProtocol {
   var isFoundationModelsAvailable: Bool = false
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
-  var postRequest: URLRequest?
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -69,16 +68,19 @@ class PostViewModel: PostViewModelProtocol {
   init(post: AraPost) {
     self.post = post
 
-    if let url = URL(string: "https://newara.dev.sparcs.org/api/users/exchange?next=/web_view/PostFrame/\(post.id)"),
-       let token = araBoardUseCase?.getAccessToken() {
-      var request = URLRequest(url: url)
-      request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-      self.postRequest = request
-    }
-
     Task {
       await refreshFoundationModelsAvailability()
     }
+  }
+
+  func makePostRequest() -> URLRequest? {
+    guard let url = Constants.araPostFrameURL(postID: post.id),
+          let token = araBoardUseCase?.getAccessToken() else {
+      return nil
+    }
+    var request = URLRequest(url: url)
+    request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    return request
   }
 
   private func refreshFoundationModelsAvailability() async {
