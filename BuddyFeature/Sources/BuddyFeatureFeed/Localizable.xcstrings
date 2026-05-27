@@ -179,6 +179,22 @@
         }
       }
     },
+    "Expand" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expand"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확장"
+          }
+        }
+      }
+    },
     "Failed to downvote" : {
       "localizations" : {
         "en" : {
