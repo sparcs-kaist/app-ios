@@ -26,13 +26,16 @@ struct FeedPostRow: View {
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
   @State private var safariSheetURL: URL? = nil
+	@State private var isHiddenPostExpanded: Bool = false
 
   var body: some View {
     Group {
       VStack(alignment: .leading) {
         header
-
-        content
+				
+				if post.downvotes < 15 || isHiddenPostExpanded || showFullContent {
+					content
+				}
 
         footer
       }
@@ -111,43 +114,52 @@ struct FeedPostRow: View {
         .font(.callout)
 
       Spacer()
-
-      if onPostDeleted != nil {
-        Menu {
-          Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
-          Divider()
-          if post.isAuthor {
-            Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
-              showDeleteConfirmation = true
-            }
-          } else {
-            Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
-              ForEach(FeedReportType.allCases) { reason in
-                Button(reason.description) {
-                  Task {
-                    await viewModel.reportPost(postID: post.id, reason: reason)
-                  }
-                }
-              }
-            }
-          }
-        } label: {
-          Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
-            .labelStyle(.iconOnly)
-            .padding(8)
-            .contentShape(.rect)
-        }
-        .confirmationDialog(String(localized: "Delete Post", bundle: .module), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-          Button(String(localized: "Delete", bundle: .module), role: .destructive) {
-            Task {
-              onPostDeleted?(post.id)
-            }
-          }
-          Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
-        } message: {
-          Text("Are you sure you want to delete this post?", bundle: .module)
-        }
-      }
+			
+			if post.downvotes >= 15 && !isHiddenPostExpanded && !showFullContent {
+				Button(String(localized: "Expand", bundle: .module), systemImage: "chevron.right") {
+					isHiddenPostExpanded = true
+				}
+				.labelStyle(.iconOnly)
+				.padding(8)
+				.tint(.secondary)
+			} else {
+				if onPostDeleted != nil {
+					Menu {
+						Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
+						Divider()
+						if post.isAuthor {
+							Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
+								showDeleteConfirmation = true
+							}
+						} else {
+							Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
+								ForEach(FeedReportType.allCases) { reason in
+									Button(reason.description) {
+										Task {
+											await viewModel.reportPost(postID: post.id, reason: reason)
+										}
+									}
+								}
+							}
+						}
+					} label: {
+						Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
+							.labelStyle(.iconOnly)
+							.padding(8)
+							.contentShape(.rect)
+					}
+					.confirmationDialog(String(localized: "Delete Post", bundle: .module), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+						Button(String(localized: "Delete", bundle: .module), role: .destructive) {
+							Task {
+								onPostDeleted?(post.id)
+							}
+						}
+						Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
+					} message: {
+						Text("Are you sure you want to delete this post?", bundle: .module)
+					}
+				}
+			}
     }
     .padding(.horizontal)
   }
