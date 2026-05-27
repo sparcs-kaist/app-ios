@@ -25,6 +25,7 @@ struct FeedCommentRow: View {
   @State private var showTranslateSheet: Bool = false
   @State private var showPopover: Bool = false
   @State private var safariSheetURL: URL? = nil
+  @State private var isHiddenCommentExpanded: Bool = false
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
@@ -35,7 +36,9 @@ struct FeedCommentRow: View {
       VStack(alignment: .leading) {
         header
 
-        content
+        if comment.downvotes < 15 || isHiddenCommentExpanded || showFullContent {
+          content
+        }
 
         footer
       }
@@ -118,31 +121,40 @@ struct FeedCommentRow: View {
 
       Spacer()
 
-      Menu {
-        Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
-        Divider()
-        if comment.isMyComment {
-          Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
-            Task {
-              await viewModel.delete(comment: $comment)
+      if comment.downvotes >= 15 && !isHiddenCommentExpanded && !showFullContent {
+        Button(String(localized: "Expand", bundle: .module), systemImage: "chevron.right") {
+          isHiddenCommentExpanded = true
+        }
+        .labelStyle(.iconOnly)
+        .padding(8)
+        .tint(.secondary)
+      } else {
+        Menu {
+          Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
+          Divider()
+          if comment.isMyComment {
+            Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
+              Task {
+                await viewModel.delete(comment: $comment)
+              }
             }
-          }
-        } else {
-          Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
-            ForEach(FeedReportType.allCases) { reason in
-              Button(reason.description) {
-                Task {
-                  await viewModel.reportComment(commentID: comment.id, reason: reason)
+          } else {
+            Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
+              ForEach(FeedReportType.allCases) { reason in
+                Button(reason.description) {
+                  Task {
+                    await viewModel.reportComment(commentID: comment.id, reason: reason)
+                  }
                 }
               }
             }
           }
+        } label: {
+          Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
+            .labelStyle(.iconOnly)
+            .padding(8)
+            .contentShape(.rect)
         }
-      } label: {
-        Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
-          .labelStyle(.iconOnly)
-          .padding(8)
-          .contentShape(.rect)
       }
     }
   }
