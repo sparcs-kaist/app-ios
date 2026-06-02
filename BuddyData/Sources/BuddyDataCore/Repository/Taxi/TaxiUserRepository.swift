@@ -16,6 +16,8 @@ public enum TaxiUserErrorCode: Int {
   case editBadgeFailed = 2002
   case registerPhoneNumberFailed = 2003
   case editNicknameFailed = 2004
+  case registerResidenceFailed = 2005
+  case deleteResidenceFailed = 2006
 }
 
 public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
@@ -31,10 +33,10 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
 
     return result
   }
-  
+
   public func editBadge(showBadge: Bool) async throws {
     let response = try await provider.request(.editBadge(badge: showBadge))
-    
+
     if response.statusCode != 200 {
       throw NSError(
         domain: "TaxiUserRepository",
@@ -43,10 +45,10 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
       )
     }
   }
-  
+
   public func editBankAccount(account: String) async throws {
     let response = try await provider.request(.editBankAccount(account: account))
-    
+
     if response.statusCode != 200 {
       throw NSError(
         domain: "TaxiUserRepository",
@@ -55,10 +57,10 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
       )
     }
   }
-  
+
   public func registerPhoneNumber(phoneNumber: String) async throws {
     let response = try await provider.request(.registerPhoneNumber(phoneNumber: phoneNumber))
-    
+
     if response.statusCode != 200 {
       throw NSError(
         domain: "TaxiUserRepository",
@@ -67,15 +69,39 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
       )
     }
   }
-  
+
   public func editNickname(nickname: String) async throws {
     let response = try await provider.request(.editNickname(nickname: nickname))
-    
+
     if response.statusCode != 200 {
       throw NSError(
         domain: "TaxiUserRepository",
         code: TaxiUserErrorCode.editNicknameFailed.rawValue,
         userInfo: [NSLocalizedDescriptionKey : "Failure to edit nickname"]
+      )
+    }
+  }
+
+  public func registerResidence(residence: String) async throws {
+    let response = try await provider.request(.registerResidence(residence: residence))
+
+    if response.statusCode != 200 {
+      throw NSError(
+        domain: "TaxiUserRepository",
+        code: TaxiUserErrorCode.registerResidenceFailed.rawValue,
+        userInfo: [NSLocalizedDescriptionKey : "Failed to register residence"]
+      )
+    }
+  }
+
+  public func deleteResidence() async throws {
+    let response = try await provider.request(.deleteResidence)
+
+    if response.statusCode != 200 {
+      throw NSError(
+        domain: "TaxiUserRepository",
+        code: TaxiUserErrorCode.deleteResidenceFailed.rawValue,
+        userInfo: [NSLocalizedDescriptionKey : "Failed to delete residence"]
       )
     }
   }

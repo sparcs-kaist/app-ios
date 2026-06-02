@@ -15,12 +15,13 @@ protocol TaxiSettingsViewModelProtocol: Observable {
   var bankName: String? { get set }
   var bankNumber: String { get set }
   var phoneNumber: String { get set }
+  var residence: String { get set }
   var showBadge: Bool { get set }
   var showAlert: Bool { get set }
   var alertContent: LocalizedStringResource { get set }
   var user: TaxiUser? { get }
   var state: TaxiSettingsViewModel.ViewState { get }
-  
+
   func fetchUser() async
   func editInformation() async
 }
@@ -32,25 +33,27 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     case loaded
     case error(message: LocalizedStringResource)
   }
-  
+
   enum ErrorType {
     case fetch
     case bank
     case badge
     case phone
     case nickname
+    case residence
   }
-  
+
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.taxiUserRepository) private var taxiUserRepository: TaxiUserRepositoryProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
-  
+
   // MARK: - Properties
   var nickname: String = ""
   var bankName: String?
   var bankNumber: String = ""
   var phoneNumber: String = ""
+  var residence: String = ""
   var showBadge: Bool = false
   var showAlert: Bool = false
   var alertContent: LocalizedStringResource = ""
@@ -71,13 +74,14 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     bankName = user.account.split(separator: " ").first.map { String($0) }
     bankNumber = String(user.account.split(separator: " ").last ?? "")
     phoneNumber = (user.phoneNumber ?? "").filter { $0.isASCIINumber }
+    residence = user.residence ?? ""
     showBadge = user.badge ?? false
     state = .loaded
   }
-  
+
   func editInformation() async {
     guard let userUseCase else { return }
-    
+
     if let bankName, !bankNumber.isEmpty {
       await editBankAccount(bankName: bankName, bankNumber: bankNumber)
     }
@@ -90,6 +94,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     if user?.nickname != nickname {
       await editNickname()
     }
+    await editResidenceIfNeeded()
     do {
       try await userUseCase.fetchTaxiUser()
     } catch {
@@ -97,17 +102,52 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       handleException(error: error, type: .fetch)
     }
   }
-  
+
   private func editNickname() async {
     guard let taxiUserRepository else { return }
-    
+
     do {
       try await taxiUserRepository.editNickname(nickname: nickname)
     } catch {
       handleException(error: error, type: .nickname)
     }
   }
-  
+
+  private func editResidenceIfNeeded() async {
+    let trimmedResidence = residence.trimmingCharacters(in: .whitespacesAndNewlines)
+    let currentResidence = (user?.residence ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+
+    guard currentResidence != trimmedResidence else { return }
+
+    if trimmedResidence.isEmpty {
+      await deleteResidence()
+    } else {
+      await registerResidence(residence: trimmedResidence)
+    }
+  }
+
+  private func registerResidence(residence: String) async {
+    guard let taxiUserRepository else { return }
+
+    do {
+      try await taxiUserRepository.registerResidence(residence: residence)
+      self.residence = residence
+    } catch {
+      handleException(error: error, type: .residence)
+    }
+  }
+
+  private func deleteResidence() async {
+    guard let taxiUserRepository else { return }
+
+    do {
+      try await taxiUserRepository.deleteResidence()
+      residence = ""
+    } catch {
+      handleException(error: error, type: .residence)
+    }
+  }
+
   private func editBankAccount(bankName: String, bankNumber: String) async {
     guard let taxiUserRepository else { return }
 
@@ -118,7 +158,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       handleException(error: error, type: .bank)
     }
   }
-  
+
   private func registerPhoneNumber(phoneNumber: String) async {
     guard let taxiUserRepository else { return }
 
@@ -129,10 +169,10 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       handleException(error: error, type: .phone)
     }
   }
-  
+
   private func editBadge(showBadge: Bool) async {
     guard let taxiUserRepository else { return }
-    
+
     do {
       try await taxiUserRepository.editBadge(showBadge: showBadge)
     } catch {
@@ -140,7 +180,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       handleException(error: error, type: .badge)
     }
   }
-  
+
   private func handleException(error: Error, type: ErrorType) {
 //    if error.isNetworkMoyaError {
 //      alertContent = "You are not connected to the Internet."
@@ -159,12 +199,12 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
 //      }()
 //      crashlyticsService?.recordException(error: error)
 //    }
-    
+
     if type == .fetch {
       state = .error(message: alertContent)
       return
     }
-    
+
     showAlert = true
   }
 }

@@ -215,6 +215,7 @@ public enum Constants {
   ]
 
   public static let phoneNumberLength = 11
+  public static let taxiResidenceMaxLength = 15
   
   // MARK: Ara
   public static let araPostURL = {

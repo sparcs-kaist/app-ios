@@ -15,13 +15,13 @@ struct TaxiSettingsView: View {
   @State private var vm: TaxiSettingsViewModelProtocol
   @State private var safariURL: URL?
   @State private var showAlert: Bool = false
-  
+
   @Environment(\.dismiss) var dismiss
-  
+
   init(vm: TaxiSettingsViewModelProtocol = TaxiSettingsViewModel()) {
     _vm = State(initialValue: vm)
   }
-  
+
   var body: some View {
     Group {
       switch vm.state {
@@ -63,7 +63,7 @@ struct TaxiSettingsView: View {
     .navigationTitle(String(localized: "Taxi", bundle: .module))
     .alert(String(localized: "Warning", bundle: .module), isPresented: $showAlert, actions: {
       Button(role: .cancel) { }
-      
+
       Button(role: .confirm, action: {
         Task {
           await vm.editInformation()
@@ -77,16 +77,17 @@ struct TaxiSettingsView: View {
     })
     .analyticsScreen(name: "Taxi Settings", class: String(describing: Self.self))
   }
-  
+
   @ViewBuilder
   var loadingView: some View {
     List {
       RowElementView(title: "Nickname", content: "Unknown")
       RowElementView(title: "Bank Account", content: "Unknown")
       RowElementView(title: "Phone Number", content: "Unknown")
+      RowElementView(title: "Preferred Location", content: "Unknown")
     }
   }
-  
+
   @ViewBuilder
   var loadedView: some View {
     List {
@@ -139,8 +140,18 @@ struct TaxiSettingsView: View {
           }
           .transition(.slide)
         }
+        HStack {
+          Text("Preferred Location", bundle: .module)
+          Spacer()
+          TextField(String(localized: "Enter Preferred Location", bundle: .module), text: $vm.residence)
+            .multilineTextAlignment(.trailing)
+            .foregroundStyle(.secondary)
+            .onChange(of: vm.residence) {
+              vm.residence = String(vm.residence.prefix(Constants.taxiResidenceMaxLength))
+            }
+        }
       }
-      
+
       Section(header: Text("Service", bundle: .module)) {
         navigationLinkWithIcon(destination: TaxiReportListView(), text: String(localized: "Report Details", bundle: .module), systemImage: "exclamationmark.bubble")
       }
@@ -151,7 +162,7 @@ struct TaxiSettingsView: View {
       Text(vm.alertContent)
     })
   }
-  
+
   fileprivate func navigationLinkWithIcon(destination: some View, text: String, systemImage: String) -> some View {
     NavigationLink(destination: destination.navigationTitle(text).navigationBarTitleDisplayMode(.inline)) {
       HStack(alignment: .center) {
@@ -160,56 +171,68 @@ struct TaxiSettingsView: View {
       }
     }
   }
-  
+
   private var isValid: Bool {
     guard let regex = Constants.taxiNicknameRegex else { return false }
     guard vm.state == .loaded else { return false }
-    
+
     return (isBankAccountValid && isPhoneNumberValid)
-    && (hasNumberChanged || hasBankAccountChanged || (hasNumberRegistered && hasBadgeChanged) || hasNicknameChanged)
+    && isResidenceValid
+    && (hasNumberChanged || hasBankAccountChanged || (hasNumberRegistered && hasBadgeChanged) || hasNicknameChanged || hasResidenceChanged)
     && (vm.nickname.wholeMatch(of: regex) != nil)
   }
-  
+
   private var isBankAccountValid: Bool {
     (vm.bankName != nil && !vm.bankNumber.isEmpty) || (vm.bankName == nil && vm.bankNumber.isEmpty)
   }
-  
+
   private var isPhoneNumberValid: Bool {
     vm.phoneNumber.isEmpty
     || (vm.phoneNumber.count == Constants.phoneNumberLength && vm.phoneNumber.allSatisfy { $0.isASCIINumber })
   }
-  
+
+  private var isResidenceValid: Bool {
+    vm.residence.trimmingCharacters(in: .whitespacesAndNewlines).count <= Constants.taxiResidenceMaxLength
+  }
+
   private var hasNumberRegistered: Bool {
     vm.user?.phoneNumber?.isEmpty == false
   }
-  
+
   private var hasNumberChanged: Bool {
     vm.user?.phoneNumber?.isEmpty != false
     && !vm.phoneNumber.isEmpty
   }
-  
+
   private var hasBadgeChanged: Bool {
     vm.user?.badge != vm.showBadge
   }
-  
+
   private var hasNicknameChanged: Bool {
     vm.user?.nickname != vm.nickname
   }
-  
+
   private var hasBankAccountChanged: Bool {
     guard let account = vm.user?.account, !account.isEmpty else {
       return (vm.bankName?.isEmpty == false) || !vm.bankNumber.isEmpty
     }
-    
+
     let components = account.split(separator: " ")
-    
+
     if let name = components.first, let number = components.last {
       return (String(name) != vm.bankName) || (String(number) != vm.bankNumber)
     }
-    
+
     return (vm.bankName?.isEmpty == false) || !vm.bankNumber.isEmpty
   }
-  
+
+  private var hasResidenceChanged: Bool {
+    let currentResidence = (vm.user?.residence ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+    let newResidence = vm.residence.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    return currentResidence != newResidence
+  }
+
   private var showToggle: Bool {
     vm.phoneNumber.count == Constants.phoneNumberLength
     && vm.phoneNumber.allSatisfy { $0.isASCIINumber }
@@ -219,7 +242,7 @@ struct TaxiSettingsView: View {
 //#Preview("Loading State") {
 //  let vm = MockTaxiSettingsViewModel()
 //  vm.state = .loading
-//  
+//
 //  return NavigationStack {
 //    TaxiSettingsView(vm: vm)
 //  }
@@ -230,7 +253,7 @@ struct TaxiSettingsView: View {
 //  vm.state = .loaded
 //  vm.bankName = String(vm.user!.account.split(separator: " ").first!)
 //  vm.bankNumber = String(vm.user!.account.split(separator: " ").last!)
-//  
+//
 //  return NavigationStack {
 //    TaxiSettingsView(vm: vm)
 //  }
@@ -239,7 +262,7 @@ struct TaxiSettingsView: View {
 //#Preview("Error State") {
 //  let vm = MockTaxiSettingsViewModel()
 //  vm.state = .error(message: "Network error")
-//  
+//
 //  return NavigationStack {
 //    TaxiSettingsView(vm: vm)
 //  }

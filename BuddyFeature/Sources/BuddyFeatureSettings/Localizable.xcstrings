@@ -347,6 +347,22 @@
         }
       }
     },
+    "Enter Preferred Location" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter Preferred Location"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선호 장소 입력"
+          }
+        }
+      }
+    },
     "Error" : {
       "localizations" : {
         "en" : {
@@ -679,6 +695,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "전화 번호"
+          }
+        }
+      }
+    },
+    "Preferred Location" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferred Location"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선호 승하차 장소"
           }
         }
       }

@@ -13,4 +13,6 @@ public protocol TaxiUserRepositoryProtocol: Sendable {
   func registerPhoneNumber(phoneNumber: String) async throws
   func editBadge(showBadge: Bool) async throws
   func editNickname(nickname: String) async throws
+  func registerResidence(residence: String) async throws
+  func deleteResidence() async throws
 }

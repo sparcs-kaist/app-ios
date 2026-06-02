@@ -15,6 +15,8 @@ public enum TaxiUserTarget {
   case fetchReports
   case registerPhoneNumber(phoneNumber: String)
   case editNickname(nickname: String)
+  case registerResidence(residence: String)
+  case deleteResidence
 }
 
 extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
@@ -36,6 +38,10 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
       "/users/registerPhoneNumber"
     case .editNickname:
       "/users/editNickname"
+    case .registerResidence:
+      "/users/registerResidence"
+    case .deleteResidence:
+      "/users/deleteResidence"
     }
   }
 
@@ -43,7 +49,7 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchUserInfo, .fetchReports:
       .get
-    case .editBadge, .editBankAccount, .registerPhoneNumber, .editNickname:
+    case .editBadge, .editBankAccount, .registerPhoneNumber, .editNickname, .registerResidence, .deleteResidence:
       .post
     }
   }
@@ -62,6 +68,10 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
       .requestParameters(parameters: ["phoneNumber": number], encoding: JSONEncoding.default)
     case let .editNickname(nickname):
       .requestParameters(parameters: ["nickname": nickname], encoding: JSONEncoding.default)
+    case let .registerResidence(residence):
+      .requestParameters(parameters: ["residence": residence], encoding: JSONEncoding.default)
+    case .deleteResidence:
+      .requestPlain
     }
   }
 
