@@ -10,7 +10,6 @@ import Combine
 import Observation
 import Factory
 import BuddyDomain
-import Version
 
 @Observable
 @MainActor

@@ -77,7 +77,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8B3FB1192E94F1C200F57FD7"
             BuildableName = "BuddyWatchWidgetExtension.appex"
-            BlueprintName = "BuddyWatchWidgetExtension"
             ReferencedContainer = "container:soap.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -120,7 +119,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8B3FB1192E94F1C200F57FD7"
             BuildableName = "BuddyWatchWidgetExtension.appex"
-            BlueprintName = "BuddyWatchWidgetExtension"
             ReferencedContainer = "container:soap.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

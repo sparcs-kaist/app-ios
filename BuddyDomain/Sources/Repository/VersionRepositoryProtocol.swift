@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Version
 
 public protocol VersionRepositoryProtocol: Sendable {
   func getMinimumVersion() async throws -> Version?
