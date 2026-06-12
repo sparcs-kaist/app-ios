@@ -4,10 +4,6 @@
 <dict>
 	<key>AraBaseURL</key>
 	<string>$(ARA_ASSOCIATED_DOMAIN)</string>
-	<key>TaxiBaseURL</key>
-	<string>$(TAXI_ASSOCIATED_DOMAIN)</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -21,6 +17,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>TaxiBaseURL</key>
+	<string>$(TAXI_ASSOCIATED_DOMAIN)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
