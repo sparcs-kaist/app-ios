@@ -7,7 +7,7 @@
 
 import Foundation
 import FirebaseAnalytics
-import KeychainSwift
+import BuddyDataCore
 import BuddyDomain
 
 public class AnalyticsService: AnalyticsServiceProtocol {
@@ -19,7 +19,7 @@ public class AnalyticsService: AnalyticsServiceProtocol {
   }
 
   private func getDeviceUUID() -> String {
-    let keychain = KeychainSwift()
+    let keychain = Keychain()
     keychain.accessGroup = "N5V8W52U3U.org.sparcs.soap"
 
     return keychain.get(AnalyticsService.fcmDeviceIDKey) ?? {
