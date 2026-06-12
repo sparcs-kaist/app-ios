@@ -14,6 +14,7 @@ struct TaxiUserDTO: Codable {
   let name: String
   let nickname: String
   let phoneNumber: String?
+  let residence: String?
   let email: String
   let withdraw: Bool
   let badge: Bool?
@@ -29,6 +30,7 @@ struct TaxiUserDTO: Codable {
     case name
     case nickname
     case phoneNumber
+    case residence
     case email
     case withdraw
     case badge
@@ -48,6 +50,7 @@ extension TaxiUserDTO {
       name: name,
       nickname: nickname,
       phoneNumber: phoneNumber,
+      residence: residence,
       email: email,
       withdraw: withdraw,
       badge: badge,

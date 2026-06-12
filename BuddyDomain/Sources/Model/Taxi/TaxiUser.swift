@@ -13,6 +13,7 @@ public struct TaxiUser: Identifiable, Hashable, Sendable {
   public let name: String
   public let nickname: String
   public let phoneNumber: String?
+  public let residence: String?
   public let email: String
   public let withdraw: Bool
   public let badge: Bool?
@@ -28,6 +29,7 @@ public struct TaxiUser: Identifiable, Hashable, Sendable {
     name: String,
     nickname: String,
     phoneNumber: String?,
+    residence: String?,
     email: String,
     withdraw: Bool,
     badge: Bool?,
@@ -42,6 +44,7 @@ public struct TaxiUser: Identifiable, Hashable, Sendable {
     self.name = name
     self.nickname = nickname
     self.phoneNumber = phoneNumber
+    self.residence = residence
     self.email = email
     self.withdraw = withdraw
     self.badge = badge
