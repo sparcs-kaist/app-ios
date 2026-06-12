@@ -123,12 +123,42 @@ struct GenerableTimetable: Codable {
 }
 
 #Playground {
-  let session = LanguageModelSession(tools: [SearchLectureTool(), GetDepartmentTool()], instructions: "Help the user to find lectures. Get Departments first before searching for lectures.")
-
-  let response = try await session.respond(
-    to: "Suggest three lectures from Computer Science Department for year 2026 and semester 1? I am 2nd grade student. Do not suggest duplicated lectures.",
-    generating: GenerableTimetable.self
-  )
+	let instructions = """
+		You are an expert academic advisor and schedule coordinator. Your goal is to help the user build their ideal university timetable for the specified semester.
+		
+		CRITICAL BEHAVIOR GUIDELINES:
+		1. Tool Usage Workflow:
+		 - If the user asks for lectures in a specific department, you MUST call `getDepartment` first to find the correct `id`. Do NOT guess or hallucinate department IDs.
+		 - Use the retrieved IDs, along with the user's requested year, semester, and other filters, to call `searchLecture`.
+		 - Never use random or placeholder values for `departmentIDs` or `level` in `searchLecture`. If you are unsure or the user didn't specify, leave them empty.
+		
+		2. Timetable Generation Rules:
+		 - Only include lectures in the timetable that were explicitly returned by the `searchLecture` tool.
+		 - Ensure there are NO schedule conflicts (overlapping days and times) in the final timetable unless the user explicitly allows it.
+		 - Map the tool's output data fields precisely to the `GenerableTimetable` schema structure.
+		"""
+	let session = LanguageModelSession(model: SystemLanguageModel(), tools: [SearchLectureTool(), GetDepartmentTool()], instructions: instructions)
+	
+	let prompt = """
+		Please generate a valid, conflict-free timetable for the following semester and preferences:
+		
+		### Semester Information
+		- Year: 2026
+		- Semester: 1
+		
+		### User Preferences & Constraints
+		- Target Departments: 전산학부 (CS)" and “건설및환경공학과 (CEE)"
+		- Preferred Class Levels: "200 and 300 level courses"
+		- Keywords/Specific Courses: “None”
+		- Credit Limits: Minimum 12 credits, maximum 18 credits"
+		
+		### Step-by-Step Execution Plan:
+		1. Look up the department IDs using `getDepartment` if specific departments are requested.
+		2. Search for relevant lectures using `searchLecture` using the correct year, semester, and filtered IDs.
+		3. Select a combination of lectures that fulfill the credit requirements without any time overlaps.
+		4. Construct and return the final `GenerableTimetable` JSON object matching the requested schema.
+		"""
+	let response = try await session.respond(to: prompt, generating: GenerableTimetable.self)
 
   print(response.content)
 }

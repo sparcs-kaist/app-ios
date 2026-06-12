@@ -11,7 +11,7 @@ public enum Status {
   // App Status
   public static let isProduction: Bool = {
     // Custom status
-//    return true
+    return true
 
     #if DEBUG
     return false
