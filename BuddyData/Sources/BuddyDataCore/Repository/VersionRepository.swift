@@ -7,7 +7,6 @@
 
 import Foundation
 import BuddyDomain
-import Version
 
 @preconcurrency
 import Moya

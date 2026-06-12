@@ -19,7 +19,6 @@ let package = Package(
       .package(path: "../BuddyDomain"),
       .package(path: "../BuddyTestSupport"),
       .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
-      .package(url: "https://github.com/evgenyneu/keychain-swift.git", from: "24.0.0"),
       .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.0")),
     ],
     targets: [
@@ -29,7 +28,6 @@ let package = Package(
               "BuddyDomain",
               "Moya",
               "Alamofire",
-              .product(name: "KeychainSwift", package: "keychain-swift"),
             ]
         ),
         .target(name: "BuddyDataWatch", dependencies: [

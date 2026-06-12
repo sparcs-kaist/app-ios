@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseCrashlytics
 import BuddyDomain
-import KeychainSwift
+import BuddyDataCore
 
 public final class CrashlyticsService: CrashlyticsServiceProtocol {
   private static let fcmDeviceIDKey: String = "fcmDeviceID"
@@ -76,7 +76,7 @@ public final class CrashlyticsService: CrashlyticsServiceProtocol {
   }
 
   private func getDeviceUUID() -> String {
-    let keychain = KeychainSwift()
+    let keychain = Keychain()
     keychain.accessGroup = "N5V8W52U3U.org.sparcs.soap"
 
     return keychain.get(CrashlyticsService.fcmDeviceIDKey) ?? {

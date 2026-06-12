@@ -7,11 +7,11 @@
 
 import Foundation
 import BuddyDomain
-import KeychainSwift
+import BuddyDataCore
 import UIKit
 
 public final class FCMUseCase: FCMUseCaseProtocol, @unchecked Sendable {
-  private let keychain = KeychainSwift()
+  private let keychain = Keychain()
   private static let fcmDeviceIDKey: String = "fcmDeviceID"
   
   private let fcmRepository: FCMRepositoryProtocol
