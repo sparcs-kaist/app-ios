@@ -49,6 +49,22 @@
         }
       }
     },
+    "Ended" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ended"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "종강"
+          }
+        }
+      }
+    },
     "Open Buddy on your iPhone to continue" : {
       "localizations" : {
         "en" : {
@@ -61,6 +77,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iPhone에서 Buddy 앱을 열어 계속하기"
+          }
+        }
+      }
+    },
+    "Semester ended" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semester ended"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "종강 축하합니다 🎉"
           }
         }
       }

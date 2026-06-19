@@ -64,6 +64,26 @@ public struct DDayRectangleWidgetView: View {
 					.frame(height: 8)
 					.padding(.top, 4)
 			}
+		case .semesterEnded(let description):
+			VStack(alignment: .leading, spacing: 2) {
+				HStack(alignment: .center) {
+					Circle()
+						.frame(width: 12, height: 12)
+
+					Text(description)
+						.fontDesign(.rounded)
+						.lineLimit(1)
+						.fontWeight(.semibold)
+				}
+				.foregroundStyle(accentColor)
+				.widgetAccentable()
+
+				Text("Semester ended", bundle: .module)
+
+				BuddyLinearGauge(progress: 1, foregroundColor: accentColor)
+					.frame(height: 8)
+					.padding(.top, 4)
+			}
 		case .error:
 			signInRequiredView
 		}

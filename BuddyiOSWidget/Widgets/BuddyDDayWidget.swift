@@ -54,20 +54,28 @@ struct DDayProvider: TimelineProvider {
 		
 		let begin = semester.beginDate
 		let end = semester.endDate
+		let today = calendar.startOfDay(for: now)
+		let beginDay = calendar.startOfDay(for: begin)
+		let endDay = calendar.startOfDay(for: end)
 		
 		// 1. Before start of semester
-		if now < begin {
-			let daysUntil = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: begin)).day ?? 0
+		if today < beginDay {
+			let daysUntil = calendar.dateComponents([.day], from: today, to: beginDay).day ?? 0
 			return DDayEntry(date: now, type: .startOfSemester(daysUntil: daysUntil, description: semester.description), relevance: .init(score: 100))
 		}
 		
-		// 2. During semester: Calculate Percentage
+		// 2. After end of semester
+		if endDay < today {
+			return DDayEntry(date: now, type: .semesterEnded(description: semester.description), relevance: .init(score: 100))
+		}
+		
+		// 3. During semester: Calculate Percentage
 		let totalDuration = end.timeIntervalSince(begin)
 		let elapsed = now.timeIntervalSince(begin)
 		// Clamp the progress between 0.0 and 1.0
 		let progress = max(0, min(1, elapsed / totalDuration))
 		
-		let daysLeft = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: end)).day ?? 0
+		let daysLeft = calendar.dateComponents([.day], from: today, to: endDay).day ?? 0
 		
 		return DDayEntry(
 			date: now,

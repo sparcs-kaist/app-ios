@@ -21,6 +21,8 @@ public struct DDayInlineWidgetView: View {
 			Text("Ends in \(daysLeft) days", bundle: .module)
 		case .startOfSemester(let daysUntil, _):
 			Text("Starts in \(daysUntil) days", bundle: .module)
+		case .semesterEnded:
+			Text("Semester ended", bundle: .module)
 		case .error:
 			Text("Sign in Required", bundle: .module)
 		}
