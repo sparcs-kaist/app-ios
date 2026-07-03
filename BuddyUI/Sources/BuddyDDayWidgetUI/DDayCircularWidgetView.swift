@@ -45,6 +45,18 @@ public struct DDayCircularWidgetView: View {
 			.gaugeStyle(.accessoryCircularCapacity)
 			.tint(accentColor)
 			.widgetAccentable()
+		case .semesterEnded:
+			Gauge(
+				value: 1,
+				label: {},
+				currentValueLabel: {
+					Text("Ended", bundle: .module)
+						.minimumScaleFactor(0.7)
+				}
+			)
+			.gaugeStyle(.accessoryCircularCapacity)
+			.tint(accentColor)
+			.widgetAccentable()
 		case .error:
 			signInRequiredView
 		}

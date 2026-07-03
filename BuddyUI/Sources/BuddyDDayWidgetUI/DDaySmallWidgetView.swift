@@ -85,6 +85,31 @@ public struct DDaySmallWidgetView: View {
 					Spacer()
 				}
 			}
+		case .semesterEnded(let description):
+			VStack(alignment: .leading, spacing: 6) {
+				Text("Ended", bundle: .module)
+					.font(.caption)
+					.fontWeight(.medium)
+					.foregroundStyle(.indigo)
+					.textCase(.uppercase)
+				
+				Text("Semester ended", bundle: .module)
+					.font(.system(size: 28, weight: .bold))
+					.fontDesign(.rounded)
+					.lineLimit(2)
+					.minimumScaleFactor(0.7)
+				
+				Spacer()
+				
+				HStack {
+					Text(description)
+						.font(.callout)
+						.foregroundStyle(.indigo)
+						.fontWeight(.medium)
+					
+					Spacer()
+				}
+			}
 		case .error:
 			signInRequiredView
 		}
