@@ -100,7 +100,7 @@ public struct TaxiListView: View {
           }
         }
         .padding(.bottom)
-        .taxiContentWidth()
+        .contentWidth()
       }
       .scrollPosition(id: $scrollTarget, anchor: .top)
       .onChange(of: scrollTarget) {

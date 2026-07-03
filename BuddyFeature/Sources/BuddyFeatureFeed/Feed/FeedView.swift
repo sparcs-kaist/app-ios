@@ -41,7 +41,7 @@ public struct FeedView: View {
         }
       }
       .animation(.spring, value: viewModel.posts)
-      .feedContentWidth()
+      .contentWidth()
     }
     .disabled(viewModel.state == .loading)
     .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed", bundle: .module) : "")

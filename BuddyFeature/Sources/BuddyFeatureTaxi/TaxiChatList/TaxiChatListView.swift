@@ -105,7 +105,7 @@ struct TaxiChatListView: View {
         }
       }
       .padding()
-      .taxiContentWidth()
+      .contentWidth()
     }
   }
 
@@ -172,7 +172,7 @@ struct TaxiChatListView: View {
         }
       }
       .padding()
-      .taxiContentWidth()
+      .contentWidth()
     }
     .background(Color.systemGroupedBackground)
     .background {

@@ -31,6 +31,7 @@ public struct CourseView: View {
         }
       }
       .padding(.horizontal)
+      .contentWidth()
     }
     .navigationTitle(course.name)
     .navigationBarTitleDisplayMode(.inline)

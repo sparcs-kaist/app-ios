@@ -44,6 +44,7 @@ struct LectureDetailView: View {
         lectureReviews
       }
       .padding([.horizontal, .bottom])
+      .contentWidth()
     }
     .task {
       async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)

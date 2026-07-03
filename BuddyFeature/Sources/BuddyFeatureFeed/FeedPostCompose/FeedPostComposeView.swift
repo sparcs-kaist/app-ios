@@ -51,7 +51,7 @@ struct FeedPostComposeView: View {
           }
         }
         .padding(.vertical)
-        .feedContentWidth()
+        .contentWidth()
       }
       .scrollDismissesKeyboard(.interactively)
       .navigationTitle(String(localized: "Write", bundle: .module))

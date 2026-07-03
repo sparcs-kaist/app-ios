@@ -39,7 +39,7 @@ struct PostListView: View {
           onRefresh: nil,
           onLoadMore: nil
         )
-        .postContentWidth()
+        .contentWidth()
       case .loaded(let posts):
         if viewModel.posts.isEmpty && !viewModel.searchKeyword.isEmpty {
           ContentUnavailableView.search(text: viewModel.searchKeyword)
@@ -54,7 +54,7 @@ struct PostListView: View {
               viewModel.loadNextPage()
             }
           )
-          .postContentWidth()
+          .contentWidth()
         }
       case .error(let message):
         ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
