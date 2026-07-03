@@ -17,8 +17,9 @@ struct FeedPostPhotoItemStrip: View {
   @State private var parentWidth: CGFloat = 0
 
   var body: some View {
-    // Fallback to screen width until we read the actual width
-    let pw = parentWidth > 0 ? parentWidth : CGFloat.screenWidth
+    // Fallback until we read the actual width, capped to the content column so
+    // wide screens (landscape / iPad) don't briefly oversize the images.
+    let pw = parentWidth > 0 ? parentWidth : min(CGFloat.screenWidth, FeedLayout.maxContentWidth)
     let contentWidth = max(0, pw - hPadding * 2)
     let maxW = contentWidth
     let minW: CGFloat = 100
