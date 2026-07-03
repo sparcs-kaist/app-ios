@@ -36,6 +36,7 @@ struct UserPostListView: View {
         switch viewModel.state {
         case .loading:
           PostList(posts: nil)
+            .postContentWidth()
         case .loaded(let posts):
           PostList(
             posts: posts,
@@ -47,6 +48,7 @@ struct UserPostListView: View {
               Task { await viewModel.loadNextPage() }
             }
           )
+          .postContentWidth()
         case .error(let message):
           ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }

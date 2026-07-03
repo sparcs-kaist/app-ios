@@ -60,6 +60,7 @@ public struct PostView: View {
           comments
         }
         .padding()
+        .postContentWidth()
         .animation(.spring(), value: summarisedContent)
       }
       .scrollDismissesKeyboard(.interactively)
@@ -432,6 +433,7 @@ public struct PostView: View {
       }
     }
     .padding(keyboardShowing ? [.horizontal, .vertical] : [.horizontal])
+    .postContentWidth()
     .animation(.spring, value: keyboardShowing)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),

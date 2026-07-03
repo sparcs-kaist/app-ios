@@ -37,6 +37,7 @@ public struct BoardListView: View {
         }
       }
       .padding()
+      .postContentWidth()
     }
     .background {
       BackgroundGradientView(color: .red)
