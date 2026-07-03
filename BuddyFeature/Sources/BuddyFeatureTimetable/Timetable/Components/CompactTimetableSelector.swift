@@ -18,6 +18,7 @@ struct CompactTimetableSelector: View {
   let createTimetable: () async -> Void
   let renameTimetable: (String) async -> Void
   let deleteTimetable: () async -> Void
+	let isWide: Bool
 
   @State private var showRenameAlert: Bool = false
   @State private var renameText: String = ""
@@ -25,9 +26,15 @@ struct CompactTimetableSelector: View {
   var body: some View {
     ZStack {
       HStack {
+				if isWide {
+					Spacer()
+				}
+				
         semesterSelector
-
-        Spacer()
+				
+				if !isWide {
+					Spacer()
+				}
 
         tableSelector
       }
