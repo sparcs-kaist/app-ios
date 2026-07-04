@@ -35,6 +35,7 @@ struct ReviewComposeView: View {
           axis: .vertical
         )
           .padding()
+          .contentWidth()
       }
       .scrollDismissesKeyboard(.immediately)
       .navigationTitle(String(localized: "Write a Review", bundle: .module))

@@ -41,6 +41,7 @@ struct FeedPostView: View {
 
           comments
         }
+        .contentWidth()
       }
       .task(id: post.id) {
         await viewModel.fetchComments(postID: post.id, initial: true)
@@ -190,6 +191,7 @@ struct FeedPostView: View {
       }
     }
     .padding(keyboardShowing ? [.horizontal, .vertical] : [.horizontal])
+    .contentWidth()
     .animation(.spring, value: keyboardShowing)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),

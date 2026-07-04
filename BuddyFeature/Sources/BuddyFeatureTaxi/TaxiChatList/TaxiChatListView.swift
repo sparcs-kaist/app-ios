@@ -16,7 +16,7 @@ import BuddyPreviewSupport
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
   @State private var selectedRoom: TaxiRoom?
-  
+
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()) {
@@ -51,7 +51,7 @@ struct TaxiChatListView: View {
     }
     .analyticsScreen(name: "Taxi Chat List", class: String(describing: Self.self))
   }
-  
+
   private func loadedLargeView(onGoing: [TaxiRoom], done: [TaxiRoom]) -> some View {
     HStack(spacing: 0) {
       loadedView(onGoing: onGoing, done: done)
@@ -105,6 +105,7 @@ struct TaxiChatListView: View {
         }
       }
       .padding()
+      .contentWidth()
     }
   }
 
@@ -120,7 +121,7 @@ struct TaxiChatListView: View {
           Spacer()
         }
       }
-      
+
       LazyVStack(spacing: 16) {
         if !onGoing.isEmpty {
           LazyVStack(spacing: 12) {
@@ -171,6 +172,7 @@ struct TaxiChatListView: View {
         }
       }
       .padding()
+      .contentWidth()
     }
     .background(Color.systemGroupedBackground)
     .background {
@@ -210,7 +212,7 @@ struct TaxiChatListView: View {
 
 #Preview("Loaded State") {
   let state = TaxiChatListViewState.loaded(onGoing: Array(TaxiRoom.mockList.prefix(3)), done: Array(TaxiRoom.mockList.suffix(5)))
-  
+
   return NavigationStack {
     TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: state))
   }
