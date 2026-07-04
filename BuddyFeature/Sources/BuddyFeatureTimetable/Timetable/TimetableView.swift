@@ -21,67 +21,23 @@ public struct TimetableView: View {
 
   @Environment(\.colorScheme) private var colorScheme
 
+  /// Keeps the grid usable on short (landscape) screens where `80%` of the
+  /// available height would otherwise squash it.
+  private static let minimumGridHeight: CGFloat = 500
+
+  /// Width past which the supporting cards switch to a two-column layout. Driven
+  /// by the actual available width (not the size class) so it also kicks in for
+  /// iPhones in landscape, which report a compact horizontal size class.
+  private static let twoColumnWidthThreshold: CGFloat = 600
+
   public var body: some View {
     GeometryReader { reader in
       NavigationStack {
         ScrollView {
-          VStack(spacing: 28) {
-            CompactTimetableSelector(
-              semesters: viewModel.semesters,
-              selectedSemester: $viewModel.selectedSemester,
-              timetables: viewModel.timetables,
-              selectedTimetableID: $viewModel.selectedTimetableID,
-              createTimetable: {
-                await viewModel.createTable()
-              },
-              renameTimetable: { title in
-                await viewModel.renameTable(title: title)
-              },
-              deleteTimetable: {
-                await viewModel.deleteTable()
-              }
-            )
-            .redacted(reason: viewModel.isLoading ? .placeholder : [])
-
-            TimetableGrid(
-              selectedTimetable: viewModel.timetableWithCandidate,
-              candidateLecture: viewModel.candidateLecture,
-              selectedLecture: { selectedLecture in
-                self.selectedLecture = selectedLecture
-              },
-              onDelete: { lecture in
-                Task {
-                  await viewModel.deleteLecture(lecture: lecture)
-                }
-              },
-              placement: .view
-            )
-            .animation(nil, value: viewModel.selectedSemester)
-            .padding()
-            .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-            .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-            .frame(height: reader.size.height * 0.8)
-						
-						LectureList(
-							lectures: viewModel.timetable?.lectures,
-							selectedLecture: { selectedLecture in
-								self.selectedLecture = selectedLecture
-							}
-						)
-						.padding()
-						.background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-						.glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-
-            TimetableCreditGraph(selectedTimetable: viewModel.timetable)
-              .padding()
-              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-
-            TimetableSummaryView(selectedTimetable: viewModel.timetable)
-              .padding()
-              .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
-              .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-          }
+          content(
+            gridHeight: max(reader.size.height * 0.8, Self.minimumGridHeight),
+            isWide: reader.size.width > Self.twoColumnWidthThreshold
+          )
           .padding()
         }
         .background {
@@ -144,6 +100,96 @@ public struct TimetableView: View {
     }
   }
 
+  // MARK: - Layout
+
+  @ViewBuilder
+  private func content(gridHeight: CGFloat, isWide: Bool) -> some View {
+    VStack(spacing: 28) {
+      selector(isWide: isWide)
+      if isWide {
+        // Leverage the wider screen: lay the supporting cards out in two
+        // columns instead of one long vertical scroll.
+        HStack(alignment: .top, spacing: 28) {
+					gridCard(height: gridHeight)
+            .frame(maxWidth: .infinity)
+
+          VStack(spacing: 28) {
+						lectureListCard
+            creditGraphCard
+            summaryCard
+          }
+          .frame(maxWidth: .infinity)
+        }
+      } else {
+				gridCard(height: gridHeight)
+        lectureListCard
+        creditGraphCard
+        summaryCard
+      }
+    }
+  }
+
+  // MARK: - Cards
+
+	private func selector(isWide: Bool) -> some View {
+    CompactTimetableSelector(
+      semesters: viewModel.semesters,
+      selectedSemester: $viewModel.selectedSemester,
+      timetables: viewModel.timetables,
+      selectedTimetableID: $viewModel.selectedTimetableID,
+      createTimetable: {
+        await viewModel.createTable()
+      },
+      renameTimetable: { title in
+        await viewModel.renameTable(title: title)
+      },
+      deleteTimetable: {
+        await viewModel.deleteTable()
+      },
+			isWide: isWide
+    )
+    .redacted(reason: viewModel.isLoading ? .placeholder : [])
+  }
+
+  private func gridCard(height: CGFloat) -> some View {
+    TimetableGrid(
+      selectedTimetable: viewModel.timetableWithCandidate,
+      candidateLecture: viewModel.candidateLecture,
+      selectedLecture: { selectedLecture in
+        self.selectedLecture = selectedLecture
+      },
+      onDelete: { lecture in
+        Task {
+          await viewModel.deleteLecture(lecture: lecture)
+        }
+      },
+      placement: .view
+    )
+    .animation(nil, value: viewModel.selectedSemester)
+    .timetableCardStyle()
+    .frame(height: height)
+  }
+
+  private var lectureListCard: some View {
+    LectureList(
+      lectures: viewModel.timetable?.lectures,
+      selectedLecture: { selectedLecture in
+        self.selectedLecture = selectedLecture
+      }
+    )
+    .timetableCardStyle()
+  }
+
+  private var creditGraphCard: some View {
+    TimetableCreditGraph(selectedTimetable: viewModel.timetable)
+      .timetableCardStyle()
+  }
+
+  private var summaryCard: some View {
+    TimetableSummaryView(selectedTimetable: viewModel.timetable)
+      .timetableCardStyle()
+  }
+
   private var displayName: String {
     guard let timetable = selectedTimetable else {
       return String(localized: "My Table", bundle: .module)
@@ -157,5 +203,25 @@ public struct TimetableView: View {
 
   public init(_ viewModel: TimetableViewModel) {
     self.viewModel = viewModel
+  }
+}
+
+// MARK: - Card Styling
+
+private struct TimetableCardStyle: ViewModifier {
+  @Environment(\.colorScheme) private var colorScheme
+
+  func body(content: Content) -> some View {
+    content
+      .padding()
+      .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
+      .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+  }
+}
+
+private extension View {
+  /// The shared rounded, glass-backed card treatment used by every timetable section.
+  func timetableCardStyle() -> some View {
+    modifier(TimetableCardStyle())
   }
 }

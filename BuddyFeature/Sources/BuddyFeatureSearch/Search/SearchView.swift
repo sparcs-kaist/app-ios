@@ -59,6 +59,7 @@ public struct SearchView: View {
       .pickerStyle(.segmented)
       .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
       .padding(.horizontal)
+      .contentWidth()
       .opacity(hideScopeBar ? 0 : 1)
       .disabled(hideScopeBar)
     }
@@ -162,6 +163,7 @@ public struct SearchView: View {
         }
       }
       .padding(.top)
+      .contentWidth()
       .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
     .scrollDismissesKeyboard(.immediately)

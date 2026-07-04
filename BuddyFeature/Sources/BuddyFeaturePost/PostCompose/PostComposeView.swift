@@ -85,6 +85,7 @@ struct PostComposeView: View {
           Spacer()
         }
         .padding(.vertical)
+        .contentWidth()
       }
       .scrollDismissesKeyboard(.interactively)
       .navigationTitle(String(localized: "Write", bundle: .module))

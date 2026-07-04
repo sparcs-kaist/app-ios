@@ -69,6 +69,7 @@ struct PostTranslationView: View {
           .transition(.opacity)
         }
         .padding()
+        .contentWidth()
         .animation(.spring, value: isTranslating)
       }
       .task {
