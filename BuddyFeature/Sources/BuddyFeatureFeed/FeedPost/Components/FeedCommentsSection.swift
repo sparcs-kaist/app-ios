@@ -68,7 +68,7 @@ struct FeedCommentsSection: View {
             .padding(.horizontal)
         }
       }
-      .animation(.spring, value: comments)
+      .animation(.spring, value: comments.map(\.id))
     case .error(let message):
       ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "text.bubble", description: Text(message))
         .scaleEffect(0.8)

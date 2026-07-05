@@ -116,7 +116,7 @@ public struct PostView: View {
             }
           )
           .padding(.top, 4)
-          .animation(.spring, value: viewModel.post.comments)
+          .animation(.spring, value: viewModel.post.comments.map(\.id))
         }
         .padding()
         .contentWidth()

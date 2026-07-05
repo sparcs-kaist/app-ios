@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TaxiChatViewState {
+public enum TaxiChatViewState: Equatable {
   case loading
   case loaded
   case error(message: String)

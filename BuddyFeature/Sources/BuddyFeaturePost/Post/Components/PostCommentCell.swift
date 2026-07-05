@@ -52,13 +52,13 @@ struct PostCommentCell: View {
           onReport: { type in await report(type: type) },
           onDelete: { Task { onDelete?(); await onDeleteComment() } }
         )
-        .animation(.spring, value: comment)
+        .animation(.spring, value: isDeleted)
 
         Text(comment.content ?? String(localized: "This comment has been deleted.", bundle: .module))
           .foregroundStyle(isDeleted ? .secondary : .primary)
           .font(.callout)
           .contentTransition(.numericText())
-          .animation(.spring, value: comment)
+          .animation(.spring, value: comment.content)
 
         PostCommentCellFooter(
           isThreaded: isThreaded,
@@ -71,7 +71,7 @@ struct PostCommentCell: View {
           onUpvote: onUpvote,
           onDownvote: onDownvote
         )
-        .animation(.spring, value: comment)
+        .animation(.spring, value: comment.upvotes - comment.downvotes)
       }
     }
     .alert(alertState?.title ?? String(localized: "Error", bundle: .module), isPresented: $isAlertPresented, actions: {
