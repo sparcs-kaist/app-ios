@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import NukeUI
 import Translation
 import BuddyDomain
 import BuddyFeatureShared
@@ -42,7 +41,18 @@ struct PostCommentCell: View {
       VStack(alignment: .leading, spacing: 8) {
         Divider()
 
-        header
+        PostCommentCellHeader(
+          authorProfileURL: comment.author.profile.profilePictureURL,
+          authorNickname: comment.author.profile.nickname,
+          timeText: comment.createdAt.timeAgoDisplay,
+          isDeleted: isDeleted,
+          isMine: comment.isMine,
+          onEdit: onEdit,
+          onTranslate: { showTranslateSheet = true },
+          onReport: { type in await report(type: type) },
+          onDelete: { Task { onDelete?(); await onDeleteComment() } }
+        )
+        .animation(.spring, value: comment)
 
         Text(comment.content ?? String(localized: "This comment has been deleted.", bundle: .module))
           .foregroundStyle(isDeleted ? .secondary : .primary)
@@ -50,7 +60,18 @@ struct PostCommentCell: View {
           .contentTransition(.numericText())
           .animation(.spring, value: comment)
 
-        footer
+        PostCommentCellFooter(
+          isThreaded: isThreaded,
+          isDeleted: isDeleted,
+          replyCount: comment.comments.count,
+          myVote: comment.myVote,
+          votes: comment.upvotes - comment.downvotes,
+          isMine: comment.isMine,
+          onComment: onComment,
+          onUpvote: onUpvote,
+          onDownvote: onDownvote
+        )
+        .animation(.spring, value: comment)
       }
     }
     .alert(alertState?.title ?? String(localized: "Error", bundle: .module), isPresented: $isAlertPresented, actions: {
@@ -59,127 +80,6 @@ struct PostCommentCell: View {
       Text(alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
     })
     .translationPresentation(isPresented: $showTranslateSheet, text: comment.content ?? "")
-  }
-
-  private var footer: some View {
-    HStack {
-      let isDeleted: Bool = comment.content == nil
-      Spacer()
-
-      if !isThreaded {
-        PostCommentButton(commentCount: comment.comments.count) {
-          onComment?()
-        }
-        .fixedSize()
-      }
-
-      if !isDeleted {
-        PostVoteButton(
-          myVote: comment.myVote,
-          votes: comment.upvotes - comment.downvotes,
-          onDownvote: {
-            await onDownvote()
-          },
-          onUpvote: {
-            await onUpvote()
-          }
-        )
-        .disabled(comment.isMine ?? false)
-        .fixedSize()
-      }
-    }
-    .font(.caption)
-    .transition(.blurReplace)
-    .animation(.spring, value: comment)
-  }
-
-  private var header: some View {
-    HStack {
-      let isDeleted: Bool = comment.content == nil
-      profilePicture
-
-      Text(comment.author.profile.nickname)
-        .fontWeight(.medium)
-
-      Text(comment.createdAt.timeAgoDisplay)
-        .font(.caption)
-        .foregroundStyle(.secondary)
-
-      Spacer()
-
-      if !isDeleted {
-        actionsMenu
-      }
-    }
-    .font(.callout)
-  }
-
-  private var actionsMenu: some View {
-    Menu {
-      if comment.isMine == false {
-        // show report menu
-        Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
-          ForEach(AraContentReportType.allCases, id: \.self) { type in
-            Button(type.prettyString) {
-              Task {
-                await report(type: type)
-              }
-            }
-          }
-        }
-      } else if comment.isMine == true {
-        // show edit button
-        Button(String(localized: "Edit", bundle: .module), systemImage: "square.and.pencil") {
-          onEdit?()
-        }
-      }
-
-      Divider()
-
-      Button(String(localized: "Translate", bundle: .module), systemImage: "translate") {
-        showTranslateSheet = true
-      }
-
-      if comment.isMine == true {
-        Divider()
-
-        Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
-          Task {
-            onDelete?()
-            await onDeleteComment()
-          }
-        }
-      }
-    } label: {
-      Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
-        .padding(8)
-        .contentShape(.rect)
-    }
-    .labelStyle(.iconOnly)
-    .transition(.blurReplace)
-    .animation(.spring, value: comment)
-  }
-
-  @ViewBuilder
-  private var profilePicture: some View {
-    if let url = comment.author.profile.profilePictureURL {
-      LazyImage(url: url) { state in
-        if let image = state.image {
-          image
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-        } else {
-          Circle()
-            .fill(Color.secondarySystemBackground)
-        }
-      }
-      .frame(width: 21, height: 21)
-      .clipShape(.circle)
-    } else {
-      Circle()
-        .fill(Color.secondarySystemBackground)
-        .frame(width: 21, height: 21)
-    }
   }
 
   private func report(type: AraContentReportType) async {

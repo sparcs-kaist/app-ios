@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import NukeUI
 import BuddyDomain
 import Haptica
 import FirebaseAnalytics
@@ -54,13 +53,70 @@ public struct PostView: View {
     ScrollViewReader { proxy in
       ScrollView {
         Group {
-          header
+          PostHeader(
+            title: title,
+            createdAtText: viewModel.post.createdAt.formattedString,
+            views: viewModel.post.views,
+            authorProfileURL: viewModel.post.author.profile.profilePictureURL,
+            authorNickname: viewModel.post.author.profile.nickname,
+            isAnonymous: viewModel.post.author.username == "anonymous",
+            onAuthorTapped: { selectedAuthor = viewModel.post.author }
+          )
 
-          content
+          PostContent(
+            summarisedContent: summarisedContent,
+            requestProvider: { viewModel.makePostRequest() },
+            onLinkTapped: { tappedURL = $0 }
+          )
 
-          footer
+          PostFooter(
+            myVote: viewModel.post.myVote,
+            votes: viewModel.post.upvotes - viewModel.post.downvotes,
+            isMine: viewModel.post.isMine,
+            commentCount: viewModel.post.commentCount,
+            isBookmarked: viewModel.post.myScrap,
+            shareURL: Constants.araPostURL.appending(path: String(viewModel.post.id)),
+            onUpvote: { await viewModel.upvote() },
+            onDownvote: { await viewModel.downvote() },
+            onToggleBookmark: { await viewModel.toggleBookmark() },
+            onCommentTapped: {
+              targetComment = nil
+              isWritingCommentFocusState = true
+            }
+          )
 
-          comments
+          PostCommentsSection(
+            comments: $viewModel.post.comments,
+            onReply: { selectedComment in
+              targetComment = selectedComment
+              isWritingCommentFocusState = true
+            },
+            onCommentDeleted: {
+              viewModel.post.commentCount -= 1
+            },
+            onEdit: { selectedComment in
+              withAnimation(.spring) {
+                comment = selectedComment.content ?? ""
+                targetComment = nil
+                commentOnEdit = selectedComment
+              }
+              isWritingCommentFocusState = true
+            },
+            onUpvote: { target in
+              await viewModel.upvoteComment(comment: target)
+            },
+            onDownvote: { target in
+              await viewModel.downvoteComment(comment: target)
+            },
+            onReport: { commentID, type in
+              try await viewModel.reportComment(commentID: commentID, type: type)
+            },
+            onDeleteComment: { target in
+              await viewModel.deleteComment(comment: target)
+            }
+          )
+          .padding(.top, 4)
+          .animation(.spring, value: viewModel.post.comments)
         }
         .padding()
         .contentWidth()
@@ -177,172 +233,6 @@ public struct PostView: View {
     }
   }
 
-  private var comments: some View {
-    PostCommentsSection(
-      comments: $viewModel.post.comments,
-      onReply: { selectedComment in
-        targetComment = selectedComment
-        isWritingCommentFocusState = true
-      },
-      onCommentDeleted: {
-        viewModel.post.commentCount -= 1
-      },
-      onEdit: { selectedComment in
-        withAnimation(.spring) {
-          comment = selectedComment.content ?? ""
-          targetComment = nil
-          commentOnEdit = selectedComment
-        }
-        isWritingCommentFocusState = true
-      },
-      onUpvote: { target in
-        await viewModel.upvoteComment(comment: target)
-      },
-      onDownvote: { target in
-        await viewModel.downvoteComment(comment: target)
-      },
-      onReport: { commentID, type in
-        try await viewModel.reportComment(commentID: commentID, type: type)
-      },
-      onDeleteComment: { target in
-        await viewModel.deleteComment(comment: target)
-      }
-    )
-    .padding(.top, 4)
-    .animation(.spring, value: viewModel.post.comments)
-  }
-
-  private var footer: some View {
-    HStack {
-      PostVoteButton(
-        myVote: viewModel.post.myVote,
-        votes: viewModel.post.upvotes - viewModel.post.downvotes,
-        onDownvote: {
-          await viewModel.downvote()
-        }, onUpvote: {
-          await viewModel.upvote()
-        }
-      )
-      .disabled(viewModel.post.isMine ?? false)
-
-      PostCommentButton(commentCount: viewModel.post.commentCount) {
-        targetComment = nil
-        isWritingCommentFocusState = true
-      }
-
-      Spacer()
-
-      PostBookmarkButton(
-        isBookmarked: viewModel.post.myScrap,
-        onToggleBookmark: {
-          await viewModel.toggleBookmark()
-        }
-      )
-
-      PostShareButton(url: Constants.araPostURL.appending(path: String(viewModel.post.id)))
-    }
-    .font(.callout)
-  }
-
-  @ViewBuilder
-  private var content: some View {
-    if let summarisedContent {
-      SummarisationView(text: summarisedContent)
-        .padding(.bottom)
-        .transition(.asymmetric(
-          insertion: .offset(y: -10).combined(with: .opacity),
-          removal: .opacity
-        ))
-    }
-
-    ZStack {
-      DynamicHeightWebView(
-        htmlString: "",
-        dynamicHeight: $htmlHeight,
-        requestProvider: { viewModel.makePostRequest() },
-        isLoading: $isWebViewLoading,
-        loadError: $webViewLoadError,
-        reloadToken: webViewReloadToken,
-        onLinkTapped: { tappedURL = $0 }
-      )
-      .frame(height: max(1, htmlHeight))
-      .opacity(webViewLoadError == nil ? 1 : 0)
-
-      if isWebViewLoading && webViewLoadError == nil {
-        ProgressView()
-          .padding()
-      }
-
-      if let webViewLoadError {
-        VStack(spacing: 12) {
-          Text(webViewLoadError.errorDescription ?? String(localized: "Unable to load post.", bundle: .module))
-            .font(.callout)
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.center)
-          Button {
-            self.webViewLoadError = nil
-            webViewReloadToken += 1
-          } label: {
-            Text("Retry", bundle: .module)
-          }
-          .buttonStyle(.bordered)
-        }
-        .padding()
-      }
-    }
-  }
-
-  private var header: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      Text(title)
-
-      HStack {
-        Text(viewModel.post.createdAt.formattedString)
-        Text("\(viewModel.post.views) views", bundle: .module)
-      }
-      .font(.caption)
-      .foregroundStyle(.secondary)
-
-      Button(action: {
-        selectedAuthor = viewModel.post.author
-      }, label: {
-        HStack {
-          if let url = viewModel.post.author.profile.profilePictureURL {
-            LazyImage(url: url) { state in
-              if let image = state.image {
-                image
-                  .resizable()
-                  .aspectRatio(contentMode: .fill)
-              } else {
-                Circle()
-                  .fill(Color.secondarySystemBackground)
-              }
-            }
-            .frame(width: 28, height: 28)
-            .clipShape(.circle)
-          } else {
-            Circle()
-              .fill(Color.secondarySystemBackground)
-              .frame(width: 28, height: 28)
-          }
-
-          Text(viewModel.post.author.profile.nickname)
-            .fontWeight(.medium)
-
-          if viewModel.post.author.username != "anonymous" {
-            Image(systemName: "chevron.right")
-          }
-        }
-        .font(.subheadline)
-      })
-      .tint(.primary)
-      .disabled(viewModel.post.author.username == "anonymous")
-
-      Divider()
-        .padding(.vertical, 4)
-    }
-  }
-
   private func inputBar(proxy: ScrollViewProxy) -> some View {
     HStack(alignment: .bottom) {
       // comment textfield
@@ -451,26 +341,7 @@ public struct PostView: View {
   }
 
   var profilePicture: some View {
-    Group {
-      if let url = viewModel.post.myCommentProfile?.profile.profilePictureURL {
-        LazyImage(url: url) { state in
-          if let image = state.image {
-            image
-              .resizable()
-              .aspectRatio(contentMode: .fill)
-          } else {
-            Circle()
-              .fill(Color.secondarySystemBackground)
-          }
-        }
-        .frame(width: 21, height: 21)
-        .clipShape(.circle)
-      } else {
-        Circle()
-          .fill(Color.secondarySystemBackground)
-          .frame(width: 21, height: 21)
-      }
-    }
+    PostAuthorAvatar(url: viewModel.post.myCommentProfile?.profile.profilePictureURL)
   }
 
   var placeholder: String {
