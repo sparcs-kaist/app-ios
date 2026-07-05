@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Combine
+import Observation
 import Factory
 import BuddyDomain
 
@@ -48,12 +48,10 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   
   // Search Properties
   var searchKeyword: String = "" {
-    didSet {
-      searchKeywordSubject.send(searchKeyword)
-    }
+    didSet { scheduleSearch() }
   }
-  var cancellables = Set<AnyCancellable>()
-  var searchKeywordSubject = PassthroughSubject<String, Never>()
+  @ObservationIgnored private var searchTask: Task<Void, Never>?
+  @ObservationIgnored private var lastSearchKeyword: String?
 
   // Infinite Scroll Properties
   var isLoadingMore: Bool = false
@@ -68,28 +66,22 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
   }
   
   func bind() {
-    cancellables.removeAll()
-    
-    let searchPublisher = searchKeywordSubject
-      .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .removeDuplicates()
-    
-    searchPublisher
-      .sink { [weak self] _ in
-        guard let self else { return }
-        self.state = .loading
-      }
-      .store(in: &cancellables)
-    
-    searchPublisher
-      .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self else { return }
-        Task {
-          await self.fetchInitialPosts()
-        }
-      }
-      .store(in: &cancellables)
+    searchTask?.cancel()
+    lastSearchKeyword = nil
+  }
+
+  private func scheduleSearch() {
+    let keyword = searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard keyword != lastSearchKeyword else { return }
+    lastSearchKeyword = keyword
+    state = .loading
+
+    searchTask?.cancel()
+    searchTask = Task { [weak self] in
+      try? await Task.sleep(for: .milliseconds(350))
+      guard !Task.isCancelled, let self else { return }
+      await self.fetchInitialPosts()
+    }
   }
   
   func fetchInitialPosts() async {

@@ -8,7 +8,6 @@
 import SwiftUI
 import Observation
 import Factory
-import Combine
 import BuddyDomain
 
 @MainActor
@@ -32,7 +31,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   private var fetchedDateSet: Set<Date> = []
 
   var room: TaxiRoom
-  private var cancellables = Set<AnyCancellable>()
+  @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
   private var isFetching: Bool = false
 
   private let renderItemBuilder = ChatRenderItemBuilder(
@@ -59,7 +58,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
     taxiChatUseCase.setRoom(self.room)
 
-    bind()
+    await bind()
   }
 
   private func fetchTaxiUser() async {
@@ -68,27 +67,34 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     self.taxiUser = await userUseCase.taxiUser
   }
 
-  private func bind() {
+  private func bind() async {
     guard let taxiChatUseCase else { return }
 
-    taxiChatUseCase.chatsPublisher
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] chats in
-        guard let self = self else { return }
+    let chatStream = await taxiChatUseCase.chatStream()
+    let roomUpdateStream = await taxiChatUseCase.roomUpdateStream()
+
+    observationTasks.forEach { $0.cancel() }
+    observationTasks = []
+
+    observationTasks.append(Task { [weak self] in
+      for await chats in chatStream {
+        guard let self else { return }
         let filtered = chats.filter { $0.roomID == self.room.id }
-        let builtItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
-        self.renderItems = builtItems
+        self.renderItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
         self.state = .loaded
       }
-      .store(in: &cancellables)
+    })
 
-    taxiChatUseCase.roomUpdatePublisher
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] updatedRoom in
-        guard let self = self else { return }
+    observationTasks.append(Task { [weak self] in
+      for await updatedRoom in roomUpdateStream {
+        guard let self else { return }
         self.room = updatedRoom
       }
-      .store(in: &cancellables)
+    })
+  }
+
+  deinit {
+    observationTasks.forEach { $0.cancel() }
   }
 
   func loadMoreChats() async {

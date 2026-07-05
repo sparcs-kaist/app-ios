@@ -6,26 +6,26 @@
 //
 
 import Foundation
-import Combine
 import SocketIO
 import BuddyDomain
 import BuddyDataCore
 
 public final class TaxiChatService: TaxiChatServiceProtocol {
-  // MARK: - Publisher
-  private var chatsSubject = PassthroughSubject<[TaxiChat], Never>()
-  public var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
-    chatsSubject.eraseToAnyPublisher()
+  // MARK: - Broadcasters
+  private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>()
+  private let connectionBroadcaster = AsyncBroadcaster<Bool>(replaysLatest: true)
+  private let roomUpdateBroadcaster = AsyncBroadcaster<String>()
+
+  public func chatStream() async -> AsyncStream<[TaxiChat]> {
+    await chatBroadcaster.subscribe()
   }
 
-  private var isConnectedSubject = CurrentValueSubject<Bool, Never>(false)
-  public var isConnectedPublisher: AnyPublisher<Bool, Never> {
-    isConnectedSubject.eraseToAnyPublisher()
+  public func connectionStream() async -> AsyncStream<Bool> {
+    await connectionBroadcaster.subscribe()
   }
 
-  private var roomUpdateSubject = PassthroughSubject<String, Never>()
-  public var roomUpdatePublisher: AnyPublisher<String, Never> {
-    roomUpdateSubject.eraseToAnyPublisher()
+  public func roomUpdateStream() async -> AsyncStream<String> {
+    await roomUpdateBroadcaster.subscribe()
   }
 
   private var chatsStorage: [TaxiChat] = []
@@ -33,13 +33,19 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
     get { chatsStorage }
     set {
       chatsStorage = newValue
-      chatsSubject.send(newValue)
+      let broadcaster = chatBroadcaster
+      Task { await broadcaster.yield(newValue) }
     }
   }
 
+  private var isConnectedStorage: Bool = false
   private var isConnected: Bool {
-    get { isConnectedSubject.value }
-    set { isConnectedSubject.send(newValue) }
+    get { isConnectedStorage }
+    set {
+      isConnectedStorage = newValue
+      let broadcaster = connectionBroadcaster
+      Task { await broadcaster.yield(newValue) }
+    }
   }
 
   // MARK: - State
@@ -152,7 +158,8 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
         return
       }
 
-      self.roomUpdateSubject.send(roomID)
+      let broadcaster = self.roomUpdateBroadcaster
+      Task { await broadcaster.yield(roomID) }
     }
 
 //    socket.onAny { event in

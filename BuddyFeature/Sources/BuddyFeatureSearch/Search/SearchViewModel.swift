@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Observation
-import Combine
 import Factory
 import BuddyDomain
 
@@ -35,11 +34,11 @@ class SearchViewModel {
   
   // Search Properties
   var searchText: String = "" {
-    didSet { searchKeywordSubject.send(searchText) }
+    didSet { scheduleSearch() }
   }
   var searchScope: SearchScope = .all
-  @ObservationIgnored private var cancellables = Set<AnyCancellable>()
-  @ObservationIgnored private let searchKeywordSubject = PassthroughSubject<String, Never>()
+  @ObservationIgnored private var searchTask: Task<Void, Never>?
+  @ObservationIgnored private var lastSearchKeyword: String?
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.araBoardUseCase) private var araBoardUseCase: AraBoardUseCaseProtocol?
@@ -52,33 +51,28 @@ class SearchViewModel {
   ) private var courseUseCase: CourseUseCaseProtocol?
 
   func bind() {
-    cancellables.removeAll()
-    
-    let searchPublisher = searchKeywordSubject
-      .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .removeDuplicates()
-    
-    searchPublisher
-      .sink { [weak self] _ in
-        guard let self else { return }
-        guard !searchText.isEmpty else { return }
-        self.state = .loading
-      }
-      .store(in: &cancellables)
-    
-    searchPublisher
-      .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self else { return }
-        guard !searchText.isEmpty else { return }
-        self.courses.removeAll()
-        self.posts.removeAll()
-        self.taxiRooms.removeAll()
-        Task {
-          await scopedFetch()
-        }
-      }
-      .store(in: &cancellables)
+    searchTask?.cancel()
+    lastSearchKeyword = nil
+  }
+
+  private func scheduleSearch() {
+    let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard keyword != lastSearchKeyword else { return }
+    lastSearchKeyword = keyword
+
+    searchTask?.cancel()
+    guard !searchText.isEmpty else { return }
+    state = .loading
+
+    searchTask = Task { [weak self] in
+      try? await Task.sleep(for: .milliseconds(350))
+      guard !Task.isCancelled, let self else { return }
+      guard !self.searchText.isEmpty else { return }
+      self.courses.removeAll()
+      self.posts.removeAll()
+      self.taxiRooms.removeAll()
+      await self.scopedFetch()
+    }
   }
   
   func fetchInitialData() async {

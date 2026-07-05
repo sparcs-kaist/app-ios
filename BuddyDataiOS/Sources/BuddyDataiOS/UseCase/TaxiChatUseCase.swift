@@ -7,20 +7,20 @@
 
 import Foundation
 import UIKit
-import Combine
 import SocketIO
 import BuddyDomain
 
 public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable {
-  // MARK: - Publishers
-  private var chatsSubject = PassthroughSubject<[TaxiChat], Never>()
-  public var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
-    chatsSubject.eraseToAnyPublisher()
+  // MARK: - Broadcasters
+  private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>(replaysLatest: true)
+  private let roomUpdateBroadcaster = AsyncBroadcaster<TaxiRoom>()
+
+  public func chatStream() async -> AsyncStream<[TaxiChat]> {
+    await chatBroadcaster.subscribe()
   }
 
-  private var roomUpdateSubject = PassthroughSubject<TaxiRoom, Never>()
-  public var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> {
-    roomUpdateSubject.eraseToAnyPublisher()
+  public func roomUpdateStream() async -> AsyncStream<TaxiRoom> {
+    await roomUpdateBroadcaster.subscribe()
   }
 
   // MARK: - State
@@ -29,7 +29,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   private var hasInitialChatsBeenFetched: Bool = false
   private var flatChats: [TaxiChat] = []
 
-  private var cancellables = Set<AnyCancellable>()
+  private var observationTasks: [Task<Void, Never>] = []
 
   // MARK: - Computed Properties
   public var accountChats: [TaxiChat] = []
@@ -66,7 +66,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
 
     hasInitialChatsBeenFetched = true
 
-    bind()
+    await bind()
 
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id)
@@ -104,7 +104,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
         inOutNames: nil
       )
       flatChats.append(optimisticChat)
-      chatsSubject.send(flatChats)
+      await chatBroadcaster.yield(flatChats)
     }
 
     do {
@@ -127,49 +127,51 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
     try await taxiChatRepository.notifyImageUploadComplete(id: presignedURL.id)
   }
 
-  private func bind() {
+  private func bind() async {
     guard let taxiChatRepository, let taxiRoomRepository, let taxiChatService, let room else {
       return
     }
 
+    let roomID = room.id
+    let connectionStream = await taxiChatService.connectionStream()
+    let serviceChatStream = await taxiChatService.chatStream()
+    let serviceRoomUpdateStream = await taxiChatService.roomUpdateStream()
+
     // is socket(TaxiChatService) connected
-    taxiChatService.isConnectedPublisher
-      .sink { [weak self] isConnected in
-        self?.isSocketConnected = isConnected
+    observationTasks.append(Task { [weak self] in
+      for await isConnected in connectionStream {
+        guard let self else { return }
+        self.isSocketConnected = isConnected
       }
-      .store(in: &cancellables)
+    })
 
-    // converts [TaxiChat] into [TaxiChatGroup]
-    taxiChatService.chatsPublisher
-      .sink { [weak self, taxiChatRepository] chats in
-        Task { [weak self, taxiChatRepository] in
-          guard let self else { return }
-
-          try? await taxiChatRepository.readChats(roomID: room.id)
-
-          self.flatChats = chats
-          self.chatsSubject.send(chats)
-
-          self.accountChats = chats.filter { $0.type == .account }
-        }
+    // forwards chats downstream, marking them read
+    observationTasks.append(Task { [weak self, taxiChatRepository] in
+      for await chats in serviceChatStream {
+        guard let self else { return }
+        try? await taxiChatRepository.readChats(roomID: roomID)
+        self.flatChats = chats
+        self.accountChats = chats.filter { $0.type == .account }
+        await self.chatBroadcaster.yield(chats)
       }
-      .store(in: &cancellables)
+    })
 
     // handles room updates from chat_update event
-    taxiChatService.roomUpdatePublisher
-      .sink { [weak self, taxiRoomRepository] roomID in
-        Task { [weak self, taxiRoomRepository] in
-          guard let self, roomID == room.id else { return }
-
-          do {
-            let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: roomID)
-            self.room = updatedRoom
-            self.roomUpdateSubject.send(updatedRoom)
-          } catch {
-            print("Failed to update room: \(error)")
-          }
+    observationTasks.append(Task { [weak self, taxiRoomRepository] in
+      for await updatedRoomID in serviceRoomUpdateStream {
+        guard let self, updatedRoomID == roomID else { continue }
+        do {
+          let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: updatedRoomID)
+          self.room = updatedRoom
+          await self.roomUpdateBroadcaster.yield(updatedRoom)
+        } catch {
+          print("Failed to update room: \(error)")
         }
       }
-      .store(in: &cancellables)
+    })
+  }
+
+  deinit {
+    observationTasks.forEach { $0.cancel() }
   }
 }
