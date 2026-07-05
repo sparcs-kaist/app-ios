@@ -10,6 +10,9 @@ import SwiftUI
 import PhotosUI
 import BuddyDomain
 import FirebaseAnalytics
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostComposeView")
 
 struct PostComposeView: View {
   @State private var viewModel: PostComposeViewModelProtocol
@@ -119,6 +122,7 @@ struct PostComposeView: View {
                   try await viewModel.writePost()
                   dismiss()
                 } catch {
+                  logger.error("Failed to write post: \(error.localizedDescription, privacy: .public)")
                   errorMessage = "Failed to write post. Please try again later."
                   showErrorAlert = true
                 }

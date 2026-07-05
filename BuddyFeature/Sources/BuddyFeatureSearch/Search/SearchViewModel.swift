@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "SearchViewModel")
 
 @MainActor
 @Observable
@@ -114,6 +117,7 @@ class SearchViewModel {
 
       self.state = .loaded
     } catch {
+      logger.error("Failed to load search results: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
   }
@@ -138,6 +142,7 @@ class SearchViewModel {
       self.state = .loaded
       self.isLoadingMore = false
     } catch {
+      logger.error("Failed to load search results: \(error.localizedDescription, privacy: .public)")
       self.state = .error(message: error.localizedDescription)
       self.isLoadingMore = false
     }

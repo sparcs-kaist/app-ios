@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiListViewModel")
 
 @MainActor
 @Observable
@@ -62,6 +65,7 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
         state = .loaded(rooms: rooms, locations: self.locations)
       }
     } catch {
+      logger.error("Failed to load taxi rooms: \(error.localizedDescription, privacy: .public)")
       withAnimation(.spring) {
         state = .error(message: error.localizedDescription)
       }

@@ -11,6 +11,9 @@ import NukeUI
 import Translation
 import BuddyDomain
 import BuddyFeatureShared
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostCommentCell")
 
 struct PostCommentCell: View {
   @Binding var comment: AraPostComment
@@ -184,6 +187,7 @@ struct PostCommentCell: View {
       try await onReport(type)
       showAlert(title: String(localized: "Report Submitted", bundle: .module), content: String(localized: "Your report has been submitted successfully.", bundle: .module))
     } catch {
+      logger.error("Failed to submit report: \(error.localizedDescription, privacy: .public)")
       showAlert(title: String(localized: "Unable to submit report.", bundle: .module), content: error.localizedDescription)
     }
   }

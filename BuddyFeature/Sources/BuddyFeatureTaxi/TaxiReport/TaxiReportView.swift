@@ -11,6 +11,9 @@ import NukeUI
 import Factory
 import BuddyDomain
 import FirebaseAnalytics
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiReportView")
 
 struct TaxiReportView: View {
   var room: TaxiRoom
@@ -93,6 +96,7 @@ struct TaxiReportView: View {
                   try await viewModel.createReport(roomID: room.id)
                   dismiss()
                 } catch {
+                  logger.error("Failed to create report: \(error.localizedDescription, privacy: .public)")
 //                  if error.isNetworkMoyaError {
 //                    showAlert(title: String(localized: "Error", bundle: .module), content: String(localized: "You are not connected to the Internet.", bundle: .module))
 //                  } else {

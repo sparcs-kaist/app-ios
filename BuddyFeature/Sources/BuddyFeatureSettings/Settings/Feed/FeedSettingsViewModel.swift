@@ -10,6 +10,9 @@ import PhotosUI
 import Factory
 import BuddyDomain
 import UIKit
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedSettingsViewModel")
 
 @Observable
 final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
@@ -50,6 +53,7 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
       
       state = .loaded
     } catch {
+      logger.error("Failed to fetch user: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
   }
@@ -81,6 +85,7 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
       
       return true
     } catch {
+      logger.error("Failed to update profile: \(error.localizedDescription, privacy: .public)")
       alertState = .init(
         title: String(localized: "Failed to update profile.", bundle: .module),
         message: error.localizedDescription

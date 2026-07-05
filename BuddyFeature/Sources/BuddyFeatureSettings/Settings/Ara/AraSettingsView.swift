@@ -9,6 +9,9 @@ import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "AraSettingsView")
 
 struct AraSettingsView: View {
   @State private var vm: AraSettingsViewModelProtocol
@@ -124,7 +127,7 @@ struct AraSettingsView: View {
       do {
         try await vm.updateNickname()
       } catch {
-//        logger.error("Failed to update Ara nickname: \(error.localizedDescription)")
+        logger.error("Failed to update Ara nickname: \(error.localizedDescription, privacy: .public)")
       }
     }
   }

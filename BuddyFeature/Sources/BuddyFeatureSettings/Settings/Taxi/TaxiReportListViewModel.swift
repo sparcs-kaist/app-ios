@@ -8,6 +8,9 @@
 import Foundation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiReportListViewModel")
 
 @MainActor
 protocol TaxiReportListViewModelProtocol: Observable {
@@ -40,6 +43,7 @@ class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
       reports = try await taxiReportRepository.fetchMyReports()
       state = .loaded
     } catch {
+      logger.error("Failed to fetch reports: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
   }

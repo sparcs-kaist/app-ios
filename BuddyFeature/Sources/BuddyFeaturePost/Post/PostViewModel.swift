@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostViewModel")
 
 @MainActor
 protocol PostViewModelProtocol: Observable {
@@ -113,6 +116,7 @@ class PostViewModel: PostViewModelProtocol {
       let post: AraPost = try await araBoardUseCase.fetchPost(origin: .board, postID: post.id)
       self.post = post
     } catch {
+      logger.error("Failed to fetch post: \(error.localizedDescription, privacy: .public)")
       presentAlert(
         title: String(localized: "Unable to fetch post.", bundle: .module),
         message: error.localizedDescription
@@ -144,6 +148,7 @@ class PostViewModel: PostViewModelProtocol {
       }
       analyticsService?.logEvent(PostViewEvent.postUpvoted)
     } catch {
+      logger.error("Failed to upvote: \(error.localizedDescription, privacy: .public)")
       post.upvotes = previousUpvotes
       post.myVote = previousMyVote
     }
@@ -173,6 +178,7 @@ class PostViewModel: PostViewModelProtocol {
       }
       analyticsService?.logEvent(PostViewEvent.postDownvoted)
     } catch {
+      logger.error("Failed to downvote: \(error.localizedDescription, privacy: .public)")
       post.downvotes = previousDownvotes
       post.myVote = previousMyVote
     }
@@ -280,6 +286,7 @@ class PostViewModel: PostViewModelProtocol {
       }
       analyticsService?.logEvent(PostViewEvent.bookmarkToggled(isBookmarked: post.myScrap))
     } catch {
+      logger.error("Failed to toggle bookmark: \(error.localizedDescription, privacy: .public)")
       post.myScrap = previousBookmarkStatus
     }
   }
@@ -309,6 +316,7 @@ class PostViewModel: PostViewModelProtocol {
       }
       analyticsService?.logEvent(PostCommentCellEvent.commentUpvoted)
     } catch {
+      logger.error("Failed to upvote: \(error.localizedDescription, privacy: .public)")
       comment.wrappedValue.upvotes = previousUpvotes
       comment.wrappedValue.myVote = previousMyVote
     }
@@ -338,6 +346,7 @@ class PostViewModel: PostViewModelProtocol {
       }
       analyticsService?.logEvent(PostCommentCellEvent.commentDownvoted)
     } catch {
+      logger.error("Failed to downvote: \(error.localizedDescription, privacy: .public)")
       comment.wrappedValue.downvotes = previousDownvotes
       comment.wrappedValue.myVote = previousMyVote
     }
@@ -359,6 +368,7 @@ class PostViewModel: PostViewModelProtocol {
       try await araCommentUseCase.deleteComment(commentID: comment.wrappedValue.id)
       analyticsService?.logEvent(PostCommentCellEvent.commentDeleted)
     } catch {
+      logger.error("Failed to delete comment: \(error.localizedDescription, privacy: .public)")
       comment.wrappedValue.content = previousContent
     }
   }

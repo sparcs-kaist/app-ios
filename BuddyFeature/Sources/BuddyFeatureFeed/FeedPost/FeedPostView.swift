@@ -13,6 +13,9 @@ import BuddyDomain
 import BuddyFeatureShared
 import BuddyPreviewSupport
 import FirebaseAnalytics
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedPostView")
 
 struct FeedPostView: View {
   @Binding var post: FeedPost
@@ -110,6 +113,7 @@ struct FeedPostView: View {
             try await onDelete?()
             dismiss()
           } catch {
+            logger.error("Failed to delete post: \(error.localizedDescription, privacy: .public)")
             viewModel.alertState = .init(
               title: String(localized: "Unable to delete post.", bundle: .module),
               message: error.localizedDescription

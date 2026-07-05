@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedPostRowViewModel")
 
 @MainActor
 @Observable
@@ -48,6 +51,7 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
       }
       analyticsService?.logEvent(FeedPostRowEvent.postUpvoted)
     } catch {
+      logger.error("Failed to upvote: \(error.localizedDescription, privacy: .public)")
       post.wrappedValue.myVote = previousMyVote
       post.wrappedValue.upvotes = previousUpvotes
       post.wrappedValue.downvotes = previousDownvotes
@@ -83,6 +87,7 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
       }
       analyticsService?.logEvent(FeedPostRowEvent.postDownvoted)
     } catch {
+      logger.error("Failed to downvote: \(error.localizedDescription, privacy: .public)")
       post.wrappedValue.myVote = previousMyVote
       post.wrappedValue.upvotes = previousUpvotes
       post.wrappedValue.downvotes = previousDownvotes
@@ -106,6 +111,7 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
       )
       isAlertPresented = true
     } catch {
+      logger.error("Failed to submit report: \(error.localizedDescription, privacy: .public)")
       alertState = .init(
         title: String(localized: "Unable to submit report.", bundle: .module),
         message: error.localizedDescription

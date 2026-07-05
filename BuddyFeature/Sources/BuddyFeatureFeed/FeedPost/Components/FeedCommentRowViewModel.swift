@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedCommentRowViewModel")
 
 @MainActor
 protocol FeedCommentRowViewModelProtocol: Observable {
@@ -57,6 +60,7 @@ final class FeedCommentRowViewModel: FeedCommentRowViewModelProtocol {
         try await feedCommentUseCase.vote(commentID: comment.wrappedValue.id, type: .up)
       }
     } catch {
+      logger.error("Failed to upvote: \(error.localizedDescription, privacy: .public)")
       comment.wrappedValue.myVote = previousMyVote
       comment.wrappedValue.upvotes = previousUpvotes
       comment.wrappedValue.downvotes = previousDownvotes
@@ -91,6 +95,7 @@ final class FeedCommentRowViewModel: FeedCommentRowViewModelProtocol {
         try await feedCommentUseCase.vote(commentID: comment.wrappedValue.id, type: .down)
       }
     } catch {
+      logger.error("Failed to downvote: \(error.localizedDescription, privacy: .public)")
       comment.wrappedValue.myVote = previousMyVote
       comment.wrappedValue.upvotes = previousUpvotes
       comment.wrappedValue.downvotes = previousDownvotes
@@ -109,6 +114,7 @@ final class FeedCommentRowViewModel: FeedCommentRowViewModelProtocol {
     do {
       try await feedCommentUseCase.deleteComment(commentID: comment.wrappedValue.id)
     } catch {
+      logger.error("Failed to delete comment: \(error.localizedDescription, privacy: .public)")
       comment.wrappedValue.isDeleted = false
       alertState = .init(
         title: String(localized: "Unable to delete comment.", bundle: .module),
@@ -129,6 +135,7 @@ final class FeedCommentRowViewModel: FeedCommentRowViewModelProtocol {
       )
       isAlertPresented = true
     } catch {
+      logger.error("Failed to submit report: \(error.localizedDescription, privacy: .public)")
       alertState = .init(
         title: String(localized: "Unable to submit report.", bundle: .module),
         message: error.localizedDescription

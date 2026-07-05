@@ -12,6 +12,9 @@ import BuddyDomain
 import Haptica
 import FirebaseAnalytics
 import BuddyFeatureShared
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostView")
 
 public struct PostView: View {
   @State private var viewModel: PostViewModelProtocol
@@ -85,6 +88,7 @@ public struct PostView: View {
                     onPostDeleted?(viewModel.post.id)
                     dismiss()
                   } catch {
+                    logger.error("Failed to delete post: \(error.localizedDescription, privacy: .public)")
                     viewModel.alertState = .init(
                       title: String(localized: "Unable to delete post.", bundle: .module),
                       message: error.localizedDescription
@@ -407,6 +411,7 @@ public struct PostView: View {
                 proxy.scrollTo(uploadedComment?.id, anchor: .center)
               }
             } catch {
+              logger.error("Failed to write comment: \(error.localizedDescription, privacy: .public)")
               viewModel.alertState = .init(
                 title: String(localized: "Unable to write comment.", bundle: .module),
                 message: error.localizedDescription
@@ -507,6 +512,7 @@ public struct PostView: View {
       )
       viewModel.isAlertPresented = true
     } catch {
+      logger.error("Failed to submit report: \(error.localizedDescription, privacy: .public)")
       viewModel.alertState = .init(
         title: String(localized: "Unable to submit report.", bundle: .module),
         message: error.localizedDescription

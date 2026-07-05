@@ -8,6 +8,9 @@
 import SwiftUI
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "NotificationSettingsViewModel")
 
 @MainActor
 @Observable
@@ -48,6 +51,7 @@ public final class NotificationSettingsViewModel {
       try await fcmUseCase?.manage(service: service, isActive: isActive)
       updateToggleState(for: service, isActive: isActive)
     } catch {
+      logger.error("Failed to update toggle status: \(error.localizedDescription, privacy: .public)")
       alertState = .init(
         title: String(localized: "Failed to update toggle status", bundle: .module),
         message: error.localizedDescription

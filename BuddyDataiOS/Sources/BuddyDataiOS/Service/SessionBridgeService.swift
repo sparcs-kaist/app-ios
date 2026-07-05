@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import os
 import WatchConnectivity
 import BuddyDomain
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "WatchSession")
 
 public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBridgeServiceProtocol {
   private let session = WCSession.isSupported() ? WCSession.default : nil
@@ -24,19 +27,19 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
 
   public func updateTimetable(_ timetable: Timetable) {
     guard WCSession.default.activationState == .activated else {
-      print("[updateTimetable] Session not activated. Skipping update.")
+      logger.debug("updateTimetable: session not activated. Skipping update.")
       return
     }
 
     do {
-      print("[updateTimetable] Encoding timetable with id:", timetable.id)
+      logger.debug("updateTimetable: encoding timetable with id \(timetable.id, privacy: .public)")
       let data = try JSONEncoder().encode(timetable)
-      print("[updateTimetable] Encoded timetable size:", data.count, "bytes")
+      logger.debug("updateTimetable: encoded timetable size \(data.count) bytes")
 
       try WCSession.default.updateApplicationContext([BridgeKeys.timetable: data])
-      print("[updateTimetable] Successfully updated application context.")
+      logger.debug("updateTimetable: successfully updated application context.")
     } catch {
-      print("[updateTimetable] Failed to encode or update context:", error)
+      logger.error("updateTimetable: failed to encode or update context: \(error.localizedDescription, privacy: .public)")
       return
     }
   }
@@ -48,15 +51,15 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
     activationDidCompleteWith activationState: WCSessionActivationState,
     error: (any Error)?
   ) {
-    if let error { print("[SessionBridgeService] activation error:", error) }
-    else { print("[SessionBridgeService] activated:", activationState.rawValue) }
+    if let error { logger.error("Activation error: \(error.localizedDescription, privacy: .public)") }
+    else { logger.debug("Activated: \(activationState.rawValue)") }
   }
 
   public func sessionDidBecomeInactive(_ session: WCSession) {
-    print("[SessionBridgeService] sessionDidBecomeInactive")
+    logger.debug("sessionDidBecomeInactive")
   }
 
   public func sessionDidDeactivate(_ session: WCSession) {
-    print("[SessionBridgeService] sessionDidDeactivate")
+    logger.debug("sessionDidDeactivate")
   }
 }

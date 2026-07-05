@@ -7,8 +7,11 @@
 
 import Foundation
 import UIKit
+import os
 import SocketIO
 import BuddyDomain
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChat")
 
 public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Broadcasters
@@ -68,7 +71,7 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id)
     } catch {
-      print(error)
+      logger.error("Failed to fetch initial chats: \(error.localizedDescription, privacy: .public)")
     }
   }
 
@@ -78,17 +81,18 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id, before: date)
     } catch {
-      print(error)
+      logger.error("Failed to fetch chats before \(date, privacy: .public): \(error.localizedDescription, privacy: .public)")
     }
   }
 
-  public func sendChat(_ content: String?, type: TaxiChat.ChatType) async {
+  public func sendChat(_ content: String?, type: TaxiChat.ChatType) async throws {
     guard let taxiChatRepository, let room else { return }
 
     // Optimistic insert
+    var optimisticChat: TaxiChat?
     if let content, let userUseCase {
       let user: TaxiUser? = await userUseCase.taxiUser
-      let optimisticChat = TaxiChat(
+      let chat = TaxiChat(
         roomID: room.id,
         type: type,
         authorID: user?.oid,
@@ -100,7 +104,8 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
         isValid: true,
         inOutNames: nil
       )
-      flatChats.append(optimisticChat)
+      optimisticChat = chat
+      flatChats.append(chat)
       await chatBroadcaster.yield(flatChats)
     }
 
@@ -108,7 +113,13 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
       let request = TaxiChatRequest(roomID: room.id, type: type, content: content)
       try await taxiChatRepository.sendChat(request)
     } catch {
-      print(error)
+      // Roll back the optimistic insert so a failed message doesn't look sent.
+      if let optimisticChat {
+        flatChats.removeAll { $0.id == optimisticChat.id }
+        await chatBroadcaster.yield(flatChats)
+      }
+      logger.error("Failed to send chat: \(error.localizedDescription, privacy: .public)")
+      throw error
     }
   }
 
@@ -177,7 +188,7 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
       room = updatedRoom
       await roomUpdateBroadcaster.yield(updatedRoom)
     } catch {
-      print("Failed to update room: \(error)")
+      logger.error("Failed to update room: \(error.localizedDescription, privacy: .public)")
     }
   }
 

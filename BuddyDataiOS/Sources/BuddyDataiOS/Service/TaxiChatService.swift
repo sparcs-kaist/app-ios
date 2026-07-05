@@ -6,9 +6,12 @@
 //
 
 import Foundation
+import os
 import SocketIO
 import BuddyDomain
 import BuddyDataCore
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatSocket")
 
 // @unchecked Sendable: this type bridges SocketIO's callback-based API. Its
 // scalar state is only mutated inside socket event handlers (delivered serially
@@ -122,7 +125,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
     }
 
     socket.on(clientEvent: .error) { data, _ in
-      print("[TaxiChatService] Socket error: \(data)")
+      logger.error("Socket error: \(String(describing: data), privacy: .public)")
     }
 
     // Retrieves recent chats

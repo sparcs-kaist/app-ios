@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatViewModel")
 
 @MainActor
 @Observable
@@ -131,7 +134,13 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     scrollToBottomTrigger += 1
 
     Task {
-      await taxiChatUseCase.sendChat(message, type: type)
+      do {
+        try await taxiChatUseCase.sendChat(message, type: type)
+      } catch {
+        logger.error("Failed to send chat: \(error.localizedDescription, privacy: .public)")
+        alertState = AlertState(title: "Error", message: error.localizedDescription)
+        isAlertPresented = true
+      }
     }
   }
 
@@ -163,8 +172,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         guard let account = taxiUser?.account, !account.isEmpty else {
           return
         }
-        await taxiChatUseCase.sendChat(account, type: .account)
+        try await taxiChatUseCase.sendChat(account, type: .account)
       } catch {
+        logger.error("Failed to commit settlement: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
@@ -183,6 +193,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         let room: TaxiRoom = try await taxiRoomRepository.commitPayment(id: room.id)
         self.room = room
       } catch {
+        logger.error("Failed to commit payment: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
@@ -204,6 +215,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       do {
         room = try await taxiRoomRepository.updateArrival(id: room.id, isArrived: isArrived)
       } catch {
+        logger.error("Failed to update arrival: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
@@ -217,6 +229,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       do {
         room = try await taxiRoomRepository.updateCarrier(id: room.id, hasCarrier: hasCarrier)
       } catch {
+        logger.error("Failed to update carrier: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }

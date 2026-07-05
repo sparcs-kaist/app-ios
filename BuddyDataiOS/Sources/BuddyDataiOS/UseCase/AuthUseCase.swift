@@ -7,9 +7,12 @@
 
 import UIKit
 import Combine
+import os
 import BuddyDomain
 import BuddyDataCore
 import WidgetKit
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "Auth")
 
 public actor AuthUseCase: AuthUseCaseProtocol {
   private let authenticationService: AuthenticationServiceProtocol
@@ -113,7 +116,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   // MARK: - Access Token
   public nonisolated func getAccessToken() -> String? {
     if tokenStorage.isTokenExpired() {
-      print("[AuthUseCase] Access token is expired. Attempting to refresh...")
+      logger.debug("Access token is expired; returning nil. Caller should use getValidAccessToken() to refresh.")
       // If the token is expired, return nil. Caller should invoke getValidAccessToken() to attempt refresh asynchronously.
       return nil
     }
@@ -122,7 +125,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
 
   public func getValidAccessToken() async throws -> String {
     if tokenStorage.isTokenExpired() {
-      print("[AuthUseCase] Access token is expired. Refreshing...")
+      logger.debug("Access token is expired. Refreshing...")
       try await refreshAccessToken(force: false)
     }
 
@@ -148,7 +151,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     }
 
     if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired(), !force {
-      print("[AuthUseCase] Access token is still valid. No refresh needed.")
+      logger.debug("Access token is still valid. No refresh needed.")
       scheduleRefreshTimer() // reset timer on valid
       return
     }
@@ -185,11 +188,11 @@ public actor AuthUseCase: AuthUseCaseProtocol {
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
       _isAuthenticatedSubject.value = true
       lastFailure = nil
-      print("[AuthUseCase] Successfully refreshed access token.")
+      logger.info("Successfully refreshed access token.")
       scheduleRefreshTimer() // set timer on success
       onTokenRefresh?()
     } catch {
-      print("[AuthUseCase] Token refresh failed. \(error.localizedDescription)")
+      logger.error("Token refresh failed: \(error.localizedDescription, privacy: .public)")
       lastFailure = Date()
       // Only clear tokens on auth error (401), not on network/decoding errors
       let isAuthError: Bool
@@ -225,13 +228,13 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       try await otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
       _isAuthenticatedSubject.value = true
-      print("[AuthUseCase] Signed In")
+      logger.info("Signed in.")
       WidgetCenter.shared.reloadAllTimelines()
       scheduleRefreshTimer() // set timer on success
     } catch {
       tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
-      print(error)
+      logger.error("Sign in failed: \(error.localizedDescription, privacy: .public)")
       cancelRefreshTimer()
       throw AuthUseCaseError.signInFailed(error)
     }
@@ -245,6 +248,6 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     tokenStorage.clearTokens()
     _isAuthenticatedSubject.value = false
     cancelRefreshTimer()
-    print("[AuthUseCase] Signed Out")
+    logger.info("Signed out.")
   }
 }

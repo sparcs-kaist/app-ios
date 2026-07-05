@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostListViewModel")
 
 @Observable
 class PostListViewModel: PostListViewModelProtocol {
@@ -82,6 +85,7 @@ class PostListViewModel: PostListViewModelProtocol {
       self.state = .loaded(posts: self.posts)
       analyticsService?.logEvent(PostListViewEvent.postsRefreshed)
     } catch {
+      logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
   }
@@ -115,6 +119,7 @@ class PostListViewModel: PostListViewModelProtocol {
           self.isLoadingMore = false
         }
       } catch {
+        logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
         await MainActor.run {
           self.isLoadingMore = false
         }

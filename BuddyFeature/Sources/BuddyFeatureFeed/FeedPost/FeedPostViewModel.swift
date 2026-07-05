@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedPostViewModel")
 
 @MainActor
 protocol FeedPostViewModelProtocol: Observable {
@@ -79,6 +82,7 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
         analyticsService?.logEvent(FeedPostViewEvent.commentsRefreshed)
       }
     } catch {
+      logger.error("Failed to fetch comments: \(error.localizedDescription, privacy: .public)")
       self.state = .error(message: error.localizedDescription)
     }
   }
@@ -139,6 +143,7 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
       )
       isAlertPresented = true
     } catch {
+      logger.error("Failed to submit report: \(error.localizedDescription, privacy: .public)")
       alertState = .init(
         title: String(localized: "Unable to submit report.", bundle: .module),
         message: error.localizedDescription
@@ -167,6 +172,7 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
       text = ""
       return uploadedComment
     } catch {
+      logger.error("Failed to submit comment: \(error.localizedDescription, privacy: .public)")
       alertState = .init(
         title: String(localized: "Unable to write comment.", bundle: .module),
         message: error.localizedDescription

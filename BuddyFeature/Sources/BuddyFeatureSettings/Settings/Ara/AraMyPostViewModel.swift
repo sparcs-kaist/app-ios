@@ -9,6 +9,9 @@ import Foundation
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "AraMyPostViewModel")
 
 @MainActor
 protocol AraMyPostViewModelProtocol: Observable {
@@ -109,7 +112,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
       self.hasMorePages = currentPage < totalPages
       self.state = .loaded(posts: self.posts)
     } catch {
-//      logger.error(error)
+      logger.error("Failed to fetch posts: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
   }
@@ -145,7 +148,7 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
       self.state = .loaded(posts: self.posts)
       self.isLoadingMore = false
     } catch {
-//      logger.error(error)
+      logger.error("Failed to load next page: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
   }

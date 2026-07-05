@@ -20,6 +20,6 @@ public protocol TaxiChatUseCaseProtocol: Sendable {
   func reconnect() async
   func fetchInitialChats() async
   func fetchChats(before date: Date) async
-  func sendChat(_ content: String?, type: TaxiChat.ChatType) async
+  func sendChat(_ content: String?, type: TaxiChat.ChatType) async throws
   func sendImage(_ content: UIImage) async throws
 }

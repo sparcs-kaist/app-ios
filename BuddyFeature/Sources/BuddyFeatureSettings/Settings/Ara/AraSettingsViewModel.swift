@@ -10,6 +10,9 @@ import Combine
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "AraSettingsViewModel")
 
 @MainActor
 protocol AraSettingsViewModelProtocol: Observable {
@@ -84,7 +87,7 @@ class AraSettingsViewModel: AraSettingsViewModelProtocol {
     do {
       try await userUseCase.updateAraUser(params: ["see_sexual": allowNSFW, "see_social": allowPolitical])
     } catch {
-//      logger.error("Failed to update Ara content preference: \(error)")
+      logger.error("Failed to update Ara content preference: \(error.localizedDescription, privacy: .public)")
     }
   }
 }
