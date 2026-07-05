@@ -16,6 +16,15 @@ private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostViewMod
 @MainActor
 protocol PostViewModelProtocol: Observable {
   var post: AraPost { get set }
+  // Hot, independently-mutated state is flattened off `post` so that a vote,
+  // bookmark, or comment change invalidates only the view that reads it (the
+  // footer / comments section) rather than every view that reads `post`.
+  var upvotes: Int { get }
+  var downvotes: Int { get }
+  var myVote: Bool? { get }
+  var myScrap: Bool { get }
+  var commentCount: Int { get set }
+  var comments: [AraPostComment] { get set }
   var isFoundationModelsAvailable: Bool { get }
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
@@ -44,10 +53,32 @@ protocol PostViewModelProtocol: Observable {
 @Observable
 class PostViewModel: PostViewModelProtocol {
   // MARK: - Properties
-  var post: AraPost
+  /// The full post. Source of truth for static fields (title, author, views,
+  /// content, board, topic) and for round-tripping (translation). Reassigned
+  /// only on `fetchPost`; hot fields below are mutated in isolation instead.
+  var post: AraPost {
+    didSet { syncHotState() }
+  }
+  private(set) var upvotes: Int = 0
+  private(set) var downvotes: Int = 0
+  private(set) var myVote: Bool? = nil
+  private(set) var myScrap: Bool = false
+  var commentCount: Int = 0
+  var comments: [AraPostComment] = []
   var isFoundationModelsAvailable: Bool = false
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
+
+  /// Copies the hot, view-facing fields off `post`. Called on init and whenever
+  /// `post` is replaced wholesale (e.g. after `fetchPost`).
+  private func syncHotState() {
+    upvotes = post.upvotes
+    downvotes = post.downvotes
+    myVote = post.myVote
+    myScrap = post.myScrap
+    commentCount = post.commentCount
+    comments = post.comments
+  }
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -70,6 +101,7 @@ class PostViewModel: PostViewModelProtocol {
   // MARK: - Initialiser
   init(post: AraPost) {
     self.post = post
+    syncHotState()
 
     Task {
       await refreshFoundationModelsAvailability()
@@ -138,20 +170,24 @@ class PostViewModel: PostViewModelProtocol {
   private func vote(isUpvote: Bool, event: PostViewEvent) async {
     guard let araBoardUseCase else { return }
 
-    let snapshot: AraPost = post
+    // Snapshot only the vote-related hot fields, so a revert doesn't disturb
+    // (and re-invalidate) anything else.
+    let previousMyVote: Bool? = myVote
+    let previousUpvotes: Int = upvotes
+    let previousDownvotes: Int = downvotes
 
     do {
-      if post.myVote == isUpvote {
+      if myVote == isUpvote {
         // Toggle the existing vote off.
-        post.myVote = nil
-        if isUpvote { post.upvotes -= 1 } else { post.downvotes -= 1 }
+        myVote = nil
+        if isUpvote { upvotes -= 1 } else { downvotes -= 1 }
         try await araBoardUseCase.cancelVote(postID: post.id)
       } else {
         // Clear the opposite vote (if any), then apply the new one.
-        if post.myVote == true { post.upvotes -= 1 }
-        else if post.myVote == false { post.downvotes -= 1 }
-        post.myVote = isUpvote
-        if isUpvote { post.upvotes += 1 } else { post.downvotes += 1 }
+        if myVote == true { upvotes -= 1 }
+        else if myVote == false { downvotes -= 1 }
+        myVote = isUpvote
+        if isUpvote { upvotes += 1 } else { downvotes += 1 }
         if isUpvote {
           try await araBoardUseCase.upvotePost(postID: post.id)
         } else {
@@ -161,7 +197,9 @@ class PostViewModel: PostViewModelProtocol {
       analyticsService?.logEvent(event)
     } catch {
       logger.error("Vote failed: \(error.localizedDescription, privacy: .public)")
-      post = snapshot
+      myVote = previousMyVote
+      upvotes = previousUpvotes
+      downvotes = previousDownvotes
     }
   }
 
@@ -174,8 +212,8 @@ class PostViewModel: PostViewModelProtocol {
     )
     comment.isMine = true
 
-    self.post.comments.append(comment)
-    self.post.commentCount += 1
+    self.comments.append(comment)
+    self.commentCount += 1
 
     analyticsService?.logEvent(PostViewEvent.commentSubmitted)
 
@@ -192,11 +230,11 @@ class PostViewModel: PostViewModelProtocol {
 
     // insert threaded comments
 
-    var comments: [AraPostComment] = self.post.comments
+    var comments: [AraPostComment] = self.comments
     _ = insertThreadedComment(into: &comments, comment: comment)
 
-    self.post.comments = comments
-    self.post.commentCount += 1
+    self.comments = comments
+    self.commentCount += 1
 
     analyticsService?.logEvent(PostViewEvent.commentSubmitted)
 
@@ -212,16 +250,16 @@ class PostViewModel: PostViewModelProtocol {
     )
     comment.isMine = true
 
-    for idx in post.comments.indices {
-      if post.comments[idx].id == commentID {
-        post.comments[idx].content = content
-        return post.comments[idx]
+    for idx in comments.indices {
+      if comments[idx].id == commentID {
+        comments[idx].content = content
+        return comments[idx]
       }
       // scan through threads
-      for threadIdx in post.comments[idx].comments.indices {
-        if post.comments[idx].comments[threadIdx].id == commentID {
-          post.comments[idx].comments[threadIdx].content = content
-          return post.comments[idx]
+      for threadIdx in comments[idx].comments.indices {
+        if comments[idx].comments[threadIdx].id == commentID {
+          comments[idx].comments[threadIdx].content = content
+          return comments[idx]
         }
       }
     }
@@ -253,22 +291,22 @@ class PostViewModel: PostViewModelProtocol {
   func toggleBookmark() async {
     guard let araBoardUseCase else { return }
 
-    let previousBookmarkStatus: Bool = post.myScrap
+    let previousBookmarkStatus: Bool = myScrap
 
     do {
       if previousBookmarkStatus {
         guard let scrapId = post.scrapId else { return }
 
-        post.myScrap = false
+        myScrap = false
         try await araBoardUseCase.removeBookmark(bookmarkID: scrapId)
       } else {
-        post.myScrap = true
+        myScrap = true
         try await araBoardUseCase.addBookmark(postID: post.id)
       }
-      analyticsService?.logEvent(PostViewEvent.bookmarkToggled(isBookmarked: post.myScrap))
+      analyticsService?.logEvent(PostViewEvent.bookmarkToggled(isBookmarked: myScrap))
     } catch {
       logger.error("Failed to toggle bookmark: \(error.localizedDescription, privacy: .public)")
-      post.myScrap = previousBookmarkStatus
+      myScrap = previousBookmarkStatus
     }
   }
 

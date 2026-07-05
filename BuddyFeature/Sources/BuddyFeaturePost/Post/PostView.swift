@@ -70,11 +70,11 @@ public struct PostView: View {
           )
 
           PostFooter(
-            myVote: viewModel.post.myVote,
-            votes: viewModel.post.upvotes - viewModel.post.downvotes,
+            myVote: viewModel.myVote,
+            votes: viewModel.upvotes - viewModel.downvotes,
             isMine: viewModel.post.isMine,
-            commentCount: viewModel.post.commentCount,
-            isBookmarked: viewModel.post.myScrap,
+            commentCount: viewModel.commentCount,
+            isBookmarked: viewModel.myScrap,
             shareURL: Constants.araPostURL.appending(path: String(viewModel.post.id)),
             onUpvote: { await viewModel.upvote() },
             onDownvote: { await viewModel.downvote() },
@@ -86,13 +86,13 @@ public struct PostView: View {
           )
 
           PostCommentsSection(
-            comments: $viewModel.post.comments,
+            comments: $viewModel.comments,
             onReply: { selectedComment in
               targetComment = selectedComment
               isWritingCommentFocusState = true
             },
             onCommentDeleted: {
-              viewModel.post.commentCount -= 1
+              viewModel.commentCount -= 1
             },
             onEdit: { selectedComment in
               withAnimation(.spring) {
@@ -116,7 +116,7 @@ public struct PostView: View {
             }
           )
           .padding(.top, 4)
-          .animation(.spring, value: viewModel.post.comments.map(\.id))
+          .animation(.spring, value: viewModel.comments.map(\.id))
         }
         .padding()
         .contentWidth()
@@ -186,7 +186,7 @@ public struct PostView: View {
     }
     .analyticsScreen(name: "Ara Post", class: String(describing: Self.self), extraParameters: [
       "is_author": viewModel.post.isMine ?? false,
-      "has_comments": viewModel.post.commentCount > 0
+      "has_comments": viewModel.commentCount > 0
     ])
   }
 
