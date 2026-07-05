@@ -30,12 +30,18 @@ struct TaxiReportView: View {
   // MARK: - Dependencies
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
+  /// Participants other than the current user — the candidates that can be
+  /// reported. Computed here rather than filtered inline in `ForEach`.
+  private var otherParticipants: [TaxiParticipant] {
+    room.participants.filter { $0.id != taxiUser?.oid }
+  }
+
   var body: some View {
     NavigationStack {
       Form {
         Section(String(localized: "Who?", bundle: .module)) {
           Picker(String(localized: "Select", bundle: .module), selection: $viewModel.selectedUser) {
-            ForEach(room.participants.filter { $0.id != taxiUser?.oid }) { part in
+            ForEach(otherParticipants) { part in
               TaxiReportUser(user: part).tag(part)
             }
           }
