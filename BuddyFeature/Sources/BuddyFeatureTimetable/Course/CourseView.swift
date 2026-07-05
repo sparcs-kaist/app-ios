@@ -24,8 +24,23 @@ public struct CourseView: View {
       Group {
         switch viewModel.state {
         case .loading, .loaded:
-          courseSummary
-          courseReview
+          CourseSummarySection(
+            classDuration: viewModel.course?.classDuration ?? 0,
+            expDuration: viewModel.course?.expDuration ?? 0,
+            credit: viewModel.course?.credit ?? 0,
+            creditAU: viewModel.course?.creditAU ?? 0,
+            code: course.code,
+            typeName: course.type.displayName.localized(),
+            departmentName: course.department.name,
+            summary: course.summary
+          )
+          CourseReviewSection(
+            gradeLetter: gradeLetter,
+            loadLetter: loadLetter,
+            speechLetter: speechLetter,
+            isLoaded: viewModel.state == .loaded,
+            reviews: $viewModel.reviews
+          )
         case .error(let message):
           ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
@@ -41,102 +56,20 @@ public struct CourseView: View {
     .analyticsScreen(name: "Course", class: String(describing: Self.self))
   }
   
-  private var courseSummary: some View {
-    Group {
-      VStack(spacing: 20) {
-        HStack {
-          lectureSummaryRowWrapper(
-            title: "Hours",
-            description: String(viewModel.course?.classDuration ?? 0)
-          )
-          lectureSummaryRowWrapper(title: "Lab", description: String(viewModel.course?.expDuration ?? 0))
-          if viewModel.course?.credit == 0 {
-            lectureSummaryRowWrapper(title: "AU", description: String(viewModel.course?.creditAU ?? 0))
-          } else {
-            lectureSummaryRowWrapper(title: "Credit", description: String(viewModel.course?.credit ?? 0))
-          }
-        }
-
-        VStack(alignment: .leading) {
-          HStack {
-            Text("Information", bundle: .module)
-              .font(.title3)
-              .fontWeight(.bold)
-            Spacer()
-          }
-
-          LectureDetailRow(title: "Code", description: course.code)
-          LectureDetailRow(title: "Type", description: course.type.displayName.localized())
-          LectureDetailRow(title: "Department", description: course.department.name)
-
-          if course.summary != "" {
-            Text("Summary", bundle: .module)
-              .foregroundStyle(.secondary)
-              .font(.callout)
-              .padding(.vertical, 4)
-
-            Text(course.summary)
-              .font(.footnote)
-              .multilineTextAlignment(.leading)
-          }
-        }
-      }
-    }
-    .padding(.bottom)
+  private var totalCredit: Int {
+    (viewModel.course?.credit ?? 0) + (viewModel.course?.creditAU ?? 0)
   }
-  
-  private var courseReview: some View {
-    VStack {
-      HStack {
-        Text("Reviews", bundle: .module)
-          .font(.title3)
-          .fontWeight(.bold)
-        Spacer()
 
-        lectureSummaryRowWrapper(
-          title: "Grade",
-          description: viewModel.reviewPage?
-            .getGradeLetter(
-              for: (viewModel.course?.credit ?? 0) + (viewModel.course?.creditAU ?? 0)
-            ) ?? "?"
-        )
-        lectureSummaryRowWrapper(
-          title: "Load", 
-          description: viewModel.reviewPage?
-            .getLoadLetter(
-              for: (viewModel.course?.credit ?? 0) + (viewModel.course?.creditAU ?? 0)
-            ) ?? "?"
-        )
-        lectureSummaryRowWrapper(
-          title: "Speech",
-          description: viewModel.reviewPage?
-            .getSpeechLetter(
-              for: (viewModel.course?.credit ?? 0) + (viewModel.course?.creditAU ?? 0)
-            ) ?? "?"
-        )
-      }
-      
-      Spacer()
-        .frame(height: 16)
-
-      LazyVStack(spacing: 16) {
-        if viewModel.state == .loaded {
-          ForEach($viewModel.reviews) { $review in
-            LectureReviewCell(review: $review)
-          }
-        } else {
-          ForEach(LectureReview.mockList.prefix(3)) { review in
-            LectureReviewCell(review: .constant(review))
-              .redacted(reason: .placeholder)
-          }
-        }
-      }
-    }
+  private var gradeLetter: String {
+    viewModel.reviewPage?.getGradeLetter(for: totalCredit) ?? "?"
   }
-  
-  func lectureSummaryRowWrapper(title: String, description: String) -> some View {
-    LectureSummaryRow(title: title, description: description)
-      .frame(width: 75)
+
+  private var loadLetter: String {
+    viewModel.reviewPage?.getLoadLetter(for: totalCredit) ?? "?"
+  }
+
+  private var speechLetter: String {
+    viewModel.reviewPage?.getSpeechLetter(for: totalCredit) ?? "?"
   }
 }
 
