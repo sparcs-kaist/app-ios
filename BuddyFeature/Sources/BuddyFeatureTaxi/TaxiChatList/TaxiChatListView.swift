@@ -124,51 +124,23 @@ struct TaxiChatListView: View {
 
       LazyVStack(spacing: 16) {
         if !onGoing.isEmpty {
-          LazyVStack(spacing: 12) {
-            HStack {
-              Text("Active Groups", bundle: .module)
-                .font(.title3)
-                .fontWeight(.bold)
-
-              Spacer()
-            }
-
-            ForEach(onGoing) { room in
-              TaxiRoomCell(room: room, withOutBackground: false)
-                .environment(\.taxiUser, viewModel.taxiUser)
-                .onTapGesture {
-                  selectedRoom = room
-                }
-                .overlay(
-                  Color.secondary.opacity(selectedRoom == room ? 0.3 : 0),
-                  in: .rect(cornerRadius: 28)
-                )
-            }
-          }
+          TaxiRoomGroupSection(
+            title: String(localized: "Active Groups", bundle: .module),
+            rooms: onGoing,
+            selectedRoom: selectedRoom,
+            taxiUser: viewModel.taxiUser,
+            onSelect: { selectedRoom = $0 }
+          )
         }
 
         if !done.isEmpty {
-          LazyVStack(spacing: 12) {
-            HStack {
-              Text("Past Groups", bundle: .module)
-                .font(.title3)
-                .fontWeight(.bold)
-
-              Spacer()
-            }
-
-            ForEach(done) { room in
-              TaxiRoomCell(room: room, withOutBackground: false)
-                .environment(\.taxiUser, viewModel.taxiUser)
-                .onTapGesture {
-                  selectedRoom = room
-                }
-                .overlay(
-                  Color.secondary.opacity(selectedRoom == room ? 0.3 : 0),
-                  in: .rect(cornerRadius: 28)
-                )
-            }
-          }
+          TaxiRoomGroupSection(
+            title: String(localized: "Past Groups", bundle: .module),
+            rooms: done,
+            selectedRoom: selectedRoom,
+            taxiUser: viewModel.taxiUser,
+            onSelect: { selectedRoom = $0 }
+          )
         }
       }
       .padding()
