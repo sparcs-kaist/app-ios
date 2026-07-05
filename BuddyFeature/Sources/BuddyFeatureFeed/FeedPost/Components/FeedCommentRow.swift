@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import NukeUI
 import Translation
 import BuddyDomain
 import BuddyFeatureShared
@@ -20,12 +19,11 @@ struct FeedCommentRow: View {
   @State private var viewModel: FeedCommentRowViewModelProtocol = FeedCommentRowViewModel()
 
   @State private var showFullContent: Bool = false
-  @State private var canBeExpanded: Bool = false
-
   @State private var showTranslateSheet: Bool = false
-  @State private var showPopover: Bool = false
   @State private var safariSheetURL: URL? = nil
   @State private var isHiddenCommentExpanded: Bool = false
+
+  private let authorTag = LocalizedString(["en": "Author", "ko": "작성자"])
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
@@ -34,13 +32,41 @@ struct FeedCommentRow: View {
           .padding(.top, 4)
       }
       VStack(alignment: .leading) {
-        header
+        FeedCommentRowHeader(
+          profileImageURL: comment.profileImageURL,
+          authorName: comment.authorName,
+          authorTagText: authorTag.localized(),
+          isAuthor: comment.isAuthor,
+          isMyComment: comment.isMyComment,
+          isKaistIP: comment.isKaistIP,
+          timeText: comment.createdAt.timeAgoDisplay,
+          downvotes: comment.downvotes,
+          showFullContent: showFullContent,
+          isHiddenCommentExpanded: $isHiddenCommentExpanded,
+          onTranslate: { showTranslateSheet = true },
+          onDelete: { await viewModel.delete(comment: $comment) },
+          onReport: { reason in await viewModel.reportComment(commentID: comment.id, reason: reason) }
+        )
 
         if comment.downvotes < 15 || isHiddenCommentExpanded || showFullContent {
-          content
+          FeedCommentContent(
+            content: comment.content,
+            isDeleted: comment.isDeleted,
+            showFullContent: $showFullContent,
+            onOpenURL: handleURL
+          )
         }
 
-        footer
+        FeedCommentFooter(
+          parentCommentID: comment.parentCommentID,
+          replyCount: comment.replyCount,
+          isDeleted: comment.isDeleted,
+          myVote: comment.myVote == .up ? true : comment.myVote == .down ? false : nil,
+          votes: comment.upvotes - comment.downvotes,
+          onReply: onReply,
+          onUpvote: { await viewModel.upvote(comment: $comment) },
+          onDownvote: { await viewModel.downvote(comment: $comment) }
+        )
       }
     }
     .translationPresentation(isPresented: $showTranslateSheet, text: comment.content)
@@ -58,171 +84,6 @@ struct FeedCommentRow: View {
     }
   }
 
-  @ViewBuilder
-  var profileImage: some View {
-    if let url = comment.profileImageURL {
-      LazyImage(url: url) { state in
-        if let image = state.image {
-          image
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-        } else {
-          Circle()
-            .fill(Color.secondarySystemBackground)
-        }
-      }
-      .frame(width: 24, height: 24)
-      .clipShape(.circle)
-    } else {
-      Circle()
-        .fill(Color.secondarySystemBackground)
-        .frame(width: 24, height: 24)
-        .overlay {
-          Text("😀")
-            .font(.caption)
-        }
-    }
-  }
-
-  var header: some View {
-    HStack {
-      profileImage
-
-      Group {
-        if comment.isAuthor {
-          Text(comment.authorName + " (\(authorTag.localized()))")
-            .foregroundStyle(.tint)
-        } else {
-          Text(comment.authorName)
-        }
-      }
-      .fontWeight(.semibold)
-      .font(.callout)
-
-      if comment.isKaistIP {
-        Image(systemName: "checkmark.seal.fill")
-          .foregroundStyle(.tint)
-          .scaleEffect(0.9)
-          .popover(isPresented: $showPopover) {
-            Text("This post was created from within the KAIST network.", bundle: .module)
-              .frame(width: 200)
-              .presentationCompactAdaptation(.popover)
-              .padding()
-          }
-          .onTapGesture {
-            showPopover = true
-          }
-          .accessibilityLabel(Text("This post was created from within the KAIST network.", bundle: .module))
-      }
-
-      Text(comment.createdAt.timeAgoDisplay)
-        .foregroundStyle(.secondary)
-        .font(.callout)
-
-      Spacer()
-
-      if comment.downvotes >= 15 && !isHiddenCommentExpanded && !showFullContent {
-        Button(String(localized: "Expand", bundle: .module), systemImage: "chevron.right") {
-          isHiddenCommentExpanded = true
-        }
-        .labelStyle(.iconOnly)
-        .padding(8)
-        .tint(.secondary)
-      } else {
-        Menu {
-          Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
-          Divider()
-          if comment.isMyComment {
-            Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
-              Task {
-                await viewModel.delete(comment: $comment)
-              }
-            }
-          } else {
-            Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
-              ForEach(FeedReportType.allCases) { reason in
-                Button(reason.description) {
-                  Task {
-                    await viewModel.reportComment(commentID: comment.id, reason: reason)
-                  }
-                }
-              }
-            }
-          }
-        } label: {
-          Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
-            .labelStyle(.iconOnly)
-            .padding(8)
-            .contentShape(.rect)
-        }
-      }
-    }
-  }
-
-  @ViewBuilder
-  var content: some View {
-    Group {
-      if comment.isDeleted {
-        Text("This comment has been deleted.", bundle: .module)
-      } else {
-        Text(comment.content.toDetectedAttributedString())
-      }
-    }
-    .lineLimit(showFullContent ? nil : 3)
-    .textSelection(.enabled)
-    .foregroundStyle(comment.isDeleted ? .secondary : .primary)
-    .contentTransition(.numericText())
-    .animation(.spring, value: comment)
-    .background {
-      ViewThatFits(in: .vertical) {
-        Text(comment.content)
-          .hidden()
-
-        Color.clear.onAppear {
-          canBeExpanded = true
-        }
-      }
-    }
-    .environment(\.openURL, OpenURLAction(handler: handleURL))
-
-    if canBeExpanded && !showFullContent && !comment.isDeleted {
-      Button(String(localized: "more", bundle: .module)) {
-        withAnimation {
-          showFullContent = true
-        }
-      }
-      .foregroundStyle(.secondary)
-    }
-  }
-
-  var footer: some View {
-    HStack {
-      Spacer()
-
-      if comment.parentCommentID == nil {
-        PostCommentButton(commentCount: comment.replyCount) {
-          onReply?()
-        }
-      }
-
-      if !comment.isDeleted {
-        PostVoteButton(
-          myVote: comment.myVote == .up ? true : comment.myVote == .down ? false : nil,
-          votes: comment.upvotes - comment.downvotes,
-          onDownvote: {
-            await viewModel.downvote(comment: $comment)
-          }, onUpvote: {
-            await viewModel.upvote(comment: $comment)
-          }
-        )
-      }
-    }
-    .font(.caption)
-    .transition(.blurReplace)
-    .animation(.spring, value: comment)
-    .frame(height: 20)
-  }
-
   private func handleURL(_ url: URL) -> OpenURLAction.Result {
     if let deepLink = DeepLink(url: url) {
       NotificationCenter.default.post(name: .buddyInternalDeepLink, object: deepLink)
@@ -232,8 +93,6 @@ struct FeedCommentRow: View {
     safariSheetURL = url
     return .handled
   }
-
-  private let authorTag = LocalizedString(["en": "Author", "ko": "작성자"])
 }
 
 #Preview {
