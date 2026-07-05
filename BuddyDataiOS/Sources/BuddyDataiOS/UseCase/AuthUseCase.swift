@@ -7,40 +7,42 @@
 
 import UIKit
 import Combine
-import Observation
-import Synchronization
 import BuddyDomain
 import BuddyDataCore
 import WidgetKit
 
-@Observable
-public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
+public actor AuthUseCase: AuthUseCaseProtocol {
   private let authenticationService: AuthenticationServiceProtocol
   private let tokenStorage: TokenStorageProtocol
   private let araUserRepository: AraUserRepositoryProtocol?
   private let feedUserRepository: FeedUserRepositoryProtocol?
   private let otlUserRepository: OTLUserRepositoryProtocol?
 
-  private let _isAuthenticatedSubject = CurrentValueSubject<Bool, Never>(false)
-  public var isAuthenticatedPublisher: AnyPublisher<Bool, Never> {
+  // `CurrentValueSubject` is internally thread-safe, so it is marked
+  // `nonisolated(unsafe)` to let the auth-state publisher be read and observed
+  // from any isolation domain.
+  private nonisolated(unsafe) let _isAuthenticatedSubject = CurrentValueSubject<Bool, Never>(false)
+  public nonisolated var isAuthenticatedPublisher: AnyPublisher<Bool, Never> {
     _isAuthenticatedSubject.eraseToAnyPublisher()
   }
 
-  private struct RefreshState: Sendable {
-    var task: Task<Void, Error>?
-    var lastFailure: Date?
-  }
-  
-  private let refreshState = Mutex<RefreshState>(RefreshState())
+  // In-flight refresh coordination. Because the check-and-assign of
+  // `refreshTask` in `refreshAccessToken(force:)` runs without an intervening
+  // `await`, actor isolation guarantees only one refresh task is ever created —
+  // replacing the previous `Mutex`.
+  private var refreshTask: Task<Void, Error>?
+  private var lastFailure: Date?
   private let refreshCooldown: TimeInterval = 10
 
-  // Touched only from MainActor (see scheduleRefreshTimer / cancelRefreshTimer).
-  private var refreshTimer: Timer?
+  // A `Timer` needs a run loop, so it is confined to the MainActor.
+  @MainActor private var refreshTimer: Timer?
 
-  // Called after a successful token refresh
-  public var onTokenRefresh: (() -> Void)?
-  // Foreground observer
-  private var foregroundObserver: (any NSObjectProtocol)?
+  // Called after a successful token refresh. Assigned once at registration
+  // time, so `nonisolated(unsafe)` permits the synchronous assignment.
+  public nonisolated(unsafe) var onTokenRefresh: (() -> Void)?
+
+  // Foreground observer, set once in `init` and removed in `deinit`.
+  private nonisolated(unsafe) var foregroundObserver: (any NSObjectProtocol)?
 
   public init(
     authenticationService: AuthenticationServiceProtocol,
@@ -69,7 +71,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   }
 
   // MARK: - Foreground Refresh
-  private func observeForeground() {
+  private nonisolated func observeForeground() {
     foregroundObserver = NotificationCenter.default.addObserver(
       forName: UIApplication.willEnterForegroundNotification,
       object: nil,
@@ -83,8 +85,8 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   }
 
   // MARK: - Timer Scheduling
-  private func scheduleRefreshTimer() {
-    // Timer scheduled from inside a Task body would never fire. Hop to MainActor.
+  private nonisolated func scheduleRefreshTimer() {
+    // Timers must be scheduled on a run loop, so hop to the MainActor.
     Task { @MainActor [weak self] in
       guard let self else { return }
       self.refreshTimer?.invalidate()
@@ -101,14 +103,15 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
     }
   }
 
-  private func cancelRefreshTimer() {
+  private nonisolated func cancelRefreshTimer() {
     Task { @MainActor [weak self] in
       self?.refreshTimer?.invalidate()
       self?.refreshTimer = nil
     }
   }
 
-  public func getAccessToken() -> String? {
+  // MARK: - Access Token
+  public nonisolated func getAccessToken() -> String? {
     if tokenStorage.isTokenExpired() {
       print("[AuthUseCase] Access token is expired. Attempting to refresh...")
       // If the token is expired, return nil. Caller should invoke getValidAccessToken() to attempt refresh asynchronously.
@@ -130,90 +133,77 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
     return accessToken
   }
 
-  private enum RefreshAction {
-    case awaitExisting(Task<Void, Error>)
-    case cooldown
-    case noopValid
-    case awaitNew(Task<Void, Error>)
-  }
-
   public func refreshAccessToken(force: Bool) async throws {
-    let action: RefreshAction = refreshState.withLock { state in
-      if let existingTask = state.task {
-        return .awaitExisting(existingTask)
-      }
-
-      if let lastFailure = state.lastFailure,
-         Date().timeIntervalSince(lastFailure) < refreshCooldown {
-        return .cooldown
-      }
-
-      if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired(), !force {
-        return .noopValid
-      }
-
-      let newTask = Task { [weak self] in
-        guard let self else { return }
-        defer {
-          self.refreshState.withLock { $0.task = nil }
-        }
-
-        guard let currentRefreshToken = self.tokenStorage.getRefreshToken() else {
-          // No refresh token found, sign out.
-          self.tokenStorage.clearTokens()
-          self._isAuthenticatedSubject.value = false
-          self.cancelRefreshTimer()
-          throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
-        }
-
-        do {
-          // Mark the in-flight refresh on the task-local
-          let tokenResponse: TokenResponse = try await AuthRetryConfig.$isRefreshing.withValue(true) {
-            try await self.authenticationService.refreshAccessToken(
-              refreshToken: currentRefreshToken
-            )
-          }
-          self.tokenStorage
-            .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
-          self._isAuthenticatedSubject.value = true
-          self.refreshState.withLock { $0.lastFailure = nil }
-          print("[AuthUseCase] Successfully refreshed access token.")
-          self.scheduleRefreshTimer() // set timer on success
-          self.onTokenRefresh?()
-        } catch {
-          print("[AuthUseCase] Token refresh failed. \(error.localizedDescription)")
-          self.refreshState.withLock { $0.lastFailure = Date() }
-          // Only clear tokens on auth error (401), not on network/decoding errors
-          let isAuthError: Bool
-          if let networkError = error as? NetworkError, case .unauthorized = networkError {
-            isAuthError = true
-          } else {
-            isAuthError = false
-          }
-          if isAuthError {
-            self.tokenStorage.clearTokens()
-            self._isAuthenticatedSubject.value = false
-            self.cancelRefreshTimer()
-          }
-          throw AuthUseCaseError.refreshFailed(error)
-        }
-      }
-      state.task = newTask
-      return .awaitNew(newTask)
+    // Coalesce concurrent callers onto the in-flight refresh, if any.
+    if let refreshTask {
+      try await refreshTask.value
+      return
     }
 
-    switch action {
-    case .awaitExisting(let task):
-      try await task.value
-    case .cooldown:
+    if let lastFailure,
+       Date().timeIntervalSince(lastFailure) < refreshCooldown {
       throw AuthUseCaseError.refreshFailed(
         NSError(domain: "AuthUseCase", code: -1, userInfo: [NSLocalizedDescriptionKey: "Refresh on cooldown"])
       )
-    case .noopValid:
+    }
+
+    if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired(), !force {
       print("[AuthUseCase] Access token is still valid. No refresh needed.")
       scheduleRefreshTimer() // reset timer on valid
-    case .awaitNew(let task):
-      try await task.value
+      return
+    }
+
+    // No `await` between the nil-check above and this assignment, so actor
+    // isolation guarantees a single task is created for concurrent callers.
+    let task = Task { [weak self] () throws -> Void in
+      guard let self else { return }
+      try await self.performTokenRefresh()
+    }
+    refreshTask = task
+    defer { refreshTask = nil }
+
+    try await task.value
+  }
+
+  private func performTokenRefresh() async throws {
+    guard let currentRefreshToken = tokenStorage.getRefreshToken() else {
+      // No refresh token found, sign out.
+      tokenStorage.clearTokens()
+      _isAuthenticatedSubject.value = false
+      cancelRefreshTimer()
+      throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
+    }
+
+    do {
+      // Mark the in-flight refresh on the task-local
+      let tokenResponse: TokenResponse = try await AuthRetryConfig.$isRefreshing.withValue(true) {
+        try await self.authenticationService.refreshAccessToken(
+          refreshToken: currentRefreshToken
+        )
+      }
+      tokenStorage
+        .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
+      _isAuthenticatedSubject.value = true
+      lastFailure = nil
+      print("[AuthUseCase] Successfully refreshed access token.")
+      scheduleRefreshTimer() // set timer on success
+      onTokenRefresh?()
+    } catch {
+      print("[AuthUseCase] Token refresh failed. \(error.localizedDescription)")
+      lastFailure = Date()
+      // Only clear tokens on auth error (401), not on network/decoding errors
+      let isAuthError: Bool
+      if let networkError = error as? NetworkError, case .unauthorized = networkError {
+        isAuthError = true
+      } else {
+        isAuthError = false
+      }
+      if isAuthError {
+        tokenStorage.clearTokens()
+        _isAuthenticatedSubject.value = false
+        cancelRefreshTimer()
+      }
+      throw AuthUseCaseError.refreshFailed(error)
     }
   }
 
@@ -236,7 +226,7 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
 
       _isAuthenticatedSubject.value = true
       print("[AuthUseCase] Signed In")
-			WidgetCenter.shared.reloadAllTimelines()
+      WidgetCenter.shared.reloadAllTimelines()
       scheduleRefreshTimer() // set timer on success
     } catch {
       tokenStorage.clearTokens()
@@ -248,10 +238,10 @@ public final class AuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   }
 
   public func signOut() async throws {
-		if let container = TimetableCacheContainer.shared {
-			TimetableCache(modelContainer: container).clear()
-		}
-		WidgetCenter.shared.reloadAllTimelines()
+    if let container = TimetableCacheContainer.shared {
+      TimetableCache(modelContainer: container).clear()
+    }
+    WidgetCenter.shared.reloadAllTimelines()
     tokenStorage.clearTokens()
     _isAuthenticatedSubject.value = false
     cancelRefreshTimer()
