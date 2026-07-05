@@ -15,10 +15,9 @@ public protocol TaxiChatUseCaseProtocol: Sendable {
   func chatStream() async -> AsyncStream<[TaxiChat]>
   /// A fresh multicast stream of room updates.
   func roomUpdateStream() async -> AsyncStream<TaxiRoom>
-  var accountChats: [TaxiChat] { get }
 
-  func setRoom(_ room: TaxiRoom)
-  func reconnect()
+  func setRoom(_ room: TaxiRoom) async
+  func reconnect() async
   func fetchInitialChats() async
   func fetchChats(before date: Date) async
   func sendChat(_ content: String?, type: TaxiChat.ChatType) async

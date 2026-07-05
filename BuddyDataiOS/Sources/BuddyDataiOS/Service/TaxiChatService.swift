@@ -10,7 +10,11 @@ import SocketIO
 import BuddyDomain
 import BuddyDataCore
 
-public final class TaxiChatService: TaxiChatServiceProtocol {
+// @unchecked Sendable: this type bridges SocketIO's callback-based API. Its
+// scalar state is only mutated inside socket event handlers (delivered serially
+// on the manager's handle queue), and its downstream streams are backed by
+// `AsyncBroadcaster` actors, so it is safe to share across isolation domains.
+public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable {
   // MARK: - Broadcasters
   private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>()
   private let connectionBroadcaster = AsyncBroadcaster<Bool>(replaysLatest: true)

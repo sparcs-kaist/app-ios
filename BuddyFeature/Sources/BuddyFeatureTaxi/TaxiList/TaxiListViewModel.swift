@@ -10,6 +10,7 @@ import Observation
 import Factory
 import BuddyDomain
 
+@MainActor
 @Observable
 public class TaxiListViewModel: TaxiListViewModelProtocol {
   // MARK: - ViewModel Properties
@@ -44,8 +45,12 @@ public class TaxiListViewModel: TaxiListViewModelProtocol {
     guard let taxiRoomRepository, let taxiLocationUseCase else { return }
 
     do {
-      self.rooms = try await taxiRoomRepository.fetchRooms()
-      try await taxiLocationUseCase.fetchLocations()
+      // Rooms and locations are independent, so fetch them concurrently.
+      async let fetchedRooms = taxiRoomRepository.fetchRooms()
+      async let fetchedLocations: Void = taxiLocationUseCase.fetchLocations()
+
+      self.rooms = try await fetchedRooms
+      try await fetchedLocations
       self.locations = await taxiLocationUseCase.locations
 
       withAnimation(.spring) {

@@ -29,6 +29,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   private(set) var topChatID: String? = nil
   private var fetchedDateSet: Set<Date> = []
+  private var accountChats: [TaxiChat] = []
 
   var room: TaxiRoom
   @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
@@ -56,7 +57,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     guard let taxiChatUseCase else { return }
     await fetchTaxiUser()
 
-    taxiChatUseCase.setRoom(self.room)
+    await taxiChatUseCase.setRoom(self.room)
 
     await bind()
   }
@@ -81,6 +82,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         guard let self else { return }
         let filtered = chats.filter { $0.roomID == self.room.id }
         self.renderItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
+        self.accountChats = chats.filter { $0.type == .account }
         self.state = .loaded
       }
     })
@@ -222,12 +224,11 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   var account: String? {
-    guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }),
-          let taxiChatUseCase else {
+    guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }) else {
       return nil
     }
 
-    return taxiChatUseCase.accountChats.last(where: { $0.authorID == paidParticiapnt.id })?.content
+    return accountChats.last(where: { $0.authorID == paidParticiapnt.id })?.content
   }
 
   func sendImage(_ image: UIImage) async throws {

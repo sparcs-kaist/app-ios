@@ -10,7 +10,7 @@ import UIKit
 import SocketIO
 import BuddyDomain
 
-public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable {
+public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - Broadcasters
   private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>(replaysLatest: true)
   private let roomUpdateBroadcaster = AsyncBroadcaster<TaxiRoom>()
@@ -30,9 +30,6 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   private var flatChats: [TaxiChat] = []
 
   private var observationTasks: [Task<Void, Never>] = []
-
-  // MARK: - Computed Properties
-  public var accountChats: [TaxiChat] = []
 
   // MARK: - Dependency
   private let taxiChatService: TaxiChatServiceProtocol?
@@ -128,7 +125,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   }
 
   private func bind() async {
-    guard let taxiChatRepository, let taxiRoomRepository, let taxiChatService, let room else {
+    guard let taxiChatService, let room else {
       return
     }
 
@@ -141,34 +138,47 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
     observationTasks.append(Task { [weak self] in
       for await isConnected in connectionStream {
         guard let self else { return }
-        self.isSocketConnected = isConnected
+        await self.setSocketConnected(isConnected)
       }
     })
 
     // forwards chats downstream, marking them read
-    observationTasks.append(Task { [weak self, taxiChatRepository] in
+    observationTasks.append(Task { [weak self] in
       for await chats in serviceChatStream {
         guard let self else { return }
-        try? await taxiChatRepository.readChats(roomID: roomID)
-        self.flatChats = chats
-        self.accountChats = chats.filter { $0.type == .account }
-        await self.chatBroadcaster.yield(chats)
+        await self.handleServiceChats(chats, roomID: roomID)
       }
     })
 
     // handles room updates from chat_update event
-    observationTasks.append(Task { [weak self, taxiRoomRepository] in
+    observationTasks.append(Task { [weak self] in
       for await updatedRoomID in serviceRoomUpdateStream {
-        guard let self, updatedRoomID == roomID else { continue }
-        do {
-          let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: updatedRoomID)
-          self.room = updatedRoom
-          await self.roomUpdateBroadcaster.yield(updatedRoom)
-        } catch {
-          print("Failed to update room: \(error)")
-        }
+        guard let self else { return }
+        guard updatedRoomID == roomID else { continue }
+        await self.handleRoomUpdate(roomID: updatedRoomID)
       }
     })
+  }
+
+  private func setSocketConnected(_ isConnected: Bool) {
+    isSocketConnected = isConnected
+  }
+
+  private func handleServiceChats(_ chats: [TaxiChat], roomID: String) async {
+    try? await taxiChatRepository?.readChats(roomID: roomID)
+    flatChats = chats
+    await chatBroadcaster.yield(chats)
+  }
+
+  private func handleRoomUpdate(roomID: String) async {
+    guard let taxiRoomRepository else { return }
+    do {
+      let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: roomID)
+      room = updatedRoom
+      await roomUpdateBroadcaster.yield(updatedRoom)
+    } catch {
+      print("Failed to update room: \(error)")
+    }
   }
 
   deinit {

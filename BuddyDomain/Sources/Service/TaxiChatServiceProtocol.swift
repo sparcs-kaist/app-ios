@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol TaxiChatServiceProtocol {
+public protocol TaxiChatServiceProtocol: Sendable {
   /// A fresh multicast stream of the current chat list. Each call returns an
   /// independent subscriber stream.
   func chatStream() async -> AsyncStream<[TaxiChat]>
