@@ -15,13 +15,25 @@ struct FeedPostRow: View {
   @Binding var post: FeedPost
   let onPostDeleted: ((String) -> Void)?
   let onComment: (() -> Void)?
-  @State var showFullContent: Bool = false
+  @State private var showFullContent: Bool = false
 
   @State private var viewModel: FeedPostRowViewModelProtocol = FeedPostRowViewModel()
 
   @State private var showTranslateSheet: Bool = false
   @State private var safariSheetURL: URL? = nil
   @State private var isHiddenPostExpanded: Bool = false
+
+  init(
+    post: Binding<FeedPost>,
+    onPostDeleted: ((String) -> Void)?,
+    onComment: (() -> Void)?,
+    showFullContent: Bool = false
+  ) {
+    self._post = post
+    self.onPostDeleted = onPostDeleted
+    self.onComment = onComment
+    self._showFullContent = State(initialValue: showFullContent)
+  }
 
   private var isFeedContext: Bool { onPostDeleted != nil }
 
