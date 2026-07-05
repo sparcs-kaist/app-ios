@@ -96,6 +96,10 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
   }
 
   public func reconnect() {
+    // Mark this as an intentional reconnect so the `.disconnect` handler below
+    // does not fire its own auto-reconnect for the disconnect we trigger here —
+    // otherwise two competing connections race.
+    hasAttemptedReconnect = true
     socket.disconnect()
     manager.config = [
       .log(false),
@@ -144,7 +148,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
             let chatArray = dataDict["chats"] as? [[String: Any]] else {
         return
       }
-      
+
       let chats: [TaxiChat] = self.handleChats(chatArray)
       self.chats.insert(contentsOf: chats, at: 0)
     }
@@ -168,10 +172,6 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
       let broadcaster = self.roomUpdateBroadcaster
       Task { await broadcaster.yield(roomID) }
     }
-
-//    socket.onAny { event in
-//      print("📡 Socket Event - \(event.event):", event.items ?? [])
-//    }
   }
 
   private func handleChats(_ data: [[String: Any]]) -> [TaxiChat] {
