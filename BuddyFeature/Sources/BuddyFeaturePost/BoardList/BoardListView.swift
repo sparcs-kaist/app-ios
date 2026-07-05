@@ -64,11 +64,12 @@ public struct BoardListView: View {
 
   @ViewBuilder
   func loadedView(boards: [AraBoard], groups: [AraBoardGroup]) -> some View {
+    let boardsByGroup = Dictionary(grouping: boards, by: { $0.group.id })
     ForEach(groups) { group in
       ListGlassSection(
         header: Label(group.name.localized(), systemImage: symbol(for: group.slug))
       ) {
-        ForEach(boards.filter { $0.group.id == group.id }) { board in
+        ForEach(boardsByGroup[group.id] ?? []) { board in
           NavigationLink(value: board) {
             HStack {
               Text(board.name.localized())

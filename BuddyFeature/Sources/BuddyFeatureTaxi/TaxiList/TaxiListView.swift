@@ -185,8 +185,8 @@ public struct TaxiListView: View {
   private func loadedView(rooms: [TaxiRoom], locations: [TaxiLocation]) -> some View {
     let calendar = Calendar.current
     let filteredRooms: [TaxiRoom] = rooms.filter { room in
-      let matchessource = viewModel.source == nil || room.source.id == viewModel.source!.id
-      let matchesDestination = viewModel.destination == nil || room.destination.id == viewModel.destination!.id
+      let matchessource = viewModel.source == nil || room.source.id == viewModel.source?.id
+      let matchesDestination = viewModel.destination == nil || room.destination.id == viewModel.destination?.id
       return matchessource && matchesDestination
     }
 

@@ -26,7 +26,7 @@ struct ReviewComposeView: View {
   @State private var showErrorAlert: Bool = false
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       ScrollView {
         TextField(
           "",
