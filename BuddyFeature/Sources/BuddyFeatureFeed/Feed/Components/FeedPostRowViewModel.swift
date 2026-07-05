@@ -28,73 +28,54 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
 
   // MARK: - Functions
   func upvote(post: Binding<FeedPost>) async {
-    guard let feedPostUseCase else { return }
-
-    let previousMyVote: FeedVoteType? = post.wrappedValue.myVote
-    let previousUpvotes: Int = post.wrappedValue.upvotes
-    let previousDownvotes: Int = post.wrappedValue.downvotes
-
-    do {
-      if previousMyVote == .up {
-        // cancel upvote
-        post.wrappedValue.myVote = nil
-        post.wrappedValue.upvotes -= 1
-        try await feedPostUseCase.deleteVote(postID: post.wrappedValue.id)
-      } else {
-        // upvote
-        if previousMyVote == .down {
-          post.wrappedValue.downvotes -= 1
-        }
-        post.wrappedValue.myVote = .up
-        post.wrappedValue.upvotes += 1
-        try await feedPostUseCase.vote(postID: post.wrappedValue.id, type: .up)
-      }
-      analyticsService?.logEvent(FeedPostRowEvent.postUpvoted)
-    } catch {
-      logger.error("Failed to upvote: \(error.localizedDescription, privacy: .public)")
-      post.wrappedValue.myVote = previousMyVote
-      post.wrappedValue.upvotes = previousUpvotes
-      post.wrappedValue.downvotes = previousDownvotes
-      alertState = .init(
-        title: String(localized: "Failed to upvote", bundle: .module),
-        message: error.localizedDescription
-      )
-      isAlertPresented = true
-    }
+    await vote(
+      post: post,
+      type: .up,
+      event: .postUpvoted,
+      failureTitle: String(localized: "Failed to upvote", bundle: .module)
+    )
   }
 
   func downvote(post: Binding<FeedPost>) async {
+    await vote(
+      post: post,
+      type: .down,
+      event: .postDownvoted,
+      failureTitle: String(localized: "Failed to downvote", bundle: .module)
+    )
+  }
+
+  /// Optimistically applies (or toggles off) a vote of `type`, reverting to the
+  /// pre-mutation snapshot if the remote call fails.
+  private func vote(
+    post: Binding<FeedPost>,
+    type: FeedVoteType,
+    event: FeedPostRowEvent,
+    failureTitle: String
+  ) async {
     guard let feedPostUseCase else { return }
 
-    let previousMyVote: FeedVoteType? = post.wrappedValue.myVote
-    let previousUpvotes: Int = post.wrappedValue.upvotes
-    let previousDownvotes: Int = post.wrappedValue.downvotes
+    let snapshot: FeedPost = post.wrappedValue
 
     do {
-      if previousMyVote == .down {
-        // cancel downvote
+      if snapshot.myVote == type {
+        // Toggle the existing vote off.
         post.wrappedValue.myVote = nil
-        post.wrappedValue.downvotes -= 1
-        try await feedPostUseCase.deleteVote(postID: post.wrappedValue.id)
+        if type == .up { post.wrappedValue.upvotes -= 1 } else { post.wrappedValue.downvotes -= 1 }
+        try await feedPostUseCase.deleteVote(postID: snapshot.id)
       } else {
-        // downvote
-        if previousMyVote == .up {
-          post.wrappedValue.upvotes -= 1
-        }
-        post.wrappedValue.myVote = .down
-        post.wrappedValue.downvotes += 1
-        try await feedPostUseCase.vote(postID: post.wrappedValue.id, type: .down)
+        // Clear the opposite vote (if any), then apply the new one.
+        if snapshot.myVote == .up { post.wrappedValue.upvotes -= 1 }
+        else if snapshot.myVote == .down { post.wrappedValue.downvotes -= 1 }
+        post.wrappedValue.myVote = type
+        if type == .up { post.wrappedValue.upvotes += 1 } else { post.wrappedValue.downvotes += 1 }
+        try await feedPostUseCase.vote(postID: snapshot.id, type: type)
       }
-      analyticsService?.logEvent(FeedPostRowEvent.postDownvoted)
+      analyticsService?.logEvent(event)
     } catch {
-      logger.error("Failed to downvote: \(error.localizedDescription, privacy: .public)")
-      post.wrappedValue.myVote = previousMyVote
-      post.wrappedValue.upvotes = previousUpvotes
-      post.wrappedValue.downvotes = previousDownvotes
-      alertState = .init(
-        title: String(localized: "Failed to downvote", bundle: .module),
-        message: error.localizedDescription
-      )
+      logger.error("Vote failed: \(error.localizedDescription, privacy: .public)")
+      post.wrappedValue = snapshot
+      alertState = .init(title: failureTitle, message: error.localizedDescription)
       isAlertPresented = true
     }
   }

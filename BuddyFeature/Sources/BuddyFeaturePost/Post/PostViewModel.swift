@@ -125,62 +125,43 @@ class PostViewModel: PostViewModelProtocol {
   }
 
   func upvote() async {
-    guard let araBoardUseCase else { return }
-
-    let previousMyVote: Bool? = post.myVote
-    let previousUpvotes: Int = post.upvotes
-
-    do {
-      if previousMyVote == true {
-        // cancel upvote
-        post.myVote = nil
-        post.upvotes -= 1
-        try await araBoardUseCase.cancelVote(postID: post.id)
-      } else {
-        // upvote
-        if previousMyVote == false {
-          // remove downvote if there was
-          post.downvotes -= 1
-        }
-        post.myVote = true
-        post.upvotes += 1
-        try await araBoardUseCase.upvotePost(postID: post.id)
-      }
-      analyticsService?.logEvent(PostViewEvent.postUpvoted)
-    } catch {
-      logger.error("Failed to upvote: \(error.localizedDescription, privacy: .public)")
-      post.upvotes = previousUpvotes
-      post.myVote = previousMyVote
-    }
+    await vote(isUpvote: true, event: .postUpvoted)
   }
 
   func downvote() async {
+    await vote(isUpvote: false, event: .postDownvoted)
+  }
+
+  /// Optimistically applies (or toggles off) a vote, reverting to the
+  /// pre-mutation snapshot if the remote call fails. `myVote` is `true` for an
+  /// upvote and `false` for a downvote.
+  private func vote(isUpvote: Bool, event: PostViewEvent) async {
     guard let araBoardUseCase else { return }
 
-    let previousMyVote: Bool? = post.myVote
-    let previousDownvotes: Int = post.downvotes
+    let snapshot: AraPost = post
 
     do {
-      if previousMyVote == false {
-        // cancel downvote
+      if post.myVote == isUpvote {
+        // Toggle the existing vote off.
         post.myVote = nil
-        post.downvotes -= 1
+        if isUpvote { post.upvotes -= 1 } else { post.downvotes -= 1 }
         try await araBoardUseCase.cancelVote(postID: post.id)
       } else {
-        // downvote
-        if previousMyVote == true {
-          // remove upvote if there was
-          post.upvotes -= 1
+        // Clear the opposite vote (if any), then apply the new one.
+        if post.myVote == true { post.upvotes -= 1 }
+        else if post.myVote == false { post.downvotes -= 1 }
+        post.myVote = isUpvote
+        if isUpvote { post.upvotes += 1 } else { post.downvotes += 1 }
+        if isUpvote {
+          try await araBoardUseCase.upvotePost(postID: post.id)
+        } else {
+          try await araBoardUseCase.downvotePost(postID: post.id)
         }
-        post.myVote = false
-        post.downvotes += 1
-        try await araBoardUseCase.downvotePost(postID: post.id)
       }
-      analyticsService?.logEvent(PostViewEvent.postDownvoted)
+      analyticsService?.logEvent(event)
     } catch {
-      logger.error("Failed to downvote: \(error.localizedDescription, privacy: .public)")
-      post.downvotes = previousDownvotes
-      post.myVote = previousMyVote
+      logger.error("Vote failed: \(error.localizedDescription, privacy: .public)")
+      post = snapshot
     }
   }
 
@@ -293,62 +274,46 @@ class PostViewModel: PostViewModelProtocol {
 
   // MARK: - Comment Operations
   func upvoteComment(comment: Binding<AraPostComment>) async {
-    guard let araCommentUseCase else { return }
-
-    let previousMyVote: Bool? = comment.wrappedValue.myVote
-    let previousUpvotes: Int = comment.wrappedValue.upvotes
-
-    do {
-      if previousMyVote == true {
-        // cancel upvote
-        comment.wrappedValue.myVote = nil
-        comment.wrappedValue.upvotes -= 1
-        try await araCommentUseCase.cancelVote(commentID: comment.wrappedValue.id)
-      } else {
-        // upvote
-        if previousMyVote == false {
-          // remove downvote if there was
-          comment.wrappedValue.downvotes -= 1
-        }
-        comment.wrappedValue.myVote = true
-        comment.wrappedValue.upvotes += 1
-        try await araCommentUseCase.upvoteComment(commentID: comment.wrappedValue.id)
-      }
-      analyticsService?.logEvent(PostCommentCellEvent.commentUpvoted)
-    } catch {
-      logger.error("Failed to upvote: \(error.localizedDescription, privacy: .public)")
-      comment.wrappedValue.upvotes = previousUpvotes
-      comment.wrappedValue.myVote = previousMyVote
-    }
+    await voteComment(comment: comment, isUpvote: true, event: .commentUpvoted)
   }
 
   func downvoteComment(comment: Binding<AraPostComment>) async {
+    await voteComment(comment: comment, isUpvote: false, event: .commentDownvoted)
+  }
+
+  /// Optimistically applies (or toggles off) a comment vote, reverting to the
+  /// pre-mutation snapshot if the remote call fails.
+  private func voteComment(
+    comment: Binding<AraPostComment>,
+    isUpvote: Bool,
+    event: PostCommentCellEvent
+  ) async {
     guard let araCommentUseCase else { return }
 
-    let previousMyVote: Bool? = comment.wrappedValue.myVote
-    let previousDownvotes: Int = comment.wrappedValue.downvotes
+    let snapshot: AraPostComment = comment.wrappedValue
 
     do {
-      if previousMyVote == false {
-        // cancel downvote
+      if comment.wrappedValue.myVote == isUpvote {
+        // Toggle the existing vote off.
         comment.wrappedValue.myVote = nil
-        comment.wrappedValue.downvotes -= 1
-        try await araCommentUseCase.cancelVote(commentID: comment.wrappedValue.id)
+        if isUpvote { comment.wrappedValue.upvotes -= 1 } else { comment.wrappedValue.downvotes -= 1 }
+        try await araCommentUseCase.cancelVote(commentID: snapshot.id)
       } else {
-        // downvote
-        if previousMyVote == true {
-          // remove upvote if there was
-          comment.wrappedValue.upvotes -= 1
+        // Clear the opposite vote (if any), then apply the new one.
+        if comment.wrappedValue.myVote == true { comment.wrappedValue.upvotes -= 1 }
+        else if comment.wrappedValue.myVote == false { comment.wrappedValue.downvotes -= 1 }
+        comment.wrappedValue.myVote = isUpvote
+        if isUpvote { comment.wrappedValue.upvotes += 1 } else { comment.wrappedValue.downvotes += 1 }
+        if isUpvote {
+          try await araCommentUseCase.upvoteComment(commentID: snapshot.id)
+        } else {
+          try await araCommentUseCase.downvoteComment(commentID: snapshot.id)
         }
-        comment.wrappedValue.myVote = false
-        comment.wrappedValue.downvotes += 1
-        try await araCommentUseCase.downvoteComment(commentID: comment.wrappedValue.id)
       }
-      analyticsService?.logEvent(PostCommentCellEvent.commentDownvoted)
+      analyticsService?.logEvent(event)
     } catch {
-      logger.error("Failed to downvote: \(error.localizedDescription, privacy: .public)")
-      comment.wrappedValue.downvotes = previousDownvotes
-      comment.wrappedValue.myVote = previousMyVote
+      logger.error("Comment vote failed: \(error.localizedDescription, privacy: .public)")
+      comment.wrappedValue = snapshot
     }
   }
 
