@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftyBeaver
+import os
 import FirebaseCore
 import FirebaseMessaging
 import UserNotifications
@@ -19,7 +19,7 @@ import SwiftData
 import ChannelIOFront
 import FirebaseCrashlytics
 
-let logger = SwiftyBeaver.self
+let logger = Logger(subsystem: "org.sparcs.soap", category: "App")
 
 // MARK: - Main-actor AppDelegate (no MessagingDelegate here)
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -43,7 +43,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     let center = UNUserNotificationCenter.current()
     center.delegate = pushDelegate
     center.requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-      print("Notification permission granted: \(granted)")
+      logger.info("Notification permission granted: \(granted)")
     }
 
     UIApplication.shared.registerForRemoteNotifications()
@@ -115,7 +115,7 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
   // FCM token updates
   // Mark nonisolated explicitly to avoid accidental main-actor capture
   nonisolated func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-    print("FCM token: \(String(describing: fcmToken))")
+    logger.debug("FCM token: \(String(describing: fcmToken))")
     // If you need to touch @MainActor state or UI:
     Task { @MainActor [fcmUseCase] in
       // save to Keychain / send to server / update view model
@@ -124,7 +124,7 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
       do {
         try await fcmUseCase?.register(fcmToken: fcmToken)
       } catch {
-        print("Failed to register fcm token: \(error)")
+        logger.error("Failed to register fcm token: \(error.localizedDescription, privacy: .public)")
       }
     }
   }
@@ -136,12 +136,6 @@ struct soapApp: App {
   @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol?
 
   init() {
-    // Initialise Console Logger (SwiftyBeaver)
-    let console = ConsoleDestination()
-    console.format = "$DHH:mm:ss$d $L $M"
-    console.logPrintWay = .logger(subsystem: "Main", category: "UI")
-    logger.addDestination(console)
-
     // watchOS support
     if let sessionBridgeService {
       sessionBridgeService.start()

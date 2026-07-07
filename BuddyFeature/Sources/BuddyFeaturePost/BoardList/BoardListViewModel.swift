@@ -9,6 +9,9 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "BoardListViewModel")
 
 @MainActor
 @Observable
@@ -43,6 +46,7 @@ public class BoardListViewModel: BoardListViewModelProtocol {
       analyticsService?.logEvent(BoardListViewEvent.boardsLoaded)
 
     } catch {
+      logger.error("Failed to load boards: \(error.localizedDescription, privacy: .public)")
       state = .error(message: String(localized: "Failed to load boards.", bundle: .module))
     }
   }

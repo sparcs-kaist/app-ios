@@ -13,6 +13,9 @@ import BuddyDomain
 import Haptica
 import FoundationModels
 import BuddyFeatureShared
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "LectureReviewCell")
 
 struct LectureReviewCell: View {
   @Binding var review: LectureReview
@@ -166,6 +169,7 @@ struct LectureReviewCell: View {
         try await reviewUseCase.likeReview(reviewID: review.id)
       }
     } catch {
+      logger.error("Failed to toggle like: \(error.localizedDescription, privacy: .public)")
       review.likedByUser = prevLiked
       review.like = prevLikeCount
     }

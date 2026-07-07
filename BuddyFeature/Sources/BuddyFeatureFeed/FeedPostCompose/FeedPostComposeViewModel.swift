@@ -10,6 +10,9 @@ import Observation
 import Factory
 import PhotosUI
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedPostComposeViewModel")
 
 @MainActor
 protocol FeedPostComposeViewModelProtocol: Observable {
@@ -130,6 +133,7 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
       )
       return true
     } catch {
+      logger.error("Failed to write post: \(error.localizedDescription, privacy: .public)")
       alertState = .init(
         title: String(localized: "Unable to write post.", bundle: .module),
         message: error.localizedDescription

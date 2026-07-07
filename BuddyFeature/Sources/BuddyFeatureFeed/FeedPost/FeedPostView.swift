@@ -13,6 +13,9 @@ import BuddyDomain
 import BuddyFeatureShared
 import BuddyPreviewSupport
 import FirebaseAnalytics
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedPostView")
 
 struct FeedPostView: View {
   @Binding var post: FeedPost
@@ -39,7 +42,15 @@ struct FeedPostView: View {
             isWritingCommentFocusState = true
           }, showFullContent: true)
 
-          comments
+          FeedCommentsSection(
+            state: viewModel.state,
+            comments: $viewModel.comments,
+            commentCount: post.commentCount,
+            onReply: { comment in
+              targetComment = comment
+              isWritingCommentFocusState = true
+            }
+          )
         }
         .contentWidth()
       }
@@ -110,6 +121,7 @@ struct FeedPostView: View {
             try await onDelete?()
             dismiss()
           } catch {
+            logger.error("Failed to delete post: \(error.localizedDescription, privacy: .public)")
             viewModel.alertState = .init(
               title: String(localized: "Unable to delete post.", bundle: .module),
               message: error.localizedDescription
@@ -199,67 +211,6 @@ struct FeedPostView: View {
     )
   }
 
-  private var comments: some View {
-    Group {
-      switch viewModel.state {
-      case .loading:
-        VStack(alignment: .leading, spacing: 16) {
-          Divider()
-            .padding(.horizontal)
-
-          Text("\(post.commentCount) comments", bundle: .module)
-            .font(.headline)
-            .padding(.horizontal)
-
-          ForEach(FeedComment.mockList.prefix(4)) { comment in
-            FeedCommentRow(comment: .constant(comment), isReply: false, onReply: nil)
-              .padding(.horizontal)
-              .redacted(reason: .placeholder)
-
-            Divider()
-              .padding(.horizontal)
-          }
-        }
-      case .loaded:
-        LazyVStack(alignment: .leading, spacing: 16) {
-          Divider()
-            .padding(.horizontal)
-
-          Text("\(post.commentCount) comments", bundle: .module)
-            .font(.headline)
-            .padding(.horizontal)
-            .contentTransition(.numericText(value: Double(post.commentCount)))
-            .animation(.spring, value: post.commentCount)
-
-          ForEach($viewModel.comments) { $comment in
-            FeedCommentRow(comment: $comment, isReply: false, onReply: {
-              targetComment = comment
-              isWritingCommentFocusState = true
-            })
-            .padding(.horizontal)
-            .id(comment.id)
-
-            if !comment.replies.isEmpty {
-              VStack(spacing: 12) {
-                ForEach($comment.replies) { $reply in
-                  FeedCommentRow(comment: $reply, isReply: true, onReply: nil)
-                    .padding(.horizontal)
-                    .id(reply.id)
-                }
-              }
-            }
-
-            Divider()
-              .padding(.horizontal)
-          }
-        }
-        .animation(.spring, value: viewModel.comments)
-      case .error(let message):
-        ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "text.bubble", description: Text(message))
-          .scaleEffect(0.8)
-      }
-    }
-  }
 }
 
 // MARK: - Previews

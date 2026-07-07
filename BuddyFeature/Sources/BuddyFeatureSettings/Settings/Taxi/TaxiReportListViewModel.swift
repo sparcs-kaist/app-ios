@@ -8,18 +8,29 @@
 import Foundation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiReportListViewModel")
+
+/// Equatable wrapper for the incoming/outgoing report lists. A tuple can't
+/// conform to Equatable, so the @Observable setter couldn't skip redundant
+/// invalidations when the same reports were fetched again.
+struct TaxiReports: Equatable {
+  var incoming: [TaxiReport]
+  var outgoing: [TaxiReport]
+}
 
 @MainActor
 protocol TaxiReportListViewModelProtocol: Observable {
   var state: TaxiReportListViewModel.ViewState { get set }
-  var reports: (incoming: [TaxiReport], outgoing: [TaxiReport]) { get set }
-  
+  var reports: TaxiReports { get set }
+
   func fetchReports() async
 }
 
 @MainActor
 class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
-  enum ViewState {
+  enum ViewState: Equatable {
     case loading
     case loaded
     case error(message: String)
@@ -27,7 +38,7 @@ class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
   
   // MARK: - Properties
   var state: ViewState = .loading
-  var reports: (incoming: [TaxiReport], outgoing: [TaxiReport]) = (incoming: [], outgoing: [])
+  var reports: TaxiReports = TaxiReports(incoming: [], outgoing: [])
   
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.taxiReportRepository) private var taxiReportRepository: TaxiReportRepositoryProtocol?
@@ -37,9 +48,11 @@ class TaxiReportListViewModel: TaxiReportListViewModelProtocol, Observable {
     guard let taxiReportRepository else { return }
 
     do {
-      reports = try await taxiReportRepository.fetchMyReports()
+      let fetched = try await taxiReportRepository.fetchMyReports()
+      reports = TaxiReports(incoming: fetched.incoming, outgoing: fetched.outgoing)
       state = .loaded
     } catch {
+      logger.error("Failed to fetch reports: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
   }

@@ -8,8 +8,10 @@
 import SwiftUI
 import Observation
 import Factory
-import Combine
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatViewModel")
 
 @MainActor
 @Observable
@@ -30,9 +32,10 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
 
   private(set) var topChatID: String? = nil
   private var fetchedDateSet: Set<Date> = []
+  private var accountChats: [TaxiChat] = []
 
   var room: TaxiRoom
-  private var cancellables = Set<AnyCancellable>()
+  @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
   private var isFetching: Bool = false
 
   private let renderItemBuilder = ChatRenderItemBuilder(
@@ -57,9 +60,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     guard let taxiChatUseCase else { return }
     await fetchTaxiUser()
 
-    taxiChatUseCase.setRoom(self.room)
+    await taxiChatUseCase.setRoom(self.room)
 
-    bind()
+    await bind()
   }
 
   private func fetchTaxiUser() async {
@@ -68,27 +71,35 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     self.taxiUser = await userUseCase.taxiUser
   }
 
-  private func bind() {
+  private func bind() async {
     guard let taxiChatUseCase else { return }
 
-    taxiChatUseCase.chatsPublisher
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] chats in
-        guard let self = self else { return }
+    let chatStream = await taxiChatUseCase.chatStream()
+    let roomUpdateStream = await taxiChatUseCase.roomUpdateStream()
+
+    observationTasks.forEach { $0.cancel() }
+    observationTasks = []
+
+    observationTasks.append(Task { [weak self] in
+      for await chats in chatStream {
+        guard let self else { return }
         let filtered = chats.filter { $0.roomID == self.room.id }
-        let builtItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
-        self.renderItems = builtItems
+        self.renderItems = self.renderItemBuilder.build(chats: filtered, myUserID: self.taxiUser?.oid)
+        self.accountChats = chats.filter { $0.type == .account }
         self.state = .loaded
       }
-      .store(in: &cancellables)
+    })
 
-    taxiChatUseCase.roomUpdatePublisher
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] updatedRoom in
-        guard let self = self else { return }
+    observationTasks.append(Task { [weak self] in
+      for await updatedRoom in roomUpdateStream {
+        guard let self else { return }
         self.room = updatedRoom
       }
-      .store(in: &cancellables)
+    })
+  }
+
+  deinit {
+    observationTasks.forEach { $0.cancel() }
   }
 
   func loadMoreChats() async {
@@ -123,7 +134,13 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     scrollToBottomTrigger += 1
 
     Task {
-      await taxiChatUseCase.sendChat(message, type: type)
+      do {
+        try await taxiChatUseCase.sendChat(message, type: type)
+      } catch {
+        logger.error("Failed to send chat: \(error.localizedDescription, privacy: .public)")
+        alertState = AlertState(title: "Error", message: error.localizedDescription)
+        isAlertPresented = true
+      }
     }
   }
 
@@ -155,8 +172,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         guard let account = taxiUser?.account, !account.isEmpty else {
           return
         }
-        await taxiChatUseCase.sendChat(account, type: .account)
+        try await taxiChatUseCase.sendChat(account, type: .account)
       } catch {
+        logger.error("Failed to commit settlement: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
@@ -175,6 +193,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         let room: TaxiRoom = try await taxiRoomRepository.commitPayment(id: room.id)
         self.room = room
       } catch {
+        logger.error("Failed to commit payment: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
@@ -196,6 +215,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       do {
         room = try await taxiRoomRepository.updateArrival(id: room.id, isArrived: isArrived)
       } catch {
+        logger.error("Failed to update arrival: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
@@ -209,6 +229,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       do {
         room = try await taxiRoomRepository.updateCarrier(id: room.id, hasCarrier: hasCarrier)
       } catch {
+        logger.error("Failed to update carrier: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
@@ -216,12 +237,11 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   var account: String? {
-    guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }),
-          let taxiChatUseCase else {
+    guard let paidParticiapnt = room.participants.first(where: { $0.isSettlement == .requestedSettlement }) else {
       return nil
     }
 
-    return taxiChatUseCase.accountChats.last(where: { $0.authorID == paidParticiapnt.id })?.content
+    return accountChats.last(where: { $0.authorID == paidParticiapnt.id })?.content
   }
 
   func sendImage(_ image: UIImage) async throws {

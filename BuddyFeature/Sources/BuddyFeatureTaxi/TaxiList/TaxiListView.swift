@@ -81,8 +81,23 @@ public struct TaxiListView: View {
               switch viewModel.state {
               case .loading:
                 loadingView()
-              case .loaded(let rooms, let locations):
-                loadedView(rooms: rooms, locations: locations)
+              case .loaded(let rooms, _):
+                TaxiRoomWeekList(
+                  rooms: rooms,
+                  week: viewModel.week,
+                  source: viewModel.source,
+                  destination: viewModel.destination,
+                  emptyDescription: description,
+                  onSelectRoom: { room in
+                    Haptic.selection.generate()
+                    selectedRoom = room
+                  },
+                  onCreateRoom: { showRoomCreationSheet = true },
+                  onClearSelection: {
+                    viewModel.source = nil
+                    viewModel.destination = nil
+                  }
+                )
               case .empty:
                 emptyView()
               case .error(let message):
@@ -182,50 +197,6 @@ public struct TaxiListView: View {
     .disabled(true)
   }
 
-  private func loadedView(rooms: [TaxiRoom], locations: [TaxiLocation]) -> some View {
-    let calendar = Calendar.current
-    let filteredRooms: [TaxiRoom] = rooms.filter { room in
-      let matchessource = viewModel.source == nil || room.source.id == viewModel.source!.id
-      let matchesDestination = viewModel.destination == nil || room.destination.id == viewModel.destination!.id
-      return matchessource && matchesDestination
-    }
-
-    return Group {
-      if  filteredRooms.isEmpty {
-        emptyResultView
-      } else {
-        ForEach(viewModel.week, id: \.self.weekdaySymbol) { day in
-          let roomsForDay = filteredRooms.filter { calendar.isDate($0.departAt, inSameDayAs: day) }
-          if !roomsForDay.isEmpty {
-            VStack(spacing: 12) {
-              HStack(alignment: .bottom) {
-                Text(day.weekdaySymbol)
-                  .font(.title3)
-                  .fontWeight(.bold)
-                Spacer()
-              }
-              .padding(.horizontal)
-
-              ForEach(roomsForDay) { room in
-                TaxiRoomCell(room: room, withOutBackground: false)
-                  .padding(.horizontal)
-                  .id(day.weekdaySymbol)
-                  .onTapGesture {
-                    Haptic.selection.generate()
-                    selectedRoom = room
-                  }
-              }
-            }
-            .id(day.weekdaySymbol)
-            .scrollTargetLayout()
-          }
-        }
-      }
-    }
-    .animation(.spring, value: viewModel.source)
-    .animation(.spring, value: viewModel.destination)
-  }
-
   private func emptyView() -> some View {
     ContentUnavailableView(String(localized: "No Rides This Week", bundle: .module), systemImage: "car.2.fill", description: Text("Looks like there are no groups scheduled for this week. Be the first to create one!", bundle: .module))
   }
@@ -248,26 +219,6 @@ public struct TaxiListView: View {
     )
   }
 
-  private var emptyResultView: some View {
-    ContentUnavailableView(
-      label: {
-        Label(String(localized: "No Rides Found", bundle: .module), systemImage: "car.2.fill")
-      },
-      description: {
-        Text(description)
-      },
-      actions: {
-        Button(String(localized: "Create a New Group", bundle: .module)) {
-          showRoomCreationSheet = true
-        }
-
-        Button(String(localized: "Clear Selection", bundle: .module)) {
-          viewModel.source = nil
-          viewModel.destination = nil
-        }
-      }
-    )
-  }
 }
 
 

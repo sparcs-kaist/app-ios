@@ -225,9 +225,12 @@ extension Container: @retroactive AutoRegistering {
         guard let useCase else { throw NetworkError.unauthorized }
         try await useCase.refreshAccessToken(force: true)
       }
-      useCase.onTokenRefresh = { [weak self] in
-        self?.taxiChatService.resolve()?.reconnect()
-      }
+      // NOTE: We intentionally do NOT reconnect the taxi socket on token refresh.
+      // The socket authenticates once at its handshake and the server keeps that
+      // session valid; re-handshaking a live socket makes the server stop pushing
+      // chats to it (chats would hang on the loading spinner). Genuine drops are
+      // recovered by TaxiChatService's `.disconnect` auto-reconnect, which reads a
+      // fresh token from storage.
       return useCase
     }
     .scope(.singleton)

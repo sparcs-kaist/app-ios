@@ -11,6 +11,13 @@ import Factory
 import PhotosUI
 import BuddyDomain
 
+/// A selected image paired with a stable identity, so `ForEach` can track each
+/// row across body evaluations without using the `UIImage` itself as the id.
+struct PostComposeImage: Identifiable, Hashable {
+  let id: String
+  let image: UIImage
+}
+
 @MainActor
 protocol PostComposeViewModelProtocol: Observable {
   var board: AraBoard { get }
@@ -19,7 +26,7 @@ protocol PostComposeViewModelProtocol: Observable {
   var title: String { get set }
   var content: String { get set }
   var selectedItems: [PhotosPickerItem] { get set }
-  var selectedImages: [UIImage] { get }
+  var selectedImages: [PostComposeImage] { get }
 
   var writeAsAnonymous: Bool { get set }
   var isNSFW: Bool { get set }
@@ -43,7 +50,7 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
       }
     }
   }
-  var selectedImages: [UIImage] = []
+  var selectedImages: [PostComposeImage] = []
 
   var writeAsAnonymous: Bool = true
   var isNSFW: Bool = false
@@ -65,8 +72,8 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
     guard let araBoardUseCase else { return }
 
     var attachments: [AraAttachment] = []
-    for image in selectedImages {
-      let attachment: AraAttachment = try await araBoardUseCase.uploadImage(image: image)
+    for selected in selectedImages {
+      let attachment: AraAttachment = try await araBoardUseCase.uploadImage(image: selected.image)
 
       attachments.append(attachment)
     }
@@ -87,12 +94,12 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
   }
 
   private func loadSelectedImages() async {
-    var images: [UIImage] = []
+    var images: [PostComposeImage] = []
 
     for item in selectedItems {
       if let data = try? await item.loadTransferable(type: Data.self),
          let image = UIImage(data: data) {
-        images.append(image)
+        images.append(PostComposeImage(id: UUID().uuidString, image: image))
       }
     }
 

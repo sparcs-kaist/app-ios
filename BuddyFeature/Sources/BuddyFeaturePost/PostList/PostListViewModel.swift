@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
-import Combine
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostListViewModel")
 
 @Observable
 class PostListViewModel: PostListViewModelProtocol {
@@ -20,10 +22,10 @@ class PostListViewModel: PostListViewModelProtocol {
 
   // Search Properties
   var searchKeyword: String = "" {
-    didSet { searchKeywordSubject.send(searchKeyword) }
+    didSet { scheduleSearch() }
   }
-  @ObservationIgnored private var cancellables = Set<AnyCancellable>()
-  @ObservationIgnored private let searchKeywordSubject = PassthroughSubject<String, Never>()
+  @ObservationIgnored private var searchTask: Task<Void, Never>?
+  @ObservationIgnored private var lastSearchKeyword: String?
 
   // Infinite Scroll Properties
   var isLoadingMore: Bool = false
@@ -46,24 +48,24 @@ class PostListViewModel: PostListViewModelProtocol {
   }
 
   func bind() {
-    cancellables.removeAll()
+    searchTask?.cancel()
+    lastSearchKeyword = nil
+  }
 
-    let searchPublisher = searchKeywordSubject
-      .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .removeDuplicates()
+  private func scheduleSearch() {
+    let keyword = searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard keyword != lastSearchKeyword else { return }
+    lastSearchKeyword = keyword
 
-    searchPublisher
-      .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
-      .sink { [weak self] keyword in
-        guard let self else { return }
-        Task {
-          if !keyword.isEmpty {
-            self.analyticsService?.logEvent(PostListViewEvent.searchPerformed(keyword: keyword))
-          }
-          await self.fetchInitialPosts()
-        }
+    searchTask?.cancel()
+    searchTask = Task { [weak self] in
+      try? await Task.sleep(for: .milliseconds(350))
+      guard !Task.isCancelled, let self else { return }
+      if !keyword.isEmpty {
+        self.analyticsService?.logEvent(PostListViewEvent.searchPerformed(keyword: keyword))
       }
-      .store(in: &cancellables)
+      await self.fetchInitialPosts()
+    }
   }
 
   func fetchInitialPosts() async {
@@ -83,6 +85,7 @@ class PostListViewModel: PostListViewModelProtocol {
       self.state = .loaded(posts: self.posts)
       analyticsService?.logEvent(PostListViewEvent.postsRefreshed)
     } catch {
+      logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
   }
@@ -116,6 +119,7 @@ class PostListViewModel: PostListViewModelProtocol {
           self.isLoadingMore = false
         }
       } catch {
+        logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
         await MainActor.run {
           self.isLoadingMore = false
         }

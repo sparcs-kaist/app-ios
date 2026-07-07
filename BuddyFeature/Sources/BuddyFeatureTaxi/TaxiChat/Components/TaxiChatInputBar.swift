@@ -8,6 +8,9 @@
 import Foundation
 import SwiftUI
 import PhotosUI
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatInputBar")
 
 struct TaxiChatInputBar: View {
   @Binding var text: String
@@ -110,6 +113,7 @@ struct TaxiChatInputBar: View {
                 selectedItem = nil
                 selectedImage = nil
               } catch {
+                logger.error("Failed to send image: \(error.localizedDescription, privacy: .public)")
                 onError(error.localizedDescription)
               }
             }

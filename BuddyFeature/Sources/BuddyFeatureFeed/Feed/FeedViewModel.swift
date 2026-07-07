@@ -9,6 +9,9 @@ import Foundation
 import Observation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedViewModel")
 
 @MainActor
 @Observable
@@ -42,6 +45,7 @@ public final class FeedViewModel: FeedViewModelProtocol {
       self.hasNext = page.hasNext
       self.state = .loaded
     } catch {
+      logger.error("Failed to fetch feed: \(error.localizedDescription, privacy: .public)")
       self.state = .error(message: error.localizedDescription)
     }
   }
@@ -58,6 +62,7 @@ public final class FeedViewModel: FeedViewModelProtocol {
       self.nextCursor = page.nextCursor
       self.hasNext = page.hasNext
     } catch {
+      logger.error("Failed to load more posts: \(error.localizedDescription, privacy: .public)")
       self.alertState = .init(title: String(localized: "Unable to load more posts.", bundle: .module), message: error.localizedDescription)
       self.isAlertPresented = true
     }
@@ -70,6 +75,7 @@ public final class FeedViewModel: FeedViewModelProtocol {
       try await feedPostUseCase.deletePost(postID: postID)
       self.posts.removeAll { $0.id == postID }
     } catch {
+      logger.error("Failed to delete post: \(error.localizedDescription, privacy: .public)")
       self.alertState = .init(title: String(localized: "Unable to delete post.", bundle: .module), message: error.localizedDescription)
       self.isAlertPresented = true
     }

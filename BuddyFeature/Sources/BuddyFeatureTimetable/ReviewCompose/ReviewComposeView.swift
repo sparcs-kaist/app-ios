@@ -10,6 +10,9 @@ import SwiftUI
 import Factory
 import BuddyDomain
 import FirebaseAnalytics
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "ReviewComposeView")
 
 struct ReviewComposeView: View {
   let lecture: Lecture
@@ -26,7 +29,7 @@ struct ReviewComposeView: View {
   @State private var showErrorAlert: Bool = false
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       ScrollView {
         TextField(
           "",
@@ -102,6 +105,7 @@ struct ReviewComposeView: View {
                     )
                   dismiss()
                 } catch {
+                  logger.error("Failed to write review: \(error.localizedDescription, privacy: .public)")
                   showErrorAlert = true
                 }
               }

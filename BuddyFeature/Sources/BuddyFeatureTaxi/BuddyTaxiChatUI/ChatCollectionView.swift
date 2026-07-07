@@ -34,15 +34,27 @@ struct ChatCollectionView: UIViewRepresentable {
     collectionView.contentInset.bottom = newBottomInset
     collectionView.scrollIndicatorInsets = collectionView.contentInset
 
-    let delta = newBottomInset - oldBottomInset
+    let insetDelta = newBottomInset - oldBottomInset
 
-    if delta > 0 {
+    // The bottom inset changes when the keyboard shows or hides. Shift the
+    // content offset by the same amount so the messages that were on screen
+    // stay exactly where they were, instead of being covered or jumping. The
+    // offset is clamped to the valid scroll range to avoid over-scrolling when
+    // the content is shorter than the viewport.
+    if insetDelta != 0 {
+      let minOffsetY = -self.safeAreaInsets.top
+      let maxOffsetY = max(
+        minOffsetY,
+        collectionView.contentSize.height - collectionView.bounds.height + newBottomInset
+      )
+      let targetOffsetY = min(max(collectionView.contentOffset.y + insetDelta, minOffsetY), maxOffsetY)
+
       UIView.animate(
         withDuration: 0.25,
         delay: 0,
         options: [.curveEaseInOut, .beginFromCurrentState]
       ) {
-        collectionView.contentOffset.y += delta
+        collectionView.contentOffset.y = targetOffsetY
         collectionView.layoutIfNeeded()
       }
     }
@@ -59,6 +71,10 @@ struct ChatCollectionView: UIViewRepresentable {
     context.coordinator.user = user
 
     if shouldReload {
+      // Capture whether the user is pinned to the bottom *before* the reload
+      // changes the content size, so we can preserve that position afterwards.
+      let wasAtBottom = isAtBottom(collectionView)
+
       collectionView.reloadData()
 
       if !context.coordinator.hasInitialScroll {
@@ -66,6 +82,12 @@ struct ChatCollectionView: UIViewRepresentable {
 
         DispatchQueue.main.async {
           scrollToBottom(collectionView, animated: false)
+        }
+      } else if wasAtBottom {
+        // A received message arrived while already scrolled to the bottom:
+        // follow it. If the user had scrolled up to read history, stay put.
+        DispatchQueue.main.async {
+          scrollToBottom(collectionView, animated: true)
         }
       }
     }
@@ -89,6 +111,20 @@ struct ChatCollectionView: UIViewRepresentable {
 
     let indexPath = IndexPath(item: itemCount - 1, section: 0)
     collectionView.scrollToItem(at: indexPath, at: .bottom, animated: animated)
+  }
+
+  /// Whether the collection view is scrolled to (or within `threshold` of) the
+  /// bottom of its content, accounting for the adjusted content insets.
+  private func isAtBottom(_ collectionView: UICollectionView, threshold: CGFloat = 60) -> Bool {
+    let inset = collectionView.adjustedContentInset
+    let visibleHeight = collectionView.bounds.height - inset.top - inset.bottom
+    let contentHeight = collectionView.contentSize.height
+
+    // Content shorter than the viewport is always effectively at the bottom.
+    guard contentHeight > visibleHeight else { return true }
+
+    let bottomEdge = collectionView.contentOffset.y + collectionView.bounds.height - inset.bottom
+    return contentHeight - bottomEdge <= threshold
   }
 
   private func layout() -> UICollectionViewLayout {

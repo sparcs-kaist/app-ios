@@ -10,6 +10,9 @@ import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
 import ChannelIOFront
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "SettingsView")
 
 public struct SettingsView: View {
   @Environment(\.openURL) private var openURL
@@ -62,6 +65,7 @@ public struct SettingsView: View {
               do {
                 try await viewModel.signOut()
               } catch {
+                logger.error("Failed to sign out: \(error.localizedDescription, privacy: .public)")
                 showLogoutError = true
               }
             }

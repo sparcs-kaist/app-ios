@@ -40,7 +40,7 @@ public struct FeedView: View {
           errorView(message: message)
         }
       }
-      .animation(.spring, value: viewModel.posts)
+      .animation(.spring, value: viewModel.posts.map(\.id))
       .contentWidth()
     }
     .disabled(viewModel.state == .loading)

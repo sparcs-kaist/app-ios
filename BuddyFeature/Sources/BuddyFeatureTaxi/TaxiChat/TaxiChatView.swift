@@ -10,6 +10,9 @@ import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
 import BuddyPreviewSupport
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatView")
 
 struct TaxiChatView: View {
   @State private var viewModel: TaxiChatViewModelProtocol
@@ -217,6 +220,7 @@ struct TaxiChatView: View {
               try await viewModel.leaveRoom()
               dismiss()
             } catch {
+              logger.error("Failed to leave room: \(error.localizedDescription, privacy: .public)")
               viewModel.alertState = AlertState(title: String(localized: "Error", bundle: .module), message: error.localizedDescription)
               viewModel.isAlertPresented = true
             }

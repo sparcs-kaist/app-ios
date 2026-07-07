@@ -6,26 +6,33 @@
 //
 
 import Foundation
-import Combine
+import os
 import SocketIO
 import BuddyDomain
 import BuddyDataCore
 
-public final class TaxiChatService: TaxiChatServiceProtocol {
-  // MARK: - Publisher
-  private var chatsSubject = PassthroughSubject<[TaxiChat], Never>()
-  public var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
-    chatsSubject.eraseToAnyPublisher()
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatSocket")
+
+// @unchecked Sendable: this type bridges SocketIO's callback-based API. Its
+// scalar state is only mutated inside socket event handlers (delivered serially
+// on the manager's handle queue), and its downstream streams are backed by
+// `AsyncBroadcaster` actors, so it is safe to share across isolation domains.
+public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable {
+  // MARK: - Broadcasters
+  private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>()
+  private let connectionBroadcaster = AsyncBroadcaster<Bool>(replaysLatest: true)
+  private let roomUpdateBroadcaster = AsyncBroadcaster<String>()
+
+  public func chatStream() async -> AsyncStream<[TaxiChat]> {
+    await chatBroadcaster.subscribe()
   }
 
-  private var isConnectedSubject = CurrentValueSubject<Bool, Never>(false)
-  public var isConnectedPublisher: AnyPublisher<Bool, Never> {
-    isConnectedSubject.eraseToAnyPublisher()
+  public func connectionStream() async -> AsyncStream<Bool> {
+    await connectionBroadcaster.subscribe()
   }
 
-  private var roomUpdateSubject = PassthroughSubject<String, Never>()
-  public var roomUpdatePublisher: AnyPublisher<String, Never> {
-    roomUpdateSubject.eraseToAnyPublisher()
+  public func roomUpdateStream() async -> AsyncStream<String> {
+    await roomUpdateBroadcaster.subscribe()
   }
 
   private var chatsStorage: [TaxiChat] = []
@@ -33,13 +40,19 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
     get { chatsStorage }
     set {
       chatsStorage = newValue
-      chatsSubject.send(newValue)
+      let broadcaster = chatBroadcaster
+      Task { await broadcaster.yield(newValue) }
     }
   }
 
+  private var isConnectedStorage: Bool = false
   private var isConnected: Bool {
-    get { isConnectedSubject.value }
-    set { isConnectedSubject.send(newValue) }
+    get { isConnectedStorage }
+    set {
+      isConnectedStorage = newValue
+      let broadcaster = connectionBroadcaster
+      Task { await broadcaster.yield(newValue) }
+    }
   }
 
   // MARK: - State
@@ -83,6 +96,10 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
   }
 
   public func reconnect() {
+    // Mark this as an intentional reconnect so the `.disconnect` handler below
+    // does not fire its own auto-reconnect for the disconnect we trigger here —
+    // otherwise two competing connections race.
+    hasAttemptedReconnect = true
     socket.disconnect()
     manager.config = [
       .log(false),
@@ -112,7 +129,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
     }
 
     socket.on(clientEvent: .error) { data, _ in
-      print("[TaxiChatService] Socket error: \(data)")
+      logger.error("Socket error: \(String(describing: data), privacy: .public)")
     }
 
     // Retrieves recent chats
@@ -131,7 +148,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
             let chatArray = dataDict["chats"] as? [[String: Any]] else {
         return
       }
-      
+
       let chats: [TaxiChat] = self.handleChats(chatArray)
       self.chats.insert(contentsOf: chats, at: 0)
     }
@@ -152,12 +169,9 @@ public final class TaxiChatService: TaxiChatServiceProtocol {
         return
       }
 
-      self.roomUpdateSubject.send(roomID)
+      let broadcaster = self.roomUpdateBroadcaster
+      Task { await broadcaster.yield(roomID) }
     }
-
-//    socket.onAny { event in
-//      print("📡 Socket Event - \(event.event):", event.items ?? [])
-//    }
   }
 
   private func handleChats(_ data: [[String: Any]]) -> [TaxiChat] {
