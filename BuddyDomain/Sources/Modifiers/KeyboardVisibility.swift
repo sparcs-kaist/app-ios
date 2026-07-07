@@ -18,22 +18,15 @@ public extension View {
   }
 }
 
-public struct KeyboardShowingEnvironmentKey: EnvironmentKey {
-  public static let defaultValue: Bool = false
-}
-
 public extension EnvironmentValues {
-  var keyboardShowing: Bool {
-    get { self[KeyboardShowingEnvironmentKey.self] }
-    set { self[KeyboardShowingEnvironmentKey.self] = newValue }
-  }
+  @Entry var keyboardShowing: Bool = false
 }
 
 public struct KeyboardVisibility: ViewModifier {
 
 #if os(iOS)
 
-  @State public var isKeyboardShowing:Bool = false
+  @State private var isKeyboardShowing: Bool = false
 
   public var keyboardPublisher: AnyPublisher<Bool, Never> {
     Publishers

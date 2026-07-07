@@ -7,20 +7,23 @@
 
 import Foundation
 import UIKit
-import Combine
+import os
 import SocketIO
 import BuddyDomain
 
-public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable {
-  // MARK: - Publishers
-  private var chatsSubject = PassthroughSubject<[TaxiChat], Never>()
-  public var chatsPublisher: AnyPublisher<[TaxiChat], Never> {
-    chatsSubject.eraseToAnyPublisher()
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChat")
+
+public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
+  // MARK: - Broadcasters
+  private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>(replaysLatest: true)
+  private let roomUpdateBroadcaster = AsyncBroadcaster<TaxiRoom>()
+
+  public func chatStream() async -> AsyncStream<[TaxiChat]> {
+    await chatBroadcaster.subscribe()
   }
 
-  private var roomUpdateSubject = PassthroughSubject<TaxiRoom, Never>()
-  public var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> {
-    roomUpdateSubject.eraseToAnyPublisher()
+  public func roomUpdateStream() async -> AsyncStream<TaxiRoom> {
+    await roomUpdateBroadcaster.subscribe()
   }
 
   // MARK: - State
@@ -29,10 +32,7 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
   private var hasInitialChatsBeenFetched: Bool = false
   private var flatChats: [TaxiChat] = []
 
-  private var cancellables = Set<AnyCancellable>()
-
-  // MARK: - Computed Properties
-  public var accountChats: [TaxiChat] = []
+  private var observationTasks: [Task<Void, Never>] = []
 
   // MARK: - Dependency
   private let taxiChatService: TaxiChatServiceProtocol?
@@ -66,12 +66,12 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
 
     hasInitialChatsBeenFetched = true
 
-    bind()
+    await bind()
 
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id)
     } catch {
-      print(error)
+      logger.error("Failed to fetch initial chats: \(error.localizedDescription, privacy: .public)")
     }
   }
 
@@ -81,17 +81,18 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id, before: date)
     } catch {
-      print(error)
+      logger.error("Failed to fetch chats before \(date, privacy: .public): \(error.localizedDescription, privacy: .public)")
     }
   }
 
-  public func sendChat(_ content: String?, type: TaxiChat.ChatType) async {
+  public func sendChat(_ content: String?, type: TaxiChat.ChatType) async throws {
     guard let taxiChatRepository, let room else { return }
 
     // Optimistic insert
+    var optimisticChat: TaxiChat?
     if let content, let userUseCase {
       let user: TaxiUser? = await userUseCase.taxiUser
-      let optimisticChat = TaxiChat(
+      let chat = TaxiChat(
         roomID: room.id,
         type: type,
         authorID: user?.oid,
@@ -103,15 +104,22 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
         isValid: true,
         inOutNames: nil
       )
-      flatChats.append(optimisticChat)
-      chatsSubject.send(flatChats)
+      optimisticChat = chat
+      flatChats.append(chat)
+      await chatBroadcaster.yield(flatChats)
     }
 
     do {
       let request = TaxiChatRequest(roomID: room.id, type: type, content: content)
       try await taxiChatRepository.sendChat(request)
     } catch {
-      print(error)
+      // Roll back the optimistic insert so a failed message doesn't look sent.
+      if let optimisticChat {
+        flatChats.removeAll { $0.id == optimisticChat.id }
+        await chatBroadcaster.yield(flatChats)
+      }
+      logger.error("Failed to send chat: \(error.localizedDescription, privacy: .public)")
+      throw error
     }
   }
 
@@ -127,49 +135,64 @@ public final class TaxiChatUseCase: TaxiChatUseCaseProtocol, @unchecked Sendable
     try await taxiChatRepository.notifyImageUploadComplete(id: presignedURL.id)
   }
 
-  private func bind() {
-    guard let taxiChatRepository, let taxiRoomRepository, let taxiChatService, let room else {
+  private func bind() async {
+    guard let taxiChatService, let room else {
       return
     }
 
+    let roomID = room.id
+    let connectionStream = await taxiChatService.connectionStream()
+    let serviceChatStream = await taxiChatService.chatStream()
+    let serviceRoomUpdateStream = await taxiChatService.roomUpdateStream()
+
     // is socket(TaxiChatService) connected
-    taxiChatService.isConnectedPublisher
-      .sink { [weak self] isConnected in
-        self?.isSocketConnected = isConnected
+    observationTasks.append(Task { [weak self] in
+      for await isConnected in connectionStream {
+        guard let self else { return }
+        await self.setSocketConnected(isConnected)
       }
-      .store(in: &cancellables)
+    })
 
-    // converts [TaxiChat] into [TaxiChatGroup]
-    taxiChatService.chatsPublisher
-      .sink { [weak self, taxiChatRepository] chats in
-        Task { [weak self, taxiChatRepository] in
-          guard let self else { return }
-
-          try? await taxiChatRepository.readChats(roomID: room.id)
-
-          self.flatChats = chats
-          self.chatsSubject.send(chats)
-
-          self.accountChats = chats.filter { $0.type == .account }
-        }
+    // forwards chats downstream, marking them read
+    observationTasks.append(Task { [weak self] in
+      for await chats in serviceChatStream {
+        guard let self else { return }
+        await self.handleServiceChats(chats, roomID: roomID)
       }
-      .store(in: &cancellables)
+    })
 
     // handles room updates from chat_update event
-    taxiChatService.roomUpdatePublisher
-      .sink { [weak self, taxiRoomRepository] roomID in
-        Task { [weak self, taxiRoomRepository] in
-          guard let self, roomID == room.id else { return }
-
-          do {
-            let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: roomID)
-            self.room = updatedRoom
-            self.roomUpdateSubject.send(updatedRoom)
-          } catch {
-            print("Failed to update room: \(error)")
-          }
-        }
+    observationTasks.append(Task { [weak self] in
+      for await updatedRoomID in serviceRoomUpdateStream {
+        guard let self else { return }
+        guard updatedRoomID == roomID else { continue }
+        await self.handleRoomUpdate(roomID: updatedRoomID)
       }
-      .store(in: &cancellables)
+    })
+  }
+
+  private func setSocketConnected(_ isConnected: Bool) {
+    isSocketConnected = isConnected
+  }
+
+  private func handleServiceChats(_ chats: [TaxiChat], roomID: String) async {
+    try? await taxiChatRepository?.readChats(roomID: roomID)
+    flatChats = chats
+    await chatBroadcaster.yield(chats)
+  }
+
+  private func handleRoomUpdate(roomID: String) async {
+    guard let taxiRoomRepository else { return }
+    do {
+      let updatedRoom: TaxiRoom = try await taxiRoomRepository.getRoom(id: roomID)
+      room = updatedRoom
+      await roomUpdateBroadcaster.yield(updatedRoom)
+    } catch {
+      logger.error("Failed to update room: \(error.localizedDescription, privacy: .public)")
+    }
+  }
+
+  deinit {
+    observationTasks.forEach { $0.cancel() }
   }
 }

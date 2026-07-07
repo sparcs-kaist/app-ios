@@ -17,167 +17,94 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
   public init(provider: MoyaProvider<TaxiRoomTarget>) {
     self.provider = provider
   }
-  
-  public func fetchRooms() async throws -> [TaxiRoom] {
-    do {
-      let response = try await provider.request(.fetchRooms)
-      let result = try response.map([TaxiRoomDTO].self)
-        .compactMap { $0.toModel() }
 
-      return result
+  /// Performs a request and decodes the response, mapping `MoyaError` to the
+  /// app's API error. Non-Moya errors propagate unchanged.
+  private func request<T>(
+    _ target: TaxiRoomTarget,
+    decode: (Response) throws -> T
+  ) async throws -> T {
+    do {
+      let response = try await provider.request(target)
+      return try decode(response)
     } catch let moyaError as MoyaError {
       throw moyaError.toAPIError
-    } catch {
-      throw error
+    }
+  }
+
+  public func fetchRooms() async throws -> [TaxiRoom] {
+    try await request(.fetchRooms) { response in
+      try response.map([TaxiRoomDTO].self).compactMap { $0.toModel() }
     }
   }
 
   public func fetchMyRooms() async throws -> (onGoing: [TaxiRoom], done: [TaxiRoom]) {
-    do {
-      let response = try await provider.request(.fetchMyRooms)
+    try await request(.fetchMyRooms) { response in
       let result = try response.map(TaxiMyRoomsResponseDTO.self)
-
-      let onGoingRooms: [TaxiRoom] = result.onGoing.compactMap { $0.toModel() }
-      let doneRooms: [TaxiRoom] = result.done.compactMap { $0.toModel() }
-
-      return (onGoing: onGoingRooms, done: doneRooms)
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+      return (
+        onGoing: result.onGoing.compactMap { $0.toModel() },
+        done: result.done.compactMap { $0.toModel() }
+      )
     }
   }
 
   public func fetchLocations() async throws -> [TaxiLocation] {
-    do {
-      let response = try await provider.request(.fetchLocations)
-      let result = try response.map(TaxiLocationResponseDTO.self)
-        .locations
-        .compactMap { $0.toModel() }
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.fetchLocations) { response in
+      try response.map(TaxiLocationResponseDTO.self).locations.compactMap { $0.toModel() }
     }
   }
 
   public func createRoom(with: TaxiCreateRoom) async throws -> TaxiRoom {
-    do {
-      let requestDTO = TaxiCreateRoomRequestDTO.fromModel(with)
-      let response = try await provider.request(.createRoom(with: requestDTO))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.createRoom(with: TaxiCreateRoomRequestDTO.fromModel(with))) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 
   public func joinRoom(id: String) async throws -> TaxiRoom {
-    do {
-      let response = try await provider.request(.joinRoom(roomID: id))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.joinRoom(roomID: id)) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 
   public func leaveRoom(id: String) async throws -> TaxiRoom {
-    do {
-      let response = try await provider.request(.leaveRoom(roomID: id))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.leaveRoom(roomID: id)) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 
   public func getRoom(id: String) async throws -> TaxiRoom {
-    do {
-      let response = try await provider.request(.getRoom(roomID: id))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.getRoom(roomID: id)) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 
   public func getPublicRoom(id: String) async throws -> TaxiRoom {
-    do {
-      let response = try await provider.request(.getPublicRoom(roomID: id))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.getPublicRoom(roomID: id)) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 
   public func commitSettlement(id: String) async throws -> TaxiRoom {
-    do {
-      let response = try await provider.request(.commitSettlement(roomID: id))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.commitSettlement(roomID: id)) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 
   public func commitPayment(id: String) async throws -> TaxiRoom {
-    do {
-      let response = try await provider.request(.commitPayment(roomID: id))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.commitPayment(roomID: id)) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 
   public func updateArrival(id: String, isArrived: Bool) async throws -> TaxiRoom {
-    do {
-      let response = try await provider.request(.updateArrival(roomID: id, isArrived: isArrived))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.updateArrival(roomID: id, isArrived: isArrived)) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 
   public func updateCarrier(id: String, hasCarrier: Bool) async throws -> TaxiRoom {
-    do {
-      let response = try await provider.request(.updateCarrier(roomID: id, hasCarrier: hasCarrier))
-      let result = try response.map(TaxiRoomDTO.self).toModel()
-
-      return result
-    } catch let moyaError as MoyaError {
-      throw moyaError.toAPIError
-    } catch {
-      throw error
+    try await request(.updateCarrier(roomID: id, hasCarrier: hasCarrier)) { response in
+      try response.map(TaxiRoomDTO.self).toModel()
     }
   }
 }

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Observation
-import Combine
 import Factory
 import BuddyDomain
 
@@ -24,11 +23,12 @@ class LectureSearchViewModel {
   var state: ViewState = .loading
   var courses: [CourseLecture] = []
   var searchKeyword: String = "" {
-    didSet { searchKeywordSubject.send(searchKeyword) }
+    didSet { scheduleSearch() }
   }
 
-  @ObservationIgnored private var cancellables = Set<AnyCancellable>()
-  @ObservationIgnored private let searchKeywordSubject = PassthroughSubject<String, Never>()
+  @ObservationIgnored private var searchTask: Task<Void, Never>?
+  @ObservationIgnored private var lastSearchKeyword: String?
+  @ObservationIgnored private var selectedSemester: Semester?
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -42,27 +42,28 @@ class LectureSearchViewModel {
   ) private var analyticsService: AnalyticsServiceProtocol?
 
   func bind(selectedSemester: Semester) {
-    cancellables.removeAll()
+    self.selectedSemester = selectedSemester
+    searchTask?.cancel()
+    lastSearchKeyword = nil
+  }
 
-    let searchPublisher = searchKeywordSubject
-      .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .removeDuplicates()
+  private func scheduleSearch() {
+    let keyword = searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard keyword != lastSearchKeyword else { return }
+    lastSearchKeyword = keyword
 
-    searchPublisher
-      .debounce(for: .milliseconds(350), scheduler: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self else { return }
-        guard !searchKeyword.isEmpty else {
-          self.state = .loading
-          self.courses.removeAll()
-          return
-        }
-
-        Task {
-          await fetchLectures(selectedSemester: selectedSemester)
-        }
+    searchTask?.cancel()
+    searchTask = Task { [weak self] in
+      try? await Task.sleep(for: .milliseconds(350))
+      guard !Task.isCancelled, let self else { return }
+      guard !self.searchKeyword.isEmpty else {
+        self.state = .loading
+        self.courses.removeAll()
+        return
       }
-      .store(in: &cancellables)
+      guard let selectedSemester = self.selectedSemester else { return }
+      await self.fetchLectures(selectedSemester: selectedSemester)
+    }
   }
 
   func fetchLectures(selectedSemester: Semester) async {

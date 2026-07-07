@@ -11,6 +11,9 @@ import MapKit
 import BuddyDomain
 import BuddyFeatureShared
 import FirebaseAnalytics
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiPreviewView")
 
 public struct TaxiPreviewView: View {
   let room: TaxiRoom
@@ -103,6 +106,7 @@ public struct TaxiPreviewView: View {
                 try await viewModel.joinRoom(id: room.id)
                 dismiss()
               } catch {
+                logger.error("Failed to join room: \(error.localizedDescription, privacy: .public)")
                 errorMessage = error.localizedDescription
                 showErrorAlert = true
               }

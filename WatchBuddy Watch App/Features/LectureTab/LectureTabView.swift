@@ -11,7 +11,7 @@ import BuddyDomain
 struct LectureTabView: View {
   let items: [LectureItem]
 
-  @State private var selection: UUID? = nil
+  @State private var selection: String? = nil
 
   var body: some View {
     NavigationStack {

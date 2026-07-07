@@ -6,7 +6,10 @@
 //
 
 import Foundation
+import os
 import BuddyDomain
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "UserUseCase")
 
 public final class UserUseCase: UserUseCaseProtocol {
   private let araUserRepository: AraUserRepositoryProtocol?
@@ -53,14 +56,14 @@ public final class UserUseCase: UserUseCaseProtocol {
       async let otlUserTask: () = fetchOTLUser()
       _ = try await (taxiUserTask, feedUserTask, araUserTask, otlUserTask)
     } catch {
-      print(error)
+      logger.error("Failed to fetch users: \(error.localizedDescription, privacy: .public)")
     }
   }
 
   public func fetchAraUser() async throws {
     guard let araUserRepository else { return }
 
-    print("Fetching Ara User")
+    logger.debug("Fetching Ara User")
     let user = try await araUserRepository.fetchUser()
     await userStorage.setAraUser(user)
 //    print(user)
@@ -69,7 +72,7 @@ public final class UserUseCase: UserUseCaseProtocol {
   public func fetchTaxiUser() async throws {
     guard let taxiUserRepository else { return }
     
-    print("Fetching Taxi User")
+    logger.debug("Fetching Taxi User")
     let user = try await taxiUserRepository.fetchUser()
     await userStorage.setTaxiUser(user)
 //    print(user)
@@ -78,7 +81,7 @@ public final class UserUseCase: UserUseCaseProtocol {
   public func fetchFeedUser() async throws {
     guard let feedUserRepository else { return }
     
-    print("Fetching Feed User")
+    logger.debug("Fetching Feed User")
     let user = try await feedUserRepository.fetchUser()
     await userStorage.setFeedUser(user)
 //    print(user)
@@ -87,7 +90,7 @@ public final class UserUseCase: UserUseCaseProtocol {
   public func fetchOTLUser() async throws {
     guard let otlUserRepository else { return }
     
-    print("Fetching OTL User")
+    logger.debug("Fetching OTL User")
     let user = try await otlUserRepository.fetchUser()
     await userStorage.setOTLUser(user)
 //    print(user)
@@ -96,9 +99,9 @@ public final class UserUseCase: UserUseCaseProtocol {
   public func updateAraUser(params: [String: Any]) async throws {
     guard let araUserRepository else { return }
     
-    print("Updating Ara User Information: \(params)")
+    logger.debug("Updating Ara User Information: \(String(describing: params))")
     guard let araUser = await araUser else {
-      print("Ara User Not Found")
+      logger.warning("Ara User Not Found")
       return
     }
     try await araUserRepository.updateMe(id: araUser.id, params: params)

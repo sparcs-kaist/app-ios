@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TaxiListViewState {
+public enum TaxiListViewState: Equatable {
   case loading
   case loaded(rooms: [TaxiRoom], locations: [TaxiLocation])
   case empty

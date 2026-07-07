@@ -81,9 +81,9 @@ struct PostViewModelTests {
     let createdComment = try await viewModel.writeComment(content: "Hello")
 
     #expect(createdComment.id == postedComment.id)
-    #expect(viewModel.post.comments.count == 1)
-    #expect(viewModel.post.commentCount == 1)
-    #expect(viewModel.post.comments[0].isMine == true)
+    #expect(viewModel.comments.count == 1)
+    #expect(viewModel.commentCount == 1)
+    #expect(viewModel.comments[0].isMine == true)
 
     tearDownPostTestDependencies()
   }

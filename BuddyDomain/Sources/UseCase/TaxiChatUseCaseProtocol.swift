@@ -6,18 +6,20 @@
 //
 
 import Foundation
-import Combine
 import UIKit
 
 public protocol TaxiChatUseCaseProtocol: Sendable {
-  var chatsPublisher: AnyPublisher<[TaxiChat], Never> { get }
-  var roomUpdatePublisher: AnyPublisher<TaxiRoom, Never> { get }
-  var accountChats: [TaxiChat] { get }
+  /// A fresh multicast stream of the current chat list. Each call returns an
+  /// independent subscriber stream; new subscribers immediately receive the
+  /// latest known chats.
+  func chatStream() async -> AsyncStream<[TaxiChat]>
+  /// A fresh multicast stream of room updates.
+  func roomUpdateStream() async -> AsyncStream<TaxiRoom>
 
-  func setRoom(_ room: TaxiRoom)
-  func reconnect()
+  func setRoom(_ room: TaxiRoom) async
+  func reconnect() async
   func fetchInitialChats() async
   func fetchChats(before date: Date) async
-  func sendChat(_ content: String?, type: TaxiChat.ChatType) async
+  func sendChat(_ content: String?, type: TaxiChat.ChatType) async throws
   func sendImage(_ content: UIImage) async throws
 }

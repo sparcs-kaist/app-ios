@@ -19,8 +19,7 @@ struct LectureList: View {
 				.fontWeight(.bold)
 			
 			if let lectures, !lectures.isEmpty {
-				ForEach(Array(lectures.enumerated()), id: \.element.id) { index, lecture in
-					
+				ForEach(lectures) { lecture in
 					LectureListRow(lecture: lecture)
 						.contentShape(.rect)
 						.onTapGesture {
@@ -28,8 +27,8 @@ struct LectureList: View {
 							let item = LectureItem(lecture: lecture, lectureClass: lectureClass)
 							selectedLecture?(item)
 						}
-					
-					if index != lectures.count - 1 {
+
+					if lecture.id != lectures.last?.id {
 						Divider()
 							.padding(.leading, 20)
 					}

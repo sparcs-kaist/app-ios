@@ -8,6 +8,9 @@
 import Foundation
 import Factory
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiSettingsViewModel")
 
 @MainActor
 protocol TaxiSettingsViewModelProtocol: Observable {
@@ -98,7 +101,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     do {
       try await userUseCase.fetchTaxiUser()
     } catch {
-//      logger.debug("Failed to fetch user information: \(error.localizedDescription)")
+      logger.error("Failed to fetch user information: \(error.localizedDescription, privacy: .public)")
       handleException(error: error, type: .fetch)
     }
   }
@@ -109,6 +112,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     do {
       try await taxiUserRepository.editNickname(nickname: nickname)
     } catch {
+      logger.error("Failed to edit nickname: \(error.localizedDescription, privacy: .public)")
       handleException(error: error, type: .nickname)
     }
   }
@@ -133,6 +137,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       try await taxiUserRepository.registerResidence(residence: residence)
       self.residence = residence
     } catch {
+      logger.error("Failed to register residence: \(error.localizedDescription, privacy: .public)")
       handleException(error: error, type: .residence)
     }
   }
@@ -144,6 +149,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
       try await taxiUserRepository.deleteResidence()
       residence = ""
     } catch {
+      logger.error("Failed to delete residence: \(error.localizedDescription, privacy: .public)")
       handleException(error: error, type: .residence)
     }
   }
@@ -154,7 +160,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     do {
       try await taxiUserRepository.editBankAccount(account: "\(bankName) \(bankNumber)")
     } catch {
-//      logger.debug("Failed to edit bank account: \(error.localizedDescription)")
+      logger.error("Failed to edit bank account: \(error.localizedDescription, privacy: .public)")
       handleException(error: error, type: .bank)
     }
   }
@@ -165,7 +171,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     do {
       try await taxiUserRepository.registerPhoneNumber(phoneNumber: phoneNumber)
     } catch {
-//      logger.debug("Failed to register phone number: \(error.localizedDescription)")
+      logger.error("Failed to register phone number: \(error.localizedDescription, privacy: .public)")
       handleException(error: error, type: .phone)
     }
   }
@@ -176,7 +182,7 @@ class TaxiSettingsViewModel: TaxiSettingsViewModelProtocol {
     do {
       try await taxiUserRepository.editBadge(showBadge: showBadge)
     } catch {
-//      logger.debug("Failed to edit badge: \(error.localizedDescription)")
+      logger.error("Failed to edit badge: \(error.localizedDescription, privacy: .public)")
       handleException(error: error, type: .badge)
     }
   }

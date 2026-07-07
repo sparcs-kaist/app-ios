@@ -10,6 +10,9 @@ import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
 import BuddyPreviewSupport
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiRoomCreationView")
 
 struct TaxiRoomCreationView: View {
   @State var viewModel: TaxiListViewModelProtocol
@@ -26,7 +29,7 @@ struct TaxiRoomCreationView: View {
   }
 
   var body: some View {
-    NavigationView {
+    NavigationStack {
       Form {
         Section {
           TaxiDestinationPicker(
@@ -70,6 +73,7 @@ struct TaxiRoomCreationView: View {
                 await viewModel.fetchData()
                 dismiss()
               } catch {
+                logger.error("Failed to create room: \(error.localizedDescription, privacy: .public)")
                 self.alertTitle = String(localized: "Error", bundle: .module)
                 self.alertMessage = error.localizedDescription
                 self.showAlert = true

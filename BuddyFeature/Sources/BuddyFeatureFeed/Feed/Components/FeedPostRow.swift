@@ -7,38 +7,71 @@
 
 import Foundation
 import SwiftUI
-import NukeUI
 import BuddyDomain
 import BuddyFeatureShared
-import Factory
 import BuddyPreviewSupport
 
 struct FeedPostRow: View {
   @Binding var post: FeedPost
   let onPostDeleted: ((String) -> Void)?
   let onComment: (() -> Void)?
-  @State var showFullContent: Bool = false
+  @State private var showFullContent: Bool = false
 
   @State private var viewModel: FeedPostRowViewModelProtocol = FeedPostRowViewModel()
-  @State private var canBeExpanded: Bool = false
 
-  @State private var showDeleteConfirmation: Bool = false
   @State private var showTranslateSheet: Bool = false
-  @State private var showPopover: Bool = false
   @State private var safariSheetURL: URL? = nil
-	@State private var isHiddenPostExpanded: Bool = false
+  @State private var isHiddenPostExpanded: Bool = false
+
+  init(
+    post: Binding<FeedPost>,
+    onPostDeleted: ((String) -> Void)?,
+    onComment: (() -> Void)?,
+    showFullContent: Bool = false
+  ) {
+    self._post = post
+    self.onPostDeleted = onPostDeleted
+    self.onComment = onComment
+    self._showFullContent = State(initialValue: showFullContent)
+  }
+
+  private var isFeedContext: Bool { onPostDeleted != nil }
 
   var body: some View {
-    Group {
-      VStack(alignment: .leading) {
-        header
-				
-				if post.downvotes < 15 || isHiddenPostExpanded || showFullContent {
-					content
-				}
+    VStack(alignment: .leading) {
+      FeedPostRowHeader(
+        profileImageURL: post.profileImageURL,
+        authorName: post.authorName,
+        isKaistIP: post.isKaistIP,
+        timeText: isFeedContext ? post.createdAt.timeAgoDisplay : post.createdAt.relativeTimeString,
+        downvotes: post.downvotes,
+        isAuthor: post.isAuthor,
+        isFeedContext: isFeedContext,
+        showFullContent: showFullContent,
+        isHiddenPostExpanded: $isHiddenPostExpanded,
+        onTranslate: { showTranslateSheet = true },
+        onReport: { reason in await viewModel.reportPost(postID: post.id, reason: reason) },
+        onDelete: { onPostDeleted?(post.id) }
+      )
 
-        footer
+      if post.downvotes < 15 || isHiddenPostExpanded || showFullContent {
+        FeedPostContent(
+          content: post.content,
+          images: post.images,
+          showFullContent: $showFullContent,
+          onOpenURL: handleURL
+        )
       }
+
+      FeedPostFooter(
+        myVote: post.myVote == .up ? true : post.myVote == .down ? false : nil,
+        votes: post.upvotes - post.downvotes,
+        commentCount: post.commentCount,
+        canComment: onComment != nil,
+        onUpvote: { await viewModel.upvote(post: $post) },
+        onDownvote: { await viewModel.downvote(post: $post) },
+        onComment: { onComment?() }
+      )
     }
     .translationPresentation(
       isPresented: $showTranslateSheet,
@@ -56,165 +89,6 @@ struct FeedPostRow: View {
     .sheet(item: $safariSheetURL) { url in
       SafariViewWrapper(url: url)
     }
-  }
-
-  @ViewBuilder
-  var profileImage: some View {
-    if let url = post.profileImageURL {
-      LazyImage(url: url) { state in
-        if let image = state.image {
-          image
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-        } else {
-          Circle()
-            .fill(Color.secondarySystemBackground)
-        }
-      }
-      .frame(width: 24, height: 24)
-      .clipShape(.circle)
-    } else {
-      Circle()
-        .fill(Color.secondarySystemBackground)
-        .frame(width: 24, height: 24)
-        .overlay {
-          Text("😀")
-            .font(.caption)
-        }
-    }
-  }
-
-  var header: some View {
-    HStack {
-      profileImage
-
-      Text(post.authorName)
-        .fontWeight(.semibold)
-        .font(.callout)
-
-      if post.isKaistIP {
-        Image(systemName: "checkmark.seal.fill")
-          .foregroundStyle(.tint)
-          .scaleEffect(0.9)
-          .popover(isPresented: $showPopover) {
-            Text("This post was created from within the KAIST network.", bundle: .module)
-              .frame(width: 200)
-              .presentationCompactAdaptation(.popover)
-              .padding()
-          }
-          .onTapGesture {
-            showPopover = true
-          }
-          .accessibilityLabel(Text("This post was created from within the KAIST network.", bundle: .module))
-      }
-
-      // onPostDeleted == nil here means FeedPostRow is in the FeedPostView.
-      Text(onPostDeleted != nil ? post.createdAt.timeAgoDisplay : post.createdAt.relativeTimeString)
-        .foregroundStyle(.secondary)
-        .font(.callout)
-
-      Spacer()
-			
-			if post.downvotes >= 15 && !isHiddenPostExpanded && !showFullContent {
-				Button(String(localized: "Expand", bundle: .module), systemImage: "chevron.right") {
-					isHiddenPostExpanded = true
-				}
-				.labelStyle(.iconOnly)
-				.padding(8)
-				.tint(.secondary)
-			} else {
-				if onPostDeleted != nil {
-					Menu {
-						Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
-						Divider()
-						if post.isAuthor {
-							Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
-								showDeleteConfirmation = true
-							}
-						} else {
-							Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
-								ForEach(FeedReportType.allCases) { reason in
-									Button(reason.description) {
-										Task {
-											await viewModel.reportPost(postID: post.id, reason: reason)
-										}
-									}
-								}
-							}
-						}
-					} label: {
-						Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
-							.labelStyle(.iconOnly)
-							.padding(8)
-							.contentShape(.rect)
-					}
-					.confirmationDialog(String(localized: "Delete Post", bundle: .module), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-						Button(String(localized: "Delete", bundle: .module), role: .destructive) {
-							Task {
-								onPostDeleted?(post.id)
-							}
-						}
-						Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
-					} message: {
-						Text("Are you sure you want to delete this post?", bundle: .module)
-					}
-				}
-			}
-    }
-    .padding(.horizontal)
-  }
-
-  @ViewBuilder
-  var content: some View {
-    Text(post.content.toDetectedAttributedString())
-      .textSelection(.enabled)
-      .padding(.horizontal)
-      .lineLimit(showFullContent ? nil : 5)
-      .background {
-        ViewThatFits(in: .vertical) {
-          Text(post.content)
-            .hidden()
-          Color.clear.onAppear {
-            canBeExpanded = true
-          }
-        }
-      }
-      .environment(\.openURL, OpenURLAction(handler: handleURL))
-    if canBeExpanded && !showFullContent {
-      Button(String(localized: "more", bundle: .module)) {
-        withAnimation {
-          showFullContent = true
-        }
-      }
-      .padding(.horizontal)
-      .foregroundStyle(.secondary)
-    }
-    if !post.images.isEmpty {
-      PostImagesStrip(images: post.images)
-    }
-  }
-
-  var footer: some View {
-    HStack {
-      PostVoteButton(
-        myVote: post.myVote == .up ? true : post.myVote == .down ? false : nil,
-        votes: post.upvotes - post.downvotes,
-        onDownvote: {
-          await viewModel.downvote(post: $post)
-        }, onUpvote: {
-          await viewModel.upvote(post: $post)
-        }
-      )
-
-      PostCommentButton(commentCount: post.commentCount) {
-        onComment?()
-      }
-      .allowsHitTesting(onComment != nil)
-
-      Spacer()
-    }
-    .padding(.horizontal)
-    .padding(.top, 4)
   }
 
   private func handleURL(_ url: URL) -> OpenURLAction.Result {

@@ -6,10 +6,13 @@
 //
 
 import Foundation
+import os
 import Combine
 import WatchConnectivity
 import BuddyDomain
 import BuddyDataCore
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "WatchSession")
 
 public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, SessionBridgeServiceWatchProtocol {
   private let session = WCSession.isSupported() ? WCSession.default : nil
@@ -30,7 +33,7 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
       _ = try JSONDecoder().decode(Timetable.self, from: data)  // test if timetable is valid
       UserDefaults(suiteName: "group.org.sparcs.soap")!.set(data, forKey: "timetableData")
     } catch {
-      print("Failed to decode:", error)
+      logger.error("Failed to decode timetable: \(error.localizedDescription, privacy: .public)")
       UserDefaults(suiteName: "group.org.sparcs.soap")!.set(nil, forKey: "timetableData")
       return
     }
@@ -41,8 +44,8 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
     activationDidCompleteWith activationState: WCSessionActivationState,
     error: (any Error)?
   ) {
-    if let error { print("[SessionBridgeServiceWatch] activation error:", error) }
-    else { print("[SessionBridgeServiceWatch] activated:", activationState.rawValue) }
+    if let error { logger.error("Activation error: \(error.localizedDescription, privacy: .public)") }
+    else { logger.debug("Activated: \(activationState.rawValue)") }
   }
 
   #if os(iOS)

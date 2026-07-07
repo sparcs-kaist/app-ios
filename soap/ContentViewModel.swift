@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Observation
+import os
 import Factory
 import BuddyDomain
 
@@ -52,7 +53,7 @@ class ContentViewModel {
     do {
       try await taxiLocationUseCase.fetchLocations()
     } catch {
-      logger.error(error)
+      logger.error("Failed to fetch taxi locations: \(error.localizedDescription, privacy: .public)")
     }
   }
   
@@ -82,6 +83,6 @@ class ContentViewModel {
     let currentVersion = Bundle.main.version
     
     isUpdateRequired = currentVersion < requiredVersion
-    logger.debug("currentVersion: \(currentVersion), requiredVersion: \(requiredVersion), isUpdateRequired: \(isUpdateRequired)")
+    logger.debug("currentVersion: \(String(describing: currentVersion)), requiredVersion: \(String(describing: requiredVersion)), isUpdateRequired: \(self.isUpdateRequired)")
   }
 }
