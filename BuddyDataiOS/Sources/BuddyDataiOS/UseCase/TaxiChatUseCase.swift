@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import UIKit
+import Combine
 import os
 import SocketIO
 import BuddyDomain
@@ -123,7 +123,7 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
     }
   }
 
-  public func sendImage(_ content: UIImage) async throws {
+  public func sendImage(_ content: PlatformImage) async throws {
     guard let taxiChatRepository, let room else { return }
 
     guard let imageData = content.compressForUpload(maxSizeMB: 1.0, maxDimension: 1000) else {

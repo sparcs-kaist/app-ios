@@ -6,9 +6,13 @@
 //
 
 import Foundation
+import BuddyDomain
+
+// WatchConnectivity is iOS/watchOS only, so the whole bridge compiles out on macOS.
+// Container registers `nil` for `sessionBridgeService` there instead.
+#if os(iOS)
 import os
 import WatchConnectivity
-import BuddyDomain
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "WatchSession")
 
@@ -63,3 +67,4 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
     logger.debug("sessionDidDeactivate")
   }
 }
+#endif

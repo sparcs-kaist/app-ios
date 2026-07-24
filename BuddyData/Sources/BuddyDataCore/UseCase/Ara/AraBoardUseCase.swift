@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 import BuddyDomain
 
 public final class AraBoardUseCase: AraBoardUseCaseProtocol {
@@ -80,7 +79,7 @@ public final class AraBoardUseCase: AraBoardUseCaseProtocol {
     }
   }
 
-  public func uploadImage(image: UIImage) async throws -> AraAttachment {
+  public func uploadImage(image: PlatformImage) async throws -> AraAttachment {
     let context = CrashContext(
       feature: feature,
       metadata: [:]

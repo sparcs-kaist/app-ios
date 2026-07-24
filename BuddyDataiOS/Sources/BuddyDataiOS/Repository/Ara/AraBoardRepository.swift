@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 import BuddyDomain
 import BuddyDataCore
 
@@ -62,7 +61,7 @@ public final class AraBoardRepository: AraBoardRepositoryProtocol, @unchecked Se
     return page
   }
 
-  public func uploadImage(image: UIImage) async throws -> AraAttachment {
+  public func uploadImage(image: PlatformImage) async throws -> AraAttachment {
     guard let imageData = image.compressForUpload(maxSizeMB: 1.0, maxDimension: 500) else {
       throw NSError(domain: "AraBoardRepository", code: 1)
     }
