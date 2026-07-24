@@ -5,7 +5,7 @@
 //  Created by Soongyu Kwon on 29/12/2024.
 //
 
-import UIKit
+import CoreGraphics
 
 public struct TimetableConstructor {
   // The width of the column representing the time at the leftmost of the timetable

@@ -38,5 +38,15 @@ public extension View {
   }
 }
 
+#else
+
+// macOS has no software keyboard to dismiss, but call sites are shared, so the
+// modifier stays available and simply does nothing.
+public extension View {
+  func onKeyboardDismiss(perform action: @escaping () -> Void) -> some View {
+    self
+  }
+}
+
 #endif
 

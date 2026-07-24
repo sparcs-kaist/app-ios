@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import UIKit
+import Combine
 
 public protocol TaxiChatUseCaseProtocol: Sendable {
   /// A fresh multicast stream of the current chat list. Each call returns an
@@ -21,5 +21,5 @@ public protocol TaxiChatUseCaseProtocol: Sendable {
   func fetchInitialChats() async
   func fetchChats(before date: Date) async
   func sendChat(_ content: String?, type: TaxiChat.ChatType) async throws
-  func sendImage(_ content: UIImage) async throws
+  func sendImage(_ content: PlatformImage) async throws
 }

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 public protocol AraBoardUseCaseProtocol: Sendable {
   func getAccessToken() -> String?
@@ -14,7 +13,7 @@ public protocol AraBoardUseCaseProtocol: Sendable {
   func fetchPosts(type: PostListType, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
   func fetchPost(origin: PostOrigin?, postID: Int) async throws -> AraPost
   func fetchBookmarks(page: Int, pageSize: Int) async throws -> AraPostPage
-  func uploadImage(image: UIImage) async throws -> AraAttachment
+  func uploadImage(image: PlatformImage) async throws -> AraAttachment
   func writePost(request: AraCreatePost) async throws
   func upvotePost(postID: Int) async throws
   func downvotePost(postID: Int) async throws

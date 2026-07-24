@@ -6,15 +6,14 @@
 //
 
 import Foundation
-import UIKit
 
 public struct FeedPostPhotoItem: Identifiable, Hashable, Sendable {
   public let id: String
-  public let image: UIImage
+  public let image: PlatformImage
   public var spoiler: Bool
   public var description: String
 
-  public init(id: String, image: UIImage, spoiler: Bool, description: String) {
+  public init(id: String, image: PlatformImage, spoiler: Bool, description: String) {
     self.id = id
     self.image = image
     self.spoiler = spoiler

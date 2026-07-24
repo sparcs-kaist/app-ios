@@ -7,7 +7,6 @@
 
 import SwiftUI
 import PhotosUI
-import UIKit
 
 @MainActor
 public protocol FeedSettingsViewModelProtocol: Observable {

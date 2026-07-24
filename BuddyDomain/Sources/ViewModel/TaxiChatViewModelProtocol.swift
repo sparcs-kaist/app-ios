@@ -6,7 +6,6 @@
 //
 
 import Observation
-import UIKit
 
 @MainActor
 public protocol TaxiChatViewModelProtocol: Observable {
@@ -41,5 +40,5 @@ public protocol TaxiChatViewModelProtocol: Observable {
   func commitPayment()
   func updateArrival(isArrived: Bool)
   func updateCarrier(hasCarrier: Bool)
-  func sendImage(_ image: UIImage) async throws
+  func sendImage(_ image: PlatformImage) async throws
 }
