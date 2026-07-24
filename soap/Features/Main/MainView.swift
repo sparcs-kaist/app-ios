@@ -75,7 +75,9 @@ struct MainView: View {
         }
       }
     }
+    #if os(iOS)
     .tabBarMinimizeBehavior(.onScrollDown)
+    #endif
 //    .tabViewBottomAccessory(isEnabled: isTabViewAccessoryEnabled) {
 //      TimelineView(.animation(minimumInterval: 1)) { context in
 //        TodayLecturesAccessoryView(context: context, viewModel: todayLecturesAccessoryViewModel)
@@ -93,7 +95,9 @@ struct MainView: View {
             .fill(.primary.secondary)
             .frame(width: 36, height: 4)
         }
+        #if os(iOS)  // zoom transitions / status bar are iOS-only
         .navigationTransition(.zoom(sourceID: "TimetableViewSource", in: namespace))
+        #endif
     }
     .onOpenURL { url in
       guard let deepLink = DeepLink(url: url) else { return }
@@ -117,7 +121,12 @@ struct MainView: View {
 //      await todayLecturesAccessoryViewModel.setup()
       await timetableViewModel.setup()
     }
+    #if os(iOS)
     .tabViewStyle(.tabBarOnly)
+    #elseif os(macOS)
+    // A bottom tab bar isn't a Mac idiom — the same tabs read as a source list.
+    .tabViewStyle(.sidebarAdaptable)
+    #endif
   }
 
   private func handle(deepLink: DeepLink) {
@@ -139,6 +148,8 @@ struct MainView: View {
 
 
 
+  // Only read by the currently commented-out `tabViewBottomAccessory` above.
+  #if os(iOS)
   private var isTabViewAccessoryEnabled: Bool {
     guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
     switch selectedTab {
@@ -156,6 +167,7 @@ struct MainView: View {
       return false
     }
   }
+  #endif
 }
 
 //#Preview {
