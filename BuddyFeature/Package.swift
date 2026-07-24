@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "BuddyFeature",
     defaultLocalization: "en-GB",
-    platforms: [.iOS(.v26)],
+    platforms: [.iOS(.v26), .macOS(.v26)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -25,7 +25,6 @@ let package = Package(
       .package(path: "../BuddyTestSupport"),
       .package(path: "../BuddyPreviewSupport"),
       .package(path: "../BuddyUI"),
-      .package(url: "https://github.com/efremidze/Haptica.git", .upToNextMajor(from: "4.0.1")),
       .package(url: "https://github.com/kean/Nuke.git", .upToNextMajor(from: "12.0.0")),
       .package(
         url: "https://github.com/firebase/firebase-ios-sdk.git",
@@ -43,7 +42,6 @@ let package = Package(
             name: "BuddyFeatureTimetable",
             dependencies: [
               "BuddyDomain",
-              "Haptica",
               "BuddyFeatureShared",
               .product(
                 name: "TimetableUI",
@@ -74,7 +72,6 @@ let package = Package(
           name: "BuddyFeatureSettings",
           dependencies: [
             "BuddyDomain",
-            "Haptica",
             "BuddyFeatureShared",
             "BuddyFeaturePost",
             "BuddyPreviewSupport",
@@ -86,7 +83,8 @@ let package = Package(
             .product(name: "NukeUI", package: "Nuke"),
 						.product(
 							name: "ChannelIOSDK",
-							package: "channel-talk-ios-framework"
+							package: "channel-talk-ios-framework",
+							condition: .when(platforms: [.iOS])
 						),
           ]
         ),
@@ -110,7 +108,6 @@ let package = Package(
             "BuddyDomain",
             "BuddyFeatureShared",
             "BuddyPreviewSupport",
-            "Haptica",
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
             .product(
@@ -136,7 +133,6 @@ let package = Package(
         .target(
           name: "BuddyFeatureShared",
           dependencies: [
-            "Haptica",
             "BuddyDomain",
             .product(
               name: "FirebaseAnalytics",

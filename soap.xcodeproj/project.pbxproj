@@ -14,7 +14,6 @@
 		8B3914E82E93F4AA00B7FB6B /* BuddyDataWatch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */; };
 		8B3A62A22EFF98A4006427DF /* BuddyTimetableWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */; };
 		8B3A6AF22F62DB0E00C97C42 /* TimetableUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3A6AF12F62DB0E00C97C42 /* TimetableUI */; };
-		8B3A6AF42F62DB3000C97C42 /* Haptica in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3A6AF32F62DB3000C97C42 /* Haptica */; };
 		8B3FB11C2E94F1C200F57FD7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */; };
 		8B3FB11E2E94F1C200F57FD7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */; };
 		8B3FB1292E94F1C400F57FD7 /* BuddyWatchWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B3FB11A2E94F1C200F57FD7 /* BuddyWatchWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -22,7 +21,6 @@
 		8B3FB13D2E953D1500F57FD7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
 		8B3FB13E2E953D1500F57FD7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
 		8B3FD7FE2F96461F00AFDF23 /* BuddyDDayWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3FD7FD2F96461F00AFDF23 /* BuddyDDayWidgetUI */; };
-		8B45B2822F161F8100A858F5 /* Haptica in Frameworks */ = {isa = PBXBuildFile; productRef = 8B45B2812F161F8100A858F5 /* Haptica */; };
 		8B5073DF2E851F79007E9C27 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073DE2E851F79007E9C27 /* FirebaseAnalytics */; };
 		8B5073E12E851F79007E9C27 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E02E851F79007E9C27 /* FirebaseAnalyticsCore */; };
 		8B5073E32E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E22E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport */; };
@@ -31,7 +29,7 @@
 		8B5073E92E851F79007E9C27 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E82E851F79007E9C27 /* FirebaseMessaging */; };
 		8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */; };
 		8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */; };
-		8B6637B42EFD159600795A41 /* BuddyiOSWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8B6637B42EFD159600795A41 /* BuddyiOSWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; platformFilters = (ios, ); fileRef = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8B6637C02EFD410800795A41 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637BF2EFD410800795A41 /* BuddyDomain */; };
 		8B6637C62EFE720D00795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637C52EFE720D00795A41 /* BuddyUpcomingClassWidgetUI */; };
 		8B6637C82EFE721200795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637C72EFE721200795A41 /* BuddyUpcomingClassWidgetUI */; };
@@ -43,14 +41,14 @@
 		8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */; };
 		8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */; };
 		8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E42E1DAEEB00DB2D21 /* Moya */; };
-		8B83650D2E914F1300892B70 /* WatchBuddy Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8B83650D2E914F1300892B70 /* WatchBuddy Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; platformFilters = (ios, ); fileRef = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8B8368022E9247A900892B70 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8368012E9247A900892B70 /* BuddyDomain */; };
 		8B89693D2F2CCC8A00955B84 /* BuddyFeatureTaxi in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693C2F2CCC8A00955B84 /* BuddyFeatureTaxi */; };
 		8B89693F2F2CCF8700955B84 /* BuddyFeatureSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */; };
 		8BAB4E142F9E0E7800328925 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAB4E132F9E0E7800328925 /* BuddyDataCore */; };
 		8BAB4E182F9E0E9600328925 /* BuddyDDayWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAB4E172F9E0E9600328925 /* BuddyDDayWidgetUI */; };
 		8BBA1ADA2E8EBD24009CD124 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
-		8BCE7E8C2FC1CBAC000368D2 /* ChannelIOSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCE7E8B2FC1CBAC000368D2 /* ChannelIOSDK */; };
+		8BCE7E8C2FC1CBAC000368D2 /* ChannelIOSDK in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, ); productRef = 8BCE7E8B2FC1CBAC000368D2 /* ChannelIOSDK */; };
 		8BE537AF2F27833F00735E7A /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE537AE2F27833F00735E7A /* BuddyDataiOS */; };
 		8BE539532F2B767900735E7A /* BuddyFeatureTimetable in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539522F2B767900735E7A /* BuddyFeatureTimetable */; };
 		8BE539552F2B775A00735E7A /* BuddyFeatureShared in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539542F2B775A00735E7A /* BuddyFeatureShared */; };
@@ -61,7 +59,7 @@
 		8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2682E92A3A0005D8639 /* BuddyDataCore */; };
 		8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26C2E92A52D005D8639 /* BuddyDataCore */; };
 		8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26E2E92A52D005D8639 /* BuddyDomain */; };
-		F6339A682F544AC600655DBB /* NotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F6339A612F544AC600655DBB /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F6339A682F544AC600655DBB /* NotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; platformFilters = (ios, ); fileRef = F6339A612F544AC600655DBB /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F6339A6E2F544C1E00655DBB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F6339A6D2F544C1E00655DBB /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
@@ -280,7 +278,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */,
-				8B3A6AF42F62DB3000C97C42 /* Haptica in Frameworks */,
 				8B3FD7FE2F96461F00AFDF23 /* BuddyDDayWidgetUI in Frameworks */,
 				8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */,
 				8B24D7652F27537A009B9889 /* BuddyDataCore in Frameworks */,
@@ -320,7 +317,6 @@
 				8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */,
 				8B6B2B512E2878CD00D13D50 /* NukeVideo in Frameworks */,
 				8B6B2B4D2E2878CD00D13D50 /* NukeExtensions in Frameworks */,
-				8B45B2822F161F8100A858F5 /* Haptica in Frameworks */,
 				8BCE7E8C2FC1CBAC000368D2 /* ChannelIOSDK in Frameworks */,
 				8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */,
 				8BE539592F2B8A2000735E7A /* BuddyFeatureFeed in Frameworks */,
@@ -461,7 +457,6 @@
 				8B3A62A12EFF98A4006427DF /* BuddyTimetableWidgetUI */,
 				8B24D7642F27537A009B9889 /* BuddyDataCore */,
 				8B3A6AF12F62DB0E00C97C42 /* TimetableUI */,
-				8B3A6AF32F62DB3000C97C42 /* Haptica */,
 				8B3FD7FD2F96461F00AFDF23 /* BuddyDDayWidgetUI */,
 			);
 			productName = BuddyiOSWidgetExtension;
@@ -537,7 +532,6 @@
 				8B5073E82E851F79007E9C27 /* FirebaseMessaging */,
 				8B8368012E9247A900892B70 /* BuddyDomain */,
 				8BFAD2682E92A3A0005D8639 /* BuddyDataCore */,
-				8B45B2812F161F8100A858F5 /* Haptica */,
 				8BE537AE2F27833F00735E7A /* BuddyDataiOS */,
 				8BE539522F2B767900735E7A /* BuddyFeatureTimetable */,
 				8BE539542F2B775A00735E7A /* BuddyFeatureShared */,
@@ -672,7 +666,6 @@
 				8B7C19E12E1DAEEB00DB2D21 /* XCRemoteSwiftPackageReference "Moya" */,
 				8B6B2B492E2878CD00D13D50 /* XCRemoteSwiftPackageReference "Nuke" */,
 				8B5073DD2E851F79007E9C27 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				8B45B2802F161F8100A858F5 /* XCRemoteSwiftPackageReference "Haptica" */,
 				8BCE7E8A2FC1CBAC000368D2 /* XCRemoteSwiftPackageReference "channel-talk-ios-framework" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -836,11 +829,13 @@
 		};
 		8B6637B32EFD159600795A41 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilters = (ios, );
 			target = 8B6637A02EFD159400795A41 /* BuddyiOSWidgetExtension */;
 			targetProxy = 8B6637B22EFD159600795A41 /* PBXContainerItemProxy */;
 		};
 		8B83650C2E914F1300892B70 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilters = (ios, );
 			target = 8B8365022E914F1200892B70 /* WatchBuddy Watch App */;
 			targetProxy = 8B83650B2E914F1300892B70 /* PBXContainerItemProxy */;
 		};
@@ -856,6 +851,7 @@
 		};
 		F6339A672F544AC600655DBB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilters = (ios, );
 			target = F6339A602F544AC600655DBB /* NotificationServiceExtension */;
 			targetProxy = F6339A662F544AC600655DBB /* PBXContainerItemProxy */;
 		};
@@ -1221,6 +1217,9 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"soap/Preview Content\"";
 				DEVELOPMENT_TEAM = N5V8W52U3U;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = soap/Info.plist;
@@ -1237,18 +1236,20 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				REGISTER_APP_GROUPS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 				TAXI_ASSOCIATED_DOMAIN = taxi.dev.sparcs.org;
 			};
 			name = Debug;
@@ -1266,6 +1267,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"soap/Preview Content\"";
 				DEVELOPMENT_TEAM = N5V8W52U3U;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = soap/Info.plist;
@@ -1282,18 +1286,20 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				REGISTER_APP_GROUPS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 				TAXI_ASSOCIATED_DOMAIN = taxi.sparcs.org;
 			};
 			name = Release;
@@ -1514,14 +1520,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		8B45B2802F161F8100A858F5 /* XCRemoteSwiftPackageReference "Haptica" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/efremidze/Haptica.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.1;
-			};
-		};
 		8B5073DD2E851F79007E9C27 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -1591,11 +1589,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = TimetableUI;
 		};
-		8B3A6AF32F62DB3000C97C42 /* Haptica */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8B45B2802F161F8100A858F5 /* XCRemoteSwiftPackageReference "Haptica" */;
-			productName = Haptica;
-		};
 		8B3FB1322E951D7200F57FD7 /* BuddyDomain */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDomain;
@@ -1603,11 +1596,6 @@
 		8B3FD7FD2F96461F00AFDF23 /* BuddyDDayWidgetUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDDayWidgetUI;
-		};
-		8B45B2812F161F8100A858F5 /* Haptica */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8B45B2802F161F8100A858F5 /* XCRemoteSwiftPackageReference "Haptica" */;
-			productName = Haptica;
 		};
 		8B5073DE2E851F79007E9C27 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
