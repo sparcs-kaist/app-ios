@@ -15,7 +15,7 @@ import FirebaseAnalytics
 public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @Binding var deepLinkedPost: AraPost?
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.buddyHorizontalSizeClass) private var horizontalSizeClass
 
   public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel(), deepLinkedPost: Binding<AraPost?> = .constant(nil)) {
     _viewModel = State(initialValue: viewModel)

@@ -17,7 +17,10 @@ struct TaxiDepartureTimePicker: View {
   init(departureTime: Binding<Date>) {
     self._departureTime = departureTime
 
+    #if os(iOS)
     UIDatePicker.appearance().minuteInterval = 10
+    #endif
+    // macOS DatePicker has no minute-interval equivalent; times are free-form there.
   }
 
   var body: some View {
@@ -63,7 +66,12 @@ struct TaxiDepartureTimePicker: View {
                  in: getDateRange(),
                  displayedComponents: [.hourAndMinute]
       )
+      #if os(iOS)
       .datePickerStyle(.wheel)
+      #else
+      // No wheel picker on macOS; the stepper-style field is the native affordance.
+      .datePickerStyle(.stepperField)
+      #endif
     }
   }
 

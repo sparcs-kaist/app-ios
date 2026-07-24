@@ -7,7 +7,6 @@
 
 import Foundation
 import BuddyDomain
-import UIKit
 
 @MainActor
 @Observable
@@ -49,7 +48,7 @@ public final class PreviewTaxiChatViewModel: TaxiChatViewModelProtocol {
   public func updateCarrier(hasCarrier: Bool) {
     self.hasCarrier = hasCarrier
   }
-  public func sendImage(_ image: UIImage) async throws { }
+  public func sendImage(_ image: PlatformImage) async throws { }
 }
 
 private extension PreviewTaxiChatViewModel {

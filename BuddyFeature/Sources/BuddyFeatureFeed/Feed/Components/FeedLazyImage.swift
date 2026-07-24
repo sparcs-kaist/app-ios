@@ -34,9 +34,9 @@ struct FeedLazyImage: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: imageWidth, height: cell.height)
-            .background(Color(.systemBackground))
+            .background(Color.systemBackground)
             .frame(width: cell.width, height: cell.height)
-            .background(Color(.secondarySystemBackground))
+            .background(Color.secondarySystemBackground)
         } else if state.error != nil {
           let size = fitSize(aspect: placeholderAspect)
           Placeholder(width: size.width, height: size.height, systemImage: "exclamationmark.triangle")

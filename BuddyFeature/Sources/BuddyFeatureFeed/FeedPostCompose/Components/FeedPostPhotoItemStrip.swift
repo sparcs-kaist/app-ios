@@ -34,7 +34,7 @@ struct FeedPostPhotoItemStrip: View {
           let clampedWidth = min(max(fitWidth, minW), maxW)
           let shouldFill = !(minW...maxW).contains(fitWidth)
 
-          Image(uiImage: item.image)
+          Image(platformImage: item.image)
             .resizable()
             .aspectRatio(contentMode: shouldFill ? .fill : .fit)
             .frame(width: clampedWidth, height: height)

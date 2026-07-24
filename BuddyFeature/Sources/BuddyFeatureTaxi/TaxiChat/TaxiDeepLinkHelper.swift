@@ -5,7 +5,7 @@
 //  Created by Soongyu Kwon on 14/02/2026.
 //
 
-import UIKit
+import Foundation
 import BuddyDomain
 
 enum TaxiDeepLinkHelper {
@@ -20,7 +20,7 @@ enum TaxiDeepLinkHelper {
   static func kakaoPayURL(account: String?) -> URL? {
     if let account {
       let accountNo = String(account.split(separator: " ").last ?? "")
-      UIPasteboard.general.string = accountNo
+      BuddyPasteboard.copy(accountNo)
     }
     return URL(string: "kakaotalk://kakaopay/money/to/bank")
   }

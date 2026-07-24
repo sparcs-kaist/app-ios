@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import Haptica
+import BuddyDomain
 
 
 struct PostBookmarkButton: View {
@@ -16,7 +16,7 @@ struct PostBookmarkButton: View {
   
   var body: some View {
     Button(String(localized: "bookmark", bundle: .module), systemImage: isBookmarked ? "bookmark.fill" : "bookmark") {
-      Haptic.impact(.light).generate()
+      BuddyHaptic.impact(.light).generate()
       Task {
         await onToggleBookmark()
       }

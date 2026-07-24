@@ -17,7 +17,7 @@ struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
   @State private var selectedRoom: TaxiRoom?
 
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.buddyHorizontalSizeClass) private var horizontalSizeClass
 
   init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()) {
     _viewModel = State(initialValue: viewModel)

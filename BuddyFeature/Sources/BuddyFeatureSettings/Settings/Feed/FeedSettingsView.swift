@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 import PhotosUI
-import UIKit
 import NukeUI
 import BuddyDomain
 import BuddyPreviewSupport
@@ -158,7 +157,7 @@ struct FeedSettingsView: View {
       case .removed:
         placeholderImage
       case .updated(let uiImage):
-        Image(uiImage: uiImage)
+        Image(platformImage: uiImage)
           .resizable()
       case .loading:
         ProgressView()

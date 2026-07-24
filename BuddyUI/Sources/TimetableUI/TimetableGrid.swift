@@ -7,7 +7,6 @@
 
 import SwiftUI
 import BuddyDomain
-import Haptica
 
 public struct TimetableGrid: View {
   let selectedTimetable: Timetable?
@@ -56,7 +55,7 @@ public struct TimetableGrid: View {
                 .frame(height: getHeight(for: item, in: geometry.size, of: selectedTimetable))
                 .contentShape(.rect)
                 .onTapGesture {
-                  Haptic.selection.generate()
+                  BuddyHaptic.selection.generate()
                   selectedLecture?(item)
                 }
                 .offset(y: getOffset(for: item, in: geometry.size, of: selectedTimetable))

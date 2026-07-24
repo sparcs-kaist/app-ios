@@ -18,7 +18,7 @@ protocol FeedPostViewModelProtocol: Observable {
   var state: FeedPostViewModel.ViewState { get }
   var comments: [FeedComment] { get set }
   var text: String { get set }
-  var image: UIImage? { get set }
+  var image: PlatformImage? { get set }
   var isAnonymous: Bool { get set }
 
   var alertState: AlertState? { get set }
@@ -51,7 +51,7 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   var comments: [FeedComment] = []
 
   var text: String = ""
-  var image: UIImage? = nil
+  var image: PlatformImage? = nil
   var isAnonymous: Bool = true
 
   var alertState: AlertState? = nil

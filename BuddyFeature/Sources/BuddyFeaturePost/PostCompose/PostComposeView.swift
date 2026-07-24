@@ -71,7 +71,7 @@ struct PostComposeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
               HStack {
                 ForEach(viewModel.selectedImages) { selected in
-                  Image(uiImage: selected.image)
+                  Image(platformImage: selected.image)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 120, height: 120)

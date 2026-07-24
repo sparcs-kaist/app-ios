@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import Haptica
 import BuddyDomain
 
 struct CompactTimetableSelector: View {
@@ -122,7 +121,7 @@ struct CompactTimetableSelector: View {
   private var semesterSelector: some View {
     HStack {
       Button(action: {
-        Haptic.decrease.generate()
+        BuddyHaptic.decrease.generate()
         selectPreviousSemester()
       }, label: {
         Image(systemName: "chevron.left")
@@ -140,7 +139,7 @@ struct CompactTimetableSelector: View {
       Spacer()
 
       Button(action: {
-        Haptic.increase.generate()
+        BuddyHaptic.increase.generate()
         selectNextSemester()
       }, label: {
         Image(systemName: "chevron.right")

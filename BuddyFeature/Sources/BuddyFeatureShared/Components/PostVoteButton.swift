@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import Haptica
+import BuddyDomain
 
 public struct PostVoteButton: View {
   let myVote: Bool?
@@ -35,7 +35,7 @@ public struct PostVoteButton: View {
         Task { @MainActor in
           guard !isRunning else { return }
           isRunning = true
-          Haptic.increase.generate()
+          BuddyHaptic.increase.generate()
           defer { isRunning = false }
           await onUpvote()
         }
@@ -57,7 +57,7 @@ public struct PostVoteButton: View {
         Task { @MainActor in
           guard !isRunning else { return }
           isRunning = true
-          Haptic.decrease.generate()
+          BuddyHaptic.decrease.generate()
           defer { isRunning = false }
           await onDownvote()
         }

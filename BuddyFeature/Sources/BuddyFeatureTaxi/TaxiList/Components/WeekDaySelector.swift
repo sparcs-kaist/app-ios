@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import Haptica
+import BuddyDomain
 
 struct WeekDaySelector: View {
   @Binding var selectedDate: Date
@@ -59,7 +59,7 @@ struct WeekDaySelector: View {
         }
         .contentShape(.rect(cornerRadius: 24))
         .onTapGesture {
-          Haptic.selection.generate()
+          BuddyHaptic.selection.generate()
           withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) { // 3. Animate selection change
             selectedDate = day
             select?(day)
