@@ -66,7 +66,9 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
         return
       }
 
-      let session = ASWebAuthenticationSession(url: authorisationURL, callbackURLScheme: "sparcsapp") { callbackURL, error in
+      // macOS delivers this callback on a background XPC queue rather than the main
+      // thread, so the closure must stay nonisolated instead of inheriting MainActor.
+      let session = ASWebAuthenticationSession(url: authorisationURL, callbackURLScheme: "sparcsapp") { @Sendable callbackURL, error in
         if let error = error {
           // Handle user cancellation or other session errors
           if let authError = error as? ASWebAuthenticationSessionError,
