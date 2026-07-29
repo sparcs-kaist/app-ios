@@ -49,11 +49,19 @@ struct SearchSection<Content: View>: View {
       LazyVStack(alignment: .leading, spacing: 0) {
         content()
       }
+      #if os(macOS)
+      // AppKit gives NavigationLink the bordered push-button look by default, which
+      // paints an opaque capsule behind every row. The container surface is dropped
+      // as well so the rows sit straight on the pane's gradient rather than on a
+      // second, differently tinted panel.
+      .buttonStyle(.plain)
+      #else
       .background(
         colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear,
         in: .rect(cornerRadius: 28)
       )
       .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+      #endif
     }
     .padding(.horizontal)
   }

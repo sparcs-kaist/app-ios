@@ -31,12 +31,14 @@ public struct SearchView: View {
           systemImage: "exclamationmark.circle",
           description: Text("Please try again later.", bundle: .module)
         )
+        .macOSFillsPane()
       } else if viewModel.searchText.isEmpty {
         ContentUnavailableView(
           "Search Anything",
           systemImage: "magnifyingglass",
           description: Text("Find courses, posts, rides and more.", bundle: .module)
         )
+        .macOSFillsPane()
       } else {
         resultView
       }
@@ -65,6 +67,12 @@ public struct SearchView: View {
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search", bundle: .module))
     .searchFocused($isFocused)
+    #if os(macOS)
+    // Hosting a search field makes AppKit draw an opaque window-toolbar background,
+    // which cuts a hard horizontal edge across the gradient. iPadOS keeps the bar
+    // translucent so the gradient runs unbroken to the top of the screen.
+    .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+    #endif
     .navigationDestination(for: CourseSummary.self) { course in
       CourseView(course: course)
     }
@@ -187,6 +195,22 @@ public struct SearchView: View {
   
   private var hideScopeBar: Bool {
     return viewModel.searchText.isEmpty
+  }
+}
+
+private extension View {
+  /// `ContentUnavailableView` keeps its intrinsic size on AppKit instead of growing to
+  /// fill the pane, which left the gradient painted only behind the empty-state text.
+  /// This has to stay on the empty state itself: applying it to the whole `Group` would
+  /// also pin the results branch to the safe-area rect, stopping the background from
+  /// bleeding under the window toolbar the way every other tab does.
+  @ViewBuilder
+  func macOSFillsPane() -> some View {
+    #if os(macOS)
+    frame(maxWidth: .infinity, maxHeight: .infinity)
+    #else
+    self
+    #endif
   }
 }
 

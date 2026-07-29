@@ -31,8 +31,17 @@ struct ListGlassSection<Content: View>: View {
       }
 
       VStack(alignment: .leading, spacing: 0) {
+        #if os(macOS)
+        // AppKit gives NavigationLink the bordered push-button look by default, which
+        // paints an opaque capsule behind every row and fights the glass container.
+        // iOS already renders these rows plain.
         content()
           .padding(.vertical)
+          .buttonStyle(.plain)
+        #else
+        content()
+          .padding(.vertical)
+        #endif
       }
       .padding(.horizontal)
       .glassEffect(
