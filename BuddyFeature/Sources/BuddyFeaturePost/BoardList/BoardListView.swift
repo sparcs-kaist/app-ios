@@ -78,6 +78,7 @@ public struct BoardListView: View {
               Image(systemName: "chevron.right")
                 .opacity(0.3)
             }
+            .macOSPlainHitArea()
           }
           .tint(.primary)
         }
@@ -99,6 +100,7 @@ public struct BoardListView: View {
               Image(systemName: "chevron.right")
                 .opacity(0.3)
             }
+            .macOSPlainHitArea()
           })
           .tint(.primary)
         }
