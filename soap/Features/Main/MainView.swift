@@ -29,6 +29,13 @@ struct MainView: View {
   @State private var taxiPath = NavigationPath()
   @State private var searchPath = NavigationPath()
 
+  #if os(macOS)
+  @State private var retainedFeedPath = NavigationPath()
+  @State private var retainedBoardListPath = NavigationPath()
+  @State private var retainedTaxiPath = NavigationPath()
+  @State private var retainedSearchPath = NavigationPath()
+  #endif
+
   @Namespace private var namespace
 
   private var feedViewModel: FeedViewModelProtocol
@@ -40,44 +47,7 @@ struct MainView: View {
   }
 
   var body: some View {
-    TabView(selection: $selectedTab) {
-      Tab("Feed", systemImage: "text.rectangle.page", value: .feed) {
-        NavigationStack(path: $feedPath) {
-          FeedView(feedViewModel)
-        }
-      }
-
-      Tab("Boards", systemImage: "tray.full", value: .board) {
-        NavigationStack(path: $boardListPath) {
-          BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
-        }
-      }
-
-//      if UIDevice.current.userInterfaceIdiom != .phone {
-        Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
-          TimetableView(timetableViewModel)
-        }
-//      }
-
-//      Tab("Map", systemImage: "map", value: .map) {
-//        Map()
-//      }
-
-      Tab("Taxi", systemImage: "car", value: .taxi) {
-        NavigationStack(path: $taxiPath) {
-          TaxiListView()
-        }
-      }
-
-      Tab(value: .search, role: .search) {
-        NavigationStack(path: $searchPath) {
-          SearchView()
-        }
-      }
-    }
-    #if os(iOS)
-    .tabBarMinimizeBehavior(.onScrollDown)
-    #endif
+    platformNavigation
 //    .tabViewBottomAccessory(isEnabled: isTabViewAccessoryEnabled) {
 //      TimelineView(.animation(minimumInterval: 1)) { context in
 //        TodayLecturesAccessoryView(context: context, viewModel: todayLecturesAccessoryViewModel)
@@ -121,30 +91,167 @@ struct MainView: View {
 //      await todayLecturesAccessoryViewModel.setup()
       await timetableViewModel.setup()
     }
-    #if os(iOS)
-    .tabViewStyle(.tabBarOnly)
-    #elseif os(macOS)
-    // A bottom tab bar isn't a Mac idiom — the same tabs read as a source list.
-    .tabViewStyle(.sidebarAdaptable)
-    #endif
   }
+
+  #if os(iOS)
+  private var platformNavigation: some View {
+    TabView(selection: $selectedTab) {
+      Tab("Feed", systemImage: "text.rectangle.page", value: .feed) {
+        NavigationStack(path: $feedPath) {
+          FeedView(feedViewModel)
+        }
+      }
+
+      Tab("Boards", systemImage: "tray.full", value: .board) {
+        NavigationStack(path: $boardListPath) {
+          BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
+        }
+      }
+
+//      if UIDevice.current.userInterfaceIdiom != .phone {
+        Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
+          TimetableView(timetableViewModel)
+        }
+//      }
+
+//      Tab("Map", systemImage: "map", value: .map) {
+//        Map()
+//      }
+
+      Tab("Taxi", systemImage: "car", value: .taxi) {
+        NavigationStack(path: $taxiPath) {
+          TaxiListView()
+        }
+      }
+
+      Tab(value: .search, role: .search) {
+        NavigationStack(path: $searchPath) {
+          SearchView()
+        }
+      }
+    }
+    .tabBarMinimizeBehavior(.onScrollDown)
+    .tabViewStyle(.tabBarOnly)
+  }
+  #elseif os(macOS)
+  private var platformNavigation: some View {
+    NavigationSplitView {
+      List(selection: macOSTabSelection) {
+        Label("Feed", systemImage: "text.rectangle.page")
+          .tag(TabSelection.feed)
+        Label("Boards", systemImage: "tray.full")
+          .tag(TabSelection.board)
+        Label("Timetable", systemImage: "square.grid.2x2")
+          .tag(TabSelection.timetable)
+        Label("Taxi", systemImage: "car")
+          .tag(TabSelection.taxi)
+        Label("Search", systemImage: "magnifyingglass")
+          .tag(TabSelection.search)
+      }
+      .listStyle(.sidebar)
+      .navigationTitle(String(localized: "Buddy"))
+    } detail: {
+      macOSDetail
+    }
+  }
+
+  @ViewBuilder
+  private var macOSDetail: some View {
+    switch selectedTab {
+    case .feed:
+      NavigationStack(path: $feedPath) {
+        FeedView(feedViewModel)
+      }
+      .id(TabSelection.feed)
+    case .board:
+      NavigationStack(path: $boardListPath) {
+        BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
+      }
+      .id(TabSelection.board)
+    case .timetable:
+      TimetableView(timetableViewModel)
+    case .taxi:
+      NavigationStack(path: $taxiPath) {
+        TaxiListView()
+      }
+      .id(TabSelection.taxi)
+    case .search:
+      NavigationStack(path: $searchPath) {
+        SearchView()
+      }
+      .id(TabSelection.search)
+    case .map:
+      EmptyView()
+    }
+  }
+  #endif
 
   private func handle(deepLink: DeepLink) {
     switch deepLink {
     case .taxiInvite(let code):
-      selectedTab = .taxi
+      selectTab(.taxi)
       Task {
         await viewModel.resolveInvite(code: code)
       }
     case .araPost(let id):
-      selectedTab = .board
+      selectTab(.board)
       Task {
         await viewModel.resolvePost(id: id)
       }
     case .timetable:
-      selectedTab = .timetable
+      selectTab(.timetable)
     }
   }
+
+  private func selectTab(_ tab: TabSelection) {
+    guard tab != selectedTab else { return }
+
+    #if os(macOS)
+    retainPath(for: selectedTab)
+    restorePath(for: tab)
+    #endif
+
+    selectedTab = tab
+  }
+
+  #if os(macOS)
+  private var macOSTabSelection: Binding<TabSelection> {
+    Binding(
+      get: { selectedTab },
+      set: { selectTab($0) }
+    )
+  }
+
+  private func retainPath(for tab: TabSelection) {
+    switch tab {
+    case .feed:
+      retainedFeedPath = feedPath
+    case .board:
+      retainedBoardListPath = boardListPath
+    case .taxi:
+      retainedTaxiPath = taxiPath
+    case .search:
+      retainedSearchPath = searchPath
+    case .map, .timetable:
+      break
+    }
+  }
+
+  private func restorePath(for tab: TabSelection) {
+    switch tab {
+    case .feed:
+      feedPath = retainedFeedPath
+    case .board:
+      boardListPath = retainedBoardListPath
+    case .taxi:
+      taxiPath = retainedTaxiPath
+    case .search:
+      searchPath = retainedSearchPath
+    case .map, .timetable:
+      break
+    }
+  }
+  #endif
 
 
 
