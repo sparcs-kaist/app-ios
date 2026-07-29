@@ -53,7 +53,10 @@ struct SearchSection<Content: View>: View {
       // AppKit gives NavigationLink the bordered push-button look by default, which
       // paints an opaque capsule behind every row. The container surface is dropped
       // as well so the rows sit straight on the pane's gradient rather than on a
-      // second, differently tinted panel.
+      // second, differently tinted panel. `.contentShape` is required alongside it:
+      // without a button background AppKit has nothing to hit-test, so rows stop
+      // responding to clicks entirely.
+      .contentShape(.rect)
       .buttonStyle(.plain)
       #else
       .background(

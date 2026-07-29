@@ -34,9 +34,12 @@ struct ListGlassSection<Content: View>: View {
         #if os(macOS)
         // AppKit gives NavigationLink the bordered push-button look by default, which
         // paints an opaque capsule behind every row and fights the glass container.
-        // iOS already renders these rows plain.
+        // iOS already renders these rows plain. `.contentShape` is required alongside
+        // it: without a button background AppKit has nothing to hit-test, so rows stop
+        // responding to clicks entirely.
         content()
           .padding(.vertical)
+          .contentShape(.rect)
           .buttonStyle(.plain)
         #else
         content()
