@@ -49,6 +49,7 @@ public struct PostVoteButton: View {
             .contentTransition(.numericText(value: Double(votes)))
             .animation(.spring(), value: votes)
         }
+        .macOSPlainHitArea()
       })
 
       Divider()
@@ -64,7 +65,9 @@ public struct PostVoteButton: View {
       }
       .labelStyle(.iconOnly)
       .foregroundStyle(myVote == false ? Color.downvote : .primary)
+      .macOSPlainHitArea()
     }
+    .macOSPlainButtons()
     .padding(8)
     .fixedSize(horizontal: false, vertical: true)
     .glassEffect(.regular.interactive())

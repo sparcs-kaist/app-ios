@@ -26,6 +26,8 @@ public struct PostCommentButton: View {
     .animation(.spring(), value: commentCount)
     .contentTransition(.numericText(value: Double(commentCount)))
     .tint(.primary)
+    .macOSPlainButtons()
+    .macOSPlainHitArea()
     .padding(8)
     .glassEffect(.regular.interactive())
   }

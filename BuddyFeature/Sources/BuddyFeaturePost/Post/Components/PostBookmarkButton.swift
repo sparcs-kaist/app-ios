@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 
 struct PostBookmarkButton: View {
@@ -23,6 +24,8 @@ struct PostBookmarkButton: View {
     }
     .labelStyle(.iconOnly)
     .foregroundStyle(.primary)
+    .macOSPlainButtons()
+    .macOSPlainHitArea()
     .padding(8)
     .glassEffect(.regular.interactive(), in: .circle)
   }

@@ -59,6 +59,11 @@ public struct SearchView: View {
         }
       }
       .pickerStyle(.segmented)
+      #if os(macOS)
+      // AppKit still renders the picker's label next to a segmented control, so the
+      // raw "Search Scope" string leaks into the bar. iOS drops it automatically.
+      .labelsHidden()
+      #endif
       .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
       .padding(.horizontal)
       .contentWidth()
@@ -91,6 +96,7 @@ public struct SearchView: View {
       SearchContent(results: courses) { course in
         NavigationLink(value: course) {
           CourseCell(course: course)
+            .macOSPlainHitArea()
         }
         .foregroundStyle(.primary)
         .redacted(reason: viewModel.state == .loading ? .placeholder : [])
@@ -104,6 +110,7 @@ public struct SearchView: View {
       SearchContent(results: posts) { post in
         NavigationLink(value: post) {
           PostListRow(post: post)
+            .macOSPlainHitArea()
         }
         .foregroundStyle(.primary)
         .padding()
