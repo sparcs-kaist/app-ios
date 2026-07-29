@@ -72,12 +72,6 @@ public struct SearchView: View {
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search", bundle: .module))
     .searchFocused($isFocused)
-    #if os(macOS)
-    // Hosting a search field makes AppKit draw an opaque window-toolbar background,
-    // which cuts a hard horizontal edge across the gradient. iPadOS keeps the bar
-    // translucent so the gradient runs unbroken to the top of the screen.
-    .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
-    #endif
     .navigationDestination(for: CourseSummary.self) { course in
       CourseView(course: course)
     }

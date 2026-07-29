@@ -153,6 +153,7 @@ struct MainView: View {
     } detail: {
       macOSDetail
     }
+    .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
   }
 
   @ViewBuilder
