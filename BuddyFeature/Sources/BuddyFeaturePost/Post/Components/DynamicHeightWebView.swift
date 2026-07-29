@@ -71,11 +71,20 @@ struct DynamicHeightWebView: PlatformWebViewRepresentable {
     webView.isOpaque = false
     webView.backgroundColor = PlatformColor.clear
     webView.scrollView.backgroundColor = PlatformColor.clear
+    #elseif os(macOS)
+    // AppKit's WKWebView exposes neither `scrollView` nor `isOpaque`, and CSS cannot
+    // reach the backdrop WebKit paints beneath the document: the injected
+    // `background: transparent` already applies, which is why the body rendered in the
+    // dark-mode text colour on top of a white sheet. `drawsBackground` is the only
+    // lever that turns that backdrop off — it is the AppKit counterpart of the
+    // `isOpaque = false` used on iOS above. WebKit spells the setter
+    // `_setDrawsBackground:` (the unprefixed one does not exist), while the KVC key
+    // resolves without the underscore, so probe the real selector and leave the
+    // opaque backdrop in place if it ever goes away.
+    if webView.responds(to: NSSelectorFromString("_setDrawsBackground:")) {
+      webView.setValue(false, forKey: "drawsBackground")
+    }
     #endif
-    // AppKit's WKWebView exposes neither `scrollView` nor `isOpaque`. The only
-    // public lever is underPageBackgroundColor above; if the post body still
-    // paints an opaque backdrop on macOS, fix it in CSS rather than reaching for
-    // the private `drawsBackground` key.
 
     return webView
   }
