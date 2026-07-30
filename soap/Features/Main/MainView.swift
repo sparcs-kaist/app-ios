@@ -49,6 +49,9 @@ struct MainView: View {
   /// first time boards arrive, so the boards are visible without hunting for them.
   @State private var expandedGroups: Set<Int> = []
   @State private var seededGroupExpansion: Bool = false
+  /// Set when a board fetch came back without resolving the state either way, so the
+  /// sidebar can offer a retry rather than spin forever.
+  @State private var boardsNeedRetry: Bool = false
   #endif
 
   @Namespace private var namespace
@@ -180,14 +183,12 @@ struct MainView: View {
       }
       .listStyle(.sidebar)
       .navigationTitle(String(localized: "Buddy"))
-      .task {
-        // The board list screen no longer renders on macOS, so the sidebar has to
-        // fetch the boards itself. Guarded so a re-render does not re-request them,
-        // while an error still gets another go.
-        if case .loaded = boardListViewModel.state {} else {
-          await boardListViewModel.fetchBoards()
-        }
-      }
+      // Deliberately the sidebar's own task, not part of the window-level one that
+      // sets up the timetable, and separate again from the fetch the detail column
+      // runs. Each region loads and fails on its own: boards that never arrive leave
+      // the feed, timetable, taxi and search rows working, and a feed that will not
+      // load says so in the detail column without emptying the sidebar.
+      .task { await loadBoards() }
       .onChange(of: loadedGroups) { _, groups in
         guard !seededGroupExpansion, !groups.isEmpty else { return }
         expandedGroups = Set(groups.map(\.id))
@@ -203,11 +204,15 @@ struct MainView: View {
   private var boardRows: some View {
     switch boardListViewModel.state {
     case .loading:
-      HStack(spacing: 8) {
-        ProgressView()
-          .controlSize(.small)
-        Text("Loading…")
-          .foregroundStyle(.secondary)
+      if boardsNeedRetry {
+        boardRetryRow
+      } else {
+        HStack(spacing: 8) {
+          ProgressView()
+            .controlSize(.small)
+          Text("Loading…")
+            .foregroundStyle(.secondary)
+        }
       }
     case .loaded(let boards, let groups):
       ForEach(groups) { group in
@@ -221,10 +226,32 @@ struct MainView: View {
         }
       }
     case .error:
-      Button(String(localized: "Try Again"), systemImage: "arrow.clockwise") {
-        Task { await boardListViewModel.fetchBoards() }
-      }
-      .buttonStyle(.plain)
+      boardRetryRow
+    }
+  }
+
+  private var boardRetryRow: some View {
+    Button(String(localized: "Try Again"), systemImage: "arrow.clockwise") {
+      Task { await loadBoards() }
+    }
+    // `.plain` strips AppKit's push-button chrome so the row reads as a sidebar
+    // item; it also strips the hit-test surface, hence the explicit shape.
+    .buttonStyle(.plain)
+    .contentShape(.rect)
+  }
+
+  private func loadBoards() async {
+    if case .loaded = boardListViewModel.state { return }
+
+    boardsNeedRetry = false
+    await boardListViewModel.fetchBoards()
+
+    // `fetchBoards()` returns without touching its state when it cannot resolve its
+    // use case, and the state also stays `.loading` if the request never comes back
+    // — which is what a pending keychain prompt does to every authenticated call.
+    // Either way the sidebar would spin forever, so offer the retry instead.
+    if case .loading = boardListViewModel.state {
+      boardsNeedRetry = true
     }
   }
 
