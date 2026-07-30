@@ -41,16 +41,29 @@ struct MainView: View {
   @State private var retainedBoardListPath = NavigationPath()
   @State private var retainedTaxiPath = NavigationPath()
   @State private var retainedSearchPath = NavigationPath()
+
+  /// The board whose posts the detail column is showing. Only meaningful while
+  /// `selectedTab == .board`.
+  @State private var selectedBoard: AraBoard?
+  /// IDs of the sidebar groups the user has left open. Seeded with every group the
+  /// first time boards arrive, so the boards are visible without hunting for them.
+  @State private var expandedGroups: Set<Int> = []
+  @State private var seededGroupExpansion: Bool = false
   #endif
 
   @Namespace private var namespace
 
-  private var feedViewModel: FeedViewModelProtocol
-  private var boardListViewModel: BoardListViewModelProtocol
+  // Held as `@State` rather than plain init properties: `MainView` is a struct and
+  // gets re-initialised whenever its parent re-renders, which would otherwise hand
+  // the views a fresh view model and throw away the loaded feed and board list. The
+  // macOS sidebar reads `boardListViewModel.state` directly, so that one in
+  // particular has to survive.
+  @State private var feedViewModel: FeedViewModelProtocol
+  @State private var boardListViewModel: BoardListViewModelProtocol
 
   init(feedViewModel: FeedViewModelProtocol = FeedViewModel(), boardListViewModel: BoardListViewModelProtocol = BoardListViewModel()) {
-    self.feedViewModel = feedViewModel
-    self.boardListViewModel = boardListViewModel
+    _feedViewModel = State(initialValue: feedViewModel)
+    _boardListViewModel = State(initialValue: boardListViewModel)
   }
 
   var body: some View {
@@ -141,26 +154,78 @@ struct MainView: View {
     .tabViewStyle(.tabBarOnly)
   }
   #elseif os(macOS)
+  /// A row in the macOS sidebar. Boards get a row each — the board-list screen iOS
+  /// pushes through only exists to be tapped, and a sidebar can address the boards
+  /// directly.
+  private enum SidebarSelection: Hashable {
+    case tab(TabSelection)
+    case board(AraBoard)
+  }
+
   private var platformNavigation: some View {
     NavigationSplitView {
-      List(selection: macOSTabSelection) {
+      List(selection: sidebarSelection) {
         Label("Feed", systemImage: "text.rectangle.page")
-          .tag(TabSelection.feed)
-        Label("Boards", systemImage: "tray.full")
-          .tag(TabSelection.board)
+          .tag(SidebarSelection.tab(.feed))
         Label("Timetable", systemImage: "square.grid.2x2")
-          .tag(TabSelection.timetable)
+          .tag(SidebarSelection.tab(.timetable))
         Label("Taxi", systemImage: "car")
-          .tag(TabSelection.taxi)
+          .tag(SidebarSelection.tab(.taxi))
         Label("Search", systemImage: "magnifyingglass")
-          .tag(TabSelection.search)
+          .tag(SidebarSelection.tab(.search))
+
+        Section(String(localized: "Boards")) {
+          boardRows
+        }
       }
       .listStyle(.sidebar)
       .navigationTitle(String(localized: "Buddy"))
+      .task {
+        // The board list screen no longer renders on macOS, so the sidebar has to
+        // fetch the boards itself. Guarded so a re-render does not re-request them,
+        // while an error still gets another go.
+        if case .loaded = boardListViewModel.state {} else {
+          await boardListViewModel.fetchBoards()
+        }
+      }
+      .onChange(of: loadedGroups) { _, groups in
+        guard !seededGroupExpansion, !groups.isEmpty else { return }
+        expandedGroups = Set(groups.map(\.id))
+        seededGroupExpansion = true
+      }
     } detail: {
       macOSDetail
     }
     .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+  }
+
+  @ViewBuilder
+  private var boardRows: some View {
+    switch boardListViewModel.state {
+    case .loading:
+      HStack(spacing: 8) {
+        ProgressView()
+          .controlSize(.small)
+        Text("Loading…")
+          .foregroundStyle(.secondary)
+      }
+    case .loaded(let boards, let groups):
+      ForEach(groups) { group in
+        DisclosureGroup(isExpanded: expansion(for: group)) {
+          ForEach(boards.filter { $0.group.id == group.id }) { board in
+            Text(board.name.localized())
+              .tag(SidebarSelection.board(board))
+          }
+        } label: {
+          Label(group.name.localized(), systemImage: group.symbolName)
+        }
+      }
+    case .error:
+      Button(String(localized: "Try Again"), systemImage: "arrow.clockwise") {
+        Task { await boardListViewModel.fetchBoards() }
+      }
+      .buttonStyle(.plain)
+    }
   }
 
   @ViewBuilder
@@ -172,10 +237,22 @@ struct MainView: View {
       }
       .id(TabSelection.feed)
     case .board:
-      NavigationStack(path: $boardListPath) {
-        BoardListView(boardListViewModel, deepLinkedPost: $viewModel.deepLinkedPost)
+      if let selectedBoard {
+        NavigationStack(path: $boardListPath) {
+          PostListView(board: selectedBoard)
+            // Carries over the deep-link destination `BoardListView` used to own.
+            .navigationDestination(item: $viewModel.deepLinkedPost) { post in
+              PostView(post: post)
+            }
+        }
+        .id(selectedBoard.id)
+      } else {
+        ContentUnavailableView(
+          String(localized: "Select a Board"),
+          systemImage: "tray.full",
+          description: Text("Pick a board from the sidebar to read its posts.")
+        )
       }
-      .id(TabSelection.board)
     case .timetable:
       TimetableView(timetableViewModel)
     case .taxi:
@@ -202,10 +279,22 @@ struct MainView: View {
         await viewModel.resolveInvite(code: code)
       }
     case .araPost(let id):
+      #if os(macOS)
+      // A board has to be selected before the detail column can present anything,
+      // and which board that is only becomes known once the post is resolved.
+      Task {
+        await viewModel.resolvePost(id: id)
+        guard let post = viewModel.deepLinkedPost else { return }
+        if let board = post.board ?? selectedBoard ?? loadedBoards.first {
+          select(board: board)
+        }
+      }
+      #else
       selectTab(.board)
       Task {
         await viewModel.resolvePost(id: id)
       }
+      #endif
     case .timetable:
       selectTab(.timetable)
     }
@@ -223,11 +312,62 @@ struct MainView: View {
   }
 
   #if os(macOS)
-  private var macOSTabSelection: Binding<TabSelection> {
+  private var sidebarSelection: Binding<SidebarSelection?> {
     Binding(
-      get: { selectedTab },
-      set: { selectTab($0) }
+      get: {
+        if selectedTab == .board, let selectedBoard {
+          return .board(selectedBoard)
+        }
+        return .tab(selectedTab)
+      },
+      set: { newValue in
+        switch newValue {
+        case .tab(let tab):
+          selectedBoard = nil
+          selectTab(tab)
+        case .board(let board):
+          select(board: board)
+        case nil:
+          break
+        }
+      }
     )
+  }
+
+  private func select(board: AraBoard) {
+    // `selectTab` keeps one retained path per tab, not per board, so switching
+    // boards has to clear it here. The detail column's `.id(board.id)` rebuilds the
+    // stack view but `boardListPath` is our own state and would otherwise restore
+    // the post that was open in the previous board.
+    if board != selectedBoard {
+      boardListPath = NavigationPath()
+      retainedBoardListPath = NavigationPath()
+    }
+    selectedBoard = board
+    selectTab(.board)
+  }
+
+  private func expansion(for group: AraBoardGroup) -> Binding<Bool> {
+    Binding(
+      get: { expandedGroups.contains(group.id) },
+      set: { isExpanded in
+        if isExpanded {
+          expandedGroups.insert(group.id)
+        } else {
+          expandedGroups.remove(group.id)
+        }
+      }
+    )
+  }
+
+  private var loadedBoards: [AraBoard] {
+    if case .loaded(let boards, _) = boardListViewModel.state { return boards }
+    return []
+  }
+
+  private var loadedGroups: [AraBoardGroup] {
+    if case .loaded(_, let groups) = boardListViewModel.state { return groups }
+    return []
   }
 
   private func retainPath(for tab: TabSelection) {
