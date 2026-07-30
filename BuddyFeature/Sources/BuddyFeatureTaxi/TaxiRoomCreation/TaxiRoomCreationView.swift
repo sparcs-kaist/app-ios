@@ -59,13 +59,13 @@ struct TaxiRoomCreationView: View {
       .navigationTitle(String(localized: "New Group", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .sheetCancellation) {
           Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
             dismiss()
           }
         }
 
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .sheetConfirmation) {
           Button(String(localized: "Done", bundle: .module), systemImage: "arrow.up", role: .confirm) {
             Task {
               do {

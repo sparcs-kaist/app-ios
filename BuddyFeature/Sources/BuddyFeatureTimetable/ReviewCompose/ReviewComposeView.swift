@@ -86,7 +86,7 @@ struct ReviewComposeView: View {
         .buttonStyle(.glass)
       }
       .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .sheetConfirmation) {
           Button(
             role: .confirm,
             action: {

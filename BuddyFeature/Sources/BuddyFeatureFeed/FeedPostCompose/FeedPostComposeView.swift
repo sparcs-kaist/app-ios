@@ -57,7 +57,7 @@ struct FeedPostComposeView: View {
       .navigationTitle(String(localized: "Write", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .sheetCancellation) {
           Button(String(localized: "Close", bundle: .module), systemImage: "xmark") {
             dismiss()
           }
@@ -69,7 +69,7 @@ struct FeedPostComposeView: View {
           #endif
         }
 
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .sheetConfirmation) {
           Button(
             role: .confirm,
             action: {

@@ -95,7 +95,7 @@ struct PostComposeView: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         // Top tool bar
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .sheetCancellation) {
           Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
             isShowingCancelDialog = true
           }
@@ -116,7 +116,7 @@ struct PostComposeView: View {
           #endif
         }
 
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .sheetConfirmation) {
           Button(
             role: .confirm,
             action: {

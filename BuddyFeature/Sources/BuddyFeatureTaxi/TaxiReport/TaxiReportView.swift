@@ -91,7 +91,7 @@ struct TaxiReportView: View {
       .navigationTitle(String(localized: "Report", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {        
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .sheetConfirmation) {
           Button(
             role: .confirm,
             action: {
