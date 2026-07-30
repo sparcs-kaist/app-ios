@@ -15,13 +15,18 @@ import BuddyFeatureTaxi
 import FirebaseAnalytics
 
 public struct SearchView: View {
-  @State private var viewModel = SearchViewModel()
+  @State private var viewModel: SearchViewModel
   @State private var selectedRoom: TaxiRoom? = nil
 //  @State private var selectedCourse: Course? = nil
   @State private var courseSheetDetent: PresentationDetent = .height(200)
   @FocusState private var isFocused
 
-  public init() { }
+  /// The view model is injectable so the macOS shell can own it. There the search
+  /// tab's view tree is torn down on every tab switch, and a locally-owned model
+  /// would take the query and its results with it.
+  public init(_ viewModel: SearchViewModel = SearchViewModel()) {
+    _viewModel = State(initialValue: viewModel)
+  }
 
   public var body: some View {
     Group {

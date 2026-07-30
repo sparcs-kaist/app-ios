@@ -19,6 +19,13 @@ import MapKit
 struct MainView: View {
   @State private var viewModel = MainViewModel()
   @State private var timetableViewModel = TimetableViewModel()
+  // Held here, not inside the views, because the macOS detail column below renders
+  // one tab at a time: a model owned by SearchView or TaxiListView would be rebuilt
+  // on every tab switch, losing the query and the route filters with it. These have
+  // to be `@State` rather than init properties — MainView is a struct and gets
+  // re-initialised, which would hand the views a fresh instance each time.
+  @State private var searchViewModel = SearchViewModel()
+  @State private var taxiListViewModel: TaxiListViewModelProtocol = TaxiListViewModel()
   @State private var todayLecturesAccessoryViewModel = TodayLecturesAccessoryViewModel()
   @State private var extendTimetableView: Bool = false
 
@@ -120,13 +127,13 @@ struct MainView: View {
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
         NavigationStack(path: $taxiPath) {
-          TaxiListView()
+          TaxiListView(viewModel: taxiListViewModel)
         }
       }
 
       Tab(value: .search, role: .search) {
         NavigationStack(path: $searchPath) {
-          SearchView()
+          SearchView(searchViewModel)
         }
       }
     }
@@ -173,12 +180,12 @@ struct MainView: View {
       TimetableView(timetableViewModel)
     case .taxi:
       NavigationStack(path: $taxiPath) {
-        TaxiListView()
+        TaxiListView(viewModel: taxiListViewModel)
       }
       .id(TabSelection.taxi)
     case .search:
       NavigationStack(path: $searchPath) {
-        SearchView()
+        SearchView(searchViewModel)
       }
       .id(TabSelection.search)
     case .map:

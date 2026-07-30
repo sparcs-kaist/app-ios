@@ -58,7 +58,12 @@ public struct BoardListView: View {
     }
     .analyticsScreen(name: "Board List", class: String(describing: Self.self))
     .task {
-      await viewModel.fetchBoards()
+      // On macOS this view is rebuilt on every tab switch, so an unconditional fetch
+      // would flash the placeholder list and re-request boards that have not changed.
+      // Errors still retry, unlike a plain `state == .loading` guard.
+      if case .loaded = viewModel.state {} else {
+        await viewModel.fetchBoards()
+      }
     }
   }
 
