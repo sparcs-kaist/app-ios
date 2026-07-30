@@ -109,6 +109,11 @@ struct PostComposeView: View {
             }
           }
           .disabled(isUploading)
+          #if os(macOS)
+          // Same reasoning as the feed composer: Escape reaches Cancel, which asks
+          // before discarding. Without this the sheet has no keyboard exit at all.
+          .keyboardShortcut(.cancelAction)
+          #endif
         }
 
         ToolbarItem(placement: .topBarTrailing) {

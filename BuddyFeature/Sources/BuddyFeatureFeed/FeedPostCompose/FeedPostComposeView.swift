@@ -62,6 +62,11 @@ struct FeedPostComposeView: View {
             dismiss()
           }
           .disabled(viewModel.isUploading)
+          #if os(macOS)
+          // Escape is how a Mac sheet is expected to close, and there is no swipe
+          // to fall back on. iOS keeps its existing behaviour.
+          .keyboardShortcut(.cancelAction)
+          #endif
         }
 
         ToolbarItem(placement: .topBarTrailing) {
