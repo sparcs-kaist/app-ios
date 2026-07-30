@@ -72,7 +72,7 @@ public struct BoardListView: View {
     let boardsByGroup = Dictionary(grouping: boards, by: { $0.group.id })
     ForEach(groups) { group in
       ListGlassSection(
-        header: Label(group.name.localized(), systemImage: symbol(for: group.slug))
+        header: Label(group.name.localized(), systemImage: group.symbolName)
       ) {
         ForEach(boardsByGroup[group.id] ?? []) { board in
           NavigationLink(value: board) {
@@ -113,22 +113,6 @@ public struct BoardListView: View {
     }
   }
 
-  func symbol(for slug: String) -> String {
-    switch slug {
-    case "notice":
-      "bell.badge.fill"
-    case "talk":
-      "text.bubble.fill"
-    case "club":
-      "person.2.fill"
-    case "trade":
-      "tag.fill"
-    case "communication":
-      "envelope.open.fill"
-    default:
-      "list.clipboard"
-    }
-  }
 }
 
 
