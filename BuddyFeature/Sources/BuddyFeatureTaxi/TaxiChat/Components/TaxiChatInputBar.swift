@@ -73,6 +73,12 @@ struct TaxiChatInputBar: View {
           .frame(width: 48, height: 48)
           .contentShape(.circle)
       }
+      #if os(macOS)
+      // AppKit draws every `Menu` as a pop-up button, which stamps a disclosure arrow
+      // next to the label — here that lands on top of the `+` inside the 48pt circle.
+      // iOS has no such indicator to hide.
+      .menuIndicator(.hidden)
+      #endif
       .glassEffect(.regular.interactive(), in: .circle)
 
       HStack(alignment: .bottom) {

@@ -32,16 +32,29 @@ struct TaxiRoomCreationView: View {
     NavigationStack {
       Form {
         Section {
-          TaxiDestinationPicker(
-            source: $viewModel.source,
-            destination: $viewModel.destination,
-            locations: viewModel.locations
-          )
+          // A macOS Form is a two-column grid and takes a row's first subview as its
+          // label — which split this picker's `HStack`, stranding the swap button in
+          // the trailing column. `LabeledContent` with an empty label keeps the row
+          // whole. iOS lays it out unchanged.
+          LabeledContent {
+            TaxiDestinationPicker(
+              source: $viewModel.source,
+              destination: $viewModel.destination,
+              locations: viewModel.locations
+            )
+          } label: {
+            EmptyView()
+          }
         }
 
         Section(String(localized: "Title", bundle: .module)) {
           HStack {
             TextField(String(localized: "Title", bundle: .module), text: $title)
+              #if os(macOS)
+              // The section header already reads "Title"; macOS puts a field's own
+              // label in the leading column too, so it appeared twice.
+              .labelsHidden()
+              #endif
           }
         }
 
@@ -58,6 +71,11 @@ struct TaxiRoomCreationView: View {
       }
       .navigationTitle(String(localized: "New Group", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
+      #if os(macOS)
+      // A Mac sheet sizes to its content, and this one came out too narrow for a
+      // two-column form: the label column collided with the fields beside it.
+      .frame(minWidth: 460)
+      #endif
       .toolbar {
         ToolbarItem(placement: .sheetCancellation) {
           Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
