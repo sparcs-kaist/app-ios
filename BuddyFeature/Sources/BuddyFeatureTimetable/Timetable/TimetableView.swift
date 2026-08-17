@@ -61,7 +61,8 @@ public struct TimetableView: View {
               lecture: item.lecture,
               onAdd: nil,
               isOverlapping: false,
-              lectureClass: item.lectureClass
+              lectureClass: item.lectureClass,
+              isPresentedAsSheet: true
             )
             .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])

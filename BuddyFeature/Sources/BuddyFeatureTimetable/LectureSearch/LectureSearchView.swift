@@ -19,6 +19,8 @@ struct LectureSearchView: View {
 
   @State private var viewModel = LectureSearchViewModel()
 
+  @Environment(\.dismiss) private var dismiss
+
   var body: some View {
     NavigationStack {
       List {
@@ -44,6 +46,17 @@ struct LectureSearchView: View {
       .contentWidth()
       .navigationTitle(String(localized: "Add to \"\(timetableDisplayName)\"", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
+      #if os(macOS)
+      // This sheet had no toolbar item at all, so Escape was the only way out on the
+      // Mac — there is no swipe to fall back on there. iOS keeps its drag indicator.
+      .toolbar {
+        ToolbarItem(placement: .sheetCancellation) {
+          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
+            dismiss()
+          }
+        }
+      }
+      #endif
       .searchable(text: $viewModel.searchKeyword)
       .scrollDismissesKeyboard(.immediately)
       .onAppear {

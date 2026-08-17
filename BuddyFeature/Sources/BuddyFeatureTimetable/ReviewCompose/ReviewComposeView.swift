@@ -86,6 +86,16 @@ struct ReviewComposeView: View {
         .buttonStyle(.glass)
       }
       .toolbar {
+        #if os(macOS)
+        // Posting the review was the only button here, so backing out meant Escape and
+        // nothing else on the Mac. iOS keeps its swipe.
+        ToolbarItem(placement: .sheetCancellation) {
+          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
+            dismiss()
+          }
+        }
+        #endif
+
         ToolbarItem(placement: .sheetConfirmation) {
           Button(
             role: .confirm,
