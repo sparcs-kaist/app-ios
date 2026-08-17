@@ -136,7 +136,7 @@ public struct SearchView: View {
           .disabled(viewModel.state == .loading)
       }
     }
-    .sheet(item: $selectedRoom) {
+    .dismissableCard(item: $selectedRoom) {
       Task {
         await viewModel.scopedFetch()
       }

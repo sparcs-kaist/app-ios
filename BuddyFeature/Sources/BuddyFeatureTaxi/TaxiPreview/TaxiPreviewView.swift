@@ -21,6 +21,9 @@ public struct TaxiPreviewView: View {
   @State private var viewModel = TaxiPreviewViewModel()
 
   @Environment(\.dismiss) private var dismiss
+  /// Set only when this is presented as a macOS card rather than a sheet, where
+  /// `dismiss()` has nothing of ours to close. See `DismissableCard`.
+  @Environment(\.buddyCardDismiss) private var cardDismiss
   @State private var route: MKRoute?
   @State private var mapCamPos: MapCameraPosition = .automatic
 
@@ -104,7 +107,7 @@ public struct TaxiPreviewView: View {
             Task {
               do {
                 try await viewModel.joinRoom(id: room.id)
-                dismiss()
+                close()
               } catch {
                 logger.error("Failed to join room: \(error.localizedDescription, privacy: .public)")
                 errorMessage = error.localizedDescription
@@ -147,9 +150,35 @@ public struct TaxiPreviewView: View {
       Text(errorMessage)
     })
     .ignoresSafeArea()
+    #if os(macOS)
+    // There is no swipe to fall back on here, and unlike the composers this screen has
+    // no toolbar to hang a Cancel button off. Leading edge because that is where every
+    // other sheet in the app puts its close button, and because MapKit draws its own
+    // controls in the trailing corner.
+    .overlay(alignment: .topLeading) {
+      Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .close) {
+        close()
+      }
+      .labelStyle(.iconOnly)
+      .buttonStyle(.glass)
+      .buttonBorderShape(.circle)
+      .keyboardShortcut(.cancelAction)
+      .padding(12)
+    }
+    #endif
     .analyticsScreen(name: "Taxi Preview", class: String(describing: Self.self))
   }
-  
+
+  /// Closes whichever presentation this is in: the macOS card publishes its own action
+  /// because `dismiss()` cannot reach it, and on iOS that action is nil.
+  private func close() {
+    if let cardDismiss {
+      cardDismiss()
+    } else {
+      dismiss()
+    }
+  }
+
   private var isJoinButtonDisabled: Bool {
     room.participants.count >= room.capacity
     || viewModel.isJoined(participants: room.participants)

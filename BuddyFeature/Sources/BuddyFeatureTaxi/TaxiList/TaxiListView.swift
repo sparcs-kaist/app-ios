@@ -161,7 +161,7 @@ public struct TaxiListView: View {
         #endif
         .presentationDragIndicator(.visible)
     }
-    .sheet(item: $selectedRoom) { room in
+    .dismissableCard(item: $selectedRoom) { room in
       TaxiPreviewView(room: room)
         .onDisappear {
           Task {
