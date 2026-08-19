@@ -16,23 +16,17 @@ struct LectureDetailView: View {
   let onAdd: (() -> Void)?
   let isOverlapping: Bool
   let lectureClass: LectureClass?
-  /// Whether this is the sheet the timetable presents, rather than a push inside the
-  /// lecture search. Only the sheet needs a close button, and only on macOS — pushed
-  /// instances already have a back button.
-  let isPresentedAsSheet: Bool
 
   init(
     lecture: Lecture,
     onAdd: (() -> Void)?,
     isOverlapping: Bool,
-    lectureClass: LectureClass? = nil,
-    isPresentedAsSheet: Bool = false
+    lectureClass: LectureClass? = nil
   ) {
     self.lecture = lecture
     self.onAdd = onAdd
     self.isOverlapping = isOverlapping
     self.lectureClass = lectureClass
-    self.isPresentedAsSheet = isPresentedAsSheet
   }
 
   @Environment(\.dismiss) private var dismiss
@@ -77,18 +71,6 @@ struct LectureDetailView: View {
     .navigationTitle(lecture.name)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
-      #if os(macOS)
-      // As a sheet this screen has no toolbar item unless `onAdd` is set, and the
-      // timetable passes nil — which left Escape as the only way out on the Mac.
-      if isPresentedAsSheet {
-        ToolbarItem(placement: .sheetCancellation) {
-          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
-            dismiss()
-          }
-        }
-      }
-      #endif
-
       if onAdd != nil {
         ToolbarItem(placement: .sheetConfirmation) {
           Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
