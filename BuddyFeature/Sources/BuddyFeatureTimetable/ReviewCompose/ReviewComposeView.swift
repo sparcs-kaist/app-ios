@@ -84,6 +84,11 @@ struct ReviewComposeView: View {
         }
         .font(.callout)
         .buttonStyle(.glass)
+        #if os(macOS)
+        // Each `Text` above is already the picker's label. macOS draws the picker's own
+        // label in front of it as well, so every rating read "Grade Grade".
+        .labelsHidden()
+        #endif
       }
       .toolbar {
         ToolbarItem(placement: .sheetConfirmation) {
