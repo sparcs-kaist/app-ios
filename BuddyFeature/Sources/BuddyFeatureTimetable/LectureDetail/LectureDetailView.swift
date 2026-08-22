@@ -17,7 +17,12 @@ struct LectureDetailView: View {
   let isOverlapping: Bool
   let lectureClass: LectureClass?
 
-  init(lecture: Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, lectureClass: LectureClass? = nil) {
+  init(
+    lecture: Lecture,
+    onAdd: (() -> Void)?,
+    isOverlapping: Bool,
+    lectureClass: LectureClass? = nil
+  ) {
     self.lecture = lecture
     self.onAdd = onAdd
     self.isOverlapping = isOverlapping

@@ -90,7 +90,7 @@ struct TaxiReportView: View {
       }
       .navigationTitle(String(localized: "Report", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
-      .toolbar {        
+      .toolbar {
         ToolbarItem(placement: .sheetConfirmation) {
           Button(
             role: .confirm,
@@ -124,6 +124,9 @@ struct TaxiReportView: View {
         }
       }
     }
+    // Submitting a report was the only button here, so cancelling meant Escape and
+    // nothing else on the Mac. iOS keeps its swipe.
+    .sheetCloseButton { dismiss() }
     .alert(alertTitle, isPresented: $presentAlert, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {

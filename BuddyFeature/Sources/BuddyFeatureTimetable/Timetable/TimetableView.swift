@@ -66,6 +66,9 @@ public struct TimetableView: View {
             .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])
           }
+          // The lecture search pushes this same screen, where a back button already
+          // exists — so the close button belongs to the presentation, not the view.
+          .sheetCloseButton { selectedLecture = nil }
         }
         .sheet(isPresented: $showSearchSheet) {
           if let selectedSemester = viewModel.selectedSemester {
@@ -84,6 +87,12 @@ public struct TimetableView: View {
             .onAppear {
               selectedDetent = .medium
             }
+            // Known rough edge on macOS: this lands a row below the search field rather
+            // than beside it. The field is drawn in a toolbar, which is a different
+            // container from the content an overlay covers, and a toolbar item of our
+            // own is silently dropped from a sheet (see `a57cb989`). A button a row low
+            // still beats Escape being the only way out.
+            .sheetCloseButton { showSearchSheet = false }
           }
         }
         .alert(

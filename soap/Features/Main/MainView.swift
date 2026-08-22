@@ -100,7 +100,7 @@ struct MainView: View {
       guard let deepLink = notification.object as? DeepLink else { return }
       handle(deepLink: deepLink)
     }
-    .sheet(item: $viewModel.invitedRoom) { room in
+    .dismissableCard(item: $viewModel.invitedRoom) { room in
       TaxiPreviewView(room: room)
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(400), .height(500)])

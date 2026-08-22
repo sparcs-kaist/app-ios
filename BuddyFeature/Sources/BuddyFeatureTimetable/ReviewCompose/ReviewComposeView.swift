@@ -128,6 +128,9 @@ struct ReviewComposeView: View {
         Text("There was an error. Please try again later.", bundle: .module)
       })
     }
+    // Posting the review was the only button here, so backing out meant Escape and
+    // nothing else on the Mac. iOS keeps its swipe.
+    .sheetCloseButton { dismiss() }
     .analyticsScreen(name: "Review Compose", class: String(describing: Self.self))
   }
 }
