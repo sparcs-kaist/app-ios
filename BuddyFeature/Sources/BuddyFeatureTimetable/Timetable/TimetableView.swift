@@ -30,6 +30,12 @@ public struct TimetableView: View {
   /// iPhones in landscape, which report a compact horizontal size class.
   private static let twoColumnWidthThreshold: CGFloat = 600
 
+  #if os(macOS)
+  /// Height for the sheets this screen presents. Mac sheets size to their content, and
+  /// neither of these two has a sensible one to give.
+  private static let macOSSheetHeight: CGFloat = 750
+  #endif
+
   public var body: some View {
     GeometryReader { reader in
       NavigationStack {
@@ -66,6 +72,12 @@ public struct TimetableView: View {
             .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])
           }
+          #if os(macOS)
+          // `presentationDetents` sizes nothing on a Mac — the sheet takes its content's
+          // ideal height, and a lecture with reviews has no shortage of that, so it ran
+          // to the bottom of the window. Cap it and let the scroll view do the rest.
+          .frame(maxHeight: Self.macOSSheetHeight)
+          #endif
           // The lecture search pushes this same screen, where a back button already
           // exists — so the close button belongs to the presentation, not the view.
           .sheetCloseButton { selectedLecture = nil }
@@ -87,6 +99,12 @@ public struct TimetableView: View {
             .onAppear {
               selectedDetent = .medium
             }
+            #if os(macOS)
+            // Same reason, opposite symptom: a `List` has no ideal height to offer, so
+            // the sheet collapsed onto its own chrome and search results had nowhere to
+            // land — which read as search being broken rather than invisible.
+            .frame(height: Self.macOSSheetHeight)
+            #endif
             // Known rough edge on macOS: this lands a row below the search field rather
             // than beside it. The field is drawn in a toolbar, which is a different
             // container from the content an overlay covers, and a toolbar item of our

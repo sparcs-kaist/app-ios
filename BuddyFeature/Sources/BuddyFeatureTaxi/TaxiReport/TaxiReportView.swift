@@ -32,8 +32,13 @@ struct TaxiReportView: View {
 
   /// Participants other than the current user — the candidates that can be
   /// reported. Computed here rather than filtered inline in `ForEach`.
+  ///
+  /// Empty until `taxiUser` arrives: comparing against `nil` matches nobody, so the
+  /// list would otherwise render *every* participant — the current user included —
+  /// for the moment before the fetch lands, then quietly drop them.
   private var otherParticipants: [TaxiParticipant] {
-    room.participants.filter { $0.id != taxiUser?.oid }
+    guard let oid = taxiUser?.oid else { return [] }
+    return room.participants.filter { $0.id != oid }
   }
 
   var body: some View {
@@ -86,6 +91,11 @@ struct TaxiReportView: View {
               Text("An email will be sent asking them to send you the money.", bundle: .module)
             }
           }
+          #if os(macOS)
+          // The Mac sheet butts its button bar straight up against the form, so the
+          // last footer line ends up sitting on the divider. iOS has its own inset.
+          .padding(.bottom, 12)
+          #endif
         }
       }
       .navigationTitle(String(localized: "Report", bundle: .module))
