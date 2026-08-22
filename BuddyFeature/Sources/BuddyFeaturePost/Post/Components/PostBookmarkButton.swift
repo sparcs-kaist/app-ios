@@ -7,7 +7,8 @@
 
 import Foundation
 import SwiftUI
-import Haptica
+import BuddyDomain
+import BuddyFeatureShared
 
 
 struct PostBookmarkButton: View {
@@ -16,13 +17,15 @@ struct PostBookmarkButton: View {
   
   var body: some View {
     Button(String(localized: "bookmark", bundle: .module), systemImage: isBookmarked ? "bookmark.fill" : "bookmark") {
-      Haptic.impact(.light).generate()
+      BuddyHaptic.impact(.light).generate()
       Task {
         await onToggleBookmark()
       }
     }
     .labelStyle(.iconOnly)
     .foregroundStyle(.primary)
+    .macOSPlainButtons()
+    .macOSPlainHitArea()
     .padding(8)
     .glassEffect(.regular.interactive(), in: .circle)
   }

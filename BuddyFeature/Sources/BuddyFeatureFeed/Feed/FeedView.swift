@@ -22,7 +22,7 @@ public struct FeedView: View {
 
   @State private var spoilerContents = SpoilerContents()
 
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.buddyHorizontalSizeClass) private var horizontalSizeClass
 
   public init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
     self._viewModel = State(initialValue: viewModel)
@@ -69,7 +69,9 @@ public struct FeedView: View {
           showComposeView = true
         }
       }
+      #if os(iOS)  // pairs with the zoom navigationTransition below
       .matchedTransitionSource(id: "ComposeView", in: namespace)
+      #endif
 
       ToolbarSpacer(.fixed)
 
@@ -90,7 +92,9 @@ public struct FeedView: View {
       }
     }) {
       FeedPostComposeView()
+        #if os(iOS)  // zoom transitions / status bar are iOS-only
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
+        #endif
         .interactiveDismissDisabled()
     }
     .alert(viewModel.alertState?.title ?? String(localized: "Error", bundle: .module), isPresented: $viewModel.isAlertPresented, actions: {

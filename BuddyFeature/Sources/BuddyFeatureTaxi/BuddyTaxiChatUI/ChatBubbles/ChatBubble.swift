@@ -37,7 +37,7 @@ struct ChatBubble: View {
       }
       .contextMenu {
         Button(String(localized: "Copy", bundle: .module), systemImage: "doc.on.doc") {
-          UIPasteboard.general.string = chat.content
+          BuddyPasteboard.copy(chat.content)
         }
       }
   }

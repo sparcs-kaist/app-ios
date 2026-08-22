@@ -107,7 +107,9 @@ struct TaxiChatView: View {
     .toolbar(.hidden, for: .tabBar)
     .navigationDestination(item: $tappedImageID) { id in
       FullscreenImageView(url: Constants.taxiChatImageURL.appending(path: id))
+        #if os(iOS)  // zoom transitions / status bar are iOS-only
         .navigationTransition(.zoom(sourceID: id, in: namespace))
+        #endif
     }
     .alert(
       String(localized: "Call Taxi", bundle: .module),

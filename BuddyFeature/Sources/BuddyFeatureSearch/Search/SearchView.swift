@@ -15,13 +15,18 @@ import BuddyFeatureTaxi
 import FirebaseAnalytics
 
 public struct SearchView: View {
-  @State private var viewModel = SearchViewModel()
+  @State private var viewModel: SearchViewModel
   @State private var selectedRoom: TaxiRoom? = nil
 //  @State private var selectedCourse: Course? = nil
   @State private var courseSheetDetent: PresentationDetent = .height(200)
   @FocusState private var isFocused
 
-  public init() { }
+  /// The view model is injectable so the macOS shell can own it. There the search
+  /// tab's view tree is torn down on every tab switch, and a locally-owned model
+  /// would take the query and its results with it.
+  public init(_ viewModel: SearchViewModel = SearchViewModel()) {
+    _viewModel = State(initialValue: viewModel)
+  }
 
   public var body: some View {
     Group {
@@ -31,12 +36,14 @@ public struct SearchView: View {
           systemImage: "exclamationmark.circle",
           description: Text("Please try again later.", bundle: .module)
         )
+        .macOSFillsPane()
       } else if viewModel.searchText.isEmpty {
         ContentUnavailableView(
           "Search Anything",
           systemImage: "magnifyingglass",
           description: Text("Find courses, posts, rides and more.", bundle: .module)
         )
+        .macOSFillsPane()
       } else {
         resultView
       }
@@ -57,6 +64,11 @@ public struct SearchView: View {
         }
       }
       .pickerStyle(.segmented)
+      #if os(macOS)
+      // AppKit still renders the picker's label next to a segmented control, so the
+      // raw "Search Scope" string leaks into the bar. iOS drops it automatically.
+      .labelsHidden()
+      #endif
       .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
       .padding(.horizontal)
       .contentWidth()
@@ -83,6 +95,7 @@ public struct SearchView: View {
       SearchContent(results: courses) { course in
         NavigationLink(value: course) {
           CourseCell(course: course)
+            .macOSPlainHitArea()
         }
         .foregroundStyle(.primary)
         .redacted(reason: viewModel.state == .loading ? .placeholder : [])
@@ -96,6 +109,7 @@ public struct SearchView: View {
       SearchContent(results: posts) { post in
         NavigationLink(value: post) {
           PostListRow(post: post)
+            .macOSPlainHitArea()
         }
         .foregroundStyle(.primary)
         .padding()
@@ -187,6 +201,22 @@ public struct SearchView: View {
   
   private var hideScopeBar: Bool {
     return viewModel.searchText.isEmpty
+  }
+}
+
+private extension View {
+  /// `ContentUnavailableView` keeps its intrinsic size on AppKit instead of growing to
+  /// fill the pane, which left the gradient painted only behind the empty-state text.
+  /// This has to stay on the empty state itself: applying it to the whole `Group` would
+  /// also pin the results branch to the safe-area rect, stopping the background from
+  /// bleeding under the window toolbar the way every other tab does.
+  @ViewBuilder
+  func macOSFillsPane() -> some View {
+    #if os(macOS)
+    frame(maxWidth: .infinity, maxHeight: .infinity)
+    #else
+    self
+    #endif
   }
 }
 

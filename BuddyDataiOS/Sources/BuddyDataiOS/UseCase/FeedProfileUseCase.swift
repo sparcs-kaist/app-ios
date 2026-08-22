@@ -7,7 +7,6 @@
 
 import Foundation
 import BuddyDomain
-import UIKit
 
 public final class FeedProfileUseCase: FeedProfileUseCaseProtocol {
   // MARK: - Properties
@@ -35,7 +34,7 @@ public final class FeedProfileUseCase: FeedProfileUseCaseProtocol {
     }
   }
   
-  public func updateProfileImage(image: UIImage?) async throws {
+  public func updateProfileImage(image: PlatformImage?) async throws {
     let context = CrashContext(feature: feature, metadata: ["resetProfileImage": "\(image == nil)"])
     
     try await execute(context: context) {

@@ -8,11 +8,25 @@
 import Foundation
 import BuddyDomain
 import BuddyDataCore
+#if os(iOS)
 import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 public final class FCMUseCase: FCMUseCaseProtocol, @unchecked Sendable {
   private let keychain = Keychain()
   private static let fcmDeviceIDKey: String = "fcmDeviceID"
+
+  /// Label shown in the server's registered-device list. AppKit has no `UIDevice`,
+  /// so macOS falls back to the machine's sharing name.
+  private static var currentDeviceName: String {
+    #if os(iOS)
+    UIDevice.current.name
+    #elseif os(macOS)
+    Host.current().localizedName ?? ProcessInfo.processInfo.hostName
+    #endif
+  }
   
   private let fcmRepository: FCMRepositoryProtocol
   
@@ -33,7 +47,7 @@ public final class FCMUseCase: FCMUseCaseProtocol, @unchecked Sendable {
     try await fcmRepository.register(
       deviceUUID: deviceUUID,
       fcmToken: fcmToken,
-      deviceName: UIDevice.current.name,
+      deviceName: Self.currentDeviceName,
       language: Bundle.main.preferredLocalizations.first ?? "ko" // fallback to Korean
     )
   }

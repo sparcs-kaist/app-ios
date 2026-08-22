@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
-import Haptica
 import FirebaseAnalytics
 import BuddyPreviewSupport
 
@@ -29,7 +28,7 @@ public struct TaxiListView: View {
   @State private var selectedRoom: TaxiRoom? = nil
 
   @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.buddyHorizontalSizeClass) private var horizontalSizeClass
 
   public init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(initialValue: viewModel)
@@ -89,7 +88,7 @@ public struct TaxiListView: View {
                   destination: viewModel.destination,
                   emptyDescription: description,
                   onSelectRoom: { room in
-                    Haptic.selection.generate()
+                    BuddyHaptic.selection.generate()
                     selectedRoom = room
                   },
                   onCreateRoom: { showRoomCreationSheet = true },
@@ -130,7 +129,9 @@ public struct TaxiListView: View {
           showRoomCreationSheet = true
         }
       }
+      #if os(iOS)  // pairs with the zoom navigationTransition below
       .matchedTransitionSource(id: "RoomCreationView", in: namespace)
+      #endif
 
       ToolbarSpacer(.flexible, placement: .topBarTrailing)
 
@@ -155,7 +156,9 @@ public struct TaxiListView: View {
     }
     .sheet(isPresented: $showRoomCreationSheet) {
       TaxiRoomCreationView(viewModel: viewModel)
+        #if os(iOS)  // zoom transitions / status bar are iOS-only
         .navigationTransition(.zoom(sourceID: "RoomCreationView", in: namespace))
+        #endif
         .presentationDragIndicator(.visible)
     }
     .sheet(item: $selectedRoom) { room in

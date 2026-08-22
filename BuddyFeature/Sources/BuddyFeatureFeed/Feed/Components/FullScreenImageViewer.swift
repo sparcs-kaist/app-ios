@@ -55,7 +55,9 @@ struct FullScreenImageViewer: View {
           .padding()
         }
     }
+    #if os(iOS)  // zoom transitions / status bar are iOS-only
     .statusBarHidden()
+    #endif
   }
 
   private var magnifyGesture: some Gesture {

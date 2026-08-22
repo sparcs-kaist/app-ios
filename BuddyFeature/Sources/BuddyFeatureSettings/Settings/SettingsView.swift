@@ -9,7 +9,10 @@ import Foundation
 import SwiftUI
 import BuddyDomain
 import FirebaseAnalytics
+#if os(iOS)
+// ChannelTalk ships an iOS-only xcframework.
 import ChannelIOFront
+#endif
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "SettingsView")
@@ -38,11 +41,13 @@ public struct SettingsView: View {
           NavigationLink(String(localized: "Taxi", bundle: .module)) { TaxiSettingsView() }
         }
 				
+				#if os(iOS)
 				Section {
 					Button(String(localized: "Chat with Us", bundle: .module), systemImage: "bubble.left.and.text.bubble.right") {
 						ChannelIO.showMessenger()
 					}
 				}
+				#endif
         
         Section() {
           terms
@@ -86,18 +91,28 @@ public struct SettingsView: View {
     .analyticsScreen(name: "Settings", class: String(describing: Self.self))
   }
   
+  /// Deep link to where the user changes this app's language: the app's own entry in
+  /// Settings on iOS, the Language & Region pane on macOS.
+  private static var languageSettingsURL: URL? {
+    #if os(iOS)
+    URL(string: UIApplication.openSettingsURLString)
+    #elseif os(macOS)
+    URL(string: "x-apple.systempreferences:com.apple.Localization-Settings.extension")
+    #endif
+  }
+
   private var appSettings: some View {
     Group {
 //      NavigationLink(String(localized: "Notifications", bundle: .module)) { NotificationSettingsView() }
 
       Button(String(localized: "Change Language", bundle: .module), systemImage: "globe") {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
+        if let url = Self.languageSettingsURL {
           openURL(url)
         }
       }
 
       Button(String(localized: "Send Feedback", bundle: .module), systemImage: "exclamationmark.bubble") {
-        if let url = URL(string: "mailto:buddy@sparcs.org"), UIApplication.shared.canOpenURL(url) {
+        if let url = URL(string: "mailto:buddy@sparcs.org") {
           openURL(url)
         }
       }

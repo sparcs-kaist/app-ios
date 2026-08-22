@@ -13,9 +13,11 @@ import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "SearchViewModel")
 
+/// Only the type and its initialiser are public: the app shell holds an instance so
+/// it survives macOS tab switches, but never reads its members.
 @MainActor
 @Observable
-class SearchViewModel {
+public class SearchViewModel {
   // MARK: - Properties
   enum ViewState: Equatable {
     case loading
@@ -52,6 +54,8 @@ class SearchViewModel {
   @ObservationIgnored @Injected(
     \.v2CourseUseCase
   ) private var courseUseCase: CourseUseCaseProtocol?
+
+  public init() { }
 
   func bind() {
     searchTask?.cancel()

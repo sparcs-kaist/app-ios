@@ -15,7 +15,7 @@ import FirebaseAnalytics
 public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @Binding var deepLinkedPost: AraPost?
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.buddyHorizontalSizeClass) private var horizontalSizeClass
 
   public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel(), deepLinkedPost: Binding<AraPost?> = .constant(nil)) {
     _viewModel = State(initialValue: viewModel)
@@ -58,7 +58,12 @@ public struct BoardListView: View {
     }
     .analyticsScreen(name: "Board List", class: String(describing: Self.self))
     .task {
-      await viewModel.fetchBoards()
+      // On macOS this view is rebuilt on every tab switch, so an unconditional fetch
+      // would flash the placeholder list and re-request boards that have not changed.
+      // Errors still retry, unlike a plain `state == .loading` guard.
+      if case .loaded = viewModel.state {} else {
+        await viewModel.fetchBoards()
+      }
     }
   }
 
@@ -78,6 +83,7 @@ public struct BoardListView: View {
               Image(systemName: "chevron.right")
                 .opacity(0.3)
             }
+            .macOSPlainHitArea()
           }
           .tint(.primary)
         }
@@ -99,6 +105,7 @@ public struct BoardListView: View {
               Image(systemName: "chevron.right")
                 .opacity(0.3)
             }
+            .macOSPlainHitArea()
           })
           .tint(.primary)
         }

@@ -31,8 +31,23 @@ struct ListGlassSection<Content: View>: View {
       }
 
       VStack(alignment: .leading, spacing: 0) {
+        #if os(macOS)
+        // AppKit gives NavigationLink the bordered push-button look by default, which
+        // paints an opaque capsule behind every row and fights the glass container.
+        // iOS already renders these rows plain.
+        //
+        // Stripping the background also strips the hit-test surface, so each row has
+        // to restore one with `macOSPlainHitArea()` *inside* its NavigationLink label.
+        // Putting it out here instead only makes the container clickable — the row
+        // label still hit-tests its glyphs alone, which is why the gap between the
+        // title and the trailing chevron swallowed clicks.
         content()
           .padding(.vertical)
+          .buttonStyle(.plain)
+        #else
+        content()
+          .padding(.vertical)
+        #endif
       }
       .padding(.horizontal)
       .glassEffect(

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import BuddyFeatureShared
 
 
 struct PostShareButton: View {
@@ -18,6 +19,8 @@ struct PostShareButton: View {
     }
     .labelStyle(.iconOnly)
     .foregroundStyle(.primary)
+    .macOSPlainButtons()
+    .macOSPlainHitArea()
     .padding(8)
     .glassEffect(.regular.interactive(), in: .circle)
   }

@@ -6,10 +6,9 @@
 //
 
 import Foundation
-import UIKit
 
 public protocol FeedProfileRepositoryProtocol: Sendable {
   func updateNickname(nickname: String) async throws
-  func setProfileImage(image: UIImage) async throws
+  func setProfileImage(image: PlatformImage) async throws
   func removeProfileImage() async throws
 }

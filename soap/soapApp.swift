@@ -16,22 +16,62 @@ import BuddyDataCore
 import AppIntents
 import FirebaseAnalytics
 import SwiftData
-import ChannelIOFront
 import FirebaseCrashlytics
+#if os(iOS)
+// ChannelTalk ships an iOS-only xcframework; macOS uses the web messenger instead.
+import ChannelIOFront
+#endif
 
 let logger = Logger(subsystem: "org.sparcs.soap", category: "App")
 
+#if os(iOS)
+typealias PlatformApplicationDelegate = UIApplicationDelegate
+#elseif os(macOS)
+typealias PlatformApplicationDelegate = NSApplicationDelegate
+#endif
+
 // MARK: - Main-actor AppDelegate (no MessagingDelegate here)
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, PlatformApplicationDelegate {
   // Keep a strong reference so it doesn't deallocate
   private let pushDelegate = PushDelegate()
   @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
+  #if os(iOS)
   func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
   ) -> Bool {
+    bootstrap()
+    return true
+  }
+
+  // APNs device token → FCM
+  func application(_ application: UIApplication,
+                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+  }
+
+  #elseif os(macOS)
+  func applicationDidFinishLaunching(_ notification: Notification) {
+    bootstrap()
+  }
+
+  // APNs device token → FCM
+  func application(_ application: NSApplication,
+                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+  }
+  #endif
+
+  /// Shared launch work. Split out of the delegate callbacks because UIKit and
+  /// AppKit spell those differently but the setup itself is identical.
+  ///
+  /// `@MainActor` is explicit here: the delegate callbacks this is called from are
+  /// main-actor isolated, and extracting the body into a plain method would
+  /// otherwise make it `nonisolated` and the `Task` below a data race.
+  @MainActor
+  private func bootstrap() {
     FirebaseApp.configure()
 
     // Firebase Crashlytics
@@ -46,7 +86,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
       logger.info("Notification permission granted: \(granted)")
     }
 
+    #if os(iOS)
     UIApplication.shared.registerForRemoteNotifications()
+    #elseif os(macOS)
+    NSApplication.shared.registerForRemoteNotifications()
+    #endif
 
     // FCM
     Messaging.messaging().delegate = pushDelegate
@@ -55,10 +99,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     Task {
       try? await authUseCase?.refreshAccessToken(force: true)
       await userUseCase?.fetchUsers()
-			
+
+			#if os(iOS)
 			// ChannelTalk
-			ChannelIO.initialize(application)
-			
+			ChannelIO.initialize(UIApplication.shared)
+
 			let profile = await CHTProfile()
 				.set(name: userUseCase?.taxiUser?.name ?? "Unknown")
 				.set(email: userUseCase?.taxiUser?.email ?? "Unknown")
@@ -77,16 +122,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 			
 			ChannelIO.boot(with: bootConfig)
 			ChannelIO.hideChannelButton()
+			#endif
     }
-	
-
-    return true
-  }
-
-  // APNs device token → FCM
-  func application(_ application: UIApplication,
-                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    Messaging.messaging().apnsToken = deviceToken
   }
 }
 
@@ -132,7 +169,11 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
 
 @main
 struct soapApp: App {
+  #if os(iOS)
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+  #elseif os(macOS)
+  @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+  #endif
   @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol?
 
   init() {

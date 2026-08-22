@@ -7,7 +7,6 @@
 
 import Foundation
 import BuddyDomain
-import UIKit
 
 @preconcurrency
 import Moya
@@ -23,7 +22,7 @@ public final class FeedProfileRepository: FeedProfileRepositoryProtocol {
     _ = try await provider.request(.updateNickname(nickname: nickname))
   }
   
-  public func setProfileImage(image: UIImage) async throws {
+  public func setProfileImage(image: PlatformImage) async throws {
     guard let imageData = image.compressForUpload(maxSizeMB: 10.0) else {
       throw NSError(domain: "FeedProfileRepository", code: 1)
     }

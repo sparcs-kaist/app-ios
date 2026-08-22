@@ -195,7 +195,13 @@ extension Container: @retroactive AutoRegistering {
 
     // MARK: - Services
     sessionBridgeService.register {
+      #if os(iOS)
       SessionBridgeService()
+      #elseif os(macOS)
+      // No WatchConnectivity on macOS. The Factory is already optional and every
+      // consumer treats a nil bridge as "no paired watch", so this is a no-op.
+      nil
+      #endif
     }
     .scope(.singleton)
 

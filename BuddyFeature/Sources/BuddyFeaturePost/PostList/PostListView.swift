@@ -86,7 +86,9 @@ struct PostListView: View {
             showsComposeView = true
           }
         }
+        #if os(iOS)  // pairs with the zoom navigationTransition below
         .matchedTransitionSource(id: "ComposeView", in: namespace)
+        #endif
       }
     }
     .sheet(isPresented: $showsComposeView, onDismiss: {
@@ -96,7 +98,9 @@ struct PostListView: View {
     }) {
       PostComposeView(board: viewModel.board)
         .interactiveDismissDisabled()
+        #if os(iOS)  // zoom transitions / status bar are iOS-only
         .navigationTransition(.zoom(sourceID: "ComposeView", in: namespace))
+        #endif
     }
     .task {
       if !loadedInitialPost {

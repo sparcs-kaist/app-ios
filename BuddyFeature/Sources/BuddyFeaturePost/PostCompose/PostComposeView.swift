@@ -71,7 +71,7 @@ struct PostComposeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
               HStack {
                 ForEach(viewModel.selectedImages) { selected in
-                  Image(uiImage: selected.image)
+                  Image(platformImage: selected.image)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 120, height: 120)
@@ -95,7 +95,7 @@ struct PostComposeView: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         // Top tool bar
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .sheetCancellation) {
           Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
             isShowingCancelDialog = true
           }
@@ -109,9 +109,14 @@ struct PostComposeView: View {
             }
           }
           .disabled(isUploading)
+          #if os(macOS)
+          // Same reasoning as the feed composer: Escape reaches Cancel, which asks
+          // before discarding. Without this the sheet has no keyboard exit at all.
+          .keyboardShortcut(.cancelAction)
+          #endif
         }
 
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .sheetConfirmation) {
           Button(
             role: .confirm,
             action: {

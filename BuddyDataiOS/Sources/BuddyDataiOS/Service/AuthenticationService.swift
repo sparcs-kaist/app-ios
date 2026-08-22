@@ -8,7 +8,11 @@
 import Foundation
 import Moya
 import AuthenticationServices
+#if os(iOS)
 import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 import BuddyDomain
 import BuddyDataCore
 
@@ -22,6 +26,7 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
   }
   
   public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+    #if os(iOS)
     if let windowScene = UIApplication.shared.connectedScenes
       .compactMap({ $0 as? UIWindowScene })
       .first(where: { $0.activationState == .foregroundActive }) {
@@ -31,6 +36,16 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
       assertionFailure("No valid UIWindowScene found for authentication presentation.")
       return ASPresentationAnchor()
     }
+    #elseif os(macOS)
+    // On macOS ASPresentationAnchor is an NSWindow; anchor onto whichever window
+    // is currently in front.
+    if let window = NSApplication.shared.keyWindow ?? NSApplication.shared.windows.first {
+      return window
+    } else {
+      assertionFailure("No window found for authentication presentation.")
+      return ASPresentationAnchor()
+    }
+    #endif
   }
   
   public func authenticate() async throws -> SignInResponse {
@@ -51,7 +66,9 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
         return
       }
 
-      let session = ASWebAuthenticationSession(url: authorisationURL, callbackURLScheme: "sparcsapp") { callbackURL, error in
+      // macOS delivers this callback on a background XPC queue rather than the main
+      // thread, so the closure must stay nonisolated instead of inheriting MainActor.
+      let session = ASWebAuthenticationSession(url: authorisationURL, callbackURLScheme: "sparcsapp") { @Sendable callbackURL, error in
         if let error = error {
           // Handle user cancellation or other session errors
           if let authError = error as? ASWebAuthenticationSessionError,

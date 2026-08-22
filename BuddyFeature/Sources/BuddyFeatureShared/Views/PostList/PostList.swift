@@ -53,7 +53,7 @@ public struct PostList: View {
   @ViewBuilder
   func loadedView(_ posts: [AraPost]) -> some View {
     ForEach(Array(posts.enumerated()), id: \.element.id) { index, post in
-      PostListRow(post: post)
+      row(for: post)
         .tag(post)
         .id(post.id)
         .selectionDisabled(post.isHidden)
@@ -67,14 +67,6 @@ public struct PostList: View {
             onLoadMore?()
           }
         }
-        .background {
-          if !post.isHidden {
-            NavigationLink(value: post) {
-              EmptyView()
-            }
-            .opacity(0)
-          }
-        }
     }
     if isLoadingMore {
       HStack {
@@ -85,6 +77,38 @@ public struct PostList: View {
       }
       .listRowSeparator(.hidden)
     }
+  }
+
+  /// The row plus whatever makes it navigate on this platform.
+  @ViewBuilder
+  private func row(for post: AraPost) -> some View {
+    #if os(macOS)
+    // UIKit's List promotes a hidden NavigationLink sitting in a row's background
+    // into a tappable row; AppKit's does not, so the iOS pattern below leaves every
+    // post dead on macOS — an `EmptyView` at `opacity(0)` has nothing to click.
+    // Wrapping the row in a real link restores it. `.buttonStyle(.plain)` stops
+    // AppKit painting a push-button capsule over the row and `macOSPlainHitArea()`
+    // gives the stripped-down button a surface to hit-test again.
+    if post.isHidden {
+      PostListRow(post: post)
+    } else {
+      NavigationLink(value: post) {
+        PostListRow(post: post)
+          .macOSPlainHitArea()
+      }
+      .buttonStyle(.plain)
+    }
+    #else
+    PostListRow(post: post)
+      .background {
+        if !post.isHidden {
+          NavigationLink(value: post) {
+            EmptyView()
+          }
+          .opacity(0)
+        }
+      }
+    #endif
   }
 
   var loadingView: some View {

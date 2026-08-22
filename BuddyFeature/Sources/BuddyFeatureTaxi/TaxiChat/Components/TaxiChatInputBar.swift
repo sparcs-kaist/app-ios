@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import PhotosUI
+import BuddyDomain
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatInputBar")
@@ -23,7 +24,7 @@ struct TaxiChatInputBar: View {
   @Binding var hasCarrier: Bool
 
   var onSendText: (String) -> Void
-  var onSendImage: (UIImage) async throws -> Void
+  var onSendImage: (PlatformImage) async throws -> Void
   var onCommitSettlement: () -> Void
   var onShowPayMoneyAlert: () -> Void
   var onUpdateArrival: (Bool) -> Void
@@ -32,7 +33,7 @@ struct TaxiChatInputBar: View {
 
   @State private var showPhotosPicker: Bool = false
   @State private var selectedItem: PhotosPickerItem?
-  @State private var selectedImage: UIImage?
+  @State private var selectedImage: PlatformImage?
   @FocusState private var isFocused: Bool
 
   var body: some View {
@@ -76,7 +77,7 @@ struct TaxiChatInputBar: View {
 
       HStack(alignment: .bottom) {
         if let image = selectedImage {
-          Image(uiImage: image)
+          Image(platformImage: image)
             .resizable()
             .scaledToFit()
             .frame(maxHeight: 200)
@@ -148,7 +149,7 @@ struct TaxiChatInputBar: View {
     .onChange(of: selectedItem) {
       Task {
         guard let imageData = try await selectedItem?.loadTransferable(type: Data.self) else { return }
-        guard let image = UIImage(data: imageData) else { return }
+        guard let image = PlatformImage(data: imageData) else { return }
         self.selectedImage = image
       }
     }

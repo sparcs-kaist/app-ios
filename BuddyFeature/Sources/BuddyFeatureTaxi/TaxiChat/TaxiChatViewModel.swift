@@ -244,7 +244,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     return accountChats.last(where: { $0.authorID == paidParticiapnt.id })?.content
   }
 
-  func sendImage(_ image: UIImage) async throws {
+  func sendImage(_ image: PlatformImage) async throws {
     guard let taxiChatUseCase else { return }
 
     scrollToBottomTrigger += 1

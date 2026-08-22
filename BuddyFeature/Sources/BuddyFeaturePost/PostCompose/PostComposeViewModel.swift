@@ -15,7 +15,7 @@ import BuddyDomain
 /// row across body evaluations without using the `UIImage` itself as the id.
 struct PostComposeImage: Identifiable, Hashable {
   let id: String
-  let image: UIImage
+  let image: PlatformImage
 }
 
 @MainActor
@@ -98,7 +98,7 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
 
     for item in selectedItems {
       if let data = try? await item.loadTransferable(type: Data.self),
-         let image = UIImage(data: data) {
+         let image = PlatformImage(data: data) {
         images.append(PostComposeImage(id: UUID().uuidString, image: image))
       }
     }

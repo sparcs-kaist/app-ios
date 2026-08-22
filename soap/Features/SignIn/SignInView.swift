@@ -18,10 +18,7 @@ struct SignInView: View {
   var body: some View {
     VStack {
       Spacer()
-      Image(.buddyIcon)
-        .resizable()
-        .scaledToFit()
-        .frame(width: 192, height: 192)
+      buddyIcon
       Spacer()
 
       HStack {
@@ -81,6 +78,27 @@ struct SignInView: View {
       Text(errorMessage)
     })
     .analyticsScreen(name: "Sign In", class: String(describing: Self.self))
+  }
+
+  /// The BuddyIcon artwork has an opaque backdrop baked in — there is no alpha channel.
+  /// On iOS that backdrop is the same colour as the system background, so the mark looks
+  /// like it floats. AppKit's window background is a shade lighter, which turns the same
+  /// asset into a visible hard-edged square, so on macOS it is clipped to the standard
+  /// icon squircle and given a drop shadow to read as a deliberate app icon instead.
+  @ViewBuilder
+  private var buddyIcon: some View {
+    let image = Image(.buddyIcon)
+      .resizable()
+      .scaledToFit()
+      .frame(width: 192, height: 192)
+
+    #if os(macOS)
+    image
+      .clipShape(.rect(cornerRadius: 44, style: .continuous))
+      .shadow(color: .black.opacity(0.25), radius: 12, y: 6)
+    #else
+    image
+    #endif
   }
 }
 

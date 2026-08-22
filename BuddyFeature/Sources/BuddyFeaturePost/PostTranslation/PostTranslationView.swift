@@ -82,7 +82,7 @@ struct PostTranslationView: View {
         }
       }
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .sheetCancellation) {
           Button(String(localized: "Dismiss", bundle: .module), systemImage: "xmark") {
             dismiss()
           }

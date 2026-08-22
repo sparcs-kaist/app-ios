@@ -6,6 +6,11 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 public extension Color {
     init(hex: String) {
@@ -73,6 +78,61 @@ public extension Color {
   static let systemRed = Color(UIColor.systemRed)
   static let systemTeal = Color(UIColor.systemTeal)
   static let systemIndigo = Color(UIColor.systemIndigo)
+  #elseif os(macOS)
+  // AppKit has no one-to-one match for most of iOS's semantic palette, so these
+  // map onto the closest system colour and keep the call sites unchanged.
+
+  // MARK: - Text Colors
+  static let lightText = Color.white.opacity(0.6)
+  static let darkText = Color.black.opacity(0.85)
+  static let placeholderText = Color(NSColor.placeholderTextColor)
+
+  // MARK: - Label Colors
+  static let label = Color(NSColor.labelColor)
+  static let secondaryLabel = Color(NSColor.secondaryLabelColor)
+  static let tertiaryLabel = Color(NSColor.tertiaryLabelColor)
+  static let quaternaryLabel = Color(NSColor.quaternaryLabelColor)
+
+  // MARK: - Background Colors
+  static let systemBackground = Color(NSColor.textBackgroundColor)
+  static let secondarySystemBackground = Color(NSColor.controlBackgroundColor)
+  static let tertiarySystemBackground = Color(NSColor.underPageBackgroundColor)
+
+  // MARK: - Fill Colors
+  static let systemFill = Color.gray.opacity(0.20)
+  static let secondarySystemFill = Color.gray.opacity(0.16)
+  static let tertiarySystemFill = Color.gray.opacity(0.12)
+  static let quaternarySystemFill = Color.gray.opacity(0.08)
+
+  // MARK: - Grouped Background Colors
+  static let systemGroupedBackground = Color(NSColor.windowBackgroundColor)
+  static let secondarySystemGroupedBackground = Color(NSColor.controlBackgroundColor)
+  static let tertiarySystemGroupedBackground = Color(NSColor.textBackgroundColor)
+
+  // MARK: - Gray Colors
+  // AppKit only ships `systemGray`; the numbered steps are approximated by opacity.
+  static let systemGray = Color(NSColor.systemGray)
+  static let systemGray2 = Color(NSColor.systemGray).opacity(0.85)
+  static let systemGray3 = Color(NSColor.systemGray).opacity(0.70)
+  static let systemGray4 = Color(NSColor.systemGray).opacity(0.55)
+  static let systemGray5 = Color(NSColor.systemGray).opacity(0.40)
+  static let systemGray6 = Color(NSColor.systemGray).opacity(0.25)
+
+  // MARK: - Other Colors
+  static let separator = Color(NSColor.separatorColor)
+  static let opaqueSeparator = Color(NSColor.separatorColor)
+  static let link = Color(NSColor.linkColor)
+
+  // MARK: System Colors
+  static let systemBlue = Color(NSColor.systemBlue)
+  static let systemPurple = Color(NSColor.systemPurple)
+  static let systemGreen = Color(NSColor.systemGreen)
+  static let systemYellow = Color(NSColor.systemYellow)
+  static let systemOrange = Color(NSColor.systemOrange)
+  static let systemPink = Color(NSColor.systemPink)
+  static let systemRed = Color(NSColor.systemRed)
+  static let systemTeal = Color(NSColor.systemTeal)
+  static let systemIndigo = Color(NSColor.systemIndigo)
   #endif
 
   // MARK: - Custom Colors
@@ -83,14 +143,21 @@ public extension Color {
 public extension Color {
   /// HSB tweak for dark mode: slightly more saturated, ~20% dimmer.
   func darkTransformedHSB() -> Color {
-    let ui = UIColor(self)
     var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
-    if ui.getHue(&h, saturation: &s, brightness: &b, alpha: &a) {
-      // Keep 90% of the original brightness
-      let newB = max(min(b * 0.9, 1), 0)
-      let newS = max(min(s * 1.05, 1), 0)  // small saturation bump
-      return Color(UIColor(hue: h, saturation: newS, brightness: newB, alpha: a))
-    }
-    return self
+
+    #if canImport(UIKit)
+    let ui = UIColor(self)
+    guard ui.getHue(&h, saturation: &s, brightness: &b, alpha: &a) else { return self }
+    #elseif canImport(AppKit)
+    // NSColor.getHue(_:saturation:brightness:alpha:) raises unless the receiver is
+    // already in an RGB colour space, so convert first and bail out if that fails.
+    guard let ns = NSColor(self).usingColorSpace(.sRGB) else { return self }
+    ns.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+    #endif
+
+    // Keep 90% of the original brightness
+    let newB = max(min(b * 0.9, 1), 0)
+    let newS = max(min(s * 1.05, 1), 0)  // small saturation bump
+    return Color(PlatformColor(hue: h, saturation: newS, brightness: newB, alpha: a))
   }
 }

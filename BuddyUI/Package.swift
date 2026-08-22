@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
 	name: "BuddyUI",
 	defaultLocalization: "en-GB",
-	platforms: [.iOS(.v26), .watchOS(.v26)],
+	platforms: [.iOS(.v26), .watchOS(.v26), .macOS(.v26)],
 	products: [
 		// Products define the executables and libraries a package produces, making them visible to other packages.
 		.library(
@@ -32,7 +32,6 @@ let package = Package(
 	],
 	dependencies: [
 		.package(path: "../BuddyDomain"),
-		.package(url: "https://github.com/efremidze/Haptica.git", .upToNextMajor(from: "4.0.1")),
 	],
 	targets: [
 		.target(
@@ -53,14 +52,12 @@ let package = Package(
 			dependencies: [
 				"TimetableUI",
 				"BuddyDomain",
-				"Haptica",
 			]
 		),
 		.target(
 			name: "TimetableUI",
 			dependencies: [
 				"BuddyDomain",
-				"Haptica",
 			]
 		),
 		.target(

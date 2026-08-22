@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import Haptica
+import BuddyDomain
 
 public struct PostCommentButton: View {
   let commentCount: Int
@@ -20,12 +20,14 @@ public struct PostCommentButton: View {
 
   public var body: some View {
     Button("\(commentCount)", systemImage: "text.bubble") {
-      Haptic.impact(.light).generate()
+      BuddyHaptic.impact(.light).generate()
       onClick()
     }
     .animation(.spring(), value: commentCount)
     .contentTransition(.numericText(value: Double(commentCount)))
     .tint(.primary)
+    .macOSPlainButtons()
+    .macOSPlainHitArea()
     .padding(8)
     .glassEffect(.regular.interactive())
   }

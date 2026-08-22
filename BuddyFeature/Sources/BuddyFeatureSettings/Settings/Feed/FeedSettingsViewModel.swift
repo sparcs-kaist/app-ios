@@ -9,7 +9,6 @@ import SwiftUI
 import PhotosUI
 import Factory
 import BuddyDomain
-import UIKit
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedSettingsViewModel")
@@ -103,7 +102,7 @@ final class FeedSettingsViewModel: FeedSettingsViewModelProtocol {
         
         switch result {
         case .success(let imageData?):
-          if let uiImage = UIImage(data: imageData) {
+          if let uiImage = PlatformImage(data: imageData) {
             self.profileImageState = .updated(image: uiImage)
           }
         case .success(nil):

@@ -67,7 +67,7 @@ struct LectureDetailView: View {
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       if onAdd != nil {
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .sheetConfirmation) {
           Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
             if isOverlapping {
               showCannotAddLectureAlert = true

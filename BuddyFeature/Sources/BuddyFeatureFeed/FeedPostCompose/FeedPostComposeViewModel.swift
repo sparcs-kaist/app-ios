@@ -195,9 +195,9 @@ class FeedPostComposeViewModel: FeedPostComposeViewModelProtocol {
     }
   }
 
-  private func loadUIImage(from item: PhotosPickerItem) async -> UIImage? {
+  private func loadUIImage(from item: PhotosPickerItem) async -> PlatformImage? {
     if let data = try? await item.loadTransferable(type: Data.self),
-       let uiImage = UIImage(data: data) {
+       let uiImage = PlatformImage(data: data) {
       return uiImage
     }
 

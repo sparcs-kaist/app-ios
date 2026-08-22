@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
-import Haptica
 import FirebaseAnalytics
 import BuddyFeatureShared
 import os
@@ -215,9 +214,9 @@ public struct PostView: View {
         Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
           summarisedContent = ""
           Task {
-            Haptic.start.generate()
+            BuddyHaptic.start.generate()
             summarisedContent = await viewModel.summarisedContent()
-            Haptic.success.generate()
+            BuddyHaptic.success.generate()
           }
         }
         .disabled(summarisedContent != nil)

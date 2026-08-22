@@ -13,6 +13,7 @@ import BuddyDomain
 struct ContentView: View {
   @Bindable private var viewModel = ContentViewModel()
   @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.openURL) private var openURL
   @Injected(\.crashlyticsService) private var crashlyticsService
 
   var body: some View {
@@ -38,7 +39,8 @@ struct ContentView: View {
     .alert("Update Required", isPresented: $viewModel.isUpdateRequired, actions: {
       Button(action: {
         viewModel.resetTimer()
-        UIApplication.shared.open(Constants.appStoreURL, options: [:], completionHandler: nil)
+        // openURL works on both platforms, so no UIApplication branch is needed.
+        openURL(Constants.appStoreURL)
       }, label: {
         Text("Open App Store")
       })

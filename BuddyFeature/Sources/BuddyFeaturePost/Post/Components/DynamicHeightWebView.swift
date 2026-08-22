@@ -7,8 +7,15 @@
 
 import SwiftUI
 import WebKit
+import BuddyDomain
 
-struct DynamicHeightWebView: UIViewRepresentable {
+#if os(iOS)
+private typealias PlatformWebViewRepresentable = UIViewRepresentable
+#elseif os(macOS)
+private typealias PlatformWebViewRepresentable = NSViewRepresentable
+#endif
+
+struct DynamicHeightWebView: PlatformWebViewRepresentable {
   enum LoadError: Error, LocalizedError {
     case notReady
     case underlying(Error)
@@ -43,22 +50,46 @@ struct DynamicHeightWebView: UIViewRepresentable {
 
   @Environment(\.colorScheme) private var colorScheme
 
-  func makeUIView(context: Context) -> WKWebView {
+  #if os(iOS)
+  func makeUIView(context: Context) -> WKWebView { makeWebView(context: context) }
+  func updateUIView(_ uiView: WKWebView, context: Context) { syncWebView(uiView, context: context) }
+  #elseif os(macOS)
+  func makeNSView(context: Context) -> WKWebView { makeWebView(context: context) }
+  func updateNSView(_ nsView: WKWebView, context: Context) { syncWebView(nsView, context: context) }
+  #endif
+
+  private func makeWebView(context: Context) -> WKWebView {
     let configuration = WKWebViewConfiguration()
     configuration.userContentController.add(context.coordinator, name: "HeightChannel")
 
     let webView = WKWebView(frame: .zero, configuration: configuration)
-    webView.scrollView.isScrollEnabled = false
     webView.navigationDelegate = context.coordinator
+    webView.underPageBackgroundColor = PlatformColor.clear
+
+    #if os(iOS)
+    webView.scrollView.isScrollEnabled = false
     webView.isOpaque = false
-    webView.backgroundColor = UIColor.clear
-    webView.scrollView.backgroundColor = UIColor.clear
-    webView.underPageBackgroundColor = UIColor.clear
+    webView.backgroundColor = PlatformColor.clear
+    webView.scrollView.backgroundColor = PlatformColor.clear
+    #elseif os(macOS)
+    // AppKit's WKWebView exposes neither `scrollView` nor `isOpaque`, and CSS cannot
+    // reach the backdrop WebKit paints beneath the document: the injected
+    // `background: transparent` already applies, which is why the body rendered in the
+    // dark-mode text colour on top of a white sheet. `drawsBackground` is the only
+    // lever that turns that backdrop off — it is the AppKit counterpart of the
+    // `isOpaque = false` used on iOS above. WebKit spells the setter
+    // `_setDrawsBackground:` (the unprefixed one does not exist), while the KVC key
+    // resolves without the underscore, so probe the real selector and leave the
+    // opaque backdrop in place if it ever goes away.
+    if webView.responds(to: NSSelectorFromString("_setDrawsBackground:")) {
+      webView.setValue(false, forKey: "drawsBackground")
+    }
+    #endif
 
     return webView
   }
 
-  func updateUIView(_ uiView: WKWebView, context: Context) {
+  private func syncWebView(_ uiView: WKWebView, context: Context) {
     // Re-apply theme whenever the system color scheme changes.
     context.coordinator.applyTheme(webView: uiView, isDark: colorScheme == .dark)
 

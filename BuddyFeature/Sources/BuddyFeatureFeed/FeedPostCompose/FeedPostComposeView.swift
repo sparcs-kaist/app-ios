@@ -57,14 +57,19 @@ struct FeedPostComposeView: View {
       .navigationTitle(String(localized: "Write", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .sheetCancellation) {
           Button(String(localized: "Close", bundle: .module), systemImage: "xmark") {
             dismiss()
           }
           .disabled(viewModel.isUploading)
+          #if os(macOS)
+          // Escape is how a Mac sheet is expected to close, and there is no swipe
+          // to fall back on. iOS keeps its existing behaviour.
+          .keyboardShortcut(.cancelAction)
+          #endif
         }
 
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .sheetConfirmation) {
           Button(
             role: .confirm,
             action: {

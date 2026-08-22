@@ -5,7 +5,11 @@
 //  Created by Soongyu Kwon on 09/07/2025.
 //
 
+#if os(iOS)
 import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 import Combine
 import os
 import BuddyDomain
@@ -74,9 +78,20 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   // MARK: - Foreground Refresh
+
+  /// UIKit posts `willEnterForeground` when the app returns from the background;
+  /// the closest AppKit signal is the app becoming active again.
+  private static var foregroundNotificationName: Notification.Name {
+    #if os(iOS)
+    UIApplication.willEnterForegroundNotification
+    #elseif os(macOS)
+    NSApplication.willBecomeActiveNotification
+    #endif
+  }
+
   private nonisolated func observeForeground() {
     foregroundObserver = NotificationCenter.default.addObserver(
-      forName: UIApplication.willEnterForegroundNotification,
+      forName: Self.foregroundNotificationName,
       object: nil,
       queue: .main
     ) { [weak self] _ in

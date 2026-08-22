@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 import BuddyDomain
 
 public final class MockAraBoardUseCase: AraBoardUseCaseProtocol, @unchecked Sendable {
@@ -26,6 +25,8 @@ public final class MockAraBoardUseCase: AraBoardUseCaseProtocol, @unchecked Send
 
   public init() { }
 
+  public func getAccessToken() -> String? { nil }
+
   public func fetchBoards() async throws -> [AraBoard] { [] }
   public func fetchPosts(type: PostListType, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage {
     AraPostPage(pages: 0, items: 0, currentPage: 0, results: [])
@@ -41,7 +42,7 @@ public final class MockAraBoardUseCase: AraBoardUseCaseProtocol, @unchecked Send
     AraPostPage(pages: 0, items: 0, currentPage: 0, results: [])
   }
 
-  public func uploadImage(image: UIImage) async throws -> AraAttachment {
+  public func uploadImage(image: PlatformImage) async throws -> AraAttachment {
     throw TestError.notConfigured
   }
 
