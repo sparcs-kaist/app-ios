@@ -29,7 +29,7 @@
 		8B5073E92E851F79007E9C27 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 8B5073E82E851F79007E9C27 /* FirebaseMessaging */; };
 		8B6637A22EFD159400795A41 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11B2E94F1C200F57FD7 /* WidgetKit.framework */; };
 		8B6637A32EFD159400795A41 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3FB11D2E94F1C200F57FD7 /* SwiftUI.framework */; };
-		8B6637B42EFD159600795A41 /* BuddyiOSWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; platformFilters = (ios, ); fileRef = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8B6637B42EFD159600795A41 /* BuddyiOSWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8B6637A12EFD159400795A41 /* BuddyiOSWidgetExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8B6637C02EFD410800795A41 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637BF2EFD410800795A41 /* BuddyDomain */; };
 		8B6637C62EFE720D00795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637C52EFE720D00795A41 /* BuddyUpcomingClassWidgetUI */; };
 		8B6637C82EFE721200795A41 /* BuddyUpcomingClassWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B6637C72EFE721200795A41 /* BuddyUpcomingClassWidgetUI */; };
@@ -41,14 +41,14 @@
 		8B7C19DE2E1DAE8900DB2D21 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19DD2E1DAE8900DB2D21 /* FactoryKit */; };
 		8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E22E1DAEEB00DB2D21 /* CombineMoya */; };
 		8B7C19E52E1DAEEB00DB2D21 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 8B7C19E42E1DAEEB00DB2D21 /* Moya */; };
-		8B83650D2E914F1300892B70 /* WatchBuddy Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; platformFilters = (ios, ); fileRef = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8B83650D2E914F1300892B70 /* WatchBuddy Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8B8368022E9247A900892B70 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8368012E9247A900892B70 /* BuddyDomain */; };
 		8B89693D2F2CCC8A00955B84 /* BuddyFeatureTaxi in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693C2F2CCC8A00955B84 /* BuddyFeatureTaxi */; };
 		8B89693F2F2CCF8700955B84 /* BuddyFeatureSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */; };
 		8BAB4E142F9E0E7800328925 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAB4E132F9E0E7800328925 /* BuddyDataCore */; };
 		8BAB4E182F9E0E9600328925 /* BuddyDDayWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAB4E172F9E0E9600328925 /* BuddyDDayWidgetUI */; };
 		8BBA1ADA2E8EBD24009CD124 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
-		8BCE7E8C2FC1CBAC000368D2 /* ChannelIOSDK in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, ); productRef = 8BCE7E8B2FC1CBAC000368D2 /* ChannelIOSDK */; };
+		8BCE7E8C2FC1CBAC000368D2 /* ChannelIOSDK in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 8BCE7E8B2FC1CBAC000368D2 /* ChannelIOSDK */; };
 		8BE537AF2F27833F00735E7A /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE537AE2F27833F00735E7A /* BuddyDataiOS */; };
 		8BE539532F2B767900735E7A /* BuddyFeatureTimetable in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539522F2B767900735E7A /* BuddyFeatureTimetable */; };
 		8BE539552F2B775A00735E7A /* BuddyFeatureShared in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539542F2B775A00735E7A /* BuddyFeatureShared */; };
@@ -59,7 +59,7 @@
 		8BFAD2692E92A3A0005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD2682E92A3A0005D8639 /* BuddyDataCore */; };
 		8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26C2E92A52D005D8639 /* BuddyDataCore */; };
 		8BFAD26F2E92A52D005D8639 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8BFAD26E2E92A52D005D8639 /* BuddyDomain */; };
-		F6339A682F544AC600655DBB /* NotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; platformFilters = (ios, ); fileRef = F6339A612F544AC600655DBB /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F6339A682F544AC600655DBB /* NotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F6339A612F544AC600655DBB /* NotificationServiceExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F6339A6E2F544C1E00655DBB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F6339A6D2F544C1E00655DBB /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
@@ -829,13 +829,13 @@
 		};
 		8B6637B32EFD159600795A41 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (ios, );
+			platformFilter = ios;
 			target = 8B6637A02EFD159400795A41 /* BuddyiOSWidgetExtension */;
 			targetProxy = 8B6637B22EFD159600795A41 /* PBXContainerItemProxy */;
 		};
 		8B83650C2E914F1300892B70 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (ios, );
+			platformFilter = ios;
 			target = 8B8365022E914F1200892B70 /* WatchBuddy Watch App */;
 			targetProxy = 8B83650B2E914F1300892B70 /* PBXContainerItemProxy */;
 		};
@@ -851,7 +851,7 @@
 		};
 		F6339A672F544AC600655DBB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (ios, );
+			platformFilter = ios;
 			target = F6339A602F544AC600655DBB /* NotificationServiceExtension */;
 			targetProxy = F6339A662F544AC600655DBB /* PBXContainerItemProxy */;
 		};
