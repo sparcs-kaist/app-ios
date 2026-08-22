@@ -13,7 +13,10 @@ import BuddyFeatureShared
 import BuddyPreviewSupport
 import FirebaseAnalytics
 
-struct PostListView: View {
+/// Public so the macOS shell can put a board straight into the detail column: there
+/// the sidebar lists individual boards, so the board-list screen this used to be
+/// pushed from does not exist. The view model stays internal.
+public struct PostListView: View {
   @State private var viewModel: PostListViewModelProtocol
 
   @State private var showsComposeView: Bool = false
@@ -21,7 +24,7 @@ struct PostListView: View {
 
   @State private var loadedInitialPost: Bool = false
 
-  init(board: AraBoard) {
+  public init(board: AraBoard) {
     _viewModel = State(initialValue: PostListViewModel(board: board))
   }
 
@@ -29,7 +32,7 @@ struct PostListView: View {
     _viewModel = State(initialValue: viewModel)
   }
 
-  var body: some View {
+  public var body: some View {
     Group {
       switch viewModel.state {
       case .loading:

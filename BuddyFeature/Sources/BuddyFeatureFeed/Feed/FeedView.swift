@@ -73,6 +73,9 @@ public struct FeedView: View {
       .matchedTransitionSource(id: "ComposeView", in: namespace)
       #endif
 
+      #if os(iOS)
+      // macOS reaches the same screens through "Settings…" (⌘,) in the app menu, so
+      // a second entry point in the toolbar would just be a duplicate.
       ToolbarSpacer(.fixed)
 
       ToolbarItem {
@@ -81,6 +84,7 @@ public struct FeedView: View {
           showSettingsSheet = true
         }
       }
+      #endif
     }
     .sheet(isPresented: $showSettingsSheet) {
       SettingsView()

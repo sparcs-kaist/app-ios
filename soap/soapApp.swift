@@ -13,6 +13,7 @@ import UserNotifications
 import Factory
 import BuddyDomain
 import BuddyDataCore
+import BuddyFeatureSettings
 import AppIntents
 import FirebaseAnalytics
 import SwiftData
@@ -193,6 +194,14 @@ struct soapApp: App {
     WindowGroup {
       ContentView()
     }
+
+    #if os(macOS)
+    // Puts "Settings…" (⌘,) in the Buddy menu, which is where a Mac user looks for
+    // it. On iOS the same screens stay behind the gear in the feed's toolbar.
+    Settings {
+      MacSettingsView()
+    }
+    #endif
   }
 }
 

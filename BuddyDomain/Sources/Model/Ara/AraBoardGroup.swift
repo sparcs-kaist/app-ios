@@ -24,4 +24,23 @@ public extension AraBoardGroup {
     "ko": "기타",
     "en": "Extra"
   ]))
+
+  /// SF Symbol standing in for this group. Lives on the model because two screens
+  /// need the same mapping now: the board list on iOS and the sidebar on macOS.
+  var symbolName: String {
+    switch slug {
+    case "notice":
+      "bell.badge.fill"
+    case "talk":
+      "text.bubble.fill"
+    case "club":
+      "person.2.fill"
+    case "trade":
+      "tag.fill"
+    case "communication":
+      "envelope.open.fill"
+    default:
+      "list.clipboard"
+    }
+  }
 }
