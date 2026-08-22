@@ -168,14 +168,14 @@ struct MainView: View {
   private var platformNavigation: some View {
     NavigationSplitView {
       List(selection: sidebarSelection) {
+				Label("Search", systemImage: "magnifyingglass")
+					.tag(SidebarSelection.tab(.search))
         Label("Feed", systemImage: "text.rectangle.page")
           .tag(SidebarSelection.tab(.feed))
         Label("Timetable", systemImage: "square.grid.2x2")
           .tag(SidebarSelection.tab(.timetable))
         Label("Taxi", systemImage: "car")
           .tag(SidebarSelection.tab(.taxi))
-        Label("Search", systemImage: "magnifyingglass")
-          .tag(SidebarSelection.tab(.search))
 
         Section(String(localized: "Boards")) {
           boardRows
