@@ -22,6 +22,8 @@ struct LectureSearchResults: View {
             onSelect(lecture)
           } label: {
             lectureRow(lecture: lecture)
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .contentShape(.rect)
           }
           .buttonStyle(.plain)
         }

@@ -109,6 +109,7 @@ struct LectureSearchView: View {
           lectureClass: selectedSearchLecture.classes.first,
           showsNavigationChrome: false
         )
+        .padding(.top)
       }
     } else {
       searchContent
