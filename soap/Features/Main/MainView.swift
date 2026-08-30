@@ -45,12 +45,6 @@ struct MainView: View {
   /// The board whose posts the detail column is showing. Only meaningful while
   /// `selectedTab == .board`.
   @State private var selectedBoard: AraBoard?
-  /// IDs of the sidebar groups the user has left open. Seeded with every group the
-  /// first time boards arrive, so the boards are visible without hunting for them.
-  @State private var expandedGroups: Set<Int> = []
-  @State private var seededGroupExpansion: Bool = false
-  /// Set when a board fetch came back without resolving the state either way, so the
-  /// sidebar can offer a retry rather than spin forever.
   @State private var boardsNeedRetry: Bool = false
   #endif
 
@@ -168,14 +162,14 @@ struct MainView: View {
   private var platformNavigation: some View {
     NavigationSplitView {
       List(selection: sidebarSelection) {
+				Label("Search", systemImage: "magnifyingglass")
+					.tag(SidebarSelection.tab(.search))
         Label("Feed", systemImage: "text.rectangle.page")
           .tag(SidebarSelection.tab(.feed))
         Label("Timetable", systemImage: "square.grid.2x2")
           .tag(SidebarSelection.tab(.timetable))
         Label("Taxi", systemImage: "car")
           .tag(SidebarSelection.tab(.taxi))
-        Label("Search", systemImage: "magnifyingglass")
-          .tag(SidebarSelection.tab(.search))
 
         Section(String(localized: "Boards")) {
           boardRows
@@ -188,12 +182,7 @@ struct MainView: View {
       // runs. Each region loads and fails on its own: boards that never arrive leave
       // the feed, timetable, taxi and search rows working, and a feed that will not
       // load says so in the detail column without emptying the sidebar.
-      .task { await loadBoards() }
-      .onChange(of: loadedGroups) { _, groups in
-        guard !seededGroupExpansion, !groups.isEmpty else { return }
-        expandedGroups = Set(groups.map(\.id))
-        seededGroupExpansion = true
-      }
+			.task { await loadBoards() }
     } detail: {
       macOSDetail
     }
@@ -216,7 +205,7 @@ struct MainView: View {
       }
     case .loaded(let boards, let groups):
       ForEach(groups) { group in
-        DisclosureGroup(isExpanded: expansion(for: group)) {
+        DisclosureGroup {
           ForEach(boards.filter { $0.group.id == group.id }) { board in
             Text(board.name.localized())
               .tag(SidebarSelection.board(board))
@@ -372,19 +361,6 @@ struct MainView: View {
     }
     selectedBoard = board
     selectTab(.board)
-  }
-
-  private func expansion(for group: AraBoardGroup) -> Binding<Bool> {
-    Binding(
-      get: { expandedGroups.contains(group.id) },
-      set: { isExpanded in
-        if isExpanded {
-          expandedGroups.insert(group.id)
-        } else {
-          expandedGroups.remove(group.id)
-        }
-      }
-    )
   }
 
   private var loadedBoards: [AraBoard] {
