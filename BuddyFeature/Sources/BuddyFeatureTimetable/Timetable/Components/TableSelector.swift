@@ -75,14 +75,27 @@ struct TableSelector: View {
           .fontWeight(.semibold)
           .contentTransition(.numericText())
 				
-				#if !os(macOS)
+        #if os(macOS)
+        Image(systemName: "chevron.down")
+        #else
         Image(systemName: "ellipsis")
-				#endif
+        #endif
       }
       .padding(12)
       .padding(.horizontal, 4)
       .contentShape(.rect)
     })
+    #if os(macOS)
+    // macOS defaults to the bordered button menu style, which forces the menu
+    // into standard control metrics and squashes the label's padding, making the
+    // selector shorter than SemesterSelector. Rendering it as a plain button
+    // lets the label size itself the same way.
+    .menuStyle(.button)
+    .buttonStyle(.plain)
+    // The chevron in the label replaces the style's own indicator.
+    .menuIndicator(.hidden)
+    .fixedSize()
+    #endif
     .tint(.primary)
     .glassEffect(.regular.interactive())
     .alert(String(localized: "Rename \"\(displayName)\"", bundle: .module), isPresented: $showRenameAlert, actions: {
