@@ -44,6 +44,10 @@ struct TableSelector: View {
           }
         })
       }
+			
+			#if os(macOS)
+			Divider()
+			#endif
 
       Button(String(localized: "New Table", bundle: .module), systemImage: "plus") {
         Task {
@@ -70,8 +74,10 @@ struct TableSelector: View {
         Text(displayName)
           .fontWeight(.semibold)
           .contentTransition(.numericText())
-
+				
+				#if !os(macOS)
         Image(systemName: "ellipsis")
+				#endif
       }
       .padding(12)
       .padding(.horizontal, 4)
