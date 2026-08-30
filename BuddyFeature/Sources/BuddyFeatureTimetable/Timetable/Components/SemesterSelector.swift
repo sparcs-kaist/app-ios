@@ -14,40 +14,56 @@ struct SemesterSelector: View {
   @Binding var selectedSemester: Semester?
 
   var body: some View {
-    HStack {
-      Button(action: {
-        BuddyHaptic.decrease.generate()
-        selectPreviousSemester()
-      }, label: {
-        Image(systemName: "chevron.left")
-      })
-      .tint(.primary)
-      .disabled(semesters.first == selectedSemester)
-      .unredacted()
-
-      Spacer()
-
+    ZStack {
       Text(selectedSemester?.description ?? String(localized: "Unknown", bundle: .module))
         .contentTransition(.numericText())
         .animation(.spring, value: selectedSemester?.id)
 
-      Spacer()
+      // Each half of the selector is a hit target, so tapping anywhere on the
+      // left steps back a semester and anywhere on the right steps forward.
+      HStack(spacing: 0) {
+        halfButton(
+          systemImage: "chevron.left",
+          alignment: .leading,
+          isDisabled: semesters.first == selectedSemester,
+          action: {
+            BuddyHaptic.decrease.generate()
+            selectPreviousSemester()
+          }
+        )
 
-      Button(action: {
-        BuddyHaptic.increase.generate()
-        selectNextSemester()
-      }, label: {
-        Image(systemName: "chevron.right")
-      })
-      .tint(.primary)
-      .disabled(semesters.last == selectedSemester)
-      .unredacted()
+        halfButton(
+          systemImage: "chevron.right",
+          alignment: .trailing,
+          isDisabled: semesters.last == selectedSemester,
+          action: {
+            BuddyHaptic.increase.generate()
+            selectNextSemester()
+          }
+        )
+      }
     }
     .frame(maxWidth: 160)
     .fontWeight(.semibold)
     .padding(12)
     .padding(.horizontal, 4)
     .glassEffect(.regular.interactive())
+  }
+
+  private func halfButton(
+    systemImage: String,
+    alignment: Alignment,
+    isDisabled: Bool,
+    action: @escaping () -> Void
+  ) -> some View {
+    Button(action: action, label: {
+      Image(systemName: systemImage)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
+        .contentShape(.rect)
+    })
+    .buttonStyle(.plain)
+    .disabled(isDisabled)
+    .unredacted()
   }
 
   private func selectPreviousSemester() {
