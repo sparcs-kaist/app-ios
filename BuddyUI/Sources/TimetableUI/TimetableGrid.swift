@@ -14,19 +14,22 @@ public struct TimetableGrid: View {
   var selectedLecture: ((LectureItem) -> Void)?
   var onDelete: (Lecture) -> Void
   let placement: TimetablePlacement
+  let minimumVisibleTimeRange: ClosedRange<Int>?
 
   public init(
     selectedTimetable: Timetable?,
     candidateLecture: Lecture?,
     selectedLecture: ((LectureItem) -> Void)? = nil,
     onDelete: @escaping (Lecture) -> Void,
-    placement: TimetablePlacement
+    placement: TimetablePlacement,
+    minimumVisibleTimeRange: ClosedRange<Int>? = nil
   ) {
     self.selectedTimetable = selectedTimetable
     self.candidateLecture = candidateLecture
     self.selectedLecture = selectedLecture
     self.onDelete = onDelete
     self.placement = placement
+    self.minimumVisibleTimeRange = minimumVisibleTimeRange
   }
 
   private let defaultMinMinutes: Int = 540       // 8:00 AM
@@ -79,7 +82,7 @@ public struct TimetableGrid: View {
           of: (maxHour - minHour) * 60
         )
     default:
-      TimetableConstructor.getCellHeight(for: item, in: size, of: selectedTimetable.gappedDuration)
+      TimetableConstructor.getCellHeight(for: item, in: size, of: visibleDuration)
     }
   }
 
@@ -94,22 +97,46 @@ public struct TimetableGrid: View {
           of: (maxHour - minHour) * 60
         )
     default:
-      TimetableConstructor.getCellOffset(for: item, in: size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration)
+      TimetableConstructor.getCellOffset(for: item, in: size, at: visibleMinMinutes, of: visibleDuration)
     }
   }
 
   private var minHour: Int {
-    (selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
+    visibleMinMinutes / 60
   }
 
   private var maxHour: Int {
-    var maxHour = (selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
+    var maxHour = visibleMaxMinutes / 60
 
     if placement == .widget {
       maxHour = (selectedTimetable?.maxMinutes ?? defaultMaxMinutes) % 60 == 0 ? maxHour : maxHour + 1
     }
 
     return maxHour
+  }
+
+  private var visibleMinMinutes: Int {
+    let lectureMinMinutes = selectedTimetable?.minMinutes ?? defaultMinMinutes
+
+    guard let minimumVisibleTimeRange else {
+      return lectureMinMinutes
+    }
+
+    return min(lectureMinMinutes, minimumVisibleTimeRange.lowerBound)
+  }
+
+  private var visibleMaxMinutes: Int {
+    let lectureMaxMinutes = selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes
+
+    guard let minimumVisibleTimeRange else {
+      return lectureMaxMinutes
+    }
+
+    return max(lectureMaxMinutes, minimumVisibleTimeRange.upperBound)
+  }
+
+  private var visibleDuration: Int {
+    visibleMaxMinutes - visibleMinMinutes
   }
 
   private var gridHorizontalLine: some View {
@@ -172,4 +199,3 @@ private struct HorizontalLine: Shape {
 //  TimetableGrid()
 //    .environment(TimetableViewModel())
 //}
-

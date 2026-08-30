@@ -65,10 +65,23 @@ struct LectureReviewCell: View {
 //          Button(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") { report() }
         } label: {
           Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
+            .labelStyle(.iconOnly)
             .padding(8)
             .contentShape(.rect)
         }
-        .labelStyle(.iconOnly)
+        #if os(macOS)
+        // macOS defaults to the bordered button menu style, which paints an opaque
+        // capsule inside the cell's own background and squashes the label's padding.
+        // Rendering it as a plain button leaves just the ellipsis, as on iOS.
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        // A plain button menu still draws the style's own chevron next to the label.
+        .menuIndicator(.hidden)
+        // macOS hides icons of menu items built from a Label unless asked otherwise.
+        // The label's own `.iconOnly` stays applied to the ellipsis itself, so the
+        // items keep their titles instead of collapsing to bare icons.
+        .labelStyle(.titleAndIcon)
+        #endif
       }
 
       if let summarisedContent {
@@ -104,11 +117,28 @@ struct LectureReviewCell: View {
             Text("\(review.like)")
             Image(systemName: review.likedByUser ? "arrowshape.up.fill" : "arrowshape.up")
           }
+          #if os(macOS)
+          // AppKit tints a button's background rather than its label, so `.tint`
+          // would paint the whole pill instead of the arrow and the count.
+					.padding(.horizontal, 4)
+          .foregroundStyle(review.likedByUser ? Color.upvote : .primary)
+          .macOSPlainHitArea()
+          #endif
         })
-        .tint(review.likedByUser ? Color.upvote : .primary)
         .contentTransition(.numericText(value: Double(review.like)))
-        .buttonStyle(.glass)
         .animation(.spring, value: review.likedByUser)
+        #if os(macOS)
+        // `.buttonStyle(.glass)` keeps AppKit's push-button metrics, which squashes the
+        // label and nests an opaque capsule inside the cell's own background. Matching
+        // PostVoteButton — a plain button with an explicit glass effect — restores the
+        // iOS appearance.
+        .macOSPlainButtons()
+        .padding(8)
+        .glassEffect(.regular.interactive())
+        #else
+        .tint(review.likedByUser ? Color.upvote : .primary)
+        .buttonStyle(.glass)
+        #endif
       }
     }
     .padding()

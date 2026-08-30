@@ -16,17 +16,20 @@ struct LectureDetailView: View {
   let onAdd: (() -> Void)?
   let isOverlapping: Bool
   let lectureClass: LectureClass?
+  let showsNavigationChrome: Bool
 
   init(
     lecture: Lecture,
     onAdd: (() -> Void)?,
     isOverlapping: Bool,
-    lectureClass: LectureClass? = nil
+    lectureClass: LectureClass? = nil,
+    showsNavigationChrome: Bool = true
   ) {
     self.lecture = lecture
     self.onAdd = onAdd
     self.isOverlapping = isOverlapping
     self.lectureClass = lectureClass
+    self.showsNavigationChrome = showsNavigationChrome
   }
 
   @Environment(\.dismiss) private var dismiss
@@ -37,6 +40,55 @@ struct LectureDetailView: View {
   @State private var showCannotAddLectureAlert: Bool = false
 
   var body: some View {
+    Group {
+      if showsNavigationChrome {
+        detailContent
+          .navigationTitle(lecture.name)
+          .navigationBarTitleDisplayMode(.inline)
+          .toolbar {
+            if onAdd != nil {
+              ToolbarItem(placement: .sheetConfirmation) {
+                Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
+                  if isOverlapping {
+                    showCannotAddLectureAlert = true
+                  } else {
+                    dismiss()
+                    onAdd?()
+                  }
+                }
+              }
+            }
+          }
+      } else {
+        detailContent
+      }
+    }
+    .task(id: lecture.id) {
+      viewModel.reset()
+      canWriteReview = false
+
+      async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
+      async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)
+
+      await courseFetch
+      await reviewsFetch
+
+      guard !Task.isCancelled else { return }
+      canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
+    }
+    .alert(String(localized: "Cannot Add Lecture", bundle: .module), isPresented: $showCannotAddLectureAlert, actions: {
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
+    }, message: {
+      Text("This lecture collides with an existing lecture in your timetable.", bundle: .module)
+    })
+    .sheet(isPresented: $showReviewComposeView) {
+      ReviewComposeView(lecture: lecture)
+        .presentationDragIndicator(.visible)
+    }
+    .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
+  }
+
+  private var detailContent: some View {
     ScrollView {
       LazyVStack(spacing: 20) {
         // Lecture Summary
@@ -59,41 +111,6 @@ struct LectureDetailView: View {
       .padding([.horizontal, .bottom])
       .contentWidth()
     }
-    .task {
-      async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
-      async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)
-
-      await courseFetch
-      await reviewsFetch
-
-      canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
-    }
-    .navigationTitle(lecture.name)
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      if onAdd != nil {
-        ToolbarItem(placement: .sheetConfirmation) {
-          Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
-            if isOverlapping {
-              showCannotAddLectureAlert = true
-            } else {
-              dismiss()
-              onAdd?()
-            }
-          }
-        }
-      }
-    }
-    .alert(String(localized: "Cannot Add Lecture", bundle: .module), isPresented: $showCannotAddLectureAlert, actions: {
-      Button(String(localized: "Okay", bundle: .module), role: .close) { }
-    }, message: {
-      Text("This lecture collides with an existing lecture in your timetable.", bundle: .module)
-    })
-    .sheet(isPresented: $showReviewComposeView) {
-      ReviewComposeView(lecture: lecture)
-        .presentationDragIndicator(.visible)
-    }
-    .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
   }
 
 }

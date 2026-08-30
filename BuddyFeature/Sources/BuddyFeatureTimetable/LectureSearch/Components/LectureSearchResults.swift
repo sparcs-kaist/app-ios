@@ -8,38 +8,22 @@
 import SwiftUI
 import BuddyDomain
 
-/// The grouped list of course sections and their lectures in the search sheet.
+/// The grouped list of course sections and their lectures in lecture search.
 struct LectureSearchResults: View {
   let courses: [CourseLecture]
-  @Binding var candidateLecture: Lecture?
-  @Binding var detent: PresentationDetent
-  let onAdd: (Lecture) -> Void
+  let onSelect: (Lecture) -> Void
 
   var body: some View {
     ForEach(courses) { course in
       Section {
         courseHeader(course: course)
         ForEach(course.lectures) { lecture in
-          NavigationLink(destination: {
-            LectureDetailView(
-              lecture: lecture,
-              onAdd: {
-                onAdd(lecture)
-              },
-              isOverlapping: false,
-              lectureClass: lecture.classes.first
-            )
-            .onAppear {
-              candidateLecture = lecture
-              detent = .height(130)
-            }
-            .onDisappear {
-              candidateLecture = nil
-              detent = .large
-            }
-          }, label: {
+          Button {
+            onSelect(lecture)
+          } label: {
             lectureRow(lecture: lecture)
-          })
+          }
+          .buttonStyle(.plain)
         }
       }
     }
@@ -73,6 +57,10 @@ struct LectureSearchResults: View {
       Text(lecture.professors.first?.name ?? String(localized: "Unknown", bundle: .module))
 
       Spacer()
+
+      Image(systemName: "chevron.right")
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(.tertiary)
     }
     .font(.callout)
   }
