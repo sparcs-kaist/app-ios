@@ -21,33 +21,23 @@ struct TableSelector: View {
 
   var body: some View {
     Menu(content: {
-      Button(action: {
-        selectedTimetableID = nil
-      }, label: {
-        HStack {
-          if selectedTimetableID == nil {
-            Image(systemName: "checkmark")
-          }
-          Text("My Table", bundle: .module)
-        }
-      })
+      selectionRow(
+        title: String(localized: "My Table", bundle: .module),
+        isSelected: selectedTimetableID == nil,
+        select: { selectedTimetableID = nil }
+      )
 
       ForEach(timetables) { timetable in
-        Button(action: {
-          selectedTimetableID = timetable.id
-        }, label: {
-          HStack {
-            if selectedTimetableID == timetable.id {
-              Image(systemName: "checkmark")
-            }
-            Text(timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title)
-          }
-        })
+        selectionRow(
+          title: timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title,
+          isSelected: selectedTimetableID == timetable.id,
+          select: { selectedTimetableID = timetable.id }
+        )
       }
-			
-			#if os(macOS)
-			Divider()
-			#endif
+
+      #if os(macOS)
+      Divider()
+      #endif
 
       Button(String(localized: "New Table", bundle: .module), systemImage: "plus") {
         Task {
@@ -95,8 +85,14 @@ struct TableSelector: View {
     // The chevron in the label replaces the style's own indicator.
     .menuIndicator(.hidden)
     .fixedSize()
-    #endif
+    // macOS hides icons of menu items built from a Label unless asked otherwise.
+    .labelStyle(.titleAndIcon)
+    #else
+    // The menu-wide tint is only for the label; on macOS it would also override
+    // the red the system gives the destructive Delete item, and the plain menu
+    // style already draws the label in the primary color there.
     .tint(.primary)
+    #endif
     .glassEffect(.regular.interactive())
     .alert(String(localized: "Rename \"\(displayName)\"", bundle: .module), isPresented: $showRenameAlert, actions: {
       TextField(displayName, text: $renameText)
@@ -113,6 +109,36 @@ struct TableSelector: View {
     }, message: {
       Text("Enter a new name for this timetable.", bundle: .module)
     })
+  }
+
+  /// A row that selects a timetable and shows a checkmark when it is current.
+  @ViewBuilder
+  private func selectionRow(
+    title: String,
+    isSelected: Bool,
+    select: @escaping () -> Void
+  ) -> some View {
+    #if os(macOS)
+    // A checkmark placed inside the button's label isn't rendered by AppKit
+    // menus, but a Toggle gets the native checkmark gutter for free.
+    Toggle(title, isOn: Binding(
+      get: { isSelected },
+      set: { isOn in
+        if isOn {
+          select()
+        }
+      }
+    ))
+    #else
+    Button(action: select, label: {
+      HStack {
+        if isSelected {
+          Image(systemName: "checkmark")
+        }
+        Text(title)
+      }
+    })
+    #endif
   }
 
   private var displayName: String {
