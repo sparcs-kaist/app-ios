@@ -55,7 +55,7 @@ public struct TimetableView: View {
         .background(Color.systemGroupedBackground)
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
-            Button(String(localized: "Add Lecture", bundle: .module), systemImage: "plus") {
+            Button(String(localized: "Add Lecture", bundle: .module), systemImage: "square.badge.plus") {
               showSearchSheet = true
             }
             .disabled(viewModel.selectedTimetableID == nil)
