@@ -166,7 +166,9 @@ struct LectureSearchView: View {
       } else {
         LectureSearchResults(
           courses: viewModel.courses,
-          onSelect: selectLecture
+          onSelect: selectLecture,
+          onAdd: addLecture,
+          onHover: previewLecture
         )
       }
     }
@@ -182,6 +184,19 @@ struct LectureSearchView: View {
     #else
     navigationPath.append(lecture)
     #endif
+  }
+
+  private func addLecture(_ lecture: Lecture) {
+    candidateLecture = nil
+    onAdd(lecture)
+  }
+
+  private func previewLecture(_ lecture: Lecture, isHovering: Bool) {
+    if isHovering {
+      candidateLecture = lecture
+    } else if candidateLecture?.id == lecture.id {
+      candidateLecture = nil
+    }
   }
 
   #if os(macOS)

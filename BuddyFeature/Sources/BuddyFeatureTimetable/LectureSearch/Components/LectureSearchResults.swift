@@ -12,12 +12,37 @@ import BuddyDomain
 struct LectureSearchResults: View {
   let courses: [CourseLecture]
   let onSelect: (Lecture) -> Void
+  let onAdd: (Lecture) -> Void
+  let onHover: (Lecture, Bool) -> Void
 
   var body: some View {
     ForEach(courses) { course in
       Section {
         courseHeader(course: course)
         ForEach(course.lectures) { lecture in
+          #if os(macOS)
+          HStack(spacing: 12) {
+            Button {
+              onSelect(lecture)
+            } label: {
+							HStack {
+								lectureRow(lecture: lecture)
+								Image(systemName: "chevron.right")
+							}
+							.frame(maxWidth: .infinity, alignment: .leading)
+							.contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+
+            Button(String(localized: "Add", bundle: .module), systemImage: "plus") {
+              onAdd(lecture)
+            }
+          }
+          .contentShape(.rect)
+          .onHover { isHovering in
+            onHover(lecture, isHovering)
+          }
+          #else
           Button {
             onSelect(lecture)
           } label: {
@@ -26,6 +51,7 @@ struct LectureSearchResults: View {
               .contentShape(.rect)
           }
           .buttonStyle(.plain)
+          #endif
         }
       }
     }
@@ -60,9 +86,11 @@ struct LectureSearchResults: View {
 
       Spacer()
 
+      #if !os(macOS)
       Image(systemName: "chevron.right")
         .font(.caption.weight(.semibold))
         .foregroundStyle(.tertiary)
+      #endif
     }
     .font(.callout)
   }
