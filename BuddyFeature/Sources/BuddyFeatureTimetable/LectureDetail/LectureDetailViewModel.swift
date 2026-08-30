@@ -38,12 +38,23 @@ class LectureDetailViewModel {
 
   // MARK: - Functions
 
+  func reset() {
+    state = .loading
+    reviews = []
+    course = nil
+  }
+
   func fetchCourse(courseID: Int) async {
     guard let courseUseCase else { return }
 
     do {
-      self.course = try await courseUseCase.getCourse(courseID: courseID)
+      let course = try await courseUseCase.getCourse(courseID: courseID)
+      guard !Task.isCancelled else { return }
+
+      self.course = course
       analyticsService?.logEvent(LectureDetailViewEvent.courseLoaded)
+    } catch is CancellationError {
+      return
     } catch {
       crashlyticsService?.recordException(error: error)
       self.state = .error(message: error.localizedDescription)
@@ -61,9 +72,13 @@ class LectureDetailViewModel {
           offset: 0,
           limit: 100
         )
+      guard !Task.isCancelled else { return }
+
       self.reviews = page.reviews
       self.state = .loaded
       analyticsService?.logEvent(LectureDetailViewEvent.reviewsLoaded)
+    } catch is CancellationError {
+      return
     } catch {
       crashlyticsService?.recordException(error: error)
       self.state = .error(message: error.localizedDescription)
