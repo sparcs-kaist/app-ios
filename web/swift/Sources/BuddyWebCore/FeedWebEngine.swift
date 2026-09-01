@@ -1,25 +1,9 @@
-import Foundation
 import BuddyFeedCore
 import JavaScriptKit
 
-private struct PageRequestBridge: Codable {
-  let intent: String
-  let url: String
-}
-
-private struct PageActionBridge: Codable {
-  let state: FeedViewModelViewData
-  let request: PageRequestBridge?
-}
-
-private struct VoteActionBridge: Codable {
-  let state: FeedViewModelViewData
-  let method: String
-  let vote: String?
-  let path: String
-}
-
-@JS final class BuddyWebEngine {
+/// Browser bridge for the Feed feature. The shared view model owns Feed
+/// behavior; this class only translates that behavior across BridgeJS.
+@JS final class FeedWebEngine {
   private var viewModel = FeedViewModelCore()
 
   @JS init() {}
@@ -61,7 +45,7 @@ private struct VoteActionBridge: Codable {
     } catch let error as JSException {
       throw error
     } catch {
-      throw bridgeError("Buddy could not read the feed response.")
+      throw BridgeJSON.error("Buddy could not read the feed response.")
     }
   }
 
@@ -76,24 +60,21 @@ private struct VoteActionBridge: Codable {
 
   @JS func toggleVote(postID: String, vote: String, languageCode: String) throws(JSException) -> String {
     guard let voteType = FeedVoteType(rawValue: vote) else {
-      throw bridgeError("Unknown vote type.")
+      throw BridgeJSON.error("Unknown vote type.")
     }
     guard let command = viewModel.beginVote(postID: postID, type: voteType) else {
-      throw bridgeError("This post is busy or no longer in the feed.")
+      throw BridgeJSON.error("This post is busy or no longer in the feed.")
     }
 
-    do {
-      return try encode(
-        VoteActionBridge(
-          state: viewModel.viewData(languageCode: languageCode),
-          method: command.method,
-          vote: command.vote?.rawValue,
-          path: FeedAPIPath.vote(postID)
-        )
-      )
-    } catch {
-      throw bridgeError("Buddy could not update this vote.")
-    }
+    return try BridgeJSON.encode(
+      FeedVoteActionBridge(
+        state: viewModel.viewData(languageCode: languageCode),
+        method: command.method,
+        vote: command.vote?.rawValue,
+        path: FeedAPIPath.vote(postID)
+      ),
+      failureMessage: "Buddy could not update this vote."
+    )
   }
 
   @JS func commitVote(postID: String, languageCode: String) throws(JSException) -> String {
@@ -116,54 +97,40 @@ private struct VoteActionBridge: Codable {
     baseURL: String,
     languageCode: String
   ) throws(JSException) -> String {
-    let bridgeRequest: PageRequestBridge?
+    let bridgeRequest: FeedPageRequestBridge?
     if let request {
       guard let url = FeedAPIPath.postsURL(
         baseURL: baseURL,
         cursor: request.cursor,
         limit: request.limit
       ) else {
-        throw bridgeError("The feed URL is invalid.")
+        throw BridgeJSON.error("The feed URL is invalid.")
       }
-      bridgeRequest = PageRequestBridge(intent: request.intent.rawValue, url: url)
+      bridgeRequest = FeedPageRequestBridge(intent: request.intent.rawValue, url: url)
     } else {
       bridgeRequest = nil
     }
 
-    do {
-      return try encode(
-        PageActionBridge(
-          state: viewModel.viewData(languageCode: languageCode),
-          request: bridgeRequest
-        )
-      )
-    } catch {
-      throw bridgeError("Buddy could not prepare the feed request.")
-    }
+    return try BridgeJSON.encode(
+      FeedPageActionBridge(
+        state: viewModel.viewData(languageCode: languageCode),
+        request: bridgeRequest
+      ),
+      failureMessage: "Buddy could not prepare the feed request."
+    )
   }
 
   private func encodeState(languageCode: String) throws(JSException) -> String {
-    do {
-      return try viewModel.encodedViewData(languageCode: languageCode)
-    } catch {
-      throw bridgeError("Buddy could not prepare the feed.")
-    }
+    try BridgeJSON.encode(
+      viewModel.viewData(languageCode: languageCode),
+      failureMessage: "Buddy could not prepare the feed."
+    )
   }
 
   private func pageIntent(_ rawValue: String) throws(JSException) -> FeedPageIntent {
     guard let intent = FeedPageIntent(rawValue: rawValue) else {
-      throw bridgeError("Unknown feed request.")
+      throw BridgeJSON.error("Unknown feed request.")
     }
     return intent
-  }
-
-  private func encode<T: Encodable>(_ value: T) throws -> String {
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = [.sortedKeys]
-    return String(decoding: try encoder.encode(value), as: UTF8.self)
-  }
-
-  private func bridgeError(_ message: String) -> JSException {
-    JSException(message: message)
   }
 }

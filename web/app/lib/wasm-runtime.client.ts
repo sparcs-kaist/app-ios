@@ -1,7 +1,7 @@
-import type { BuddyWebEngine } from "../../swift/.build/plugins/PackageToJS/outputs/Package/bridge-js";
+import type { Exports } from "../../swift/.build/plugins/PackageToJS/outputs/Package/bridge-js";
 import compressedModuleURL from "../../swift/.build/plugins/PackageToJS/outputs/Package/BuddyWebCore.wasm.gz?url";
 
-let enginePromise: Promise<BuddyWebEngine> | null = null;
+let exportsPromise: Promise<Exports> | null = null;
 
 async function loadCompressedModule() {
   if (!("DecompressionStream" in globalThis)) {
@@ -12,10 +12,8 @@ async function loadCompressedModule() {
     throw new Error("Buddy could not download its shared Swift core.");
   }
 
-  // Static hosts (including Vite preview) may transparently decode `.gz`
-  // assets when they send `Content-Encoding: gzip`. In that case the Fetch
-  // body is already the raw wasm module and running it through a second gzip
-  // decoder fails before the feed can render.
+  // Static hosts may transparently decode `.gz` assets. Fetch then exposes
+  // the raw wasm body, so applying another gzip decoder would fail.
   if (response.headers.get("content-encoding")?.toLowerCase().includes("gzip")) {
     return response.arrayBuffer();
   }
@@ -24,21 +22,19 @@ async function loadCompressedModule() {
   return new Response(decompressed).arrayBuffer();
 }
 
-export function getBuddyEngine() {
-  if (!enginePromise) {
-    enginePromise = Promise.all([
+/// Instantiates the app-wide Swift runtime once. Feature clients create their
+/// own engine instances from these exports and own their feature lifecycles.
+export function getBuddyWasmExports() {
+  if (!exportsPromise) {
+    exportsPromise = Promise.all([
       import("../../swift/.build/plugins/PackageToJS/outputs/Package/instantiate.js"),
       import("../../swift/.build/plugins/PackageToJS/outputs/Package/platforms/browser.js"),
       loadCompressedModule(),
     ]).then(async ([{ instantiate }, { defaultBrowserSetup }, module]) => {
       const setup = await defaultBrowserSetup({ module, getImports: () => ({}) });
       const { exports } = await instantiate(setup);
-      return new exports.BuddyWebEngine();
+      return exports;
     });
   }
-  return enginePromise;
-}
-
-export function browserLanguage() {
-  return typeof navigator === "undefined" ? "en" : navigator.language;
+  return exportsPromise;
 }

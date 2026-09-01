@@ -7,7 +7,8 @@ Buddy Web is the responsive sign-in and feed experience for Buddy. It uses the s
 - `../shared/BuddyFeedCore` owns feed models, API decoding, relative time, preview data, and the cross-platform feed view model.
 - The shared view model drives loading, refresh, pagination, error/notice, and optimistic-vote states on both platforms.
 - iOS imports that package through `BuddyDomain`, `BuddyData`, and `BuddyFeature`; each platform still supplies its own HTTP and analytics adapters.
-- `swift/` exports the shared core to TypeScript with JavaScriptKit BridgeJS.
+- `swift/` exports feature-scoped engines to TypeScript with JavaScriptKit BridgeJS. `FeedWebEngine` wraps only `FeedViewModelCore`; future features should add their own engine instead of extending one global facade.
+- `app/lib/wasm-runtime.client.ts` instantiates the app-wide Swift runtime once, while feature clients such as `app/features/feed/feed-engine.client.ts` own their engine instances.
 - The release module is served gzip-compressed and expanded with the browser stream API before instantiation.
 - `app/` contains browser-specific rendering, SPARCS SSO navigation, token storage, and HTTP transport.
 

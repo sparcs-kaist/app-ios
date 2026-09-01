@@ -1,10 +1,11 @@
-import { Code2, Home, LoaderCircle, LogOut, RefreshCw, Sparkles, Users } from "lucide-react";
+import { Home, LoaderCircle, LogOut, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { FeedPost } from "~/components/feed-post";
+import { getFeedEngine } from "~/features/feed/feed-engine.client";
 import { authorizedFetch, getSession, signOut } from "~/lib/auth.client";
+import { browserLanguage } from "~/lib/browser.client";
 import { buddyConfig } from "~/lib/config";
-import { browserLanguage, getBuddyEngine } from "~/lib/swift-core.client";
 import type {
   FeedPageIntent,
   FeedViewModelState,
@@ -51,7 +52,7 @@ export default function Feed() {
       return;
     }
 
-    const engine = await getBuddyEngine();
+    const engine = await getFeedEngine();
     const language = browserLanguage();
     if (currentSession.mode === "preview") {
       setState(JSON.parse(engine.loadPreview(language)) as FeedViewModelState);
@@ -105,7 +106,7 @@ export default function Feed() {
   }, [loadMore, state?.hasNext]);
 
   const vote = async (postID: string, voteType: "UP" | "DOWN") => {
-    const engine = await getBuddyEngine();
+    const engine = await getFeedEngine();
     const language = browserLanguage();
     const result = JSON.parse(engine.toggleVote(postID, voteType, language)) as VoteBridgeResult;
     setState(result.state);
@@ -127,7 +128,7 @@ export default function Feed() {
   };
 
   const dismissNotice = async () => {
-    const engine = await getBuddyEngine();
+    const engine = await getFeedEngine();
     setState(JSON.parse(engine.dismissNotice(browserLanguage())) as FeedViewModelState);
   };
 
@@ -137,8 +138,6 @@ export default function Feed() {
   };
 
   const error = state?.phase === "error" ? state.errorMessage : null;
-  const totalConversations = state?.posts.reduce((sum, post) => sum + post.commentCount, 0) ?? 0;
-
   return (
     <div className="app-shell">
       <aside className="left-rail">
@@ -157,10 +156,7 @@ export default function Feed() {
       <main className="feed-column">
         <header className="feed-header">
           <div className="mobile-brand"><img src="/buddy-logo-light.png" alt="" /><span>Buddy</span></div>
-          <div><p>KAIST COMMUNITY</p><h1>Feed</h1></div>
-          <button className="icon-button" type="button" onClick={() => void loadFeed("refresh")} disabled={state?.isRefreshing} aria-label="Refresh feed" title="Refresh feed">
-            <RefreshCw className={state?.isRefreshing ? "spinning" : ""} size={19} />
-          </button>
+          <div><h1>Feed</h1></div>
         </header>
 
         {sessionMode === "preview" && (
@@ -186,25 +182,6 @@ export default function Feed() {
           )
         ) : <FeedSkeleton />}
       </main>
-
-      <aside className="right-rail">
-        <section className="rail-card campus-pulse">
-          <p className="rail-eyebrow">CAMPUS NOW</p>
-          <h2>Today on Buddy</h2>
-          <div className="pulse-grid">
-            <div><strong>{state?.posts.length ?? "—"}</strong><span>recent posts</span></div>
-            <div><strong>{state ? totalConversations : "—"}</strong><span>replies</span></div>
-          </div>
-        </section>
-        <section className="rail-card about-card">
-          <div className="about-icon"><Users size={20} /></div>
-          <h2>Made for campus life.</h2>
-          <p>Buddy is a shared space for the KAIST community, built by SPARCS.</p>
-          <a href="https://github.com/sparcs-kaist/app-ios" target="_blank" rel="noreferrer"><Code2 size={16} />Open source</a>
-        </section>
-        <div className="rail-sponsor"><span>Sponsored by</span><img src="/hyundai-mobis-light.png" alt="Hyundai Mobis" /></div>
-        <p className="rail-footer">© 2026 SPARCS · <a href="https://github.com/sparcs-kaist/privacy/blob/main/Privacy.md">Privacy</a></p>
-      </aside>
 
       <nav className="mobile-nav" aria-label="Mobile navigation">
         <a className="active" href="/feed"><Home size={21} fill="currentColor" /><span>Feed</span></a>

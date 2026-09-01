@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:app-ios}/web/swift",
+            "name": "Debug BuddyWebCore (web/swift)",
+            "target": "BuddyWebCore",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug BuddyWebCore (web/swift)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:app-ios}/web/swift",
+            "name": "Release BuddyWebCore (web/swift)",
+            "target": "BuddyWebCore",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release BuddyWebCore (web/swift)"
+        }
+    ]
+}

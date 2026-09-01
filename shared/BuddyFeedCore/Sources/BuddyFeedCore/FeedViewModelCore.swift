@@ -1,53 +1,5 @@
 import Foundation
 
-public enum FeedViewPhase: String, Codable, Sendable {
-  case loading
-  case loaded
-  case error
-}
-
-public enum FeedPageIntent: String, Codable, Sendable {
-  case initial
-  case refresh
-  case next
-}
-
-public struct FeedPageRequest: Codable, Equatable, Sendable {
-  public let intent: FeedPageIntent
-  public let cursor: String?
-  public let limit: Int
-
-  public init(intent: FeedPageIntent, cursor: String?, limit: Int) {
-    self.intent = intent
-    self.cursor = cursor
-    self.limit = limit
-  }
-}
-
-public struct FeedVoteCommand: Sendable {
-  public let postID: String
-  public let method: String
-  public let vote: FeedVoteType?
-
-  public init(postID: String, method: String, vote: FeedVoteType?) {
-    self.postID = postID
-    self.method = method
-    self.vote = vote
-  }
-}
-
-public struct FeedViewModelViewData: Codable, Sendable {
-  public let phase: FeedViewPhase
-  public let posts: [FeedPostViewData]
-  public let nextCursor: String?
-  public let hasNext: Bool
-  public let isRefreshing: Bool
-  public let isLoadingMore: Bool
-  public let votingPostIDs: [String]
-  public let errorMessage: String?
-  public let notice: String?
-}
-
 /// Cross-platform feed presentation state. Platform layers provide HTTP and
 /// analytics; this type owns the view state transitions shared by iOS and web.
 public struct FeedViewModelCore: Sendable {

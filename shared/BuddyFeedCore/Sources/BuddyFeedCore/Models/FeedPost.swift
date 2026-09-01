@@ -1,26 +1,5 @@
 import Foundation
 
-public enum FeedVoteType: String, Codable, Hashable, Sendable {
-  case up = "UP"
-  case down = "DOWN"
-}
-
-public struct FeedImage: Identifiable, Codable, Hashable, Sendable {
-  public let id: String
-  public let url: URL
-  public let mimeType: String
-  public let size: Int
-  public let spoiler: Bool?
-
-  public init(id: String, url: URL, mimeType: String, size: Int, spoiler: Bool?) {
-    self.id = id
-    self.url = url
-    self.mimeType = mimeType
-    self.size = size
-    self.spoiler = spoiler
-  }
-}
-
 public struct FeedPost: Identifiable, Codable, Hashable, Sendable {
   public let id: String
   public let content: String
@@ -67,33 +46,6 @@ public struct FeedPost: Identifiable, Codable, Hashable, Sendable {
     self.myVote = myVote
     self.isAuthor = isAuthor
     self.images = images
-  }
-}
-
-public struct FeedPostPage: Sendable {
-  public let items: [FeedPost]
-  public let nextCursor: String?
-  public let hasNext: Bool
-
-  public init(items: [FeedPost], nextCursor: String?, hasNext: Bool) {
-    self.items = items
-    self.nextCursor = nextCursor
-    self.hasNext = hasNext
-  }
-}
-
-public enum FeedVoteRequest: Equatable, Sendable {
-  case set(FeedVoteType)
-  case delete
-}
-
-public struct FeedVoteTransition: Sendable {
-  public let post: FeedPost
-  public let request: FeedVoteRequest
-
-  public init(post: FeedPost, request: FeedVoteRequest) {
-    self.post = post
-    self.request = request
   }
 }
 
