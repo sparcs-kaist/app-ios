@@ -8,6 +8,7 @@
 import Foundation
 import Moya
 import BuddyDomain
+import BuddyFeedCore
 
 public enum FeedPostTarget {
   case fetchPosts(cursor: String?, limit: Int)
@@ -26,15 +27,15 @@ extension FeedPostTarget: TargetType, AccessTokenAuthorizable {
   public var path: String {
     switch self {
     case .fetchPosts, .writePost:
-      "/posts"
+      FeedAPIPath.posts
     case .delete(let postID):
-      "/posts/\(postID)"
+      FeedAPIPath.post(postID)
     case .vote(let postID, _):
-      "/posts/\(postID)/vote"
+      FeedAPIPath.vote(postID)
     case .deleteVote(let postID):
-      "/posts/\(postID)/vote"
+      FeedAPIPath.vote(postID)
     case .reportPost(let postID, _, _):
-      "/posts/\(postID)/report"
+      FeedAPIPath.report(postID)
     }
   }
 

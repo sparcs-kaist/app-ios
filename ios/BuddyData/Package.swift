@@ -17,6 +17,7 @@ let package = Package(
     ],
     dependencies: [
       .package(path: "../BuddyDomain"),
+      .package(path: "../../shared/BuddyFeedCore"),
       .package(path: "../BuddyTestSupport"),
       .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
       .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.0")),
@@ -26,6 +27,7 @@ let package = Package(
             name: "BuddyDataCore",
             dependencies: [
               "BuddyDomain",
+              "BuddyFeedCore",
               "Moya",
               "Alamofire",
             ]

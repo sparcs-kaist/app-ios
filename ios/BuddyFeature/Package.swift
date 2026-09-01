@@ -22,6 +22,7 @@ let package = Package(
     ],
     dependencies: [
       .package(path: "../BuddyDomain"),
+      .package(path: "../../shared/BuddyFeedCore"),
       .package(path: "../BuddyTestSupport"),
       .package(path: "../BuddyPreviewSupport"),
       .package(path: "../BuddyUI"),
@@ -59,6 +60,7 @@ let package = Package(
           name: "BuddyFeatureFeed",
           dependencies: [
             "BuddyDomain",
+            "BuddyFeedCore",
             "BuddyFeatureShared",
             "BuddyFeatureSettings",
             "BuddyPreviewSupport",

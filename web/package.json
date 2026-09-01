@@ -1,0 +1,41 @@
+{
+  "name": "buddy-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "swift:build": "JAVASCRIPTKIT_NODE_EXEC=$(command -v node) swift package --package-path swift --disable-sandbox --swift-sdk swift-6.3.3-RELEASE_wasm js -c release && node scripts/compress-wasm.mjs",
+    "build": "pnpm swift:build && react-router build && pnpm stage:sites",
+    "dev": "pnpm swift:build && react-router dev",
+    "stage:sites": "node scripts/stage-sites.mjs",
+    "start": "vite preview --outDir build/client",
+    "typecheck": "pnpm swift:build && react-router typegen && tsc",
+    "lint": "eslint .",
+    "test:swift": "swift test --package-path ../shared/BuddyFeedCore"
+  },
+  "dependencies": {
+    "@bjorn3/browser_wasi_shim": "0.3.0",
+    "@react-router/node": "7.15.1",
+    "@react-router/serve": "7.15.1",
+    "isbot": "^5.1.36",
+    "lucide-react": "^0.542.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router": "7.15.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@openai/sites-vite-plugin": "^0.2.0",
+    "@react-router/dev": "7.15.1",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^22",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.34.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.41.0",
+    "vite": "^8.0.3"
+  },
+  "packageManager": "pnpm@10.26.1+sha512.664074abc367d2c9324fdc18037097ce0a8f126034160f709928e9e9f95d98714347044e5c3164d65bd5da6c59c6be362b107546292a8eecb7999196e5ce58fa"
+}

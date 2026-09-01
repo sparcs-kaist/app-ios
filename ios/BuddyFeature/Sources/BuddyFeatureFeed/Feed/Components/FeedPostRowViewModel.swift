@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import BuddyFeedCore
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "FeedPostRowViewModel")
@@ -56,20 +57,15 @@ final class FeedPostRowViewModel: FeedPostRowViewModelProtocol {
     guard let feedPostUseCase else { return }
 
     let snapshot: FeedPost = post.wrappedValue
+    let transition = snapshot.togglingVote(type)
 
     do {
-      if snapshot.myVote == type {
-        // Toggle the existing vote off.
-        post.wrappedValue.myVote = nil
-        if type == .up { post.wrappedValue.upvotes -= 1 } else { post.wrappedValue.downvotes -= 1 }
+      post.wrappedValue = transition.post
+      switch transition.request {
+      case .delete:
         try await feedPostUseCase.deleteVote(postID: snapshot.id)
-      } else {
-        // Clear the opposite vote (if any), then apply the new one.
-        if snapshot.myVote == .up { post.wrappedValue.upvotes -= 1 }
-        else if snapshot.myVote == .down { post.wrappedValue.downvotes -= 1 }
-        post.wrappedValue.myVote = type
-        if type == .up { post.wrappedValue.upvotes += 1 } else { post.wrappedValue.downvotes += 1 }
-        try await feedPostUseCase.vote(postID: snapshot.id, type: type)
+      case .set(let voteType):
+        try await feedPostUseCase.vote(postID: snapshot.id, type: voteType)
       }
       analyticsService?.logEvent(event)
     } catch {

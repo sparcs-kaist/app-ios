@@ -15,6 +15,7 @@ let package = Package(
         ),
     ],
     dependencies: [
+      .package(path: "../../shared/BuddyFeedCore"),
       .package(url: "https://github.com/hmlongco/Factory.git", .upToNextMajor(from: "2.5.3"))
     ],
     targets: [
@@ -23,6 +24,7 @@ let package = Package(
         .target(
             name: "BuddyDomain",
             dependencies: [
+              "BuddyFeedCore",
               .product(name: "Factory", package: "Factory"),
             ]
         ),

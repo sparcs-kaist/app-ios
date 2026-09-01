@@ -5,9 +5,6 @@
 //  Created by Soongyu Kwon on 17/08/2025.
 //
 
-import Foundation
+import BuddyFeedCore
 
-public enum FeedVoteType: String, Sendable {
-  case up = "UP"
-  case down = "DOWN"
-}
+public typealias FeedVoteType = BuddyFeedCore.FeedVoteType
