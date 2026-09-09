@@ -42,7 +42,7 @@ public struct TimetableGrid: View {
         ForEach(selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
           ZStack(alignment: .top) {
             gridHorizontalLine
-              .foregroundStyle(.separator)
+							.foregroundStyle(Color(uiColor: .separator))
             if let selectedTimetable = selectedTimetable {
               ForEach(selectedTimetable.getLectures(day: day)) { item in
                 TimetableGridCell(
