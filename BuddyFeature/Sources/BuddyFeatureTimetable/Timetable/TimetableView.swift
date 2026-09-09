@@ -49,10 +49,16 @@ public struct TimetableView: View {
         .background(Color.systemGroupedBackground)
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
-            Button(String(localized: "Add Lecture", bundle: .module), systemImage: "plus") {
-              showSearchSheet = true
-            }
-            .disabled(viewModel.selectedTimetableID == nil)
+						Menu("Add Event", systemImage: "square.badge.plus") {
+							Button(String(localized: "Add Lecture", bundle: .module), systemImage: "book.badge.plus") {
+								showSearchSheet = true
+							}
+							
+							Button(String(localized: "New Activity", bundle: .module), systemImage: "calendar.badge.plus") {
+								
+							}
+						}
+						.disabled(viewModel.selectedTimetableID == nil)
           }
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
