@@ -205,6 +205,7 @@ public struct TimetableView: View {
   private var lectureListCard: some View {
     LectureList(
       lectures: viewModel.timetable?.lectures,
+      activities: viewModel.timetable?.activities,
       selectedLecture: { selectedLecture in
         self.selectedLecture = selectedLecture
       }
