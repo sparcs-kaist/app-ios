@@ -46,11 +46,11 @@ struct TimetableLayoutTests {
   @Test func cellCoordinatesMatchTimeScale() {
     let lecture = item(570, 630)
     let layout = TimetableLayout(classes: [lecture.lectureClass], placement: .widget)
-    // 120 minutes in 240 points, with a 30-point header.
-    #expect(layout.offset(at: 540, height: 270) == 30)
-    #expect(layout.offset(at: 570, height: 270) == 90)
-    #expect(layout.offset(at: 660, height: 270) == 270)
-    #expect(layout.cellHeight(for: lecture, height: 270) == 116)
+    // 120 minutes in 240 points, with a compact 22-point widget header.
+    #expect(layout.offset(at: 540, height: 262) == 22)
+    #expect(layout.offset(at: 570, height: 262) == 82)
+    #expect(layout.offset(at: 660, height: 262) == 262)
+    #expect(layout.cellHeight(for: lecture, height: 262) == 116)
   }
 
   @Test func shortContainersAndInvalidClassesDoNotProduceNegativeHeights() {

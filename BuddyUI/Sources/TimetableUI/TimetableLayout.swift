@@ -9,6 +9,11 @@ struct TimetableLayout {
   static let contentLeading: CGFloat = hoursWidth + 8
   static let cellSpacing: CGFloat = 4
 
+  let headerHeight: CGFloat
+  let topInset: CGFloat
+  let leadingInset: CGFloat
+  let timeLabelWidth: CGFloat
+
   let startMinutes: Int
   let endMinutes: Int
 
@@ -19,6 +24,11 @@ struct TimetableLayout {
   /// Custom bounds only widen the grid: a class outside of them still expands the
   /// visible range, so nothing is ever clipped out of view.
   init(classes: [LectureClass], activities: [TimetableActivity] = [], placement: TimetablePlacement, beginTime: Int? = nil, endTime: Int? = nil) {
+    headerHeight = placement == .widget ? 12 : Self.daysHeight
+    topInset = placement == .widget ? 22 : Self.contentTop
+    leadingInset = placement == .widget ? 20 : Self.contentLeading
+    timeLabelWidth = placement == .widget ? 14 : Self.hoursWidth
+
     let validClasses = classes.filter { $0.end > $0.begin }
     let validActivities = activities.filter { $0.duration > 0 }
     let earliest = (validClasses.map(\.begin) + validActivities.map(\.begin)).min()
@@ -45,7 +55,7 @@ struct TimetableLayout {
   var hours: Range<Int> { (startMinutes / 60)..<(endMinutes / 60) }
 
   func offset(at minutes: Int, height: CGFloat) -> CGFloat {
-    Self.contentTop + contentHeight(height) * CGFloat(minutes - startMinutes) / CGFloat(endMinutes - startMinutes)
+    topInset + contentHeight(height) * CGFloat(minutes - startMinutes) / CGFloat(endMinutes - startMinutes)
   }
 
   func cellHeight(for item: LectureItem, height: CGFloat) -> CGFloat {
@@ -53,7 +63,7 @@ struct TimetableLayout {
   }
 
   private func contentHeight(_ height: CGFloat) -> CGFloat {
-    max(0, height - Self.contentTop)
+    max(0, height - topInset)
   }
 
   struct Cell: Identifiable {

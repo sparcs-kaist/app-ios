@@ -71,7 +71,7 @@ public struct TimetableGrid: View {
     GeometryReader { geometry in
       ZStack(alignment: .topLeading) {
         if showsDayHeader {
-          daysColumnHeader(days: days)
+          daysColumnHeader(days: days, layout: layout)
         }
         timesRowHeader(layout: layout, height: geometry.size.height)
         HStack(spacing: TimetableLayout.cellSpacing) {
@@ -79,7 +79,7 @@ public struct TimetableGrid: View {
             dayColumn(day: day, layout: layout)
           }
         }
-        .padding(.leading, TimetableLayout.contentLeading)
+        .padding(.leading, layout.leadingInset)
       }
     }
   }
@@ -157,19 +157,20 @@ public struct TimetableGrid: View {
     .accessibilityHidden(true)
   }
 
-  private func daysColumnHeader(days: [DayType]) -> some View {
+  private func daysColumnHeader(days: [DayType], layout: TimetableLayout) -> some View {
     HStack(spacing: TimetableLayout.cellSpacing) {
       ForEach(days) { day in
         Text(day.stringValue)
-          .font(.caption)
+          .font(placement == .widget ? .system(size: 10) : .caption)
+          .foregroundStyle(.primary)
           .frame(maxWidth: .infinity)
-          .frame(height: TimetableLayout.daysHeight)
+          .frame(height: layout.headerHeight)
           .textCase(.uppercase)
           .fontDesign(.rounded)
           .fontWeight(.medium)
       }
     }
-    .padding(.leading, TimetableLayout.contentLeading)
+    .padding(.leading, layout.leadingInset)
   }
 
   private func timesRowHeader(layout: TimetableLayout, height: CGFloat) -> some View {
@@ -179,8 +180,9 @@ public struct TimetableGrid: View {
       ForEach(layout.hours, id: \.self) { hour in
         if !skipAlternate || (hour - layout.hours.lowerBound).isMultiple(of: 2) {
           Text(String(hour))
-            .font(.caption)
-            .frame(width: TimetableLayout.hoursWidth)
+            .font(placement == .widget ? .system(size: 10) : .caption)
+            .foregroundStyle(.primary)
+            .frame(width: layout.timeLabelWidth, height: placement == .widget ? 12 : nil)
             .fontDesign(.rounded)
             .offset(y: layout.offset(at: hour * 60, height: height) - 6)
         }
