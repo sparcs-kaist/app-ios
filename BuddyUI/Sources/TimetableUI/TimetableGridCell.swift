@@ -13,18 +13,15 @@ import BuddyDomain
 public struct TimetableGridCell: View {
   let lectureItem: LectureItem
   let isCandidate: Bool
-  let onDeletion: (() -> Void)?
   let placement: TimetablePlacement
 
   public init(
     lectureItem: LectureItem,
     isCandidate: Bool,
-    onDeletion: (() -> Void)?,
     placement: TimetablePlacement
   ) {
     self.lectureItem = lectureItem
     self.isCandidate = isCandidate
-    self.onDeletion = onDeletion
     self.placement = placement
   }
 
@@ -34,7 +31,7 @@ public struct TimetableGridCell: View {
   public var body: some View {
     GeometryReader { geometry in
       ZStack(alignment: .topLeading) {
-        RoundedRectangle(cornerRadius: 4) // this feels unnecessary but removing it breaks the whole view
+        RoundedRectangle(cornerRadius: 4)
           .foregroundStyle(backgroundColor)
           .widgetAccentable()
           .opacity(renderingMode == .accented ? 0.2 : 1)
@@ -56,12 +53,13 @@ public struct TimetableGridCell: View {
         .foregroundStyle(isCandidate ? .white : lectureItem.lecture.textColor)
         .padding(6)
       }
+      .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
+      .clipped()
       .modifier(TimetableGlassModifier(
         placement: placement,
         colorScheme: colorScheme,
         cellColor: cellColor
       ))
-      .modifier(TimetableContextMenuModifier(placement: placement, onDeletion: onDeletion))
     }
   }
 
@@ -83,57 +81,29 @@ public struct TimetableGridCell: View {
   }
 }
 
-private struct TimetableContextMenuModifier: ViewModifier {
-  let placement: TimetablePlacement
-  let onDeletion: (() -> Void)?
-
-  func body(content: Content) -> some View {
-    if placement == .widget {
-      content
-    } else {
-      content
-        .contextMenu {
-          Button(String(localized: "Remove from Table", bundle: .module), systemImage: "trash", role: .destructive) {
-            onDeletion?()
-          }
-        }
-    }
-  }
-}
-
 private struct TimetableGlassModifier: ViewModifier {
   let placement: TimetablePlacement
   let colorScheme: ColorScheme
   let cellColor: Color
 
   func body(content: Content) -> some View {
-    if placement == .view {
+    if placement == .view && colorScheme == .light {
       content
-        .glassEffect(
-          colorScheme == .light ? .regular
-            .tint(cellColor)
-          : .identity,
-          in: .rect(cornerRadius: 4)
-        )
+        .glassEffect(.regular.tint(cellColor), in: .rect(cornerRadius: 4))
     } else {
       content
     }
   }
 }
 
-//#Preview(traits: .fixedLayout(width: 88, height: 105)) {
-//  TimetableGridCell(lecture: Lecture.mockList[0], isCandidate: false, onDeletion: nil)
-//}
-//
-//#Preview(traits: .fixedLayout(width: 88, height: 105)) {
-//  TimetableGridCell(lecture: Lecture.mockList[1], isCandidate: false, onDeletion: nil)
-//}
-//
-//#Preview(traits: .fixedLayout(width: 88, height: 105)) {
-//  TimetableGridCell(lecture: Lecture.mockList[2], isCandidate: false, onDeletion: nil)
-//}
-//
-//#Preview(traits: .fixedLayout(width: 88, height: 105)) {
-//  TimetableGridCell(lecture: Lecture.mockList[3], isCandidate: false, onDeletion: nil)
-//}
+#Preview("App cell", traits: .fixedLayout(width: 88, height: 105)) {
+  TimetableGridCell(lectureItem: .mock, isCandidate: false, placement: .view)
+}
 
+#Preview("Candidate", traits: .fixedLayout(width: 88, height: 105)) {
+  TimetableGridCell(lectureItem: .mock, isCandidate: true, placement: .view)
+}
+
+#Preview("Widget cell", traits: .fixedLayout(width: 60, height: 55)) {
+  TimetableGridCell(lectureItem: .mock, isCandidate: false, placement: .widget)
+}
