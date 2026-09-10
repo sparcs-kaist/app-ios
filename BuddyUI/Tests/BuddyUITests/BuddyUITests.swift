@@ -30,6 +30,19 @@ struct TimetableLayoutTests {
     #expect(layout.hours == 9..<18)
   }
 
+  @Test(arguments: [TimetablePlacement.view, .widget])
+  func customTimesSetTheRangeWithoutPadding(placement: TimetablePlacement) {
+    let layout = TimetableLayout(classes: [], placement: placement, beginTime: 480, endTime: 1320)
+    #expect(layout.hours == 8..<22)
+  }
+
+  @Test func customTimesNeverClipClassesOutOfView() {
+    let classes = [classTime(450, 510), classTime(1350, 1410)]
+    let layout = TimetableLayout(classes: classes, placement: .widget, beginTime: 480, endTime: 1320)
+    #expect(layout.startMinutes == 420)
+    #expect(layout.endMinutes == 1440)
+  }
+
   @Test func cellCoordinatesMatchTimeScale() {
     let lecture = item(570, 630)
     let layout = TimetableLayout(classes: [lecture.lectureClass], placement: .widget)

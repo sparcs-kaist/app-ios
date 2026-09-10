@@ -22,6 +22,11 @@ import BuddyDomain
     .padding()
 }
 
+#Preview("Custom time range", traits: .fixedLayout(width: 370, height: 500)) {
+  TimetableGrid(selectedTimetable: .mock, beginTime: 480, endTime: 1320, placement: .view)
+    .padding()
+}
+
 #Preview("Two overlapping classes", traits: .fixedLayout(width: 370, height: 500)) {
   TimetableGrid(selectedTimetable: overlapPreviewTable(count: 2), placement: .view)
     .padding()

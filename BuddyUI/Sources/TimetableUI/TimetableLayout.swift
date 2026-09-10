@@ -12,24 +12,33 @@ struct TimetableLayout {
   let startMinutes: Int
   let endMinutes: Int
 
-  init(classes: [LectureClass], placement: TimetablePlacement) {
+  /// - Parameters:
+  ///   - beginTime: An optional custom start of the grid, in minutes from midnight.
+  ///   - endTime: An optional custom end of the grid, in minutes from midnight.
+  ///
+  /// Custom bounds only widen the grid: a class outside of them still expands the
+  /// visible range, so nothing is ever clipped out of view.
+  init(classes: [LectureClass], placement: TimetablePlacement, beginTime: Int? = nil, endTime: Int? = nil) {
     let validClasses = classes.filter { $0.end > $0.begin }
-    let earliest = validClasses.map(\.begin).min() ?? 540 // 9:00 AM
-    let latest = validClasses.map(\.end).max() ?? 1080 // 6:00 PM
-    startMinutes = (earliest / 60) * 60
+    let earliest = validClasses.map(\.begin).min()
+    let latest = validClasses.map(\.end).max()
 
-    if validClasses.isEmpty {
-      endMinutes = latest
-    } else {
+    startMinutes = ([earliest, beginTime].compactMap { $0 }.min() ?? 540) / 60 * 60 // 9:00 AM
+
+    let classesEnd = latest.map { latest in
       switch placement {
       case .view:
         // Leave breathing room below the final class in the app.
-        endMinutes = max(startMinutes + 60, (latest / 60 + 1) * 60)
+        (latest / 60 + 1) * 60
       case .widget:
         // Fit the final class to the next hour, without adding another hour.
-        endMinutes = max(startMinutes + 60, ((latest + 59) / 60) * 60)
+        ((latest + 59) / 60) * 60
       }
     }
+    // A custom end is honoured as given, rounded up to a whole hour.
+    let customEnd = endTime.map { ($0 + 59) / 60 * 60 }
+    let end = [classesEnd, customEnd].compactMap { $0 }.max() ?? 1080 // 6:00 PM
+    endMinutes = max(startMinutes + 60, end)
   }
 
   var hours: Range<Int> { (startMinutes / 60)..<(endMinutes / 60) }

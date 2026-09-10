@@ -12,19 +12,32 @@ import Haptica
 public struct TimetableGrid: View {
   let selectedTimetable: Timetable?
   let candidateLecture: Lecture?
+  let beginTime: Int?
+  let endTime: Int?
   let selectedLecture: ((LectureItem) -> Void)?
   let onDelete: ((Lecture) -> Void)?
   let placement: TimetablePlacement
 
+  /// - Parameters:
+  ///   - beginTime: An optional custom start of the grid, in minutes from midnight
+  ///     (for example `480` for 8:00 AM). Defaults to the earliest class.
+  ///   - endTime: An optional custom end of the grid, in minutes from midnight.
+  ///     Defaults to the latest class.
+  ///
+  /// Custom times only widen the grid; classes outside of them stay visible.
   public init(
     selectedTimetable: Timetable?,
     candidateLecture: Lecture? = nil,
+    beginTime: Int? = nil,
+    endTime: Int? = nil,
     selectedLecture: ((LectureItem) -> Void)? = nil,
     onDelete: ((Lecture) -> Void)? = nil,
     placement: TimetablePlacement
   ) {
     self.selectedTimetable = selectedTimetable
     self.candidateLecture = candidateLecture
+    self.beginTime = beginTime
+    self.endTime = endTime
     self.selectedLecture = selectedLecture
     self.onDelete = onDelete
     self.placement = placement
@@ -33,7 +46,9 @@ public struct TimetableGrid: View {
   public var body: some View {
     let layout = TimetableLayout(
       classes: selectedTimetable?.lectures.flatMap(\.classes) ?? [],
-      placement: placement
+      placement: placement,
+      beginTime: beginTime,
+      endTime: endTime
     )
     let days = selectedTimetable?.visibleDays ?? DayType.weekdays
 
