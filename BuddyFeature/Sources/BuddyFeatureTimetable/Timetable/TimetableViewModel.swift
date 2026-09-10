@@ -27,10 +27,22 @@ public final class TimetableViewModel {
   public var alertState: AlertState? = nil
   public var isAlertPresented: Bool = false
 
+  @ObservationIgnored private let selectionStore: TimetableSelectionStore
+
   public var semesters: [Semester] = []
   public var selectedSemester: Semester? = nil {
     didSet {
+      guard selectedSemester != oldValue else { return }
       timetableListTask?.cancel()
+      timetableLoadTask?.cancel()
+      timetables = []
+      timetable = nil
+      candidateLecture = nil
+      if let selectedSemester, let saved = selectionStore.selection, saved.matches(selectedSemester) {
+        selectedTimetableID = saved.timetableID
+      } else {
+        selectedTimetableID = nil
+      }
       timetableListTask = Task {
         await updateTimetableList()
       }
@@ -40,19 +52,12 @@ public final class TimetableViewModel {
   @ObservationIgnored private var timetableListTask: Task<Void, Never>?
   @ObservationIgnored private var timetableLoadTask: Task<Void, Never>?
 
-  var timetables: [TimetableSummary] = [] {
-    didSet {
-      // Do not clear selectedTimetableID when it appears in timetables
-      if let selectedID = selectedTimetableID,
-         timetables.contains(where: { $0.id == selectedID }) {
-        return
-      }
-
-      selectedTimetableID = nil
-    }
-  }
+  var timetables: [TimetableSummary] = []
   var selectedTimetableID: Int? = nil {
     didSet {
+      if let selectedSemester {
+        selectionStore.save(semester: selectedSemester, timetableID: selectedTimetableID)
+      }
       timetableLoadTask?.cancel()
       timetableLoadTask = Task {
         await loadTimetable()
@@ -76,7 +81,10 @@ public final class TimetableViewModel {
 
   public var isLoading: Bool = true
 
-  public init() { }
+  public init(selectionStore: TimetableSelectionStore = .init(), timetableUseCase: TimetableUseCaseProtocol? = nil) {
+    self.selectionStore = selectionStore
+    if let timetableUseCase { self.timetableUseCase = timetableUseCase }
+  }
 
   public func setup() async {
     guard let timetableUseCase else { return }
@@ -86,7 +94,11 @@ public final class TimetableViewModel {
 
     do {
       semesters = try await timetableUseCase.getSemesters()
-      selectedSemester = try await timetableUseCase.getCurrentSemesters()
+      if let saved = selectionStore.selection, let semester = semesters.first(where: saved.matches) {
+        selectedSemester = semester
+      } else {
+        selectedSemester = try await timetableUseCase.getCurrentSemesters()
+      }
     } catch {
       crashlyticsService?.recordException(error: error)
       alertState = .init(
@@ -212,6 +224,11 @@ public final class TimetableViewModel {
       try Task.checkCancellation()
 
       timetables = result
+      // Only a successful list response can invalidate a restored selection.
+      // A failed/offline refresh must not erase the user's preference.
+      if let selectedTimetableID, !result.contains(where: { $0.id == selectedTimetableID }) {
+        self.selectedTimetableID = nil
+      }
     } catch is CancellationError {
       // ignore
     } catch {
@@ -259,6 +276,7 @@ public final class TimetableViewModel {
       if let index = timetables.firstIndex(where: { $0.id == selectedTimetableID }) {
         timetables.remove(at: index)
       }
+      self.selectedTimetableID = nil
 
       analyticsService?.logEvent(TimetableViewEvent.tableDeleted)
       timetableListTask?.cancel()
