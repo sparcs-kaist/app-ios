@@ -18,7 +18,7 @@ struct ActivityTimetableCreationView: View {
   }
 
   private var hasConflict: Bool {
-    !draft.conflictingLectures(in: timetable).isEmpty || occupiedTimes.contains(where: draft.overlaps)
+    !draft.conflictingLectures(in: timetable).isEmpty || !draft.conflictingActivities(in: timetable).isEmpty || occupiedTimes.contains(where: draft.overlaps)
   }
 
   var body: some View {
@@ -70,7 +70,7 @@ struct ActivityTimeConflictView: View {
       .font(.footnote)
       .foregroundStyle(.red)
       .accessibilityAddTraits(.updatesFrequently)
-    } else if occupiedTimes.contains(where: time.overlaps) {
+    } else if !time.conflictingActivities(in: timetable).isEmpty || occupiedTimes.contains(where: time.overlaps) {
       Label(String(localized: "Overlaps another activity. Choose a free time.", bundle: .module), systemImage: "exclamationmark.triangle.fill")
         .font(.footnote)
         .foregroundStyle(.red)

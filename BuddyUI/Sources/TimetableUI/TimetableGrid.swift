@@ -18,6 +18,8 @@ public struct TimetableGrid: View {
   let endTime: Int?
   let selectedLecture: ((LectureItem) -> Void)?
   let onDelete: ((Lecture) -> Void)?
+  let onEditActivity: ((TimetableActivity) -> Void)?
+  let onDeleteActivity: ((TimetableActivity) -> Void)?
   let placement: TimetablePlacement
 
   /// - Parameters:
@@ -39,6 +41,8 @@ public struct TimetableGrid: View {
     endTime: Int? = nil,
     selectedLecture: ((LectureItem) -> Void)? = nil,
     onDelete: ((Lecture) -> Void)? = nil,
+    onEditActivity: ((TimetableActivity) -> Void)? = nil,
+    onDeleteActivity: ((TimetableActivity) -> Void)? = nil,
     placement: TimetablePlacement
   ) {
     self.selectedTimetable = selectedTimetable
@@ -49,12 +53,15 @@ public struct TimetableGrid: View {
     self.endTime = endTime
     self.selectedLecture = selectedLecture
     self.onDelete = onDelete
+    self.onEditActivity = onEditActivity
+    self.onDeleteActivity = onDeleteActivity
     self.placement = placement
   }
 
   public var body: some View {
     let layout = TimetableLayout(
       classes: selectedTimetable?.lectures.flatMap(\.classes) ?? [],
+      activities: selectedTimetable?.activities ?? [],
       placement: placement,
       beginTime: beginTime,
       endTime: endTime
@@ -83,6 +90,13 @@ public struct TimetableGrid: View {
     return GeometryReader { geometry in
       ZStack(alignment: .topLeading) {
         gridHorizontalLines(layout: layout, height: geometry.size.height)
+        ForEach(selectedTimetable?.activities.filter { $0.day == day && $0.duration > 0 } ?? []) { activity in
+          activityCell(activity)
+            .frame(width: geometry.size.width, height: max(0,
+              layout.offset(at: activity.end, height: geometry.size.height)
+              - layout.offset(at: activity.begin, height: geometry.size.height) - TimetableLayout.cellSpacing))
+            .offset(y: layout.offset(at: activity.begin, height: geometry.size.height))
+        }
         ForEach(cells) { cell in
           TimetableGridCell(
             lectureItem: cell.item,
@@ -105,6 +119,23 @@ public struct TimetableGrid: View {
           .transition(.scale.combined(with: .opacity))
         }
       }
+    }
+  }
+
+  @ViewBuilder
+  private func activityCell(_ activity: TimetableActivity) -> some View {
+    if placement == .view, onEditActivity != nil || onDeleteActivity != nil {
+      TimetableActivityCell(activity: activity, placement: placement)
+        .contextMenu {
+          if let onEditActivity {
+            Button(String(localized: "Edit Activity", bundle: .module), systemImage: "pencil") { onEditActivity(activity) }
+          }
+          if let onDeleteActivity {
+            Button(String(localized: "Delete Activity", bundle: .module), systemImage: "trash", role: .destructive) { onDeleteActivity(activity) }
+          }
+        }
+    } else {
+      TimetableActivityCell(activity: activity, placement: placement)
     }
   }
 

@@ -102,6 +102,10 @@ public final class TimetableViewModel {
           let selectedTimetableID else { return }
 
     do {
+      let current = try await timetableUseCase.refreshTable(id: selectedTimetableID)
+      guard !current.activities.contains(where: { activity in
+        lecture.classes.contains { activity.draft.overlaps(day: $0.day, begin: $0.begin, end: $0.end) }
+      }) else { throw TimetableActivityError.overlap }
       try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
       timetableLoadTask?.cancel()
@@ -115,6 +119,35 @@ public final class TimetableViewModel {
         title: String(localized: "Unable to add lecture.", bundle: .module),
         message: error.localizedDescription
       )
+      isAlertPresented = true
+    }
+  }
+
+  func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws {
+    guard let timetableUseCase else { throw NetworkError.unauthorized }
+    timetableLoadTask?.cancel()
+    let updated = try await timetableUseCase.saveActivity(timetableID: timetableID, activityID: activityID, draft: draft)
+    if selectedTimetableID == timetableID { timetable = updated }
+    WidgetCenter.shared.reloadAllTimelines()
+  }
+
+  func refreshActivities(timetableID: Int) async throws {
+    guard let timetableUseCase else { throw NetworkError.unauthorized }
+    timetableLoadTask?.cancel()
+    let updated = try await timetableUseCase.refreshTable(id: timetableID)
+    if selectedTimetableID == timetableID { timetable = updated }
+    WidgetCenter.shared.reloadAllTimelines()
+  }
+
+  func deleteActivity(_ activity: TimetableActivity) async {
+    guard let timetableUseCase, let selectedTimetableID else { return }
+    do {
+      timetableLoadTask?.cancel()
+      let updated = try await timetableUseCase.deleteActivity(timetableID: selectedTimetableID, activityID: activity.id)
+      if self.selectedTimetableID == selectedTimetableID { timetable = updated }
+      WidgetCenter.shared.reloadAllTimelines()
+    } catch {
+      alertState = .init(title: String(localized: "Unable to delete activity.", bundle: .module), message: error.localizedDescription)
       isAlertPresented = true
     }
   }

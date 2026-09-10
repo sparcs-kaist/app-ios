@@ -1,6 +1,54 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Enter a title and a valid time within one day.": {
+      "localizations": {
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a title and a valid time within one day."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제목과 하루 이내의 올바른 시간을 입력하세요."
+          }
+        }
+      }
+    },
+    "Activities can’t overlap classes or other activities.": {
+      "localizations": {
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activities can’t overlap classes or other activities."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "활동은 수업이나 다른 활동과 겹칠 수 없어요."
+          }
+        }
+      }
+    },
+    "Your change was saved, but the timetable couldn’t refresh. Try refreshing again.": {
+      "localizations": {
+        "en-GB": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your change was saved, but the timetable couldn’t refresh. Try refreshing again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "변경 사항을 저장했지만 시간표를 새로고침하지 못했어요. 다시 새로고침해 주세요."
+          }
+        }
+      }
+    },
     "%@ ago" : {
       "localizations" : {
         "en" : {

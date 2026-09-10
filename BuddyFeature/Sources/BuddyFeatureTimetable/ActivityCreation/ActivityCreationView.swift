@@ -14,7 +14,26 @@ struct ActivityCreationView: View {
 
   let timetable: Timetable?
   let timetableTitle: String
-  let occupiedTimes: [TimetableTimeSelection]
+  let activity: TimetableActivity?
+  let onSave: ((TimetableActivityDraft) async throws -> Void)?
+  let onRefresh: (() async throws -> Void)?
+  @State private var viewModel = ActivityCreationViewModel()
+
+  private var editingTimetable: Timetable? {
+    guard var timetable else { return nil }
+    timetable.activities.removeAll { $0.id == activity?.id }
+    return timetable
+  }
+
+  private var draft: TimetableActivityDraft {
+    .init(title: title.trimmingCharacters(in: .whitespacesAndNewlines), location: location,
+          day: time.day, begin: time.begin, end: time.end)
+  }
+
+  private var canSave: Bool {
+    guard let timetable, onSave != nil, onRefresh != nil else { return false }
+    return draft.isValid && !draft.hasConflict(in: timetable, excluding: activity?.id)
+  }
 
   @State private var title = ""
   @State private var location = ""
@@ -23,10 +42,18 @@ struct ActivityCreationView: View {
   @State private var showTimetable = false
   @Environment(\.dismiss) private var dismiss
 
-  init(timetable: Timetable? = nil, timetableTitle: String = "", occupiedTimes: [TimetableTimeSelection] = []) {
+  init(timetable: Timetable? = nil, timetableTitle: String = "", activity: TimetableActivity? = nil,
+       onSave: ((TimetableActivityDraft) async throws -> Void)? = nil, onRefresh: (() async throws -> Void)? = nil) {
     self.timetable = timetable
     self.timetableTitle = timetableTitle
-    self.occupiedTimes = occupiedTimes
+    self.activity = activity
+    self.onSave = onSave
+    self.onRefresh = onRefresh
+    if let activity {
+      _title = State(initialValue: activity.title)
+      _location = State(initialValue: activity.location)
+      _time = State(initialValue: .init(day: activity.day, begin: activity.begin, end: activity.end))
+    }
   }
 
   var body: some View {
@@ -64,10 +91,11 @@ struct ActivityCreationView: View {
         } header: {
           Text("Date", bundle: .module)
         } footer: {
-					ActivityTimeConflictView(time: time, timetable: timetable, occupiedTimes: occupiedTimes)
+					ActivityTimeConflictView(time: time, timetable: editingTimetable)
         }
       }
-      .navigationTitle(Text("New Activity", bundle: .module))
+      .disabled(viewModel.isSaving || viewModel.needsRefresh)
+      .navigationTitle(Text(activity == nil ? String(localized: "New Activity", bundle: .module) : String(localized: "Edit Activity", bundle: .module)))
       .navigationSubtitle(Text(timetableTitle))
       .navigationBarTitleDisplayMode(.inline)
       .scrollEdgeEffectStyle(.soft, for: .top)
@@ -75,16 +103,31 @@ struct ActivityCreationView: View {
         if !showTimetable {
           ToolbarItem(placement: .topBarLeading) {
             Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .cancel) { dismiss() }
+              .disabled(viewModel.isSaving)
           }
           ToolbarItem(placement: .topBarTrailing) {
-            // Creation remains unavailable until activity persistence is specified.
-            Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: .confirm) { }
-              .disabled(true)
+            Button {
+              Task {
+                guard let onSave, let onRefresh else { return }
+                if await viewModel.save(draft: draft, onSave: onSave, onRefresh: onRefresh) { dismiss() }
+              }
+            } label: {
+              if viewModel.isSaving { ProgressView() }
+              else { Text(viewModel.needsRefresh ? String(localized: "Refresh", bundle: .module) : activity == nil ? String(localized: "Add", bundle: .module) : String(localized: "Save", bundle: .module)) }
+            }
+            .disabled(viewModel.isSaving || (!viewModel.needsRefresh && !canSave))
+            .accessibilityIdentifier("activity.save")
           }
         }
       }
+      .interactiveDismissDisabled(viewModel.isSaving)
+      .alert(String(localized: "Unable to save activity.", bundle: .module), isPresented: Binding(
+        get: { viewModel.errorMessage != nil }, set: { if !$0 { viewModel.errorMessage = nil } }
+      )) {
+        Button(String(localized: "Okay", bundle: .module), role: .cancel) { viewModel.errorMessage = nil }
+      } message: { Text(viewModel.errorMessage ?? "") }
       .navigationDestination(isPresented: $showTimetable) {
-        ActivityTimetableCreationView(timetable: timetable, title: title, time: $time, occupiedTimes: occupiedTimes)
+        ActivityTimetableCreationView(timetable: editingTimetable, title: title, time: $time)
       }
     }
   }

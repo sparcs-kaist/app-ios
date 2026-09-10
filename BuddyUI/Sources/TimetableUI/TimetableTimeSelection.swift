@@ -49,6 +49,10 @@ public struct TimetableTimeSelection: Equatable, Sendable {
     } ?? []
   }
 
+  public func conflictingActivities(in timetable: Timetable?) -> [TimetableActivity] {
+    timetable?.activities.filter { $0.day == day && $0.begin < end && begin < $0.end } ?? []
+  }
+
   public var formattedTimeRange: String {
     "\(Self.formattedTime(begin)) – \(Self.formattedTime(end))"
   }

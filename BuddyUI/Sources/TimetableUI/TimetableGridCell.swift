@@ -81,7 +81,7 @@ public struct TimetableGridCell: View {
   }
 }
 
-private struct TimetableGlassModifier: ViewModifier {
+struct TimetableGlassModifier: ViewModifier {
   let placement: TimetablePlacement
   let colorScheme: ColorScheme
   let cellColor: Color

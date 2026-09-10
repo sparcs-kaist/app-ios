@@ -17,8 +17,8 @@ public struct UpcomingClassInlineWidgetView: View {
   }
 
   public var body: some View {
-    if let lecture = entry.lecture, let start = entry.startDate {
-      Text("\(start, style: .time) • \(lecture.name)")
+    if let title = entry.title, let start = entry.startDate {
+      Text("\(start, style: .time) • \(title)")
     } else if entry.signInRequired {
       Text("Sign in Required", bundle: .module)
     } else {

@@ -18,4 +18,8 @@ public protocol TimetableUseCaseProtocol: Observable, Sendable {
   func createTable(semester: Semester) async throws -> TableCreation
   func addLecture(timetableID: Int, lectureID: Int) async throws
   func deleteLecture(timetableID: Int, lectureID: Int) async throws
+  func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws -> Timetable
+  func deleteActivity(timetableID: Int, activityID: Int) async throws -> Timetable
+  func refreshTable(id: Int) async throws -> Timetable
+
 }

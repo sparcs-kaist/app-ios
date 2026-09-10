@@ -37,7 +37,12 @@ struct TimetableProvider: AppIntentTimelineProvider {
       return entry
     }
 
-    let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
+    let timetable: Timetable
+    if !configuration.mirrorTimetable, let selected = configuration.timetable {
+      timetable = await timetableUseCase.getTable(timetableID: selected.id)
+    } else {
+      timetable = await timetableUseCase.getCurrentMyTable()
+    }
     let entry = TimetableEntry(
       date: now,
       timetable: timetable,

@@ -38,13 +38,14 @@ public struct TimetableTimePicker: View {
   private var isMoving: Bool { interaction?.kind == .move }
 
   private var hasConflict: Bool {
-    !selection.conflictingLectures(in: timetable).isEmpty || occupiedTimes.contains(where: selection.overlaps)
+    !selection.conflictingLectures(in: timetable).isEmpty || !selection.conflictingActivities(in: timetable).isEmpty || occupiedTimes.contains(where: selection.overlaps)
   }
 
   public var body: some View {
     GeometryReader { viewport in
       let layout = TimetableLayout(
         classes: timetable?.lectures.flatMap(\.classes) ?? [],
+        activities: timetable?.activities ?? [],
         placement: .view, beginTime: 0, endTime: 24 * 60
       )
       let gridHeight = TimetableLayout.contentTop + CGFloat(layout.endMinutes - layout.startMinutes) * pointsPerMinute

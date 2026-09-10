@@ -18,10 +18,11 @@ struct TimetableLayout {
   ///
   /// Custom bounds only widen the grid: a class outside of them still expands the
   /// visible range, so nothing is ever clipped out of view.
-  init(classes: [LectureClass], placement: TimetablePlacement, beginTime: Int? = nil, endTime: Int? = nil) {
+  init(classes: [LectureClass], activities: [TimetableActivity] = [], placement: TimetablePlacement, beginTime: Int? = nil, endTime: Int? = nil) {
     let validClasses = classes.filter { $0.end > $0.begin }
-    let earliest = validClasses.map(\.begin).min()
-    let latest = validClasses.map(\.end).max()
+    let validActivities = activities.filter { $0.duration > 0 }
+    let earliest = (validClasses.map(\.begin) + validActivities.map(\.begin)).min()
+    let latest = (validClasses.map(\.end) + validActivities.map(\.end)).max()
 
     startMinutes = ([earliest, beginTime].compactMap { $0 }.min() ?? 540) / 60 * 60 // 9:00 AM
 

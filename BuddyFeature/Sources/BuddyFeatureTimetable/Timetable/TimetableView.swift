@@ -15,6 +15,7 @@ import TimetableUI
 public struct TimetableView: View {
   @Bindable private var viewModel: TimetableViewModel
 
+  @State private var editingActivity: TimetableActivity?
   @State private var selectedLecture: LectureItem? = nil
   @State private var showSearchSheet: Bool = false
 	@State private var showActivityCreationSheet: Bool = false
@@ -59,7 +60,7 @@ public struct TimetableView: View {
 								showActivityCreationSheet = true
 							}
 						}
-						.disabled(viewModel.selectedTimetableID == nil)
+						.disabled(viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init))
           }
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
@@ -94,9 +95,14 @@ public struct TimetableView: View {
           }
         }
 				.sheet(isPresented: $showActivityCreationSheet) {
-					ActivityCreationView(timetable: viewModel.timetable, timetableTitle: displayName)
+					activityEditor()
 						.presentationDragIndicator(.visible)
 				}
+        .sheet(item: $editingActivity) { activity in
+          activityEditor(activity: activity)
+            .presentationDragIndicator(.visible)
+        }
+        .refreshable { await viewModel.loadTimetable() }
         .alert(
           viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
           isPresented: $viewModel.isAlertPresented,
@@ -174,11 +180,26 @@ public struct TimetableView: View {
           await viewModel.deleteLecture(lecture: lecture)
         }
       },
+      onEditActivity: viewModel.selectedTimetableID == nil ? nil : { editingActivity = $0 },
+      onDeleteActivity: viewModel.selectedTimetableID == nil ? nil : { activity in
+        Task { await viewModel.deleteActivity(activity) }
+      },
       placement: .view
     )
     .animation(nil, value: viewModel.selectedSemester)
     .timetableCardStyle()
     .frame(height: height)
+  }
+
+  @ViewBuilder
+  private func activityEditor(activity: TimetableActivity? = nil) -> some View {
+    if let id = viewModel.selectedTimetableID, viewModel.timetable?.id == String(id) {
+      ActivityCreationView(
+        timetable: viewModel.timetable, timetableTitle: displayName, activity: activity,
+        onSave: { draft in try await viewModel.saveActivity(timetableID: id, activityID: activity?.id, draft: draft) },
+        onRefresh: { try await viewModel.refreshActivities(timetableID: id) }
+      )
+    }
   }
 
   private var lectureListCard: some View {
