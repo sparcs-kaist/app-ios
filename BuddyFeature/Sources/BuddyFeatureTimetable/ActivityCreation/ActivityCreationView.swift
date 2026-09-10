@@ -7,121 +7,105 @@
 
 import SwiftUI
 import BuddyDomain
-
-//enum CreationMode: String, CaseIterable, Identifiable {
-//	case manual = "Enter Manually"
-//	case fromTimetable = "Select from Timetable"
-//	
-//	var id: String { rawValue }
-//}
+import TimetableUI
 
 struct ActivityCreationView: View {
-	/// The time row whose wheel is currently showing, if any.
-	private enum TimeField {
-		case begin
-		case end
-	}
+  private enum TimeField { case begin, end }
 
-//	@State private var creationMode: CreationMode = .manual
-	@State private var title: String = ""
-	@State private var location: String = ""
-	@State private var day: DayType = .today
-	/// Minutes since midnight, so 9:45 is 585.
-	@State private var begin: Int = 9 * 60
-	@State private var end: Int = 10 * 60
-	@State private var expandedField: TimeField?
-	
-	@Environment(\.dismiss) private var dismiss
+  let timetable: Timetable?
+  let timetableTitle: String
+  let occupiedTimes: [TimetableTimeSelection]
 
-	var body: some View {
-		NavigationStack {
-			Form {
-				Section {
-					TextField("Title", text: $title, prompt: Text("Title"))
-					TextField("Location", text: $location, prompt: Text("Location"))
-				}
-				
-				Section(String(localized: "Date", bundle: .module)) {
-					Picker("Day", selection: $day) {
-						ForEach(DayType.allCases) { day in
-							Text(day.stringValue)
-								.tag(day)
-						}
-					}
+  @State private var title = ""
+  @State private var location = ""
+  @State private var time = TimetableTimeSelection(day: .todayWeekday, begin: 9 * 60, end: 10 * 60)
+  @State private var expandedField: TimeField?
+  @State private var showTimetable = false
+  @Environment(\.dismiss) private var dismiss
 
-					QuarterHourTimeRow(
-						String(localized: "Starts", bundle: .module),
-						minutes: $begin,
-						isExpanded: isExpanded(.begin)
-					)
+  init(timetable: Timetable? = nil, timetableTitle: String = "", occupiedTimes: [TimetableTimeSelection] = []) {
+    self.timetable = timetable
+    self.timetableTitle = timetableTitle
+    self.occupiedTimes = occupiedTimes
+  }
 
-					QuarterHourTimeRow(
-						String(localized: "Ends", bundle: .module),
-						minutes: $end,
-						isExpanded: isExpanded(.end)
-					)
-				}
-				.onChange(of: begin) { oldValue, newValue in
-					// Moving the start time keeps the duration, like Calendar does.
-					let duration = max(QuarterHourTimeRow.minuteStep, end - oldValue)
-					end = min(newValue + duration, QuarterHourTimeRow.lastMinuteOfDay)
-				}
-				.onChange(of: end) { _, newValue in
-					// The end can never reach back past the start.
-					if newValue <= begin {
-						end = min(
-							begin + QuarterHourTimeRow.minuteStep,
-							QuarterHourTimeRow.lastMinuteOfDay
-						)
-					}
-				}
-			}
-			.navigationTitle(Text("New Activity"))
-			.navigationSubtitle(Text("Add to \"Timetable 1\""))
-			.navigationBarTitleDisplayMode(.inline)
-			.scrollEdgeEffectStyle(.soft, for: .top)
-			.toolbar {
-				ToolbarItem(placement: .topBarLeading) {
-					Button("Close", systemImage: "xmark", role: .cancel) {
-						dismiss()
-					}
-				}
-				
-				ToolbarItem(placement: .topBarTrailing) {
-					Button("Add", systemImage: "plus", role: .confirm) {
-						
-					}
-				}
-			}
-		}
-	}
+  var body: some View {
+    NavigationStack {
+      Form {
+        Section {
+          TextField(String(localized: "Title", bundle: .module), text: $title)
+          TextField(String(localized: "Location", bundle: .module), text: $location)
+        }
 
-	/// Only one wheel shows at a time, so expanding a row collapses the other.
-	private func isExpanded(_ field: TimeField) -> Binding<Bool> {
-		Binding {
-			expandedField == field
-		} set: { newValue in
-			expandedField = newValue ? field : nil
-		}
-	}
-}
+        Section {
+          Picker(String(localized: "Day", bundle: .module), selection: dayBinding) {
+            ForEach(DayType.allCases.sorted()) { day in
+              Text(day.stringValue).tag(day)
+            }
+          }
+          QuarterHourTimeRow(
+            String(localized: "Starts", bundle: .module),
+            minutes: beginBinding,
+            isExpanded: isExpanded(.begin)
+          )
+          QuarterHourTimeRow(
+            String(localized: "Ends", bundle: .module),
+            minutes: endBinding,
+            isExpanded: isExpanded(.end)
+          )
+          Button {
+            expandedField = nil
+            showTimetable = true
+          } label: {
+            Label(String(localized: "Adjust on Timetable", bundle: .module), systemImage: "calendar.badge.clock")
+          }
+          .disabled(timetable == nil)
+          .accessibilityIdentifier("activity.adjustOnTimetable")
+        } header: {
+          Text("Date", bundle: .module)
+        } footer: {
+					ActivityTimeConflictView(time: time, timetable: timetable, occupiedTimes: occupiedTimes)
+        }
+      }
+      .navigationTitle(Text("New Activity", bundle: .module))
+      .navigationSubtitle(Text(timetableTitle))
+      .navigationBarTitleDisplayMode(.inline)
+      .scrollEdgeEffectStyle(.soft, for: .top)
+      .toolbar {
+        if !showTimetable {
+          ToolbarItem(placement: .topBarLeading) {
+            Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .cancel) { dismiss() }
+          }
+          ToolbarItem(placement: .topBarTrailing) {
+            // Creation remains unavailable until activity persistence is specified.
+            Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: .confirm) { }
+              .disabled(true)
+          }
+        }
+      }
+      .navigationDestination(isPresented: $showTimetable) {
+        ActivityTimetableCreationView(timetable: timetable, title: title, time: $time, occupiedTimes: occupiedTimes)
+      }
+    }
+  }
 
-struct ActivityManualCreationView: View {
-	var body: some View {
-		VStack {
-			
-		}
-	}
-}
+  private var dayBinding: Binding<DayType> {
+    Binding(get: { time.day }, set: { time = time.moving(to: time.begin, on: $0) })
+  }
 
-struct ActivityTimetableCreationView: View {
-	var body: some View {
-		VStack {
-			
-		}
-	}
+  private var beginBinding: Binding<Int> {
+    Binding(get: { time.begin }, set: { time = time.moving(to: $0, on: time.day) })
+  }
+
+  private var endBinding: Binding<Int> {
+    Binding(get: { time.end }, set: { time = time.resizingEnd(to: $0) })
+  }
+
+  private func isExpanded(_ field: TimeField) -> Binding<Bool> {
+    Binding(get: { expandedField == field }, set: { expandedField = $0 ? field : nil })
+  }
 }
 
 #Preview {
-	ActivityCreationView()
+  ActivityCreationView(timetable: .mock, timetableTitle: "My Timetable")
 }

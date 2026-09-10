@@ -94,7 +94,7 @@ public struct TimetableView: View {
           }
         }
 				.sheet(isPresented: $showActivityCreationSheet) {
-					ActivityCreationView()
+					ActivityCreationView(timetable: viewModel.timetable, timetableTitle: displayName)
 						.presentationDragIndicator(.visible)
 				}
         .alert(

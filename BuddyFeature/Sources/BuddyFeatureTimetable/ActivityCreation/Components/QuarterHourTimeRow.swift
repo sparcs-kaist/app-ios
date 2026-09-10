@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TimetableUI
 
 /// A `Form` row that shows a time and reveals an inline wheel when tapped.
 ///
@@ -13,9 +14,9 @@ import SwiftUI
 /// stops on quarter hours.
 struct QuarterHourTimeRow: View {
 	/// The granularity of the minute wheel.
-	static let minuteStep = 15
+	static let minuteStep = TimetableTimeSelection.minuteStep
 	/// 23:45, the latest quarter hour of the day.
-	static let lastMinuteOfDay = 23 * 60 + 45
+	static let lastMinuteOfDay = TimetableTimeSelection.lastMinuteOfDay
 
 	let title: String
 	@Binding var minutes: Int

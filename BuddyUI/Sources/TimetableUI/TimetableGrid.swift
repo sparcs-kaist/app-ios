@@ -12,6 +12,8 @@ import Haptica
 public struct TimetableGrid: View {
   let selectedTimetable: Timetable?
   let candidateLecture: Lecture?
+  let visibleDays: [DayType]?
+  let showsDayHeader: Bool
   let beginTime: Int?
   let endTime: Int?
   let selectedLecture: ((LectureItem) -> Void)?
@@ -19,6 +21,9 @@ public struct TimetableGrid: View {
   let placement: TimetablePlacement
 
   /// - Parameters:
+  ///   - visibleDays: Optional explicit columns. Defaults to the timetable's visible days.
+  ///   - showsDayHeader: Hide when the container supplies a pinned day header.
+  ///     The grid's top spacing is preserved so time coordinates stay unchanged.
   ///   - beginTime: An optional custom start of the grid, in minutes from midnight
   ///     (for example `480` for 8:00 AM). Defaults to the earliest class.
   ///   - endTime: An optional custom end of the grid, in minutes from midnight.
@@ -28,6 +33,8 @@ public struct TimetableGrid: View {
   public init(
     selectedTimetable: Timetable?,
     candidateLecture: Lecture? = nil,
+    visibleDays: [DayType]? = nil,
+    showsDayHeader: Bool = true,
     beginTime: Int? = nil,
     endTime: Int? = nil,
     selectedLecture: ((LectureItem) -> Void)? = nil,
@@ -36,6 +43,8 @@ public struct TimetableGrid: View {
   ) {
     self.selectedTimetable = selectedTimetable
     self.candidateLecture = candidateLecture
+    self.visibleDays = visibleDays.flatMap { $0.isEmpty ? nil : Array(Set($0)).sorted() }
+    self.showsDayHeader = showsDayHeader
     self.beginTime = beginTime
     self.endTime = endTime
     self.selectedLecture = selectedLecture
@@ -50,11 +59,13 @@ public struct TimetableGrid: View {
       beginTime: beginTime,
       endTime: endTime
     )
-    let days = selectedTimetable?.visibleDays ?? DayType.weekdays
+    let days = visibleDays ?? selectedTimetable?.visibleDays ?? DayType.weekdays
 
     GeometryReader { geometry in
       ZStack(alignment: .topLeading) {
-        daysColumnHeader(days: days)
+        if showsDayHeader {
+          daysColumnHeader(days: days)
+        }
         timesRowHeader(layout: layout, height: geometry.size.height)
         HStack(spacing: TimetableLayout.cellSpacing) {
           ForEach(days) { day in
@@ -190,4 +201,3 @@ private struct HorizontalLine: Shape {
     return path
   }
 }
-
