@@ -58,12 +58,12 @@ struct ActivityTimeConflictView: View {
   var body: some View {
     let conflicts = time.conflictingLectures(in: timetable)
     if timetable == nil {
-      Label(String(localized: "Load a timetable to check for conflicts.", bundle: .module), systemImage: "info.circle")
+      Text(String(localized: "No timetable selected.", bundle: .module))
         .font(.footnote)
         .foregroundStyle(.secondary)
     } else if let lecture = conflicts.first {
       Label {
-        Text("Overlaps with \(lecture.name). Choose a free time.", bundle: .module)
+        Text("Conflicts with \(lecture.name).", bundle: .module)
       } icon: {
         Image(systemName: "exclamationmark.triangle.fill")
       }
@@ -71,12 +71,12 @@ struct ActivityTimeConflictView: View {
       .foregroundStyle(.red)
       .accessibilityAddTraits(.updatesFrequently)
     } else if !time.conflictingActivities(in: timetable).isEmpty || occupiedTimes.contains(where: time.overlaps) {
-      Label(String(localized: "Overlaps another activity. Choose a free time.", bundle: .module), systemImage: "exclamationmark.triangle.fill")
+      Label(String(localized: "Conflicts with another activity.", bundle: .module), systemImage: "exclamationmark.triangle.fill")
         .font(.footnote)
         .foregroundStyle(.red)
         .accessibilityAddTraits(.updatesFrequently)
     } else {
-      Label(String(localized: "Activities can’t overlap classes or other activities.", bundle: .module), systemImage: "checkmark.shield")
+      Text(String(localized: "Times cannot conflict with existing classes or activities.", bundle: .module))
         .font(.footnote)
         .foregroundStyle(.secondary)
     }

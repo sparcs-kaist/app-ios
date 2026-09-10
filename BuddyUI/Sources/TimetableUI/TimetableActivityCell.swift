@@ -1,6 +1,14 @@
+//
+//  TimetableGrid.swift
+//  soap
+//
+//  Created by Soongyu Kwon on 11/09/2026.
+//
+
 import SwiftUI
 import WidgetKit
 import BuddyDomain
+import Haptica
 
 struct TimetableActivityCell: View {
   let activity: TimetableActivity
@@ -55,7 +63,10 @@ private struct ActivityPopoverModifier: ViewModifier {
   func body(content: Content) -> some View {
     if isEnabled {
       content
-        .onTapGesture { isPresented = true }
+        .onTapGesture {
+					isPresented = true
+					Haptic.selection.generate()
+				}
         .accessibilityAddTraits(.isButton)
         .popover(isPresented: $isPresented) {
           VStack(alignment: .leading, spacing: 8) {

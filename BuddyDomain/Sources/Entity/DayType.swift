@@ -8,53 +8,66 @@
 import Foundation
 
 public enum DayType: Int, Identifiable, CaseIterable, Comparable, Sendable, Codable {
-    case sun = 6
-    case mon = 0
-    case tue = 1
-    case wed = 2
-    case thu = 3
-    case fri = 4
-    case sat = 5
-
-    public var id: String { stringValue }
-
-    public var stringValue: String {
-        switch self {
-        case .sun: return String(localized: "Sun", bundle: .module)
-        case .mon: return String(localized: "Mon", bundle: .module)
-        case .tue: return String(localized: "Tue", bundle: .module)
-        case .wed: return String(localized: "Wed", bundle: .module)
-        case .thu: return String(localized: "Thu", bundle: .module)
-        case .fri: return String(localized: "Fri", bundle: .module)
-        case .sat: return String(localized: "Sat", bundle: .module)
-        }
-    }
-
-    // Comparable conformance
-    public static func < (lhs: DayType, rhs: DayType) -> Bool {
-        lhs.rawValue < rhs.rawValue
-    }
+	case sun = 6
+	case mon = 0
+	case tue = 1
+	case wed = 2
+	case thu = 3
+	case fri = 4
+	case sat = 5
+	
+	public var id: String { stringValue }
+	
+	public var stringValue: String {
+		switch self {
+		case .sun: return String(localized: "Sun", bundle: .module)
+		case .mon: return String(localized: "Mon", bundle: .module)
+		case .tue: return String(localized: "Tue", bundle: .module)
+		case .wed: return String(localized: "Wed", bundle: .module)
+		case .thu: return String(localized: "Thu", bundle: .module)
+		case .fri: return String(localized: "Fri", bundle: .module)
+		case .sat: return String(localized: "Sat", bundle: .module)
+		}
+	}
+	
+	public var description: String {
+		switch self {
+		case .sun: return String(localized: "Sunday", bundle: .module)
+		case .mon: return String(localized: "Monday", bundle: .module)
+		case .tue: return String(localized: "Tuesday", bundle: .module)
+		case .wed: return String(localized: "Wednesday", bundle: .module)
+		case .thu: return String(localized: "Thursday", bundle: .module)
+		case .fri: return String(localized: "Friday", bundle: .module)
+		case .sat: return String(localized: "Saturday", bundle: .module)
+		}
+	}
+	
+	// Comparable conformance
+	public static func < (lhs: DayType, rhs: DayType) -> Bool {
+		lhs.rawValue < rhs.rawValue
+	}
 }
 
 extension DayType {
-  public static var weekdays: [DayType] { [.mon, .tue, .wed, .thu, .fri] }
+	public static var weekdays: [DayType] { [.mon, .tue, .wed, .thu, .fri] }
 }
 
 public extension DayType {
-  static func from(date: Date, calendar: Calendar = .current) -> DayType {
-    let weekday = calendar.component(.weekday, from: date) // 1...7
-    // Index 0: Sun, 1: Mon, ..., 6: Sat
-    let map: [DayType] = [.sun, .mon, .tue, .wed, .thu, .fri, .sat]
-    return map[weekday - 1]
-  }
-
-  /// The day of the week for the current date, useful as a default selection.
-  static var today: DayType { from(date: Date()) }
-
-  /// The day of the week for the current date, falling back to `.mon` on weekends.
-  /// Useful when the UI only shows weekdays.
-  static var todayWeekday: DayType {
-    let today = today
-    return weekdays.contains(today) ? today : .mon
-  }
+	static func from(date: Date, calendar: Calendar = .current) -> DayType {
+		let weekday = calendar.component(.weekday, from: date) // 1...7
+		// Index 0: Sun, 1: Mon, ..., 6: Sat
+		let map: [DayType] = [.sun, .mon, .tue, .wed, .thu, .fri, .sat]
+		return map[weekday - 1]
+	}
+	
+	/// The day of the week for the current date, useful as a default selection.
+	static var today: DayType { from(date: Date()) }
+	
+	/// The day of the week for the current date, falling back to `.mon` on weekends.
+	/// Useful when the UI only shows weekdays.
+	static var todayWeekday: DayType {
+		let today = today
+		return weekdays.contains(today) ? today : .mon
+	}
 }
+

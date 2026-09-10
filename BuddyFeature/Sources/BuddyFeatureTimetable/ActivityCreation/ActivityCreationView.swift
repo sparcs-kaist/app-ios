@@ -67,7 +67,7 @@ struct ActivityCreationView: View {
         Section {
           Picker(String(localized: "Day", bundle: .module), selection: dayBinding) {
             ForEach(DayType.allCases.sorted()) { day in
-              Text(day.stringValue).tag(day)
+              Text(day.description).tag(day)
             }
           }
           QuarterHourTimeRow(
