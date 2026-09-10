@@ -68,9 +68,9 @@ public enum TimetableActivityError: LocalizedError {
 
   public var errorDescription: String? {
     switch self {
-    case .invalidTimeOrTitle: String(localized: "Enter a title and a valid time within one day.", bundle: .module)
-    case .overlap: String(localized: "Activities can’t overlap classes or other activities.", bundle: .module)
-    case .refreshRequired: String(localized: "Your change was saved, but the timetable couldn’t refresh. Try refreshing again.", bundle: .module)
+    case .invalidTimeOrTitle: String(localized: "Title and valid time required.", bundle: .module)
+    case .overlap: String(localized: "Times cannot conflict with existing classes or activities.", bundle: .module)
+    case .refreshRequired: String(localized: "Saved, but unable to refresh timetable.", bundle: .module)
     }
   }
 }
