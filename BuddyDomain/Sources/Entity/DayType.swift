@@ -47,4 +47,14 @@ public extension DayType {
     let map: [DayType] = [.sun, .mon, .tue, .wed, .thu, .fri, .sat]
     return map[weekday - 1]
   }
+
+  /// The day of the week for the current date, useful as a default selection.
+  static var today: DayType { from(date: Date()) }
+
+  /// The day of the week for the current date, falling back to `.mon` on weekends.
+  /// Useful when the UI only shows weekdays.
+  static var todayWeekday: DayType {
+    let today = today
+    return weekdays.contains(today) ? today : .mon
+  }
 }

@@ -17,6 +17,7 @@ public struct TimetableView: View {
 
   @State private var selectedLecture: LectureItem? = nil
   @State private var showSearchSheet: Bool = false
+	@State private var showActivityCreationSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
 
   @Environment(\.colorScheme) private var colorScheme
@@ -55,7 +56,7 @@ public struct TimetableView: View {
 							}
 							
 							Button(String(localized: "New Activity", bundle: .module), systemImage: "calendar.badge.plus") {
-								
+								showActivityCreationSheet = true
 							}
 						}
 						.disabled(viewModel.selectedTimetableID == nil)
@@ -92,6 +93,10 @@ public struct TimetableView: View {
             }
           }
         }
+				.sheet(isPresented: $showActivityCreationSheet) {
+					ActivityCreationView()
+						.presentationDragIndicator(.visible)
+				}
         .alert(
           viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
           isPresented: $viewModel.isAlertPresented,
