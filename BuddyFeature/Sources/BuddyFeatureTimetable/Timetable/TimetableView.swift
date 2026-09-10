@@ -42,6 +42,7 @@ public struct TimetableView: View {
           )
           .padding()
         }
+        .refreshable { await viewModel.loadTimetable() }
         .background {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
@@ -102,7 +103,6 @@ public struct TimetableView: View {
           activityEditor(activity: activity)
             .presentationDragIndicator(.visible)
         }
-        .refreshable { await viewModel.loadTimetable() }
         .alert(
           viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
           isPresented: $viewModel.isAlertPresented,
