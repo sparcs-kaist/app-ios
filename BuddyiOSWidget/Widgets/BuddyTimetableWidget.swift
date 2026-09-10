@@ -102,7 +102,7 @@ struct BuddyTimetableWidgetEntryView: View {
   var body: some View {
     Group {
       switch family {
-      case .systemLarge:
+			case .systemLarge, .systemExtraLargePortrait:
         TimetableLargeWidgetView(entry: entry)
       default:
         Text("Not supported")
@@ -120,7 +120,13 @@ struct BuddyTimetableWidget: Widget {
       BuddyTimetableWidgetEntryView(entry: entry)
         .containerBackground(.fill.tertiary, for: .widget)
     }
-    .supportedFamilies([.systemLarge])
+		.supportedFamilies({
+			if #available(iOS 27.0, *) {
+				return [.systemLarge, .systemExtraLargePortrait]
+			}
+			return [.systemLarge]
+		}())
+
     .configurationDisplayName("Timetable")
     .description("Keep track of your classes.")
   }
