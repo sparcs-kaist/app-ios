@@ -145,7 +145,7 @@ struct soapApp: App {
     BuddyShortcuts.updateAppShortcutParameters()
 
     // SwiftData – timetable cache
-    TimetableCacheContainer.shared = try? ModelContainer(for: CachedTimetable.self)
+    TimetableCacheContainer.shared = try? TimetableCacheContainer.makeContainer()
   }
 
   var body: some Scene {

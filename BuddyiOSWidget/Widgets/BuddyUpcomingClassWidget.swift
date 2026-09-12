@@ -67,93 +67,17 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
 		if !configuration.mirrorTimetable,
 			 let entity = configuration.timetable {
 			let timetable: Timetable = await timetableUseCase.getTable(timetableID: entity.id)
-			let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
-			let entries = getLectureEntries(from: todayLectures)
+			let entries = TimetableEventTimeline.entries(for: timetable, now: now)
 			
 			return Timeline(entries: entries, policy: .atEnd)
 		}
 
     let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
-    let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
-		let entries = getLectureEntries(from: todayLectures)
+    let entries = TimetableEventTimeline.entries(for: timetable, now: now)
 
     return Timeline(entries: entries, policy: .atEnd)
   }
 	
-	func getLectureEntries(from items: [LectureItem]) -> [LectureEntry] {
-		let now = Date()
-		let calendar = Calendar.current
-
-		var entries: [LectureEntry] = []
-		if items.isEmpty {
-			let entry = LectureEntry(
-				date: now,
-				lecture: nil,
-				lectureClass: nil,
-				startDate: Date(),
-				signInRequired: false,
-				backgroundColor: .black,
-				relevance: .init(score: 10)
-			)
-			entries.append(entry)
-		} else {
-			for item in items {
-				let ct = item.lectureClass
-				guard let start = dateOnSameDay(minutes: ct.begin, date: now, calendar: calendar)
-				else { continue }
-				
-				// Upcoming Lectures (30 minutes before the start)
-				let pre = max(now, start.addingTimeInterval(-30*60))
-				if pre <= start {
-					entries
-						.append(
-							LectureEntry(
-								date: pre,
-								lecture: item.lecture,
-								lectureClass: ct,
-								startDate: start,
-								signInRequired: false,
-								backgroundColor: item.lecture.backgroundColor,
-								relevance: .init(score: 100)
-							)
-						)
-				}
-				
-				// Start-of-class entry
-				if start >= now {
-					entries
-						.append(
-							LectureEntry(
-								date: start,
-								lecture: item.lecture,
-								lectureClass: ct,
-								startDate: start,
-								signInRequired: false,
-								backgroundColor: item.lecture.backgroundColor,
-								relevance: .init(score: 80)
-							)
-						)
-				}
-			}
-			
-			if entries.isEmpty {
-				let entry = LectureEntry(
-					date: now,
-					lecture: nil,
-					lectureClass: nil,
-					startDate: nil,
-					signInRequired: false,
-					backgroundColor: .black,
-					relevance: .init(score: 20)
-				)
-				entries.append(entry)
-			}
-		}
-		
-		entries.sort { $0.date < $1.date }
-		
-		return entries
-	}
 }
 
 struct BuddyUpcomingClassWidgetEntryView: View {

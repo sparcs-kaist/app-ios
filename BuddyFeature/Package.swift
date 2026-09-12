@@ -145,6 +145,10 @@ let package = Package(
           ]
         ),
         .testTarget(
+          name: "BuddyFeatureTimetableTests",
+          dependencies: ["BuddyFeatureTimetable"]
+        ),
+        .testTarget(
             name: "BuddyFeatureFeedTests",
             dependencies: [
               "BuddyFeatureFeed",

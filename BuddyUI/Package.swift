@@ -71,7 +71,7 @@ let package = Package(
 		),
 		.testTarget(
 			name: "BuddyUITests",
-			dependencies: ["BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI"]
+			dependencies: ["TimetableUI", "BuddyDomain", "BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI"]
 		),
   ]
 )

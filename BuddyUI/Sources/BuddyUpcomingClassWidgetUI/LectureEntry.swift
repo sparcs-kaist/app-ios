@@ -11,6 +11,15 @@ import BuddyDomain
 
 public struct LectureEntry: TimelineEntry {
   public let date: Date
+  public let activity: TimetableActivity?
+  public var title: String? { activity?.title ?? lecture?.name }
+  public var location: String? { activity?.location ?? lectureClass?.location }
+  public var timeDescription: String? {
+    if let activity {
+      return String(format: "%02d:%02d–%02d:%02d", activity.begin / 60, activity.begin % 60, activity.end / 60, activity.end % 60)
+    }
+    return lectureClass?.description
+  }
   public let lecture: Lecture?
   public let lectureClass: LectureClass?
   public let startDate: Date?
@@ -25,8 +34,10 @@ public struct LectureEntry: TimelineEntry {
     startDate: Date?,
     signInRequired: Bool,
     backgroundColor: Color,
-    relevance: TimelineEntryRelevance
+    relevance: TimelineEntryRelevance,
+    activity: TimetableActivity? = nil
   ) {
+    self.activity = activity
     self.date = date
     self.lecture = lecture
     self.lectureClass = lectureClass

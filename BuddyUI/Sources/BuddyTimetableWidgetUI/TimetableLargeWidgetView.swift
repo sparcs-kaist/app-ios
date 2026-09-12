@@ -19,9 +19,6 @@ public struct TimetableLargeWidgetView: View {
   public var body: some View {
     TimetableGrid(
       selectedTimetable: entry.timetable,
-      candidateLecture: nil,
-      selectedLecture: nil,
-      onDelete: { _ in },
       placement: .widget
     )
   }

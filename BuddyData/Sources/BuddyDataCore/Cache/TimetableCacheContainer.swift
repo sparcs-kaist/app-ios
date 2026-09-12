@@ -12,4 +12,14 @@ import SwiftData
 /// Set this once at app launch before any use-case is resolved.
 public enum TimetableCacheContainer {
   nonisolated(unsafe) public static var shared: ModelContainer?
+
+  public static func makeContainer() throws -> ModelContainer {
+    try ModelContainer(for: CachedTimetable.self, configurations: ModelConfiguration(
+      groupContainer: .identifier("group.org.sparcs.soap")
+    ))
+  }
+
+  public static func makeCache() -> TimetableCache? {
+    (shared ?? (try? makeContainer())).map { TimetableCache(modelContainer: $0) }
+  }
 }

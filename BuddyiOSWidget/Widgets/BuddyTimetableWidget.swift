@@ -37,7 +37,12 @@ struct TimetableProvider: AppIntentTimelineProvider {
       return entry
     }
 
-    let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
+    let timetable: Timetable
+    if !configuration.mirrorTimetable, let selected = configuration.timetable {
+      timetable = await timetableUseCase.getTable(timetableID: selected.id)
+    } else {
+      timetable = await timetableUseCase.getCurrentMyTable()
+    }
     let entry = TimetableEntry(
       date: now,
       timetable: timetable,
@@ -97,7 +102,7 @@ struct BuddyTimetableWidgetEntryView: View {
   var body: some View {
     Group {
       switch family {
-      case .systemLarge:
+			case .systemLarge, .systemExtraLargePortrait:
         TimetableLargeWidgetView(entry: entry)
       default:
         Text("Not supported")
@@ -115,7 +120,13 @@ struct BuddyTimetableWidget: Widget {
       BuddyTimetableWidgetEntryView(entry: entry)
         .containerBackground(.fill.tertiary, for: .widget)
     }
-    .supportedFamilies([.systemLarge])
+		.supportedFamilies({
+			if #available(iOS 27.0, *) {
+				return [.systemLarge, .systemExtraLargePortrait]
+			}
+			return [.systemLarge]
+		}())
+
     .configurationDisplayName("Timetable")
     .description("Keep track of your classes.")
   }

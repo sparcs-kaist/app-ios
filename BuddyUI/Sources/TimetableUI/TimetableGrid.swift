@@ -12,150 +12,216 @@ import Haptica
 public struct TimetableGrid: View {
   let selectedTimetable: Timetable?
   let candidateLecture: Lecture?
-  var selectedLecture: ((LectureItem) -> Void)?
-  var onDelete: (Lecture) -> Void
+  let visibleDays: [DayType]?
+  let showsDayHeader: Bool
+  let beginTime: Int?
+  let endTime: Int?
+  let selectedLecture: ((LectureItem) -> Void)?
+  let onDelete: ((Lecture) -> Void)?
+  let onEditActivity: ((TimetableActivity) -> Void)?
+  let onDeleteActivity: ((TimetableActivity) -> Void)?
   let placement: TimetablePlacement
 
+  /// - Parameters:
+  ///   - visibleDays: Optional explicit columns. Defaults to the timetable's visible days.
+  ///   - showsDayHeader: Hide when the container supplies a pinned day header.
+  ///     The grid's top spacing is preserved so time coordinates stay unchanged.
+  ///   - beginTime: An optional custom start of the grid, in minutes from midnight
+  ///     (for example `480` for 8:00 AM). Defaults to the earliest class.
+  ///   - endTime: An optional custom end of the grid, in minutes from midnight.
+  ///     Defaults to the latest class.
+  ///
+  /// Custom times only widen the grid; classes outside of them stay visible.
   public init(
     selectedTimetable: Timetable?,
-    candidateLecture: Lecture?,
+    candidateLecture: Lecture? = nil,
+    visibleDays: [DayType]? = nil,
+    showsDayHeader: Bool = true,
+    beginTime: Int? = nil,
+    endTime: Int? = nil,
     selectedLecture: ((LectureItem) -> Void)? = nil,
-    onDelete: @escaping (Lecture) -> Void,
+    onDelete: ((Lecture) -> Void)? = nil,
+    onEditActivity: ((TimetableActivity) -> Void)? = nil,
+    onDeleteActivity: ((TimetableActivity) -> Void)? = nil,
     placement: TimetablePlacement
   ) {
     self.selectedTimetable = selectedTimetable
     self.candidateLecture = candidateLecture
+    self.visibleDays = visibleDays.flatMap { $0.isEmpty ? nil : Array(Set($0)).sorted() }
+    self.showsDayHeader = showsDayHeader
+    self.beginTime = beginTime
+    self.endTime = endTime
     self.selectedLecture = selectedLecture
     self.onDelete = onDelete
+    self.onEditActivity = onEditActivity
+    self.onDeleteActivity = onDeleteActivity
     self.placement = placement
   }
 
-  private let defaultMinMinutes: Int = 540       // 8:00 AM
-  private let defaultMaxMinutes: Int = 1080      // 6:00 PM
-  private let defaultVisibleDays: [DayType] = [.mon, .tue, .wed, .thu, .fri]
-
   public var body: some View {
+    let layout = TimetableLayout(
+      classes: selectedTimetable?.lectures.flatMap(\.classes) ?? [],
+      activities: selectedTimetable?.activities ?? [],
+      placement: placement,
+      beginTime: beginTime,
+      endTime: endTime
+    )
+    let days = visibleDays ?? selectedTimetable?.visibleDays ?? DayType.weekdays
+
     GeometryReader { geometry in
-      daysColumnHeader
-      timesRowHeader(in: geometry.size)
-      HStack(spacing: 4) {
-        ForEach(selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
-          ZStack(alignment: .top) {
-            gridHorizontalLine
-              .foregroundStyle(.separator)
-            if let selectedTimetable = selectedTimetable {
-              ForEach(selectedTimetable.getLectures(day: day)) { item in
-                TimetableGridCell(
-                  lectureItem: item,
-                  isCandidate: item.lecture.id == candidateLecture?.id,
-                  onDeletion: {
-                    onDelete(item.lecture)
-                  },
-                  placement: placement
-                )
-                .frame(height: getHeight(for: item, in: geometry.size, of: selectedTimetable))
-                .contentShape(.rect)
-                .onTapGesture {
-                  Haptic.selection.generate()
-                  selectedLecture?(item)
-                }
-                .offset(y: getOffset(for: item, in: geometry.size, of: selectedTimetable))
-                .transition(.scale.combined(with: .opacity))
-              }
-            }
+      ZStack(alignment: .topLeading) {
+        if showsDayHeader {
+          daysColumnHeader(days: days, layout: layout)
+        }
+        timesRowHeader(layout: layout, height: geometry.size.height)
+        HStack(spacing: TimetableLayout.cellSpacing) {
+          ForEach(days) { day in
+            dayColumn(day: day, layout: layout)
           }
         }
+        .padding(.leading, layout.leadingInset)
       }
-      .padding(.leading, TimetableConstructor.hoursWidth + 8)
     }
   }
 
-  private func getHeight(for item: LectureItem, in size: CGSize, of selectedTimetable: Timetable) -> CGFloat {
-    switch placement {
-    case .widget:
-      TimetableConstructor
-        .getCellHeight(
-          for: item,
-          in: size,
-          of: (maxHour - minHour) * 60
-        )
-    default:
-      TimetableConstructor.getCellHeight(for: item, in: size, of: selectedTimetable.gappedDuration)
+  private func dayColumn(day: DayType, layout: TimetableLayout) -> some View {
+    let cells = TimetableLayout.cells(for: selectedTimetable?.getLectures(day: day) ?? [])
+
+    return GeometryReader { geometry in
+      ZStack(alignment: .topLeading) {
+        gridHorizontalLines(layout: layout, height: geometry.size.height)
+        ForEach(selectedTimetable?.activities.filter { $0.day == day && $0.duration > 0 } ?? []) { activity in
+          activityCell(activity)
+            .frame(width: geometry.size.width, height: max(0,
+              layout.offset(at: activity.end, height: geometry.size.height)
+              - layout.offset(at: activity.begin, height: geometry.size.height) - TimetableLayout.cellSpacing))
+            .offset(y: layout.offset(at: activity.begin, height: geometry.size.height))
+        }
+        ForEach(cells) { cell in
+          TimetableGridCell(
+            lectureItem: cell.item,
+            isCandidate: cell.item.lecture.id == candidateLecture?.id,
+            placement: placement
+          )
+          .frame(
+            width: cell.width(in: geometry.size.width),
+            height: layout.cellHeight(for: cell.item, height: geometry.size.height)
+          )
+          .modifier(TimetableInteractionModifier(
+            item: cell.item,
+            onSelect: placement == .view ? selectedLecture : nil,
+            onDelete: placement == .view ? onDelete : nil
+          ))
+          .offset(
+            x: cell.x(in: geometry.size.width),
+            y: layout.offset(at: cell.item.lectureClass.begin, height: geometry.size.height)
+          )
+          .transition(.scale.combined(with: .opacity))
+        }
+      }
     }
   }
 
-  private func getOffset(for item: LectureItem, in size: CGSize, of selectedTimetable: Timetable) -> CGFloat {
-    switch placement {
-    case .widget:
-      TimetableConstructor
-        .getCellOffset(
-          for: item,
-          in: size,
-          at: selectedTimetable.minMinutes,
-          of: (maxHour - minHour) * 60
-        )
-    default:
-      TimetableConstructor.getCellOffset(for: item, in: size, at: selectedTimetable.minMinutes, of: selectedTimetable.gappedDuration)
+  @ViewBuilder
+  private func activityCell(_ activity: TimetableActivity) -> some View {
+    if placement == .view, onEditActivity != nil || onDeleteActivity != nil {
+      TimetableActivityCell(activity: activity, placement: placement)
+        .contextMenu {
+          if let onEditActivity {
+            Button(String(localized: "Edit Activity", bundle: .module), systemImage: "pencil") { onEditActivity(activity) }
+          }
+          if let onDeleteActivity {
+            Button(String(localized: "Delete Activity", bundle: .module), systemImage: "trash", role: .destructive) { onDeleteActivity(activity) }
+          }
+        }
+    } else {
+      TimetableActivityCell(activity: activity, placement: placement)
     }
   }
 
-  private var minHour: Int {
-    (selectedTimetable?.minMinutes ?? defaultMinMinutes) / 60
-  }
-
-  private var maxHour: Int {
-    var maxHour = (selectedTimetable?.gappedMaxMinutes ?? defaultMaxMinutes) / 60
-
-    if placement == .widget {
-      maxHour = (selectedTimetable?.maxMinutes ?? defaultMaxMinutes) % 60 == 0 ? maxHour : maxHour + 1
-    }
-
-    return maxHour
-  }
-
-  private var gridHorizontalLine: some View {
-    VStack(spacing: 0) {
-      ForEach(minHour..<maxHour, id: \.self) { hour in
+  private func gridHorizontalLines(layout: TimetableLayout, height: CGFloat) -> some View {
+    ZStack(alignment: .topLeading) {
+      ForEach(layout.hours, id: \.self) { hour in
         HorizontalLine()
           .stroke(style: StrokeStyle(lineWidth: 1))
+          .frame(height: 1)
+          .offset(y: layout.offset(at: hour * 60, height: height))
         HorizontalLine()
           .stroke(style: StrokeStyle(lineWidth: 1, dash: [2]))
+          .frame(height: 1)
+          .offset(y: layout.offset(at: hour * 60 + 30, height: height))
       }
     }
-    .padding(.top, TimetableConstructor.daysHeight + 14)
+    .foregroundStyle(Color(uiColor: .separator))
+    .allowsHitTesting(false)
+    .accessibilityHidden(true)
   }
 
-  private var daysColumnHeader: some View {
-    HStack(spacing: 0) {
-      ForEach(selectedTimetable?.visibleDays ?? defaultVisibleDays) { day in
+  private func daysColumnHeader(days: [DayType], layout: TimetableLayout) -> some View {
+    HStack(spacing: TimetableLayout.cellSpacing) {
+      ForEach(days) { day in
         Text(day.stringValue)
-          .font(.caption)
+          .font(placement == .widget ? .system(size: 10) : .caption)
+          .foregroundStyle(.primary)
           .frame(maxWidth: .infinity)
-          .frame(height: TimetableConstructor.daysHeight)
+          .frame(height: layout.headerHeight)
           .textCase(.uppercase)
           .fontDesign(.rounded)
           .fontWeight(.medium)
       }
-    }.padding(.leading, TimetableConstructor.hoursWidth + 8)
+    }
+    .padding(.leading, layout.leadingInset)
   }
 
-  private func timesRowHeader(in size: CGSize) -> some View {
-    let totalHours = maxHour - minHour
-    let timetableHeight = size.height - TimetableConstructor.daysHeight - 14
-    let slotHeight = totalHours > 0 ? timetableHeight / CGFloat(totalHours) : 0
-    let skipAlternate = placement == .widget && totalHours > 8
+  private func timesRowHeader(layout: TimetableLayout, height: CGFloat) -> some View {
+    let skipAlternate = placement == .widget && layout.hours.count > 8
 
     return ZStack(alignment: .topLeading) {
-      ForEach(minHour..<maxHour, id: \.self) { hour in
-        let index = hour - minHour
-        if !skipAlternate || index % 2 == 0 {
+      ForEach(layout.hours, id: \.self) { hour in
+        if !skipAlternate || (hour - layout.hours.lowerBound).isMultiple(of: 2) {
           Text(String(hour))
-            .font(.caption)
-            .frame(width: TimetableConstructor.hoursWidth)
+            .font(placement == .widget ? .system(size: 10) : .caption)
+            .foregroundStyle(.primary)
+            .frame(width: layout.timeLabelWidth, height: placement == .widget ? 12 : nil)
             .fontDesign(.rounded)
-            .offset(y: TimetableConstructor.daysHeight + 8 + CGFloat(index) * slotHeight)
+            .offset(y: layout.offset(at: hour * 60, height: height) - 6)
         }
       }
+    }
+  }
+}
+
+/// Interaction belongs to the app grid; widget cells remain display-only.
+private struct TimetableInteractionModifier: ViewModifier {
+  let item: LectureItem
+  let onSelect: ((LectureItem) -> Void)?
+  let onDelete: ((Lecture) -> Void)?
+
+  func body(content: Content) -> some View {
+    if let onDelete {
+      selectable(content)
+        .contextMenu {
+          Button(String(localized: "Remove from Table", bundle: .module), systemImage: "trash", role: .destructive) {
+            onDelete(item.lecture)
+          }
+        }
+    } else {
+      selectable(content)
+    }
+  }
+
+  @ViewBuilder
+  private func selectable(_ content: Content) -> some View {
+    if let onSelect {
+      content
+        .contentShape(.rect)
+        .onTapGesture {
+          Haptic.selection.generate()
+          onSelect(item)
+        }
+        .accessibilityAddTraits(.isButton)
+    } else {
+      content
     }
   }
 }
@@ -168,9 +234,3 @@ private struct HorizontalLine: Shape {
     return path
   }
 }
-
-//#Preview(traits: .fixedLayout(width: 402, height: 503)) {
-//  TimetableGrid()
-//    .environment(TimetableViewModel())
-//}
-
