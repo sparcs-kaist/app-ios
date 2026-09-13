@@ -58,70 +58,19 @@ public struct TaxiListView: View {
   }
 
   public var body: some View {
-    ScrollViewReader { scrollViewProxy in
-      ScrollView {
-        LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
-          TaxiDestinationPicker(
-            source: $viewModel.source,
-            destination: $viewModel.destination,
-            locations: viewModel.locations
-          )
-          .padding()
-          .background(
-            colorScheme == .light ? Color.secondarySystemGroupedBackground : Color.clear,
-            in: .rect(cornerRadius: 28)
-          )
-          .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-          .padding(.horizontal)
-          .redacted(reason: isInteractable ? [] : .placeholder)
-          .disabled(!isInteractable)
-
-          Section {
-            Group {
-              switch viewModel.state {
-              case .loading:
-                loadingView()
-              case .loaded(let rooms, _):
-                TaxiRoomWeekList(
-                  rooms: rooms,
-                  week: viewModel.week,
-                  source: viewModel.source,
-                  destination: viewModel.destination,
-                  emptyDescription: description,
-                  onSelectRoom: { room in
-                    Haptic.selection.generate()
-                    selectedRoom = room
-                  },
-                  onCreateRoom: { showRoomCreationSheet = true },
-                  onClearSelection: {
-                    viewModel.source = nil
-                    viewModel.destination = nil
-                  }
-                )
-              case .empty:
-                emptyView()
-              case .error(let message):
-                errorView(errorMessage: message)
-              }
-            }
-            .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-          } header: {
-            WeekDaySelector(selectedDate: $viewModel.selectedDate, week: viewModel.week)  { day in
-              scrollViewProxy.scrollTo(day.weekdaySymbol, anchor: .center)
-            }
-            .padding(.horizontal)
-            .redacted(reason: isInteractable ? [] : .placeholder)
-            .disabled(!isInteractable)
+    GeometryReader { reader in
+      ScrollViewReader { scrollViewProxy in
+        Group {
+          if reader.size.width > LayoutMetrics.twoColumnWidthThreshold {
+            wideLayout(scrollViewProxy: scrollViewProxy)
+          } else {
+            compactLayout(scrollViewProxy: scrollViewProxy)
           }
         }
-        .padding(.bottom)
-        .contentWidth()
-      }
-			.scrollEdgeEffectStyle(.soft, for: .top)
-      .scrollPosition(id: $scrollTarget, anchor: .top)
-      .onChange(of: scrollTarget) {
-        withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) {
-          viewModel.selectedDate = viewModel.week.first(where: { $0.weekdaySymbol == scrollTarget }) ?? Date()
+        .onChange(of: scrollTarget) {
+          withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) {
+            viewModel.selectedDate = viewModel.week.first(where: { $0.weekdaySymbol == scrollTarget }) ?? Date()
+          }
         }
       }
     }
@@ -178,6 +127,107 @@ public struct TaxiListView: View {
     .analyticsScreen(name: "Taxi List", class: String(describing: Self.self))
   }
 
+  /// Single-column layout: everything scrolls together, with the weekday
+  /// selector pinned as a section header.
+  private func compactLayout(scrollViewProxy: ScrollViewProxy) -> some View {
+    ScrollView {
+      LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
+        destinationPicker
+
+        Section {
+          roomsContent
+        } header: {
+          weekDaySelector(scrollViewProxy: scrollViewProxy)
+        }
+      }
+      .padding(.bottom)
+      .contentWidth()
+    }
+    .scrollEdgeEffectStyle(.soft, for: .top)
+    .scrollPosition(id: $scrollTarget, anchor: .top)
+  }
+
+  /// Two-column layout for wide screens: pickers stay fixed on the left half
+  /// while the room list scrolls on the right half.
+  private func wideLayout(scrollViewProxy: ScrollViewProxy) -> some View {
+    HStack(alignment: .top, spacing: 0) {
+      VStack(spacing: 16) {
+        destinationPicker
+
+        weekDaySelector(scrollViewProxy: scrollViewProxy)
+
+        Spacer()
+      }
+      .contentWidth()
+
+      ScrollView {
+        LazyVStack(spacing: 16) {
+          roomsContent
+        }
+        .padding(.bottom)
+        .contentWidth()
+      }
+      .scrollEdgeEffectStyle(.soft, for: .top)
+      .scrollPosition(id: $scrollTarget, anchor: .top)
+    }
+  }
+
+  private var destinationPicker: some View {
+    TaxiDestinationPicker(
+      source: $viewModel.source,
+      destination: $viewModel.destination,
+      locations: viewModel.locations
+    )
+    .padding()
+    .background(
+      colorScheme == .light ? Color.secondarySystemGroupedBackground : Color.clear,
+      in: .rect(cornerRadius: 28)
+    )
+    .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+    .padding(.horizontal)
+    .redacted(reason: isInteractable ? [] : .placeholder)
+    .disabled(!isInteractable)
+  }
+
+  private func weekDaySelector(scrollViewProxy: ScrollViewProxy) -> some View {
+    WeekDaySelector(selectedDate: $viewModel.selectedDate, week: viewModel.week) { day in
+      scrollViewProxy.scrollTo(day.weekdaySymbol, anchor: .top)
+    }
+    .padding(.horizontal)
+    .redacted(reason: isInteractable ? [] : .placeholder)
+    .disabled(!isInteractable)
+  }
+
+  private var roomsContent: some View {
+    Group {
+      switch viewModel.state {
+      case .loading:
+        loadingView()
+      case .loaded(let rooms, _):
+        TaxiRoomWeekList(
+          rooms: rooms,
+          week: viewModel.week,
+          source: viewModel.source,
+          destination: viewModel.destination,
+          emptyDescription: description,
+          onSelectRoom: { room in
+            Haptic.selection.generate()
+            selectedRoom = room
+          },
+          onCreateRoom: { showRoomCreationSheet = true },
+          onClearSelection: {
+            viewModel.source = nil
+            viewModel.destination = nil
+          }
+        )
+      case .empty:
+        emptyView()
+      case .error(let message):
+        errorView(errorMessage: message)
+      }
+    }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+  }
 
   private func loadingView() -> some View {
     VStack(spacing: 12) {
