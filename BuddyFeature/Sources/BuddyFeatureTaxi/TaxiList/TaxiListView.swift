@@ -117,6 +117,7 @@ public struct TaxiListView: View {
         .padding(.bottom)
         .contentWidth()
       }
+			.scrollEdgeEffectStyle(.soft, for: .top)
       .scrollPosition(id: $scrollTarget, anchor: .top)
       .onChange(of: scrollTarget) {
         withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) {
