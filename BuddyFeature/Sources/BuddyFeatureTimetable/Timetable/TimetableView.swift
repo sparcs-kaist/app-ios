@@ -25,18 +25,13 @@ public struct TimetableView: View {
   /// available height would otherwise squash it.
   private static let minimumGridHeight: CGFloat = 500
 
-  /// Width past which the supporting cards switch to a two-column layout. Driven
-  /// by the actual available width (not the size class) so it also kicks in for
-  /// iPhones in landscape, which report a compact horizontal size class.
-  private static let twoColumnWidthThreshold: CGFloat = 600
-
   public var body: some View {
     GeometryReader { reader in
       NavigationStack {
         ScrollView {
           content(
             gridHeight: max(reader.size.height * 0.8, Self.minimumGridHeight),
-            isWide: reader.size.width > Self.twoColumnWidthThreshold
+            isWide: reader.size.width > LayoutMetrics.twoColumnWidthThreshold
           )
           .padding()
         }
