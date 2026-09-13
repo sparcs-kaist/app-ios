@@ -19,6 +19,8 @@ public struct TaxiListView: View {
   }
 
   @State var viewModel: TaxiListViewModelProtocol
+  /// Backs the "Active Groups" section shown in the wide layout's left column.
+  @State private var chatListViewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()
   @Namespace private var namespace
 
   // view properties
@@ -27,12 +29,21 @@ public struct TaxiListView: View {
   // show taxi room preview
   @State private var showRoomCreationSheet: Bool = false
   @State private var selectedRoom: TaxiRoom? = nil
+  @State private var selectedChatRoom: TaxiRoom? = nil
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(initialValue: viewModel)
+  }
+
+  init(
+    viewModel: TaxiListViewModelProtocol,
+    chatListViewModel: TaxiChatListViewModelProtocol
+  ) {
+    _viewModel = State(initialValue: viewModel)
+    _chatListViewModel = State(initialValue: chatListViewModel)
   }
 
   private var isInteractable: Bool {
@@ -103,6 +114,9 @@ public struct TaxiListView: View {
         TaxiChatListView()
       }
     }
+    .navigationDestination(item: $selectedChatRoom) { room in
+      TaxiChatView(room: room)
+    }
     .sheet(isPresented: $showRoomCreationSheet) {
       TaxiRoomCreationView(viewModel: viewModel)
         .navigationTransition(.zoom(sourceID: "RoomCreationView", in: namespace))
@@ -147,18 +161,25 @@ public struct TaxiListView: View {
     .scrollPosition(id: $scrollTarget, anchor: .top)
   }
 
-  /// Two-column layout for wide screens: pickers stay fixed on the left half
-  /// while the room list scrolls on the right half.
+  /// Two-column layout for wide screens: pickers and active chat groups scroll
+  /// on the left half while the room list scrolls on the right half.
   private func wideLayout(scrollViewProxy: ScrollViewProxy) -> some View {
     HStack(alignment: .top, spacing: 0) {
-      VStack(spacing: 16) {
-        destinationPicker
+      ScrollView {
+        VStack(spacing: 16) {
+          destinationPicker
 
-        weekDaySelector(scrollViewProxy: scrollViewProxy)
+          weekDaySelector(scrollViewProxy: scrollViewProxy)
 
-        Spacer()
+          activeChatGroups
+        }
+        .padding(.bottom)
+        .contentWidth()
       }
-      .contentWidth()
+      .scrollEdgeEffectStyle(.soft, for: .top)
+      .task {
+        await chatListViewModel.fetchData()
+      }
 
       ScrollView {
         LazyVStack(spacing: 16) {
@@ -196,6 +217,42 @@ public struct TaxiListView: View {
     .padding(.horizontal)
     .redacted(reason: isInteractable ? [] : .placeholder)
     .disabled(!isInteractable)
+  }
+
+  /// The user's on-going chat groups, shown below the pickers in the wide
+  /// layout. Errors stay silent here — the full chat list remains reachable
+  /// from the toolbar.
+  @ViewBuilder
+  private var activeChatGroups: some View {
+    switch chatListViewModel.state {
+    case .loading:
+      TaxiRoomGroupSection(
+        title: String(localized: "Active Groups", bundle: .module),
+        rooms: Array(TaxiRoom.mockList.prefix(2)),
+        selectedRoom: nil,
+        taxiUser: nil,
+        onSelect: { _ in }
+      )
+      .padding(.horizontal)
+      .redacted(reason: .placeholder)
+      .disabled(true)
+    case .loaded(let onGoing, _):
+      if !onGoing.isEmpty {
+        TaxiRoomGroupSection(
+          title: String(localized: "Active Groups", bundle: .module),
+          rooms: onGoing,
+          selectedRoom: selectedChatRoom,
+          taxiUser: chatListViewModel.taxiUser,
+          onSelect: { room in
+            Haptic.selection.generate()
+            selectedChatRoom = room
+          }
+        )
+        .padding(.horizontal)
+      }
+    case .error:
+      EmptyView()
+    }
   }
 
   private var roomsContent: some View {
@@ -283,7 +340,12 @@ public struct TaxiListView: View {
     rooms: TaxiRoom.mockList,
     locations: TaxiLocation.mockList
   )
-  TaxiListView(viewModel: PreviewTaxiListViewModel(state: state))
+  TaxiListView(
+    viewModel: PreviewTaxiListViewModel(state: state),
+    chatListViewModel: PreviewTaxiChatListViewModel(
+      state: .loaded(onGoing: Array(TaxiRoom.mockList.prefix(2)), done: [])
+    )
+  )
 }
 
 #Preview("Empty State") {
