@@ -16,7 +16,7 @@ public struct UpcomingClassCircularWidgetView: View {
   }
 
   public var body: some View {
-		if let start = entry.startDate, let _ = entry.lecture {
+		if let start = entry.startDate, let _ = entry.title {
 			VStack(spacing: 4) {
         Image(systemName: "calendar")
         Text(start, style: .time)

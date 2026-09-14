@@ -15,8 +15,10 @@ import TimetableUI
 public struct TimetableView: View {
   @Bindable private var viewModel: TimetableViewModel
 
+  @State private var editingActivity: TimetableActivity?
   @State private var selectedLecture: LectureItem? = nil
   @State private var showSearchSheet: Bool = false
+	@State private var showActivityCreationSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
 
   @Environment(\.colorScheme) private var colorScheme
@@ -40,6 +42,7 @@ public struct TimetableView: View {
           )
           .padding()
         }
+        .refreshable { await viewModel.loadTimetable() }
         .background {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
@@ -49,10 +52,16 @@ public struct TimetableView: View {
         .background(Color.systemGroupedBackground)
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
-            Button(String(localized: "Add Lecture", bundle: .module), systemImage: "plus") {
-              showSearchSheet = true
-            }
-            .disabled(viewModel.selectedTimetableID == nil)
+						Menu("Add Event", systemImage: "square.badge.plus") {
+							Button(String(localized: "Add Lecture", bundle: .module), systemImage: "book.badge.plus") {
+								showSearchSheet = true
+							}
+							
+							Button(String(localized: "New Activity", bundle: .module), systemImage: "calendar.badge.plus") {
+								showActivityCreationSheet = true
+							}
+						}
+						.disabled(viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init))
           }
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
@@ -85,6 +94,14 @@ public struct TimetableView: View {
               selectedDetent = .medium
             }
           }
+        }
+				.sheet(isPresented: $showActivityCreationSheet) {
+					activityEditor()
+						.presentationDragIndicator(.visible)
+				}
+        .sheet(item: $editingActivity) { activity in
+          activityEditor(activity: activity)
+            .presentationDragIndicator(.visible)
         }
         .alert(
           viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
@@ -163,6 +180,10 @@ public struct TimetableView: View {
           await viewModel.deleteLecture(lecture: lecture)
         }
       },
+      onEditActivity: viewModel.selectedTimetableID == nil ? nil : { editingActivity = $0 },
+      onDeleteActivity: viewModel.selectedTimetableID == nil ? nil : { activity in
+        Task { await viewModel.deleteActivity(activity) }
+      },
       placement: .view
     )
     .animation(nil, value: viewModel.selectedSemester)
@@ -170,9 +191,21 @@ public struct TimetableView: View {
     .frame(height: height)
   }
 
+  @ViewBuilder
+  private func activityEditor(activity: TimetableActivity? = nil) -> some View {
+    if let id = viewModel.selectedTimetableID, viewModel.timetable?.id == String(id) {
+      ActivityCreationView(
+        timetable: viewModel.timetable, timetableTitle: displayName, activity: activity,
+        onSave: { draft in try await viewModel.saveActivity(timetableID: id, activityID: activity?.id, draft: draft) },
+        onRefresh: { try await viewModel.refreshActivities(timetableID: id) }
+      )
+    }
+  }
+
   private var lectureListCard: some View {
     LectureList(
       lectures: viewModel.timetable?.lectures,
+      activities: viewModel.timetable?.activities,
       selectedLecture: { selectedLecture in
         self.selectedLecture = selectedLecture
       }

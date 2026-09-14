@@ -18,10 +18,10 @@ public struct UpcomingClassCornerWidgetView: View {
   }
 
   public var body: some View {
-    if let lecture = entry.lecture, let start = entry.startDate {
+    if let title = entry.title, let start = entry.startDate {
       Text(start, style: .time)
         .widgetCurvesContent()
-        .widgetLabel(lecture.name)
+        .widgetLabel(title)
     } else if entry.signInRequired {
       signInRequiredView
     } else {

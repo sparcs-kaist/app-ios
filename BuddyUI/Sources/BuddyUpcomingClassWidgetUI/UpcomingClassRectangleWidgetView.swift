@@ -24,13 +24,13 @@ public struct UpcomingClassRectangleWidgetView: View {
   }
 
   public var body: some View {
-    if let lecture = entry.lecture, let ct = entry.lectureClass {
+    if let title = entry.title, let timeDescription = entry.timeDescription {
       VStack(alignment: .leading, spacing: 2) {
         HStack(alignment: .center) {
           Circle()
             .frame(width: 12, height: 12)
 
-          Text(ct.description)
+          Text(timeDescription)
             .fontDesign(.rounded)
             .lineLimit(1)
             .fontWeight(.semibold)
@@ -39,10 +39,10 @@ public struct UpcomingClassRectangleWidgetView: View {
         .widgetAccentable()
 
         Group {
-          Text(lecture.name)
+          Text(title)
             .fontWeight(.semibold)
           HStack {
-            Text("\(ct.buildingCode) \(ct.roomName)")
+            Text(entry.location ?? "")
               .foregroundStyle(.secondary)
             Spacer()
           }

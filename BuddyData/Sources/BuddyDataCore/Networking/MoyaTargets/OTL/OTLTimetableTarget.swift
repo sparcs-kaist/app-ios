@@ -7,6 +7,7 @@
 
 import Foundation
 import Moya
+import BuddyDomain
 
 public enum OTLTimetableTarget {
   case fetchTables(year: Int, semester: Int)
@@ -18,6 +19,10 @@ public enum OTLTimetableTarget {
   case renameTable(timetableID: Int, title: String)
   case addLecture(timetableID: Int, lectureID: Int)
   case deleteLecture(timetableID: Int, lectureID: Int)
+  case fetchActivities(timetableID: Int)
+  case createActivity(timetableID: Int, draft: TimetableActivityDraft)
+  case updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft)
+  case deleteActivity(timetableID: Int, activityID: Int)
   case fetchSemesters
   case fetchCurrentSemester
 }
@@ -39,6 +44,10 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
       "/api/v2/timetables/my-timetable"
     case .addLecture(let timetableID, _), .deleteLecture(let timetableID, _):
       "/api/v2/timetables/\(timetableID)"
+    case .fetchActivities(let id), .createActivity(let id, _):
+      "/api/v2/timetables/\(id)/custom-blocks"
+    case .updateActivity(let id, let activityID, _), .deleteActivity(let id, let activityID):
+      "/api/v2/timetables/\(id)/custom-blocks/\(activityID)"
     case .fetchSemesters:
       "/api/v2/semesters"
     case .fetchCurrentSemester:
@@ -51,15 +60,16 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
     case .fetchTables,
          .fetchTablesBySemester,
          .fetchTable,
+         .fetchActivities,
          .fetchMyTable,
          .fetchSemesters,
          .fetchCurrentSemester:
         .get
-    case .createTable:
+    case .createTable, .createActivity:
         .post
-    case .renameTable, .addLecture, .deleteLecture:
+    case .renameTable, .addLecture, .deleteLecture, .updateActivity:
         .patch
-    case .deleteTable:
+    case .deleteTable, .deleteActivity:
         .delete
     }
   }
@@ -96,7 +106,15 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
           "id": timetableID,
           "name": title
         ], encoding: JSONEncoding.default)
-    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester:
+    case .createActivity(_, let draft), .updateActivity(_, _, let draft):
+        .requestParameters(parameters: [
+          "block_name": draft.title,
+          "place": draft.location,
+          "day": draft.day.rawValue,
+          "begin": draft.begin,
+          "end": draft.end
+        ], encoding: JSONEncoding.default)
+    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester, .fetchActivities, .deleteActivity:
         .requestPlain
     }
   }

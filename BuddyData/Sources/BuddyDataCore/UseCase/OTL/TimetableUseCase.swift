@@ -7,6 +7,7 @@
 
 import Foundation
 import BuddyDomain
+import WidgetKit
 
 public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendable {
   // MARK: - Properties
@@ -91,31 +92,56 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     }
   }
 
-  /// Fetches a timetable by ID, returning cached data immediately while refreshing in background.
+  /// Always refresh the visible timetable; retain offline access to the last successful fetch.
   public func getTable(id: Int) async throws -> Timetable {
-    let context = CrashContext(
-      feature: feature,
-      metadata: ["timetableID": "\(id)"]
-    )
+    do {
+      return try await refreshTable(id: id)
+    } catch {
+      if Self.canUseCache(after: error), let cached = cache?.timetable(forKey: String(id)) { return cached }
+      throw error
+    }
+  }
 
-    return try await execute(context: context) {
-      let key = String(id)
+  public func refreshTable(id: Int) async throws -> Timetable {
+    let result = try await otlTimetableRepository.getTable(timetableID: id)
+    try Task.checkCancellation()
+    cache?.store(result, forKey: String(id))
+    WidgetCenter.shared.reloadAllTimelines()
+    return result
+  }
 
-      if let cached = self.cache?.timetable(forKey: key) {
-        // Refresh cache in the background without blocking the caller.
-        Task.detached(priority: .background) { [weak self] in
-          guard let self else { return }
-          if let fresh = try? await self.otlTimetableRepository.getTable(timetableID: id) {
-            self.cache?.store(fresh, forKey: key)
-          }
-        }
-        return cached
-      }
+  public func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws -> Timetable {
+    guard draft.isValid else { throw TimetableActivityError.invalidTimeOrTitle }
+    // Validate against fresh server data, including other devices' changes.
+    let current = try await refreshTable(id: timetableID)
+    guard !draft.hasConflict(in: current, excluding: activityID) else { throw TimetableActivityError.overlap }
+    if let activityID {
+      try await otlTimetableRepository.updateActivity(timetableID: timetableID, activityID: activityID, draft: draft)
+    } else {
+      try await otlTimetableRepository.createActivity(timetableID: timetableID, draft: draft)
+    }
+    return try await refreshAfterActivityMutation(id: timetableID)
+  }
 
-      // No cache – fetch from network and store.
-      let result = try await self.otlTimetableRepository.getTable(timetableID: id)
-      self.cache?.store(result, forKey: key)
-      return result
+  public func deleteActivity(timetableID: Int, activityID: Int) async throws -> Timetable {
+    do { try await otlTimetableRepository.deleteActivity(timetableID: timetableID, activityID: activityID) }
+    catch NetworkError.notFound { /* Already removed by another device or a previous request. */ }
+    return try await refreshAfterActivityMutation(id: timetableID)
+  }
+
+  private func refreshAfterActivityMutation(id: Int) async throws -> Timetable {
+    cache?.invalidate(key: String(id))
+    WidgetCenter.shared.reloadAllTimelines()
+    do { return try await refreshTable(id: id) }
+    catch { throw TimetableActivityError.refreshRequired }
+  }
+
+  private static func canUseCache(after error: Error) -> Bool {
+    guard let error = error as? NetworkError else { return false }
+    switch error {
+    case .noConnection, .timeout: return true
+    case .serverError(let status): return status >= 500
+    default: return false
     }
   }
 

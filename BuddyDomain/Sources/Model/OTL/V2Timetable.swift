@@ -10,6 +10,7 @@ import SwiftUI
 public struct Timetable: Identifiable, Hashable, Codable, Sendable {
   public var id: String
   public var lectures: [Lecture]
+  public var activities: [TimetableActivity]
 
   private var defaultMinMinutes = 540 // 9:00 AM
   private var defaultMaxMinutes = 1080 // 6:00 PM
@@ -19,35 +20,43 @@ public struct Timetable: Identifiable, Hashable, Codable, Sendable {
     "B-", "B", "B+", "A-", "A", "A+"
   ]
 
-  public init(id: String, lectures: [Lecture]) {
+  public init(id: String, lectures: [Lecture], activities: [TimetableActivity] = []) {
     self.id = id
     self.lectures = lectures
+    self.activities = activities
   }
+
+  private enum CodingKeys: String, CodingKey {
+    case id, lectures, activities, defaultMinMinutes, defaultMaxMinutes
+  }
+
+  public init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    id = try values.decode(String.self, forKey: .id)
+    lectures = try values.decode([Lecture].self, forKey: .lectures)
+    // Existing offline caches and older watch transfers have no activities key.
+    activities = try values.decodeIfPresent([TimetableActivity].self, forKey: .activities) ?? []
+  }
+
 }
 
 public extension Timetable {
   // Return the minimum start minutes.
   var minMinutes: Int {
-    lectures
-      .flatMap { $0.classes }
-      .map { $0.begin }
+    (lectures.flatMap { $0.classes }.map { $0.begin } + activities.map { $0.begin })
       .min()
       .map { ($0 / 60) * 60 } ?? defaultMinMinutes
   }
 
   // Return the maximum end minutes.
   var gappedMaxMinutes: Int {
-    lectures
-      .flatMap { $0.classes }
-      .map { $0.end }
+    (lectures.flatMap { $0.classes }.map { $0.end } + activities.map { $0.end })
       .max()
       .map { (($0 / 60) + 1) * 60 } ?? defaultMaxMinutes
   }
 
   var maxMinutes: Int {
-    lectures
-      .flatMap { $0.classes }
-      .map { $0.end }
+    (lectures.flatMap { $0.classes }.map { $0.end } + activities.map { $0.end })
       .max() ?? defaultMaxMinutes
   }
 
@@ -59,7 +68,7 @@ public extension Timetable {
   var visibleDays: [DayType] {
     let classDays = lectures.flatMap { $0.classes.map { $0.day } }
 
-    let combinedDays = Array(Set(classDays + DayType.weekdays))
+    let combinedDays = Array(Set(classDays + activities.map(\.day) + DayType.weekdays))
 
     return combinedDays.sorted()
   }
@@ -159,7 +168,9 @@ public extension Timetable {
         }
       }
     }
-    return false
+    return activities.contains { activity in
+      newLecture.classes.contains { activity.draft.overlaps(day: $0.day, begin: $0.begin, end: $0.end) }
+    }
   }
 
   func lectureItems(for date: Date = Date()) -> [LectureItem] {

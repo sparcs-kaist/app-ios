@@ -29,7 +29,26 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
 
   public func getTable(timetableID: Int) async throws -> Timetable {
     let response = try await self.provider.request(.fetchTable(timetableID: timetableID))
-    return try response.map(TimetableDTO.self).toModel(id: String(timetableID))
+    var timetable = try response.map(TimetableDTO.self).toModel(id: String(timetableID))
+    timetable.activities = try await getActivities(timetableID: timetableID)
+    return timetable
+  }
+
+  public func getActivities(timetableID: Int) async throws -> [TimetableActivity] {
+    let response = try await provider.request(.fetchActivities(timetableID: timetableID))
+    return try response.map(TimetableActivityListDTO.self).customBlocks.map { $0.toModel() }
+  }
+
+  public func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws {
+    _ = try await provider.request(.createActivity(timetableID: timetableID, draft: draft))
+  }
+
+  public func updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft) async throws {
+    _ = try await provider.request(.updateActivity(timetableID: timetableID, activityID: activityID, draft: draft))
+  }
+
+  public func deleteActivity(timetableID: Int, activityID: Int) async throws {
+    _ = try await provider.request(.deleteActivity(timetableID: timetableID, activityID: activityID))
   }
 
   public func createTable(year: Int, semester: SemesterType) async throws -> TableCreation {

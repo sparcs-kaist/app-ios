@@ -23,11 +23,9 @@ public class TimetableService: TimetableServiceProtocol {
   }
 
   public func setup() async throws {
-#if os(watchOS)
-    configureTimetableUseCase()
-#else
+    defer { configureTimetableUseCase() }
+#if !os(watchOS)
     guard let refreshToken = tokenStorage.getRefreshToken() else {
-      configureTimetableUseCase()
       return
     }
 
@@ -37,7 +35,6 @@ public class TimetableService: TimetableServiceProtocol {
 
     // access token
     guard let accessToken = tokenStorage.getAccessToken() else {
-      configureTimetableUseCase()
       return
     }
     let authPlugin = AccessTokenPlugin { _ in
@@ -52,7 +49,6 @@ public class TimetableService: TimetableServiceProtocol {
       provider: MoyaProvider<OTLTimetableTarget>(plugins: [authPlugin])
     )
     self.userUseCase = TimetableUserUseCase(otlUserRepository: self.otlUserRepository!)
-    configureTimetableUseCase()
 #endif
   }
 
@@ -78,7 +74,8 @@ public class TimetableService: TimetableServiceProtocol {
 
     if let otlTimetableRepository = self.otlTimetableRepository {
       self.timetableUseCase = TimetableUseCaseBackground(
-        otlTimetableRepository: otlTimetableRepository
+        otlTimetableRepository: otlTimetableRepository,
+        cache: TimetableCacheContainer.makeCache()
       )
     }
   }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TimetablePlacement: Equatable {
+public enum TimetablePlacement: Equatable, Sendable {
   case view
   case widget
 }

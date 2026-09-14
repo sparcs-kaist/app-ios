@@ -19,4 +19,9 @@ public protocol OTLTimetableRepositoryProtocol: Sendable {
   func deleteLecture(timetableID: Int, lectureID: Int) async throws
   func getSemesters() async throws -> [Semester]
   func getCurrentSemester() async throws -> Semester
+  func getActivities(timetableID: Int) async throws -> [TimetableActivity]
+  func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws
+  func updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft) async throws
+  func deleteActivity(timetableID: Int, activityID: Int) async throws
+
 }

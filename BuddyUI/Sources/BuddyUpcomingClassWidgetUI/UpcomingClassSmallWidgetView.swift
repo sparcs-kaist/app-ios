@@ -16,7 +16,7 @@ public struct UpcomingClassSmallWidgetView: View {
   }
 
   public var body: some View {
-    if let lecture = entry.lecture, let ct = entry.lectureClass {
+    if let title = entry.title, let timeDescription = entry.timeDescription {
       VStack(alignment: .leading) {
         Text("Up Next", bundle: .module)
           .font(.caption)
@@ -24,7 +24,7 @@ public struct UpcomingClassSmallWidgetView: View {
           .foregroundStyle(entry.backgroundColor)
           .textCase(.uppercase)
 
-        Text(lecture.name)
+        Text(title)
           .lineLimit(2)
           .truncationMode(.tail)
           .fontWeight(.medium)
@@ -34,12 +34,12 @@ public struct UpcomingClassSmallWidgetView: View {
 
         Spacer()
 
-        Text(ct.description)
+        Text(timeDescription)
           .fontWeight(.medium)
           .fontDesign(.rounded)
           .foregroundStyle(entry.backgroundColor)
 
-        Text("\(ct.buildingCode) \(ct.roomName)")
+        Text(entry.location ?? "")
           .lineLimit(1)
           .minimumScaleFactor(0.8)
           .foregroundStyle(.secondary)

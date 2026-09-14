@@ -10,6 +10,7 @@ import BuddyDomain
 
 struct LectureList: View {
 	let lectures: [Lecture]?
+	var activities: [TimetableActivity]?
 	var selectedLecture: ((LectureItem) -> Void)?
 	
 	var body: some View {
@@ -37,6 +38,22 @@ struct LectureList: View {
 				Text("There is no lecture for this timetable.", bundle: .module)
 					.padding()
 					.frame(maxWidth: .infinity)
+			}
+			
+			if let activities, !activities.isEmpty {
+				Text("Activities", bundle: .module)
+					.font(.title3)
+					.fontWeight(.bold)
+					.padding(.top, 8)
+				
+				ForEach(activities) { activity in
+					ActivityListRow(activity: activity)
+					
+					if activity.id != activities.last?.id {
+						Divider()
+							.padding(.leading, 20)
+					}
+				}
 			}
 		}
 	}
