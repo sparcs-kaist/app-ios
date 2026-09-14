@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import TimetableUI
 
 public struct TodayLecturesAccessoryView: View {
   @Bindable var viewModel: TodayLecturesAccessoryViewModel
@@ -27,6 +28,7 @@ public struct TodayLecturesAccessoryView: View {
     accessoryContent
       .padding(.horizontal)
       .contentShape(.capsule)
+      .timetableThemeFromSettings()
   }
 
   @ViewBuilder

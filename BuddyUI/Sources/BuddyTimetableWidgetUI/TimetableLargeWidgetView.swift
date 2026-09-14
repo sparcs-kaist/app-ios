@@ -21,5 +21,6 @@ public struct TimetableLargeWidgetView: View {
       selectedTimetable: entry.timetable,
       placement: .widget
     )
+    .timetableTheme(entry.theme)
   }
 }

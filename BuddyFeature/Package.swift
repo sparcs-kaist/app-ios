@@ -79,6 +79,10 @@ let package = Package(
             "BuddyFeaturePost",
             "BuddyPreviewSupport",
             .product(
+              name: "TimetableUI",
+              package: "BuddyUI"
+            ),
+            .product(
               name: "FirebaseAnalytics",
               package: "firebase-ios-sdk"
             ),

@@ -20,12 +20,10 @@ public struct TimetableActivity: Identifiable, Hashable, Codable, Sendable {
   }
 
   public var backgroundColor: Color {
-    let colors = TimetableColorPalette.palettes[0].colors
-    let index = ((id % colors.count) + colors.count) % colors.count
-    return colors[index]
+    TimetableTheme.current.color(forActivityID: id)
   }
 
-  public var textColor: Color { TimetableColorPalette.palettes[0].textColor }
+  public var textColor: Color { TimetableTheme.current.textColor }
   public var duration: Int { end - begin }
   public var draft: TimetableActivityDraft {
     .init(title: title, location: location, day: day, begin: begin, end: end)

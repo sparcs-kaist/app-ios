@@ -11,12 +11,13 @@ import TimetableUI
 
 struct ActivityListRow: View {
 	let activity: TimetableActivity
-	
+	@Environment(\.timetableTheme) private var theme
+
 	var body: some View {
 		HStack(alignment: .center) {
 			Circle()
 				.frame(width: 12, height: 12)
-				.foregroundStyle(activity.backgroundColor)
+				.foregroundStyle(theme.color(forActivityID: activity.id))
 			
 			VStack(alignment: .leading) {
 				Text(activity.title)

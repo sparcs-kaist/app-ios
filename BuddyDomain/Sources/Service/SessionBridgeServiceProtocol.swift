@@ -10,4 +10,6 @@ import Foundation
 public protocol SessionBridgeServiceProtocol {
   func start()
   func updateTimetable(_ timetable: Timetable)
+  /// Pushes the theme currently selected in Settings so the watch follows it.
+  func updateSelectedTheme()
 }

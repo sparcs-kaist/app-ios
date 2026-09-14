@@ -30,15 +30,15 @@ public struct Lecture: Identifiable, CourseRepresentable, Hashable, Sendable, Co
   public let classDuration: Int
   public let expDuration: Int
 
-  // Background colour for TimetableGridCell
+  // Background colour in the theme selected in Settings. Views inside a themed
+  // hierarchy should prefer `theme.color(forCourseID:)` so widgets can override.
   public var backgroundColor: Color {
-    let index = courseID % TimetableColorPalette.palettes[0].colors.count
-    return TimetableColorPalette.palettes[0].colors[index]
+    TimetableTheme.current.color(forCourseID: courseID)
   }
 
-  // Text colour for TimetableGridCell
+  // Text colour in the theme selected in Settings.
   public var textColor: Color {
-    return TimetableColorPalette.palettes[0].textColor
+    TimetableTheme.current.textColor
   }
 
   public init(

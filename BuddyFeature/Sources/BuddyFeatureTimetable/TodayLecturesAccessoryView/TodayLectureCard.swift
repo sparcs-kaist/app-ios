@@ -8,15 +8,17 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import TimetableUI
 
 struct TodayLectureCard: View {
   let context: TimelineViewDefaultContext
   let item: LectureItem
+  @Environment(\.timetableTheme) private var theme
 
   var body: some View {
     HStack {
       Circle()
-        .fill(item.lecture.backgroundColor)
+        .fill(theme.color(forCourseID: item.lecture.courseID))
         .frame(width: 12, height: 12)
         .animation(.spring, value: context.date)
 

@@ -27,6 +27,7 @@ public struct TimetableGridCell: View {
 
   @Environment(\.widgetRenderingMode) var renderingMode
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.timetableTheme) private var theme
 
   public var body: some View {
     GeometryReader { geometry in
@@ -50,7 +51,7 @@ public struct TimetableGridCell: View {
               .opacity(0.8)
           }
         }
-        .foregroundStyle(isCandidate ? .white : lectureItem.lecture.textColor)
+        .foregroundStyle(isCandidate ? .white : theme.textColor)
         .padding(6)
       }
       .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
@@ -64,7 +65,7 @@ public struct TimetableGridCell: View {
   }
 
   private var cellColor: Color {
-    isCandidate ? Color.accentColor : lectureItem.lecture.backgroundColor
+    isCandidate ? Color.accentColor : theme.color(forCourseID: lectureItem.lecture.courseID)
   }
 
   private var backgroundColor: Color {

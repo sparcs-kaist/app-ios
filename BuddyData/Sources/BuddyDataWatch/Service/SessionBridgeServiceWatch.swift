@@ -28,14 +28,38 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
     _ session: WCSession,
     didReceiveApplicationContext applicationContext: [String: Any]
   ) {
-    guard let data = applicationContext[BridgeKeys.timetable] as? Data else { return }
+    // Each key is handled on its own: the phone can push a theme change without
+    // a timetable, and one failing to decode mustn't discard the other.
+    if let data = applicationContext[BridgeKeys.timetable] as? Data {
+      receiveTimetable(data)
+    }
+    if let data = applicationContext[BridgeKeys.timetableTheme] as? Data {
+      receiveTheme(data)
+    }
+  }
+
+  private func receiveTimetable(_ data: Data) {
     do {
       _ = try JSONDecoder().decode(Timetable.self, from: data)  // test if timetable is valid
       UserDefaults(suiteName: "group.org.sparcs.soap")!.set(data, forKey: "timetableData")
     } catch {
       logger.error("Failed to decode timetable: \(error.localizedDescription, privacy: .public)")
       UserDefaults(suiteName: "group.org.sparcs.soap")!.set(nil, forKey: "timetableData")
-      return
+    }
+  }
+
+  /// Stores the phone's choice so `TimetableTheme.current` resolves to it here
+  /// exactly as it does on iOS. A user's own theme has to be saved locally first,
+  /// since only the provided ones exist on both sides; `save` ignores those.
+  private func receiveTheme(_ data: Data) {
+    do {
+      let theme = try JSONDecoder().decode(TimetableTheme.self, from: data)
+      let store = TimetableThemeStore()
+      store.save(theme)
+      store.select(id: theme.id)
+      logger.debug("Applied theme \(theme.id, privacy: .public) from iOS")
+    } catch {
+      logger.error("Failed to decode theme: \(error.localizedDescription, privacy: .public)")
     }
   }
 

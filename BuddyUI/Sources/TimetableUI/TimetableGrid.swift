@@ -22,6 +22,8 @@ public struct TimetableGrid: View {
   let onDeleteActivity: ((TimetableActivity) -> Void)?
   let placement: TimetablePlacement
 
+  @Environment(\.timetableTheme) private var theme
+
   /// - Parameters:
   ///   - visibleDays: Optional explicit columns. Defaults to the timetable's visible days.
   ///   - showsDayHeader: Hide when the container supplies a pinned day header.
@@ -152,7 +154,7 @@ public struct TimetableGrid: View {
           .offset(y: layout.offset(at: hour * 60 + 30, height: height))
       }
     }
-    .foregroundStyle(Color(uiColor: .separator))
+    .foregroundStyle(theme.separatorColor ?? Color(uiColor: .separator))
     .allowsHitTesting(false)
     .accessibilityHidden(true)
   }
@@ -162,7 +164,7 @@ public struct TimetableGrid: View {
       ForEach(days) { day in
         Text(day.stringValue)
           .font(placement == .widget ? .system(size: 10) : .caption)
-          .foregroundStyle(.primary)
+          .foregroundStyle(theme.gridLabelColor ?? .primary)
           .frame(maxWidth: .infinity)
           .frame(height: layout.headerHeight)
           .textCase(.uppercase)
@@ -181,7 +183,7 @@ public struct TimetableGrid: View {
         if !skipAlternate || (hour - layout.hours.lowerBound).isMultiple(of: 2) {
           Text(String(hour))
             .font(placement == .widget ? .system(size: 10) : .caption)
-            .foregroundStyle(.primary)
+            .foregroundStyle(theme.gridLabelColor ?? .primary)
             .frame(width: layout.timeLabelWidth, height: placement == .widget ? 12 : nil)
             .fontDesign(.rounded)
             .offset(y: layout.offset(at: hour * 60, height: height) - 6)

@@ -15,6 +15,7 @@ struct TimetableActivityCell: View {
   let placement: TimetablePlacement
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.widgetRenderingMode) private var renderingMode
+  @Environment(\.timetableTheme) private var theme
 
   var body: some View {
     GeometryReader { geometry in
@@ -38,11 +39,11 @@ struct TimetableActivityCell: View {
           }
         }
         .padding(6)
-        .foregroundStyle(activity.textColor)
+        .foregroundStyle(theme.textColor)
       }
       .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
       .clipped()
-      .modifier(TimetableGlassModifier(placement: placement, colorScheme: colorScheme, cellColor: activity.backgroundColor))
+      .modifier(TimetableGlassModifier(placement: placement, colorScheme: colorScheme, cellColor: cellColor))
     }
     .contentShape(.rect)
     .accessibilityElement(children: .ignore)
@@ -51,9 +52,13 @@ struct TimetableActivityCell: View {
     .modifier(ActivityPopoverModifier(activity: activity, isEnabled: placement == .view))
   }
 
+  private var cellColor: Color {
+    theme.color(forActivityID: activity.id)
+  }
+
   private var backgroundColor: Color {
-    if colorScheme == .dark { return activity.backgroundColor.darkTransformedHSB() }
-    return placement == .widget ? activity.backgroundColor : .clear
+    if colorScheme == .dark { return cellColor.darkTransformedHSB() }
+    return placement == .widget ? cellColor : .clear
   }
 }
 
