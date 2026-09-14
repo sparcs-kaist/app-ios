@@ -131,9 +131,6 @@ public extension TimetableTheme {
     TimetableTheme(
       id: "builtin.olive",
       name: "Olive",
-      // Earthy greens through gold to red-brown. Kept dark enough for the cream
-      // text, but saturated — it's the saturation that separates this from
-      // Monochrome, which is deliberately neutral.
       hexColors: [
         "3F4A1F", "5E6B2B", "6B7A26", "1F4A22",
         "336B3A", "1D4438", "2C6152", "5A2F12",

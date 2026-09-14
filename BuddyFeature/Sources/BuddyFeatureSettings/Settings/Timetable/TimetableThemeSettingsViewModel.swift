@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import Factory
 import BuddyDomain
 
 @MainActor
@@ -16,6 +17,10 @@ public final class TimetableThemeSettingsViewModel {
   public private(set) var selectedThemeID: String = TimetableTheme.default.id
 
   private let store: TimetableThemeStore
+
+  /// Nil on platforms without a paired watch.
+  @ObservationIgnored
+  @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol?
 
   public init(store: TimetableThemeStore = TimetableThemeStore()) {
     self.store = store
@@ -36,11 +41,15 @@ public final class TimetableThemeSettingsViewModel {
   public func select(_ theme: TimetableTheme) {
     store.select(id: theme.id)
     selectedThemeID = theme.id
+    syncToWatch()
   }
 
   public func save(_ theme: TimetableTheme) {
     store.save(theme)
     reload()
+    // Editing the active theme changes its colours without changing the
+    // selection, so the watch needs the new version either way.
+    syncToWatch()
   }
 
   /// Saves a theme and makes it the active one.
@@ -48,11 +57,18 @@ public final class TimetableThemeSettingsViewModel {
     store.save(theme)
     store.select(id: theme.id)
     reload()
+    syncToWatch()
   }
 
   public func delete(_ theme: TimetableTheme) {
     store.delete(id: theme.id)
     reload()
+    syncToWatch()
+  }
+
+  /// The watch mirrors the phone's choice rather than having its own setting.
+  private func syncToWatch() {
+    sessionBridgeService?.updateSelectedTheme()
   }
 
   /// A user-owned copy, named so it doesn't read as the collections theme.

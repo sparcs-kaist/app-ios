@@ -26,21 +26,51 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
   }
 
   public func updateTimetable(_ timetable: Timetable) {
-    guard WCSession.default.activationState == .activated else {
-      logger.debug("updateTimetable: session not activated. Skipping update.")
-      return
-    }
-
     do {
       logger.debug("updateTimetable: encoding timetable with id \(timetable.id, privacy: .public)")
       let data = try JSONEncoder().encode(timetable)
       logger.debug("updateTimetable: encoded timetable size \(data.count) bytes")
 
-      try WCSession.default.updateApplicationContext([BridgeKeys.timetable: data])
-      logger.debug("updateTimetable: successfully updated application context.")
+      // Carries the theme along too, so a refresh keeps the watch in step even
+      // if a theme change couldn't be delivered at the time it was made.
+      send([BridgeKeys.timetable: data], includingSelectedTheme: true)
     } catch {
       logger.error("updateTimetable: failed to encode or update context: \(error.localizedDescription, privacy: .public)")
       return
+    }
+  }
+
+  public func updateSelectedTheme() {
+    send([:], includingSelectedTheme: true)
+  }
+
+  /// `updateApplicationContext` replaces the whole context, so merge into what
+  /// was last sent — `session.applicationContext` survives relaunches, which
+  /// keeps a theme-only push from wiping the timetable the watch already has.
+  private func send(_ updates: [String: Any], includingSelectedTheme: Bool) {
+    guard let session, session.activationState == .activated else {
+      logger.debug("send: session not activated. Skipping update.")
+      return
+    }
+
+    var context = session.applicationContext
+    context.merge(updates) { _, new in new }
+
+    if includingSelectedTheme {
+      let theme = TimetableThemeStore().selectedTheme
+      if let data = try? JSONEncoder().encode(theme) {
+        context[BridgeKeys.timetableTheme] = data
+        logger.debug("send: including theme \(theme.id, privacy: .public)")
+      } else {
+        logger.error("send: failed to encode theme \(theme.id, privacy: .public)")
+      }
+    }
+
+    do {
+      try session.updateApplicationContext(context)
+      logger.debug("send: successfully updated application context.")
+    } catch {
+      logger.error("send: failed to update context: \(error.localizedDescription, privacy: .public)")
     }
   }
 
@@ -53,6 +83,11 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
   ) {
     if let error { logger.error("Activation error: \(error.localizedDescription, privacy: .public)") }
     else { logger.debug("Activated: \(activationState.rawValue)") }
+
+    // Activation is async, so this is the first point a push can land. Catches up
+    // the watch on any theme change made while it was unreachable.
+    guard activationState == .activated else { return }
+    updateSelectedTheme()
   }
 
   public func sessionDidBecomeInactive(_ session: WCSession) {

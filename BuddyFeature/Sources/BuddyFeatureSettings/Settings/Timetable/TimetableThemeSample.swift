@@ -39,7 +39,7 @@ enum TimetableThemeSample {
       (String(localized: "Physics", bundle: .module), [(.tue, 660, 780), (.thu, 660, 780)]),
       (String(localized: "Programming", bundle: .module), [(.mon, 780, 870), (.wed, 780, 870)]),
       (String(localized: "Design", bundle: .module), [(.tue, 810, 900)]),
-      (String(localized: "Seminar", bundle: .module), [(.fri, 570, 660)]),
+      (String(localized: "Chemistry", bundle: .module), [(.fri, 570, 660)]),
       (String(localized: "Lab", bundle: .module), [(.thu, 810, 900)])
     ]
   }
