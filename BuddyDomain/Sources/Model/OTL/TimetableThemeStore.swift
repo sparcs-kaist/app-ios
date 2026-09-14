@@ -38,7 +38,7 @@ public struct TimetableThemeStore {
     defaults.string(forKey: Self.selectedThemeIDKey)
   }
 
-  /// Every theme the user can pick from, provided ones first.
+  /// Every theme the user can pick from, collections ones first.
   public var allThemes: [TimetableTheme] {
     TimetableTheme.builtIn + customThemes
   }
@@ -71,7 +71,7 @@ public struct TimetableThemeStore {
     reloadWidgets()
   }
 
-  /// Inserts or replaces one of the user's own themes. Provided themes are ignored.
+  /// Inserts or replaces one of the user's own themes. Collections themes are ignored.
   public func save(_ theme: TimetableTheme) {
     guard !theme.isBuiltIn else { return }
     var themes = customThemes

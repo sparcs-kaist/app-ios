@@ -9,7 +9,7 @@ import SwiftUI
 import BuddyDomain
 import TimetableUI
 
-/// Creates or edits one of the user's own themes. Provided themes reach this
+/// Creates or edits one of the user's own themes. Collections themes reach this
 /// screen only as a duplicate, so everything here is always editable.
 struct TimetableThemeEditorView: View {
   @Environment(\.dismiss) private var dismiss
@@ -60,8 +60,6 @@ struct TimetableThemeEditorView: View {
     List {
       Section {
         ThemedSampleGrid(theme: draft, timetable: sampleTimetable)
-      } header: {
-        Text("Preview", bundle: .module)
       }
 
       Section {
@@ -72,9 +70,7 @@ struct TimetableThemeEditorView: View {
       Section {
         colorGrid
       } header: {
-        Text("Class Colours", bundle: .module)
-      } footer: {
-        Text("Classes take colours from this list in order, so the same class always keeps its colour.", bundle: .module)
+        Text("Palette", bundle: .module)
       }
 
       Section {
@@ -108,8 +104,6 @@ struct TimetableThemeEditorView: View {
         } label: {
           Text("Advanced", bundle: .module)
         }
-      } footer: {
-        Text("Left off, the grid keeps the system separator and the app's own background, and the labels follow whichever background is in use.", bundle: .module)
       }
     }
     .navigationTitle(Text("Theme", bundle: .module))

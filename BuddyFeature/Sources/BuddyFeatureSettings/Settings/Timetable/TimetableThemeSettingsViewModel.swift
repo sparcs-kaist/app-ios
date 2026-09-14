@@ -55,7 +55,7 @@ public final class TimetableThemeSettingsViewModel {
     reload()
   }
 
-  /// A user-owned copy, named so it doesn't read as the provided theme.
+  /// A user-owned copy, named so it doesn't read as the collections theme.
   public func duplicate(_ theme: TimetableTheme) -> TimetableTheme {
     theme.duplicated(named: String(localized: "\(theme.displayName) Copy", bundle: .module))
   }

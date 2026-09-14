@@ -15,7 +15,7 @@ struct TimetableThemeOptionsProvider: DynamicOptionsProvider {
 
 		var sections: [IntentItemSection<TimetableThemeEntity>] = [
 			IntentItemSection(
-				"Provided",
+				"Collections",
 				items: TimetableTheme.builtIn.map { theme in
 					IntentItem(TimetableThemeEntity(theme: theme), title: "\(theme.displayName)")
 				}

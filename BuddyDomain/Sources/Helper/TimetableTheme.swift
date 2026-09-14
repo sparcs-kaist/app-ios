@@ -10,7 +10,7 @@ import SwiftUI
 /// A colour set for the timetable: cell backgrounds, cell text, and the class
 /// colour dots reused by the lecture list and the Next Class widget.
 ///
-/// Provided themes are read-only; the user's own themes are stored in the shared
+/// Collections themes are read-only; the user's own themes are stored in the shared
 /// app group so widgets can render them too. See ``TimetableThemeStore``.
 public struct TimetableTheme: Identifiable, Hashable, Codable, Sendable {
   public let id: String
@@ -73,7 +73,7 @@ public struct TimetableTheme: Identifiable, Hashable, Codable, Sendable {
     return (0.299 * red + 0.587 * green + 0.114 * blue) < 0.55
   }
 
-  /// Provided themes are localised; a user's theme keeps the name they typed.
+  /// Collections themes are localised; a user's theme keeps the name they typed.
   public var displayName: String {
     guard isBuiltIn, let localized = Self.localizedBuiltInName(for: id) else { return name }
     return localized
@@ -97,7 +97,7 @@ public struct TimetableTheme: Identifiable, Hashable, Codable, Sendable {
   }
 }
 
-// MARK: - Provided themes
+// MARK: - Collections themes
 
 public extension TimetableTheme {
   /// The colour set used when nothing has been chosen yet.
@@ -131,11 +131,14 @@ public extension TimetableTheme {
     TimetableTheme(
       id: "builtin.olive",
       name: "Olive",
+      // Earthy greens through gold to red-brown. Kept dark enough for the cream
+      // text, but saturated — it's the saturation that separates this from
+      // Monochrome, which is deliberately neutral.
       hexColors: [
-        "0A0B06", "1E2528", "151518", "1E1D19",
-        "1E1E1E", "292929", "575760", "6C6C70",
-        "C4C3C9", "80978F", "3E3B34", "666652",
-        "7B8962", "344620", "70877F", "233A6C"
+        "3F4A1F", "5E6B2B", "6B7A26", "1F4A22",
+        "336B3A", "1D4438", "2C6152", "5A2F12",
+        "8B4A1E", "A35C22", "6B4A0F", "8A6A14",
+        "4A4A14", "757518", "2F5C1F", "47661F"
       ],
       textColorHex: "FFFDE9",
       isBuiltIn: true

@@ -25,8 +25,6 @@ public struct TimetableThemeSettingsView: View {
     List {
       Section {
         preview
-      } header: {
-        Text("Preview", bundle: .module)
       }
 
       Section {
@@ -34,7 +32,7 @@ public struct TimetableThemeSettingsView: View {
           themeRow(theme)
         }
       } header: {
-        Text("Provided", bundle: .module)
+        Text("Collections", bundle: .module)
       }
 
       Section {
@@ -52,7 +50,7 @@ public struct TimetableThemeSettingsView: View {
       } header: {
         Text("My Themes", bundle: .module)
       } footer: {
-        Text("Provided themes can't be edited. Duplicate one to start your own.", bundle: .module)
+        Text("Themes in Collections cannot be edited. Duplicate one to start your own.", bundle: .module)
       }
     }
     .navigationTitle(Text("Timetable Theme", bundle: .module))
