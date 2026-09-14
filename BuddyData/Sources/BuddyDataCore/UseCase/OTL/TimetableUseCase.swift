@@ -244,6 +244,72 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     }
   }
 
+  /// Copies the semester's "my table" into a brand new table.
+  ///
+  /// There is no copy endpoint, so the copy is replayed: create an empty table,
+  /// then add every lecture and activity of the source table to it. A lecture or
+  /// activity the server rejects is skipped and counted rather than aborting the
+  /// copy, so a single bad item cannot discard everything else.
+  public func duplicateMyTable(semester: Semester, title: String) async throws -> TableDuplication {
+    let context = CrashContext(
+      feature: feature,
+      metadata: [
+        "year": "\(semester.year)",
+        "semester": "\(semester.semesterType)"
+      ]
+    )
+
+    return try await execute(context: context) {
+      // Copy from the server, not the cache, so the duplicate matches what the
+      // user sees on other devices too.
+      let source = try await self.otlTimetableRepository
+        .getMyTable(year: semester.year, semester: semester.semesterType)
+      let creation = try await self.otlTimetableRepository
+        .createTable(year: semester.year, semester: semester.semesterType)
+
+      var skippedLectures = 0
+      for lecture in source.lectures {
+        try Task.checkCancellation()
+        do {
+          try await self.otlTimetableRepository.addLecture(timetableID: creation.id, lectureID: lecture.id)
+        } catch is CancellationError {
+          throw CancellationError()
+        } catch {
+          skippedLectures += 1
+          self.crashlyticsService?.record(error: error, context: context)
+        }
+      }
+
+      var skippedActivities = 0
+      for activity in source.activities {
+        try Task.checkCancellation()
+        do {
+          try await self.otlTimetableRepository.createActivity(timetableID: creation.id, draft: activity.draft)
+        } catch is CancellationError {
+          throw CancellationError()
+        } catch {
+          skippedActivities += 1
+          self.crashlyticsService?.record(error: error, context: context)
+        }
+      }
+
+      if !title.isEmpty {
+        // A failed rename leaves a usable, correctly populated table.
+        do { try await self.otlTimetableRepository.renameTable(timetableID: creation.id, title: title) }
+        catch { self.crashlyticsService?.record(error: error, context: context) }
+      }
+
+      self.cache?.invalidate(key: String(creation.id))
+      WidgetCenter.shared.reloadAllTimelines()
+
+      return TableDuplication(
+        id: creation.id,
+        skippedLectureCount: skippedLectures,
+        skippedActivityCount: skippedActivities
+      )
+    }
+  }
+
   public func addLecture(timetableID: Int, lectureID: Int) async throws {
     let context = CrashContext(
       feature: feature,

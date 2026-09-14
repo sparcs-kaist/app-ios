@@ -16,6 +16,8 @@ struct CompactTimetableSelector: View {
   let timetables: [TimetableSummary]
   @Binding var selectedTimetableID: Int?
   let createTimetable: () async -> Void
+  let duplicateMyTable: () async -> Void
+  let isDuplicatingMyTable: Bool
   let renameTimetable: (String) async -> Void
   let deleteTimetable: () async -> Void
 	let isWide: Bool
@@ -95,7 +97,7 @@ struct CompactTimetableSelector: View {
           HStack {
             if selectedTimetableID == timetable.id {
               Image(systemName: "checkmark")
-            }
+						}
             Text(timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title)
           }
         })
@@ -106,6 +108,13 @@ struct CompactTimetableSelector: View {
           await createTimetable()
         }
       }
+
+      Button(String(localized: "Duplicate My Table", bundle: .module), systemImage: "plus.square.on.square") {
+        Task {
+          await duplicateMyTable()
+        }
+      }
+      .disabled(isDuplicatingMyTable)
 
       Divider()
 

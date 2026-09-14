@@ -16,6 +16,7 @@ enum TimetableViewEvent: Event {
   case tableRenamed
   case tableDeleted
   case tableCreated
+  case tableDuplicated
 
   var source: String { "TimetableView" }
 
@@ -35,6 +36,8 @@ enum TimetableViewEvent: Event {
       "table_deleted"
     case .tableCreated:
       "table_created"
+    case .tableDuplicated:
+      "table_duplicated"
     }
   }
 
