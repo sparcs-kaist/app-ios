@@ -25,13 +25,16 @@ struct TimetableActivityCell: View {
           .opacity(renderingMode == .accented ? 0.2 : 1)
         VStack(alignment: .leading, spacing: placement == .widget ? 2 : 4) {
           Text(activity.title)
-            .font(.caption.weight(.medium))
-            .lineLimit(3)
+						.minimumScaleFactor(placement == .widget ? 0.8 : 1)
+						.font(.caption)
+						.lineLimit(3)
+					
           if geometry.size.height > 40, !activity.location.isEmpty {
             Text(activity.location)
-              .font(.caption2)
-              .lineLimit(2)
-              .opacity(0.8)
+							.minimumScaleFactor(0.8)
+							.lineLimit(2)
+							.font(.caption2)
+							.opacity(0.8)
           }
         }
         .padding(6)
