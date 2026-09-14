@@ -125,7 +125,14 @@ struct BuddyTimetableWidget: Widget {
   var body: some WidgetConfiguration {
     AppIntentConfiguration(kind: kind, intent: TimetableConfigurationIntent.self, provider: TimetableProvider()) { entry in
       BuddyTimetableWidgetEntryView(entry: entry)
-        .containerBackground(.fill.tertiary, for: .widget)
+        .containerBackground(for: .widget) {
+          // A theme that opts into a background replaces the system fill.
+          if let background = entry.theme.backgroundColor {
+            background
+          } else {
+            Rectangle().fill(.fill.tertiary)
+          }
+        }
     }
 		.supportedFamilies({
 			if #available(iOS 27.0, *) {

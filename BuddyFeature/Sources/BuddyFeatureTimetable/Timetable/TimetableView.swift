@@ -165,25 +165,26 @@ public struct TimetableView: View {
   }
 
   private func gridCard(height: CGFloat) -> some View {
-    TimetableGrid(
-      selectedTimetable: viewModel.timetableWithCandidate,
-      candidateLecture: viewModel.candidateLecture,
-      selectedLecture: { selectedLecture in
-        self.selectedLecture = selectedLecture
-      },
-      onDelete: { lecture in
-        Task {
-          await viewModel.deleteLecture(lecture: lecture)
-        }
-      },
-      onEditActivity: viewModel.selectedTimetableID == nil ? nil : { editingActivity = $0 },
-      onDeleteActivity: viewModel.selectedTimetableID == nil ? nil : { activity in
-        Task { await viewModel.deleteActivity(activity) }
-      },
-      placement: .view
-    )
-    .animation(nil, value: viewModel.selectedSemester)
-    .timetableCardStyle()
+    ThemedGridCard {
+      TimetableGrid(
+        selectedTimetable: viewModel.timetableWithCandidate,
+        candidateLecture: viewModel.candidateLecture,
+        selectedLecture: { selectedLecture in
+          self.selectedLecture = selectedLecture
+        },
+        onDelete: { lecture in
+          Task {
+            await viewModel.deleteLecture(lecture: lecture)
+          }
+        },
+        onEditActivity: viewModel.selectedTimetableID == nil ? nil : { editingActivity = $0 },
+        onDeleteActivity: viewModel.selectedTimetableID == nil ? nil : { activity in
+          Task { await viewModel.deleteActivity(activity) }
+        },
+        placement: .view
+      )
+      .animation(nil, value: viewModel.selectedSemester)
+    }
     .frame(height: height)
   }
 
@@ -236,6 +237,25 @@ public struct TimetableView: View {
 }
 
 // MARK: - Card Styling
+
+/// The grid's card. A separate view because `TimetableView` injects the theme on
+/// its own body, and a view never observes environment values it sets there.
+/// A theme that opts into a background replaces the card's usual fill and glass.
+private struct ThemedGridCard<Content: View>: View {
+  @Environment(\.timetableTheme) private var theme
+  @ViewBuilder let content: Content
+
+  var body: some View {
+    if let background = theme.backgroundColor {
+      content
+        .padding()
+        .background(background, in: .rect(cornerRadius: 28))
+    } else {
+      content
+        .timetableCardStyle()
+    }
+  }
+}
 
 private struct TimetableCardStyle: ViewModifier {
   @Environment(\.colorScheme) private var colorScheme

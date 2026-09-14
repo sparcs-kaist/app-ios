@@ -17,6 +17,13 @@ public struct TimetableTheme: Identifiable, Hashable, Codable, Sendable {
   public var name: String
   public var hexColors: [String]
   public var textColorHex: String
+  /// Nil follows the system separator. Themes saved before this existed decode as nil.
+  public var separatorColorHex: String?
+  /// Nil leaves the surrounding container's background in place.
+  public var backgroundColorHex: String?
+  /// Day and hour labels. Nil derives them from the background, or falls back to
+  /// the system's primary colour when the background isn't themed either.
+  public var gridLabelColorHex: String?
   public let isBuiltIn: Bool
 
   public init(
@@ -24,17 +31,47 @@ public struct TimetableTheme: Identifiable, Hashable, Codable, Sendable {
     name: String,
     hexColors: [String],
     textColorHex: String,
+    separatorColorHex: String? = nil,
+    backgroundColorHex: String? = nil,
+    gridLabelColorHex: String? = nil,
     isBuiltIn: Bool = false
   ) {
     self.id = id
     self.name = name
     self.hexColors = hexColors
     self.textColorHex = textColorHex
+    self.separatorColorHex = separatorColorHex
+    self.backgroundColorHex = backgroundColorHex
+    self.gridLabelColorHex = gridLabelColorHex
     self.isBuiltIn = isBuiltIn
   }
 
   public var colors: [Color] { hexColors.map { Color(hex: $0) } }
   public var textColor: Color { Color(hex: textColorHex) }
+
+  /// Both are opt-in: nil means "leave it as the app already draws it".
+  public var separatorColor: Color? { separatorColorHex.map { Color(hex: $0) } }
+  public var backgroundColor: Color? { backgroundColorHex.map { Color(hex: $0) } }
+
+  /// The colour for the grid's day and hour labels, in priority order: what the
+  /// theme sets explicitly, otherwise something that reads over a themed
+  /// background (its brightness, not the cell text colour, which is picked to
+  /// read over the cells). Nil keeps them on the system's primary colour.
+  public var gridLabelColor: Color? {
+    if let gridLabelColorHex { return Color(hex: gridLabelColorHex) }
+    guard let backgroundColorHex else { return nil }
+    return Self.isDark(hex: backgroundColorHex) ? .white : .black
+  }
+
+  /// Perceived brightness (ITU-R BT.601) of an `RRGGBB` string.
+  static func isDark(hex: String) -> Bool {
+    var value: UInt64 = 0
+    Scanner(string: hex).scanHexInt64(&value)
+    let red = Double((value >> 16) & 0xFF) / 255
+    let green = Double((value >> 8) & 0xFF) / 255
+    let blue = Double(value & 0xFF) / 255
+    return (0.299 * red + 0.587 * green + 0.114 * blue) < 0.55
+  }
 
   /// Provided themes are localised; a user's theme keeps the name they typed.
   public var displayName: String {
@@ -223,23 +260,17 @@ public extension TimetableTheme {
 // MARK: - Authoring
 
 public extension TimetableTheme {
-  /// A blank canvas for a new user theme.
-  static func makeCustom(name: String) -> TimetableTheme {
-    TimetableTheme(
-      id: "custom.\(UUID().uuidString)",
-      name: name,
-      hexColors: TimetableTheme.default.hexColors,
-      textColorHex: TimetableTheme.default.textColorHex
-    )
-  }
-
-  /// A user-owned copy of an existing theme, ready to edit.
+  /// A user-owned copy of an existing theme, ready to edit. Also how a brand new
+  /// theme starts out, seeded from whichever theme is currently selected.
   func duplicated(named name: String) -> TimetableTheme {
     TimetableTheme(
       id: "custom.\(UUID().uuidString)",
       name: name,
       hexColors: hexColors,
-      textColorHex: textColorHex
+      textColorHex: textColorHex,
+      separatorColorHex: separatorColorHex,
+      backgroundColorHex: backgroundColorHex,
+      gridLabelColorHex: gridLabelColorHex
     )
   }
 

@@ -43,7 +43,11 @@ public struct TimetableThemeSettingsView: View {
         }
 
         Button(String(localized: "New Theme", bundle: .module), systemImage: "plus") {
-          editingTheme = .makeCustom(name: String(localized: "My Theme", bundle: .module))
+          // Starts from whatever is on screen, so the editor opens on the colours
+          // the user is already looking at rather than resetting to the default.
+          editingTheme = viewModel.selectedTheme.duplicated(
+            named: String(localized: "My Theme", bundle: .module)
+          )
         }
       } header: {
         Text("My Themes", bundle: .module)
@@ -82,16 +86,8 @@ public struct TimetableThemeSettingsView: View {
   // MARK: - Preview
 
   private var preview: some View {
-    TimetableGrid(
-      selectedTimetable: sampleTimetable,
-      beginTime: TimetableThemeSample.beginTime,
-      endTime: TimetableThemeSample.endTime,
-      placement: .view
-    )
-    .timetableTheme(viewModel.selectedTheme)
-    .frame(height: 280)
-    .padding(.vertical, 8)
-    .accessibilityLabel(Text("Timetable preview using \(viewModel.selectedTheme.displayName)", bundle: .module))
+    ThemedSampleGrid(theme: viewModel.selectedTheme, timetable: sampleTimetable)
+      .accessibilityLabel(Text("Timetable preview using \(viewModel.selectedTheme.displayName)", bundle: .module))
   }
 
   // MARK: - Rows
@@ -140,6 +136,30 @@ public struct TimetableThemeSettingsView: View {
           editingTheme = theme
         }
         .tint(.accentColor)
+      }
+    }
+  }
+}
+
+/// The sample week under a given theme. Shared by the theme list and the editor
+/// so both preview identically, including an opted-in background colour.
+struct ThemedSampleGrid: View {
+  let theme: TimetableTheme
+  let timetable: Timetable
+
+  var body: some View {
+    TimetableGrid(
+      selectedTimetable: timetable,
+      beginTime: TimetableThemeSample.beginTime,
+      endTime: TimetableThemeSample.endTime,
+      placement: .view
+    )
+    .timetableTheme(theme)
+    .frame(height: 280)
+    .padding(8)
+    .background {
+      if let background = theme.backgroundColor {
+        RoundedRectangle(cornerRadius: 16).fill(background)
       }
     }
   }
