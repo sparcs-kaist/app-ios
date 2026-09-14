@@ -16,6 +16,8 @@ public protocol TimetableUseCaseProtocol: Observable, Sendable {
   func deleteTable(id: Int) async throws
   func renameTable(id: Int, title: String) async throws
   func createTable(semester: Semester) async throws -> TableCreation
+  /// Creates a new table for the semester holding a copy of the semester's "my table".
+  func duplicateMyTable(semester: Semester, title: String) async throws -> TableDuplication
   func addLecture(timetableID: Int, lectureID: Int) async throws
   func deleteLecture(timetableID: Int, lectureID: Int) async throws
   func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws -> Timetable

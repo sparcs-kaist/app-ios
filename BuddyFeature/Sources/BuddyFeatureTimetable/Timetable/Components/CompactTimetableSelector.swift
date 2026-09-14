@@ -16,12 +16,15 @@ struct CompactTimetableSelector: View {
   let timetables: [TimetableSummary]
   @Binding var selectedTimetableID: Int?
   let createTimetable: () async -> Void
+  let duplicateMyTable: () async -> Void
+  let isDuplicatingMyTable: Bool
   let renameTimetable: (String) async -> Void
   let deleteTimetable: () async -> Void
 	let isWide: Bool
 
   @State private var showRenameAlert: Bool = false
   @State private var renameText: String = ""
+  @State private var showDeleteConfirmation: Bool = false
 
   var body: some View {
     ZStack {
@@ -37,6 +40,23 @@ struct CompactTimetableSelector: View {
 				}
 
         tableSelector
+					.confirmationDialog(
+						String(localized: "Delete \"\(displayName)\"?", bundle: .module),
+						isPresented: $showDeleteConfirmation,
+						titleVisibility: .visible,
+						actions: {
+							Button(String(localized: "Delete", bundle: .module), role: .destructive, action: {
+								Task {
+									await deleteTimetable()
+								}
+							})
+							
+							Button(String(localized: "Cancel", bundle: .module), role: .cancel, action: {})
+						},
+						message: {
+							Text("This timetable and its courses will be permanently deleted.", bundle: .module)
+						}
+					)
       }
     }
     .frame(height: 30)
@@ -77,7 +97,7 @@ struct CompactTimetableSelector: View {
           HStack {
             if selectedTimetableID == timetable.id {
               Image(systemName: "checkmark")
-            }
+						}
             Text(timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title)
           }
         })
@@ -89,6 +109,13 @@ struct CompactTimetableSelector: View {
         }
       }
 
+      Button(String(localized: "Duplicate My Table", bundle: .module), systemImage: "plus.square.on.square") {
+        Task {
+          await duplicateMyTable()
+        }
+      }
+      .disabled(isDuplicatingMyTable)
+
       Divider()
 
       Button(String(localized: "Rename", bundle: .module), systemImage: "square.and.pencil") {
@@ -97,9 +124,7 @@ struct CompactTimetableSelector: View {
       .disabled(selectedTimetableID == nil)
 
       Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
-        Task {
-          await deleteTimetable()
-        }
+        showDeleteConfirmation = true
       }
       .tint(nil)
       .disabled(selectedTimetableID == nil)

@@ -80,6 +80,9 @@ public final class TimetableViewModel {
   var candidateLecture: Lecture? = nil
 
   public var isLoading: Bool = true
+  /// Duplicating replays every lecture and activity, so it is slow enough that the
+  /// menu entry must not be tappable twice.
+  public var isDuplicatingTable: Bool = false
 
   public init(selectionStore: TimetableSelectionStore = .init(), timetableUseCase: TimetableUseCaseProtocol? = nil) {
     self.selectionStore = selectionStore
@@ -315,5 +318,60 @@ public final class TimetableViewModel {
       )
       isAlertPresented = true
     }
+  }
+
+  /// Copies "My Table" of the selected semester into a new table and selects it.
+  func duplicateMyTable() async {
+    guard let timetableUseCase,
+          let selectedSemester,
+          !isDuplicatingTable else { return }
+
+    isDuplicatingTable = true
+    defer { isDuplicatingTable = false }
+
+    do {
+      let duplication = try await timetableUseCase.duplicateMyTable(
+        semester: selectedSemester,
+        title: duplicateTitle()
+      )
+      analyticsService?.logEvent(TimetableViewEvent.tableDuplicated)
+      timetableListTask?.cancel()
+      timetableListTask = Task {
+        await updateTimetableList()
+        selectedTimetableID = duplication.id
+      }
+      WidgetCenter.shared.reloadAllTimelines()
+
+      // The table exists either way; tell the user only when it is incomplete.
+      if !duplication.isComplete {
+        alertState = .init(
+          title: String(localized: "Timetable partially duplicated.", bundle: .module),
+          message: String(localized: "Some lectures or activities could not be copied.", bundle: .module)
+        )
+        isAlertPresented = true
+      }
+    } catch {
+      crashlyticsService?.recordException(error: error)
+      alertState = .init(
+        title: String(localized: "Unable to duplicate timetable.", bundle: .module),
+        message: error.localizedDescription
+      )
+      isAlertPresented = true
+    }
+  }
+
+  /// A title that does not clash with the semester's existing tables, so repeated
+  /// duplicates stay distinguishable in the selector.
+  private func duplicateTitle() -> String {
+    let base = String(localized: "My Table Copy", bundle: .module)
+    let existing = Set(timetables.map(\.title))
+
+    guard existing.contains(base) else { return base }
+
+    var index = 2
+    while existing.contains("\(base) \(index)") {
+      index += 1
+    }
+    return "\(base) \(index)"
   }
 }

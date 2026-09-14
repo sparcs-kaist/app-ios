@@ -153,6 +153,10 @@ public struct TimetableView: View {
       createTimetable: {
         await viewModel.createTable()
       },
+      duplicateMyTable: {
+        await viewModel.duplicateMyTable()
+      },
+      isDuplicatingMyTable: viewModel.isDuplicatingTable,
       renameTimetable: { title in
         await viewModel.renameTable(title: title)
       },
