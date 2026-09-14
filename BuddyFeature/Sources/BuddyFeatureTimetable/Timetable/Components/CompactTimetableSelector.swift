@@ -22,6 +22,7 @@ struct CompactTimetableSelector: View {
 
   @State private var showRenameAlert: Bool = false
   @State private var renameText: String = ""
+  @State private var showDeleteConfirmation: Bool = false
 
   var body: some View {
     ZStack {
@@ -37,6 +38,23 @@ struct CompactTimetableSelector: View {
 				}
 
         tableSelector
+					.confirmationDialog(
+						String(localized: "Delete \"\(displayName)\"?", bundle: .module),
+						isPresented: $showDeleteConfirmation,
+						titleVisibility: .visible,
+						actions: {
+							Button(String(localized: "Delete", bundle: .module), role: .destructive, action: {
+								Task {
+									await deleteTimetable()
+								}
+							})
+							
+							Button(String(localized: "Cancel", bundle: .module), role: .cancel, action: {})
+						},
+						message: {
+							Text("This timetable and its courses will be permanently deleted.", bundle: .module)
+						}
+					)
       }
     }
     .frame(height: 30)
@@ -97,9 +115,7 @@ struct CompactTimetableSelector: View {
       .disabled(selectedTimetableID == nil)
 
       Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
-        Task {
-          await deleteTimetable()
-        }
+        showDeleteConfirmation = true
       }
       .tint(nil)
       .disabled(selectedTimetableID == nil)

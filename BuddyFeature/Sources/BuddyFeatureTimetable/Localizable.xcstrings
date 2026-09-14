@@ -570,6 +570,22 @@
         }
       }
     },
+    "Delete \"%@\"?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete \"%@\"?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” 시간표를 삭제할까요?"
+          }
+        }
+      }
+    },
     "Department" : {
       "localizations" : {
         "en" : {
@@ -1241,6 +1257,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이미 시간표에 있는 강의와 시간이 겹칩니다."
+          }
+        }
+      }
+    },
+    "This timetable and its courses will be permanently deleted." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This timetable and its courses will be permanently deleted."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 시간표와 등록된 과목이 모두 삭제됩니다."
           }
         }
       }
