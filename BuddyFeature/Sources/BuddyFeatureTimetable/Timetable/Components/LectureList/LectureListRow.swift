@@ -7,15 +7,17 @@
 
 import SwiftUI
 import BuddyDomain
+import TimetableUI
 
 struct LectureListRow: View {
 	let lecture: Lecture
-	
+	@Environment(\.timetableTheme) private var theme
+
 	var body: some View {
 		HStack(alignment: .center) {
 			Circle()
 				.frame(width: 12, height: 12)
-				.foregroundStyle(lecture.backgroundColor)
+				.foregroundStyle(theme.color(forCourseID: lecture.courseID))
 			
 			VStack(alignment: .leading) {
 				Text(lecture.name)

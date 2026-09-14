@@ -19,6 +19,22 @@ public extension Color {
         
         self.init(red: red, green: green, blue: blue)
     }
+
+    /// Six-digit RRGGBB, the storage format used by timetable themes.
+    var hexString: String {
+      #if os(iOS) || os(watchOS) || os(tvOS)
+      var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+      UIColor(self).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+      return String(
+        format: "%02X%02X%02X",
+        Int((max(0, min(1, red)) * 255).rounded()),
+        Int((max(0, min(1, green)) * 255).rounded()),
+        Int((max(0, min(1, blue)) * 255).rounded())
+      )
+      #else
+      return "000000"
+      #endif
+    }
 }
 
 public extension Color {

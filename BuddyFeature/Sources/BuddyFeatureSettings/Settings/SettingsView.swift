@@ -37,6 +37,10 @@ public struct SettingsView: View {
           NavigationLink(String(localized: "Ara", bundle: .module)) { AraSettingsView() }
           NavigationLink(String(localized: "Taxi", bundle: .module)) { TaxiSettingsView() }
         }
+
+        Section(header: Text("Appearance", bundle: .module)) {
+          NavigationLink(String(localized: "Timetable Theme", bundle: .module)) { TimetableThemeSettingsView() }
+        }
 				
 				Section {
 					Button(String(localized: "Chat with Us", bundle: .module), systemImage: "bubble.left.and.text.bubble.right") {

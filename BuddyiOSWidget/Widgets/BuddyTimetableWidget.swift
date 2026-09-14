@@ -23,6 +23,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
 
   func snapshot(for configuration: TimetableConfigurationIntent, in context: Context) async -> TimetableEntry {
     let now = Date()
+    let theme = TimetableThemeStore().resolvedTheme(id: configuration.theme?.id)
 
     let timetableService = TimetableService()
     try? await timetableService.setup()
@@ -32,7 +33,8 @@ struct TimetableProvider: AppIntentTimelineProvider {
         date: now,
         timetable: nil,
         signInRequired: true,
-        relevance: .init(score: 10)
+        relevance: .init(score: 10),
+        theme: theme
       )
       return entry
     }
@@ -47,7 +49,8 @@ struct TimetableProvider: AppIntentTimelineProvider {
       date: now,
       timetable: timetable,
       signInRequired: false,
-      relevance: .init(score: 100)
+      relevance: .init(score: 100),
+      theme: theme
     )
 
     return entry
@@ -55,6 +58,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
 
   func timeline(for configuration: TimetableConfigurationIntent, in context: Context) async -> Timeline<TimetableEntry> {
     let now = Date()
+    let theme = TimetableThemeStore().resolvedTheme(id: configuration.theme?.id)
 
     let timetableService = TimetableService()
     try? await timetableService.setup()
@@ -64,7 +68,8 @@ struct TimetableProvider: AppIntentTimelineProvider {
         date: now,
         timetable: nil,
         signInRequired: true,
-        relevance: .init(score: 10)
+        relevance: .init(score: 10),
+        theme: theme
       )
       return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
@@ -77,7 +82,8 @@ struct TimetableProvider: AppIntentTimelineProvider {
 				date: now,
 				timetable: timetable,
 				signInRequired: false,
-				relevance: .init(score: 100)
+				relevance: .init(score: 100),
+				theme: theme
 			)
 			
 			return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*60)))
@@ -88,7 +94,8 @@ struct TimetableProvider: AppIntentTimelineProvider {
       date: now,
       timetable: timetable,
       signInRequired: false,
-      relevance: .init(score: 100)
+      relevance: .init(score: 100),
+      theme: theme
     )
 
     return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*60)))

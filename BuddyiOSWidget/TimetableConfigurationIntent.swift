@@ -17,16 +17,22 @@ struct TimetableConfigurationIntent: WidgetConfigurationIntent {
 	
 	@Parameter(title: "Timetable", optionsProvider: TimetableOptionsProvider())
 	var timetable: TimetableEntity?
-	
+
+	/// Leaving this empty follows the theme chosen in Settings.
+	@Parameter(title: "Theme", optionsProvider: TimetableThemeOptionsProvider())
+	var theme: TimetableThemeEntity?
+
 	static var parameterSummary: some ParameterSummary {
 		When(\.$mirrorTimetable, .equalTo, false) {
 			Summary {
 				\.$mirrorTimetable
 				\.$timetable
+				\.$theme
 			}
 		} otherwise: {
 			Summary {
 				\.$mirrorTimetable
+				\.$theme
 			}
 		}
 	}

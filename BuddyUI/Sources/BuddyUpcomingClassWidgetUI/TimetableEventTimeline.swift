@@ -5,7 +5,13 @@ import WidgetKit
 /// Builds entries for lectures and custom activities, including ongoing events
 /// and their end boundaries so an activity never remains after it has finished.
 public enum TimetableEventTimeline {
-  public static func entries(for timetable: Timetable, now: Date = .now) -> [LectureEntry] {
+  /// - Parameter theme: The colour set this widget was configured with; it drives
+  ///   the accent colour shown alongside the class.
+  public static func entries(
+    for timetable: Timetable,
+    now: Date = .now,
+    theme: TimetableTheme = .default
+  ) -> [LectureEntry] {
     let calendar = Calendar.current
     let day = DayType.from(date: now, calendar: calendar)
     let lectures = timetable.lectureItems(for: now)
@@ -13,13 +19,15 @@ public enum TimetableEventTimeline {
     var events: [(begin: Int, end: Int, entry: (Date, Date) -> LectureEntry)] = lectures.map { item in
       (item.lectureClass.begin, item.lectureClass.end, { date, start in
         LectureEntry(date: date, lecture: item.lecture, lectureClass: item.lectureClass,
-          startDate: start, signInRequired: false, backgroundColor: item.lecture.backgroundColor, relevance: .init(score: 80))
+          startDate: start, signInRequired: false,
+          backgroundColor: theme.color(forCourseID: item.lecture.courseID), relevance: .init(score: 80))
       })
     }
     events += activities.map { activity in
       (activity.begin, activity.end, { date, start in
         LectureEntry(date: date, lecture: nil, lectureClass: nil, startDate: start,
-          signInRequired: false, backgroundColor: activity.backgroundColor, relevance: .init(score: 80), activity: activity)
+          signInRequired: false, backgroundColor: theme.color(forActivityID: activity.id),
+          relevance: .init(score: 80), activity: activity)
       })
     }
     events.sort { $0.begin < $1.begin }

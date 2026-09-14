@@ -46,7 +46,8 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
 
   func timeline(for configuration: TimetableConfigurationIntent, in context: Context) async -> Timeline<LectureEntry> {
 		let now = Date()
-		
+		let theme = TimetableThemeStore().resolvedTheme(id: configuration.theme?.id)
+
     let timetableService = TimetableService()
     try? await timetableService.setup()
 
@@ -67,13 +68,13 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
 		if !configuration.mirrorTimetable,
 			 let entity = configuration.timetable {
 			let timetable: Timetable = await timetableUseCase.getTable(timetableID: entity.id)
-			let entries = TimetableEventTimeline.entries(for: timetable, now: now)
-			
+			let entries = TimetableEventTimeline.entries(for: timetable, now: now, theme: theme)
+
 			return Timeline(entries: entries, policy: .atEnd)
 		}
 
     let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
-    let entries = TimetableEventTimeline.entries(for: timetable, now: now)
+    let entries = TimetableEventTimeline.entries(for: timetable, now: now, theme: theme)
 
     return Timeline(entries: entries, policy: .atEnd)
   }
