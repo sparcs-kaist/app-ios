@@ -19,6 +19,8 @@ public struct TaxiListView: View {
   }
 
   @State var viewModel: TaxiListViewModelProtocol
+  /// Backs the "Active Groups" section shown in the wide layout's left column.
+  @State private var chatListViewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()
   @Namespace private var namespace
 
   // view properties
@@ -27,12 +29,21 @@ public struct TaxiListView: View {
   // show taxi room preview
   @State private var showRoomCreationSheet: Bool = false
   @State private var selectedRoom: TaxiRoom? = nil
+  @State private var selectedChatRoom: TaxiRoom? = nil
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(initialValue: viewModel)
+  }
+
+  init(
+    viewModel: TaxiListViewModelProtocol,
+    chatListViewModel: TaxiChatListViewModelProtocol
+  ) {
+    _viewModel = State(initialValue: viewModel)
+    _chatListViewModel = State(initialValue: chatListViewModel)
   }
 
   private var isInteractable: Bool {
@@ -58,69 +69,19 @@ public struct TaxiListView: View {
   }
 
   public var body: some View {
-    ScrollViewReader { scrollViewProxy in
-      ScrollView {
-        LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
-          TaxiDestinationPicker(
-            source: $viewModel.source,
-            destination: $viewModel.destination,
-            locations: viewModel.locations
-          )
-          .padding()
-          .background(
-            colorScheme == .light ? Color.secondarySystemGroupedBackground : Color.clear,
-            in: .rect(cornerRadius: 28)
-          )
-          .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
-          .padding(.horizontal)
-          .redacted(reason: isInteractable ? [] : .placeholder)
-          .disabled(!isInteractable)
-
-          Section {
-            Group {
-              switch viewModel.state {
-              case .loading:
-                loadingView()
-              case .loaded(let rooms, _):
-                TaxiRoomWeekList(
-                  rooms: rooms,
-                  week: viewModel.week,
-                  source: viewModel.source,
-                  destination: viewModel.destination,
-                  emptyDescription: description,
-                  onSelectRoom: { room in
-                    Haptic.selection.generate()
-                    selectedRoom = room
-                  },
-                  onCreateRoom: { showRoomCreationSheet = true },
-                  onClearSelection: {
-                    viewModel.source = nil
-                    viewModel.destination = nil
-                  }
-                )
-              case .empty:
-                emptyView()
-              case .error(let message):
-                errorView(errorMessage: message)
-              }
-            }
-            .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-          } header: {
-            WeekDaySelector(selectedDate: $viewModel.selectedDate, week: viewModel.week)  { day in
-              scrollViewProxy.scrollTo(day.weekdaySymbol, anchor: .center)
-            }
-            .padding(.horizontal)
-            .redacted(reason: isInteractable ? [] : .placeholder)
-            .disabled(!isInteractable)
+    GeometryReader { reader in
+      ScrollViewReader { scrollViewProxy in
+        Group {
+          if reader.size.width > LayoutMetrics.twoColumnWidthThreshold {
+            wideLayout(scrollViewProxy: scrollViewProxy)
+          } else {
+            compactLayout(scrollViewProxy: scrollViewProxy)
           }
         }
-        .padding(.bottom)
-        .contentWidth()
-      }
-      .scrollPosition(id: $scrollTarget, anchor: .top)
-      .onChange(of: scrollTarget) {
-        withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) {
-          viewModel.selectedDate = viewModel.week.first(where: { $0.weekdaySymbol == scrollTarget }) ?? Date()
+        .onChange(of: scrollTarget) {
+          withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) {
+            viewModel.selectedDate = viewModel.week.first(where: { $0.weekdaySymbol == scrollTarget }) ?? Date()
+          }
         }
       }
     }
@@ -153,6 +114,9 @@ public struct TaxiListView: View {
         TaxiChatListView()
       }
     }
+    .navigationDestination(item: $selectedChatRoom) { room in
+      TaxiChatView(room: room)
+    }
     .sheet(isPresented: $showRoomCreationSheet) {
       TaxiRoomCreationView(viewModel: viewModel)
         .navigationTransition(.zoom(sourceID: "RoomCreationView", in: namespace))
@@ -177,6 +141,150 @@ public struct TaxiListView: View {
     .analyticsScreen(name: "Taxi List", class: String(describing: Self.self))
   }
 
+  /// Single-column layout: everything scrolls together, with the weekday
+  /// selector pinned as a section header.
+  private func compactLayout(scrollViewProxy: ScrollViewProxy) -> some View {
+    ScrollView {
+      LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
+        destinationPicker
+
+        Section {
+          roomsContent
+        } header: {
+          weekDaySelector(scrollViewProxy: scrollViewProxy)
+        }
+      }
+      .padding(.bottom)
+      .contentWidth()
+    }
+    .scrollEdgeEffectStyle(.soft, for: .top)
+    .scrollPosition(id: $scrollTarget, anchor: .top)
+  }
+
+  /// Two-column layout for wide screens: pickers and active chat groups scroll
+  /// on the left half while the room list scrolls on the right half.
+  private func wideLayout(scrollViewProxy: ScrollViewProxy) -> some View {
+    HStack(alignment: .top, spacing: 0) {
+      ScrollView {
+        VStack(spacing: 16) {
+          destinationPicker
+
+          weekDaySelector(scrollViewProxy: scrollViewProxy)
+
+          activeChatGroups
+        }
+        .padding(.bottom)
+        .contentWidth()
+      }
+      .scrollEdgeEffectStyle(.soft, for: .top)
+      .task {
+        await chatListViewModel.fetchData()
+      }
+
+      ScrollView {
+        LazyVStack(spacing: 16) {
+          roomsContent
+        }
+        .padding(.bottom)
+        .contentWidth()
+      }
+      .scrollEdgeEffectStyle(.soft, for: .top)
+      .scrollPosition(id: $scrollTarget, anchor: .top)
+    }
+  }
+
+  private var destinationPicker: some View {
+    TaxiDestinationPicker(
+      source: $viewModel.source,
+      destination: $viewModel.destination,
+      locations: viewModel.locations
+    )
+    .padding()
+    .background(
+      colorScheme == .light ? Color.secondarySystemGroupedBackground : Color.clear,
+      in: .rect(cornerRadius: 28)
+    )
+    .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
+    .padding(.horizontal)
+    .redacted(reason: isInteractable ? [] : .placeholder)
+    .disabled(!isInteractable)
+  }
+
+  private func weekDaySelector(scrollViewProxy: ScrollViewProxy) -> some View {
+    WeekDaySelector(selectedDate: $viewModel.selectedDate, week: viewModel.week) { day in
+      scrollViewProxy.scrollTo(day.weekdaySymbol, anchor: .top)
+    }
+    .padding(.horizontal)
+    .redacted(reason: isInteractable ? [] : .placeholder)
+    .disabled(!isInteractable)
+  }
+
+  /// The user's on-going chat groups, shown below the pickers in the wide
+  /// layout. Errors stay silent here — the full chat list remains reachable
+  /// from the toolbar.
+  @ViewBuilder
+  private var activeChatGroups: some View {
+    switch chatListViewModel.state {
+    case .loading:
+      TaxiRoomGroupSection(
+        title: String(localized: "Active Groups", bundle: .module),
+        rooms: Array(TaxiRoom.mockList.prefix(2)),
+        selectedRoom: nil,
+        taxiUser: nil,
+        onSelect: { _ in }
+      )
+      .padding(.horizontal)
+      .redacted(reason: .placeholder)
+      .disabled(true)
+    case .loaded(let onGoing, _):
+      if !onGoing.isEmpty {
+        TaxiRoomGroupSection(
+          title: String(localized: "Active Groups", bundle: .module),
+          rooms: onGoing,
+          selectedRoom: selectedChatRoom,
+          taxiUser: chatListViewModel.taxiUser,
+          onSelect: { room in
+            Haptic.selection.generate()
+            selectedChatRoom = room
+          }
+        )
+        .padding(.horizontal)
+      }
+    case .error:
+      EmptyView()
+    }
+  }
+
+  private var roomsContent: some View {
+    Group {
+      switch viewModel.state {
+      case .loading:
+        loadingView()
+      case .loaded(let rooms, _):
+        TaxiRoomWeekList(
+          rooms: rooms,
+          week: viewModel.week,
+          source: viewModel.source,
+          destination: viewModel.destination,
+          emptyDescription: description,
+          onSelectRoom: { room in
+            Haptic.selection.generate()
+            selectedRoom = room
+          },
+          onCreateRoom: { showRoomCreationSheet = true },
+          onClearSelection: {
+            viewModel.source = nil
+            viewModel.destination = nil
+          }
+        )
+      case .empty:
+        emptyView()
+      case .error(let message):
+        errorView(errorMessage: message)
+      }
+    }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+  }
 
   private func loadingView() -> some View {
     VStack(spacing: 12) {
@@ -232,7 +340,12 @@ public struct TaxiListView: View {
     rooms: TaxiRoom.mockList,
     locations: TaxiLocation.mockList
   )
-  TaxiListView(viewModel: PreviewTaxiListViewModel(state: state))
+  TaxiListView(
+    viewModel: PreviewTaxiListViewModel(state: state),
+    chatListViewModel: PreviewTaxiChatListViewModel(
+      state: .loaded(onGoing: Array(TaxiRoom.mockList.prefix(2)), done: [])
+    )
+  )
 }
 
 #Preview("Empty State") {
