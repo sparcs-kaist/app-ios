@@ -19,6 +19,9 @@ struct ColorItem: Identifiable {
 struct TimetableThemeEditorView: View {
   @Environment(\.dismiss) private var dismiss
 
+  /// A theme carries 1–16 colours. Courses cycle through them in order, so a
+  /// single colour is a valid (if monotone) theme and an empty one is not.
+  private static let minimumColors = 1
   private static let maximumColors = 16
 
   let sampleTimetable: Timetable
@@ -74,30 +77,40 @@ struct TimetableThemeEditorView: View {
       }
 
       Section {
-				ForEach($colors) { $color in
-					ColorPicker(
-						String(localized: "Colour", bundle: .module),
-						selection: $color.color,
-						supportsOpacity: false
-					)
-				}
-				.onMove(perform: moveItems)
-				.onDelete(perform: deleteItems)
+        ForEach($colors) { $color in
+          ColorPicker(
+            String(localized: "Colour", bundle: .module),
+            selection: $color.color,
+            supportsOpacity: false
+          )
+          // The last colour can't go: a theme with no palette has nothing to
+          // draw cells with.
+          .deleteDisabled(colors.count <= Self.minimumColors)
+        }
+        .onMove(perform: moveItems)
+        .onDelete(perform: deleteItems)
+
+        Button(String(localized: "Add Colour", bundle: .module), systemImage: "plus") {
+          addColor()
+        }
+        .disabled(colors.count >= Self.maximumColors)
       } header: {
-				HStack {
-					Text("Palette", bundle: .module)
-					
-					Spacer()
-					
-					Button(isEditingSection ? "Done" : "Reorder") {
-						withAnimation {
-							isEditingSection.toggle()
-						}
-					}
-					.font(.subheadline)
-					.textCase(nil)
-				}
-			}
+        HStack {
+          Text("Palette", bundle: .module)
+
+          Spacer()
+
+          Button(isEditingSection ? "Done" : "Reorder") {
+            withAnimation {
+              isEditingSection.toggle()
+            }
+          }
+          .font(.subheadline)
+          .textCase(nil)
+        }
+      } footer: {
+        Text("Add up to 16 colours. Courses are assigned them in order, repeating as needed.", bundle: .module)
+      }
 
       Section {
         DisclosureGroup(isExpanded: $isAdvancedExpanded) {
@@ -149,32 +162,24 @@ struct TimetableThemeEditorView: View {
     }
   }
 	
-	private func deleteItems(at offsets: IndexSet) {
-		colors.remove(atOffsets: offsets)
-	}
-	
-	private func moveItems(from source: IndexSet, to destination: Int) {
-		colors.move(fromOffsets: source, toOffset: destination)
-	}
-
-  private var colorGrid: some View {
-    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
-      ForEach(Array(colors.enumerated()), id: \.element.id) { index, _ in
-        ColorPicker(
-          String(localized: "Colour \(index + 1)", bundle: .module),
-          selection: $colors[index].color,
-          supportsOpacity: false
-        )
-        .labelsHidden()
-        .contextMenu {
-          Button(String(localized: "Remove", bundle: .module), systemImage: "trash", role: .destructive) {
-            remove(at: index)
-          }
-          .disabled(colors.count <= 1)
-        }
-      }
+  private func addColor() {
+    guard colors.count < Self.maximumColors else { return }
+    // Seeds from the default palette at the new slot so a fresh row reads as a
+    // distinct colour rather than a duplicate of the one above it.
+    let palette = TimetableTheme.default.colors
+    let seed = palette.isEmpty ? .accentColor : palette[colors.count % palette.count]
+    withAnimation {
+      colors.append(ColorItem(color: seed))
     }
-    .padding(.vertical, 4)
+  }
+
+  private func deleteItems(at offsets: IndexSet) {
+    guard colors.count - offsets.count >= Self.minimumColors else { return }
+    colors.remove(atOffsets: offsets)
+  }
+
+  private func moveItems(from source: IndexSet, to destination: Int) {
+    colors.move(fromOffsets: source, toOffset: destination)
   }
 
   private var draft: TimetableTheme {
@@ -190,7 +195,7 @@ struct TimetableThemeEditorView: View {
   }
 
   private func remove(at index: Int) {
-    guard colors.count > 1, colors.indices.contains(index) else { return }
+    guard colors.count > Self.minimumColors, colors.indices.contains(index) else { return }
     colors.remove(at: index)
   }
 }
@@ -211,6 +216,22 @@ struct TimetableThemeEditorView: View {
       theme: TimetableTheme.builtIn
         .first { $0.id == "builtin.spring" }!
         .duplicated(named: "My Theme"),
+      sampleTimetable: TimetableThemeSample.timetable
+    ) { _ in }
+  }
+}
+
+/// A three-colour theme: cells cycle through the short palette rather than
+/// needing a full sixteen.
+#Preview("Short palette") {
+  NavigationStack {
+    TimetableThemeEditorView(
+      theme: TimetableTheme(
+        id: "custom.preview.short",
+        name: "Trio",
+        hexColors: ["307878", "E34B6C", "C3BA0A"],
+        textColorHex: "FFFFFF"
+      ),
       sampleTimetable: TimetableThemeSample.timetable
     ) { _ in }
   }
