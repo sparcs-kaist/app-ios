@@ -10,15 +10,12 @@ public actor TimetableThemeRepository: TimetableThemeRepositoryProtocol {
   }
 
   public func share(_ theme: TimetableTheme) async throws -> String {
-    let response = try await provider.request(.share(TimetableThemePayload(theme)))
-    return try response.map(TimetableThemeShareResponse.self).code
+    let response = try await provider.request(.share(TimetableThemeRequestDTO.fromModel(theme)))
+    return try response.map(TimetableThemeShareResponseDTO.self).code
   }
 
   public func fetch(code: String) async throws -> TimetableTheme {
-    guard let code = TimetableThemeShareCode.normalized(code) else {
-      throw NetworkError.notFound
-    }
     let response = try await provider.request(.fetch(code: code))
-    return try response.map(TimetableThemeShareResponse.self).theme.importedTheme()
+    return try response.map(TimetableThemeShareResponseDTO.self).theme.toModel()
   }
 }

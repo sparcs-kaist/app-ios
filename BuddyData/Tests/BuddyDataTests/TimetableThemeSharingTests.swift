@@ -17,7 +17,7 @@ struct TimetableThemeSharingTests {
 
   @Test func payloadOmitsLocalIdentityAndPreservesColors() throws {
     let theme = TimetableTheme.default
-    let data = try JSONEncoder().encode(TimetableThemePayload(theme))
+    let data = try JSONEncoder().encode(TimetableThemeRequestDTO.fromModel(theme))
     let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
     #expect(json["id"] == nil)
     #expect(json["isBuiltIn"] == nil)

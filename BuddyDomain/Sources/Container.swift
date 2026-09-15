@@ -10,7 +10,7 @@ import Factory
 
 extension Container {
 
-  public var timetableThemeRepository: Factory<TimetableThemeRepositoryProtocol?> {
+  public var timetableThemeUseCase: Factory<TimetableThemeUseCaseProtocol?> {
     promised()
   }
 
