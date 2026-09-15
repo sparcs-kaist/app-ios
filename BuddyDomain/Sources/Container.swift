@@ -10,6 +10,10 @@ import Factory
 
 extension Container {
 
+  public var timetableThemeRepository: Factory<TimetableThemeRepositoryProtocol?> {
+    promised()
+  }
+
   // MARK: - Repositories
   public var authRepository: Factory<AuthRepositoryProtocol?> {
     promised()

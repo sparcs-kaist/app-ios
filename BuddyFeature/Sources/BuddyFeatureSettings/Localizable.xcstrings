@@ -57,6 +57,16 @@
     "0" : {
       "shouldTranslate" : false
     },
+    "6-character code" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "6자리 코드"
+          }
+        }
+      }
+    },
     "Acknowledgements" : {
       "localizations" : {
         "en" : {
@@ -264,6 +274,9 @@
         }
       }
     },
+    "Cancel" : {
+
+    },
     "Change Language" : {
       "localizations" : {
         "en" : {
@@ -398,6 +411,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "게시글 설정"
+          }
+        }
+      }
+    },
+    "Could not load this theme. Please try again." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마를 불러오지 못했습니다. 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "Could not share this theme. Please try again." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마를 공유하지 못했습니다. 다시 시도해 주세요."
           }
         }
       }
@@ -685,6 +718,16 @@
         }
       }
     },
+    "Enter this code in Import Theme on another device." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 기기의 테마 가져오기에 이 코드를 입력하세요."
+          }
+        }
+      }
+    },
     "Error" : {
       "localizations" : {
         "en" : {
@@ -813,6 +856,16 @@
         }
       }
     },
+    "Find Theme" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마 찾기"
+          }
+        }
+      }
+    },
     "Force Crash" : {
       "localizations" : {
         "en" : {
@@ -825,6 +878,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "강제로 충돌 발생시키기"
+          }
+        }
+      }
+    },
+    "Import Theme" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마 가져오기"
           }
         }
       }
@@ -1065,6 +1128,16 @@
         }
       }
     },
+    "No theme found for this code." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 코드에 해당하는 테마가 없습니다."
+          }
+        }
+      }
+    },
     "Notifications" : {
       "localizations" : {
         "en" : {
@@ -1080,6 +1153,9 @@
           }
         }
       }
+    },
+    "OK" : {
+
     },
     "Okay" : {
       "localizations" : {
@@ -1329,6 +1405,16 @@
         }
       }
     },
+    "Save and Use Theme" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장하고 테마 적용"
+          }
+        }
+      }
+    },
     "Select Bank" : {
       "localizations" : {
         "en" : {
@@ -1344,6 +1430,9 @@
           }
         }
       }
+    },
+    "selected" : {
+
     },
     "Send Feedback" : {
       "localizations" : {
@@ -1423,6 +1512,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "설정"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유"
+          }
+        }
+      }
+    },
+    "Share Theme" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마 공유"
           }
         }
       }
@@ -1550,6 +1659,16 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "테마"
+          }
+        }
+      }
+    },
+    "Theme Sharing" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마 공유"
           }
         }
       }
