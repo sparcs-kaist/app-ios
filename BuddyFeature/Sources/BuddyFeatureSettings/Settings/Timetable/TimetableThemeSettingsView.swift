@@ -234,6 +234,11 @@ public struct TimetableThemeSettingsView: View {
           editingTheme = theme
         }
         .tint(.accentColor)
+        Button(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up") {
+          Task { await viewModel.share(theme) }
+        }
+        .tint(.blue)
+        .disabled(viewModel.isSharing)
       }
     }
   }
