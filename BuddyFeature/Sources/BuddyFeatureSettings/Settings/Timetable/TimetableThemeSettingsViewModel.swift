@@ -16,28 +16,12 @@ public final class TimetableThemeSettingsViewModel {
   public private(set) var customThemes: [TimetableTheme] = []
   public private(set) var selectedThemeID: String = TimetableTheme.default.id
 
-  public private(set) var isSharing = false
   public private(set) var isImporting = false
-  public var sharedCode: String?
   public var importedTheme: TimetableTheme?
   public var sharingError: String?
 
   @ObservationIgnored
   @Injected(\.timetableThemeUseCase) private var themeUseCase: TimetableThemeUseCaseProtocol?
-
-  public func share(_ theme: TimetableTheme) async {
-    guard !isSharing else { return }
-    isSharing = true
-    sharedCode = nil
-    sharingError = nil
-    defer { isSharing = false }
-    do {
-      guard let themeUseCase else { throw URLError(.unknown) }
-      sharedCode = try await themeUseCase.share(theme)
-    } catch {
-      sharingError = String(localized: "Could not share this theme. Please try again.", bundle: .module)
-    }
-  }
 
   public func fetchSharedTheme(code: String) async {
     guard !isImporting, let code = TimetableThemeShareCode.normalized(code) else { return }

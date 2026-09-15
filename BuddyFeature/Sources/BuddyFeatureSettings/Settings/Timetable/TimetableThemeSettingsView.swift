@@ -16,6 +16,7 @@ public struct TimetableThemeSettingsView: View {
   @State private var importCode = ""
   @State private var editingTheme: TimetableTheme?
   @State private var themePendingDeletion: TimetableTheme?
+  @State private var sharingTheme: TimetableTheme?
 
   private let sampleTimetable = TimetableThemeSample.timetable
 
@@ -67,11 +68,7 @@ public struct TimetableThemeSettingsView: View {
           Label(String(localized: "Import Theme", bundle: .module), systemImage: "square.and.arrow.down")
         }
         .accessibilityIdentifier("theme.import")
-        .disabled(viewModel.isSharing)
       }
-    }
-    .overlay {
-      if viewModel.isSharing { ProgressView() }
     }
     .sheet(isPresented: $isImportPresented) {
       NavigationStack {
@@ -116,37 +113,10 @@ public struct TimetableThemeSettingsView: View {
       }
       .interactiveDismissDisabled(viewModel.isImporting)
     }
-    .sheet(isPresented: Binding(
-      get: { viewModel.sharedCode != nil },
-      set: { if !$0 { viewModel.sharedCode = nil } }
-    )) {
-      NavigationStack {
-        VStack(spacing: 24) {
-          Text(viewModel.sharedCode ?? "")
-            .accessibilityIdentifier("theme.shareCode")
-            .font(.largeTitle.monospaced().bold())
-            .textSelection(.enabled)
-          Text("Enter this code in Import Theme on another device.", bundle: .module)
-            .multilineTextAlignment(.center)
-          ShareLink(item: viewModel.sharedCode ?? "")
-        }
-        .padding()
-        .navigationTitle(Text("Share Theme", bundle: .module))
-        .toolbar {
-          ToolbarItem(placement: .confirmationAction) {
-            Button(String(localized: "Done", bundle: .module)) { viewModel.sharedCode = nil }
-          }
-        }
-      }
-      .presentationDetents([.medium])
-    }
-    .alert(Text("Theme Sharing", bundle: .module), isPresented: Binding(
-      get: { viewModel.sharingError != nil && !isImportPresented },
-      set: { if !$0 { viewModel.sharingError = nil } }
-    )) {
-      Button(String(localized: "OK", bundle: .module), role: .cancel) { viewModel.sharingError = nil }
-    } message: {
-      Text(viewModel.sharingError ?? "")
+    // The upload happens inside the sheet, so it appears immediately and reports
+    // its own progress and failures rather than blocking this list.
+    .sheet(item: $sharingTheme) { theme in
+      TimetableThemeSharingView(theme: theme)
     }
     .sheet(item: $editingTheme) { theme in
       NavigationStack {
@@ -208,9 +178,8 @@ public struct TimetableThemeSettingsView: View {
     .accessibilityAddTraits(viewModel.selectedThemeID == theme.id ? [.isButton, .isSelected] : .isButton)
     .contextMenu {
       Button(String(localized: "Share Theme", bundle: .module), systemImage: "square.and.arrow.up") {
-        Task { await viewModel.share(theme) }
+        sharingTheme = theme
       }
-      .disabled(viewModel.isSharing)
       if !theme.isBuiltIn {
         Button(String(localized: "Edit", bundle: .module), systemImage: "pencil") {
           editingTheme = theme
@@ -235,10 +204,9 @@ public struct TimetableThemeSettingsView: View {
         }
         .tint(.accentColor)
         Button(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up") {
-          Task { await viewModel.share(theme) }
+          sharingTheme = theme
         }
         .tint(.blue)
-        .disabled(viewModel.isSharing)
       }
     }
   }
