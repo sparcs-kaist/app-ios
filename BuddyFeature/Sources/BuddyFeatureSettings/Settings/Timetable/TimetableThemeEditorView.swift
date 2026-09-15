@@ -9,8 +9,13 @@ import SwiftUI
 import BuddyDomain
 import TimetableUI
 
-/// Creates or edits one of the user's own themes. Collections themes reach this
-/// screen only as a duplicate, so everything here is always editable.
+/// Wraps a palette colour with a stable identity, so rows keep their identity
+/// while the colour itself is edited.
+struct ColorItem: Identifiable {
+  let id = UUID()
+  var color: Color
+}
+
 struct TimetableThemeEditorView: View {
   @Environment(\.dismiss) private var dismiss
 
@@ -20,7 +25,8 @@ struct TimetableThemeEditorView: View {
   let onSave: (TimetableTheme) -> Void
 
   @State private var name: String
-  @State private var colors: [Color]
+  @State private var colors: [ColorItem]
+	@State private var isEditingSection = false
   @State private var textColor: Color
 
   // Both are opt-in, so the toggle state is what decides whether the theme
@@ -44,7 +50,7 @@ struct TimetableThemeEditorView: View {
     self.sampleTimetable = sampleTimetable
     self.onSave = onSave
     self._name = State(initialValue: theme.name)
-    self._colors = State(initialValue: theme.colors)
+    self._colors = State(initialValue: theme.colors.map { ColorItem(color: $0) })
     self._textColor = State(initialValue: theme.textColor)
     self._usesCustomSeparator = State(initialValue: theme.separatorColorHex != nil)
     self._separatorColor = State(initialValue: theme.separatorColor ?? .separator)
@@ -68,10 +74,30 @@ struct TimetableThemeEditorView: View {
       }
 
       Section {
-        colorGrid
+				ForEach($colors) { $color in
+					ColorPicker(
+						String(localized: "Colour", bundle: .module),
+						selection: $color.color,
+						supportsOpacity: false
+					)
+				}
+				.onMove(perform: moveItems)
+				.onDelete(perform: deleteItems)
       } header: {
-        Text("Palette", bundle: .module)
-      }
+				HStack {
+					Text("Palette", bundle: .module)
+					
+					Spacer()
+					
+					Button(isEditingSection ? "Done" : "Reorder") {
+						withAnimation {
+							isEditingSection.toggle()
+						}
+					}
+					.font(.subheadline)
+					.textCase(nil)
+				}
+			}
 
       Section {
         DisclosureGroup(isExpanded: $isAdvancedExpanded) {
@@ -106,6 +132,8 @@ struct TimetableThemeEditorView: View {
         }
       }
     }
+		.listStyle(.insetGrouped)
+		.environment(\.editMode, .constant(isEditingSection ? .active : .inactive))
     .navigationTitle(Text("Theme", bundle: .module))
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
@@ -120,13 +148,21 @@ struct TimetableThemeEditorView: View {
       }
     }
   }
+	
+	private func deleteItems(at offsets: IndexSet) {
+		colors.remove(atOffsets: offsets)
+	}
+	
+	private func moveItems(from source: IndexSet, to destination: Int) {
+		colors.move(fromOffsets: source, toOffset: destination)
+	}
 
   private var colorGrid: some View {
     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
-      ForEach(Array(colors.enumerated()), id: \.offset) { index, _ in
+      ForEach(Array(colors.enumerated()), id: \.element.id) { index, _ in
         ColorPicker(
           String(localized: "Colour \(index + 1)", bundle: .module),
-          selection: $colors[index],
+          selection: $colors[index].color,
           supportsOpacity: false
         )
         .labelsHidden()
@@ -145,7 +181,7 @@ struct TimetableThemeEditorView: View {
     TimetableTheme(
       id: themeID,
       name: name,
-      hexColors: colors.map(\.hexString),
+      hexColors: colors.map(\.color.hexString),
       textColorHex: textColor.hexString,
       separatorColorHex: usesCustomSeparator ? separatorColor.hexString : nil,
       backgroundColorHex: usesCustomBackground ? backgroundColor.hexString : nil,
