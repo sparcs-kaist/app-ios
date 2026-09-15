@@ -83,17 +83,18 @@ struct TimetableThemeEditorView: View {
             selection: $color.color,
             supportsOpacity: false
           )
-          // The last colour can't go: a theme with no palette has nothing to
-          // draw cells with.
           .deleteDisabled(colors.count <= Self.minimumColors)
         }
         .onMove(perform: moveItems)
         .onDelete(perform: deleteItems)
 
-        Button(String(localized: "Add Colour", bundle: .module), systemImage: "plus") {
+        Button {
           addColor()
+        } label: {
+          Label(String(localized: "Add Colour", bundle: .module), systemImage: "plus")
+            .foregroundStyle(canAddColor ? Color.accentColor : Color.secondary)
         }
-        .disabled(colors.count >= Self.maximumColors)
+        .disabled(!canAddColor)
       } header: {
         HStack {
           Text("Palette", bundle: .module)
@@ -162,10 +163,12 @@ struct TimetableThemeEditorView: View {
     }
   }
 	
+  private var canAddColor: Bool {
+    colors.count < Self.maximumColors
+  }
+
   private func addColor() {
     guard colors.count < Self.maximumColors else { return }
-    // Seeds from the default palette at the new slot so a fresh row reads as a
-    // distinct colour rather than a duplicate of the one above it.
     let palette = TimetableTheme.default.colors
     let seed = palette.isEmpty ? .accentColor : palette[colors.count % palette.count]
     withAnimation {
