@@ -42,6 +42,10 @@ struct TimetableThemeEditorView: View {
   @State private var gridLabelColor: Color
   @State private var isAdvancedExpanded = false
 
+  /// The last version handed to `onSave`, seeded with the theme as it was
+  /// opened so merely opening and closing the editor writes nothing.
+  @State private var savedTheme: TimetableTheme
+
   private let themeID: String
 
   init(
@@ -52,6 +56,7 @@ struct TimetableThemeEditorView: View {
     self.themeID = theme.id
     self.sampleTimetable = sampleTimetable
     self.onSave = onSave
+    self._savedTheme = State(initialValue: theme)
     self._name = State(initialValue: theme.name)
     self._colors = State(initialValue: theme.colors.map { ColorItem(color: $0) })
     self._textColor = State(initialValue: theme.textColor)
@@ -150,17 +155,44 @@ struct TimetableThemeEditorView: View {
 		.environment(\.editMode, .constant(isEditingSection ? .active : .inactive))
     .navigationTitle(Text("Theme", bundle: .module))
     .toolbar {
-      ToolbarItem(placement: .cancellationAction) {
-        Button(role: .cancel) { dismiss() }
-      }
       ToolbarItem(placement: .confirmationAction) {
         Button(role: .confirm) {
-          onSave(draft)
+          // Unconditional, unlike the autosaves below: a theme opened from
+          // Duplicate isn't in the store yet, so confirming has to write it
+          // even when nothing was edited.
+          persist()
           dismiss()
         }
         .disabled(!draft.isValid)
       }
     }
+    // Edits are saved as they happen, so there is nothing to cancel and
+    // leaving by swipe keeps the changes too. The sleep coalesces a burst of
+    // edits — typing a name, dragging a colour picker — into one write, and
+    // `task(id:)` cancels the pending save whenever the draft changes again.
+    .task(id: draft) {
+      guard hasUnsavedChanges else { return }
+      try? await Task.sleep(for: .milliseconds(500))
+      guard !Task.isCancelled else { return }
+      persist()
+    }
+    // The debounce can still be pending when the sheet is swiped away, which
+    // cancels the task above before it gets to write.
+    .onDisappear {
+      guard hasUnsavedChanges else { return }
+      persist()
+    }
+  }
+
+  /// An invalid draft — a blank name, no colours — is left unsaved rather than
+  /// overwriting the last good version.
+  private var hasUnsavedChanges: Bool {
+    draft != savedTheme && draft.isValid
+  }
+
+  private func persist() {
+    onSave(draft)
+    savedTheme = draft
   }
 	
   private var canAddColor: Bool {
