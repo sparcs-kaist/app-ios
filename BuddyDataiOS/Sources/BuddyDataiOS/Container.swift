@@ -138,6 +138,12 @@ extension Container: @retroactive AutoRegistering {
       AuthRepository(provider: MoyaProvider<AuthTarget>())
     }
 
+    timetableThemeRepository.register {
+      TimetableThemeRepository(provider: MoyaProvider<TimetableThemeTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+
     versionRepository.register {
       VersionRepository(provider: MoyaProvider<VersionTarget>())
     }
