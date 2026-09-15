@@ -30,6 +30,14 @@ extension Container: @retroactive AutoRegistering {
   }
 
   // MARK: - Repositories
+  private var timetableThemeRepository: Factory<TimetableThemeRepositoryProtocol> {
+    self {
+      TimetableThemeRepository(provider: MoyaProvider<TimetableThemeTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   private var feedPostRepository: Factory<FeedPostRepositoryProtocol> {
     self {
       FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
@@ -136,12 +144,6 @@ extension Container: @retroactive AutoRegistering {
     // MARK: - Repositories
     authRepository.register {
       AuthRepository(provider: MoyaProvider<AuthTarget>())
-    }
-
-    timetableThemeRepository.register {
-      TimetableThemeRepository(provider: MoyaProvider<TimetableThemeTarget>(plugins: [
-        self.authPlugin.resolve()
-      ]))
     }
 
     versionRepository.register {
@@ -309,6 +311,13 @@ extension Container: @retroactive AutoRegistering {
     v2CourseUseCase.register {
       CourseUseCase(
         otlCourseRepository: self.otlCourseRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
+    timetableThemeUseCase.register {
+      TimetableThemeUseCase(
+        timetableThemeRepository: self.timetableThemeRepository.resolve(),
         crashlyticsService: self.crashlyticsService.resolve()
       )
     }

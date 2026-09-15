@@ -23,7 +23,7 @@ public final class TimetableThemeSettingsViewModel {
   public var sharingError: String?
 
   @ObservationIgnored
-  @Injected(\.timetableThemeRepository) private var themeRepository: TimetableThemeRepositoryProtocol?
+  @Injected(\.timetableThemeUseCase) private var themeUseCase: TimetableThemeUseCaseProtocol?
 
   public func share(_ theme: TimetableTheme) async {
     guard !isSharing else { return }
@@ -32,8 +32,8 @@ public final class TimetableThemeSettingsViewModel {
     sharingError = nil
     defer { isSharing = false }
     do {
-      guard let themeRepository else { throw URLError(.unknown) }
-      sharedCode = try await themeRepository.share(theme)
+      guard let themeUseCase else { throw URLError(.unknown) }
+      sharedCode = try await themeUseCase.share(theme)
     } catch {
       sharingError = String(localized: "Could not share this theme. Please try again.", bundle: .module)
     }
@@ -46,8 +46,8 @@ public final class TimetableThemeSettingsViewModel {
     sharingError = nil
     defer { isImporting = false }
     do {
-      guard let themeRepository else { throw URLError(.unknown) }
-      importedTheme = try await themeRepository.fetch(code: code)
+      guard let themeUseCase else { throw URLError(.unknown) }
+      importedTheme = try await themeUseCase.fetch(code: code)
     } catch NetworkError.notFound {
       sharingError = String(localized: "No theme found for this code.", bundle: .module)
     } catch {
