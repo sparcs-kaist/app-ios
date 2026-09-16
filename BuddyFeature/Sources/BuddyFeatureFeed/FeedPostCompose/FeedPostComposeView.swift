@@ -95,6 +95,14 @@ struct FeedPostComposeView: View {
           }
           .disabled(viewModel.isUploading)
         }
+				
+				ToolbarItemGroup(placement: .bottomBar) {
+					Spacer()
+					Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
+						showPhotosPicker = true
+					}
+					.disabled(viewModel.isUploading)
+				}
       }
     }
     .alert(

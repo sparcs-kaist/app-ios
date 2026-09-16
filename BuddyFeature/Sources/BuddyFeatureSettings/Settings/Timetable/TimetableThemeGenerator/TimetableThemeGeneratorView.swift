@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import Haptica
 
 struct TimetableThemeGeneratorView: View {
   /// The theme being edited. Supplies the identity a generated theme keeps,
@@ -78,7 +79,18 @@ struct TimetableThemeGeneratorView: View {
     // second run replaces the first.
     .task(id: viewModel.requestID) {
       guard viewModel.requestID > 0 else { return }
+
+      // Bracketing the wait the way summarising a post does. A cancelled run
+      // leaves the state on `generating` and so ends without a tap, which is
+      // right: the sheet is on its way out, or a second ask has taken over and
+      // will tap for itself.
+      Haptic.start.generate()
       await viewModel.generate(basedOn: baseTheme)
+      switch viewModel.viewState {
+      case .ready: Haptic.success.generate()
+      case .failed: Haptic.failure.generate()
+      default: break
+      }
     }
   }
 
@@ -199,8 +211,11 @@ struct TimetableThemeGeneratorView: View {
         }
       }
     }
-    .padding(.horizontal)
+    // Room underneath once the keyboard is up, so the field and its button
+    // aren't sitting on the keys. The same trade the comment bar makes.
+    .padding(isDescriptionFocused ? [.horizontal, .vertical] : [.horizontal])
     .contentWidth()
+    .animation(.spring, value: isDescriptionFocused)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
       value: viewModel.canGenerate
