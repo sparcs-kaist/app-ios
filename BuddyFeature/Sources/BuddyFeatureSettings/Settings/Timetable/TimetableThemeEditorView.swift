@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 import BuddyDomain
 import TimetableUI
 
@@ -41,6 +42,10 @@ struct TimetableThemeEditorView: View {
   @State private var usesCustomGridLabel: Bool
   @State private var gridLabelColor: Color
   @State private var isAdvancedExpanded = false
+  @State private var selectedPhoto: PhotosPickerItem?
+  @State private var isGeneratingPalette = false
+  @State private var isPhotoErrorPresented = false
+  @State private var generatedPaletteCount = 0
 
   /// The last version handed to `onSave`, seeded with the theme as it was
   /// opened so merely opening and closing the editor writes nothing.
@@ -71,9 +76,21 @@ struct TimetableThemeEditorView: View {
   }
 
   var body: some View {
+    ScrollViewReader { proxy in
+      editorList
+        .onChange(of: generatedPaletteCount) {
+          withAnimation {
+            proxy.scrollTo("theme.preview", anchor: .top)
+          }
+        }
+    }
+  }
+
+  private var editorList: some View {
     List {
       Section {
         ThemedSampleGrid(theme: draft, timetable: sampleTimetable)
+          .id("theme.preview")
       }
 
       Section {
@@ -150,7 +167,24 @@ struct TimetableThemeEditorView: View {
           Text("Advanced", bundle: .module)
         }
       }
+
+      Section {
+        PhotosPicker(selection: $selectedPhoto, matching: .images) { [isGeneratingPalette] in
+          HStack {
+            Label(String(localized: "Generate using a Photo", bundle: .module), systemImage: "photo")
+            Spacer()
+            if isGeneratingPalette {
+              ProgressView()
+                .accessibilityLabel(Text("Generating Colours…", bundle: .module))
+            }
+          }
+        }
+        .accessibilityIdentifier("theme.generateFromPhoto")
+      } footer: {
+        Text("Use a wallpaper or photo to replace the palette, text and advanced colours with a matching theme.", bundle: .module)
+      }
     }
+		.disabled(isGeneratingPalette)
 		.listStyle(.insetGrouped)
 		.environment(\.editMode, .constant(isEditingSection ? .active : .inactive))
     .navigationTitle(Text("Theme", bundle: .module))
@@ -163,8 +197,17 @@ struct TimetableThemeEditorView: View {
           persist()
           dismiss()
         }
-        .disabled(!draft.isValid)
+        .disabled(!draft.isValid || isGeneratingPalette)
       }
+    }
+    .task(id: selectedPhoto) {
+      guard let photo = selectedPhoto else { return }
+      await generatePalette(from: photo)
+    }
+    .alert(Text("Couldn't Generate Theme", bundle: .module), isPresented: $isPhotoErrorPresented) {
+      Button(String(localized: "OK", bundle: .module), role: .cancel) { }
+    } message: {
+      Text("The photo couldn't be read. Please try again or choose another photo.", bundle: .module)
     }
     // Edits are saved as they happen, so there is nothing to cancel and
     // leaving by swipe keeps the changes too. The sleep coalesces a burst of
@@ -193,6 +236,35 @@ struct TimetableThemeEditorView: View {
   private func persist() {
     onSave(draft)
     savedTheme = draft
+  }
+
+  private func generatePalette(from photo: PhotosPickerItem) async {
+    isGeneratingPalette = true
+    defer {
+      isGeneratingPalette = false
+      selectedPhoto = nil
+    }
+
+    do {
+      guard let data = try await photo.loadTransferable(type: Data.self) else {
+        throw TimetablePhotoPalette.GenerationError.unreadableImage
+      }
+      let palette = try await TimetablePhotoPalette.generate(from: data)
+      try Task.checkCancellation()
+      colors = palette.colors.map { ColorItem(color: Color(hex: $0)) }
+      textColor = Color(hex: palette.text)
+      backgroundColor = Color(hex: palette.background)
+      separatorColor = Color(hex: palette.separator)
+      gridLabelColor = Color(hex: palette.gridLabel)
+      usesCustomBackground = true
+      usesCustomSeparator = true
+      usesCustomGridLabel = true
+      isEditingSection = false
+      generatedPaletteCount += 1
+    } catch {
+      guard !Task.isCancelled else { return }
+      isPhotoErrorPresented = true
+    }
   }
 	
   private var canAddColor: Bool {
