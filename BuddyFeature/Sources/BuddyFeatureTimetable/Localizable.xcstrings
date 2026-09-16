@@ -586,22 +586,6 @@
         }
       }
     },
-    "Duplicate My Table" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate My Table"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내 시간표 복제"
-          }
-        }
-      }
-    },
     "Department" : {
       "localizations" : {
         "en" : {
@@ -630,6 +614,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "확인"
+          }
+        }
+      }
+    },
+    "Duplicate My Table" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duplicate My Table"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 시간표 복제"
           }
         }
       }
@@ -1474,7 +1474,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "활동을 삭제할 수 없어요."
+            "value" : "활동을 삭제할 수 없습니다."
           }
         }
       }
@@ -1576,7 +1576,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "활동을 저장할 수 없어요."
+            "value" : "활동을 저장할 수 없습니다."
           }
         }
       }
