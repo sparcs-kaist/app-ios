@@ -171,7 +171,7 @@ struct TimetableThemeEditorView: View {
       Section {
         PhotosPicker(selection: $selectedPhoto, matching: .images) { [isGeneratingPalette] in
           HStack {
-            Label(String(localized: "Generate using a Photo", bundle: .module), systemImage: "photo")
+            Label(String(localized: "Generate using a Photo", bundle: .module), systemImage: "wand.and.sparkles")
             Spacer()
             if isGeneratingPalette {
               ProgressView()
