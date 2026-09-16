@@ -46,6 +46,10 @@ struct TimetableThemeEditorView: View {
   @State private var isGeneratingPalette = false
   @State private var isPhotoErrorPresented = false
   @State private var generatedPaletteCount = 0
+  @State private var isGeneratorPresented = false
+  /// Lives here rather than in the sheet, because whether the description row
+  /// is offered at all depends on the model being available.
+  @State private var generatorViewModel = TimetableThemeGeneratorViewModel()
 
   /// The last version handed to `onSave`, seeded with the theme as it was
   /// opened so merely opening and closing the editor writes nothing.
@@ -180,8 +184,21 @@ struct TimetableThemeEditorView: View {
           }
         }
         .accessibilityIdentifier("theme.generateFromPhoto")
+
+        if generatorViewModel.isModelAvailable {
+          Button {
+            isGeneratorPresented = true
+          } label: {
+            Label(String(localized: "Generate using a Description", bundle: .module), systemImage: "text.bubble")
+          }
+          .accessibilityIdentifier("theme.generateFromDescription")
+        }
       } footer: {
-        Text("Use a wallpaper or photo to replace the palette, text and advanced colours with a matching theme.", bundle: .module)
+        if generatorViewModel.isModelAvailable {
+          Text("Use a wallpaper, a photo or a few words to replace the palette, text and advanced colours with a matching theme. Descriptions are handled on your device by Apple Intelligence.", bundle: .module)
+        } else {
+          Text("Use a wallpaper or photo to replace the palette, text and advanced colours with a matching theme.", bundle: .module)
+        }
       }
     }
 		.disabled(isGeneratingPalette)
@@ -203,6 +220,12 @@ struct TimetableThemeEditorView: View {
     .task(id: selectedPhoto) {
       guard let photo = selectedPhoto else { return }
       await generatePalette(from: photo)
+    }
+    // Asked once per editor, because the answer changes with a Settings toggle
+    // and a model download rather than with anything happening here.
+    .task { await generatorViewModel.refreshAvailability() }
+    .sheet(isPresented: $isGeneratorPresented) {
+      TimetableThemeGeneratorView(baseTheme: draft, onApply: apply, viewModel: generatorViewModel)
     }
     .alert(Text("Couldn't Generate Theme", bundle: .module), isPresented: $isPhotoErrorPresented) {
       Button(String(localized: "OK", bundle: .module), role: .cancel) { }
@@ -251,20 +274,40 @@ struct TimetableThemeEditorView: View {
       }
       let palette = try await TimetablePhotoPalette.generate(from: data)
       try Task.checkCancellation()
-      colors = palette.colors.map { ColorItem(color: Color(hex: $0)) }
-      textColor = Color(hex: palette.text)
-      backgroundColor = Color(hex: palette.background)
-      separatorColor = Color(hex: palette.separator)
-      gridLabelColor = Color(hex: palette.gridLabel)
-      usesCustomBackground = true
-      usesCustomSeparator = true
-      usesCustomGridLabel = true
-      isEditingSection = false
-      generatedPaletteCount += 1
+      apply(palette)
     } catch {
       guard !Task.isCancelled else { return }
       isPhotoErrorPresented = true
     }
+  }
+
+  /// Replaces every colour the palette covers, and opts the theme into the
+  /// three it only carries when asked to — a generated theme is a whole look,
+  /// not a new set of cells dropped into the old grid.
+  private func apply(_ palette: TimetablePalette) {
+    colors = palette.colors.map { ColorItem(color: Color(hex: $0)) }
+    textColor = Color(hex: palette.text)
+    backgroundColor = Color(hex: palette.background)
+    separatorColor = Color(hex: palette.separator)
+    gridLabelColor = Color(hex: palette.gridLabel)
+    usesCustomBackground = true
+    usesCustomSeparator = true
+    usesCustomGridLabel = true
+    isEditingSection = false
+    generatedPaletteCount += 1
+  }
+
+  /// A described theme also arrives with a name, which is the one thing a
+  /// photo cannot offer.
+  private func apply(_ theme: TimetableTheme) {
+    apply(TimetablePalette(
+      colors: theme.hexColors,
+      text: theme.textColorHex,
+      background: theme.backgroundColorHex ?? backgroundColor.hexString,
+      separator: theme.separatorColorHex ?? separatorColor.hexString,
+      gridLabel: theme.gridLabelColorHex ?? gridLabelColor.hexString
+    ))
+    name = theme.name
   }
 	
   private var canAddColor: Bool {
