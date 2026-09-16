@@ -70,6 +70,13 @@ struct TimetableThemeImportView: View {
 			.padding(.horizontal)
 			.navigationBarTitleDisplayMode(.inline)
 			.navigationTitle(Text("Import Theme", bundle: .module))
+			.toolbar {
+				ToolbarItem(placement: .cancellationAction) {
+					Button("Close", systemImage: "xmark", role: .close) {
+						dismiss()
+					}
+				}
+			}
 		}
 		.presentationDragIndicator(.visible)
 		.task { await viewModel.fetch(code: code) }

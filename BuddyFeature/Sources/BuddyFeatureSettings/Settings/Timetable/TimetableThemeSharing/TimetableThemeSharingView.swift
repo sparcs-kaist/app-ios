@@ -17,6 +17,8 @@ public enum TimetableThemeSharingViewState: Equatable {
 struct TimetableThemeSharingView: View {
 	let theme: TimetableTheme
 	
+	@Environment(\.dismiss) private var dismiss
+	
 	@State private var viewModel = TimetableThemeSharingViewModel()
 	@State private var didCopyCode = false
 	
@@ -57,6 +59,13 @@ struct TimetableThemeSharingView: View {
 			.padding(.horizontal)
 			.navigationBarTitleDisplayMode(.inline)
 			.navigationTitle(Text("Share \"\(theme.displayName)\"", bundle: .module))
+			.toolbar {
+				ToolbarItem(placement: .cancellationAction) {
+					Button("Close", systemImage: "xmark", role: .close) {
+						dismiss()
+					}
+				}
+			}
 		}
 		.presentationDragIndicator(.visible)
 		.task { await viewModel.share(theme) }
