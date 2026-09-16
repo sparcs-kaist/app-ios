@@ -9,18 +9,27 @@ import SwiftUI
 import BuddyDomain
 import TimetableUI
 
-/// Creates or edits one of the user's own themes. Collections themes reach this
-/// screen only as a duplicate, so everything here is always editable.
+/// Wraps a palette colour with a stable identity, so rows keep their identity
+/// while the colour itself is edited.
+struct ColorItem: Identifiable {
+  let id = UUID()
+  var color: Color
+}
+
 struct TimetableThemeEditorView: View {
   @Environment(\.dismiss) private var dismiss
 
+  /// A theme carries 1–16 colours. Courses cycle through them in order, so a
+  /// single colour is a valid (if monotone) theme and an empty one is not.
+  private static let minimumColors = 1
   private static let maximumColors = 16
 
   let sampleTimetable: Timetable
   let onSave: (TimetableTheme) -> Void
 
   @State private var name: String
-  @State private var colors: [Color]
+  @State private var colors: [ColorItem]
+	@State private var isEditingSection = false
   @State private var textColor: Color
 
   // Both are opt-in, so the toggle state is what decides whether the theme
@@ -33,6 +42,10 @@ struct TimetableThemeEditorView: View {
   @State private var gridLabelColor: Color
   @State private var isAdvancedExpanded = false
 
+  /// The last version handed to `onSave`, seeded with the theme as it was
+  /// opened so merely opening and closing the editor writes nothing.
+  @State private var savedTheme: TimetableTheme
+
   private let themeID: String
 
   init(
@@ -43,8 +56,9 @@ struct TimetableThemeEditorView: View {
     self.themeID = theme.id
     self.sampleTimetable = sampleTimetable
     self.onSave = onSave
+    self._savedTheme = State(initialValue: theme)
     self._name = State(initialValue: theme.name)
-    self._colors = State(initialValue: theme.colors)
+    self._colors = State(initialValue: theme.colors.map { ColorItem(color: $0) })
     self._textColor = State(initialValue: theme.textColor)
     self._usesCustomSeparator = State(initialValue: theme.separatorColorHex != nil)
     self._separatorColor = State(initialValue: theme.separatorColor ?? .separator)
@@ -68,9 +82,40 @@ struct TimetableThemeEditorView: View {
       }
 
       Section {
-        colorGrid
+        ForEach($colors) { $color in
+          ColorPicker(
+            String(localized: "Colour", bundle: .module),
+            selection: $color.color,
+            supportsOpacity: false
+          )
+          .deleteDisabled(colors.count <= Self.minimumColors)
+        }
+        .onMove(perform: moveItems)
+        .onDelete(perform: deleteItems)
+
+        Button {
+          addColor()
+        } label: {
+          Label(String(localized: "Add Colour", bundle: .module), systemImage: "plus")
+            .foregroundStyle(canAddColor ? Color.accentColor : Color.secondary)
+        }
+        .disabled(!canAddColor)
       } header: {
-        Text("Palette", bundle: .module)
+        HStack {
+          Text("Palette", bundle: .module)
+
+          Spacer()
+
+          Button(isEditingSection ? "Done" : "Reorder") {
+            withAnimation {
+              isEditingSection.toggle()
+            }
+          }
+          .font(.subheadline)
+          .textCase(nil)
+        }
+      } footer: {
+        Text("Add up to 16 colours. Courses are assigned them in order, repeating as needed.", bundle: .module)
       }
 
       Section {
@@ -106,46 +151,77 @@ struct TimetableThemeEditorView: View {
         }
       }
     }
+		.listStyle(.insetGrouped)
+		.environment(\.editMode, .constant(isEditingSection ? .active : .inactive))
     .navigationTitle(Text("Theme", bundle: .module))
     .toolbar {
-      ToolbarItem(placement: .cancellationAction) {
-        Button(role: .cancel) { dismiss() }
-      }
       ToolbarItem(placement: .confirmationAction) {
         Button(role: .confirm) {
-          onSave(draft)
+          // Unconditional, unlike the autosaves below: a theme opened from
+          // Duplicate isn't in the store yet, so confirming has to write it
+          // even when nothing was edited.
+          persist()
           dismiss()
         }
         .disabled(!draft.isValid)
       }
     }
+    // Edits are saved as they happen, so there is nothing to cancel and
+    // leaving by swipe keeps the changes too. The sleep coalesces a burst of
+    // edits — typing a name, dragging a colour picker — into one write, and
+    // `task(id:)` cancels the pending save whenever the draft changes again.
+    .task(id: draft) {
+      guard hasUnsavedChanges else { return }
+      try? await Task.sleep(for: .milliseconds(500))
+      guard !Task.isCancelled else { return }
+      persist()
+    }
+    // The debounce can still be pending when the sheet is swiped away, which
+    // cancels the task above before it gets to write.
+    .onDisappear {
+      guard hasUnsavedChanges else { return }
+      persist()
+    }
   }
 
-  private var colorGrid: some View {
-    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
-      ForEach(Array(colors.enumerated()), id: \.offset) { index, _ in
-        ColorPicker(
-          String(localized: "Colour \(index + 1)", bundle: .module),
-          selection: $colors[index],
-          supportsOpacity: false
-        )
-        .labelsHidden()
-        .contextMenu {
-          Button(String(localized: "Remove", bundle: .module), systemImage: "trash", role: .destructive) {
-            remove(at: index)
-          }
-          .disabled(colors.count <= 1)
-        }
-      }
+  /// An invalid draft — a blank name, no colours — is left unsaved rather than
+  /// overwriting the last good version.
+  private var hasUnsavedChanges: Bool {
+    draft != savedTheme && draft.isValid
+  }
+
+  private func persist() {
+    onSave(draft)
+    savedTheme = draft
+  }
+	
+  private var canAddColor: Bool {
+    colors.count < Self.maximumColors
+  }
+
+  private func addColor() {
+    guard colors.count < Self.maximumColors else { return }
+    let palette = TimetableTheme.default.colors
+    let seed = palette.isEmpty ? .accentColor : palette[colors.count % palette.count]
+    withAnimation {
+      colors.append(ColorItem(color: seed))
     }
-    .padding(.vertical, 4)
+  }
+
+  private func deleteItems(at offsets: IndexSet) {
+    guard colors.count - offsets.count >= Self.minimumColors else { return }
+    colors.remove(atOffsets: offsets)
+  }
+
+  private func moveItems(from source: IndexSet, to destination: Int) {
+    colors.move(fromOffsets: source, toOffset: destination)
   }
 
   private var draft: TimetableTheme {
     TimetableTheme(
       id: themeID,
       name: name,
-      hexColors: colors.map(\.hexString),
+      hexColors: colors.map(\.color.hexString),
       textColorHex: textColor.hexString,
       separatorColorHex: usesCustomSeparator ? separatorColor.hexString : nil,
       backgroundColorHex: usesCustomBackground ? backgroundColor.hexString : nil,
@@ -154,7 +230,7 @@ struct TimetableThemeEditorView: View {
   }
 
   private func remove(at index: Int) {
-    guard colors.count > 1, colors.indices.contains(index) else { return }
+    guard colors.count > Self.minimumColors, colors.indices.contains(index) else { return }
     colors.remove(at: index)
   }
 }
@@ -175,6 +251,22 @@ struct TimetableThemeEditorView: View {
       theme: TimetableTheme.builtIn
         .first { $0.id == "builtin.spring" }!
         .duplicated(named: "My Theme"),
+      sampleTimetable: TimetableThemeSample.timetable
+    ) { _ in }
+  }
+}
+
+/// A three-colour theme: cells cycle through the short palette rather than
+/// needing a full sixteen.
+#Preview("Short palette") {
+  NavigationStack {
+    TimetableThemeEditorView(
+      theme: TimetableTheme(
+        id: "custom.preview.short",
+        name: "Trio",
+        hexColors: ["307878", "E34B6C", "C3BA0A"],
+        textColorHex: "FFFFFF"
+      ),
       sampleTimetable: TimetableThemeSample.timetable
     ) { _ in }
   }

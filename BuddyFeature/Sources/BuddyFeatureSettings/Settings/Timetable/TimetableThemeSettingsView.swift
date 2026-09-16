@@ -10,12 +10,21 @@ import BuddyDomain
 import TimetableUI
 import FirebaseAnalytics
 
+/// `sheet(item:)` needs an identity to present against, and a share code is its
+/// own identity.
+private struct TimetableThemeImportRequest: Identifiable {
+  let id: String
+}
+
 public struct TimetableThemeSettingsView: View {
   @State private var viewModel: TimetableThemeSettingsViewModel
-  @State private var isImportPresented = false
+  @State private var isCodePromptPresented = false
+  @State private var isInvalidCodePresented = false
   @State private var importCode = ""
+  @State private var importRequest: TimetableThemeImportRequest?
   @State private var editingTheme: TimetableTheme?
   @State private var themePendingDeletion: TimetableTheme?
+  @State private var sharingTheme: TimetableTheme?
 
   private let sampleTimetable = TimetableThemeSample.timetable
 
@@ -49,6 +58,12 @@ public struct TimetableThemeSettingsView: View {
             named: String(localized: "My Theme", bundle: .module)
           )
         }
+
+        Button(String(localized: "Import Theme via Code", bundle: .module), systemImage: "square.and.arrow.down") {
+          importCode = ""
+          isCodePromptPresented = true
+        }
+        .accessibilityIdentifier("theme.import")
       } header: {
         Text("My Themes", bundle: .module)
       } footer: {
@@ -56,97 +71,41 @@ public struct TimetableThemeSettingsView: View {
       }
     }
     .navigationTitle(Text("Timetable Theme", bundle: .module))
-    .toolbar {
-      ToolbarItem(placement: .topBarTrailing) {
-        Button {
-          importCode = ""
-          viewModel.importedTheme = nil
-          viewModel.sharingError = nil
-          isImportPresented = true
-        } label: {
-          Label(String(localized: "Import Theme", bundle: .module), systemImage: "square.and.arrow.down")
-        }
-        .accessibilityIdentifier("theme.import")
-        .disabled(viewModel.isSharing)
-      }
-    }
-    .overlay {
-      if viewModel.isSharing { ProgressView() }
-    }
-    .sheet(isPresented: $isImportPresented) {
-      NavigationStack {
-        List {
-          Section {
-            TextField(String(localized: "6-character code", bundle: .module), text: $importCode)
-              .accessibilityIdentifier("theme.codeInput")
-              .textInputAutocapitalization(.characters)
-              .autocorrectionDisabled()
-              .keyboardType(.asciiCapable)
-              .disabled(viewModel.isImporting)
-              .onChange(of: importCode) { viewModel.importedTheme = nil }
-            Button(String(localized: "Find Theme", bundle: .module)) {
-              Task { await viewModel.fetchSharedTheme(code: importCode) }
-            }
-            .accessibilityIdentifier("theme.find")
-            .disabled(TimetableThemeShareCode.normalized(importCode) == nil || viewModel.isImporting)
-            if viewModel.isImporting { ProgressView() }
-          }
-          if let theme = viewModel.importedTheme {
-            Section {
-              Text(theme.name)
-              ThemedSampleGrid(theme: theme, timetable: sampleTimetable)
-              Button(String(localized: "Save and Use Theme", bundle: .module)) {
-                viewModel.saveAndSelect(theme)
-                isImportPresented = false
-              }
-              .accessibilityIdentifier("theme.saveImport")
-            }
-          }
-          if let error = viewModel.sharingError {
-            Text(error).foregroundStyle(.red)
-          }
-        }
-        .navigationTitle(Text("Import Theme", bundle: .module))
-        .toolbar {
-          ToolbarItem(placement: .cancellationAction) {
-            Button(String(localized: "Cancel", bundle: .module)) { isImportPresented = false }
-              .disabled(viewModel.isImporting)
-          }
-        }
-      }
-      .interactiveDismissDisabled(viewModel.isImporting)
-    }
-    .sheet(isPresented: Binding(
-      get: { viewModel.sharedCode != nil },
-      set: { if !$0 { viewModel.sharedCode = nil } }
-    )) {
-      NavigationStack {
-        VStack(spacing: 24) {
-          Text(viewModel.sharedCode ?? "")
-            .accessibilityIdentifier("theme.shareCode")
-            .font(.largeTitle.monospaced().bold())
-            .textSelection(.enabled)
-          Text("Enter this code in Import Theme on another device.", bundle: .module)
-            .multilineTextAlignment(.center)
-          ShareLink(item: viewModel.sharedCode ?? "")
-        }
-        .padding()
-        .navigationTitle(Text("Share Theme", bundle: .module))
-        .toolbar {
-          ToolbarItem(placement: .confirmationAction) {
-            Button(String(localized: "Done", bundle: .module)) { viewModel.sharedCode = nil }
-          }
-        }
-      }
-      .presentationDetents([.medium])
-    }
-    .alert(Text("Theme Sharing", bundle: .module), isPresented: Binding(
-      get: { viewModel.sharingError != nil && !isImportPresented },
-      set: { if !$0 { viewModel.sharingError = nil } }
-    )) {
-      Button(String(localized: "OK", bundle: .module), role: .cancel) { viewModel.sharingError = nil }
+    .alert(Text("Import Theme", bundle: .module), isPresented: $isCodePromptPresented) {
+      TextField(String(localized: "6-character code", bundle: .module), text: $importCode)
+        .accessibilityIdentifier("theme.codeInput")
+        .textInputAutocapitalization(.characters)
+        .autocorrectionDisabled()
+        .keyboardType(.asciiCapable)
+      Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
+      Button(String(localized: "Continue", bundle: .module)) { submitImportCode() }
+        .accessibilityIdentifier("theme.find")
+        .disabled(TimetableThemeShareCode.normalized(importCode) == nil)
     } message: {
-      Text(viewModel.sharingError ?? "")
+      Text("Enter the code from the theme you want to import.", bundle: .module)
+    }
+    // Outside the alert: modifiers on its content aren't guaranteed to run, and
+    // the field is the only thing writing to this state anyway.
+    .onChange(of: importCode) { _, newValue in
+      let sanitized = sanitizedImportCode(newValue)
+      if sanitized != importCode { importCode = sanitized }
+    }
+    .alert(Text("Invalid Code", bundle: .module), isPresented: $isInvalidCodePresented) {
+      Button(String(localized: "OK", bundle: .module), role: .cancel) { }
+    } message: {
+      Text("Theme codes are 6 letters or numbers. Check the code and try again.", bundle: .module)
+    }
+    // Like sharing, the lookup happens inside the sheet so it reports its own
+    // progress and failures rather than blocking this list.
+    .sheet(item: $importRequest) { request in
+      TimetableThemeImportView(code: request.id) { theme in
+        viewModel.saveAndSelect(theme)
+      }
+    }
+    // The upload happens inside the sheet, so it appears immediately and reports
+    // its own progress and failures rather than blocking this list.
+    .sheet(item: $sharingTheme) { theme in
+      TimetableThemeSharingView(theme: theme)
     }
     .sheet(item: $editingTheme) { theme in
       NavigationStack {
@@ -173,6 +132,27 @@ public struct TimetableThemeSettingsView: View {
     }
     .onAppear { viewModel.reload() }
     .analyticsScreen(name: "TimetableTheme", class: String(describing: Self.self))
+  }
+
+  // MARK: - Import
+
+  /// Share codes are six upper-cased ASCII letters and digits, so anything else
+  /// never reaches the field rather than being rejected after the fact.
+  private func sanitizedImportCode(_ input: String) -> String {
+    String(input.filter { $0.isASCII && ($0.isLetter || $0.isNumber) }.prefix(6)).uppercased()
+  }
+
+  /// The code is only shape-checked here; whether a theme actually exists
+  /// behind it is the sheet's job to find out.
+  ///
+  /// Both presentations are deferred by a turn: presenting straight from the
+  /// prompt's button races its own dismissal, which drops whatever comes next.
+  private func submitImportCode() {
+    guard let code = TimetableThemeShareCode.normalized(importCode) else {
+      Task { isInvalidCodePresented = true }
+      return
+    }
+    Task { importRequest = TimetableThemeImportRequest(id: code) }
   }
 
   // MARK: - Preview
@@ -208,9 +188,8 @@ public struct TimetableThemeSettingsView: View {
     .accessibilityAddTraits(viewModel.selectedThemeID == theme.id ? [.isButton, .isSelected] : .isButton)
     .contextMenu {
       Button(String(localized: "Share Theme", bundle: .module), systemImage: "square.and.arrow.up") {
-        Task { await viewModel.share(theme) }
+        sharingTheme = theme
       }
-      .disabled(viewModel.isSharing)
       if !theme.isBuiltIn {
         Button(String(localized: "Edit", bundle: .module), systemImage: "pencil") {
           editingTheme = theme
@@ -235,10 +214,9 @@ public struct TimetableThemeSettingsView: View {
         }
         .tint(.accentColor)
         Button(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up") {
-          Task { await viewModel.share(theme) }
+          sharingTheme = theme
         }
         .tint(.blue)
-        .disabled(viewModel.isSharing)
       }
     }
   }
