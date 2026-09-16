@@ -1255,6 +1255,7 @@
       }
     },
     "Generate using a Description" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1282,6 +1283,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "사진으로 테마 만들기"
+          }
+        }
+      }
+    },
+    "Generate using Apple Intelligence" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Generate using Apple Intelligence"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Apple Intelligence로 테마 만들기"
           }
         }
       }
@@ -2553,6 +2570,7 @@
       }
     },
     "Use a wallpaper, a photo or a few words to replace the palette, text and advanced colours with a matching theme. Descriptions are handled on your device by Apple Intelligence." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2564,6 +2582,22 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "배경화면이나 사진, 또는 몇 마디 설명에 어울리도록 팔레트, 텍스트 및 고급 색상을 변경합니다. 설명은 Apple Intelligence가 기기에서 처리합니다."
+          }
+        }
+      }
+    },
+    "Use a wallpaper, a photo or a few words to replace the palette, text and advanced colours with a matching theme. Everything happens on your device." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Use a wallpaper, a photo or a few words to replace the palette, text and advanced colors with a matching theme. Everything happens on your device."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "배경화면이나 사진, 또는 몇 마디 설명에 어울리도록 팔레트, 텍스트 및 고급 색상을 변경합니다. 모든 과정은 기기에서 처리됩니다."
           }
         }
       }

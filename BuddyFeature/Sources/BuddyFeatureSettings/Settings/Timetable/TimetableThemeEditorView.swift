@@ -175,7 +175,7 @@ struct TimetableThemeEditorView: View {
       Section {
         PhotosPicker(selection: $selectedPhoto, matching: .images) { [isGeneratingPalette] in
           HStack {
-            Label(String(localized: "Generate using a Photo", bundle: .module), systemImage: "wand.and.sparkles")
+            Label(String(localized: "Generate using a Photo", bundle: .module), systemImage: "photo")
             Spacer()
             if isGeneratingPalette {
               ProgressView()
@@ -189,13 +189,17 @@ struct TimetableThemeEditorView: View {
           Button {
             isGeneratorPresented = true
           } label: {
-            Label(String(localized: "Generate using a Description", bundle: .module), systemImage: "text.bubble")
+            // Apple's own mark, which SF Symbols allows only in reference to
+            // the technology itself. That is what this is: the row drives
+            // `SystemLanguageModel`, and it is only shown when Apple
+            // Intelligence is actually available.
+            Label(String(localized: "Generate using Apple Intelligence", bundle: .module), systemImage: "apple.intelligence")
           }
           .accessibilityIdentifier("theme.generateFromDescription")
         }
       } footer: {
         if generatorViewModel.isModelAvailable {
-          Text("Use a wallpaper, a photo or a few words to replace the palette, text and advanced colours with a matching theme. Descriptions are handled on your device by Apple Intelligence.", bundle: .module)
+          Text("Use a wallpaper, a photo or a few words to replace the palette, text and advanced colours with a matching theme. Everything happens on your device.", bundle: .module)
         } else {
           Text("Use a wallpaper or photo to replace the palette, text and advanced colours with a matching theme.", bundle: .module)
         }
