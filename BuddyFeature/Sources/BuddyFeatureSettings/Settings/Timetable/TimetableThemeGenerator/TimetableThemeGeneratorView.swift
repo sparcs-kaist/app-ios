@@ -22,8 +22,8 @@ struct TimetableThemeGeneratorView: View {
   @Environment(\.dismiss) private var dismiss
   @FocusState private var isDescriptionFocused: Bool
 
-  /// Starting points, not presets: tapping one fills the field, so it can be
-  /// edited and sent again.
+  /// Starting points, not presets: tapping one fills the field and sends it,
+  /// and it can be edited and sent again.
   private static let examples = [
     String(localized: "Cosy autumn café", bundle: .module),
     String(localized: "Midnight neon city", bundle: .module),
@@ -34,33 +34,42 @@ struct TimetableThemeGeneratorView: View {
 
   var body: some View {
     NavigationStack {
-			ScrollView {
-				VStack(spacing: 16) {
-					preview
-					
-					Spacer(minLength: 0)
-					
-					status
-					
-					Spacer(minLength: 0)
-					
-					examplesStrip
-					descriptionField
-					actions
-				}
-			}
-			.scrollDismissesKeyboard(.immediately)
+      ScrollView {
+        VStack(spacing: 16) {
+          preview
+          status
+        }
+        .contentWidth()
+      }
+      .scrollDismissesKeyboard(.interactively)
+      .contentMargins(.horizontal, 16, for: .scrollContent)
+      .contentMargins(.vertical, 12, for: .scrollContent)
       .animation(.smooth, value: viewModel.viewState)
       .animation(.smooth, value: viewModel.previewTheme)
-      .padding(.horizontal)
-      .padding(.bottom, 8)
       .navigationBarTitleDisplayMode(.inline)
       .navigationTitle(Text("Generate Theme", bundle: .module))
+      .safeAreaBar(edge: .bottom) {
+        inputBar
+      }
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Close", systemImage: "xmark", role: .close) {
             dismiss()
           }
+        }
+
+        // Keeping the theme is the sheet's one confirmation, so it belongs
+        // here rather than competing with the field for the bottom of the
+        // screen.
+        ToolbarItem(placement: .confirmationAction) {
+          Button(role: .confirm) {
+            if let theme = viewModel.previewTheme {
+              onApply(theme)
+            }
+            dismiss()
+          }
+          .disabled(viewModel.viewState != .ready)
+          .accessibilityIdentifier("theme.useGenerated")
         }
       }
     }
@@ -137,28 +146,65 @@ struct TimetableThemeGeneratorView: View {
 
   // MARK: - Input
 
-  private var descriptionField: some View {
-    TextField(
-      String(localized: "Describe a theme", bundle: .module),
-      text: $viewModel.description,
-      axis: .vertical
-    )
-    .lineLimit(1...3)
-    .focused($isDescriptionFocused)
-    .submitLabel(.go)
-    .onSubmit { viewModel.requestGeneration() }
-    .accessibilityIdentifier("theme.description")
-    .padding(12)
-    .glassEffect(.regular, in: .rect(cornerRadius: 16))
-    .disabled(isGenerating)
-    // Held to the limit as it is typed, rather than truncated silently on the
-    // way to the model.
-    .onChange(of: viewModel.description) { _, newValue in
-      let limit = TimetableThemeGeneratorViewModel.maximumDescriptionLength
-      if newValue.count > limit {
-        viewModel.description = String(newValue.prefix(limit))
+  /// The same shape as writing a comment: a field, and a button that arrives
+  /// beside it once there is something to send. Sending is also what asks
+  /// again, so a second opinion is the same gesture as the first rather than
+  /// another button to find.
+  private var inputBar: some View {
+    VStack(spacing: 8) {
+      if viewModel.description.isEmpty {
+        examplesStrip
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+      }
+
+      HStack(alignment: .bottom) {
+        TextField(
+          String(localized: "Describe a theme", bundle: .module),
+          text: $viewModel.description
+        )
+        .focused($isDescriptionFocused)
+        .submitLabel(.send)
+        .onSubmit(send)
+        .accessibilityIdentifier("theme.description")
+        .padding(12)
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
+        .tint(.primary)
+        // Held to the limit as it is typed, rather than truncated silently on
+        // the way to the model.
+        .onChange(of: viewModel.description) { _, newValue in
+          let limit = TimetableThemeGeneratorViewModel.maximumDescriptionLength
+          if newValue.count > limit {
+            viewModel.description = String(newValue.prefix(limit))
+          }
+        }
+
+        if viewModel.canGenerate {
+          Button(action: send) {
+            if isGenerating {
+              ProgressView()
+                .tint(.white)
+                .accessibilityLabel(Text("Generating…", bundle: .module))
+            } else {
+              Label(String(localized: "Generate", bundle: .module), systemImage: "wand.and.sparkles")
+                .labelStyle(.iconOnly)
+                .tint(.white)
+            }
+          }
+          .fontWeight(.medium)
+          .padding(12)
+          .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .circle)
+          .disabled(isGenerating)
+          .accessibilityIdentifier("theme.generate")
+          .transition(.move(edge: .trailing).combined(with: .opacity))
+        }
       }
     }
+    .padding(.horizontal)
+    .contentWidth()
+    .animation(
+      .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
+      value: viewModel.canGenerate
+    )
   }
 
   private var examplesStrip: some View {
@@ -167,8 +213,7 @@ struct TimetableThemeGeneratorView: View {
         ForEach(Self.examples, id: \.self) { example in
           Button(example) {
             viewModel.description = example
-            isDescriptionFocused = false
-            viewModel.requestGeneration()
+            send()
           }
           .buttonStyle(.glass)
           .font(.subheadline)
@@ -181,59 +226,9 @@ struct TimetableThemeGeneratorView: View {
     .disabled(isGenerating)
   }
 
-  @ViewBuilder
-  private var actions: some View {
-    switch viewModel.viewState {
-    case .idle, .failed:
-      Button {
-        isDescriptionFocused = false
-        viewModel.requestGeneration()
-      } label: {
-        actionLabel(String(localized: "Generate", bundle: .module), systemImage: "wand.and.sparkles")
-      }
-      .buttonStyle(.glassProminent)
-      .disabled(!viewModel.canGenerate)
-      .accessibilityIdentifier("theme.generate")
-      .transition(.blurReplace)
-
-    case .generating:
-      Button(action: {}) {
-        actionLabel(String(localized: "Generating…", bundle: .module), systemImage: "wand.and.sparkles")
-      }
-      .buttonStyle(.glassProminent)
-      .disabled(true)
-      .transition(.blurReplace)
-
-    case .ready:
-      HStack(spacing: 8) {
-        Button {
-          viewModel.requestGeneration()
-        } label: {
-          Label(String(localized: "Again", bundle: .module), systemImage: "arrow.clockwise")
-            .padding(8)
-        }
-        .buttonStyle(.glass)
-        .accessibilityIdentifier("theme.generateAgain")
-
-        Button {
-          if let theme = viewModel.previewTheme {
-            onApply(theme)
-          }
-          dismiss()
-        } label: {
-          actionLabel(String(localized: "Use Theme", bundle: .module), systemImage: "checkmark")
-        }
-        .buttonStyle(.glassProminent)
-        .accessibilityIdentifier("theme.useGenerated")
-      }
-      .transition(.blurReplace)
-    }
-  }
-
-  private func actionLabel(_ title: String, systemImage: String) -> some View {
-    Label(title, systemImage: systemImage)
-      .padding(8)
-      .frame(maxWidth: .infinity)
+  private func send() {
+    isDescriptionFocused = false
+    viewModel.requestGeneration()
   }
 
   private var isGenerating: Bool {
@@ -241,15 +236,23 @@ struct TimetableThemeGeneratorView: View {
   }
 }
 
+/// Rendered directly rather than through `sheet`, which the canvas only ever
+/// catches halfway through presenting.
 #Preview {
-  @Previewable @State var isPresented = true
+  TimetableThemeGeneratorView(
+    baseTheme: TimetableTheme.default.duplicated(named: "My Theme"),
+    onApply: { _ in },
+    viewModel: TimetableThemeGeneratorViewModel()
+  )
+}
 
-  NavigationStack { }
-    .sheet(isPresented: $isPresented) {
-      TimetableThemeGeneratorView(
-        baseTheme: TimetableTheme.default.duplicated(named: "My Theme"),
-        onApply: { _ in },
-        viewModel: TimetableThemeGeneratorViewModel()
-      )
-    }
+#Preview("Described") {
+  let viewModel = TimetableThemeGeneratorViewModel()
+  viewModel.description = "Cosy autumn café"
+
+  return TimetableThemeGeneratorView(
+    baseTheme: TimetableTheme.default.duplicated(named: "My Theme"),
+    onApply: { _ in },
+    viewModel: viewModel
+  )
 }
