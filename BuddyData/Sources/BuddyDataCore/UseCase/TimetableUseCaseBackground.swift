@@ -22,16 +22,21 @@ public final actor TimetableUseCaseBackground: TimetableUseCaseBackgroundProtoco
   }
 
   public func getCurrentMyTable() async -> Timetable {
+    var semesterKey: String?
     do {
       let currentSemester = try await otlTimetableRepository.getCurrentSemester()
+      semesterKey = "\(currentSemester.year)-\(currentSemester.semesterType.rawValue)-myTable"
       let myTable = try await otlTimetableRepository.getMyTable(
         year: currentSemester.year,
         semester: currentSemester.semesterType
       )
-
+      cache?.storeCurrentMyTable(myTable)
       return myTable
     } catch {
-      return Timetable(id: "-myTable", lectures: [])
+      if let semesterKey, let cached = cache?.timetable(forKey: semesterKey) {
+        return cached
+      }
+      return cache?.currentMyTable() ?? Timetable(id: "-myTable", lectures: [])
     }
   }
 	
@@ -47,9 +52,11 @@ public final actor TimetableUseCaseBackground: TimetableUseCaseBackgroundProtoco
 	
 	public func getTableList() async -> [SemesterWithTimetables] {
 		do {
-			return try await otlTimetableRepository.getTableList()
+			let list = try await otlTimetableRepository.getTableList()
+      cache?.storeTimetableList(list)
+      return list
 		} catch {
-			return []
+			return cache?.timetableList() ?? []
 		}
 	}
 	

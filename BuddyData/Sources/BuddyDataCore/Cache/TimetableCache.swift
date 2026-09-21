@@ -21,6 +21,28 @@ public final class TimetableCache: Sendable {
 
   /// Returns the cached `Timetable` for the given key, or `nil` if not found.
   public func timetable(forKey key: String) -> Timetable? {
+    read(forKey: key)
+  }
+
+  /// The last successfully fetched current timetable, even when semester lookup is offline.
+  public func currentMyTable() -> Timetable? {
+    timetable(forKey: "current-myTable")
+  }
+
+  public func storeCurrentMyTable(_ timetable: Timetable) {
+    store(timetable, forKey: timetable.id)
+    store(timetable, forKey: "current-myTable")
+  }
+
+  public func timetableList() -> [SemesterWithTimetables]? {
+    read(forKey: "timetable-list")
+  }
+
+  public func storeTimetableList(_ list: [SemesterWithTimetables]) {
+    write(list, forKey: "timetable-list")
+  }
+
+  private func read<Value: Decodable>(forKey key: String) -> Value? {
     let context = ModelContext(modelContainer)
     var descriptor = FetchDescriptor<CachedTimetable>(
       predicate: #Predicate { $0.cacheKey == key }
@@ -29,14 +51,18 @@ public final class TimetableCache: Sendable {
 
     guard let cached = try? context.fetch(descriptor).first else { return nil }
 
-    return try? JSONDecoder().decode(Timetable.self, from: cached.data)
+    return try? JSONDecoder().decode(Value.self, from: cached.data)
   }
 
   // MARK: - Write
 
   /// Persists a `Timetable` under the given key, inserting or updating as needed.
   public func store(_ timetable: Timetable, forKey key: String) {
-    guard let data = try? JSONEncoder().encode(timetable) else { return }
+    write(timetable, forKey: key)
+  }
+
+  private func write<Value: Encodable>(_ value: Value, forKey key: String) {
+    guard let data = try? JSONEncoder().encode(value) else { return }
 
     let context = ModelContext(modelContainer)
     var descriptor = FetchDescriptor<CachedTimetable>(

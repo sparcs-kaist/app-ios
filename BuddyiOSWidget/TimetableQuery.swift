@@ -22,7 +22,8 @@ struct TimetableQuery: EntityQuery {
 	
 	private func loadAll() async throws -> [TimetableEntity] {
 		let timetableService = TimetableService()
-		try await timetableService.setup()
+    // setup still configures a cache-backed use case if token refresh fails offline.
+		try? await timetableService.setup()
 		
 		guard let timetableUseCase = timetableService.timetableUseCase else {
 			return []

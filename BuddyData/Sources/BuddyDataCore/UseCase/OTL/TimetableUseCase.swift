@@ -177,6 +177,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
             let isCurrentSemester = current?.year == semester.year 
               && current?.semesterType == semester.semesterType
             if isCurrentSemester {
+              self.cache?.storeCurrentMyTable(fresh)
               self.sessionBridgeService?.updateTimetable(fresh)
             }
           }
@@ -196,6 +197,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
           let isCurrentSemester = currentSemester.year == semester.year 
             && currentSemester.semesterType == semester.semesterType
           if isCurrentSemester {
+            self.cache?.storeCurrentMyTable(result)
             self.sessionBridgeService?.updateTimetable(result)
           }
         }
@@ -380,4 +382,3 @@ private actor SemesterCache {
     currentSemester = value
   }
 }
-
