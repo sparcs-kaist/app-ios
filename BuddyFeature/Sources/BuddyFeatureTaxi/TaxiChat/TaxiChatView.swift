@@ -54,7 +54,7 @@ struct TaxiChatView: View {
         )
         .redacted(reason: .placeholder)
         .disabled(true)
-        .ignoresSafeArea()
+        .ignoresSafeArea(.all, edges: .vertical)
       case .loaded:
         ChatCollectionView(
           items: viewModel.renderItems,
@@ -67,7 +67,13 @@ struct TaxiChatView: View {
           safeAreaInsets: reader.safeAreaInsets,
           scrollToBottomTrigger: viewModel.scrollToBottomTrigger
         )
-        .ignoresSafeArea()
+        // Vertical only. The transcript is meant to run under the navigation
+        // bar and the input bar, but ignoring the safe area *horizontally*
+        // grows the view past its own bounds sideways — in a split view that
+        // is underneath the room list, which hides the leading edge of every
+        // incoming bubble. The insets the collection view actually needs are
+        // passed in explicitly as `safeAreaInsets`.
+        .ignoresSafeArea(.all, edges: .vertical)
       case .error(let message):
         errorView(errorMessage: message)
       }
@@ -76,6 +82,7 @@ struct TaxiChatView: View {
     .navigationTitle(Text(chatTitle))
     .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
     .navigationBarTitleDisplayMode(.inline)
+    .staticNavigationBar()
     .toolbar { toolbarContent }
     .safeAreaBar(edge: .bottom) {
       TaxiChatInputBar(
@@ -276,6 +283,23 @@ struct TaxiChatView: View {
         }
       }
     )
+  }
+}
+
+private extension View {
+  /// Stops the navigation bar minimising as the transcript scrolls. The title
+  /// and subtitle identify the room, and should stay put and legible while
+  /// reading back through messages.
+  ///
+  /// `toolbarMinimizationBehavior` is iOS 27.0; on 26 the bar already holds
+  /// still unless the view is searchable, which this one is not.
+  @ViewBuilder
+  func staticNavigationBar() -> some View {
+    if #available(iOS 27.0, *) {
+      toolbarMinimizationBehavior(.never, for: .navigationBar)
+    } else {
+      self
+    }
   }
 }
 

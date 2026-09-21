@@ -23,6 +23,7 @@ struct ChatCollectionView: UIViewRepresentable {
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())
     collectionView.backgroundColor = .clear
     collectionView.keyboardDismissMode = .interactive
+    collectionView.topEdgeEffect.style = .soft
     collectionView.dataSource = context.coordinator
     collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
     return collectionView

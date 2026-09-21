@@ -14,10 +14,6 @@ import FirebaseAnalytics
 import BuddyPreviewSupport
 
 public struct TaxiListView: View {
-  private enum Destination: Hashable {
-    case chatList
-  }
-
   @State var viewModel: TaxiListViewModelProtocol
   /// Backs the "Active Groups" section shown in the wide layout's left column.
   @State private var chatListViewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()
@@ -27,6 +23,7 @@ public struct TaxiListView: View {
   @State private var scrollTarget: String? = nil
 
   // show taxi room preview
+  @State private var showChatList: Bool = false
   @State private var showRoomCreationSheet: Bool = false
   @State private var selectedRoom: TaxiRoom? = nil
   @State private var selectedChatRoom: TaxiRoom? = nil
@@ -99,7 +96,9 @@ public struct TaxiListView: View {
       ToolbarSpacer(.flexible, placement: .topBarTrailing)
 
       ToolbarItem(placement: .topBarTrailing) {
-        NavigationLink(value: Destination.chatList) {
+        Button {
+          showChatList = true
+        } label: {
           Label(String(localized: "Chats", bundle: .module), systemImage: "bubble.left.and.text.bubble.right")
         }
       }
@@ -111,11 +110,11 @@ public struct TaxiListView: View {
         .ignoresSafeArea()
     }
     .background(Color.systemGroupedBackground)
-    .navigationDestination(for: Destination.self) { destination in
-      switch destination {
-      case .chatList:
-        TaxiChatListView()
-      }
+    // Presented as a root rather than pushed: `TaxiChatListView` owns a
+    // `NavigationSplitView`, which cannot live inside this stack without
+    // losing its back button.
+    .fullScreenCover(isPresented: $showChatList) {
+      TaxiChatListView()
     }
     .navigationDestination(item: $selectedChatRoom) { room in
       TaxiChatView(room: room)
