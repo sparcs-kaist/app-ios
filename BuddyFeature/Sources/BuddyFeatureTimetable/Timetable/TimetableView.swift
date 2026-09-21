@@ -137,6 +137,7 @@ public struct TimetableView: View {
             )
             .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])
+            .trailingPresentationPlacement()
           }
         }
         .sheet(isPresented: $showSearchSheet) {
@@ -153,6 +154,7 @@ public struct TimetableView: View {
                 }
               }
             )
+            .trailingPresentationPlacement()
             .onAppear {
               selectedDetent = .medium
             }
@@ -161,10 +163,12 @@ public struct TimetableView: View {
 				.sheet(isPresented: $showActivityCreationSheet) {
 					activityEditor()
 						.presentationDragIndicator(.visible)
+						.trailingPresentationPlacement()
 				}
         .sheet(item: $editingActivity) { activity in
           activityEditor(activity: activity)
             .presentationDragIndicator(.visible)
+            .trailingPresentationPlacement()
         }
         .sheet(item: $sharedImage) { item in
           ActivityView(
@@ -692,5 +696,19 @@ extension View {
   /// The shared rounded, glass-backed card treatment used by every timetable section.
   func timetableCardStyle() -> some View {
     modifier(TimetableCardStyle())
+  }
+
+  /// Anchors a sheet to the trailing edge on displays wide enough for the system
+  /// to honour it; elsewhere the sheet keeps its usual placement.
+  ///
+  /// On iPhone Duo's inner display this is also what gives the sheet a *vertical*
+  /// bar — a centred or leading sheet there keeps horizontal bars.
+  @ViewBuilder
+  func trailingPresentationPlacement() -> some View {
+    if #available(iOS 27.0, *) {
+      presentationPlacement(.trailing)
+    } else {
+      self
+    }
   }
 }
