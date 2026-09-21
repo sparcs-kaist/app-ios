@@ -1391,18 +1391,18 @@
         }
       }
     },
-    "This lecture collides with an existing lecture in your timetable." : {
+    "This lecture overlaps a class or activity already in your timetable." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This lecture collides with an existing lecture in your timetable."
+            "value" : "This lecture overlaps a class or activity already in your timetable."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이미 시간표에 있는 강의와 시간이 겹칩니다."
+            "value" : "이미 시간표에 있는 강의나 활동과 시간이 겹칩니다."
           }
         }
       }

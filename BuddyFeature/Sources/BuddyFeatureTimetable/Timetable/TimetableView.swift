@@ -84,6 +84,7 @@ public struct TimetableView: View {
             LectureSearchView(
               detent: $selectedDetent,
               timetableDisplayName: displayName,
+              timetable: viewModel.timetable,
               selectedSemester: selectedSemester,
               candidateLecture: $viewModel.candidateLecture,
               onAdd: { lecture in
