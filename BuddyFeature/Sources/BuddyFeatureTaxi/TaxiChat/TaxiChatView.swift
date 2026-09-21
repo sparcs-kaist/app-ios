@@ -54,6 +54,8 @@ struct TaxiChatView: View {
         )
         .redacted(reason: .placeholder)
         .disabled(true)
+        .padding(.leading, -reader.safeAreaInsets.leading)
+        .padding(.trailing, -reader.safeAreaInsets.trailing)
         .ignoresSafeArea(.all, edges: .vertical)
       case .loaded:
         ChatCollectionView(
@@ -67,12 +69,11 @@ struct TaxiChatView: View {
           safeAreaInsets: reader.safeAreaInsets,
           scrollToBottomTrigger: viewModel.scrollToBottomTrigger
         )
-        // Vertical only. The transcript is meant to run under the navigation
-        // bar and the input bar, but ignoring the safe area *horizontally*
-        // grows the view past its own bounds sideways — in a split view that
-        // is underneath the room list, which hides the leading edge of every
-        // incoming bubble. The insets the collection view actually needs are
-        // passed in explicitly as `safeAreaInsets`.
+        // Expand only by this column's measured side insets. Ignoring the
+        // horizontal safe area here can extend under the neighboring column.
+        // ChatCollectionView applies these insets to its rows, not its viewport.
+        .padding(.leading, -reader.safeAreaInsets.leading)
+        .padding(.trailing, -reader.safeAreaInsets.trailing)
         .ignoresSafeArea(.all, edges: .vertical)
       case .error(let message):
         errorView(errorMessage: message)
