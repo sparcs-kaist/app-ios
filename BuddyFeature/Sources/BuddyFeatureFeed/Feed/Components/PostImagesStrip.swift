@@ -36,6 +36,9 @@ struct PostImagesStrip: View {
       }
       .padding(.horizontal, hPadding)
     }
+    // Let images continue through the margins around the capped feed column.
+    // The enclosing feed scroll view still clips them at the viewport edge.
+    .scrollClipDisabled()
     .measureWidth { parentWidth = $0 }
     .fullScreenCover(item: $selectedImage) { item in
       FullScreenImageViewer(url: item.url)
