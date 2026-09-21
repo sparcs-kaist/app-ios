@@ -24,8 +24,8 @@ public struct TimetableView: View {
   @State private var selectedDetent: PresentationDetent = .medium
 
   /// Non-nil only while an active fold runs vertically through the two-column
-  /// layout; see `TimetableFoldSplit`.
-  @State private var foldSplit: TimetableFoldSplit?
+  /// layout; see `FoldSplit`.
+  @State private var foldSplit: FoldSplit?
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
@@ -163,20 +163,7 @@ public struct TimetableView: View {
           }
           .frame(maxWidth: .infinity)
         }
-        .background {
-          // A GeometryReader in a background is layout-neutral — it reports the
-          // HStack's own geometry without disturbing its height inside the
-          // ScrollView. Region frames arrive in this proxy's coordinate space,
-          // which is exactly the space the column widths are measured in.
-          if #available(iOS 27.1, *) {
-            GeometryReader { proxy in
-              Color.clear
-                .onChange(of: TimetableFoldSplit(proxy: proxy), initial: true) { _, split in
-                  foldSplit = split
-                }
-            }
-          }
-        }
+        .foldSplit($foldSplit)
         .animation(.snappy, value: foldSplit)
       } else {
 				gridCard(height: gridHeight)
@@ -446,19 +433,5 @@ private extension View {
   /// The shared rounded, glass-backed card treatment used by every timetable section.
   func timetableCardStyle() -> some View {
     modifier(TimetableCardStyle())
-  }
-
-  /// Anchors a sheet to the trailing edge on displays wide enough for the system
-  /// to honour it; elsewhere the sheet keeps its usual placement.
-  ///
-  /// On iPhone Duo's inner display this is also what gives the sheet a *vertical*
-  /// bar — a centred or leading sheet there keeps horizontal bars.
-  @ViewBuilder
-  func trailingPresentationPlacement() -> some View {
-    if #available(iOS 27.0, *) {
-      presentationPlacement(.trailing)
-    } else {
-      self
-    }
   }
 }
