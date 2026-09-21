@@ -22,8 +22,6 @@ public struct FeedView: View {
 
   @State private var spoilerContents = SpoilerContents()
 
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
   public init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
     self._viewModel = State(initialValue: viewModel)
   }
@@ -44,7 +42,7 @@ public struct FeedView: View {
       .contentWidth()
     }
     .disabled(viewModel.state == .loading)
-    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed", bundle: .module) : "")
+    .navigationTitle(Text("Feed", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
     .navigationDestination(for: String.self) { postID in
       if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
