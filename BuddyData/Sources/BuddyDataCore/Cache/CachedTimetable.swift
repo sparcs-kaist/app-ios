@@ -16,13 +16,14 @@ import BuddyDomain
 ///  - "my table"        → `cacheKey = "\(year)-\(semesterRawValue)-myTable"`
 ///  - current "my table" → `cacheKey = "current-myTable"`
 ///  - widget options    → `cacheKey = "timetable-list"`
+///  - app navigation    → `semesters`, `current-semester`, `"\(semester.id)-summaries"`
 @Model
 public final class CachedTimetable {
   /// Unique lookup key for the timetable or reserved widget metadata record.
   @Attribute(.unique)
   public var cacheKey: String
 
-  /// JSON-encoded `Timetable`, or `[SemesterWithTimetables]` for widget options.
+  /// JSON-encoded timetable or navigation data, decoded according to its cache key.
   public var data: Data
 
   /// When this entry was last written.

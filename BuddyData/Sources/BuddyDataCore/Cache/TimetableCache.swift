@@ -42,6 +42,48 @@ public final class TimetableCache: Sendable {
     write(list, forKey: "timetable-list")
   }
 
+  public func semesters() -> [Semester]? { read(forKey: "semesters") }
+  public func storeSemesters(_ semesters: [Semester]) { write(semesters, forKey: "semesters") }
+  public func currentSemester() -> Semester? { read(forKey: "current-semester") }
+  public func storeCurrentSemester(_ semester: Semester) { write(semester, forKey: "current-semester") }
+  public func timetableSummaries(semester: Semester) -> [TimetableSummary]? {
+    read(forKey: "\(semester.id)-summaries")
+  }
+  public func storeTimetableSummaries(_ summaries: [TimetableSummary], semester: Semester) {
+    write(summaries, forKey: "\(semester.id)-summaries")
+  }
+
+  /// Keep saved navigation consistent after a confirmed rename or deletion.
+  public func updateTimetableSummary(id: Int, title: String?) {
+    let context = ModelContext(modelContainer)
+    guard let records = try? context.fetch(FetchDescriptor<CachedTimetable>()) else { return }
+    for record in records where record.cacheKey.hasSuffix("-summaries") {
+      guard var summaries = try? JSONDecoder().decode([TimetableSummary].self, from: record.data),
+            let index = summaries.firstIndex(where: { $0.id == id }) else { continue }
+      if let title { summaries[index].title = title }
+      else { summaries.remove(at: index) }
+      guard let data = try? JSONEncoder().encode(summaries) else { continue }
+      record.data = data
+      record.updatedAt = .now
+    }
+    try? context.save()
+  }
+
+  public func state(semester: Semester?, timetableID: Int?) -> TimetableCachedState {
+    let key = timetableID.map(String.init) ?? semester.map { "\($0.id)-myTable" }
+    let table = key.flatMap { timetable(forKey: $0) }
+    var updatedAt: Date?
+    if table != nil, let key {
+      let context = ModelContext(modelContainer)
+      var descriptor = FetchDescriptor<CachedTimetable>(predicate: #Predicate { $0.cacheKey == key })
+      descriptor.fetchLimit = 1
+      updatedAt = try? context.fetch(descriptor).first?.updatedAt
+    }
+    return TimetableCachedState(semesters: semesters(), currentSemester: currentSemester(),
+      timetables: semester.flatMap { timetableSummaries(semester: $0) },
+      timetable: table, updatedAt: updatedAt)
+  }
+
   private func read<Value: Decodable>(forKey key: String) -> Value? {
     let context = ModelContext(modelContainer)
     var descriptor = FetchDescriptor<CachedTimetable>(

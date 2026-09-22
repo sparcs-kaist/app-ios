@@ -10,6 +10,7 @@ import Observation
 import Factory
 import BuddyDomain
 import WidgetKit
+import Network
 
 @MainActor
 @Observable
@@ -38,6 +39,11 @@ public final class TimetableViewModel {
       timetables = []
       timetable = nil
       candidateLecture = nil
+      lastUpdated = nil
+      isShowingSavedData = false
+      loadError = nil
+      refreshFailures.subtract(["list", "table"])
+      offlineFailures.subtract(["list", "table"])
       if let selectedSemester, let saved = selectionStore.selection, saved.matches(selectedSemester) {
         selectedTimetableID = saved.timetableID
       } else {
@@ -59,6 +65,13 @@ public final class TimetableViewModel {
         selectionStore.save(semester: selectedSemester, timetableID: selectedTimetableID)
       }
       timetableLoadTask?.cancel()
+      if selectedTimetableID != oldValue {
+        timetable = nil
+        candidateLecture = nil
+        lastUpdated = nil
+        isShowingSavedData = false
+        loadError = nil
+      }
       timetableLoadTask = Task {
         await loadTimetable()
       }
@@ -80,6 +93,19 @@ public final class TimetableViewModel {
   var candidateLecture: Lecture? = nil
 
   public var isLoading: Bool = true
+  public private(set) var isShowingSavedData = false
+  public private(set) var lastUpdated: Date?
+  public private(set) var loadError: String?
+  private var refreshFailures: Set<String> = []
+  private var offlineFailures: Set<String> = []
+  private var networkUnavailable = false
+  @ObservationIgnored private var loadGeneration = 0
+  @ObservationIgnored private var listGeneration = 0
+  @ObservationIgnored private var setupGeneration = 0
+  @ObservationIgnored private var isRefreshing = false
+  public var isOffline: Bool { networkUnavailable || !offlineFailures.isEmpty }
+  public var isReadOnly: Bool { isOffline || !refreshFailures.isEmpty || isShowingSavedData }
+  public var showsSavedStatus: Bool { isShowingSavedData || !refreshFailures.isEmpty || isOffline }
   /// Duplicating replays every lecture and activity, so it is slow enough that the
   /// menu entry must not be tappable twice.
   public var isDuplicatingTable: Bool = false
@@ -91,28 +117,111 @@ public final class TimetableViewModel {
 
   public func setup() async {
     guard let timetableUseCase else { return }
-
-    isLoading = true
-    defer { isLoading = false }
+    setupGeneration += 1
+    let generation = setupGeneration
+    let cached = await timetableUseCase.cachedState(semester: nil, timetableID: nil)
+    guard !Task.isCancelled, generation == setupGeneration else { return }
+    if semesters.isEmpty { semesters = cached.semesters ?? [] }
+    if selectedSemester == nil { restoreSelection(current: cached.currentSemester) }
+    isLoading = semesters.isEmpty
+    defer { if generation == setupGeneration { isLoading = false } }
 
     do {
-      semesters = try await timetableUseCase.getSemesters()
-      if let saved = selectionStore.selection, let semester = semesters.first(where: saved.matches) {
-        selectedSemester = semester
-      } else {
-        selectedSemester = try await timetableUseCase.getCurrentSemesters()
-      }
-    } catch {
-      crashlyticsService?.recordException(error: error)
-      alertState = .init(
-        title: String(localized: "Unable to load semesters.", bundle: .module),
-        message: error.localizedDescription
-      )
-      isAlertPresented = true
+      let fresh = try await timetableUseCase.refreshSemesters()
+      try Task.checkCancellation()
+      guard generation == setupGeneration else { return }
+      semesters = fresh
+      isLoading = false
+      succeeded("semesters")
+      restoreSelection(current: cached.currentSemester.flatMap { fresh.contains($0) ? $0 : nil }, authoritative: true)
+    } catch is CancellationError { return }
+    catch {
+      guard !Task.isCancelled, generation == setupGeneration else { return }
+      failed(error, resource: "semesters")
+    }
+    do {
+      let current = try await timetableUseCase.refreshCurrentSemester()
+      try Task.checkCancellation()
+      guard generation == setupGeneration else { return }
+      succeeded("current")
+      restoreSelection(current: current, authoritative: !refreshFailures.contains("semesters"))
+    } catch is CancellationError { return }
+    catch {
+      guard !Task.isCancelled, generation == setupGeneration else { return }
+      failed(error, resource: "current")
+    }
+    if selectedSemester == nil {
+      loadError = String(localized: "Connect to the internet to download your timetable.", bundle: .module)
     }
   }
 
+  private func restoreSelection(current: Semester?, authoritative: Bool = false) {
+    if let selectedSemester, semesters.contains(selectedSemester) { return }
+    if let saved = selectionStore.selection {
+      if let semester = semesters.first(where: saved.matches) {
+        selectedSemester = semester
+        return
+      }
+      // An incomplete saved semester list cannot invalidate a persisted preference.
+      if !authoritative { return }
+    }
+    if let current { selectedSemester = current }
+  }
+
+  /// Also refresh navigation so an offline cold launch can recover.
+  public func refresh() async {
+    guard !isRefreshing else { return }
+    isRefreshing = true
+    defer { isRefreshing = false }
+    await setup()
+    await updateTimetableList()
+    await loadTimetable()
+  }
+
+  public func observeConnectivity() async {
+    let monitor = NWPathMonitor()
+    let changes = AsyncStream<Bool>(bufferingPolicy: .bufferingNewest(1)) { continuation in
+      monitor.pathUpdateHandler = { continuation.yield($0.status == .satisfied) }
+      continuation.onTermination = { _ in monitor.cancel() }
+      monitor.start(queue: DispatchQueue(label: "org.sparcs.soap.timetable-connectivity"))
+    }
+    for await connected in changes {
+      let shouldRefresh = connected && (networkUnavailable || !refreshFailures.isEmpty)
+      networkUnavailable = !connected
+      if shouldRefresh { await refresh() }
+    }
+  }
+
+  private func succeeded(_ resource: String) {
+    refreshFailures.remove(resource)
+    offlineFailures.remove(resource)
+  }
+
+  private func failed(_ error: Error, resource: String) {
+    refreshFailures.insert(resource)
+    offlineFailures.remove(resource)
+    if case NetworkError.noConnection = underlyingError(error) { offlineFailures.insert(resource) }
+    crashlyticsService?.recordException(error: error)
+  }
+
+  private func underlyingError(_ error: Error) -> Error {
+    if case AuthUseCaseError.refreshFailed(let cause) = error { return underlyingError(cause) }
+    return error
+  }
+
+  private func canKeepSavedData(after error: Error) -> Bool {
+    switch underlyingError(error) {
+    case NetworkError.unauthorized, NetworkError.notFound, AuthUseCaseError.noAccessToken: return false
+    default: return true
+    }
+  }
+
+  private func requireOnline() throws {
+    if isReadOnly { throw NetworkError.noConnection }
+  }
+
   func addLecture(lecture: Lecture) async {
+    guard !isReadOnly else { return }
     guard let timetableUseCase,
           let selectedTimetableID else { return }
 
@@ -139,6 +248,7 @@ public final class TimetableViewModel {
   }
 
   func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws {
+    try requireOnline()
     guard let timetableUseCase else { throw NetworkError.unauthorized }
     timetableLoadTask?.cancel()
     let updated = try await timetableUseCase.saveActivity(timetableID: timetableID, activityID: activityID, draft: draft)
@@ -155,6 +265,7 @@ public final class TimetableViewModel {
   }
 
   func deleteActivity(_ activity: TimetableActivity) async {
+    guard !isReadOnly else { return }
     guard let timetableUseCase, let selectedTimetableID else { return }
     do {
       timetableLoadTask?.cancel()
@@ -168,6 +279,7 @@ public final class TimetableViewModel {
   }
 
   func deleteLecture(lecture: Lecture) async {
+    guard !isReadOnly else { return }
     guard let timetableUseCase,
           let selectedTimetableID else { return }
 
@@ -190,29 +302,50 @@ public final class TimetableViewModel {
   }
 
   func loadTimetable() async {
-    guard let timetableUseCase else { return }
+    guard let timetableUseCase, let semester = selectedSemester else { return }
+    loadGeneration += 1
+    let generation = loadGeneration
+    let tableID = selectedTimetableID
+    let cached = await timetableUseCase.cachedState(semester: semester, timetableID: tableID)
+    guard !Task.isCancelled, generation == loadGeneration,
+          selectedSemester == semester, selectedTimetableID == tableID else { return }
+    if let table = cached.timetable {
+      timetable = table
+      lastUpdated = cached.updatedAt
+      isShowingSavedData = true
+      loadError = nil
+    }
 
     do {
       let result: Timetable
 
-      if let selectedTimetableID {
-        result = try await timetableUseCase.getTable(id: selectedTimetableID)
-      } else if let selectedSemester {
-        result = try await timetableUseCase.getMyTable(semester: selectedSemester)
+      if let tableID {
+        result = try await timetableUseCase.refreshTable(id: tableID)
       } else {
-        timetable = nil
-        return
+        result = try await timetableUseCase.refreshMyTable(semester: semester)
       }
 
       try Task.checkCancellation()
-
+      guard generation == loadGeneration, selectedSemester == semester, selectedTimetableID == tableID else { return }
       timetable = result
+      lastUpdated = .now
+      isShowingSavedData = false
+      loadError = nil
+      succeeded("table")
 			WidgetCenter.shared.reloadAllTimelines()
     } catch is CancellationError {
       // ignore
     } catch {
-      crashlyticsService?.recordException(error: error)
-      timetable = nil
+      guard !Task.isCancelled, generation == loadGeneration,
+            selectedSemester == semester, selectedTimetableID == tableID else { return }
+      failed(error, resource: "table")
+      if !canKeepSavedData(after: error) { timetable = nil; lastUpdated = nil }
+      isShowingSavedData = timetable != nil
+      if timetable == nil {
+        loadError = isOffline
+          ? String(localized: "This timetable isn’t available offline. Connect to download it.", bundle: .module)
+          : error.localizedDescription
+      }
     }
   }
 
@@ -220,13 +353,19 @@ public final class TimetableViewModel {
     guard let timetableUseCase,
           let selectedSemester
     else { return }
+    listGeneration += 1
+    let generation = listGeneration
+    let cached = await timetableUseCase.cachedState(semester: selectedSemester, timetableID: nil)
+    guard !Task.isCancelled, generation == listGeneration, self.selectedSemester == selectedSemester else { return }
+    if let saved = cached.timetables { timetables = saved }
 
     do {
-      let result = try await timetableUseCase.getTimetableList(semester: selectedSemester)
+      let result = try await timetableUseCase.refreshTimetableList(semester: selectedSemester)
 
       try Task.checkCancellation()
-
+      guard generation == listGeneration, self.selectedSemester == selectedSemester else { return }
       timetables = result
+      succeeded("list")
       // Only a successful list response can invalidate a restored selection.
       // A failed/offline refresh must not erase the user's preference.
       if let selectedTimetableID, !result.contains(where: { $0.id == selectedTimetableID }) {
@@ -235,11 +374,13 @@ public final class TimetableViewModel {
     } catch is CancellationError {
       // ignore
     } catch {
-      crashlyticsService?.recordException(error: error)
+      guard !Task.isCancelled, generation == listGeneration, self.selectedSemester == selectedSemester else { return }
+      failed(error, resource: "list")
     }
   }
 
   func renameTable(title: String) async {
+    guard !isReadOnly else { return }
     guard let timetableUseCase,
           let selectedTimetableID
     else { return }
@@ -270,6 +411,7 @@ public final class TimetableViewModel {
   }
 
   func deleteTable() async {
+    guard !isReadOnly else { return }
     guard let timetableUseCase,
           let selectedTimetableID
     else { return }
@@ -298,6 +440,7 @@ public final class TimetableViewModel {
   }
 
   func createTable() async {
+    guard !isReadOnly else { return }
     guard let timetableUseCase,
           let selectedSemester else { return }
 
@@ -322,6 +465,7 @@ public final class TimetableViewModel {
 
   /// Copies "My Table" of the selected semester into a new table and selects it.
   func duplicateMyTable() async {
+    guard !isReadOnly else { return }
     guard let timetableUseCase,
           let selectedSemester,
           !isDuplicatingTable else { return }

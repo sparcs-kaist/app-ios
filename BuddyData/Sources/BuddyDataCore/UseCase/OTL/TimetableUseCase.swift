@@ -18,9 +18,6 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   private let sessionBridgeService: SessionBridgeServiceProtocol?
   private let crashlyticsService: CrashlyticsServiceProtocol?
   
-  // MARK: - Cached State
-  private let semesterCache = SemesterCache()
-
   // MARK: - Initialiser
   public init(
     otlTimetableRepository: OTLTimetableRepositoryProtocol,
@@ -35,61 +32,59 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   }
 
   // MARK: - Functions
+  public func cachedState(semester: Semester?, timetableID: Int?) async -> TimetableCachedState {
+    cache?.state(semester: semester, timetableID: timetableID) ?? .init()
+  }
+
   public func getSemesters() async throws -> [Semester] {
-    let context = CrashContext(feature: feature)
-
-    return try await execute(context: context) {
-      if let cached = await self.semesterCache.getSemesters() {
-        // Refresh in background
-        Task.detached(priority: .background) { [weak self] in
-          guard let self else { return }
-          if let fresh = try? await self.otlTimetableRepository.getSemesters() {
-            await self.semesterCache.setSemesters(fresh)
-          }
-        }
-        return cached
-      }
-
-      let result = try await self.otlTimetableRepository.getSemesters()
-      await self.semesterCache.setSemesters(result)
-      return result
+    if let cached = cache?.semesters() {
+      Task.detached(priority: .background) { [weak self] in _ = try? await self?.refreshSemesters() }
+      return cached
     }
+    return try await refreshSemesters()
   }
 
   public func getCurrentSemesters() async throws -> Semester {
-    let context = CrashContext(feature: feature)
-
-    return try await execute(context: context) {
-      if let cached = await self.semesterCache.getCurrentSemester() {
-        // Refresh in background
-        Task.detached(priority: .background) { [weak self] in
-          guard let self else { return }
-          if let fresh = try? await self.otlTimetableRepository.getCurrentSemester() {
-            await self.semesterCache.setCurrentSemester(fresh)
-          }
-        }
-        return cached
-      }
-
-      let result = try await self.otlTimetableRepository.getCurrentSemester()
-      await self.semesterCache.setCurrentSemester(result)
-      return result
+    if let cached = cache?.currentSemester() {
+      Task.detached(priority: .background) { [weak self] in _ = try? await self?.refreshCurrentSemester() }
+      return cached
     }
+    return try await refreshCurrentSemester()
+  }
+
+  public func refreshSemesters() async throws -> [Semester] {
+    let result = try await otlTimetableRepository.getSemesters()
+    try Task.checkCancellation()
+    cache?.storeSemesters(result)
+    return result
+  }
+
+  public func refreshCurrentSemester() async throws -> Semester {
+    let result = try await otlTimetableRepository.getCurrentSemester()
+    try Task.checkCancellation()
+    cache?.storeCurrentSemester(result)
+    if let table = cache?.timetable(forKey: "\(result.id)-myTable") {
+      // Semester refresh does not make the timetable contents any newer.
+      cache?.store(table, forKey: "current-myTable")
+    }
+    return result
   }
 
   public func getTimetableList(semester: Semester) async throws -> [TimetableSummary] {
-    let context = CrashContext(
-      feature: feature,
-      metadata: [
-        "year": "\(semester.year)",
-        "semester": "\(semester.semesterType)"
-      ]
-    )
-
-    return try await execute(context: context) {
-      try await self.otlTimetableRepository
-        .getTables(year: semester.year, semester: semester.semesterType)
+    if let cached = cache?.timetableSummaries(semester: semester) {
+      Task.detached(priority: .background) { [weak self] in
+        _ = try? await self?.refreshTimetableList(semester: semester)
+      }
+      return cached
     }
+    return try await refreshTimetableList(semester: semester)
+  }
+
+  public func refreshTimetableList(semester: Semester) async throws -> [TimetableSummary] {
+    let result = try await otlTimetableRepository.getTables(year: semester.year, semester: semester.semesterType)
+    try Task.checkCancellation()
+    cache?.storeTimetableSummaries(result, semester: semester)
+    return result
   }
 
   /// Always refresh the visible timetable; retain offline access to the last successful fetch.
@@ -147,64 +142,26 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
   /// Fetches the "my table" for a semester, returning cached data immediately while refreshing in background.
   public func getMyTable(semester: Semester) async throws -> Timetable {
-    let context = CrashContext(
-      feature: feature,
-      metadata: [
-        "year": "\(semester.year)",
-        "semester": "\(semester.semesterType)"
-      ]
-    )
-
-    return try await execute(context: context) {
-      let key = "\(semester.year)-\(semester.semesterType.rawValue)-myTable"
-
-      if let cached = self.cache?.timetable(forKey: key) {
-        // Refresh in background and check if we should update watchOS
-        Task.detached(priority: .background) { [weak self] in
-          guard let self else { return }
-          
-          // Fetch both fresh timetable and current semester in parallel
-          async let freshTimetable = try? await self.otlTimetableRepository
-            .getMyTable(year: semester.year, semester: semester.semesterType)
-          async let currentSemester = try? await self.otlTimetableRepository.getCurrentSemester()
-          
-          let (fresh, current) = await (freshTimetable, currentSemester)
-          
-          if let fresh {
-            self.cache?.store(fresh, forKey: key)
-            
-            // Update watchOS if this is the current semester
-            let isCurrentSemester = current?.year == semester.year 
-              && current?.semesterType == semester.semesterType
-            if isCurrentSemester {
-              self.cache?.storeCurrentMyTable(fresh)
-              self.sessionBridgeService?.updateTimetable(fresh)
-            }
-          }
-        }
-        return cached
-      }
-
-      // No cache - fetch from network
-      let result = try await self.otlTimetableRepository
-        .getMyTable(year: semester.year, semester: semester.semesterType)
-      self.cache?.store(result, forKey: key)
-      
-      // Check if this is the current semester and update watchOS in background
+    if let cached = cache?.timetable(forKey: "\(semester.id)-myTable") {
       Task.detached(priority: .background) { [weak self] in
-        guard let self else { return }
-        if let currentSemester = try? await self.otlTimetableRepository.getCurrentSemester() {
-          let isCurrentSemester = currentSemester.year == semester.year 
-            && currentSemester.semesterType == semester.semesterType
-          if isCurrentSemester {
-            self.cache?.storeCurrentMyTable(result)
-            self.sessionBridgeService?.updateTimetable(result)
-          }
-        }
+        _ = try? await self?.refreshMyTable(semester: semester)
       }
-      
-      return result
+      return cached
     }
+    return try await refreshMyTable(semester: semester)
+  }
+
+  public func refreshMyTable(semester: Semester) async throws -> Timetable {
+    let result = try await otlTimetableRepository.getMyTable(year: semester.year, semester: semester.semesterType)
+    try Task.checkCancellation()
+    cache?.store(result, forKey: "\(semester.id)-myTable")
+    WidgetCenter.shared.reloadAllTimelines()
+    Task.detached(priority: .background) { [weak self] in
+      guard let self, let current = try? await self.refreshCurrentSemester(), current == semester else { return }
+      self.cache?.storeCurrentMyTable(result)
+      self.sessionBridgeService?.updateTimetable(result)
+    }
+    return result
   }
 
   public func deleteTable(id: Int) async throws {
@@ -216,6 +173,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     try await execute(context: context) {
       try await self.otlTimetableRepository.deleteTable(timetableID: id)
       self.cache?.invalidate(key: String(id))
+      self.cache?.updateTimetableSummary(id: id, title: nil)
     }
   }
 
@@ -227,8 +185,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
     try await execute(context: context) {
       try await self.otlTimetableRepository.renameTable(timetableID: id, title: title)
-      // Invalidate so the renamed table is fetched fresh next time.
-      self.cache?.invalidate(key: String(id))
+      self.cache?.updateTimetableSummary(id: id, title: title)
     }
   }
 
@@ -358,27 +315,5 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
       crashlyticsService?.record(error: mappedError, context: context)
       throw mappedError
     }
-  }
-}
-
-// MARK: - SemesterCache Actor
-private actor SemesterCache {
-  private var semesters: [Semester]?
-  private var currentSemester: Semester?
-  
-  func getSemesters() -> [Semester]? {
-    return semesters
-  }
-  
-  func setSemesters(_ value: [Semester]) {
-    semesters = value
-  }
-  
-  func getCurrentSemester() -> Semester? {
-    return currentSemester
-  }
-  
-  func setCurrentSemester(_ value: Semester) {
-    currentSemester = value
   }
 }

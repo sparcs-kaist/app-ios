@@ -37,6 +37,11 @@ struct TimetableWidgetOfflineTests {
       let cache = TimetableCache(modelContainer: container)
       cache.storeCurrentMyTable(table)
       cache.storeTimetableList(list)
+      cache.storeSemesters([.mock])
+      cache.storeCurrentSemester(.mock)
+      cache.storeTimetableSummaries([.init(id: 42, title: "Saved", year: Semester.mock.year,
+        semester: Semester.mock.semesterType)], semester: .mock)
+      cache.store(Timetable(id: "42", lectures: [Lecture.mock]), forKey: "42")
       let context = ModelContext(container)
       for record in try context.fetch(FetchDescriptor<CachedTimetable>()) {
         record.updatedAt = .distantPast
@@ -49,6 +54,56 @@ struct TimetableWidgetOfflineTests {
       cache: TimetableCache(modelContainer: reopened))
     #expect(await widget.getCurrentMyTable() == table)
     #expect(await widget.getTableList() == list)
+    let app = TimetableUseCase(otlTimetableRepository: offlineRepository(), cache: TimetableCache(modelContainer: reopened))
+    let state = await app.cachedState(semester: .mock, timetableID: 42)
+    #expect(state.semesters == [.mock])
+    #expect(state.currentSemester == .mock)
+    #expect(state.timetables?.first?.title == "Saved")
+    #expect(state.timetable?.lectures == [Lecture.mock])
+    #expect(state.updatedAt == .distantPast)
+    #expect(try await app.getSemesters() == [.mock])
+    #expect(try await app.getCurrentSemesters() == .mock)
+    await #expect(throws: NetworkError.self) { try await app.refreshSemesters() }
+    await #expect(throws: NetworkError.self) { try await app.refreshTable(id: 42) }
+    #expect(await app.cachedState(semester: .mock, timetableID: 42).timetable == state.timetable)
+    TimetableCache(modelContainer: reopened).clear()
+    let cleared = await app.cachedState(semester: .mock, timetableID: 42)
+    #expect(cleared.semesters == nil && cleared.currentSemester == nil && cleared.timetables == nil && cleared.timetable == nil)
+  }
+
+  @Test func appRefreshPersistsNavigationAndUpdatesVisibleCache() async throws {
+    let cache = TimetableCache(modelContainer: try makeContainer())
+    let api = repository { target in
+      switch target {
+      case .fetchSemesters: return self.response("{\"semesters\":[\(semesterJSON)]}")
+      case .fetchCurrentSemester: return self.response(semesterJSON)
+      case .fetchTables: return self.response(#"{"timetables":[{"id":42,"name":"Fresh","year":2026,"semester":3,"timeTableOrder":0}]}"#)
+      case .fetchActivities: return self.response(#"{"custom_blocks":[]}"#)
+      default: return self.response(#"{"lectures":[]}"#)
+      }
+    }
+    let app = TimetableUseCase(otlTimetableRepository: api, cache: cache)
+    let semesters = try await app.refreshSemesters()
+    let current = try await app.refreshCurrentSemester()
+    let list = try await app.refreshTimetableList(semester: current)
+    let table = try await app.refreshTable(id: 42)
+    let state = await app.cachedState(semester: current, timetableID: 42)
+    #expect(state.semesters == semesters)
+    #expect(state.currentSemester == current)
+    #expect(state.timetables == list)
+    #expect(state.timetable == table)
+    #expect(state.updatedAt != nil)
+    try await app.renameTable(id: 42, title: "Renamed")
+    #expect(await app.cachedState(semester: current, timetableID: 42).timetables?.first?.title == "Renamed")
+    #expect(await app.cachedState(semester: current, timetableID: 42).timetable == table)
+    try await app.deleteTable(id: 42)
+    let deleted = await app.cachedState(semester: current, timetableID: 42)
+    #expect(deleted.timetables?.isEmpty == true && deleted.timetable == nil)
+    let myTable = try await app.refreshMyTable(semester: current)
+    #expect(await app.cachedState(semester: current, timetableID: nil).timetable == myTable)
+    let archive = Semester.mock
+    #expect(await app.cachedState(semester: archive, timetableID: nil).timetable == nil)
+    #expect(await app.cachedState(semester: archive, timetableID: nil).timetables == nil)
   }
 
   @Test func successfulRefreshPersistsCurrentTableAndReplacesOldContents() async throws {
