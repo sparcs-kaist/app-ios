@@ -76,13 +76,14 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   // MARK: - Foreground Refresh
   private nonisolated func observeForeground() {
     foregroundObserver = NotificationCenter.default.addObserver(
-      forName: UIApplication.willEnterForegroundNotification,
+      forName: UIApplication.didBecomeActiveNotification,
       object: nil,
       queue: .main
     ) { [weak self] _ in
       Task { [weak self] in
-        guard let self, self._isAuthenticatedSubject.value else { return }
-        try? await self.refreshAccessToken(force: false)
+        // Re-check storage after activation, including a launch while the
+        // keychain was locked. A failed read must not leave the app signed out.
+        try? await self?.refreshAccessToken(force: false)
       }
     }
   }
@@ -100,7 +101,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       guard interval > 0 else { return }
       self.refreshTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
         Task { [weak self] in
-          try? await self?.refreshAccessToken(force: true)
+          try? await self?.refreshAccessToken(force: false)
         }
       }
     }
@@ -124,7 +125,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func getValidAccessToken() async throws -> String {
-    if tokenStorage.isTokenExpired() {
+    if tokenStorage.getAccessToken() == nil || tokenStorage.isTokenExpired() {
       logger.debug("Access token is expired. Refreshing...")
       try await refreshAccessToken(force: false)
     }
@@ -143,17 +144,17 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       return
     }
 
+    if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired(), !force {
+      _isAuthenticatedSubject.value = true
+      scheduleRefreshTimer()
+      return
+    }
+
     if let lastFailure,
        Date().timeIntervalSince(lastFailure) < refreshCooldown {
       throw AuthUseCaseError.refreshFailed(
         NSError(domain: "AuthUseCase", code: -1, userInfo: [NSLocalizedDescriptionKey: "Refresh on cooldown"])
       )
-    }
-
-    if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired(), !force {
-      logger.debug("Access token is still valid. No refresh needed.")
-      scheduleRefreshTimer() // reset timer on valid
-      return
     }
 
     // No `await` between the nil-check above and this assignment, so actor
@@ -169,8 +170,9 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   private func performTokenRefresh() async throws {
-    guard let currentRefreshToken = tokenStorage.getRefreshToken() else {
-      // No refresh token found, sign out.
+    // Read errors (including a locked keychain) preserve the session. Only a
+    // successful read confirming that the token is absent can clear it.
+    guard let currentRefreshToken = try tokenStorage.readRefreshToken() else {
       tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
       cancelRefreshTimer()
@@ -184,7 +186,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
           refreshToken: currentRefreshToken
         )
       }
-      tokenStorage
+      try tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
       _isAuthenticatedSubject.value = true
       lastFailure = nil
@@ -214,7 +216,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     guard let araUserRepository, let feedUserRepository, let otlUserRepository else { return }
     do {
       let tokenResponse: SignInResponse = try await authenticationService.authenticate()
-      tokenStorage
+      try tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
 
       // MARK: Sign up Ara

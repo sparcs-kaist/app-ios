@@ -12,9 +12,10 @@ public protocol TokenStorageProtocol: Sendable {
   var tokenStatePublisher: AnyPublisher<TokenState?, Never> { get }
   var currentTokenState: TokenState? { get }
 
-  func save(accessToken: String, refreshToken: String?)
+  func save(accessToken: String, refreshToken: String?) throws
   func getAccessToken() -> String?
   func getRefreshToken() -> String?
+  func readRefreshToken() throws -> String?
   func isTokenExpired() -> Bool
   func getTokenExpirationDate() -> Date?
   func clearTokens()

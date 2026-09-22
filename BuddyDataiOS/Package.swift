@@ -35,6 +35,7 @@ let package = Package(
                 name: "FirebaseCrashlytics",
                 package: "firebase-ios-sdk"
               ),
+              .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
               .product(name: "Factory", package: "Factory"),
             ]
         ),

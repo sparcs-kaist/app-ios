@@ -33,17 +33,23 @@ public final class TokenStorage: @unchecked Sendable, TokenStorageProtocol {
 
   public init() {
     keychain.accessGroup = "N5V8W52U3U.org.sparcs.soap"
+    for key in [Self.accessTokenKey, Self.refreshTokenKey, Self.tokenExpirationKey] {
+      keychain.setAccessibility(.accessibleAfterFirstUnlock, forKey: key)
+    }
   }
 
-  public func save(accessToken: String, refreshToken: String?) {
-    keychain.set(accessToken, forKey: TokenStorage.accessTokenKey, withAccess: .none)
+  public func save(accessToken: String, refreshToken: String?) throws {
+    // Persist the rotated refresh token first so a later write failure can still
+    // recover the session. Do not publish success until every write succeeds.
     if let refreshToken {
-      keychain.set(refreshToken, forKey: TokenStorage.refreshTokenKey, withAccess: .none)
+      try keychain.setData(Data(refreshToken.utf8), forKey: Self.refreshTokenKey, withAccess: .accessibleAfterFirstUnlock)
     }
+    try keychain.setData(Data(accessToken.utf8), forKey: Self.accessTokenKey, withAccess: .accessibleAfterFirstUnlock)
 
     if let expirationDate = extractExpirationDate(from: accessToken) {
       let expirationTimeInterval = expirationDate.timeIntervalSince1970
-      keychain.set(String(expirationTimeInterval), forKey: TokenStorage.tokenExpirationKey)
+      try keychain.setData(Data(String(expirationTimeInterval).utf8), forKey: Self.tokenExpirationKey,
+        withAccess: .accessibleAfterFirstUnlock)
       tokenStateSubject.send(TokenState(accessToken: accessToken, expiresAt: expirationDate))
     }
   }
@@ -53,7 +59,15 @@ public final class TokenStorage: @unchecked Sendable, TokenStorageProtocol {
   }
 
   public func getRefreshToken() -> String? {
-    return keychain.get(TokenStorage.refreshTokenKey)
+    try? readRefreshToken()
+  }
+
+  public func readRefreshToken() throws -> String? {
+    guard let data = try keychain.readData(Self.refreshTokenKey) else { return nil }
+    guard let token = String(data: data, encoding: .utf8) else {
+      throw CocoaError(.fileReadCorruptFile)
+    }
+    return token
   }
   
   public func isTokenExpired() -> Bool {
@@ -110,4 +124,3 @@ public final class TokenStorage: @unchecked Sendable, TokenStorageProtocol {
     return Date(timeIntervalSince1970: exp)
   }
 }
-
