@@ -21,6 +21,7 @@ struct CompactTimetableSelector: View {
   let renameTimetable: (String) async -> Void
   let deleteTimetable: () async -> Void
 	let isWide: Bool
+  var isReadOnly: Bool = false
 
   @State private var showRenameAlert: Bool = false
   @State private var renameText: String = ""
@@ -69,7 +70,7 @@ struct CompactTimetableSelector: View {
           renameText = ""
         }
       })
-      .disabled(renameText.isEmpty)
+      .disabled(renameText.isEmpty || isReadOnly)
 
       Button(String(localized: "Cancel", bundle: .module), role: .cancel, action: {})
     }, message: {
@@ -108,26 +109,27 @@ struct CompactTimetableSelector: View {
           await createTimetable()
         }
       }
+      .disabled(isReadOnly)
 
       Button(String(localized: "Duplicate My Table", bundle: .module), systemImage: "plus.square.on.square") {
         Task {
           await duplicateMyTable()
         }
       }
-      .disabled(isDuplicatingMyTable)
+      .disabled(isDuplicatingMyTable || isReadOnly)
 
       Divider()
 
       Button(String(localized: "Rename", bundle: .module), systemImage: "square.and.pencil") {
         showRenameAlert = true
       }
-      .disabled(selectedTimetableID == nil)
+      .disabled(selectedTimetableID == nil || isReadOnly)
 
       Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
         showDeleteConfirmation = true
       }
       .tint(nil)
-      .disabled(selectedTimetableID == nil)
+      .disabled(selectedTimetableID == nil || isReadOnly)
     }, label: {
       HStack(spacing: 16) {
         Text(displayName)
@@ -207,6 +209,9 @@ struct CompactTimetableSelector: View {
 
   private var displayName: String {
     guard let timetable = selectedTimetable else {
+      if let id = selectedTimetableID {
+        return String(localized: "Timetable \(id)", bundle: .module)
+      }
       return String(localized: "My Table", bundle: .module)
     }
     return timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title

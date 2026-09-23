@@ -25,13 +25,8 @@ public class TimetableService: TimetableServiceProtocol {
   public func setup() async throws {
     defer { configureTimetableUseCase() }
 #if !os(watchOS)
-    guard let refreshToken = tokenStorage.getRefreshToken() else {
-      return
-    }
-
-    // refresh token
     self.authRepository = AuthRepository(provider: MoyaProvider<AuthTarget>())
-    try await tokenRefresh(refreshToken)
+    try await tokenRefreshIfNeeded()
 
     // access token
     guard let accessToken = tokenStorage.getAccessToken() else {
@@ -54,14 +49,17 @@ public class TimetableService: TimetableServiceProtocol {
 
   // MARK: - Helpers
 
-  private func tokenRefresh(_ token: String) async throws {
+  private func tokenRefreshIfNeeded() async throws {
     guard self.authRepository != nil else { return }
+    // Reuse a valid token instead of refreshing for every widget update.
+    if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired() { return }
+    guard let token = try tokenStorage.readRefreshToken() else { return }
 
-    let tokenResponse: TokenResponse = try await self.authRepository!.refreshToken(
-      refreshToken: token
-    )
+    let tokenResponse: TokenResponse = try await AuthRetryConfig.$isRefreshing.withValue(true) {
+      try await self.authRepository!.refreshToken(refreshToken: token)
+    }
 
-    tokenStorage
+    try tokenStorage
       .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
   }
 

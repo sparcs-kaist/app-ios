@@ -13,7 +13,8 @@ struct TimetableOptionsProvider: DynamicOptionsProvider {
 	
 	func results() async throws -> ItemCollection<TimetableEntity> {
 		let timetableService = TimetableService()
-		try await timetableService.setup()
+    // Keep saved options available when authentication cannot refresh offline.
+		try? await timetableService.setup()
 		
 		guard let timetableUseCase = timetableService.timetableUseCase else {
 			throw NSError(domain: "TimetableUseCase Not Initialised", code: -1)

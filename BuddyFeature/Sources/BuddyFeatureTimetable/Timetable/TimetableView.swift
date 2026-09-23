@@ -22,6 +22,7 @@ public struct TimetableView: View {
   @State private var selectedDetent: PresentationDetent = .medium
 
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.scenePhase) private var scenePhase
 
   /// Keeps the grid usable on short (landscape) screens where `80%` of the
   /// available height would otherwise squash it.
@@ -37,7 +38,7 @@ public struct TimetableView: View {
           )
           .padding()
         }
-        .refreshable { await viewModel.loadTimetable() }
+        .refreshable { await viewModel.refresh() }
         .background {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
@@ -56,7 +57,7 @@ public struct TimetableView: View {
 								showActivityCreationSheet = true
 							}
 						}
-						.disabled(viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init))
+						.disabled(viewModel.isReadOnly || viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init))
           }
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
@@ -111,6 +112,10 @@ public struct TimetableView: View {
       }
     }
     .timetableThemeFromSettings()
+    .task { await viewModel.observeConnectivity() }
+    .onChange(of: scenePhase) { _, phase in
+      if phase == .active { Task { await viewModel.refresh() } }
+    }
   }
 
   // MARK: - Layout
@@ -119,6 +124,9 @@ public struct TimetableView: View {
   private func content(gridHeight: CGFloat, isWide: Bool) -> some View {
     VStack(spacing: 28) {
       selector(isWide: isWide)
+      if viewModel.showsSavedStatus || viewModel.loadError != nil {
+        offlineStatus
+      }
       if isWide {
         // Leverage the wider screen: lay the supporting cards out in two
         // columns instead of one long vertical scroll.
@@ -163,7 +171,8 @@ public struct TimetableView: View {
       deleteTimetable: {
         await viewModel.deleteTable()
       },
-			isWide: isWide
+			isWide: isWide,
+      isReadOnly: viewModel.isReadOnly
     )
     .redacted(reason: viewModel.isLoading ? .placeholder : [])
   }
@@ -176,13 +185,13 @@ public struct TimetableView: View {
         selectedLecture: { selectedLecture in
           self.selectedLecture = selectedLecture
         },
-        onDelete: { lecture in
+        onDelete: viewModel.isReadOnly ? nil : { lecture in
           Task {
             await viewModel.deleteLecture(lecture: lecture)
           }
         },
-        onEditActivity: viewModel.selectedTimetableID == nil ? nil : { editingActivity = $0 },
-        onDeleteActivity: viewModel.selectedTimetableID == nil ? nil : { activity in
+        onEditActivity: viewModel.isReadOnly || viewModel.selectedTimetableID == nil ? nil : { editingActivity = $0 },
+        onDeleteActivity: viewModel.isReadOnly || viewModel.selectedTimetableID == nil ? nil : { activity in
           Task { await viewModel.deleteActivity(activity) }
         },
         placement: .view
@@ -197,10 +206,35 @@ public struct TimetableView: View {
     if let id = viewModel.selectedTimetableID, viewModel.timetable?.id == String(id) {
       ActivityCreationView(
         timetable: viewModel.timetable, timetableTitle: displayName, activity: activity,
-        onSave: { draft in try await viewModel.saveActivity(timetableID: id, activityID: activity?.id, draft: draft) },
+        onSave: viewModel.isReadOnly ? nil : { draft in try await viewModel.saveActivity(timetableID: id, activityID: activity?.id, draft: draft) },
         onRefresh: { try await viewModel.refreshActivities(timetableID: id) }
       )
     }
+  }
+
+  private var offlineStatus: some View {
+    HStack(alignment: .top) {
+      Image(systemName: viewModel.isOffline ? "wifi.slash" : "clock.arrow.circlepath")
+      VStack(alignment: .leading, spacing: 4) {
+        Text(viewModel.isOffline
+          ? String(localized: "Offline", bundle: .module)
+          : String(localized: "Showing saved information", bundle: .module))
+          .fontWeight(.medium)
+        if let error = viewModel.loadError {
+          Text(error)
+        } else if let date = viewModel.lastUpdated {
+          Text("Last updated \(date.formatted(date: .abbreviated, time: .shortened))", bundle: .module)
+        }
+      }
+      Spacer()
+      Button(String(localized: "Retry", bundle: .module)) {
+        Task { await viewModel.refresh() }
+      }
+    }
+    .font(.footnote)
+    .foregroundStyle(.secondary)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .accessibilityElement(children: .contain)
   }
 
   private var lectureListCard: some View {
@@ -226,6 +260,9 @@ public struct TimetableView: View {
 
   private var displayName: String {
     guard let timetable = selectedTimetable else {
+      if let id = viewModel.selectedTimetableID {
+        return String(localized: "Timetable \(id)", bundle: .module)
+      }
       return String(localized: "My Table", bundle: .module)
     }
     return timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title
