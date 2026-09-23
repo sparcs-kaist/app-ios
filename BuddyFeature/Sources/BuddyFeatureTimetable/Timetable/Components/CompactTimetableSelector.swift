@@ -20,6 +20,8 @@ struct CompactTimetableSelector: View {
   let isDuplicatingMyTable: Bool
   let renameTimetable: (String) async -> Void
   let deleteTimetable: () async -> Void
+  let shareTimetable: () -> Void
+  let canShareTimetable: Bool
 	let isWide: Bool
   var isReadOnly: Bool = false
 
@@ -119,6 +121,11 @@ struct CompactTimetableSelector: View {
       .disabled(isDuplicatingMyTable || isReadOnly)
 
       Divider()
+			
+			Button(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up") {
+        shareTimetable()
+			}
+      .disabled(!canShareTimetable)
 
       Button(String(localized: "Rename", bundle: .module), systemImage: "square.and.pencil") {
         showRenameAlert = true
