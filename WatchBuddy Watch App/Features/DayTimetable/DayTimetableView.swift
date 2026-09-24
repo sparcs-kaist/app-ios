@@ -15,9 +15,13 @@ import TimetableUI
 struct DayTimetableView: View {
   let timetable: Timetable
   let day: DayType
+  /// Scroll this lecture into view on appear, e.g. when arriving from a tap
+  /// on the List view.
+  var focusedItemID: String? = nil
   let onSelectLecture: (LectureItem) -> Void
 
   @Environment(\.timetableTheme) private var theme
+  @State private var scrollPosition = ScrollPosition()
 
   private static let hourHeight: CGFloat = 44
   private static let gutterWidth: CGFloat = 16
@@ -50,6 +54,12 @@ struct DayTimetableView: View {
         grid
           .padding(.horizontal, 4)
           .padding(.bottom, 8)
+      }
+      .scrollPosition($scrollPosition)
+      .onAppear {
+        if let focused = items.first(where: { $0.id == focusedItemID }) {
+          scrollPosition.scrollTo(y: max(0, offset(at: focused.lectureClass.begin) - 12))
+        }
       }
       .navigationTitle(day.description)
     }

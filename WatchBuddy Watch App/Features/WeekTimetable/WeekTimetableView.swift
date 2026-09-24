@@ -76,6 +76,9 @@ struct WeekTimetableView: View {
     }
     .padding(.horizontal, 4)
     .navigationTitle("Week")
+    // The day-letter header is pinned outside the scroll view, so a large
+    // title's collapse animation would slide through it. Keep the bar inline.
+    .toolbarTitleDisplayMode(.inline)
   }
 
   private var timeGutter: some View {

@@ -38,15 +38,19 @@ struct LectureRootView: View {
         case .upNext:
           LectureTabView(items: dayItems, initialSelection: focusedItemID)
         case .list:
-          LectureListView(items: dayItems)
+          LectureListView(items: dayItems) { item in
+            focusedItemID = item.id
+            viewOption = .upNext
+          }
         case .day:
-          DayTimetableView(timetable: timetable, day: selectedDay) { item in
+          DayTimetableView(timetable: timetable, day: selectedDay, focusedItemID: focusedItemID) { item in
             focusedItemID = item.id
             viewOption = .upNext
           }
         case .week:
           WeekTimetableView(timetable: timetable) { day in
             selectedDay = day
+            focusedItemID = nil
             viewOption = .day
           }
         }

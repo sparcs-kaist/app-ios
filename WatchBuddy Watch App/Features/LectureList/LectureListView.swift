@@ -9,10 +9,13 @@ import SwiftUI
 import BuddyDomain
 import TimetableUI
 
-/// Today's lectures as a plain scrolling list, with no offsets for time or
-/// duration — just the schedule in order.
+/// The day's lectures as a plain scrolling list, with no offsets for time or
+/// duration — just the schedule in order. Each row is a full-colour card in
+/// the lecture's theme colour, like a timetable grid cell. Tapping a lecture
+/// hands it back so the root can jump to the Day view at that lecture.
 struct LectureListView: View {
   let items: [LectureItem]
+  let onSelectLecture: (LectureItem) -> Void
 
   @Environment(\.timetableTheme) private var theme
 
@@ -22,11 +25,9 @@ struct LectureListView: View {
         .multilineTextAlignment(.center)
     } else {
       List(items) { item in
-        HStack(spacing: 8) {
-          RoundedRectangle(cornerRadius: 2)
-            .fill(theme.color(forCourseID: item.lecture.courseID))
-            .frame(width: 4)
-
+        Button {
+          onSelectLecture(item)
+        } label: {
           VStack(alignment: .leading, spacing: 2) {
             Text(item.lecture.name)
               .font(.headline)
@@ -34,16 +35,19 @@ struct LectureListView: View {
               .minimumScaleFactor(0.8)
             Text(item.lectureClass.description)
               .font(.caption)
-              .foregroundStyle(.secondary)
+              .opacity(0.8)
             Text(item.lectureClass.location)
               .font(.caption2)
-              .foregroundStyle(.secondary)
+              .opacity(0.8)
               .lineLimit(1)
           }
-
-          Spacer(minLength: 0)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .foregroundStyle(theme.textColor)
         }
-        .padding(.vertical, 2)
+        .listRowBackground(
+          RoundedRectangle(cornerRadius: 10)
+            .fill(theme.color(forCourseID: item.lecture.courseID))
+        )
       }
     }
   }
@@ -53,6 +57,6 @@ struct LectureListView: View {
   NavigationStack {
     LectureListView(
       items: Lecture.mockList.map { LectureItem(lecture: $0, lectureClass: $0.classes.first!) }
-    )
+    ) { _ in }
   }
 }
