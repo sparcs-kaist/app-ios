@@ -46,9 +46,15 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
   }
 
   public var headers: [String: String]? {
-    [
+    var headers = [
       "Content-Type": "application/json"
     ]
+    
+    #if DEBUG
+    headers["X-SID-AUTH-TOKEN"] = OTLDebugSecrets.key
+    #endif
+    
+    return headers
   }
 
   public var authorizationType: Moya.AuthorizationType? {

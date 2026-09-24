@@ -75,10 +75,16 @@ extension OTLReviewTarget: TargetType, AccessTokenAuthorizable {
   }
 
   public var headers: [String: String]? {
-    [
+    var headers = [
       "Content-Type": "application/json",
       "Accept-Language": Bundle.main.preferredLocalizations.first ?? "ko"
     ]
+    
+    #if DEBUG
+    headers["X-SID-AUTH-TOKEN"] = OTLDebugSecrets.key
+    #endif
+    
+    return headers
   }
 
   public var authorizationType: Moya.AuthorizationType? {
