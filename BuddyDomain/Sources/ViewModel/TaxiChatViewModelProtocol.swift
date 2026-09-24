@@ -37,7 +37,7 @@ public protocol TaxiChatViewModelProtocol: Observable {
   func fetchInitialChats() async
   func sendChat(_ message: String, type: TaxiChat.ChatType)
   func leaveRoom() async throws
-  func commitSettlement()
+  func commitSettlement(settlementAmount: Int)
   func commitPayment()
   func updateArrival(isArrived: Bool)
   func updateCarrier(hasCarrier: Bool)

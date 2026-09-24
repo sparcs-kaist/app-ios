@@ -161,12 +161,15 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     room.participants.filter(\.isArrived).count
   }
 
-  func commitSettlement() {
+  func commitSettlement(settlementAmount: Int) {
     guard let taxiRoomRepository, let taxiChatUseCase else { return }
 
     Task {
       do {
-        let room: TaxiRoom = try await taxiRoomRepository.commitSettlement(id: room.id)
+        let room: TaxiRoom = try await taxiRoomRepository.commitSettlement(
+          id: room.id,
+          settlementAmount: settlementAmount
+        )
         self.room = room
 
         guard let account = taxiUser?.account, !account.isEmpty else {
@@ -201,11 +204,12 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   }
 
   var isCommitPaymentAvailable: Bool {
-    let me: TaxiParticipant? = room.participants.first(where: { $0.id == taxiUser?.oid})
+    guard room.isDeparted,
+          (room.settlementTotal ?? 0) > 0,
+          let me = room.participants.first(where: { $0.id == taxiUser?.oid })
+    else { return false }
 
-    return room.isDeparted && room.settlementTotal != 0 && (
-      me?.isSettlement == .paymentRequired
-    )
+    return me.isSettlement == .paymentRequired
   }
 
   func updateArrival(isArrived: Bool) {

@@ -41,7 +41,7 @@ public final class PreviewTaxiChatViewModel: TaxiChatViewModelProtocol {
   public func fetchInitialChats() async { }
   public func sendChat(_ message: String, type: TaxiChat.ChatType) { }
   public func leaveRoom() async throws { }
-  public func commitSettlement() { }
+  public func commitSettlement(settlementAmount: Int) { }
   public func commitPayment() { }
   public func updateArrival(isArrived: Bool) {
     self.isArrived = isArrived

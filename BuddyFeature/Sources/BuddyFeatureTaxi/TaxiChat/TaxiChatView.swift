@@ -24,6 +24,7 @@ struct TaxiChatView: View {
 
   @State private var showCallTaxiAlert: Bool = false
   @State private var showPayMoneyAlert: Bool = false
+  @State private var showSettlementAmountSheet: Bool = false
   @State private var showReportSheet: Bool = false
 
   @State private var tappedImageID: String? = nil
@@ -46,6 +47,8 @@ struct TaxiChatView: View {
           items: Self.placeholderItems,
           room: viewModel.room,
           user: nil,
+          isCommitPaymentAvailable: false,
+          onCommitPayment: {},
           safeAreaInsets: reader.safeAreaInsets,
           scrollToBottomTrigger: 0
         )
@@ -57,6 +60,10 @@ struct TaxiChatView: View {
           items: viewModel.renderItems,
           room: viewModel.room,
           user: viewModel.taxiUser,
+          isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable,
+          onCommitPayment: {
+            viewModel.commitPayment()
+          },
           safeAreaInsets: reader.safeAreaInsets,
           scrollToBottomTrigger: viewModel.scrollToBottomTrigger
         )
@@ -87,7 +94,7 @@ struct TaxiChatView: View {
           try await viewModel.sendImage(image)
         },
         onCommitSettlement: {
-          viewModel.commitSettlement()
+          showSettlementAmountSheet = true
         },
         onShowPayMoneyAlert: {
           showPayMoneyAlert = true
@@ -170,6 +177,11 @@ struct TaxiChatView: View {
       TaxiReportView(room: viewModel.room)
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(450)])
+    }
+    .sheet(isPresented: $showSettlementAmountSheet) {
+      TaxiSettlementAmountSheet(participantCount: viewModel.room.participants.count) { amount in
+        viewModel.commitSettlement(settlementAmount: amount)
+      }
     }
     .task {
       await viewModel.setup()

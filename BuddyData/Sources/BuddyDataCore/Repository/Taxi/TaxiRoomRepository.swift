@@ -84,8 +84,8 @@ public final class TaxiRoomRepository: TaxiRoomRepositoryProtocol, Sendable {
     }
   }
 
-  public func commitSettlement(id: String) async throws -> TaxiRoom {
-    try await request(.commitSettlement(roomID: id)) { response in
+  public func commitSettlement(id: String, settlementAmount: Int) async throws -> TaxiRoom {
+    try await request(.commitSettlement(roomID: id, settlementAmount: settlementAmount)) { response in
       try response.map(TaxiRoomDTO.self).toModel()
     }
   }

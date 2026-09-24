@@ -124,6 +124,9 @@
         }
       }
     },
+    "₩" : {
+      "shouldTranslate" : false
+    },
     "Active Groups" : {
       "localizations" : {
         "en" : {
@@ -457,6 +460,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "확인"
+          }
+        }
+      }
+    },
+    "Enter amount" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter amount"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "금액 입력"
           }
         }
       }
@@ -927,6 +946,22 @@
         }
       }
     },
+    "Participants" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Participants"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인원"
+          }
+        }
+      }
+    },
     "Participants %lld/%lld" : {
       "localizations" : {
         "en" : {
@@ -984,6 +1019,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "과거 참여 방"
+          }
+        }
+      }
+    },
+    "Per person" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per person"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1인당"
           }
         }
       }
@@ -1363,6 +1414,22 @@
         }
       }
     },
+    "The per-person amount is rounded down to whole won." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The per-person amount is rounded down to whole won."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1인당 금액은 원 단위로 버림 처리됩니다."
+          }
+        }
+      }
+    },
     "There are rooms for which settlement has not been completed. To create a room, please settle an existing room." : {
       "localizations" : {
         "en" : {
@@ -1423,6 +1490,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "제목"
+          }
+        }
+      }
+    },
+    "Total amount" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total amount"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 결제 금액"
+          }
+        }
+      }
+    },
+    "Total fare" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total fare"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 택시 요금"
           }
         }
       }

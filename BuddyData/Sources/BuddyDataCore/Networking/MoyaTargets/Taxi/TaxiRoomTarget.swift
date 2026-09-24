@@ -17,7 +17,7 @@ public enum TaxiRoomTarget {
   case leaveRoom(roomID: String)
   case getRoom(roomID: String)
   case getPublicRoom(roomID: String)
-  case commitSettlement(roomID: String)
+  case commitSettlement(roomID: String, settlementAmount: Int)
   case commitPayment(roomID: String)
   case updateArrival(roomID: String, isArrived: Bool)
   case updateCarrier(roomID: String, hasCarrier: Bool)
@@ -82,8 +82,11 @@ extension TaxiRoomTarget: TargetType, AccessTokenAuthorizable {
       .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
     case .getPublicRoom(let roomID):
         .requestParameters(parameters: ["id": roomID], encoding: URLEncoding.queryString)
-    case .commitSettlement(let roomID):
-      .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
+    case .commitSettlement(let roomID, let settlementAmount):
+      .requestParameters(
+        parameters: ["roomId": roomID, "settlementAmount": settlementAmount],
+        encoding: JSONEncoding.default
+      )
     case .commitPayment(let roomID):
       .requestParameters(parameters: ["roomId": roomID], encoding: JSONEncoding.default)
     case .updateArrival(let roomID, let isArrived):
