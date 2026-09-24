@@ -104,7 +104,10 @@ public struct TimetableView: View {
         .sheet(item: $sharedImage) { item in
           ActivityView(
             activityItems: [item.source],
-            applicationActivities: [InstagramStoryActivity(appID: "2510700999432824")]
+            applicationActivities: [InstagramStoryActivity(
+              appID: "2510700999432824",
+              backgroundColorHex: item.backgroundColorHex
+            )]
           )
         }
         .alert(
@@ -280,22 +283,36 @@ public struct TimetableView: View {
 
   private func shareTimetable() {
     guard let semester = viewModel.selectedSemester, let timetable = viewModel.timetable else { return }
+    let theme = TimetableThemeStore().selectedTheme
+    // Themes without a background use the light system background for exports.
+    let backgroundColorHex = theme.backgroundColorHex ?? "F2F2F7"
 
     // Render a separate view so the exported image excludes editing controls
     // and any lecture that is only being previewed in search.
     let renderer = ImageRenderer(content:
       TimetableShareRenderingView(semester: semester, timetable: timetable)
-        .timetableTheme(TimetableThemeStore().selectedTheme)
-				.preferredColorScheme(.light)
+        .timetableTheme(theme)
+        .environment(\.colorScheme, .light)
     )
     renderer.scale = 3
     renderer.isOpaque = false
 
     do {
-      guard let image = renderer.uiImage else { throw CocoaError(.fileWriteUnknown) }
+      guard let stickerImage = renderer.uiImage else { throw CocoaError(.fileWriteUnknown) }
+      // Keep the sticker's alpha for Instagram; flatten all other exports onto
+      // the same theme color used behind the sticker in the Story composer.
+      let format = UIGraphicsImageRendererFormat()
+      format.scale = stickerImage.scale
+      format.opaque = true
+      let image = UIGraphicsImageRenderer(size: stickerImage.size, format: format).image { context in
+        let bounds = CGRect(origin: .zero, size: stickerImage.size)
+        UIColor(Color(hex: backgroundColorHex)).setFill()
+        context.fill(bounds)
+        stickerImage.draw(in: bounds)
+      }
       let title = "\(semester.description) - \(displayName)"
-      let source = try ImageActivityItemSource(image: image, title: title)
-      sharedImage = TimetableShareImage(source: source)
+      let source = try ImageActivityItemSource(image: image, title: title, instagramStoryImage: stickerImage)
+      sharedImage = TimetableShareImage(source: source, backgroundColorHex: backgroundColorHex)
     } catch {
       viewModel.alertState = AlertState(
         title: String(localized: "Error", bundle: .module),
@@ -317,6 +334,7 @@ public struct TimetableView: View {
 private struct TimetableShareImage: Identifiable {
   let id = UUID()
   let source: ImageActivityItemSource
+  let backgroundColorHex: String
 }
 
 // MARK: - Card Styling

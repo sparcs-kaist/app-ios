@@ -6,10 +6,11 @@ import UniformTypeIdentifiers
 public final class ImageActivityItemSource: NSObject, UIActivityItemSource {
   // Custom activities may receive the source itself during availability checks.
   let image: UIImage
+  let instagramStoryImage: UIImage
   private let title: String
   private let fileURL: URL
 
-  public init(image: UIImage, title: String) throws {
+  public init(image: UIImage, title: String, instagramStoryImage: UIImage? = nil) throws {
     guard let data = image.pngData() else {
       throw CocoaError(.fileWriteUnknown)
     }
@@ -31,6 +32,7 @@ public final class ImageActivityItemSource: NSObject, UIActivityItemSource {
     }
 
     self.image = image
+    self.instagramStoryImage = instagramStoryImage ?? image
     self.title = title
     self.fileURL = fileURL
     super.init()
@@ -49,7 +51,10 @@ public final class ImageActivityItemSource: NSObject, UIActivityItemSource {
     _ activityViewController: UIActivityViewController,
     itemForActivityType activityType: UIActivity.ActivityType?
   ) -> Any? {
-    if activityType == .saveToCameraRoll || activityType == InstagramStoryActivity.type {
+    if activityType == InstagramStoryActivity.type {
+      return instagramStoryImage
+    }
+    if activityType == .saveToCameraRoll {
       return image
     }
     return fileURL
