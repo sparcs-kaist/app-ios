@@ -226,10 +226,11 @@ public final class TimetableViewModel {
           let selectedTimetableID else { return }
 
     do {
+      // Re-checked against a freshly fetched table, not the cached one: the
+      // search sheet's own check can be stale by the time Add is tapped.
+      // `hasCollision` covers both existing classes and activities.
       let current = try await timetableUseCase.refreshTable(id: selectedTimetableID)
-      guard !current.activities.contains(where: { activity in
-        lecture.classes.contains { activity.draft.overlaps(day: $0.day, begin: $0.begin, end: $0.end) }
-      }) else { throw TimetableActivityError.overlap }
+      guard !current.hasCollision(with: lecture) else { throw TimetableActivityError.overlap }
       try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
       timetableLoadTask?.cancel()

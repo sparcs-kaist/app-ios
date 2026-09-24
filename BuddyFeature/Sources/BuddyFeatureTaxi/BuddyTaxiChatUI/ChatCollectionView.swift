@@ -11,6 +11,8 @@ import UIKit
 import BuddyDomain
 
 struct ChatCollectionView: UIViewRepresentable {
+  @Environment(\.layoutDirection) private var layoutDirection
+
   let items: [ChatRenderItem]
   let room: TaxiRoom
   let user: TaxiUser?
@@ -20,9 +22,10 @@ struct ChatCollectionView: UIViewRepresentable {
   let scrollToBottomTrigger: Int
 
   func makeUIView(context: Context) -> UICollectionView {
-    let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())
+    let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout(coordinator: context.coordinator))
     collectionView.backgroundColor = .clear
     collectionView.keyboardDismissMode = .interactive
+    collectionView.topEdgeEffect.style = .soft
     collectionView.dataSource = context.coordinator
     collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
     return collectionView
@@ -34,7 +37,19 @@ struct ChatCollectionView: UIViewRepresentable {
 
     collectionView.contentInset.top = self.safeAreaInsets.top
     collectionView.contentInset.bottom = newBottomInset
-    collectionView.scrollIndicatorInsets = collectionView.contentInset
+    var indicatorInsets = collectionView.contentInset
+    indicatorInsets.left = layoutDirection == .rightToLeft ? safeAreaInsets.trailing : safeAreaInsets.leading
+    indicatorInsets.right = layoutDirection == .rightToLeft ? safeAreaInsets.leading : safeAreaInsets.trailing
+    collectionView.scrollIndicatorInsets = indicatorInsets
+
+    // Insets on the section shrink the message rows while the viewport and
+    // its scroll-edge effect extend under the side bar.
+    if context.coordinator.leadingInset != safeAreaInsets.leading ||
+       context.coordinator.trailingInset != safeAreaInsets.trailing {
+      context.coordinator.leadingInset = safeAreaInsets.leading
+      context.coordinator.trailingInset = safeAreaInsets.trailing
+      collectionView.collectionViewLayout.invalidateLayout()
+    }
 
     let insetDelta = newBottomInset - oldBottomInset
 
@@ -138,10 +153,15 @@ struct ChatCollectionView: UIViewRepresentable {
     return contentHeight - bottomEdge <= threshold
   }
 
-  private func layout() -> UICollectionViewLayout {
+  private func layout(coordinator: Coordinator) -> UICollectionViewLayout {
     var config = UICollectionLayoutListConfiguration(appearance: .plain)
     config.showsSeparators = false
-    return UICollectionViewCompositionalLayout.list(using: config)
+    return UICollectionViewCompositionalLayout { _, environment in
+      let section = NSCollectionLayoutSection.list(using: config, layoutEnvironment: environment)
+      section.contentInsets.leading = coordinator.leadingInset
+      section.contentInsets.trailing = coordinator.trailingInset
+      return section
+    }
   }
 
   // MARK: - Coordinator
@@ -152,6 +172,8 @@ struct ChatCollectionView: UIViewRepresentable {
     var user: TaxiUser?
     var isCommitPaymentAvailable: Bool
     var onCommitPayment: () -> Void
+    var leadingInset: CGFloat = 0
+    var trailingInset: CGFloat = 0
     var previousBottomInset: CGFloat = 0
     var previousScrollTrigger: Int = 0
 

@@ -54,7 +54,9 @@ struct TaxiChatView: View {
         )
         .redacted(reason: .placeholder)
         .disabled(true)
-        .ignoresSafeArea()
+        .padding(.leading, -reader.safeAreaInsets.leading)
+        .padding(.trailing, -reader.safeAreaInsets.trailing)
+        .ignoresSafeArea(.all, edges: .vertical)
       case .loaded:
         ChatCollectionView(
           items: viewModel.renderItems,
@@ -67,7 +69,12 @@ struct TaxiChatView: View {
           safeAreaInsets: reader.safeAreaInsets,
           scrollToBottomTrigger: viewModel.scrollToBottomTrigger
         )
-        .ignoresSafeArea()
+        // Expand only by this column's measured side insets. Ignoring the
+        // horizontal safe area here can extend under the neighboring column.
+        // ChatCollectionView applies these insets to its rows, not its viewport.
+        .padding(.leading, -reader.safeAreaInsets.leading)
+        .padding(.trailing, -reader.safeAreaInsets.trailing)
+        .ignoresSafeArea(.all, edges: .vertical)
       case .error(let message):
         errorView(errorMessage: message)
       }
@@ -76,6 +83,7 @@ struct TaxiChatView: View {
     .navigationTitle(Text(chatTitle))
     .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
     .navigationBarTitleDisplayMode(.inline)
+    .staticNavigationBar()
     .toolbar { toolbarContent }
     .safeAreaBar(edge: .bottom) {
       TaxiChatInputBar(
@@ -276,6 +284,23 @@ struct TaxiChatView: View {
         }
       }
     )
+  }
+}
+
+private extension View {
+  /// Stops the navigation bar minimising as the transcript scrolls. The title
+  /// and subtitle identify the room, and should stay put and legible while
+  /// reading back through messages.
+  ///
+  /// `toolbarMinimizationBehavior` is iOS 27.0; on 26 the bar already holds
+  /// still unless the view is searchable, which this one is not.
+  @ViewBuilder
+  func staticNavigationBar() -> some View {
+    if #available(iOS 27.0, *) {
+      toolbarMinimizationBehavior(.never, for: .navigationBar)
+    } else {
+      self
+    }
   }
 }
 

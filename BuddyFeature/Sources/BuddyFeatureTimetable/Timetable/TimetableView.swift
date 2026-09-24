@@ -23,6 +23,10 @@ public struct TimetableView: View {
 	@State private var showActivityCreationSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
 
+  /// Non-nil only while an active fold runs vertically through the two-column
+  /// layout; see `FoldSplit`.
+  @State private var foldSplit: FoldSplit?
+
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
 
@@ -72,6 +76,7 @@ public struct TimetableView: View {
             )
             .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])
+            .trailingPresentationPlacement()
           }
         }
         .sheet(isPresented: $showSearchSheet) {
@@ -79,6 +84,7 @@ public struct TimetableView: View {
             LectureSearchView(
               detent: $selectedDetent,
               timetableDisplayName: displayName,
+              timetable: viewModel.timetable,
               selectedSemester: selectedSemester,
               candidateLecture: $viewModel.candidateLecture,
               onAdd: { lecture in
@@ -88,6 +94,7 @@ public struct TimetableView: View {
               }
             )
             .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
+            .trailingPresentationPlacement()
             .onAppear {
               selectedDetent = .medium
             }
@@ -96,10 +103,12 @@ public struct TimetableView: View {
 				.sheet(isPresented: $showActivityCreationSheet) {
 					activityEditor()
 						.presentationDragIndicator(.visible)
+						.trailingPresentationPlacement()
 				}
         .sheet(item: $editingActivity) { activity in
           activityEditor(activity: activity)
             .presentationDragIndicator(.visible)
+            .trailingPresentationPlacement()
         }
         .sheet(item: $sharedImage) { item in
           ActivityView(
@@ -140,10 +149,12 @@ public struct TimetableView: View {
       }
       if isWide {
         // Leverage the wider screen: lay the supporting cards out in two
-        // columns instead of one long vertical scroll.
-        HStack(alignment: .top, spacing: 28) {
+        // columns instead of one long vertical scroll. When the device is
+        // half-folded the gutter widens to the fold band and the grid is pinned
+        // to the leading half, so neither column is cut in two by the crease.
+        HStack(alignment: .top, spacing: foldSplit?.gutter ?? 28) {
 					gridCard(height: gridHeight)
-            .frame(maxWidth: .infinity)
+            .frame(minWidth: foldSplit?.leadingWidth, maxWidth: foldSplit?.leadingWidth ?? .infinity)
 
           VStack(spacing: 28) {
 						lectureListCard
@@ -152,6 +163,8 @@ public struct TimetableView: View {
           }
           .frame(maxWidth: .infinity)
         }
+        .foldSplit($foldSplit)
+        .animation(.snappy, value: foldSplit)
       } else {
 				gridCard(height: gridHeight)
         lectureListCard
@@ -340,6 +353,48 @@ private struct TimetableShareImage: Identifiable {
   let id = UUID()
   let source: ImageActivityItemSource
   let backgroundColorHex: String
+}
+
+// MARK: - Fold Avoidance
+
+/// The active fold, expressed as the two-column geometry that keeps it in the
+/// gutter: the grid takes everything up to the fold, the gutter *is* the fold
+/// band, and the supporting cards take the rest.
+///
+/// `nonisolated` and `Sendable` because it is handed to a geometry closure: a
+/// plain value type picks up a main-actor-isolated `Equatable` conformance
+/// under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` and then fails to satisfy
+/// the `Sendable` requirement.
+private nonisolated struct TimetableFoldSplit: Equatable, Sendable {
+  /// Width of the leading column — the distance to the near edge of the fold.
+  let leadingWidth: CGFloat
+  /// Gap between the columns, matching the fold band (40 pt on iPhone Duo).
+  let gutter: CGFloat
+
+  /// Narrower than this and a column stops being worth keeping; the even split
+  /// reads better than two slivers.
+  private static let minimumColumnWidth: CGFloat = 240
+
+  /// `nil` whenever the columns should keep their even split: no fold, the
+  /// device lying flat (inactive regions are not returned by default), a fold
+  /// running *horizontally* across the layout — the inner display in portrait,
+  /// where the band spans the full width and no column arrangement avoids it —
+  /// or a fold so far off-centre that one column would be unusable.
+  @available(iOS 27.1, *)
+  init?(proxy: GeometryProxy) {
+    guard let fold = proxy.reservedRegions(kind: .division).first else { return nil }
+
+    let band = fold.frame
+    let width = proxy.size.width
+    // `frame` already includes the clearance margins, so the columns only have
+    // to stay outside it.
+    guard band.minX > 0, band.maxX < width else { return nil }
+    guard band.minX >= Self.minimumColumnWidth,
+          width - band.maxX >= Self.minimumColumnWidth else { return nil }
+
+    self.leadingWidth = band.minX
+    self.gutter = band.width
+  }
 }
 
 // MARK: - Card Styling
