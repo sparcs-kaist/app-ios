@@ -69,8 +69,10 @@ public struct TimetableGridCell: View {
   }
 
   private var descriptionText: Text {
-    if placement == .render {
-      Text(lectureItem.lecture.professors.first?.name ?? "")
+    // Rendered exports prefer the professor, but lectures without one (like the
+    // theme-sharing sample) fall back to the location instead of a blank line.
+    if placement == .render, let professor = lectureItem.lecture.professors.first?.name, !professor.isEmpty {
+      Text(professor)
     } else {
       Text("\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.roomName)", bundle: .module)
     }
