@@ -299,16 +299,21 @@ public struct TimetableView: View {
 
     do {
       guard let stickerImage = renderer.uiImage else { throw CocoaError(.fileWriteUnknown) }
-      // Keep the sticker's alpha for Instagram; flatten all other exports onto
-      // the same theme color used behind the sticker in the Story composer.
+      // Give regular image exports a visible theme-colored border. Instagram
+      // receives the original transparent sticker without this extra padding.
+      let padding: CGFloat = 24
+      let imageSize = CGSize(
+        width: stickerImage.size.width + padding * 2,
+        height: stickerImage.size.height + padding * 2
+      )
       let format = UIGraphicsImageRendererFormat()
       format.scale = stickerImage.scale
       format.opaque = true
-      let image = UIGraphicsImageRenderer(size: stickerImage.size, format: format).image { context in
-        let bounds = CGRect(origin: .zero, size: stickerImage.size)
+      let image = UIGraphicsImageRenderer(size: imageSize, format: format).image { context in
+        let bounds = CGRect(origin: .zero, size: imageSize)
         UIColor(Color(hex: backgroundColorHex)).setFill()
         context.fill(bounds)
-        stickerImage.draw(in: bounds)
+        stickerImage.draw(in: CGRect(origin: CGPoint(x: padding, y: padding), size: stickerImage.size))
       }
       let title = "\(semester.description) - \(displayName)"
       let source = try ImageActivityItemSource(image: image, title: title, instagramStoryImage: stickerImage)
