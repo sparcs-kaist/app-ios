@@ -126,7 +126,9 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
     ]
     
     #if DEBUG
-    headers["X-SID-AUTH-TOKEN"] = OTLDebugSecrets.key
+    if !OTLDebugSecrets.key.isEmpty {
+      headers["X-SID-AUTH-TOKEN"] = OTLDebugSecrets.key
+    }
     #endif
     
     return headers

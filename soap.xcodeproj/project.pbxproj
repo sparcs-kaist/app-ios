@@ -178,6 +178,7 @@
 		8BE804162E49EE3A00904AC6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		8BFAD2612E927C41005D8639 /* BuddyData */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyData; sourceTree = "<group>"; };
 		F6339A612F544AC600655DBB /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F683C8953065189400840844 /* ci_pre_xcodebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_pre_xcodebuild.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -373,6 +374,7 @@
 		8B8DFBDD2CCF771700AB82CC = {
 			isa = PBXGroup;
 			children = (
+				F683C8943065188A00840844 /* ci_scripts */,
 				8B001F772F377F8100E9FCE5 /* BuddyPreviewSupport */,
 				8B2DE7B22F35F5480020EB6F /* BuddyTestSupport */,
 				8BE539512F2B75DA00735E7A /* BuddyFeature */,
@@ -408,6 +410,14 @@
 				F6339A612F544AC600655DBB /* NotificationServiceExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F683C8943065188A00840844 /* ci_scripts */ = {
+			isa = PBXGroup;
+			children = (
+				F683C8953065189400840844 /* ci_pre_xcodebuild.sh */,
+			);
+			path = ci_scripts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
