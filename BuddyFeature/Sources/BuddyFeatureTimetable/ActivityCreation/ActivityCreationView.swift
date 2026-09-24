@@ -99,6 +99,7 @@ struct ActivityCreationView: View {
       .navigationSubtitle(Text(timetableTitle))
       .navigationBarTitleDisplayMode(.inline)
       .scrollEdgeEffectStyle(.soft, for: .top)
+			.scrollDismissesKeyboard(.immediately)
       .toolbar {
         if !showTimetable {
           ToolbarItem(placement: .topBarLeading) {
