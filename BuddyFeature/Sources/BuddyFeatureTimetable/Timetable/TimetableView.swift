@@ -102,7 +102,10 @@ public struct TimetableView: View {
             .presentationDragIndicator(.visible)
         }
         .sheet(item: $sharedImage) { item in
-          ActivityView(activityItems: [item.source])
+          ActivityView(
+            activityItems: [item.source],
+            applicationActivities: [InstagramStoryActivity(appID: "2510700999432824")]
+          )
         }
         .alert(
           viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),

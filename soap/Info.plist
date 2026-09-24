@@ -21,6 +21,10 @@
 	<string>$(TAXI_ASSOCIATED_DOMAIN)</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Save timetable images to your photo library.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>instagram-stories</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

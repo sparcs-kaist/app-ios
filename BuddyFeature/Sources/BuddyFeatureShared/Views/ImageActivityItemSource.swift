@@ -4,7 +4,8 @@ import UniformTypeIdentifiers
 
 /// Shares a named PNG file with a title and image in the system share preview.
 public final class ImageActivityItemSource: NSObject, UIActivityItemSource {
-  private let image: UIImage
+  // Custom activities may receive the source itself during availability checks.
+  let image: UIImage
   private let title: String
   private let fileURL: URL
 
@@ -48,7 +49,7 @@ public final class ImageActivityItemSource: NSObject, UIActivityItemSource {
     _ activityViewController: UIActivityViewController,
     itemForActivityType activityType: UIActivity.ActivityType?
   ) -> Any? {
-    if activityType == .saveToCameraRoll {
+    if activityType == .saveToCameraRoll || activityType == InstagramStoryActivity.type {
       return image
     }
     return fileURL
