@@ -60,7 +60,6 @@ let package = Package(
 			name: "TimetableUI",
 			dependencies: [
 				"BuddyDomain",
-				"Haptica",
 			]
 		),
 		.target(

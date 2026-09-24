@@ -8,7 +8,9 @@
 import SwiftUI
 import WidgetKit
 import BuddyDomain
-import Haptica
+#if os(iOS)
+import UIKit
+#endif
 
 struct TimetableActivityCell: View {
   let activity: TimetableActivity
@@ -69,11 +71,18 @@ private struct ActivityPopoverModifier: ViewModifier {
 
   @ViewBuilder
   func body(content: Content) -> some View {
+    // Popover presentations don't exist on watchOS, and the watch never uses
+    // the interactive .view placement this modifier is enabled for.
+    #if os(watchOS)
+    content
+    #else
     if isEnabled {
       content
         .onTapGesture {
 					isPresented = true
-					Haptic.selection.generate()
+					#if os(iOS)
+					UISelectionFeedbackGenerator().selectionChanged()
+					#endif
 				}
         .accessibilityAddTraits(.isButton)
         .popover(isPresented: $isPresented) {
@@ -95,5 +104,6 @@ private struct ActivityPopoverModifier: ViewModifier {
     } else {
       content
     }
+    #endif
   }
 }

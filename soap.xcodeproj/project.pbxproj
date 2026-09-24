@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8B24D7652F27537A009B9889 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B24D7642F27537A009B9889 /* BuddyDataCore */; };
+		8B296E0C306549AD0029A8C6 /* TimetableUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8B296E0B306549AD0029A8C6 /* TimetableUI */; };
 		8B3914DE2E92E0DF00B7FB6B /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8BE804162E49EE3A00904AC6 /* AppIcon.icon */; };
 		8B3914E02E92F37500B7FB6B /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914DF2E92F37500B7FB6B /* Factory */; };
 		8B3914E22E92F37500B7FB6B /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8B3914E12E92F37500B7FB6B /* FactoryKit */; };
@@ -296,6 +297,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B296E0C306549AD0029A8C6 /* TimetableUI in Frameworks */,
 				8B3914E82E93F4AA00B7FB6B /* BuddyDataWatch in Frameworks */,
 				8BFAD26D2E92A52D005D8639 /* BuddyDataCore in Frameworks */,
 				8B3914E22E92F37500B7FB6B /* FactoryKit in Frameworks */,
@@ -502,6 +504,7 @@
 				8B3914DF2E92F37500B7FB6B /* Factory */,
 				8B3914E12E92F37500B7FB6B /* FactoryKit */,
 				8B3914E72E93F4AA00B7FB6B /* BuddyDataWatch */,
+				8B296E0B306549AD0029A8C6 /* TimetableUI */,
 			);
 			productName = "WatchBuddy Watch App";
 			productReference = 8B8365032E914F1200892B70 /* WatchBuddy Watch App.app */;
@@ -1237,6 +1240,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save shared timetable images to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1282,6 +1286,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Buddy;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save shared timetable images to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1578,6 +1583,10 @@
 		8B24D7642F27537A009B9889 /* BuddyDataCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDataCore;
+		};
+		8B296E0B306549AD0029A8C6 /* TimetableUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TimetableUI;
 		};
 		8B3914DF2E92F37500B7FB6B /* Factory */ = {
 			isa = XCSwiftPackageProductDependency;
