@@ -283,10 +283,10 @@ public struct TimetableView: View {
     let renderer = ImageRenderer(content:
       TimetableShareRenderingView(semester: semester, timetable: timetable)
         .timetableTheme(TimetableThemeStore().selectedTheme)
-        .environment(\.colorScheme, .light)
+				.preferredColorScheme(.light)
     )
     renderer.scale = 3
-    renderer.isOpaque = true
+    renderer.isOpaque = false
 
     guard let image = renderer.uiImage else {
       viewModel.alertState = AlertState(
