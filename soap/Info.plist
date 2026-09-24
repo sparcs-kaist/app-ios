@@ -19,6 +19,8 @@
 	</array>
 	<key>TaxiBaseURL</key>
 	<string>$(TAXI_ASSOCIATED_DOMAIN)</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Save timetable images to your photo library.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

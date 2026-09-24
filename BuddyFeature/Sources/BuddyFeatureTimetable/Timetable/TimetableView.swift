@@ -102,7 +102,7 @@ public struct TimetableView: View {
             .presentationDragIndicator(.visible)
         }
         .sheet(item: $sharedImage) { item in
-          ActivityView(activityItems: [item.image])
+          ActivityView(activityItems: [item.source])
         }
         .alert(
           viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
@@ -288,15 +288,18 @@ public struct TimetableView: View {
     renderer.scale = 3
     renderer.isOpaque = false
 
-    guard let image = renderer.uiImage else {
+    do {
+      guard let image = renderer.uiImage else { throw CocoaError(.fileWriteUnknown) }
+      let title = "\(semester.description) - \(displayName)"
+      let source = try ImageActivityItemSource(image: image, title: title)
+      sharedImage = TimetableShareImage(source: source)
+    } catch {
       viewModel.alertState = AlertState(
         title: String(localized: "Error", bundle: .module),
         message: String(localized: "Unable to create the timetable image. Please try again.", bundle: .module)
       )
       viewModel.isAlertPresented = true
-      return
     }
-    sharedImage = TimetableShareImage(image: image)
   }
 
   private var selectedTimetable: TimetableSummary? {
@@ -310,7 +313,7 @@ public struct TimetableView: View {
 
 private struct TimetableShareImage: Identifiable {
   let id = UUID()
-  let image: UIImage
+  let source: ImageActivityItemSource
 }
 
 // MARK: - Card Styling
