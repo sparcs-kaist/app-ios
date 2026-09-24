@@ -16,26 +16,20 @@ struct TimetableShareRenderingView: View {
 	@Environment(\.timetableTheme) private var theme
 	
 	var body: some View {
-		ZStack {
-			Color.clear
-			
-			VStack {
-				ThemedGridCard {
-					TimetableGrid(
-						selectedTimetable: timetable,
-						placement: .render
-					)
-				}
-				.padding([.top, .horizontal])
-				.modifier(TimetableShareShadow(isEnabled: theme.backgroundColor == nil))
-				
-				TimetableShareRenderingViewHeader(semester: semester.description, credits: timetable.credits)
+		VStack {
+			ThemedGridCard {
+				TimetableGrid(
+					selectedTimetable: timetable,
+					placement: .render
+				)
 			}
-			.background(.white, in: .rect(cornerRadius: 36))
-			.modifier(TimetableShareShadow(isEnabled: theme.backgroundColor != nil))
-			.padding()
+			.padding([.top, .horizontal])
+			.modifier(TimetableShareShadow(isEnabled: theme.backgroundColor == nil))
+
+			TimetableShareRenderingViewHeader(semester: semester.description, credits: timetable.credits)
 		}
-		.frame(width: 390, height: 844)
+		.frame(width: 440, height: 780)
+		.background(.white, in: .rect(cornerRadius: 36))
 		.preferredColorScheme(.light)
 	}
 }
