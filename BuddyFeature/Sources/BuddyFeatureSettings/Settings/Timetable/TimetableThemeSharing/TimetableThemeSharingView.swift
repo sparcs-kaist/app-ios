@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import UIKit
 import BuddyDomain
+import BuddyFeatureShared
 
 public enum TimetableThemeSharingViewState: Equatable {
 	case loading
@@ -21,6 +23,8 @@ struct TimetableThemeSharingView: View {
 	
 	@State private var viewModel = TimetableThemeSharingViewModel()
 	@State private var didCopyCode = false
+	@State private var sharedImage: ThemeShareImage?
+	@State private var isShareErrorPresented = false
 	
 	var body: some View {
 		NavigationStack {
@@ -47,9 +51,13 @@ struct TimetableThemeSharingView: View {
 						.disabled(true)
 						.transition(.blurReplace)
 				case .shared(let code):
-					ShareLink(item: code, label: { shareLabel })
-						.buttonStyle(.glassProminent)
-						.transition(.blurReplace)
+					Button {
+						shareAsImage(code: code)
+					} label: {
+						shareLabel
+					}
+					.buttonStyle(.glassProminent)
+					.transition(.blurReplace)
 				case .failed:
 					retryButton
 						.transition(.blurReplace)
@@ -69,6 +77,58 @@ struct TimetableThemeSharingView: View {
 		}
 		.presentationDragIndicator(.visible)
 		.task { await viewModel.share(theme) }
+		.sheet(item: $sharedImage) { item in
+			ActivityView(
+				activityItems: [item.source],
+				applicationActivities: [InstagramStoryActivity(
+					appID: Constants.metaAppID,
+					backgroundColorHex: item.backgroundColorHex
+				)]
+			)
+		}
+		.alert(Text("Error", bundle: .module), isPresented: $isShareErrorPresented) {
+			Button(String(localized: "Okay", bundle: .module), role: .close) { }
+		} message: {
+			Text("Unable to create the theme image. Please try again.", bundle: .module)
+		}
+	}
+
+	/// Mirrors the timetable share export: a transparent sticker for Instagram
+	/// and a padded, theme-coloured image for everything else.
+	private func shareAsImage(code: String) {
+		// Themes without a background use the light system background for exports.
+		let backgroundColorHex = theme.backgroundColorHex ?? "F2F2F7"
+
+		let renderer = ImageRenderer(content:
+			TimetableThemeShareRenderingView(theme: theme, code: code)
+				.environment(\.colorScheme, .light)
+		)
+		renderer.scale = 3
+		renderer.isOpaque = false
+
+		do {
+			guard let stickerImage = renderer.uiImage else { throw CocoaError(.fileWriteUnknown) }
+			// Give regular image exports a visible theme-coloured border. Instagram
+			// receives the original transparent sticker without this extra padding.
+			let padding: CGFloat = 24
+			let imageSize = CGSize(
+				width: stickerImage.size.width + padding * 2,
+				height: stickerImage.size.height + padding * 2
+			)
+			let format = UIGraphicsImageRendererFormat()
+			format.scale = stickerImage.scale
+			format.opaque = true
+			let image = UIGraphicsImageRenderer(size: imageSize, format: format).image { context in
+				let bounds = CGRect(origin: .zero, size: imageSize)
+				UIColor(Color(hex: backgroundColorHex)).setFill()
+				context.fill(bounds)
+				stickerImage.draw(in: CGRect(origin: CGPoint(x: padding, y: padding), size: stickerImage.size))
+			}
+			let source = try ImageActivityItemSource(image: image, title: theme.displayName, instagramStoryImage: stickerImage)
+			sharedImage = ThemeShareImage(source: source, backgroundColorHex: backgroundColorHex)
+		} catch {
+			isShareErrorPresented = true
+		}
 	}
 	
 	private var loadingView: some View {
@@ -150,6 +210,12 @@ struct TimetableThemeSharingView: View {
 		.buttonStyle(.glassProminent)
 		.accessibilityIdentifier("theme.shareRetry")
 	}
+}
+
+private struct ThemeShareImage: Identifiable {
+	let id = UUID()
+	let source: ImageActivityItemSource
+	let backgroundColorHex: String
 }
 
 #Preview {

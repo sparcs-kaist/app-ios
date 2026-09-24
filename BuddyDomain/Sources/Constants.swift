@@ -14,6 +14,10 @@ public enum Constants {
   // MARK: App Store URL
   public static let appStoreURL = URL(string: "itms-apps://itunes.apple.com/app/id6749929416")!
 
+  // MARK: Instagram Sharing
+  /// Meta app ID Instagram uses to attribute shared stories to Buddy.
+  public static let metaAppID = "2510700999432824"
+
   // MARK: Terms
   public static let privacyPolicyURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/Privacy.md")!
   public static let termsOfUseURL = URL(string: "https://github.com/sparcs-kaist/privacy/blob/main/TermsOfUse.md")!

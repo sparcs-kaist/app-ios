@@ -105,7 +105,7 @@ public struct TimetableView: View {
           ActivityView(
             activityItems: [item.source],
             applicationActivities: [InstagramStoryActivity(
-              appID: "2510700999432824",
+              appID: Constants.metaAppID,
               backgroundColorHex: item.backgroundColorHex
             )]
           )
