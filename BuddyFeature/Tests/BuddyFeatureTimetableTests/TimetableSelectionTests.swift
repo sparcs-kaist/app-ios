@@ -155,6 +155,51 @@ struct TimetableSelectionTests {
     #expect(model.isReadOnly)
   }
 
+  @Test func foregroundRefreshKeepsStatusStableUntilTheRequestCompletes() async {
+    let suite = "TimetableRefresh.\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: suite)!
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let store = TimetableSelectionStore(defaults: defaults)
+    store.save(semester: .mock, timetableID: 44)
+    let api = SelectionUseCase(semesters: [.mock], tableID: 44)
+    api.cached = .init(semesters: [.mock], currentSemester: .mock,
+      timetable: Timetable(id: "44", lectures: [Lecture.mock]), updatedAt: .distantPast)
+    let model = TimetableViewModel(selectionStore: store, timetableUseCase: api)
+    await model.refresh()
+    let freshTable = model.timetable
+    let freshUpdatedAt = model.lastUpdated
+    #expect(!model.showsSavedStatus && !model.isReadOnly)
+
+    var requestCount = 0
+    api.onTableRequest = {
+      requestCount += 1
+      // Check during the request, when the old cache-first path flashed the header.
+      #expect(model.timetable == freshTable)
+      #expect(model.lastUpdated == freshUpdatedAt)
+      #expect(!model.showsSavedStatus && !model.isReadOnly)
+    }
+    await model.refresh()
+    #expect(requestCount > 0)
+    #expect(!model.showsSavedStatus && !model.isReadOnly)
+
+    api.onTableRequest = nil
+    api.tableError = NetworkError.noConnection
+    await model.refresh()
+    #expect(model.showsSavedStatus && model.isOffline && model.isReadOnly)
+    #expect(model.timetable == freshTable)
+    let savedUpdatedAt = model.lastUpdated
+
+    api.tableError = nil
+    api.onTableRequest = {
+      // A retry must keep the existing offline header until fresh data arrives.
+      #expect(model.showsSavedStatus && model.isReadOnly)
+      #expect(model.lastUpdated == savedUpdatedAt)
+    }
+    await model.refresh()
+    api.onTableRequest = nil
+    #expect(!model.showsSavedStatus && !model.isOffline && !model.isReadOnly)
+  }
+
   @Test func coldOfflineLaunchWithoutCacheRecoversOnRefresh() async {
     let suite = "TimetableOffline.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suite)!

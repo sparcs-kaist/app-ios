@@ -61,7 +61,7 @@ private struct TimetableShareRenderingViewHeader: View {
 				.foregroundStyle(.tertiary)
 			
 			VStack(alignment: .leading) {
-				Text("Timetable")
+				Text("Timetable", bundle: .module)
 					.textCase(.uppercase)
 					.font(.caption.weight(.medium))
 					.foregroundStyle(.secondary)
@@ -73,7 +73,7 @@ private struct TimetableShareRenderingViewHeader: View {
 			Spacer()
 			
 			VStack(alignment: .trailing) {
-				Text("Credits")
+				Text("Credits", bundle: .module)
 					.foregroundStyle(.tertiary)
 					.font(.caption2)
 					.fontWeight(.medium)
