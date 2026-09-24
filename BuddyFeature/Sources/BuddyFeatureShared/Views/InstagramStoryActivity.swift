@@ -36,7 +36,7 @@ public final class InstagramStoryActivity: UIActivity, @unchecked Sendable {
   public override class var activityCategory: UIActivity.Category { .action }
   public override var activityType: UIActivity.ActivityType? { Self.type }
   public override var activityTitle: String? {
-    String(localized: "Share to Instagram Story", bundle: .module)
+    String(localized: "Share to Instagram Stories", bundle: .module)
   }
   public override var activityImage: UIImage? { UIImage(systemName: "camera") }
 

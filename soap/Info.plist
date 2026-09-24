@@ -20,7 +20,7 @@
 	<key>TaxiBaseURL</key>
 	<string>$(TAXI_ASSOCIATED_DOMAIN)</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Save timetable images to your photo library.</string>
+	<string>Save shared timetable images to your photo library.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>instagram-stories</string>
