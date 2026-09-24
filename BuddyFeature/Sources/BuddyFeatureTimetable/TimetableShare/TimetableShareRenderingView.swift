@@ -27,28 +27,30 @@ struct TimetableShareRenderingView: View {
 					)
 				}
 				.padding([.top, .horizontal])
-				// Layer 1: Tight contact shadow
-				.shadow(
-					color: Color.black.opacity(0.04),
-					radius: 2,
-					x: 0,
-					y: 1
-				)
-				// Layer 2: Soft ambient spread
-				.shadow(
-					color: Color.black.opacity(0.08),
-					radius: 16,
-					x: 0,
-					y: 8
-				)
+				.modifier(TimetableShareShadow(isEnabled: theme.backgroundColor == nil))
 				
 				TimetableShareRenderingViewHeader(semester: semester.description, credits: timetable.credits)
 			}
 			.background(.white, in: .rect(cornerRadius: 36))
+			.modifier(TimetableShareShadow(isEnabled: theme.backgroundColor != nil))
 			.padding()
 		}
 		.frame(width: 390, height: 844)
 		.preferredColorScheme(.light)
+	}
+}
+
+private struct TimetableShareShadow: ViewModifier {
+	let isEnabled: Bool
+
+	func body(content: Content) -> some View {
+		if isEnabled {
+			content
+				.shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
+				.shadow(color: .black.opacity(0.08), radius: 16, x: 0, y: 8)
+		} else {
+			content
+		}
 	}
 }
 
