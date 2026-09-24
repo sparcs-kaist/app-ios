@@ -8,78 +8,99 @@
 import SwiftUI
 import BuddyDomain
 
-/// Hosts the four timetable presentations and the ellipsis button that opens
-/// View Options. Navigation between the modes mirrors Apple Calendar on
-/// watchOS: Week → tap a day column → Day → tap a lecture → Up Next paged to
-/// that lecture. Picking a mode from the sheet always restarts from today.
+/// Hosts the four timetable presentations behind one fixed hierarchy:
+/// Week (root) → Day → Up Next, with List pushed straight on top of Week.
+/// The View Options choice only decides how deep the stack starts, so the
+/// back button always walks up towards the Week overview. Tapping a day
+/// column pushes that Day; tapping an entry pushes Up Next paged to it.
 struct LectureRootView: View {
   let timetable: Timetable
 
   @AppStorage("lectureViewOption") private var viewOption: LectureViewOption = .upNext
   @Environment(\.scenePhase) private var scenePhase
 
-  @State private var selectedDay: DayType = .today
-  @State private var focusedItemID: String? = nil
+  @State private var path: [LectureDestination]
   @State private var showViewOptions = false
 
-  /// Tracks the day the current selection was made on, so waking the app on a
-  /// later date snaps back to that day's schedule.
-  @State private var anchoredToday: DayType = .today
+  /// The day the stack starts on, re-anchored when the app wakes on a new date.
+  @State private var today: DayType = .today
 
-  private var dayEntries: [ScheduleEntry] {
-    timetable.scheduleEntries(day: selectedDay)
+  init(timetable: Timetable) {
+    self.timetable = timetable
+    // @AppStorage isn't readable before body, and pushing in onAppear would
+    // flash the Week root first — so seed the initial stack from defaults.
+    let raw = UserDefaults.standard.string(forKey: "lectureViewOption")
+    let option = raw.flatMap(LectureViewOption.init(rawValue:)) ?? .upNext
+    self._path = State(initialValue: Self.path(for: option, day: .today))
   }
 
   var body: some View {
-    NavigationStack {
-      Group {
-        switch viewOption {
-        case .upNext:
-          LectureTabView(items: dayEntries, initialSelection: focusedItemID)
-        case .list:
-          LectureListView(items: dayEntries) { entry in
-            focusedItemID = entry.id
-            viewOption = .upNext
-          }
-        case .day:
-          DayTimetableView(timetable: timetable, day: selectedDay, focusedItemID: focusedItemID) { entry in
-            focusedItemID = entry.id
-            viewOption = .upNext
-          }
-        case .week:
-          WeekTimetableView(timetable: timetable) { day in
-            selectedDay = day
-            focusedItemID = nil
-            viewOption = .day
-          }
-        }
+    NavigationStack(path: $path) {
+      WeekTimetableView(timetable: timetable) { day in
+        path.append(.day(day))
       }
-      .toolbar {
-        ToolbarItemGroup(placement: .bottomBar) {
-          Spacer()
-          Button {
-            showViewOptions = true
-          } label: {
-            Image(systemName: "ellipsis")
+      .toolbar { optionsToolbar }
+      .navigationDestination(for: LectureDestination.self) { destination in
+        Group {
+          switch destination {
+          case .day(let day):
+            DayTimetableView(timetable: timetable, day: day) { entry in
+              path.append(.upNext(day: day, focusedID: entry.id))
+            }
+          case .list(let day):
+            LectureListView(items: timetable.scheduleEntries(day: day)) { entry in
+              path.append(.upNext(day: day, focusedID: entry.id))
+            }
+          case .upNext(let day, let focusedID):
+            LectureTabView(items: timetable.scheduleEntries(day: day), initialSelection: focusedID)
           }
         }
+        .toolbar { optionsToolbar }
       }
     }
     .sheet(isPresented: $showViewOptions) {
       ViewOptionsView(selection: viewOption) { option in
-        selectedDay = .today
-        focusedItemID = nil
+        today = .today
         viewOption = option
+        path = Self.path(for: option, day: today)
         showViewOptions = false
       }
     }
     .onChange(of: scenePhase) { _, phase in
-      guard phase == .active, DayType.today != anchoredToday else { return }
-      anchoredToday = .today
-      selectedDay = anchoredToday
-      focusedItemID = nil
+      guard phase == .active, DayType.today != today else { return }
+      today = .today
+      path = Self.path(for: viewOption, day: today)
     }
   }
+
+  @ToolbarContentBuilder
+  private var optionsToolbar: some ToolbarContent {
+    ToolbarItemGroup(placement: .bottomBar) {
+      Spacer()
+      Button {
+        showViewOptions = true
+      } label: {
+        Image(systemName: "ellipsis")
+      }
+    }
+  }
+
+  /// The stack depth each view option starts at.
+  private static func path(for option: LectureViewOption, day: DayType) -> [LectureDestination] {
+    switch option {
+    case .week: []
+    case .list: [.list(day)]
+    case .day: [.day(day)]
+    case .upNext: [.day(day), .upNext(day: day, focusedID: nil)]
+    }
+  }
+}
+
+/// The screens the Week root can lead to.
+enum LectureDestination: Hashable {
+  case day(DayType)
+  case list(DayType)
+  case upNext(day: DayType, focusedID: String?)
 }
 
 #Preview {
