@@ -14,6 +14,8 @@ struct ChatCollectionView: UIViewRepresentable {
   let items: [ChatRenderItem]
   let room: TaxiRoom
   let user: TaxiUser?
+  let isCommitPaymentAvailable: Bool
+  let onCommitPayment: () -> Void
   let safeAreaInsets: EdgeInsets
   let scrollToBottomTrigger: Int
 
@@ -64,11 +66,14 @@ struct ChatCollectionView: UIViewRepresentable {
     let shouldReload =
       context.coordinator.items != items ||
       context.coordinator.room != room ||
-      context.coordinator.user != user
+      context.coordinator.user != user ||
+      context.coordinator.isCommitPaymentAvailable != isCommitPaymentAvailable
 
     context.coordinator.items = items
     context.coordinator.room = room
     context.coordinator.user = user
+    context.coordinator.isCommitPaymentAvailable = isCommitPaymentAvailable
+    context.coordinator.onCommitPayment = onCommitPayment
 
     if shouldReload {
       // Capture whether the user is pinned to the bottom *before* the reload
@@ -102,7 +107,13 @@ struct ChatCollectionView: UIViewRepresentable {
   }
 
   func makeCoordinator() -> Coordinator {
-    Coordinator(items: items, room: room, user: user)
+    Coordinator(
+      items: items,
+      room: room,
+      user: user,
+      isCommitPaymentAvailable: isCommitPaymentAvailable,
+      onCommitPayment: onCommitPayment
+    )
   }
 
   private func scrollToBottom(_ collectionView: UICollectionView, animated: Bool) {
@@ -139,16 +150,26 @@ struct ChatCollectionView: UIViewRepresentable {
     var items: [ChatRenderItem]
     var room: TaxiRoom
     var user: TaxiUser?
+    var isCommitPaymentAvailable: Bool
+    var onCommitPayment: () -> Void
     var previousBottomInset: CGFloat = 0
     var previousScrollTrigger: Int = 0
 
     var hasInitialScroll = false
     private var badgeByAuthorID: Dictionary<String, Bool>
 
-    init(items: [ChatRenderItem], room: TaxiRoom, user: TaxiUser?) {
+    init(
+      items: [ChatRenderItem],
+      room: TaxiRoom,
+      user: TaxiUser?,
+      isCommitPaymentAvailable: Bool,
+      onCommitPayment: @escaping () -> Void
+    ) {
       self.items = items
       self.room = room
       self.user = user
+      self.isCommitPaymentAvailable = isCommitPaymentAvailable
+      self.onCommitPayment = onCommitPayment
       badgeByAuthorID = Dictionary(uniqueKeysWithValues: room.participants.map {
         ($0.id, $0.badge)
       })
@@ -202,11 +223,15 @@ struct ChatCollectionView: UIViewRepresentable {
           case .arrival:
             ChatArrivalBubble()
           case .settlement:
-            ChatSettlementBubble()
+            ChatSettlementBubble(content: chat.content)
           case .payment:
             ChatPaymentBubble()
           case .account:
-            ChatAccountBubble(content: chat.content, isCommitPaymentAvailable: self.isCommitSettlementAvailable) {}
+            ChatAccountBubble(
+              content: chat.content,
+              isCommitPaymentAvailable: self.isCommitPaymentAvailable,
+              markAsSent: self.onCommitPayment
+            )
           case .share:
             ChatShareBubble(room: self.room)
           default:
@@ -216,10 +241,6 @@ struct ChatCollectionView: UIViewRepresentable {
         .padding(.horizontal, 8)
         .padding(.top, position == .middle || position == .bottom ? 4 : 8)
       }
-    }
-
-    private var isCommitSettlementAvailable: Bool {
-      room.isDeparted && room.settlementTotal == 0
     }
 
     private func readCount(for chat: TaxiChat) -> Int {
@@ -252,6 +273,8 @@ struct ChatCollectionView: UIViewRepresentable {
     items: items,
     room: TaxiRoom.mock,
     user: TaxiUser.mock,
+    isCommitPaymentAvailable: false,
+    onCommitPayment: {},
     safeAreaInsets: EdgeInsets(),
     scrollToBottomTrigger: 0
   )
