@@ -58,12 +58,20 @@ struct LectureRootView: View {
         .toolbar { optionsToolbar }
       }
     }
+    // Menu doesn't exist on watchOS; the system look for this — one grouped
+    // section titled "View Options" with a checkmark — is an inline Picker
+    // presented in a sheet, which is what Apple Calendar shows too.
     .sheet(isPresented: $showViewOptions) {
-      ViewOptionsView(selection: viewOption) { option in
-        today = .today
-        viewOption = option
-        path = Self.path(for: option, day: today)
-        showViewOptions = false
+      NavigationStack {
+        List {
+          Picker("View Options", selection: selectedOption) {
+            ForEach(LectureViewOption.allCases) { option in
+              Label(option.title, systemImage: option.systemImage)
+                .tag(option)
+            }
+          }
+          .pickerStyle(.inline)
+        }
       }
     }
     .onChange(of: scenePhase) { _, phase in
@@ -82,6 +90,18 @@ struct LectureRootView: View {
       } label: {
         Image(systemName: "ellipsis")
       }
+    }
+  }
+
+  /// Picking an option restarts the stack from today at that option's depth.
+  private var selectedOption: Binding<LectureViewOption> {
+    Binding {
+      viewOption
+    } set: { option in
+      today = .today
+      viewOption = option
+      path = Self.path(for: option, day: today)
+      showViewOptions = false
     }
   }
 
