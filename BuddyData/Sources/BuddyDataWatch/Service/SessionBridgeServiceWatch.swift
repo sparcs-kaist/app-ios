@@ -9,6 +9,7 @@ import Foundation
 import os
 import Combine
 import WatchConnectivity
+import WidgetKit
 import BuddyDomain
 import BuddyDataCore
 
@@ -46,6 +47,9 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
       logger.error("Failed to decode timetable: \(error.localizedDescription, privacy: .public)")
       UserDefaults(suiteName: "group.org.sparcs.soap")!.set(nil, forKey: "timetableData")
     }
+    // The Smart Stack widget renders this data; a new table (or a cleared one)
+    // changes what it should show right now.
+    WidgetCenter.shared.reloadAllTimelines()
   }
 
   /// Stores the phone's choice so `TimetableTheme.current` resolves to it here
@@ -58,6 +62,8 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
       store.save(theme)
       store.select(id: theme.id)
       logger.debug("Applied theme \(theme.id, privacy: .public) from iOS")
+      // Widgets colour their entries with this theme.
+      WidgetCenter.shared.reloadAllTimelines()
     } catch {
       logger.error("Failed to decode theme: \(error.localizedDescription, privacy: .public)")
     }

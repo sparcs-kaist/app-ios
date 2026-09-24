@@ -45,8 +45,9 @@ public enum TimetableEventTimeline {
          let event = events.first(where: { date($0.end) > boundary && date($0.begin - 30) <= boundary }) {
         return event.entry(boundary, date(event.begin))
       }
+      // Nothing on: zero relevance keeps the Smart Stack from surfacing the widget.
       return LectureEntry(date: boundary, lecture: nil, lectureClass: nil, startDate: nil,
-        signInRequired: false, backgroundColor: .black, relevance: .init(score: 10))
+        signInRequired: false, backgroundColor: .black, relevance: .init(score: 0))
     }
   }
 }
