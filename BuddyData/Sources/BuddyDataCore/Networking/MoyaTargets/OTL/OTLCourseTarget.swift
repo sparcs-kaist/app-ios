@@ -49,10 +49,18 @@ extension OTLCourseTarget: TargetType, AccessTokenAuthorizable {
   }
 
   public var headers: [String: String]? {
-    [
+    var headers = [
       "Content-Type": "application/json",
       "Accept-Language": Bundle.main.preferredLocalizations.first ?? "ko"
     ]
+    
+    #if DEBUG
+    if !OTLDebugSecrets.key.isEmpty {
+      headers["X-SID-AUTH-TOKEN"] = OTLDebugSecrets.key
+    }
+    #endif
+
+    return headers
   }
 
   public var authorizationType: Moya.AuthorizationType? {

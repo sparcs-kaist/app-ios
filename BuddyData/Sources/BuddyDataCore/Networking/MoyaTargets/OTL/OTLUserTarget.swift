@@ -23,7 +23,7 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
     case .register:
       "/session/register-oneapp"
     case .fetchUserInfo:
-      "/v2/users/info"
+      "/api/v2/users/info"
     }
   }
 
@@ -46,9 +46,17 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
   }
 
   public var headers: [String: String]? {
-    [
+    var headers = [
       "Content-Type": "application/json"
     ]
+    
+    #if DEBUG
+    if !OTLDebugSecrets.key.isEmpty {
+      headers["X-SID-AUTH-TOKEN"] = OTLDebugSecrets.key
+    }
+    #endif
+    
+    return headers
   }
 
   public var authorizationType: Moya.AuthorizationType? {
