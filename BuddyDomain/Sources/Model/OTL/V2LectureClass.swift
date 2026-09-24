@@ -37,12 +37,17 @@ public struct LectureClass: Hashable, Sendable, Codable {
     let comps = calendar.dateComponents([.hour, .minute], from: now)
     let currentMinutes = (comps.hour ?? 0) * 60 + (comps.minute ?? 0)
 
-    if currentMinutes < begin {
-      let diff = begin - currentMinutes
-      return String(localized: "in \(formatMinutes(diff))", bundle: .module)
-    } else if currentMinutes >= end {
-      let diff = currentMinutes - end
-      return String(localized: "\(formatMinutes(diff)) ago", bundle: .module)
+    // Distance within the Mon–Sun week the timetable shows, so yesterday's
+    // class reads "1d 2h ago" and Friday's "in 2d", not a bare time-of-day
+    // difference.
+    let dayOffset = (day.rawValue - DayType.from(date: now, calendar: calendar).rawValue) * 1440
+    let beginDelta = dayOffset + begin - currentMinutes
+    let endDelta = dayOffset + end - currentMinutes
+
+    if beginDelta > 0 {
+      return String(localized: "in \(formatMinutes(beginDelta))", bundle: .module)
+    } else if endDelta <= 0 {
+      return String(localized: "\(formatMinutes(-endDelta)) ago", bundle: .module)
     } else {
       return String(localized: "on going", bundle: .module)
     }
@@ -58,12 +63,16 @@ public struct LectureClass: Hashable, Sendable, Codable {
   }
 
   private func formatMinutes(_ minutes: Int) -> String {
-    let h = minutes / 60
+    let d = minutes / 1440
+    let h = (minutes % 1440) / 60
     let m = minutes % 60
-    switch (h, m) {
-    case (0, let m): return String(localized: "\(m)m", bundle: .module)
-    case (let h, 0): return String(localized: "\(h)h", bundle: .module)
-    default:         return String(localized: "\(h)h \(m)m", bundle: .module)
+    switch (d, h, m) {
+    case (0, 0, let m):     return String(localized: "\(m)m", bundle: .module)
+    case (0, let h, 0):     return String(localized: "\(h)h", bundle: .module)
+    case (0, let h, let m): return String(localized: "\(h)h \(m)m", bundle: .module)
+    // Once days are involved, minutes are noise.
+    case (let d, 0, _):     return String(localized: "\(d)d", bundle: .module)
+    case (let d, let h, _): return String(localized: "\(d)d \(h)h", bundle: .module)
     }
   }
 

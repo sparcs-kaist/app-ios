@@ -10,11 +10,17 @@ import BuddyDomain
 
 struct LectureTabView: View {
   let items: [ScheduleEntry]
-  /// Page to this entry instead of the upcoming one, e.g. when arriving
-  /// from a tap on the Day or List view.
-  var initialSelection: String? = nil
 
-  @State private var selection: String? = nil
+  @State private var selection: String?
+
+  /// - Parameter initialSelection: Page to this entry instead of the upcoming
+  ///   one, e.g. when arriving from a tap on the Day or List view.
+  init(items: [ScheduleEntry], initialSelection: String? = nil) {
+    self.items = items
+    // Seeded here rather than in onAppear so the first render is already on
+    // the right page.
+    self._selection = State(initialValue: initialSelection ?? Self.defaultSelection(in: items)?.id)
+  }
 
   var body: some View {
     if !items.isEmpty {
@@ -27,16 +33,13 @@ struct LectureTabView: View {
         }
       }
       .tabViewStyle(.verticalPage)
-      .onAppear {
-        selection = initialSelection ?? defaultSelection()?.id
-      }
     } else {
       Text("There is no class today.")
         .multilineTextAlignment(.center)
     }
   }
 
-  private func defaultSelection() -> ScheduleEntry? {
+  private static func defaultSelection(in items: [ScheduleEntry]) -> ScheduleEntry? {
     let now = Calendar.current.component(.hour, from: Date()) * 60 +
     Calendar.current.component(.minute, from: Date())
 
