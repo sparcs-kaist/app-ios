@@ -23,7 +23,7 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
     case .register:
       "/session/register-oneapp"
     case .fetchUserInfo:
-      "/v2/users/info"
+      "/api/v2/users/info"
     }
   }
 
