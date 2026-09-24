@@ -9,13 +9,13 @@ import SwiftUI
 import BuddyDomain
 import TimetableUI
 
-/// The day's lectures as a plain scrolling list, with no offsets for time or
-/// duration — just the schedule in order. Each row is a full-colour card in
-/// the lecture's theme colour, like a timetable grid cell. Tapping a lecture
-/// hands it back so the root can jump to the Day view at that lecture.
+/// The day's lectures and activities as a plain scrolling list, with no
+/// offsets for time or duration — just the schedule in order. Each row is a
+/// full-colour card in the entry's theme colour, like a timetable grid cell.
+/// Tapping an entry hands it back so the root can jump to Up Next at it.
 struct LectureListView: View {
-  let items: [LectureItem]
-  let onSelectLecture: (LectureItem) -> Void
+  let items: [ScheduleEntry]
+  let onSelect: (ScheduleEntry) -> Void
 
   @Environment(\.timetableTheme) private var theme
 
@@ -24,19 +24,19 @@ struct LectureListView: View {
       Text("There is no class today.")
         .multilineTextAlignment(.center)
     } else {
-      List(items) { item in
+      List(items) { entry in
         Button {
-          onSelectLecture(item)
+          onSelect(entry)
         } label: {
           VStack(alignment: .leading, spacing: 2) {
-            Text(item.lecture.name)
+            Text(entry.title)
               .font(.headline)
               .lineLimit(2)
               .minimumScaleFactor(0.8)
-            Text(item.lectureClass.description)
+            Text(entry.classTime.description)
               .font(.caption)
               .opacity(0.8)
-            Text(item.lectureClass.location)
+            Text(entry.location)
               .font(.caption2)
               .opacity(0.8)
               .lineLimit(1)
@@ -46,7 +46,7 @@ struct LectureListView: View {
         }
         .listRowBackground(
           RoundedRectangle(cornerRadius: 10)
-            .fill(theme.color(forCourseID: item.lecture.courseID))
+            .fill(entry.color(in: theme))
         )
       }
     }
@@ -56,7 +56,7 @@ struct LectureListView: View {
 #Preview {
   NavigationStack {
     LectureListView(
-      items: Lecture.mockList.map { LectureItem(lecture: $0, lectureClass: $0.classes.first!) }
+      items: Lecture.mockList.map { .lecture(LectureItem(lecture: $0, lectureClass: $0.classes.first!)) }
     ) { _ in }
   }
 }

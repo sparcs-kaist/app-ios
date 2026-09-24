@@ -26,9 +26,8 @@ struct LectureRootView: View {
   /// later date snaps back to that day's schedule.
   @State private var anchoredToday: DayType = .today
 
-  private var dayItems: [LectureItem] {
-    timetable.getLectures(day: selectedDay)
-      .sorted { $0.lectureClass.begin < $1.lectureClass.begin }
+  private var dayEntries: [ScheduleEntry] {
+    timetable.scheduleEntries(day: selectedDay)
   }
 
   var body: some View {
@@ -36,15 +35,15 @@ struct LectureRootView: View {
       Group {
         switch viewOption {
         case .upNext:
-          LectureTabView(items: dayItems, initialSelection: focusedItemID)
+          LectureTabView(items: dayEntries, initialSelection: focusedItemID)
         case .list:
-          LectureListView(items: dayItems) { item in
-            focusedItemID = item.id
+          LectureListView(items: dayEntries) { entry in
+            focusedItemID = entry.id
             viewOption = .upNext
           }
         case .day:
-          DayTimetableView(timetable: timetable, day: selectedDay, focusedItemID: focusedItemID) { item in
-            focusedItemID = item.id
+          DayTimetableView(timetable: timetable, day: selectedDay, focusedItemID: focusedItemID) { entry in
+            focusedItemID = entry.id
             viewOption = .upNext
           }
         case .week:

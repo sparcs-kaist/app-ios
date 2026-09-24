@@ -9,16 +9,16 @@ import SwiftUI
 import BuddyDomain
 import TimetableUI
 
-/// A single day as a one-column timetable grid: every lecture is offset and
-/// sized by its time and duration against an hourly ruler. Tapping a lecture
-/// hands it back so the root can jump to Up Next on that class.
+/// A single day as a one-column timetable grid: every lecture and activity is
+/// offset and sized by its time and duration against an hourly ruler. Tapping
+/// an entry hands it back so the root can jump to Up Next at it.
 struct DayTimetableView: View {
   let timetable: Timetable
   let day: DayType
-  /// Scroll this lecture into view on appear, e.g. when arriving from a tap
+  /// Scroll this entry into view on appear, e.g. when arriving from a tap
   /// on the List view.
   var focusedItemID: String? = nil
-  let onSelectLecture: (LectureItem) -> Void
+  let onSelect: (ScheduleEntry) -> Void
 
   @Environment(\.timetableTheme) private var theme
   @State private var scrollPosition = ScrollPosition()
@@ -27,20 +27,18 @@ struct DayTimetableView: View {
   private static let gutterWidth: CGFloat = 16
   private static let blockSpacing: CGFloat = 2
 
-  private var items: [LectureItem] {
-    timetable.getLectures(day: day)
-      .filter { $0.lectureClass.duration > 0 }
-      .sorted { $0.lectureClass.begin < $1.lectureClass.begin }
+  private var items: [ScheduleEntry] {
+    timetable.scheduleEntries(day: day)
   }
 
-  // Hour-aligned bounds that always cover at least 09:00–18:00; classes
+  // Hour-aligned bounds that always cover at least 09:00–18:00; entries
   // outside that window only widen the grid, mirroring TimetableLayout.
   private var startMinutes: Int {
-    min(540, (items.map { $0.lectureClass.begin }.min() ?? 540) / 60 * 60)
+    min(540, (items.map { $0.classTime.begin }.min() ?? 540) / 60 * 60)
   }
 
   private var endMinutes: Int {
-    let latest = items.map { $0.lectureClass.end }.max() ?? 1080
+    let latest = items.map { $0.classTime.end }.max() ?? 1080
     return max(1080, (latest + 59) / 60 * 60)
   }
 
@@ -58,7 +56,7 @@ struct DayTimetableView: View {
       .scrollPosition($scrollPosition)
       .onAppear {
         if let focused = items.first(where: { $0.id == focusedItemID }) {
-          scrollPosition.scrollTo(y: max(0, offset(at: focused.lectureClass.begin) - 12))
+          scrollPosition.scrollTo(y: max(0, offset(at: focused.classTime.begin) - 12))
         }
       }
       .navigationTitle(day.description)
@@ -77,18 +75,18 @@ struct DayTimetableView: View {
         GeometryReader { geometry in
           ForEach(cells) { cell in
             Button {
-              onSelectLecture(cell.item)
+              onSelect(cell.entry)
             } label: {
-              block(for: cell.item)
+              block(for: cell.entry)
             }
             .buttonStyle(.plain)
             .frame(
               width: cell.width(in: geometry.size.width),
-              height: blockHeight(forDuration: cell.item.lectureClass.duration)
+              height: blockHeight(forDuration: cell.entry.classTime.duration)
             )
             .offset(
               x: cell.x(in: geometry.size.width),
-              y: offset(at: cell.item.lectureClass.begin)
+              y: offset(at: cell.entry.classTime.begin)
             )
           }
         }
@@ -122,15 +120,15 @@ struct DayTimetableView: View {
     Array(startMinutes / 60...endMinutes / 60)
   }
 
-  private func block(for item: LectureItem) -> some View {
+  private func block(for entry: ScheduleEntry) -> some View {
     RoundedRectangle(cornerRadius: 4)
-      .fill(theme.color(forCourseID: item.lecture.courseID))
+      .fill(entry.color(in: theme))
       .overlay(alignment: .topLeading) {
         VStack(alignment: .leading, spacing: 0) {
-          Text(item.lecture.name)
+          Text(entry.title)
             .font(.system(size: 11, weight: .semibold))
             .lineLimit(2)
-          Text(item.lectureClass.location)
+          Text(entry.location)
             .font(.system(size: 9))
             .lineLimit(1)
             .opacity(0.8)
@@ -149,13 +147,13 @@ struct DayTimetableView: View {
   }
 
   // Same two-lane conflict handling as TimetableLayout: only overlapping
-  // groups split, and a third simultaneous class shares the overlap lane.
+  // groups split, and a third simultaneous entry shares the overlap lane.
   private struct DayCell: Identifiable {
-    let item: LectureItem
+    let entry: ScheduleEntry
     let lane: Int
     let laneCount: Int
 
-    var id: String { item.id }
+    var id: String { entry.id }
 
     func width(in dayWidth: CGFloat) -> CGFloat {
       max(0, (dayWidth - CGFloat(laneCount - 1) * 4) / CGFloat(laneCount))
@@ -167,26 +165,26 @@ struct DayTimetableView: View {
   }
 
   private var cells: [DayCell] {
-    var groups: [[LectureItem]] = []
+    var groups: [[ScheduleEntry]] = []
     var groupEnd = Int.min
-    for item in items {
-      if item.lectureClass.begin >= groupEnd {
-        groups.append([item])
-        groupEnd = item.lectureClass.end
+    for entry in items {
+      if entry.classTime.begin >= groupEnd {
+        groups.append([entry])
+        groupEnd = entry.classTime.end
       } else {
-        groups[groups.count - 1].append(item)
-        groupEnd = max(groupEnd, item.lectureClass.end)
+        groups[groups.count - 1].append(entry)
+        groupEnd = max(groupEnd, entry.classTime.end)
       }
     }
 
     return groups.flatMap { group -> [DayCell] in
       var mainLaneEnd = Int.min
-      return group.map { item in
-        let lane = item.lectureClass.begin >= mainLaneEnd ? 0 : 1
+      return group.map { entry in
+        let lane = entry.classTime.begin >= mainLaneEnd ? 0 : 1
         if lane == 0 {
-          mainLaneEnd = item.lectureClass.end
+          mainLaneEnd = entry.classTime.end
         }
-        return DayCell(item: item, lane: lane, laneCount: min(group.count, 2))
+        return DayCell(entry: entry, lane: lane, laneCount: min(group.count, 2))
       }
     }
   }

@@ -102,7 +102,28 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     try Task.checkCancellation()
     cache?.store(result, forKey: String(id))
     WidgetCenter.shared.reloadAllTimelines()
+    pushToWatchIfSelected(result, semester: nil, timetableID: id)
     return result
+  }
+
+  /// The watch mirrors whichever timetable is selected in the Timetable tab,
+  /// so every fresh fetch of that table — a selection change, a lecture or
+  /// activity edit, a background refresh — pushes it. With no saved selection
+  /// yet, the current semester's My Table is pushed as before.
+  private func pushToWatchIfSelected(_ table: Timetable, semester: Semester?, timetableID: Int?) {
+    guard let sessionBridgeService else { return }
+    if let saved = TimetableSelectionStore().selection {
+      let isSelected = if let timetableID {
+        saved.timetableID == timetableID
+      } else if let semester {
+        saved.timetableID == nil && saved.matches(semester)
+      } else {
+        false
+      }
+      if isSelected { sessionBridgeService.updateTimetable(table) }
+    } else if timetableID == nil, let semester, cache?.currentSemester() == semester {
+      sessionBridgeService.updateTimetable(table)
+    }
   }
 
   public func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws -> Timetable {
@@ -156,10 +177,10 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     try Task.checkCancellation()
     cache?.store(result, forKey: "\(semester.id)-myTable")
     WidgetCenter.shared.reloadAllTimelines()
+    pushToWatchIfSelected(result, semester: semester, timetableID: nil)
     Task.detached(priority: .background) { [weak self] in
       guard let self, let current = try? await self.refreshCurrentSemester(), current == semester else { return }
       self.cache?.storeCurrentMyTable(result)
-      self.sessionBridgeService?.updateTimetable(result)
     }
     return result
   }
