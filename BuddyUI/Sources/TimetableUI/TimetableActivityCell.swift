@@ -58,7 +58,7 @@ struct TimetableActivityCell: View {
 
   private var backgroundColor: Color {
     if colorScheme == .dark { return cellColor.darkTransformedHSB() }
-    return placement == .widget ? cellColor : .clear
+    return placement == .view ? .clear : cellColor
   }
 }
 

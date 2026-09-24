@@ -38,7 +38,7 @@ struct TimetableLayout {
 
     let classesEnd = latest.map { latest in
       switch placement {
-      case .view:
+      case .view, .render:
         // Leave breathing room below the final class in the app.
         (latest / 60 + 1) * 60
       case .widget:

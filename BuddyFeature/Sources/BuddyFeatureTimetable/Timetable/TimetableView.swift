@@ -11,11 +11,13 @@ import BuddyDomain
 import BuddyFeatureShared
 import FirebaseAnalytics
 import TimetableUI
+import UIKit
 
 public struct TimetableView: View {
   @Bindable private var viewModel: TimetableViewModel
 
   @State private var editingActivity: TimetableActivity?
+  @State private var sharedImage: TimetableShareImage?
   @State private var selectedLecture: LectureItem? = nil
   @State private var showSearchSheet: Bool = false
 	@State private var showActivityCreationSheet: Bool = false
@@ -99,6 +101,15 @@ public struct TimetableView: View {
           activityEditor(activity: activity)
             .presentationDragIndicator(.visible)
         }
+        .sheet(item: $sharedImage) { item in
+          ActivityView(
+            activityItems: [item.source],
+            applicationActivities: [InstagramStoryActivity(
+              appID: "2510700999432824",
+              backgroundColorHex: item.backgroundColorHex
+            )]
+          )
+        }
         .alert(
           viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
           isPresented: $viewModel.isAlertPresented,
@@ -171,6 +182,8 @@ public struct TimetableView: View {
       deleteTimetable: {
         await viewModel.deleteTable()
       },
+      shareTimetable: shareTimetable,
+      canShareTimetable: viewModel.selectedSemester != nil && viewModel.timetable != nil,
 			isWide: isWide,
       isReadOnly: viewModel.isReadOnly
     )
@@ -268,6 +281,52 @@ public struct TimetableView: View {
     return timetable.title.isEmpty ? String(localized: "Untitled", bundle: .module) : timetable.title
   }
 
+  private func shareTimetable() {
+    guard let semester = viewModel.selectedSemester, let timetable = viewModel.timetable else { return }
+    let theme = TimetableThemeStore().selectedTheme
+    // Themes without a background use the light system background for exports.
+    let backgroundColorHex = theme.backgroundColorHex ?? "F2F2F7"
+
+    // Render a separate view so the exported image excludes editing controls
+    // and any lecture that is only being previewed in search.
+    let renderer = ImageRenderer(content:
+      TimetableShareRenderingView(semester: semester, timetable: timetable)
+        .timetableTheme(theme)
+        .environment(\.colorScheme, .light)
+    )
+    renderer.scale = 3
+    renderer.isOpaque = false
+
+    do {
+      guard let stickerImage = renderer.uiImage else { throw CocoaError(.fileWriteUnknown) }
+      // Give regular image exports a visible theme-colored border. Instagram
+      // receives the original transparent sticker without this extra padding.
+      let padding: CGFloat = 24
+      let imageSize = CGSize(
+        width: stickerImage.size.width + padding * 2,
+        height: stickerImage.size.height + padding * 2
+      )
+      let format = UIGraphicsImageRendererFormat()
+      format.scale = stickerImage.scale
+      format.opaque = true
+      let image = UIGraphicsImageRenderer(size: imageSize, format: format).image { context in
+        let bounds = CGRect(origin: .zero, size: imageSize)
+        UIColor(Color(hex: backgroundColorHex)).setFill()
+        context.fill(bounds)
+        stickerImage.draw(in: CGRect(origin: CGPoint(x: padding, y: padding), size: stickerImage.size))
+      }
+      let title = "\(semester.description) - \(displayName)"
+      let source = try ImageActivityItemSource(image: image, title: title, instagramStoryImage: stickerImage)
+      sharedImage = TimetableShareImage(source: source, backgroundColorHex: backgroundColorHex)
+    } catch {
+      viewModel.alertState = AlertState(
+        title: String(localized: "Error", bundle: .module),
+        message: String(localized: "Unable to create the timetable image. Please try again.", bundle: .module)
+      )
+      viewModel.isAlertPresented = true
+    }
+  }
+
   private var selectedTimetable: TimetableSummary? {
     viewModel.timetables.first(where: { $0.id == viewModel.selectedTimetableID })
   }
@@ -277,16 +336,22 @@ public struct TimetableView: View {
   }
 }
 
+private struct TimetableShareImage: Identifiable {
+  let id = UUID()
+  let source: ImageActivityItemSource
+  let backgroundColorHex: String
+}
+
 // MARK: - Card Styling
 
 /// The grid's card. A separate view because `TimetableView` injects the theme on
 /// its own body, and a view never observes environment values it sets there.
 /// A theme that opts into a background replaces the card's usual fill and glass.
-private struct ThemedGridCard<Content: View>: View {
+public struct ThemedGridCard<Content: View>: View {
   @Environment(\.timetableTheme) private var theme
   @ViewBuilder let content: Content
 
-  var body: some View {
+  public var body: some View {
     if let background = theme.backgroundColor {
       content
         .padding()

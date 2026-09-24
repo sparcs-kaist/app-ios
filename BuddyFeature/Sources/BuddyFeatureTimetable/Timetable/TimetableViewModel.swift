@@ -309,7 +309,9 @@ public final class TimetableViewModel {
     let cached = await timetableUseCase.cachedState(semester: semester, timetableID: tableID)
     guard !Task.isCancelled, generation == loadGeneration,
           selectedSemester == semester, selectedTimetableID == tableID else { return }
-    if let table = cached.timetable {
+    // Seed an empty selection from disk. A routine refresh must not downgrade
+    // the displayed table to saved data while its network request is pending.
+    if timetable == nil, let table = cached.timetable {
       timetable = table
       lastUpdated = cached.updatedAt
       isShowingSavedData = true

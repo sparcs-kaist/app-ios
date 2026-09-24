@@ -189,6 +189,29 @@
         }
       }
     },
+    "Share to Instagram Stories" : {
+      "comment" : "Action title for sharing an image to Instagram Stories.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share to Instagram Stories"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share to Instagram Stories"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instagram 스토리에 공유"
+          }
+        }
+      }
+    },
     "Summarising..." : {
       "localizations" : {
         "en" : {

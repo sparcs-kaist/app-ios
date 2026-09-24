@@ -44,7 +44,7 @@ public struct TimetableGridCell: View {
             .lineLimit(3)
           
           if geometry.size.height > 40 {
-            Text("\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.roomName)", bundle: .module)
+            descriptionText
               .minimumScaleFactor(0.8)
               .lineLimit(2)
               .font(.caption2)
@@ -68,13 +68,21 @@ public struct TimetableGridCell: View {
     isCandidate ? Color.accentColor : theme.color(forCourseID: lectureItem.lecture.courseID)
   }
 
+  private var descriptionText: Text {
+    if placement == .render {
+      Text(lectureItem.lecture.professors.first?.name ?? "")
+    } else {
+      Text("\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.roomName)", bundle: .module)
+    }
+  }
+
   private var backgroundColor: Color {
     var color: Color = cellColor
 
     switch placement {
-    case .widget:
+    case .widget, .render:
       color = colorScheme == .light ? color : color.darkTransformedHSB()
-    default:
+    case .view:
       color = colorScheme == .light ? Color.clear : color.darkTransformedHSB()
     }
 
@@ -107,4 +115,8 @@ struct TimetableGlassModifier: ViewModifier {
 
 #Preview("Widget cell", traits: .fixedLayout(width: 60, height: 55)) {
   TimetableGridCell(lectureItem: .mock, isCandidate: false, placement: .widget)
+}
+
+#Preview("Rendered cell", traits: .fixedLayout(width: 88, height: 105)) {
+  TimetableGridCell(lectureItem: .mock, isCandidate: false, placement: .render)
 }
