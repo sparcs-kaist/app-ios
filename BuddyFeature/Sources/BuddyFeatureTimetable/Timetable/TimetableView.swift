@@ -50,6 +50,16 @@ public struct TimetableView: View {
         .background(Color.systemGroupedBackground)
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
+            NavigationLink {
+              CreditCalculationView()
+            } label: {
+              Label(String(localized: "Credits", bundle: .module), systemImage: "graduationcap")
+            }
+          }
+
+          ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+          ToolbarItem(placement: .topBarTrailing) {
 						Menu("Add Event", systemImage: "square.badge.plus") {
 							Button(String(localized: "Add Lecture", bundle: .module), systemImage: "book.badge.plus") {
 								showSearchSheet = true
