@@ -50,6 +50,11 @@ final class CreditCalculationViewModel {
 
   /// The signed-in OTL user; grades are stored per user.
   @ObservationIgnored private var userID: Int?
+  /// The user's majors, listed first in the credit breakdown.
+  private(set) var majorDepartments: [Department] = []
+  /// Minimum credits per requirement type; defaults until the user edits them.
+  private(set) var requirements = CreditRequirements()
+  @ObservationIgnored private let requirementsStore = CreditRequirementsStore()
 
   /// Semesters whose table is loading or already loaded, so cells appearing
   /// don't refetch.
@@ -58,8 +63,14 @@ final class CreditCalculationViewModel {
   init() {}
 
   /// Starts already loaded with fixed data, for previews.
-  init(semesters: [TakenSemester], timetables: [String: Timetable], grades: [Int: LectureGrade] = [:]) {
+  init(
+    semesters: [TakenSemester],
+    timetables: [String: Timetable],
+    grades: [Int: LectureGrade] = [:],
+    majorDepartments: [Department] = []
+  ) {
     self.state = .loaded
+    self.majorDepartments = majorDepartments
     self.semesters = semesters
     self.timetables = timetables
     self.grades = grades
@@ -85,6 +96,8 @@ final class CreditCalculationViewModel {
         return
       }
       userID = user.id
+      majorDepartments = user.majorDepartments
+      requirements = requirementsStore.requirements(userID: user.id)
       // Grades are on-device; a failure here shouldn't block the semester list.
       grades = (try? await lectureGradeUseCase?.grades(userID: user.id)) ?? [:]
 
@@ -121,6 +134,15 @@ final class CreditCalculationViewModel {
     SemesterGradeSummary(lectures: semesters.flatMap { timetables[$0.id]?.lectures ?? [] }, grades: grades)
   }
 
+  /// Credits taken per requirement type across every semester.
+  var creditBreakdown: CreditBreakdown {
+    CreditBreakdown(
+      lectures: semesters.flatMap { timetables[$0.id]?.lectures ?? [] },
+      grades: grades,
+      majorDepartments: majorDepartments
+    )
+  }
+
   /// Whether every semester's table has loaded, so `overallSummary` isn't a partial total.
   var isOverallSummaryReady: Bool {
     state == .loaded && semesters.allSatisfy { $0.semester == nil || timetables[$0.id] != nil }
@@ -135,6 +157,12 @@ final class CreditCalculationViewModel {
 
   func summary(for item: TakenSemester) -> SemesterGradeSummary? {
     timetables[item.id].map { SemesterGradeSummary(lectures: $0.lectures, grades: grades) }
+  }
+
+  func updateRequirements(_ requirements: CreditRequirements) {
+    self.requirements = requirements
+    guard let userID else { return }
+    requirementsStore.save(requirements, userID: userID)
   }
 
   /// Updates the grade immediately and persists it, reverting if saving fails.

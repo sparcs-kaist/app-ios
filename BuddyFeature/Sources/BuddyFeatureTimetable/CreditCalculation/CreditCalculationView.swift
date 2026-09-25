@@ -12,6 +12,7 @@ import TimetableUI
 struct CreditCalculationView: View {
 	@State private var viewModel: CreditCalculationViewModel
 	@State private var selectedSemester: TakenSemester?
+	@State private var showsRequirements = false
 	@Namespace private var transitionNamespace
 
 	private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
@@ -20,9 +21,6 @@ struct CreditCalculationView: View {
 	private static let placeholderSemesters = (0..<6).map {
 		TakenSemester(id: "placeholder-\($0)", title: "2026 Spring", semester: nil)
 	}
-
-	/// Minimum credits required to graduate.
-	private static let graduationCredits = 138
 
 	private static let cardPadding: CGFloat = 8
 	/// Concentric with the silhouette's 4pt day columns: inner radius + padding.
@@ -35,11 +33,17 @@ struct CreditCalculationView: View {
 	var body: some View {
 		content
 			.navigationTitle(String(localized: "Credits", bundle: .module))
+			// Explicit, like the Timetable screen; otherwise it changes after a push and pop.
+			.toolbarTitleDisplayMode(.inlineLarge)
 			// Item-based: this screen is itself pushed by a destination NavigationLink,
 			// and a value-based link here would be resolved beneath it.
 			.navigationDestination(item: $selectedSemester) { item in
 				GradeEntryView(item: item, viewModel: viewModel)
 					.navigationTransition(.zoom(sourceID: item.id, in: transitionNamespace))
+			}
+			.navigationDestination(isPresented: $showsRequirements) {
+				CreditRequirementsView(viewModel: viewModel)
+					.navigationTransition(.zoom(sourceID: Self.requirementsTransitionID, in: transitionNamespace))
 			}
 			.task { await viewModel.load() }
 	}
@@ -113,15 +117,38 @@ struct CreditCalculationView: View {
 		.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius + Self.cardPadding))
 	}
 
+	private static let requirementsTransitionID = "credit-requirements"
+
 	private var summaryCard: some View {
 		let summary = viewModel.overallSummary
 		let earned = summary.earnedCredits
+		let graduationCredits = viewModel.requirements.graduation
+		let cornerRadius = Self.cardCornerRadius + Self.cardPadding
 
-		return VStack(alignment: .leading, spacing: 12) {
+		return Button {
+			showsRequirements = true
+		} label: {
+			summaryCardContent(gpa: summary.gpa, earned: earned, graduationCredits: graduationCredits)
+				.padding(Self.cardPadding * 2)
+				.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: cornerRadius))
+				.contentShape(.rect(cornerRadius: cornerRadius))
+		}
+		.buttonStyle(.plain)
+		.accessibilityHint(String(localized: "Shows credits by requirement", bundle: .module))
+		.disabled(!viewModel.isOverallSummaryReady)
+		.matchedTransitionSource(id: Self.requirementsTransitionID, in: transitionNamespace) { source in
+			source.clipShape(.rect(cornerRadius: cornerRadius))
+		}
+		// Semesters load one by one; don't show a partial total.
+		.redacted(reason: viewModel.isOverallSummaryReady ? [] : .placeholder)
+	}
+
+	private func summaryCardContent(gpa: Double?, earned: Int, graduationCredits: Int) -> some View {
+		VStack(alignment: .leading, spacing: 12) {
 			HStack(alignment: .firstTextBaseline) {
 				summaryValue(
 					title: String(localized: "GPA", bundle: .module),
-					value: gpaText(summary.gpa),
+					value: gpaText(gpa),
 					total: "4.3",
 					alignment: .leading
 				)
@@ -131,21 +158,24 @@ struct CreditCalculationView: View {
 				summaryValue(
 					title: String(localized: "Credits", bundle: .module),
 					value: "\(earned)",
-					total: "\(Self.graduationCredits)",
+					total: "\(graduationCredits)",
 					alignment: .trailing
 				)
+
+				// Opens Credit Requirements; matches the semester cards' chevron.
+				Image(systemName: "chevron.right")
+					.font(.subheadline)
+					.fontWeight(.semibold)
+					.foregroundStyle(.tertiary)
+					.accessibilityHidden(true)
 			}
 
-			ProgressView(value: Double(min(earned, Self.graduationCredits)), total: Double(Self.graduationCredits))
+			ProgressView(value: Double(min(earned, graduationCredits)), total: Double(max(graduationCredits, 1)))
 				.progressViewStyle(ThickLinearProgressViewStyle(height: 18))
-				.tint(earned >= Self.graduationCredits ? .green : .accentColor)
+				.tint(earned >= graduationCredits ? .green : .accentColor)
 				.accessibilityLabel(String(localized: "Credits towards graduation", bundle: .module))
-				.accessibilityValue(String(localized: "\(earned) of \(Self.graduationCredits) credits", bundle: .module))
+				.accessibilityValue(String(localized: "\(earned) of \(graduationCredits) credits", bundle: .module))
 		}
-		.padding(Self.cardPadding * 2)
-		.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius + Self.cardPadding))
-		// Semesters load one by one; don't show a partial total.
-		.redacted(reason: viewModel.isOverallSummaryReady ? [] : .placeholder)
 	}
 
 	private func summaryValue(title: String, value: String, total: String, alignment: HorizontalAlignment) -> some View {
@@ -235,7 +265,7 @@ struct CreditCalculationView: View {
 
 
 /// A linear progress bar with a configurable thickness; the system linear style's is fixed.
-private struct ThickLinearProgressViewStyle: ProgressViewStyle {
+struct ThickLinearProgressViewStyle: ProgressViewStyle {
 	let height: CGFloat
 
 	func makeBody(configuration: Configuration) -> some View {
@@ -293,7 +323,8 @@ private struct ThickLinearProgressViewStyle: ProgressViewStyle {
 		CreditCalculationView(viewModel: CreditCalculationViewModel(
 			semesters: [item],
 			timetables: [item.id: timetable],
-			grades: Dictionary(uniqueKeysWithValues: timetable.lectures.map { ($0.id, LectureGrade.aMinus) })
+			grades: Dictionary(uniqueKeysWithValues: timetable.lectures.map { ($0.id, LectureGrade.aMinus) }),
+			majorDepartments: timetable.lectures.first { $0.type == .mr || $0.type == .me }.map { [$0.department] } ?? []
 		))
 	}
 }
