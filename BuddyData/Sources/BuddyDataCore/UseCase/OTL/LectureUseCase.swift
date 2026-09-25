@@ -36,6 +36,17 @@ public final class LectureUseCase: LectureUseCaseProtocol, Sendable {
     }
   }
 
+  public func fetchUserLectureHistory(userID: Int) async throws -> OTLUserLectureHistory {
+    let context = CrashContext(
+      feature: feature,
+      metadata: ["userID": "\(userID)", "operation": "fetchUserLectureHistory"]
+    )
+
+    return try await execute(context: context) {
+      try await self.otlLectureRepository.fetchUserLectureHistory(userID: userID)
+    }
+  }
+
   // MARK: - Private
   private func execute<T>(
     context: CrashContext,
