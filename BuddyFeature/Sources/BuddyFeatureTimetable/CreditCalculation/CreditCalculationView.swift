@@ -10,9 +10,13 @@ import BuddyDomain
 import TimetableUI
 
 struct CreditCalculationView: View {
-	@State private var viewModel = CreditCalculationViewModel()
+	@State private var viewModel: CreditCalculationViewModel
 
 	private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+
+	init(viewModel: CreditCalculationViewModel = CreditCalculationViewModel()) {
+		self._viewModel = State(initialValue: viewModel)
+	}
 
 	var body: some View {
 		content
@@ -64,7 +68,25 @@ struct CreditCalculationView: View {
 
 
 #Preview {
+	let timetables = Timetable.mockList
+	let semesters = [
+		TakenSemester(id: "2024-Spring", title: "2024 Spring", semester: nil),
+		TakenSemester(id: "2024-Autumn", title: "2024 Autumn", semester: nil),
+		TakenSemester(id: "2025-Spring", title: "2025 Spring", semester: nil),
+		TakenSemester(id: "2025-Autumn", title: "2025 Autumn", semester: nil),
+		TakenSemester(id: "2026-Spring", title: "2026 Spring", semester: nil)
+	]
+
 	NavigationStack {
-		CreditCalculationView()
+		CreditCalculationView(viewModel: CreditCalculationViewModel(
+			semesters: semesters,
+			timetables: [
+				"2024-Spring": .mock,
+				"2024-Autumn": timetables[1],
+				"2025-Spring": timetables[0],
+				"2025-Autumn": timetables[0],
+				"2026-Spring": timetables[2]
+			]
+		))
 	}
 }

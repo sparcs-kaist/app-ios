@@ -34,7 +34,19 @@ final class CreditCalculationViewModel {
   /// back into view don't refetch.
   @ObservationIgnored private var requestedTimetableIDs: Set<String> = []
 
+  init() {}
+
+  /// Starts already loaded with fixed data, for previews.
+  init(semesters: [TakenSemester], timetables: [String: Timetable]) {
+    self.state = .loaded
+    self.semesters = semesters
+    self.timetables = timetables
+    self.requestedTimetableIDs = Set(semesters.map(\.id))
+  }
+
   func load() async {
+    // Only the initial load and a retry after an error fetch; seeded data stays.
+    guard state != .loaded else { return }
     guard let lectureUseCase, let timetableUseCase, let userUseCase else {
       state = .error(message: String(localized: "Unexpected Error", bundle: .module))
       return
