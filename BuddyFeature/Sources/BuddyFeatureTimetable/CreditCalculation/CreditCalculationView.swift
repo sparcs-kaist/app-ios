@@ -70,17 +70,47 @@ struct CreditCalculationView: View {
 	private func semesterGrid(_ semesters: [TakenSemester]) -> some View {
 		ScrollView {
 			VStack(spacing: 16) {
+				gpaTrendCard
+				summaryCard
+
 				LazyVGrid(columns: columns, spacing: 16) {
 					ForEach(semesters) { item in
 						semesterCell(item)
 					}
 				}
-
-				summaryCard
 			}
 			.padding()
 			.contentWidth()
 		}
+	}
+
+	private static let trendChartHeight: CGFloat = 160
+
+	private var gpaTrendCard: some View {
+		let points = viewModel.gpaTrend
+
+		return VStack(alignment: .leading, spacing: 12) {
+			Text("GPA by Semester", bundle: .module)
+				.font(.subheadline)
+				.foregroundStyle(.secondary)
+
+			if !viewModel.isOverallSummaryReady {
+				// Charts aren't redacted; stand in with a plain block while loading.
+				RoundedRectangle(cornerRadius: Self.cardCornerRadius)
+					.fill(.quaternary)
+					.frame(height: Self.trendChartHeight)
+			} else if points.isEmpty {
+				Text("Enter grades to see your GPA by semester.", bundle: .module)
+					.font(.footnote)
+					.foregroundStyle(.secondary)
+					.frame(maxWidth: .infinity, minHeight: Self.trendChartHeight)
+			} else {
+				GPATrendChart(points: points)
+					.frame(height: Self.trendChartHeight)
+			}
+		}
+		.padding(Self.cardPadding * 2)
+		.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius + Self.cardPadding))
 	}
 
 	private var summaryCard: some View {

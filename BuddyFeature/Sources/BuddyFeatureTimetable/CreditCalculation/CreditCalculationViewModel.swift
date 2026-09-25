@@ -17,6 +17,21 @@ struct TakenSemester: Identifiable, Hashable {
   /// The matching OTL semester, needed to fetch its "My Table". `nil` when the
   /// semester list does not include it; the cell then shows an empty silhouette.
   let semester: Semester?
+
+  /// Compact axis label such as "24S", from the "year-Type" `id`; falls back to `title`.
+  var shortTitle: String {
+    let parts = id.split(separator: "-")
+    guard parts.count == 2, let type = SemesterType(rawValue: String(parts[1])) else { return title }
+    return "\(parts[0].suffix(2))\(type.shortCode)"
+  }
+}
+
+/// One point on the GPA trend chart.
+struct SemesterGPA: Identifiable, Equatable {
+  let id: String
+  let label: String
+  let title: String
+  let gpa: Double
 }
 
 @MainActor
@@ -36,8 +51,8 @@ final class CreditCalculationViewModel {
   /// The signed-in OTL user; grades are stored per user.
   @ObservationIgnored private var userID: Int?
 
-  /// Semesters whose table is loading or already loaded, so cells scrolling
-  /// back into view don't refetch.
+  /// Semesters whose table is loading or already loaded, so cells appearing
+  /// don't refetch.
   @ObservationIgnored private var requestedTimetableIDs: Set<String> = []
 
   init() {}
@@ -92,6 +107,8 @@ final class CreditCalculationViewModel {
           )
         }
       state = .loaded
+      // The summary at the top needs every semester, not just the cards on screen.
+      await loadAllTimetables()
     } catch is CancellationError {
       return
     } catch {
@@ -107,6 +124,13 @@ final class CreditCalculationViewModel {
   /// Whether every semester's table has loaded, so `overallSummary` isn't a partial total.
   var isOverallSummaryReady: Bool {
     state == .loaded && semesters.allSatisfy { $0.semester == nil || timetables[$0.id] != nil }
+  }
+
+  /// Each semester's GPA in order, skipping semesters with no GPA yet.
+  var gpaTrend: [SemesterGPA] {
+    semesters.compactMap { item in
+      summary(for: item)?.gpa.map { SemesterGPA(id: item.id, label: item.shortTitle, title: item.title, gpa: $0) }
+    }
   }
 
   func summary(for item: TakenSemester) -> SemesterGradeSummary? {
@@ -129,7 +153,16 @@ final class CreditCalculationViewModel {
     }
   }
 
-  /// Lazily fetches a semester's "My Table" when its cell first appears.
+  private func loadAllTimetables() async {
+    await withTaskGroup(of: Void.self) { group in
+      for item in semesters {
+        group.addTask { await self.loadTimetable(for: item) }
+      }
+    }
+  }
+
+  /// Fetches a semester's "My Table" once. Also called when its cell appears,
+  /// which retries a table whose earlier fetch failed.
   func loadTimetable(for item: TakenSemester) async {
     guard let semester = item.semester, let timetableUseCase,
           requestedTimetableIDs.insert(item.id).inserted else { return }
