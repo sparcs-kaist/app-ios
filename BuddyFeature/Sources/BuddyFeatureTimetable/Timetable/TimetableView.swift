@@ -384,7 +384,7 @@ private struct TimetableCardStyle: ViewModifier {
   }
 }
 
-private extension View {
+extension View {
   /// The shared rounded, glass-backed card treatment used by every timetable section.
   func timetableCardStyle() -> some View {
     modifier(TimetableCardStyle())

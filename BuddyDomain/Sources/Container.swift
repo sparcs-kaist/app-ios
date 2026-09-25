@@ -121,6 +121,10 @@ extension Container {
     promised()
   }
 
+  public var lectureGradeUseCase: Factory<LectureGradeUseCaseProtocol?> {
+    promised()
+  }
+
   public var feedPostUseCase: Factory<FeedPostUseCaseProtocol?> {
     promised()
   }

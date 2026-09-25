@@ -25,10 +25,16 @@ final class CreditCalculationViewModel {
   @ObservationIgnored @Injected(\.v2LectureUseCase) private var lectureUseCase: LectureUseCaseProtocol?
   @ObservationIgnored @Injected(\.v2TimetableUseCase) private var timetableUseCase: TimetableUseCaseProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
+  @ObservationIgnored @Injected(\.lectureGradeUseCase) private var lectureGradeUseCase: LectureGradeUseCaseProtocol?
 
   private(set) var state: CreditCalculationViewState = .loading
   private(set) var semesters: [TakenSemester] = []
   private(set) var timetables: [String: Timetable] = [:]
+  /// Grades the user entered, keyed by lecture ID.
+  private(set) var grades: [Int: LectureGrade] = [:]
+
+  /// The signed-in OTL user; grades are stored per user.
+  @ObservationIgnored private var userID: Int?
 
   /// Semesters whose table is loading or already loaded, so cells scrolling
   /// back into view don't refetch.
@@ -37,10 +43,11 @@ final class CreditCalculationViewModel {
   init() {}
 
   /// Starts already loaded with fixed data, for previews.
-  init(semesters: [TakenSemester], timetables: [String: Timetable]) {
+  init(semesters: [TakenSemester], timetables: [String: Timetable], grades: [Int: LectureGrade] = [:]) {
     self.state = .loaded
     self.semesters = semesters
     self.timetables = timetables
+    self.grades = grades
     self.requestedTimetableIDs = Set(semesters.map(\.id))
   }
 
@@ -60,6 +67,9 @@ final class CreditCalculationViewModel {
         state = .error(message: String(localized: "Unexpected Error", bundle: .module))
         return
       }
+      userID = user.id
+      // Grades are on-device; a failure here shouldn't block the semester list.
+      grades = (try? await lectureGradeUseCase?.grades(userID: user.id)) ?? [:]
 
       async let history = lectureUseCase.fetchUserLectureHistory(userID: user.id)
       async let allSemesters = timetableUseCase.getSemesters()
@@ -84,6 +94,26 @@ final class CreditCalculationViewModel {
       return
     } catch {
       state = .error(message: error.localizedDescription)
+    }
+  }
+
+  func summary(for item: TakenSemester) -> SemesterGradeSummary? {
+    timetables[item.id].map { SemesterGradeSummary(lectures: $0.lectures, grades: grades) }
+  }
+
+  /// Updates the grade immediately and persists it, reverting if saving fails.
+  func setGrade(_ grade: LectureGrade?, lectureID: Int) {
+    let previous = grades[lectureID]
+    grades[lectureID] = grade
+    guard let lectureGradeUseCase, let userID else { return }
+
+    Task {
+      do {
+        try await lectureGradeUseCase.setGrade(grade, lectureID: lectureID, userID: userID)
+      } catch {
+        // Skip the revert if the user already picked something newer.
+        if grades[lectureID] == grade { grades[lectureID] = previous }
+      }
     }
   }
 

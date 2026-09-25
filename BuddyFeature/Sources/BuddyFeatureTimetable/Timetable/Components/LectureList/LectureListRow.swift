@@ -11,6 +11,8 @@ import TimetableUI
 
 struct LectureListRow: View {
 	let lecture: Lecture
+	/// Hidden where the row shares its width with other controls, like grade entry.
+	var showsLocation: Bool = true
 	@Environment(\.timetableTheme) private var theme
 
 	var body: some View {
@@ -27,7 +29,9 @@ struct LectureListRow: View {
 				HStack {
 					makeLabel(lecture.code, systemImage: "text.book.closed")
 					makeLabel(lecture.professors.first?.name ?? "Unknown", systemImage: "person")
-					makeLabel(lecture.classes.first?.location ?? "Unknown", systemImage: "mappin.and.ellipse")
+					if showsLocation {
+						makeLabel(lecture.classes.first?.location ?? "Unknown", systemImage: "mappin.and.ellipse")
+					}
 				}
 				.font(.caption)
 				.foregroundStyle(.secondary)
