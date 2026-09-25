@@ -572,6 +572,38 @@
         }
       }
     },
+    "HSE-C" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HSE-C"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인선핵심"
+          }
+        }
+      }
+    },
+    "HSE-G" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HSE-G"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인선일반"
+          }
+        }
+      }
+    },
     "Impersonation/Fraud" : {
       "localizations" : {
         "en" : {
