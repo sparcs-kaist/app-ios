@@ -54,6 +54,8 @@ final class CreditCalculationViewModel {
   func load() async {
     // Only the initial load and a retry after an error fetch; seeded data stays.
     guard state != .loaded else { return }
+    // Also shows the skeleton again when retrying after an error.
+    state = .loading
     guard let lectureUseCase, let timetableUseCase, let userUseCase else {
       state = .error(message: String(localized: "Unexpected Error", bundle: .module))
       return
@@ -95,6 +97,16 @@ final class CreditCalculationViewModel {
     } catch {
       state = .error(message: error.localizedDescription)
     }
+  }
+
+  /// Cumulative GPA and credits across every semester.
+  var overallSummary: SemesterGradeSummary {
+    SemesterGradeSummary(lectures: semesters.flatMap { timetables[$0.id]?.lectures ?? [] }, grades: grades)
+  }
+
+  /// Whether every semester's table has loaded, so `overallSummary` isn't a partial total.
+  var isOverallSummaryReady: Bool {
+    state == .loaded && semesters.allSatisfy { $0.semester == nil || timetables[$0.id] != nil }
   }
 
   func summary(for item: TakenSemester) -> SemesterGradeSummary? {

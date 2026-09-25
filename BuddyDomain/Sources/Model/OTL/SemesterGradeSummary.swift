@@ -13,6 +13,12 @@ public struct SemesterGradeSummary: Equatable, Sendable {
   public let gpa: Double?
   public let gradedCount: Int
   public let lectureCount: Int
+  /// Credits (not AU) on record: every lecture except NR ones, which are left off
+  /// the transcript. Ungraded lectures count, as they're assumed in progress.
+  public let recordedCredits: Int
+  /// Credits (not AU) counting toward graduation: recorded credits minus failed
+  /// (F) ones. P credits count.
+  public let earnedCredits: Int
 
   /// Whether every lecture in the semester has a grade entered.
   public var isComplete: Bool { gradedCount == lectureCount }
@@ -21,8 +27,15 @@ public struct SemesterGradeSummary: Equatable, Sendable {
     var weightedPoints = 0.0
     var gpaCredits = 0
     var gradedCount = 0
+    var recordedCredits = 0
+    var earnedCredits = 0
 
     for lecture in lectures {
+      let grade = grades[lecture.id]
+      if grade != .nonRecord {
+        recordedCredits += lecture.credit
+        if grade != .fail { earnedCredits += lecture.credit }
+      }
       guard let grade = grades[lecture.id] else { continue }
       gradedCount += 1
       // AU never counts; P/NR/S/U have no grade point.
@@ -35,5 +48,7 @@ public struct SemesterGradeSummary: Equatable, Sendable {
     self.gpa = gpaCredits > 0 ? weightedPoints / Double(gpaCredits) : nil
     self.gradedCount = gradedCount
     self.lectureCount = lectures.count
+    self.recordedCredits = recordedCredits
+    self.earnedCredits = earnedCredits
   }
 }
