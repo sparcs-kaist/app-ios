@@ -14,6 +14,10 @@ struct CreditCalculationView: View {
 
 	private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
 
+	private static let cardPadding: CGFloat = 8
+	/// Concentric with the silhouette's 4pt day columns: inner radius + padding.
+	private static let cardCornerRadius: CGFloat = 4 + cardPadding
+
 	init(viewModel: CreditCalculationViewModel = CreditCalculationViewModel()) {
 		self._viewModel = State(initialValue: viewModel)
 	}
@@ -54,14 +58,37 @@ struct CreditCalculationView: View {
 	}
 
 	private func semesterCell(_ item: TakenSemester) -> some View {
-		VStack(alignment: .leading, spacing: 8) {
-			Text(item.title)
-				.font(.subheadline)
-				.fontWeight(.semibold)
+		let timetable = viewModel.timetables[item.id]
 
-			TimetableSilhouetteView(timetable: viewModel.timetables[item.id])
+		return VStack(alignment: .leading, spacing: 8) {
+			HStack(spacing: 4) {
+				Text(item.title)
+				
+				Image(systemName: "chevron.right")
+					.foregroundStyle(.tertiary)
+			}
+			.font(.subheadline)
+			.fontWeight(.semibold)
+
+			TimetableSilhouetteView(timetable: timetable)
 				.aspectRatio(1, contentMode: .fit)
+
+			HStack(spacing: 4) {
+				Spacer()
+
+				Text(String(localized: "\(timetable?.credits ?? 0) CR", bundle: .module))
+				if let creditAUs = timetable?.creditAUs, creditAUs > 0 {
+					Text(String(localized: "\(creditAUs) AU", bundle: .module))
+						.foregroundStyle(.secondary)
+				}
+			}
+			.textCase(.uppercase)
+			.font(.footnote)
+			// Placeholder until the semester's table arrives.
+			.redacted(reason: timetable == nil ? .placeholder : [])
 		}
+		.padding(Self.cardPadding)
+		.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
 		.task { await viewModel.loadTimetable(for: item) }
 	}
 }
