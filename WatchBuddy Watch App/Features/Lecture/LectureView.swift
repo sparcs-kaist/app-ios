@@ -9,17 +9,17 @@ import SwiftUI
 import BuddyDomain
 
 struct LectureView: View {
-  let item: LectureItem
+  let entry: ScheduleEntry
 
   var body: some View {
     VStack(alignment: .leading) {
       HStack(alignment: .top) {
         Circle()
           .frame(width: 12, height: 12)
-          .foregroundStyle(item.lecture.backgroundColor)
+          .foregroundStyle(entry.backgroundColor)
           .padding(.top, 4)
 
-        Text(item.lecture.name)
+        Text(entry.title)
           .font(.headline)
           .lineLimit(4)
           .minimumScaleFactor(0.8)
@@ -30,11 +30,11 @@ struct LectureView: View {
       Spacer()
 
       TimelineView(.everyMinute) { context in
-        Text(item.lectureClass.statusString(at: context.date))
-          .foregroundStyle(item.lecture.backgroundColor)
+        Text(entry.classTime.statusString(at: context.date))
+          .foregroundStyle(entry.backgroundColor)
           .font(.caption)
       }
-      Text("\(item.lectureClass.buildingCode) \(item.lectureClass.roomName)")
+      Text(entry.location)
         .lineLimit(1)
         .minimumScaleFactor(0.8)
     }
@@ -43,5 +43,5 @@ struct LectureView: View {
 }
 
 #Preview {
-  LectureView(item: LectureItem.mock)
+  LectureView(entry: .lecture(LectureItem.mock))
 }

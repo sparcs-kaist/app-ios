@@ -7,7 +7,9 @@
 
 import SwiftUI
 import BuddyDomain
-import Haptica
+#if os(iOS)
+import UIKit
+#endif
 
 public struct TimetableGrid: View {
   let selectedTimetable: Timetable?
@@ -141,6 +143,15 @@ public struct TimetableGrid: View {
     }
   }
 
+  // UIColor.separator doesn't exist on watchOS; approximate it there.
+  private static var defaultSeparatorColor: Color {
+    #if os(watchOS)
+    Color.gray.opacity(0.35)
+    #else
+    Color(uiColor: .separator)
+    #endif
+  }
+
   private func gridHorizontalLines(layout: TimetableLayout, height: CGFloat) -> some View {
     ZStack(alignment: .topLeading) {
       ForEach(layout.hours, id: \.self) { hour in
@@ -154,7 +165,7 @@ public struct TimetableGrid: View {
           .offset(y: layout.offset(at: hour * 60 + 30, height: height))
       }
     }
-    .foregroundStyle(theme.separatorColor ?? Color(uiColor: .separator))
+    .foregroundStyle(theme.separatorColor ?? Self.defaultSeparatorColor)
     .allowsHitTesting(false)
     .accessibilityHidden(true)
   }
@@ -218,7 +229,9 @@ private struct TimetableInteractionModifier: ViewModifier {
       content
         .contentShape(.rect)
         .onTapGesture {
-          Haptic.selection.generate()
+          #if os(iOS)
+          UISelectionFeedbackGenerator().selectionChanged()
+          #endif
           onSelect(item)
         }
         .accessibilityAddTraits(.isButton)

@@ -8,10 +8,10 @@
 import SwiftUI
 import Factory
 import BuddyDomain
+import TimetableUI
 
 struct ContentView: View {
   @AppStorage("timetableData", store: UserDefaults(suiteName: "group.org.sparcs.soap")!) private var timetableData: Data = .init()
-  @Environment(\.scenePhase) private var scenePhase
 
   // The theme mirrors the iPhone's Settings choice. Observed here so a theme
   // push from the phone repaints a watch app that's already on screen —
@@ -20,8 +20,6 @@ struct ContentView: View {
   private var selectedThemeID: String = TimetableTheme.default.id
   @AppStorage(TimetableThemeStore.customThemesKey, store: TimetableThemeStore.sharedDefaults)
   private var customThemesData: Data = .init()
-
-  @State private var items: [LectureItem] = []
 
   private var timetable: Timetable? {
     guard !timetableData.isEmpty else { return nil }
@@ -38,31 +36,13 @@ struct ContentView: View {
   }
 
   var body: some View {
-    Group {
-      if timetable != nil {
-        NavigationStack {
-          LectureTabView(items: items)
-        }
-        .id(themeRevision)
-      } else {
-        Text("Please open Buddy app on your iPhone to sync your timetable for this semester.")
-          .multilineTextAlignment(.center)
-      }
-    }
-    .onAppear {
-      recomputeItems()
-    }
-    .onChange(of: scenePhase) { phase, _ in
-      if phase == .active { recomputeItems() }
-    }
-    .onChange(of: timetableData) { _, _ in
-      recomputeItems()
-    }
-  }
-
-  private func recomputeItems(date: Date = Date()) {
     if let timetable {
-      items = timetable.lectureItems(for: date)
+      LectureRootView(timetable: timetable)
+        .id(themeRevision)
+        .timetableThemeFromSettings()
+    } else {
+      Text("Please open Buddy app on your iPhone to sync your timetable for this semester.")
+        .multilineTextAlignment(.center)
     }
   }
 }
@@ -70,4 +50,3 @@ struct ContentView: View {
 #Preview {
   ContentView()
 }
-

@@ -1,3 +1,6 @@
+// The picker is a drag-driven editor that leans on UIKit feedback generators;
+// it has no watchOS client, so it only builds for iOS.
+#if !os(watchOS)
 import SwiftUI
 import UIKit
 import BuddyDomain
@@ -326,3 +329,4 @@ public struct TimetableTimePicker: View {
     }
   }
 }
+#endif

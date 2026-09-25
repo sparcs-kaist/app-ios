@@ -36,7 +36,6 @@ struct UpcomingClassProvider: TimelineProvider {
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     let now = Date()
-    let calendar = Calendar.current
 
     let ud = UserDefaults(suiteName: suite)
     let data = ud?.data(forKey: key) ?? Data()
@@ -58,76 +57,14 @@ struct UpcomingClassProvider: TimelineProvider {
       return
     }
 
-    let todayLectures: [LectureItem] = timetable.lectureItems(for: now)
-
-    var entries: [LectureEntry] = []
-    if todayLectures.isEmpty {
-      let entry = LectureEntry(
-        date: now,
-        lecture: nil,
-        lectureClass: nil,
-        startDate: Date(),
-        signInRequired: false,
-        backgroundColor: .black,
-        relevance: .init(score: 10)
-      )
-      entries.append(entry)
-    } else {
-      for item in todayLectures {
-        let ct = item.lectureClass
-        guard let start = dateOnSameDay(minutes: ct.begin, date: now, calendar: calendar)
-        else { continue }
-
-        // Upcoming Lectures (30 minutes before the start)
-        let pre = max(now, start.addingTimeInterval(-30*60))
-        if pre <= start {
-          entries
-            .append(
-              LectureEntry(
-                date: pre,
-                lecture: item.lecture,
-                lectureClass: ct,
-                startDate: start,
-                signInRequired: false,
-                backgroundColor: item.lecture.backgroundColor,
-                relevance: .init(score: 100)
-              )
-            )
-        }
-
-        // Start-of-class entry
-        if start >= now {
-          entries
-            .append(
-              LectureEntry(
-                date: start,
-                lecture: item.lecture,
-                lectureClass: ct,
-                startDate: start,
-                signInRequired: false,
-                backgroundColor: item.lecture.backgroundColor,
-                relevance: .init(score: 80)
-              )
-            )
-        }
-      }
-
-      if entries.isEmpty {
-        let entry = LectureEntry(
-          date: now,
-          lecture: nil,
-          lectureClass: nil,
-          startDate: nil,
-          signInRequired: false,
-          backgroundColor: .black,
-          relevance: .init(score: 20)
-        )
-        entries.append(entry)
-      }
-    }
-
-    entries.sort { $0.date < $1.date }
-
+    // The same shared builder as the iOS widget: lectures and custom
+    // activities, ongoing events with their end boundaries, coloured by the
+    // theme synced from the phone.
+    let entries = TimetableEventTimeline.entries(
+      for: timetable,
+      now: now,
+      theme: TimetableThemeStore().selectedTheme
+    )
     completion(Timeline(entries: entries, policy: .atEnd))
   }
 }
