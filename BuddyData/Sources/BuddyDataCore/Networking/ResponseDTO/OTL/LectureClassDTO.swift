@@ -12,9 +12,10 @@ public struct LectureClassDTO: Codable {
   public let day: Int
   public let begin: Int
   public let end: Int
-  public let buildingCode: String
-  public let buildingName: String
-  public let roomName: String
+  // Null for classes without an assigned room (seen in older semesters).
+  public let buildingCode: String?
+  public let buildingName: String?
+  public let roomName: String?
 }
 
 public extension LectureClassDTO {
@@ -23,9 +24,9 @@ public extension LectureClassDTO {
       day: DayType(rawValue: day) ?? .sun,
       begin: begin,
       end: end,
-      buildingCode: buildingCode,
-      buildingName: buildingName,
-      roomName: roomName
+      buildingCode: buildingCode ?? "",
+      buildingName: buildingName ?? "",
+      roomName: roomName ?? ""
     )
   }
 }

@@ -24,7 +24,7 @@ extension OTLUserLectureHistoryDTO {
   }
 }
 
-private struct OTLUserLectureSemesterDTO: Decodable {
+struct OTLUserLectureSemesterDTO: Decodable {
   let year: Int
   let semester: Int
   let lectures: [OTLTakenLectureDTO]
@@ -40,7 +40,7 @@ private extension OTLUserLectureSemesterDTO {
   }
 }
 
-private struct OTLTakenLectureDTO: Decodable {
+struct OTLTakenLectureDTO: Decodable {
   let courseId: Int
   let lectureId: Int
   let name: String
