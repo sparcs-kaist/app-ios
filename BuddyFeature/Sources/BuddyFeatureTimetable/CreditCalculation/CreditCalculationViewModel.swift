@@ -56,6 +56,10 @@ final class CreditCalculationViewModel {
   private(set) var requirements = CreditRequirements()
   @ObservationIgnored private let requirementsStore = CreditRequirementsStore()
 
+  /// Set while `load()` runs, so overlapping calls (the Timetable card appearing,
+  /// the Credits screen opening) don't fetch twice.
+  @ObservationIgnored private var isLoadInFlight = false
+
   /// Semesters whose table is loading or already loaded, so cells appearing
   /// don't refetch.
   @ObservationIgnored private var requestedTimetableIDs: Set<String> = []
@@ -79,7 +83,9 @@ final class CreditCalculationViewModel {
 
   func load() async {
     // Only the initial load and a retry after an error fetch; seeded data stays.
-    guard state != .loaded else { return }
+    guard state != .loaded, !isLoadInFlight else { return }
+    isLoadInFlight = true
+    defer { isLoadInFlight = false }
     // Also shows the skeleton again when retrying after an error.
     state = .loading
     guard let lectureUseCase, let timetableUseCase, let userUseCase else {

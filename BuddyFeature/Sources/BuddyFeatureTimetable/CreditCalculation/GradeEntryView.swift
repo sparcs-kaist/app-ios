@@ -1,4 +1,3 @@
-
 //
 //  GradeEntryView.swift
 //  BuddyFeature
@@ -27,26 +26,8 @@ struct GradeEntryView: View {
 				}
 				.frame(height: Self.gridHeight)
 
-				// Mirrors the Timetable screen's LectureList, with a grade picker per row.
 				if let lectures = timetable?.lectures, !lectures.isEmpty {
-					VStack(alignment: .leading) {
-						Text("\(lectures.count) Lectures", bundle: .module)
-							.font(.title3)
-							.fontWeight(.bold)
-
-						ForEach(lectures) { lecture in
-							HStack {
-								LectureListRow(lecture: lecture, showsLocation: false)
-								gradeMenu(for: lecture)
-							}
-
-							if lecture.id != lectures.last?.id {
-								Divider()
-									.padding(.leading, 20)
-							}
-						}
-					}
-					.timetableCardStyle()
+					GradeEntryLectureList(lectures: lectures, grade: gradeBinding)
 				}
 			}
 			.padding()
@@ -60,22 +41,60 @@ struct GradeEntryView: View {
 		.toolbarTitleDisplayMode(.inline)
 	}
 
-	private func gradeMenu(for lecture: Lecture) -> some View {
-		let grade = viewModel.grades[lecture.id]
-		let selection = Binding<LectureGrade?>(
-			get: { viewModel.grades[lecture.id] },
-			set: { viewModel.setGrade($0, lectureID: lecture.id) }
+	/// Reads and writes one lecture's grade through the view model, which persists it.
+	private func gradeBinding(for lecture: Lecture) -> Binding<LectureGrade?> {
+		let lectureID = lecture.id
+		return Binding(
+			get: { viewModel.grades[lectureID] },
+			set: { viewModel.setGrade($0, lectureID: lectureID) }
 		)
+	}
+}
 
-		return Menu {
+/// Mirrors the Timetable screen's LectureList, with a grade picker per row.
+private struct GradeEntryLectureList: View {
+	let lectures: [Lecture]
+	/// Each lecture's grade, bound to where it's stored.
+	let grade: (Lecture) -> Binding<LectureGrade?>
+
+	var body: some View {
+		VStack(alignment: .leading) {
+			Text("\(lectures.count) Lectures", bundle: .module)
+				.font(.title3)
+				.fontWeight(.bold)
+
+			ForEach(lectures) { lecture in
+				HStack {
+					LectureListRow(lecture: lecture, showsLocation: false)
+					GradeMenu(lecture: lecture, grade: grade(lecture))
+				}
+
+				if lecture.id != lectures.last?.id {
+					Divider()
+						.padding(.leading, 20)
+				}
+			}
+		}
+		.timetableCardStyle()
+	}
+}
+
+/// One lecture's grade: a compact button that opens the grades it can take.
+private struct GradeMenu: View {
+	let lecture: Lecture
+	/// `nil` when ungraded; setting `nil` clears the grade.
+	@Binding var grade: LectureGrade?
+
+	var body: some View {
+		Menu {
 			// First, so it's visible without scrolling the long credit-grade list.
 			if grade != nil {
 				Button(String(localized: "Clear Grade", bundle: .module), systemImage: "xmark", role: .destructive) {
-					selection.wrappedValue = nil
+					grade = nil
 				}
 			}
 
-			Picker(String(localized: "Grade", bundle: .module), selection: selection) {
+			Picker(String(localized: "Grade", bundle: .module), selection: $grade) {
 				ForEach(LectureGrade.options(for: lecture), id: \.self) { option in
 					Text(option.menuTitle).tag(Optional(option))
 				}

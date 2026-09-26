@@ -15,70 +15,119 @@ struct CreditCalculationView: View {
 	@State private var showsRequirements = false
 	@Namespace private var transitionNamespace
 
-	private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
-
 	/// Stand-in cards for the skeleton while the semester list loads.
 	private static let placeholderSemesters = (0..<6).map {
 		TakenSemester(id: "placeholder-\($0)", title: "2026 Spring", semester: nil)
 	}
-
-	private static let cardPadding: CGFloat = 8
-	/// Concentric with the silhouette's 4pt day columns: inner radius + padding.
-	private static let cardCornerRadius: CGFloat = 4 + cardPadding
 
 	init(viewModel: CreditCalculationViewModel = CreditCalculationViewModel()) {
 		self._viewModel = State(initialValue: viewModel)
 	}
 
 	var body: some View {
-		content
-			.navigationTitle(String(localized: "Credits", bundle: .module))
-			.navigationSubtitle(semesterCountText)
-			// Explicit, like the Timetable screen; otherwise it changes after a push and pop.
-			.toolbarTitleDisplayMode(.inlineLarge)
-			// Item-based: this screen is itself pushed by a destination NavigationLink,
-			// and a value-based link here would be resolved beneath it.
-			.navigationDestination(item: $selectedSemester) { item in
-				GradeEntryView(item: item, viewModel: viewModel)
-					.navigationTransition(.zoom(sourceID: item.id, in: transitionNamespace))
-			}
-			.navigationDestination(isPresented: $showsRequirements) {
-				CreditRequirementsView(viewModel: viewModel)
-					.navigationTransition(.zoom(sourceID: Self.requirementsTransitionID, in: transitionNamespace))
-			}
-			.task { await viewModel.load() }
-	}
-
-	@ViewBuilder
-	private var content: some View {
-		switch viewModel.state {
-		case .loading:
-			// Real cards without timetables: grey day columns and redacted text.
-			semesterGrid(Self.placeholderSemesters)
+		Group {
+			switch viewModel.state {
+			case .loading:
+				// Real cards without timetables: grey day columns and redacted text.
+				CreditsOverview(
+					semesters: Self.placeholderSemesters,
+					viewModel: viewModel,
+					namespace: transitionNamespace,
+					onSelectSemester: { _ in },
+					onOpenRequirements: {}
+				)
 				.redacted(reason: .placeholder)
 				.disabled(true)
-		case .error(let message):
-			ContentUnavailableView {
-				Label(String(localized: "Error", bundle: .module), systemImage: "exclamationmark.triangle")
-			} description: {
-				Text(message)
-			} actions: {
-				Button(String(localized: "Retry", bundle: .module)) {
-					Task { await viewModel.load() }
+			case .error(let message):
+				ContentUnavailableView {
+					Label(String(localized: "Error", bundle: .module), systemImage: "exclamationmark.triangle")
+				} description: {
+					Text(message)
+				} actions: {
+					Button(String(localized: "Retry", bundle: .module)) {
+						Task { await viewModel.load() }
+					}
 				}
+			case .loaded:
+				CreditsOverview(
+					semesters: viewModel.semesters,
+					viewModel: viewModel,
+					namespace: transitionNamespace,
+					onSelectSemester: { selectedSemester = $0 },
+					onOpenRequirements: { showsRequirements = true }
+				)
 			}
-		case .loaded:
-			semesterGrid(viewModel.semesters)
 		}
+		.navigationTitle(String(localized: "Credits", bundle: .module))
+		.navigationSubtitle(semesterCountText)
+		// Explicit, like the Timetable screen; otherwise it changes after a push and pop.
+		.toolbarTitleDisplayMode(.inlineLarge)
+		// Item-based: this screen is itself pushed by a destination NavigationLink,
+		// and a value-based link here would be resolved beneath it.
+		.navigationDestination(item: $selectedSemester) { item in
+			GradeEntryView(item: item, viewModel: viewModel)
+				.navigationTransition(.zoom(sourceID: item.id, in: transitionNamespace))
+		}
+		.navigationDestination(isPresented: $showsRequirements) {
+			CreditRequirementsView(viewModel: viewModel)
+				.navigationTransition(.zoom(sourceID: CreditTransitionID.requirements, in: transitionNamespace))
+		}
+		.task { await viewModel.load() }
 	}
 
-	private func semesterGrid(_ semesters: [TakenSemester]) -> some View {
+	/// "N Semesters" once loaded; empty (no subtitle) while loading or on error.
+	private var semesterCountText: String {
+		guard viewModel.state == .loaded else { return "" }
+		let count = viewModel.semesters.count
+		return count == 1
+			? String(localized: "1 Semester", bundle: .module)
+			: String(localized: "\(count) Semesters", bundle: .module)
+	}
+}
+
+// MARK: - Layout
+
+private enum CreditCardMetrics {
+	static let padding: CGFloat = 8
+	/// Concentric with the silhouette's 4pt day columns: inner radius + padding.
+	static let cornerRadius: CGFloat = 4 + padding
+	/// For the larger summary cards, which use double padding.
+	static let largeCornerRadius: CGFloat = cornerRadius + padding
+}
+
+private enum CreditTransitionID {
+	static let requirements = "credit-requirements"
+}
+
+/// The scrolling content: the summary section, then the semester grid. The only
+/// subview that reads the view model; it hands each card just the values it shows.
+private struct CreditsOverview: View {
+	let semesters: [TakenSemester]
+	let viewModel: CreditCalculationViewModel
+	let namespace: Namespace.ID
+	let onSelectSemester: (TakenSemester) -> Void
+	let onOpenRequirements: () -> Void
+
+	private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+
+	var body: some View {
+		let summary = viewModel.overallSummary
+
 		ScrollView {
 			VStack(alignment: .leading, spacing: 28) {
 				VStack(alignment: .leading, spacing: 12) {
-					sectionHeader(String(localized: "Summary", bundle: .module))
-					gpaTrendCard
-					summaryCard
+					CreditSectionHeader(title: String(localized: "Summary", bundle: .module))
+
+					GPATrendCard(points: viewModel.gpaTrend, isReady: viewModel.isOverallSummaryReady)
+
+					GPASummaryCard(
+						gpa: summary.gpa,
+						earnedCredits: summary.earnedCredits,
+						graduationCredits: viewModel.requirements.graduation,
+						isReady: viewModel.isOverallSummaryReady,
+						namespace: namespace,
+						onTap: onOpenRequirements
+					)
 
 					Text("GPA and credits are estimates based on the grades you enter, and are for your reference only. Confirm your graduation requirements with KAIST's official academic records.", bundle: .module)
 						.font(.footnote)
@@ -87,10 +136,18 @@ struct CreditCalculationView: View {
 				}
 
 				VStack(alignment: .leading, spacing: 12) {
-					sectionHeader(String(localized: "Semesters", bundle: .module))
+					CreditSectionHeader(title: String(localized: "Semesters", bundle: .module))
+
 					LazyVGrid(columns: columns, spacing: 16) {
 						ForEach(semesters) { item in
-							semesterCell(item)
+							SemesterCard(
+								item: item,
+								timetable: viewModel.timetables[item.id],
+								summary: viewModel.summary(for: item),
+								namespace: namespace,
+								onSelect: { onSelectSemester(item) }
+							)
+							.task { await viewModel.loadTimetable(for: item) }
 						}
 					}
 				}
@@ -99,90 +156,111 @@ struct CreditCalculationView: View {
 			.contentWidth()
 		}
 	}
+}
 
-	/// Matches the Timetable screen's section titles, e.g. its lecture list's.
-	private func sectionHeader(_ title: String) -> some View {
+/// Matches the Timetable screen's section titles, e.g. its lecture list's.
+private struct CreditSectionHeader: View {
+	let title: String
+
+	var body: some View {
 		Text(title)
 			.font(.title3)
 			.fontWeight(.bold)
 			.accessibilityAddTraits(.isHeader)
 	}
+}
 
-	private static let trendChartHeight: CGFloat = 160
+// MARK: - Summary
 
-	private var gpaTrendCard: some View {
-		let points = viewModel.gpaTrend
+private struct GPATrendCard: View {
+	let points: [SemesterGPA]
+	let isReady: Bool
 
-		return VStack(alignment: .leading, spacing: 12) {
+	private static let chartHeight: CGFloat = 160
+
+	var body: some View {
+		VStack(alignment: .leading, spacing: 12) {
 			Text("GPA by Semester", bundle: .module)
 				.font(.subheadline)
 				.foregroundStyle(.secondary)
 
-			if !viewModel.isOverallSummaryReady {
+			if !isReady {
 				// Charts aren't redacted; stand in with a plain block while loading.
-				RoundedRectangle(cornerRadius: Self.cardCornerRadius)
+				RoundedRectangle(cornerRadius: CreditCardMetrics.cornerRadius)
 					.fill(.quaternary)
-					.frame(height: Self.trendChartHeight)
+					.frame(height: Self.chartHeight)
 			} else if points.isEmpty {
 				Text("Enter grades to see your GPA by semester.", bundle: .module)
 					.font(.footnote)
 					.foregroundStyle(.secondary)
-					.frame(maxWidth: .infinity, minHeight: Self.trendChartHeight)
+					.frame(maxWidth: .infinity, minHeight: Self.chartHeight)
 			} else {
 				GPATrendChart(points: points)
-					.frame(height: Self.trendChartHeight)
+					.frame(height: Self.chartHeight)
 			}
 		}
-		.padding(Self.cardPadding * 2)
-		.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius + Self.cardPadding))
+		.padding(CreditCardMetrics.padding * 2)
+		.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: CreditCardMetrics.largeCornerRadius))
 	}
+}
 
-	private static let requirementsTransitionID = "credit-requirements"
+/// Cumulative GPA and credits towards graduation; opens Credit Requirements.
+private struct GPASummaryCard: View {
+	let gpa: Double?
+	let earnedCredits: Int
+	let graduationCredits: Int
+	/// Semesters load one by one; until all have, the card is redacted and disabled.
+	let isReady: Bool
+	let namespace: Namespace.ID
+	let onTap: () -> Void
 
-	private var summaryCard: some View {
-		let summary = viewModel.overallSummary
-		let earned = summary.earnedCredits
-		let graduationCredits = viewModel.requirements.graduation
-		let cornerRadius = Self.cardCornerRadius + Self.cardPadding
+	private let cornerRadius = CreditCardMetrics.largeCornerRadius
 
-		return Button {
-			showsRequirements = true
-		} label: {
-			summaryCardContent(gpa: summary.gpa, earned: earned, graduationCredits: graduationCredits)
-				.padding(Self.cardPadding * 2)
+	var body: some View {
+		Button(action: onTap) {
+			GPASummaryContent(gpa: gpa, earnedCredits: earnedCredits, graduationCredits: graduationCredits)
+				.padding(CreditCardMetrics.padding * 2)
 				.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: cornerRadius))
 				.contentShape(.rect(cornerRadius: cornerRadius))
 		}
 		.buttonStyle(.plain)
 		.accessibilityHint(String(localized: "Shows credits by requirement", bundle: .module))
-		.disabled(!viewModel.isOverallSummaryReady)
-		.matchedTransitionSource(id: Self.requirementsTransitionID, in: transitionNamespace) { source in
+		.disabled(!isReady)
+		.matchedTransitionSource(id: CreditTransitionID.requirements, in: namespace) { source in
 			source.clipShape(.rect(cornerRadius: cornerRadius))
 		}
-		// Semesters load one by one; don't show a partial total.
-		.redacted(reason: viewModel.isOverallSummaryReady ? [] : .placeholder)
+		.redacted(reason: isReady ? [] : .placeholder)
 	}
+}
 
-	private func summaryCardContent(gpa: Double?, earned: Int, graduationCredits: Int) -> some View {
+/// GPA out of 4.3 and credits against the graduation minimum, with a progress bar
+/// and a trailing chevron. Shared by the Credits and Timetable screens' cards, which
+/// each add their own card chrome and action.
+struct GPASummaryContent: View {
+	let gpa: Double?
+	let earnedCredits: Int
+	let graduationCredits: Int
+
+	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
 			HStack(alignment: .firstTextBaseline) {
-				summaryValue(
+				SummaryValue(
 					title: String(localized: "GPA", bundle: .module),
-					value: gpaText(gpa),
+					value: formattedGPA(gpa),
 					total: "4.3",
 					alignment: .leading
 				)
 
 				Spacer()
 
-				summaryValue(
+				SummaryValue(
 					title: String(localized: "Credits", bundle: .module),
-					value: "\(earned)",
+					value: "\(earnedCredits)",
 					total: "\(graduationCredits)",
 					alignment: .trailing
 				)
 
-				// Opens Credit Requirements; matches the semester cards' chevron.
+				// Signals the card opens another screen, like the semester cards' chevron.
 				Image(systemName: "chevron.right")
 					.font(.subheadline)
 					.fontWeight(.semibold)
@@ -190,15 +268,23 @@ struct CreditCalculationView: View {
 					.accessibilityHidden(true)
 			}
 
-			ProgressView(value: Double(min(earned, graduationCredits)), total: Double(max(graduationCredits, 1)))
+			ProgressView(value: Double(min(earnedCredits, graduationCredits)), total: Double(max(graduationCredits, 1)))
 				.progressViewStyle(ThickLinearProgressViewStyle(height: 18))
-				.tint(earned >= graduationCredits ? .green : .accentColor)
+				.tint(earnedCredits >= graduationCredits ? .green : .accentColor)
 				.accessibilityLabel(String(localized: "Credits towards graduation", bundle: .module))
-				.accessibilityValue(String(localized: "\(earned) of \(graduationCredits) credits", bundle: .module))
+				.accessibilityValue(String(localized: "\(earnedCredits) of \(graduationCredits) credits", bundle: .module))
 		}
 	}
+}
 
-	private func summaryValue(title: String, value: String, total: String, alignment: HorizontalAlignment) -> some View {
+/// A title over "value/total", e.g. "GPA" over "3.7/4.3".
+private struct SummaryValue: View {
+	let title: String
+	let value: String
+	let total: String
+	let alignment: HorizontalAlignment
+
+	var body: some View {
 		VStack(alignment: alignment, spacing: 2) {
 			Text(title)
 				.font(.subheadline)
@@ -216,18 +302,25 @@ struct CreditCalculationView: View {
 		}
 		.accessibilityElement(children: .combine)
 	}
+}
 
-	private func semesterCell(_ item: TakenSemester) -> some View {
-		let timetable = viewModel.timetables[item.id]
-		let summary = viewModel.summary(for: item)
+// MARK: - Semesters
 
-		return Button {
-			selectedSemester = item
-		} label: {
+/// One semester's silhouette with its GPA and credits; opens grade entry.
+private struct SemesterCard: View {
+	let item: TakenSemester
+	/// `nil` until the semester's table loads; the card is redacted and disabled until then.
+	let timetable: Timetable?
+	let summary: SemesterGradeSummary?
+	let namespace: Namespace.ID
+	let onSelect: () -> Void
+
+	var body: some View {
+		Button(action: onSelect) {
 			VStack(alignment: .leading, spacing: 8) {
 				HStack(spacing: 4) {
 					Text(item.title)
-				
+
 					Image(systemName: "chevron.right")
 						.foregroundStyle(.tertiary)
 
@@ -246,7 +339,7 @@ struct CreditCalculationView: View {
 					.aspectRatio(1, contentMode: .fit)
 
 				HStack(spacing: 4) {
-					Text(String(localized: "\(gpaText(summary?.gpa)) GPA", bundle: .module))
+					Text(String(localized: "\(formattedGPA(summary?.gpa)) GPA", bundle: .module))
 
 					Spacer()
 
@@ -262,29 +355,17 @@ struct CreditCalculationView: View {
 				// Placeholder until the semester's table arrives.
 				.redacted(reason: timetable == nil ? .placeholder : [])
 			}
-			.padding(Self.cardPadding)
-			.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: Self.cardCornerRadius))
-			.contentShape(.rect(cornerRadius: Self.cardCornerRadius))
+			.padding(CreditCardMetrics.padding)
+			.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: CreditCardMetrics.cornerRadius))
+			.contentShape(.rect(cornerRadius: CreditCardMetrics.cornerRadius))
 		}
 		.buttonStyle(.plain)
 		.accessibilityHint(String(localized: "Enter grades", bundle: .module))
 		.disabled(timetable == nil)
 		// Zoom from the whole card, keeping its rounded corners during the transition.
-		.matchedTransitionSource(id: item.id, in: transitionNamespace) { source in
-			source.clipShape(.rect(cornerRadius: Self.cardCornerRadius))
+		.matchedTransitionSource(id: item.id, in: namespace) { source in
+			source.clipShape(.rect(cornerRadius: CreditCardMetrics.cornerRadius))
 		}
-		.task { await viewModel.loadTimetable(for: item) }
-	}
-
-	private func gpaText(_ gpa: Double?) -> String { formattedGPA(gpa) }
-
-	/// "N Semesters" once loaded; empty (no subtitle) while loading or on error.
-	private var semesterCountText: String {
-		guard viewModel.state == .loaded else { return "" }
-		let count = viewModel.semesters.count
-		return count == 1
-			? String(localized: "1 Semester", bundle: .module)
-			: String(localized: "\(count) Semesters", bundle: .module)
 	}
 }
 
