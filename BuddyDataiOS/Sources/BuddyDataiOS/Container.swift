@@ -315,6 +315,11 @@ extension Container: @retroactive AutoRegistering {
       )
     }
 
+    lectureGradeUseCase.register {
+      (try? LectureGradeUseCase.makeContainer()).map { LectureGradeUseCase(modelContainer: $0) }
+    }
+    .scope(.singleton)
+
     timetableThemeUseCase.register {
       TimetableThemeUseCase(
         timetableThemeRepository: self.timetableThemeRepository.resolve(),

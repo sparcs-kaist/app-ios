@@ -1,0 +1,303 @@
+//
+//  CreditCalculationViewModel.swift
+//  BuddyFeature
+//
+//  Created by Soongyu Kwon on 25/09/2026.
+//
+
+import SwiftUI
+import Observation
+import Factory
+import BuddyDomain
+import WidgetKit
+
+/// One semester the user has taken lectures in.
+struct TakenSemester: Identifiable, Hashable {
+  let id: String
+  let title: String
+  /// The matching OTL semester, needed to fetch its "My Table". `nil` when the
+  /// semester list does not include it; the cell then shows an empty silhouette.
+  let semester: Semester?
+
+  /// Compact axis label such as "24S", from the "year-Type" `id`; falls back to `title`.
+  var shortTitle: String {
+    let parts = id.split(separator: "-")
+    guard parts.count == 2, let type = SemesterType(rawValue: String(parts[1])) else { return title }
+    return "\(parts[0].suffix(2))\(type.shortCode)"
+  }
+}
+
+/// One point on the GPA trend chart.
+struct SemesterGPA: Identifiable, Equatable {
+  let id: String
+  let label: String
+  let title: String
+  let gpa: Double
+}
+
+@MainActor
+@Observable
+final class CreditCalculationViewModel {
+  @ObservationIgnored @Injected(\.v2LectureUseCase) private var lectureUseCase: LectureUseCaseProtocol?
+  @ObservationIgnored @Injected(\.v2TimetableUseCase) private var timetableUseCase: TimetableUseCaseProtocol?
+  @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
+  @ObservationIgnored @Injected(\.lectureGradeUseCase) private var lectureGradeUseCase: LectureGradeUseCaseProtocol?
+  @ObservationIgnored @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol?
+
+  private(set) var state: CreditCalculationViewState = .loading
+  private(set) var semesters: [TakenSemester] = []
+  private(set) var timetables: [String: Timetable] = [:]
+  /// Grades the user entered, keyed by lecture ID.
+  private(set) var grades: [Int: LectureGrade] = [:]
+
+  /// The signed-in OTL user; grades are stored per user.
+  @ObservationIgnored private var userID: Int?
+  /// The user's majors, listed first in the credit breakdown.
+  private(set) var majorDepartments: [Department] = []
+  /// Minimum credits per requirement type; defaults until the user edits them.
+  private(set) var requirements = CreditRequirements()
+  @ObservationIgnored private let requirementsStore = CreditRequirementsStore()
+  @ObservationIgnored private let snapshotStore = CreditSummarySnapshotStore()
+
+  /// Set while `load()` runs, so overlapping calls (the Timetable card appearing,
+  /// the Credits screen opening) don't fetch twice.
+  @ObservationIgnored private var isLoadInFlight = false
+
+  /// Semesters whose table is loading or already loaded, so cells appearing
+  /// don't refetch.
+  @ObservationIgnored private var requestedTimetableIDs: Set<String> = []
+
+  init() {}
+
+  /// Starts already loaded with fixed data, for previews.
+  init(
+    semesters: [TakenSemester],
+    timetables: [String: Timetable],
+    grades: [Int: LectureGrade] = [:],
+    majorDepartments: [Department] = []
+  ) {
+    self.state = .loaded
+    self.majorDepartments = majorDepartments
+    self.semesters = semesters
+    self.timetables = timetables
+    self.grades = grades
+    self.requestedTimetableIDs = Set(semesters.map(\.id))
+  }
+
+  func load() async {
+    // Only the initial load and a retry after an error fetch; seeded data stays.
+    guard state != .loaded, !isLoadInFlight else { return }
+    isLoadInFlight = true
+    defer { isLoadInFlight = false }
+    // Also shows the skeleton again when retrying after an error.
+    state = .loading
+    guard let lectureUseCase, let timetableUseCase, let userUseCase else {
+      state = .error(message: String(localized: "Unexpected Error", bundle: .module))
+      return
+    }
+
+    do {
+      if await userUseCase.otlUser == nil {
+        try await userUseCase.fetchOTLUser()
+      }
+      guard let user = await userUseCase.otlUser else {
+        state = .error(message: String(localized: "Unexpected Error", bundle: .module))
+        return
+      }
+      userID = user.id
+      majorDepartments = user.majorDepartments
+      requirements = requirementsStore.requirements(userID: user.id)
+      // Grades are on-device; a failure here shouldn't block the semester list.
+      grades = (try? await lectureGradeUseCase?.grades(userID: user.id)) ?? [:]
+
+      async let history = lectureUseCase.fetchUserLectureHistory(userID: user.id)
+      async let allSemesters = timetableUseCase.getSemesters()
+      let semestersByID = Dictionary(
+        try await allSemesters.map { ($0.id, $0) },
+        uniquingKeysWith: { first, _ in first }
+      )
+
+      semesters = Self.takenSemesters(from: try await history, semestersByID: semestersByID)
+      state = .loaded
+      // The summary at the top needs every semester, not just the cards on screen.
+      await loadAllTimetables()
+      publishWidgetSnapshot()
+    } catch is CancellationError {
+      return
+    } catch {
+      state = .error(message: error.localizedDescription)
+    }
+  }
+
+  /// Every semester's lectures, oldest first.
+  private var allLectures: [Lecture] {
+    semesters.flatMap { timetables[$0.id]?.lectures ?? [] }
+  }
+
+  /// All lectures with retaken courses resolved to the attempt that counts (see `RetakeResolver`).
+  private var countedLectures: [Lecture] {
+    RetakeResolver.countedLectures(allLectures, grades: grades)
+  }
+
+  /// Attempts replaced by a retake, labelled "Retaken" in grade entry.
+  var supersededLectureIDs: Set<Int> {
+    RetakeResolver.supersededLectureIDs(allLectures, grades: grades)
+  }
+
+  /// Cumulative GPA and credits across every semester; a retaken course counts once.
+  var overallSummary: SemesterGradeSummary {
+    SemesterGradeSummary(lectures: countedLectures, grades: grades)
+  }
+
+  /// Credits taken per requirement type across every semester.
+  var creditBreakdown: CreditBreakdown {
+    CreditBreakdown(
+      lectures: countedLectures,
+      grades: grades,
+      majorDepartments: majorDepartments
+    )
+  }
+
+  /// Whether every semester's table has loaded, so `overallSummary` isn't a partial total.
+  var isOverallSummaryReady: Bool {
+    state == .loaded && semesters.allSatisfy { $0.semester == nil || timetables[$0.id] != nil }
+  }
+
+  /// Each semester's GPA in order, skipping semesters with no GPA yet.
+  var gpaTrend: [SemesterGPA] {
+    semesters.compactMap { item in
+      summary(for: item)?.gpa.map { SemesterGPA(id: item.id, label: item.shortTitle, title: item.title, gpa: $0) }
+    }
+  }
+
+  /// Refetches the history and every semester's My Table, bypassing the cache, for
+  /// the Timetable screen's pull-to-refresh. Keeps the current data on screen and
+  /// swaps in the new data at once; a semester that fails keeps its last table.
+  /// Does nothing before the first load, which happens when the card appears.
+  func refresh() async {
+    guard state == .loaded, !isLoadInFlight,
+          let lectureUseCase, let timetableUseCase, let userID else { return }
+    isLoadInFlight = true
+    defer { isLoadInFlight = false }
+
+    do {
+      async let history = lectureUseCase.fetchUserLectureHistory(userID: userID)
+      async let allSemesters = timetableUseCase.refreshSemesters()
+      let semestersByID = Dictionary(
+        try await allSemesters.map { ($0.id, $0) },
+        uniquingKeysWith: { first, _ in first }
+      )
+      let refreshedSemesters = Self.takenSemesters(from: try await history, semestersByID: semestersByID)
+
+      let refreshedTables = await withTaskGroup(of: (String, Timetable?).self) { group in
+        for item in refreshedSemesters {
+          guard let semester = item.semester else { continue }
+          group.addTask {
+            (item.id, try? await timetableUseCase.refreshMyTable(semester: semester))
+          }
+        }
+        var tables: [String: Timetable] = [:]
+        for await (id, table) in group {
+          if let table = table ?? timetables[id] { tables[id] = table }
+        }
+        return tables
+      }
+
+      semesters = refreshedSemesters
+      timetables = refreshedTables
+      requestedTimetableIDs = Set(refreshedTables.keys)
+      publishWidgetSnapshot()
+    } catch {
+      // Keep showing the last loaded data.
+    }
+  }
+
+  /// Shares the totals with the Credits widgets (iPhone, and the watch through the
+  /// session bridge) once they're complete, only when the numbers actually changed.
+  private func publishWidgetSnapshot() {
+    guard isOverallSummaryReady else { return }
+    let summary = overallSummary
+    let snapshot = CreditSummarySnapshot(
+      gpa: summary.gpa,
+      earnedCredits: summary.earnedCredits,
+      graduationCredits: requirements.graduation
+    )
+    // Always sent: the watch may have missed earlier values (unpaired, or totals
+    // stored before it could receive them), and resending unchanged ones is cheap.
+    sessionBridgeService?.updateCreditSummary(snapshot)
+
+    if let current = snapshotStore.snapshot, current.hasSameValues(as: snapshot) { return }
+    snapshotStore.save(snapshot)
+    WidgetCenter.shared.reloadTimelines(ofKind: CreditSummarySnapshotStore.widgetKind)
+  }
+
+  /// Semesters with lectures, oldest first. The history's semester IDs share
+  /// `Semester.id`'s "year-Type" format.
+  private static func takenSemesters(
+    from history: OTLUserLectureHistory,
+    semestersByID: [String: Semester]
+  ) -> [TakenSemester] {
+    history.semesters
+      .filter { !$0.lectures.isEmpty }
+      .sorted { ($0.year, $0.semesterType.intValue) < ($1.year, $1.semesterType.intValue) }
+      .map { entry in
+        TakenSemester(
+          id: entry.id,
+          title: "\(entry.year) \(entry.semesterType.description)",
+          semester: semestersByID[entry.id]
+        )
+      }
+  }
+
+  func summary(for item: TakenSemester) -> SemesterGradeSummary? {
+    timetables[item.id].map { SemesterGradeSummary(lectures: $0.lectures, grades: grades) }
+  }
+
+  func updateRequirements(_ requirements: CreditRequirements) {
+    self.requirements = requirements
+    publishWidgetSnapshot()
+    guard let userID else { return }
+    requirementsStore.save(requirements, userID: userID)
+  }
+
+  /// Updates the grade immediately and persists it, reverting if saving fails.
+  func setGrade(_ grade: LectureGrade?, lectureID: Int) {
+    let previous = grades[lectureID]
+    grades[lectureID] = grade
+    publishWidgetSnapshot()
+    guard let lectureGradeUseCase, let userID else { return }
+
+    Task {
+      do {
+        try await lectureGradeUseCase.setGrade(grade, lectureID: lectureID, userID: userID)
+      } catch {
+        // Skip the revert if the user already picked something newer.
+        if grades[lectureID] == grade { grades[lectureID] = previous }
+      }
+    }
+  }
+
+  private func loadAllTimetables() async {
+    await withTaskGroup(of: Void.self) { group in
+      for item in semesters {
+        group.addTask { await self.loadTimetable(for: item) }
+      }
+    }
+  }
+
+  /// Fetches a semester's "My Table" once. Also called when its cell appears,
+  /// which retries a table whose earlier fetch failed.
+  func loadTimetable(for item: TakenSemester) async {
+    guard let semester = item.semester, let timetableUseCase,
+          requestedTimetableIDs.insert(item.id).inserted else { return }
+
+    do {
+      timetables[item.id] = try await timetableUseCase.getMyTable(semester: semester)
+      // A semester that failed earlier may be the last one the totals were waiting for.
+      publishWidgetSnapshot()
+    } catch {
+      // Allow a retry the next time the cell appears.
+      requestedTimetableIDs.remove(item.id)
+    }
+  }
+}

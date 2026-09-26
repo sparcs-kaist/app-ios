@@ -21,6 +21,7 @@ public struct TimetableSilhouetteView: View {
   let visibleDays: [DayType]?
   let beginTime: Int?
   let endTime: Int?
+  let trackColor: Color?
 
   @Environment(\.timetableTheme) private var theme
 
@@ -31,17 +32,22 @@ public struct TimetableSilhouetteView: View {
   ///   - endTime: An optional custom end of the grid, in minutes from midnight.
   ///     Defaults to the latest class.
   ///
+  ///   - trackColor: The empty day column's fill. Nil uses the system's quaternary
+  ///     fill; pass a colour that reads over a themed background, e.g. in widgets.
+  ///
   /// Custom times only widen the grid, matching `TimetableGrid`.
   public init(
     timetable: Timetable?,
     visibleDays: [DayType]? = nil,
     beginTime: Int? = nil,
-    endTime: Int? = nil
+    endTime: Int? = nil,
+    trackColor: Color? = nil
   ) {
     self.timetable = timetable
     self.visibleDays = visibleDays.flatMap { $0.isEmpty ? nil : Array(Set($0)).sorted() }
     self.beginTime = beginTime
     self.endTime = endTime
+    self.trackColor = trackColor
   }
 
   public var body: some View {
@@ -68,7 +74,7 @@ public struct TimetableSilhouetteView: View {
 
     return ZStack(alignment: .topLeading) {
       RoundedRectangle(cornerRadius: 4)
-        .fill(.quaternary)
+        .fill(trackColor.map(AnyShapeStyle.init) ?? AnyShapeStyle(.quaternary))
       GeometryReader { geometry in
         ForEach(activities) { activity in
           block(color: theme.color(forActivityID: activity.id))

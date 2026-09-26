@@ -110,6 +110,8 @@ struct BuddyTimetableWidgetEntryView: View {
   var body: some View {
     Group {
       switch family {
+      case .systemSmall:
+        TimetableSmallWidgetView(entry: entry)
 			case .systemLarge, .systemExtraLargePortrait:
         TimetableLargeWidgetView(entry: entry)
       default:
@@ -137,9 +139,9 @@ struct BuddyTimetableWidget: Widget {
     }
 		.supportedFamilies({
 			if #available(iOS 27.0, *) {
-				return [.systemLarge, .systemExtraLargePortrait]
+				return [.systemSmall, .systemLarge, .systemExtraLargePortrait]
 			}
-			return [.systemLarge]
+			return [.systemSmall, .systemLarge]
 		}())
 
     .configurationDisplayName("Timetable")
@@ -162,4 +164,34 @@ struct BuddyTimetableWidget: Widget {
 
   TimetableEntry(date: Date(), timetable: nil, signInRequired: false, relevance: .init(score: 50))
   TimetableEntry(date: Date(), timetable: nil, signInRequired: true, relevance: .init(score: 50))
+}
+
+#Preview(as: .systemSmall) {
+  BuddyTimetableWidget()
+} timeline: {
+  for timetable in Timetable.mockList {
+    TimetableEntry(
+      date: Date(),
+      timetable: timetable,
+      signInRequired: false,
+      relevance: .init(score: 50)
+    )
+  }
+
+  // Themed backgrounds: labels and empty columns must still read over them.
+  for background in ["1E3A5F", "F4D35E"] {
+    TimetableEntry(
+      date: Date(),
+      timetable: Timetable.mockList[0],
+      signInRequired: false,
+      relevance: .init(score: 50),
+      theme: TimetableTheme(
+        id: "preview-\(background)",
+        name: "Preview",
+        hexColors: TimetableTheme.default.hexColors,
+        textColorHex: TimetableTheme.default.textColorHex,
+        backgroundColorHex: background
+      )
+    )
+  }
 }

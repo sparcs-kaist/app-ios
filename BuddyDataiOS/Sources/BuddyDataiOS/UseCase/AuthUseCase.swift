@@ -10,6 +10,7 @@ import Combine
 import os
 import BuddyDomain
 import BuddyDataCore
+import Factory
 import WidgetKit
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "Auth")
@@ -247,6 +248,10 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()
     }
+    // Cleared before the reload, so the Credits widgets can't show this user's GPA,
+    // on the watch too.
+    CreditSummarySnapshotStore().clear()
+    Container.shared.sessionBridgeService()?.updateCreditSummary(nil)
     WidgetCenter.shared.reloadAllTimelines()
     tokenStorage.clearTokens()
     _isAuthenticatedSubject.value = false
