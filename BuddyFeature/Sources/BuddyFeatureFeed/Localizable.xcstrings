@@ -355,6 +355,22 @@
         }
       }
     },
+    "Reply" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reply"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답글 달기"
+          }
+        }
+      }
+    },
     "Report" : {
       "localizations" : {
         "en" : {

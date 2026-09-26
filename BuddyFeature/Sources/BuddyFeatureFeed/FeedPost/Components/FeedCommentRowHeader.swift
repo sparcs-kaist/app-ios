@@ -20,6 +20,8 @@ struct FeedCommentRowHeader: View {
   let downvotes: Int
   let showFullContent: Bool
   @Binding var isHiddenCommentExpanded: Bool
+  /// `nil` for replies, which can't be replied to.
+  let onReply: (() -> Void)?
   let onTranslate: () -> Void
   let onDelete: () async -> Void
   let onReport: (FeedReportType) async -> Void
@@ -72,6 +74,9 @@ struct FeedCommentRowHeader: View {
         .tint(.secondary)
       } else {
         Menu {
+          if let onReply {
+            Button(String(localized: "Reply", bundle: .module), systemImage: "arrowshape.turn.up.left") { onReply() }
+          }
           Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { onTranslate() }
           Divider()
           if isMyComment {
