@@ -33,6 +33,7 @@ struct CreditCalculationView: View {
 	var body: some View {
 		content
 			.navigationTitle(String(localized: "Credits", bundle: .module))
+			.navigationSubtitle(semesterCountText)
 			// Explicit, like the Timetable screen; otherwise it changes after a push and pop.
 			.toolbarTitleDisplayMode(.inlineLarge)
 			// Item-based: this screen is itself pushed by a destination NavigationLink,
@@ -73,19 +74,38 @@ struct CreditCalculationView: View {
 
 	private func semesterGrid(_ semesters: [TakenSemester]) -> some View {
 		ScrollView {
-			VStack(spacing: 16) {
-				gpaTrendCard
-				summaryCard
+			VStack(alignment: .leading, spacing: 28) {
+				VStack(alignment: .leading, spacing: 12) {
+					sectionHeader(String(localized: "Summary", bundle: .module))
+					gpaTrendCard
+					summaryCard
 
-				LazyVGrid(columns: columns, spacing: 16) {
-					ForEach(semesters) { item in
-						semesterCell(item)
+					Text("GPA and credits are estimates based on the grades you enter, and are for your reference only. Confirm your graduation requirements with KAIST's official academic records.", bundle: .module)
+						.font(.footnote)
+						.foregroundStyle(.secondary)
+						.padding(.horizontal, 4)
+				}
+
+				VStack(alignment: .leading, spacing: 12) {
+					sectionHeader(String(localized: "Semesters", bundle: .module))
+					LazyVGrid(columns: columns, spacing: 16) {
+						ForEach(semesters) { item in
+							semesterCell(item)
+						}
 					}
 				}
 			}
 			.padding()
 			.contentWidth()
 		}
+	}
+
+	/// Matches the Timetable screen's section titles, e.g. its lecture list's.
+	private func sectionHeader(_ title: String) -> some View {
+		Text(title)
+			.font(.title3)
+			.fontWeight(.bold)
+			.accessibilityAddTraits(.isHeader)
 	}
 
 	private static let trendChartHeight: CGFloat = 160
@@ -256,11 +276,22 @@ struct CreditCalculationView: View {
 		.task { await viewModel.loadTimetable(for: item) }
 	}
 
-	/// Up to two decimals, dropping a trailing zero (4.30 → 4.3, 4.00 → 4.0), or a
-	/// dash until a grade that counts toward GPA is entered.
-	private func gpaText(_ gpa: Double?) -> String {
-		gpa?.formatted(.number.precision(.fractionLength(1...2))) ?? "–"
+	private func gpaText(_ gpa: Double?) -> String { formattedGPA(gpa) }
+
+	/// "N Semesters" once loaded; empty (no subtitle) while loading or on error.
+	private var semesterCountText: String {
+		guard viewModel.state == .loaded else { return "" }
+		let count = viewModel.semesters.count
+		return count == 1
+			? String(localized: "1 Semester", bundle: .module)
+			: String(localized: "\(count) Semesters", bundle: .module)
 	}
+}
+
+/// Up to two decimals, dropping a trailing zero (4.30 → 4.3, 4.00 → 4.0), or a
+/// dash until a grade that counts toward GPA is entered.
+func formattedGPA(_ gpa: Double?) -> String {
+	gpa?.formatted(.number.precision(.fractionLength(1...2))) ?? "–"
 }
 
 
