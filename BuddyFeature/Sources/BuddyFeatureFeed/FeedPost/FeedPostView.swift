@@ -21,7 +21,6 @@ struct FeedPostView: View {
   @Binding var post: FeedPost
   let onDelete: (() async throws -> Void)?
 
-  @Environment(\.keyboardShowing) private var keyboardShowing
   @Environment(\.dismiss) private var dismiss
 
   @State private var showDeleteConfirmation: Bool = false
@@ -154,7 +153,7 @@ struct FeedPostView: View {
         )
         .focused($isWritingCommentFocusState)
 
-        if keyboardShowing {
+        if isWritingCommentFocusState {
           Toggle(String(localized: "Write Anonymously", bundle: .module), isOn: $viewModel.isAnonymous)
             .foregroundStyle(.secondary)
             .textCase(.uppercase)
@@ -202,9 +201,9 @@ struct FeedPostView: View {
         .transition(.move(edge: .trailing).combined(with: .opacity))
       }
     }
-    .padding(keyboardShowing ? [.horizontal, .vertical] : [.horizontal])
+    .padding(isWritingCommentFocusState ? [.horizontal, .vertical] : [.horizontal])
     .contentWidth()
-    .animation(.spring, value: keyboardShowing)
+    .animation(.spring, value: isWritingCommentFocusState)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
       value: viewModel.text.isEmpty
@@ -223,7 +222,6 @@ struct FeedPostView: View {
   NavigationStack {
     FeedPostView(post: .constant(FeedPost.mock), onDelete: nil)
       .environment(spoilerContents)
-      .addKeyboardVisibilityToEnvironment()
   }
 }
 
@@ -233,7 +231,6 @@ struct FeedPostView: View {
   NavigationStack {
     FeedPostView(post: .constant(FeedPost.mockList[6]), onDelete: nil)
       .environment(spoilerContents)
-      .addKeyboardVisibilityToEnvironment()
   }
 }
 
@@ -243,6 +240,5 @@ struct FeedPostView: View {
   NavigationStack {
     FeedPostView(post: .constant(FeedPost.mockList[0]), onDelete: {})
       .environment(spoilerContents)
-      .addKeyboardVisibilityToEnvironment()
   }
 }
