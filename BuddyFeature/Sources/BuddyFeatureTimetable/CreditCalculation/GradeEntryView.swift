@@ -65,7 +65,7 @@ private struct GradeEntryLectureList: View {
 
 			ForEach(lectures) { lecture in
 				HStack {
-					LectureListRow(lecture: lecture, showsLocation: false)
+					LectureListRow(lecture: lecture, detail: .grading)
 					GradeMenu(lecture: lecture, grade: grade(lecture))
 				}
 

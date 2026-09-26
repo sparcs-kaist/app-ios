@@ -10,9 +10,16 @@ import BuddyDomain
 import TimetableUI
 
 struct LectureListRow: View {
+	/// What the caption line under the name shows.
+	enum Detail {
+		/// Code, professor and location.
+		case standard
+		/// Code and lecture type, for grade entry, where the row shares its width with a grade button.
+		case grading
+	}
+
 	let lecture: Lecture
-	/// Hidden where the row shares its width with other controls, like grade entry.
-	var showsLocation: Bool = true
+	var detail: Detail = .standard
 	@Environment(\.timetableTheme) private var theme
 
 	var body: some View {
@@ -28,9 +35,12 @@ struct LectureListRow: View {
 				
 				HStack {
 					makeLabel(lecture.code, systemImage: "text.book.closed")
-					makeLabel(lecture.professors.first?.name ?? "Unknown", systemImage: "person")
-					if showsLocation {
+					switch detail {
+					case .standard:
+						makeLabel(lecture.professors.first?.name ?? "Unknown", systemImage: "person")
 						makeLabel(lecture.classes.first?.location ?? "Unknown", systemImage: "mappin.and.ellipse")
+					case .grading:
+						makeLabel(lecture.type.displayName.localized(), systemImage: "tag")
 					}
 				}
 				.font(.caption)
@@ -68,4 +78,19 @@ struct LectureListRow: View {
 				.offset(y: -1)
 		}
 	}
+}
+
+#Preview {
+	VStack(alignment: .leading, spacing: 16) {
+		ForEach(Lecture.mockList.prefix(3)) { lecture in
+			LectureListRow(lecture: lecture)
+			// Grade entry: a 44pt grade button sits beside the row.
+			HStack {
+				LectureListRow(lecture: lecture, detail: .grading)
+				Capsule().fill(.orange.opacity(0.15)).frame(width: 44, height: 32)
+			}
+			Divider()
+		}
+	}
+	.padding()
 }
