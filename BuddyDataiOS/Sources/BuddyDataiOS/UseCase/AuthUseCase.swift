@@ -247,6 +247,8 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()
     }
+    // Cleared before the reload, so the Credits widget can't show this user's GPA.
+    CreditSummarySnapshotStore().clear()
     WidgetCenter.shared.reloadAllTimelines()
     tokenStorage.clearTokens()
     _isAuthenticatedSubject.value = false

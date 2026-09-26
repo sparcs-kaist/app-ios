@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import WidgetKit
 
 /// One semester the user has taken lectures in.
 struct TakenSemester: Identifiable, Hashable {
@@ -55,6 +56,7 @@ final class CreditCalculationViewModel {
   /// Minimum credits per requirement type; defaults until the user edits them.
   private(set) var requirements = CreditRequirements()
   @ObservationIgnored private let requirementsStore = CreditRequirementsStore()
+  @ObservationIgnored private let snapshotStore = CreditSummarySnapshotStore()
 
   /// Set while `load()` runs, so overlapping calls (the Timetable card appearing,
   /// the Credits screen opening) don't fetch twice.
@@ -118,6 +120,7 @@ final class CreditCalculationViewModel {
       state = .loaded
       // The summary at the top needs every semester, not just the cards on screen.
       await loadAllTimetables()
+      publishWidgetSnapshot()
     } catch is CancellationError {
       return
     } catch {
@@ -202,9 +205,25 @@ final class CreditCalculationViewModel {
       semesters = refreshedSemesters
       timetables = refreshedTables
       requestedTimetableIDs = Set(refreshedTables.keys)
+      publishWidgetSnapshot()
     } catch {
       // Keep showing the last loaded data.
     }
+  }
+
+  /// Shares the totals with the Credits widget once they're complete, reloading it
+  /// only when the numbers actually changed.
+  private func publishWidgetSnapshot() {
+    guard isOverallSummaryReady else { return }
+    let summary = overallSummary
+    let snapshot = CreditSummarySnapshot(
+      gpa: summary.gpa,
+      earnedCredits: summary.earnedCredits,
+      graduationCredits: requirements.graduation
+    )
+    if let current = snapshotStore.snapshot, current.hasSameValues(as: snapshot) { return }
+    snapshotStore.save(snapshot)
+    WidgetCenter.shared.reloadTimelines(ofKind: CreditSummarySnapshotStore.widgetKind)
   }
 
   /// Semesters with lectures, oldest first. The history's semester IDs share
@@ -231,6 +250,7 @@ final class CreditCalculationViewModel {
 
   func updateRequirements(_ requirements: CreditRequirements) {
     self.requirements = requirements
+    publishWidgetSnapshot()
     guard let userID else { return }
     requirementsStore.save(requirements, userID: userID)
   }
@@ -239,6 +259,7 @@ final class CreditCalculationViewModel {
   func setGrade(_ grade: LectureGrade?, lectureID: Int) {
     let previous = grades[lectureID]
     grades[lectureID] = grade
+    publishWidgetSnapshot()
     guard let lectureGradeUseCase, let userID else { return }
 
     Task {
@@ -267,6 +288,8 @@ final class CreditCalculationViewModel {
 
     do {
       timetables[item.id] = try await timetableUseCase.getMyTable(semester: semester)
+      // A semester that failed earlier may be the last one the totals were waiting for.
+      publishWidgetSnapshot()
     } catch {
       // Allow a retry the next time the cell appears.
       requestedTimetableIDs.remove(item.id)

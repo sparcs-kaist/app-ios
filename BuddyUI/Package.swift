@@ -53,6 +53,7 @@ let package = Package(
 			dependencies: [
 				"TimetableUI",
 				"BuddyDomain",
+				"BuddySharedUI",
 				"Haptica",
 			]
 		),
