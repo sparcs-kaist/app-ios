@@ -87,22 +87,22 @@ struct FeedPostComposeView: View {
           .disabled(viewModel.isUploading)
         }
       }
-      .toolbar {
-        ToolbarItemGroup(placement: .keyboard) {
+      // A single bar that follows the keyboard, rather than separate
+      // `.keyboard` and `.bottomBar` toolbar items that swap in and out.
+      .safeAreaBar(edge: .bottom) {
+        HStack {
           Spacer()
           Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
           }
+          .labelStyle(.iconOnly)
+          .buttonStyle(.glass)
+          .buttonBorderShape(.circle)
+          .controlSize(.large)
           .disabled(viewModel.isUploading)
         }
-				
-				ToolbarItemGroup(placement: .bottomBar) {
-					Spacer()
-					Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
-						showPhotosPicker = true
-					}
-					.disabled(viewModel.isUploading)
-				}
+        .padding([.horizontal, .bottom])
+        .contentWidth()
       }
     }
     .alert(

@@ -43,6 +43,7 @@ struct FeedCommentRow: View {
           downvotes: comment.downvotes,
           showFullContent: showFullContent,
           isHiddenCommentExpanded: $isHiddenCommentExpanded,
+          onReply: comment.parentCommentID == nil ? onReply : nil,
           onTranslate: { showTranslateSheet = true },
           onDelete: { await viewModel.delete(comment: $comment) },
           onReport: { reason in await viewModel.reportComment(commentID: comment.id, reason: reason) }

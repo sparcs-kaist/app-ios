@@ -8,8 +8,8 @@
 import SwiftUI
 import BuddyDomain
 
-/// The comments list: loading placeholders, the loaded comment tree, or an
-/// error state.
+/// The comments list: loading placeholders, an empty placeholder, the loaded
+/// comment tree, or an error state.
 struct FeedCommentsSection: View {
   let state: FeedPostViewModel.ViewState
   @Binding var comments: [FeedComment]
@@ -35,6 +35,18 @@ struct FeedCommentsSection: View {
           Divider()
             .padding(.horizontal)
         }
+      }
+    case .loaded where comments.isEmpty:
+      VStack(spacing: 16) {
+        Divider()
+          .padding(.horizontal)
+
+        ContentUnavailableView(
+          String(localized: "No one has commented yet.", bundle: .module),
+          systemImage: "text.bubble",
+          description: Text("Be the first one to share your thoughts.", bundle: .module)
+        )
+        .scaleEffect(0.8)
       }
     case .loaded:
       LazyVStack(alignment: .leading, spacing: 16) {
