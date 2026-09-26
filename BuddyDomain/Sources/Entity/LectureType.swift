@@ -63,34 +63,34 @@ public enum LectureType: String, Equatable, Sendable, Codable {
 
 extension LectureType {
   public static func fromRawValue(_ rawValue: String) -> LectureType {
-    // The API can append a subcategory to the base type, e.g.
-    // "인문사회선택(핵심)" / "인문사회선택(일반)" for core / general HSS electives.
+    // The API appends a subcategory to HSS electives, in the request's language, e.g.
+    // "인문사회선택(인문-핵심)" / "Humanities & Social Elective(Social-General)".
     let parts = rawValue.split(separator: "(", maxSplits: 1, omittingEmptySubsequences: false)
     let baseType = parts.first.map { $0.trimmingCharacters(in: .whitespaces) } ?? rawValue
     let subcategory = parts.count > 1 ? parts[1].lowercased() : ""
 
+    if isHSEBaseType(baseType) {
+      return hseType(subcategory: subcategory)
+    }
+
     return switch baseType {
-    case "Basic Required":
+    case "Basic Required", "기초필수":
       .br
-    case "Basic Elective":
+    case "Basic Elective", "기초선택":
       .be
-    case "Major Required":
+    case "Major Required", "전공필수":
       .mr
-    case "Major Elective":
-      .me
-    case "Humanities and Social Elective", "인문사회선택":
-      hseType(subcategory: subcategory)
-    case "기초필수":
-      .br
-    case "기초선택":
-      .be
-    case "전공필수":
-      .mr
-    case "전공선택":
+    case "Major Elective", "전공선택":
       .me
     default:
       .etc
     }
+  }
+
+  /// "인문사회선택" / "인선", or "Humanities & Social Elective" (also spelt with "and").
+  private static func isHSEBaseType(_ baseType: String) -> Bool {
+    let normalized = baseType.replacingOccurrences(of: " ", with: "").lowercased()
+    return normalized.hasPrefix("인문사회") || normalized.hasPrefix("인선") || normalized.hasPrefix("humanities")
   }
 
   private static func hseType(subcategory: String) -> LectureType {
