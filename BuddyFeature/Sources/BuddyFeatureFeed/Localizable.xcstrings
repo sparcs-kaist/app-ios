@@ -83,6 +83,22 @@
         }
       }
     },
+    "Be the first one to share your thoughts." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Be the first one to share your thoughts."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 먼저 당신의 생각을 나눠보세요."
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "en" : {
@@ -271,6 +287,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "더보기"
+          }
+        }
+      }
+    },
+    "No one has commented yet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No one has commented yet."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 댓글이 없습니다."
           }
         }
       }
