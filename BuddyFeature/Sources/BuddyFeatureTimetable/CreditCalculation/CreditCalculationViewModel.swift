@@ -125,15 +125,30 @@ final class CreditCalculationViewModel {
     }
   }
 
-  /// Cumulative GPA and credits across every semester.
+  /// Every semester's lectures, oldest first.
+  private var allLectures: [Lecture] {
+    semesters.flatMap { timetables[$0.id]?.lectures ?? [] }
+  }
+
+  /// All lectures with retaken courses resolved to the attempt that counts (see `RetakeResolver`).
+  private var countedLectures: [Lecture] {
+    RetakeResolver.countedLectures(allLectures, grades: grades)
+  }
+
+  /// Attempts replaced by a retake, labelled "Retaken" in grade entry.
+  var supersededLectureIDs: Set<Int> {
+    RetakeResolver.supersededLectureIDs(allLectures, grades: grades)
+  }
+
+  /// Cumulative GPA and credits across every semester; a retaken course counts once.
   var overallSummary: SemesterGradeSummary {
-    SemesterGradeSummary(lectures: semesters.flatMap { timetables[$0.id]?.lectures ?? [] }, grades: grades)
+    SemesterGradeSummary(lectures: countedLectures, grades: grades)
   }
 
   /// Credits taken per requirement type across every semester.
   var creditBreakdown: CreditBreakdown {
     CreditBreakdown(
-      lectures: semesters.flatMap { timetables[$0.id]?.lectures ?? [] },
+      lectures: countedLectures,
       grades: grades,
       majorDepartments: majorDepartments
     )

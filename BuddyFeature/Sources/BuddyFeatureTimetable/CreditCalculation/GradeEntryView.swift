@@ -32,7 +32,7 @@ struct GradeEntryView: View {
 						GradeEntryGridCard(timetable: timetable, height: gridHeight)
 							.frame(maxWidth: .infinity)
 						if !lectures.isEmpty {
-							GradeEntryLectureList(lectures: lectures, grade: gradeBinding)
+							GradeEntryLectureList(lectures: lectures, retakenIDs: viewModel.supersededLectureIDs, grade: gradeBinding)
 								.frame(maxWidth: .infinity)
 						}
 					}
@@ -40,7 +40,7 @@ struct GradeEntryView: View {
 					VStack(spacing: 20) {
 						GradeEntryGridCard(timetable: timetable, height: gridHeight)
 						if !lectures.isEmpty {
-							GradeEntryLectureList(lectures: lectures, grade: gradeBinding)
+							GradeEntryLectureList(lectures: lectures, retakenIDs: viewModel.supersededLectureIDs, grade: gradeBinding)
 						}
 					}
 				}
@@ -83,6 +83,8 @@ private struct GradeEntryGridCard: View {
 /// Mirrors the Timetable screen's LectureList, with a grade picker per row.
 private struct GradeEntryLectureList: View {
 	let lectures: [Lecture]
+	/// Lectures replaced by a later or better attempt of the same course.
+	let retakenIDs: Set<Int>
 	/// Each lecture's grade, bound to where it's stored.
 	let grade: (Lecture) -> Binding<LectureGrade?>
 
@@ -94,7 +96,11 @@ private struct GradeEntryLectureList: View {
 
 			ForEach(lectures) { lecture in
 				HStack {
-					LectureListRow(lecture: lecture, detail: .grading)
+					LectureListRow(
+						lecture: lecture,
+						detail: .grading,
+						badge: retakenIDs.contains(lecture.id) ? String(localized: "Retaken", bundle: .module) : nil
+					)
 					GradeMenu(lecture: lecture, grade: grade(lecture))
 				}
 
@@ -102,6 +108,13 @@ private struct GradeEntryLectureList: View {
 					Divider()
 						.padding(.leading, 20)
 				}
+			}
+
+			if lectures.contains(where: { retakenIDs.contains($0.id) }) {
+				Text("Retaken lectures don't count toward your cumulative GPA and credits.", bundle: .module)
+					.font(.footnote)
+					.foregroundStyle(.secondary)
+					.padding(.top, 8)
 			}
 		}
 		.timetableCardStyle()

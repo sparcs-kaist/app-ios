@@ -20,6 +20,8 @@ struct LectureListRow: View {
 
 	let lecture: Lecture
 	var detail: Detail = .standard
+	/// A short tag after the name, e.g. "Retaken" in grade entry.
+	var badge: String? = nil
 	@Environment(\.timetableTheme) private var theme
 
 	var body: some View {
@@ -29,9 +31,23 @@ struct LectureListRow: View {
 				.foregroundStyle(theme.color(forCourseID: lecture.courseID))
 			
 			VStack(alignment: .leading) {
-				Text(lecture.name)
-					.font(.headline)
-					.lineLimit(1)
+				HStack(spacing: 6) {
+					Text(lecture.name)
+						.font(.headline)
+						.lineLimit(1)
+
+					if let badge {
+						Text(badge)
+							.font(.caption2)
+							.fontWeight(.semibold)
+							.foregroundStyle(.secondary)
+							.padding(.horizontal, 6)
+							.padding(.vertical, 2)
+							.background(.quaternary, in: .capsule)
+							// The name truncates first; the tag always stays readable.
+							.fixedSize()
+					}
+				}
 				
 				HStack {
 					makeLabel(lecture.code, systemImage: "text.book.closed")
@@ -86,7 +102,8 @@ struct LectureListRow: View {
 			LectureListRow(lecture: lecture)
 			// Grade entry: a 44pt grade button sits beside the row.
 			HStack {
-				LectureListRow(lecture: lecture, detail: .grading)
+				// The first row shows the "Retaken" tag.
+				LectureListRow(lecture: lecture, detail: .grading, badge: lecture.id == Lecture.mockList.first?.id ? "Retaken" : nil)
 				Capsule().fill(.orange.opacity(0.15)).frame(width: 44, height: 32)
 			}
 			Divider()
