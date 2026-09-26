@@ -28,6 +28,11 @@ struct FeedPostView: View {
   @FocusState private var isWritingCommentFocusState: Bool
   @State private var targetComment: FeedComment? = nil
 
+  /// The comment to pin to the top while a reply to it is being written.
+  private var replyScrollTargetID: String? {
+    isWritingCommentFocusState ? targetComment?.id : nil
+  }
+
   @State private var showTranslateSheet: Bool = false
 
   @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
@@ -50,8 +55,26 @@ struct FeedPostView: View {
               isWritingCommentFocusState = true
             }
           )
+
+          // Comments near the end of the list have too little content below
+          // them to reach the top, so pad the bottom by a screen's height while
+          // replying. Sized in layout, so no state updates during the keyboard
+          // animation.
+          if replyScrollTargetID != nil {
+            Color.clear
+              .containerRelativeFrame(.vertical)
+          }
         }
         .contentWidth()
+      }
+      .onChange(of: replyScrollTargetID) { _, id in
+        guard let id else { return }
+        // Wait a turn so the bottom spacer is laid out before scrolling.
+        Task { @MainActor in
+          withAnimation(.spring) {
+            proxy.scrollTo(id, anchor: .top)
+          }
+        }
       }
       .task(id: post.id) {
         await viewModel.fetchComments(postID: post.id, initial: true)
