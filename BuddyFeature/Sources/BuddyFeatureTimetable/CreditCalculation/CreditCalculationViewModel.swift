@@ -42,6 +42,7 @@ final class CreditCalculationViewModel {
   @ObservationIgnored @Injected(\.v2TimetableUseCase) private var timetableUseCase: TimetableUseCaseProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.lectureGradeUseCase) private var lectureGradeUseCase: LectureGradeUseCaseProtocol?
+  @ObservationIgnored @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol?
 
   private(set) var state: CreditCalculationViewState = .loading
   private(set) var semesters: [TakenSemester] = []
@@ -211,8 +212,8 @@ final class CreditCalculationViewModel {
     }
   }
 
-  /// Shares the totals with the Credits widget once they're complete, reloading it
-  /// only when the numbers actually changed.
+  /// Shares the totals with the Credits widgets (iPhone, and the watch through the
+  /// session bridge) once they're complete, only when the numbers actually changed.
   private func publishWidgetSnapshot() {
     guard isOverallSummaryReady else { return }
     let summary = overallSummary
@@ -221,6 +222,10 @@ final class CreditCalculationViewModel {
       earnedCredits: summary.earnedCredits,
       graduationCredits: requirements.graduation
     )
+    // Always sent: the watch may have missed earlier values (unpaired, or totals
+    // stored before it could receive them), and resending unchanged ones is cheap.
+    sessionBridgeService?.updateCreditSummary(snapshot)
+
     if let current = snapshotStore.snapshot, current.hasSameValues(as: snapshot) { return }
     snapshotStore.save(snapshot)
     WidgetCenter.shared.reloadTimelines(ofKind: CreditSummarySnapshotStore.widgetKind)

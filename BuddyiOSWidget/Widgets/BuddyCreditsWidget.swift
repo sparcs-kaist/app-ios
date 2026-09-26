@@ -9,7 +9,7 @@ import WidgetKit
 import SwiftUI
 import BuddyDomain
 import BuddyDataCore
-import BuddyTimetableWidgetUI
+import BuddySharedUI
 
 /// Reads the totals the app last computed; the widget doesn't compute them itself.
 /// The app reloads this widget whenever they change, so the schedule is a fallback.
@@ -47,6 +47,12 @@ struct BuddyCreditsWidgetEntryView: View {
       switch family {
       case .systemSmall:
         CreditsSmallWidgetView(entry: entry)
+      case .accessoryInline:
+        CreditsInlineWidgetView(entry: entry)
+      case .accessoryCircular:
+        CreditsCircularWidgetView(entry: entry)
+      case .accessoryRectangular:
+        CreditsRectangularWidgetView(entry: entry)
       default:
         CreditsMediumWidgetView(entry: entry)
       }
@@ -62,7 +68,7 @@ struct BuddyCreditsWidget: Widget {
       BuddyCreditsWidgetEntryView(entry: entry)
         .containerBackground(.fill.tertiary, for: .widget)
     }
-    .supportedFamilies([.systemSmall, .systemMedium])
+    .supportedFamilies([.systemSmall, .systemMedium, .accessoryInline, .accessoryCircular, .accessoryRectangular])
     .configurationDisplayName("Credits")
     .description("Your GPA and progress towards graduation.")
   }
@@ -82,4 +88,23 @@ struct BuddyCreditsWidget: Widget {
 } timeline: {
   CreditsEntry.sample
   CreditsEntry(date: .now, snapshot: nil, signInRequired: false)
+}
+
+#Preview(as: .accessoryRectangular) {
+  BuddyCreditsWidget()
+} timeline: {
+  CreditsEntry.sample
+  CreditsEntry(date: .now, snapshot: nil, signInRequired: false)
+}
+
+#Preview(as: .accessoryCircular) {
+  BuddyCreditsWidget()
+} timeline: {
+  CreditsEntry.sample
+}
+
+#Preview(as: .accessoryInline) {
+  BuddyCreditsWidget()
+} timeline: {
+  CreditsEntry.sample
 }

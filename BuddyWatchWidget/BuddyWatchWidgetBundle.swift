@@ -13,6 +13,7 @@ struct BuddyWatchWidgetBundle: WidgetBundle {
   var body: some Widget {
     BuddyUpcomingClassWidget()
 		BuddyDDayWidget()
+    BuddyCreditsWatchWidget()
   }
 }
 

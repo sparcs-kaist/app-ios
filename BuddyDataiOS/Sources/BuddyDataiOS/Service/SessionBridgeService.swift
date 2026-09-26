@@ -44,6 +44,13 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
     send([:], includingSelectedTheme: true)
   }
 
+  public func updateCreditSummary(_ snapshot: CreditSummarySnapshot?) {
+    // Empty data rather than a missing key: the context is merged, so a removed
+    // key would leave the previous user's totals on the watch.
+    let data = snapshot.flatMap { try? JSONEncoder().encode($0) } ?? Data()
+    send([BridgeKeys.creditSummary: data], includingSelectedTheme: false)
+  }
+
   /// `updateApplicationContext` replaces the whole context, so merge into what
   /// was last sent — `session.applicationContext` survives relaunches, which
   /// keeps a theme-only push from wiping the timetable the watch already has.
