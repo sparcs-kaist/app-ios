@@ -151,7 +151,7 @@ private struct CreditsOverview: View {
 		)
 
 		ScrollView {
-			Group {
+			VStack(spacing: 28) {
 				if CreditLayout.isWide(width) {
 					HStack(alignment: .top, spacing: 28) {
 						summarySection.frame(maxWidth: .infinity)
@@ -163,6 +163,8 @@ private struct CreditsOverview: View {
 						semestersSection
 					}
 				}
+
+				CreditsPrivacyFooter()
 			}
 			.padding()
 			.creditContentWidth()
@@ -226,6 +228,31 @@ private struct CreditsSemestersSection: View {
 				}
 			}
 		}
+	}
+}
+
+/// The last thing on the screen: where the grades and minimums the user enters are kept.
+private struct CreditsPrivacyFooter: View {
+	var body: some View {
+		VStack(alignment: .leading, spacing: 6) {
+			HStack {
+				Image(systemName: "lock.fill")
+					.accessibilityHidden(true)
+				
+				Text("Stored on This Device", bundle: .module)
+			}
+			.fontWeight(.semibold)
+
+			Text("The grades and minimum credits you enter are stored only on this device and aren't sent to Buddy or KAIST. They're kept when you sign out and deleted if you delete the app.", bundle: .module)
+				.multilineTextAlignment(.leading)
+		}
+		.font(.footnote)
+		.foregroundStyle(.secondary)
+		.multilineTextAlignment(.center)
+		.frame(maxWidth: 480)
+		.frame(maxWidth: .infinity)
+		.padding(.top, 8)
+		.accessibilityElement(children: .combine)
 	}
 }
 
