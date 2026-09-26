@@ -26,7 +26,9 @@ struct CreditsSummaryCard: View {
 	private static let cornerRadius: CGFloat = 28
 
 	var body: some View {
-		Button(action: onTap) {
+		Button {
+			onTap()
+		} label: {
 			GPASummaryContent(gpa: gpa, earnedCredits: earnedCredits, graduationCredits: graduationCredits)
 				.redacted(reason: isReady ? [] : .placeholder)
 				.frame(maxWidth: .infinity, alignment: .leading)

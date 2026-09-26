@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import TimetableUI
+import BuddyFeatureShared
 
 struct CreditCalculationView: View {
 	@State private var viewModel: CreditCalculationViewModel
@@ -99,7 +100,28 @@ private enum CreditTransitionID {
 	static let requirements = "credit-requirements"
 }
 
-/// The scrolling content: the summary section, then the semester grid. The only
+/// Layout shared by the credit screens on wide widths (iPad, split view, landscape).
+enum CreditLayout {
+	/// Wider than `contentWidth()`'s 600pt column, so iPad uses its width for side-by-side
+	/// cards and more grid columns, without stretching edge to edge.
+	static let maxContentWidth: CGFloat = 1100
+
+	/// Same threshold the Timetable screen uses for its two-column layout.
+	static func isWide(_ width: CGFloat) -> Bool {
+		width > LayoutMetrics.twoColumnWidthThreshold
+	}
+}
+
+extension View {
+	/// Caps the credit screens' content at `CreditLayout.maxContentWidth`, centred.
+	func creditContentWidth() -> some View {
+		frame(maxWidth: CreditLayout.maxContentWidth)
+			.frame(maxWidth: .infinity)
+	}
+}
+
+/// The scrolling content: the summary section and the semester grid, stacked on
+/// iPhone and side by side when wide (summary left, semesters right). The only
 /// subview that reads the view model; it hands each card just the values it shows.
 private struct CreditsOverview: View {
 	let semesters: [TakenSemester]
@@ -108,52 +130,101 @@ private struct CreditsOverview: View {
 	let onSelectSemester: (TakenSemester) -> Void
 	let onOpenRequirements: () -> Void
 
-	private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+	@State private var width: CGFloat = 0
 
 	var body: some View {
 		let summary = viewModel.overallSummary
+		let summarySection = CreditsSummarySection(
+			points: viewModel.gpaTrend,
+			gpa: summary.gpa,
+			earnedCredits: summary.earnedCredits,
+			graduationCredits: viewModel.requirements.graduation,
+			isReady: viewModel.isOverallSummaryReady,
+			namespace: namespace,
+			onOpenRequirements: onOpenRequirements
+		)
+		let semestersSection = CreditsSemestersSection(
+			semesters: semesters,
+			viewModel: viewModel,
+			namespace: namespace,
+			onSelectSemester: onSelectSemester
+		)
 
 		ScrollView {
-			VStack(alignment: .leading, spacing: 28) {
-				VStack(alignment: .leading, spacing: 12) {
-					CreditSectionHeader(title: String(localized: "Summary", bundle: .module))
-
-					GPATrendCard(points: viewModel.gpaTrend, isReady: viewModel.isOverallSummaryReady)
-
-					GPASummaryCard(
-						gpa: summary.gpa,
-						earnedCredits: summary.earnedCredits,
-						graduationCredits: viewModel.requirements.graduation,
-						isReady: viewModel.isOverallSummaryReady,
-						namespace: namespace,
-						onTap: onOpenRequirements
-					)
-
-					Text("GPA and credits are estimates based on the grades you enter, and are for your reference only. Confirm your graduation requirements with KAIST's official academic records.", bundle: .module)
-						.font(.footnote)
-						.foregroundStyle(.secondary)
-						.padding(.horizontal, 4)
-				}
-
-				VStack(alignment: .leading, spacing: 12) {
-					CreditSectionHeader(title: String(localized: "Semesters", bundle: .module))
-
-					LazyVGrid(columns: columns, spacing: 16) {
-						ForEach(semesters) { item in
-							SemesterCard(
-								item: item,
-								timetable: viewModel.timetables[item.id],
-								summary: viewModel.summary(for: item),
-								namespace: namespace,
-								onSelect: { onSelectSemester(item) }
-							)
-							.task { await viewModel.loadTimetable(for: item) }
-						}
+			Group {
+				if CreditLayout.isWide(width) {
+					HStack(alignment: .top, spacing: 28) {
+						summarySection.frame(maxWidth: .infinity)
+						semestersSection.frame(maxWidth: .infinity)
+					}
+				} else {
+					VStack(alignment: .leading, spacing: 28) {
+						summarySection
+						semestersSection
 					}
 				}
 			}
 			.padding()
-			.contentWidth()
+			.creditContentWidth()
+		}
+		.onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+	}
+}
+
+/// "Summary": the GPA chart, then the summary card and disclaimer.
+private struct CreditsSummarySection: View {
+	let points: [SemesterGPA]
+	let gpa: Double?
+	let earnedCredits: Int
+	let graduationCredits: Int
+	let isReady: Bool
+	let namespace: Namespace.ID
+	let onOpenRequirements: () -> Void
+
+	var body: some View {
+		VStack(alignment: .leading, spacing: 12) {
+			CreditSectionHeader(title: String(localized: "Summary", bundle: .module))
+
+			GPATrendCard(points: points, isReady: isReady)
+
+			GPASummaryColumn(
+				gpa: gpa,
+				earnedCredits: earnedCredits,
+				graduationCredits: graduationCredits,
+				isReady: isReady,
+				namespace: namespace,
+				onTap: onOpenRequirements
+			)
+		}
+	}
+}
+
+/// "Semesters": a two-column grid of semester cards, each loading its table on appear.
+private struct CreditsSemestersSection: View {
+	let semesters: [TakenSemester]
+	/// Read per card for its table and summary, and to load tables as cards appear.
+	let viewModel: CreditCalculationViewModel
+	let namespace: Namespace.ID
+	let onSelectSemester: (TakenSemester) -> Void
+
+	private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+
+	var body: some View {
+		VStack(alignment: .leading, spacing: 12) {
+			CreditSectionHeader(title: String(localized: "Semesters", bundle: .module))
+
+			LazyVGrid(columns: columns, spacing: 16) {
+				ForEach(semesters) { item in
+					SemesterCard(
+						item: item,
+						timetable: viewModel.timetables[item.id],
+						summary: viewModel.summary(for: item),
+						namespace: namespace,
+						onSelect: { onSelectSemester(item) }
+					)
+					.task { await viewModel.loadTimetable(for: item) }
+				}
+			}
 		}
 	}
 }
@@ -204,6 +275,34 @@ private struct GPATrendCard: View {
 	}
 }
 
+/// The summary card with the estimates disclaimer under it.
+private struct GPASummaryColumn: View {
+	let gpa: Double?
+	let earnedCredits: Int
+	let graduationCredits: Int
+	let isReady: Bool
+	let namespace: Namespace.ID
+	let onTap: () -> Void
+
+	var body: some View {
+		VStack(alignment: .leading, spacing: 12) {
+			GPASummaryCard(
+				gpa: gpa,
+				earnedCredits: earnedCredits,
+				graduationCredits: graduationCredits,
+				isReady: isReady,
+				namespace: namespace,
+				onTap: onTap
+			)
+
+			Text("GPA and credits are estimates based on the grades you enter, and are for your reference only. Confirm your graduation requirements with KAIST's official academic records.", bundle: .module)
+				.font(.footnote)
+				.foregroundStyle(.secondary)
+				.padding(.horizontal, 4)
+		}
+	}
+}
+
 /// Cumulative GPA and credits towards graduation; opens Credit Requirements.
 private struct GPASummaryCard: View {
 	let gpa: Double?
@@ -217,7 +316,9 @@ private struct GPASummaryCard: View {
 	private let cornerRadius = CreditCardMetrics.largeCornerRadius
 
 	var body: some View {
-		Button(action: onTap) {
+		Button {
+			onTap()
+		} label: {
 			GPASummaryContent(gpa: gpa, earnedCredits: earnedCredits, graduationCredits: graduationCredits)
 				.padding(CreditCardMetrics.padding * 2)
 				.background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: cornerRadius))
@@ -316,7 +417,9 @@ private struct SemesterCard: View {
 	let onSelect: () -> Void
 
 	var body: some View {
-		Button(action: onSelect) {
+		Button {
+			onSelect()
+		} label: {
 			VStack(alignment: .leading, spacing: 8) {
 				HStack(spacing: 4) {
 					Text(item.title)

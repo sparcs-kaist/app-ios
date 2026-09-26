@@ -14,25 +14,41 @@ struct GradeEntryView: View {
 	let item: TakenSemester
 	let viewModel: CreditCalculationViewModel
 
-	private static let gridHeight: CGFloat = 500
+	@State private var size: CGSize = .zero
+
+	/// Like the Timetable screen: 80% of the height, never squashed below 500pt.
+	private static let minimumGridHeight: CGFloat = 500
 
 	var body: some View {
 		let timetable = viewModel.timetables[item.id]
+		let lectures = timetable?.lectures ?? []
+		let gridHeight = max(size.height * 0.8, Self.minimumGridHeight)
 
 		ScrollView {
-			VStack(spacing: 20) {
-				ThemedGridCard {
-					TimetableGrid(selectedTimetable: timetable, placement: .view)
-				}
-				.frame(height: Self.gridHeight)
-
-				if let lectures = timetable?.lectures, !lectures.isEmpty {
-					GradeEntryLectureList(lectures: lectures, grade: gradeBinding)
+			Group {
+				if CreditLayout.isWide(size.width) {
+					// Side by side on wide screens, like the Timetable screen.
+					HStack(alignment: .top, spacing: 20) {
+						GradeEntryGridCard(timetable: timetable, height: gridHeight)
+							.frame(maxWidth: .infinity)
+						if !lectures.isEmpty {
+							GradeEntryLectureList(lectures: lectures, grade: gradeBinding)
+								.frame(maxWidth: .infinity)
+						}
+					}
+				} else {
+					VStack(spacing: 20) {
+						GradeEntryGridCard(timetable: timetable, height: gridHeight)
+						if !lectures.isEmpty {
+							GradeEntryLectureList(lectures: lectures, grade: gradeBinding)
+						}
+					}
 				}
 			}
 			.padding()
-			.contentWidth()
+			.creditContentWidth()
 		}
+		.onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
 		// Same backdrop as the Timetable screen, so the white cards stand out.
 		.background(Color.systemGroupedBackground)
 		.navigationTitle(item.title)
@@ -48,6 +64,19 @@ struct GradeEntryView: View {
 			get: { viewModel.grades[lectureID] },
 			set: { viewModel.setGrade($0, lectureID: lectureID) }
 		)
+	}
+}
+
+/// The semester's timetable grid in the Timetable screen's grid card.
+private struct GradeEntryGridCard: View {
+	let timetable: Timetable?
+	let height: CGFloat
+
+	var body: some View {
+		ThemedGridCard {
+			TimetableGrid(selectedTimetable: timetable, placement: .view)
+		}
+		.frame(height: height)
 	}
 }
 

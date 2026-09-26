@@ -146,6 +146,23 @@ public struct TimetableView: View {
 
   @ViewBuilder
   private func content(gridHeight: CGFloat, isWide: Bool) -> some View {
+    // Built once and placed per layout: bottom of the right column when wide,
+    // bottom of the page otherwise.
+    let creditsCard = CreditsSummaryCard(
+      gpa: creditViewModel.overallSummary.gpa,
+      earnedCredits: creditViewModel.overallSummary.earnedCredits,
+      graduationCredits: creditViewModel.requirements.graduation,
+      isReady: creditViewModel.isOverallSummaryReady,
+      isEnabled: creditViewModel.state != .loading,
+      namespace: creditsTransition,
+      onTap: { showsCredits = true }
+    )
+    // Loads the first time the card scrolls into view, not when the screen opens:
+    // it fetches every semester. `load()` ignores repeat calls.
+    .onScrollVisibilityChange(threshold: 0.1) { isVisible in
+      if isVisible { Task { await creditViewModel.load() } }
+    }
+
     VStack(spacing: 28) {
       selector(isWide: isWide)
       if viewModel.showsSavedStatus || viewModel.loadError != nil {
@@ -162,6 +179,7 @@ public struct TimetableView: View {
 						lectureListCard
             creditGraphCard
             summaryCard
+            creditsCard
           }
           .frame(maxWidth: .infinity)
         }
@@ -170,22 +188,7 @@ public struct TimetableView: View {
         lectureListCard
         creditGraphCard
         summaryCard
-      }
-
-      // At the very bottom, full width in both layouts.
-      CreditsSummaryCard(
-        gpa: creditViewModel.overallSummary.gpa,
-        earnedCredits: creditViewModel.overallSummary.earnedCredits,
-        graduationCredits: creditViewModel.requirements.graduation,
-        isReady: creditViewModel.isOverallSummaryReady,
-        isEnabled: creditViewModel.state != .loading,
-        namespace: creditsTransition,
-        onTap: { showsCredits = true }
-      )
-      // Loads the first time the card scrolls into view, not when the screen opens:
-      // it fetches every semester. `load()` ignores repeat calls.
-      .onScrollVisibilityChange(threshold: 0.1) { isVisible in
-        if isVisible { Task { await creditViewModel.load() } }
+        creditsCard
       }
     }
   }
