@@ -92,7 +92,7 @@ struct FeedPostView: View {
         }
       }
       .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
-      .scrollDismissesKeyboard(.immediately)
+      .scrollDismissesKeyboard(.interactively)
       .safeAreaBar(edge: .bottom) {
         inputBar(proxy: proxy)
       }
