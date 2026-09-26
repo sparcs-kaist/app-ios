@@ -114,17 +114,7 @@ final class CreditCalculationViewModel {
         uniquingKeysWith: { first, _ in first }
       )
 
-      // The history's semester IDs share `Semester.id`'s "year-Type" format.
-      semesters = try await history.semesters
-        .filter { !$0.lectures.isEmpty }
-        .sorted { ($0.year, $0.semesterType.intValue) < ($1.year, $1.semesterType.intValue) }
-        .map { entry in
-          TakenSemester(
-            id: entry.id,
-            title: "\(entry.year) \(entry.semesterType.description)",
-            semester: semestersByID[entry.id]
-          )
-        }
+      semesters = Self.takenSemesters(from: try await history, semestersByID: semestersByID)
       state = .loaded
       // The summary at the top needs every semester, not just the cards on screen.
       await loadAllTimetables()
@@ -159,6 +149,65 @@ final class CreditCalculationViewModel {
     semesters.compactMap { item in
       summary(for: item)?.gpa.map { SemesterGPA(id: item.id, label: item.shortTitle, title: item.title, gpa: $0) }
     }
+  }
+
+  /// Refetches the history and every semester's My Table, bypassing the cache, for
+  /// the Timetable screen's pull-to-refresh. Keeps the current data on screen and
+  /// swaps in the new data at once; a semester that fails keeps its last table.
+  /// Does nothing before the first load, which happens when the card appears.
+  func refresh() async {
+    guard state == .loaded, !isLoadInFlight,
+          let lectureUseCase, let timetableUseCase, let userID else { return }
+    isLoadInFlight = true
+    defer { isLoadInFlight = false }
+
+    do {
+      async let history = lectureUseCase.fetchUserLectureHistory(userID: userID)
+      async let allSemesters = timetableUseCase.refreshSemesters()
+      let semestersByID = Dictionary(
+        try await allSemesters.map { ($0.id, $0) },
+        uniquingKeysWith: { first, _ in first }
+      )
+      let refreshedSemesters = Self.takenSemesters(from: try await history, semestersByID: semestersByID)
+
+      let refreshedTables = await withTaskGroup(of: (String, Timetable?).self) { group in
+        for item in refreshedSemesters {
+          guard let semester = item.semester else { continue }
+          group.addTask {
+            (item.id, try? await timetableUseCase.refreshMyTable(semester: semester))
+          }
+        }
+        var tables: [String: Timetable] = [:]
+        for await (id, table) in group {
+          if let table = table ?? timetables[id] { tables[id] = table }
+        }
+        return tables
+      }
+
+      semesters = refreshedSemesters
+      timetables = refreshedTables
+      requestedTimetableIDs = Set(refreshedTables.keys)
+    } catch {
+      // Keep showing the last loaded data.
+    }
+  }
+
+  /// Semesters with lectures, oldest first. The history's semester IDs share
+  /// `Semester.id`'s "year-Type" format.
+  private static func takenSemesters(
+    from history: OTLUserLectureHistory,
+    semestersByID: [String: Semester]
+  ) -> [TakenSemester] {
+    history.semesters
+      .filter { !$0.lectures.isEmpty }
+      .sorted { ($0.year, $0.semesterType.intValue) < ($1.year, $1.semesterType.intValue) }
+      .map { entry in
+        TakenSemester(
+          id: entry.id,
+          title: "\(entry.year) \(entry.semesterType.description)",
+          semester: semestersByID[entry.id]
+        )
+      }
   }
 
   func summary(for item: TakenSemester) -> SemesterGradeSummary? {

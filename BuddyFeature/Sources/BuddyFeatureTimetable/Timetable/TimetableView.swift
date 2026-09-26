@@ -44,7 +44,12 @@ public struct TimetableView: View {
           )
           .padding()
         }
-        .refreshable { await viewModel.refresh() }
+        .refreshable {
+          // Credits too: My Table can change on the server, e.g. during add/drop.
+          async let timetable: Void = viewModel.refresh()
+          async let credits: Void = creditViewModel.refresh()
+          _ = await (timetable, credits)
+        }
         .background {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
