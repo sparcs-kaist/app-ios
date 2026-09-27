@@ -43,6 +43,7 @@ final class CreditCalculationViewModel {
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.lectureGradeUseCase) private var lectureGradeUseCase: LectureGradeUseCaseProtocol?
   @ObservationIgnored @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol?
+  @ObservationIgnored @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
 
   private(set) var state: CreditCalculationViewState = .loading
   private(set) var semesters: [TakenSemester] = []
@@ -215,7 +216,9 @@ final class CreditCalculationViewModel {
   /// Shares the totals with the Credits widgets (iPhone, and the watch through the
   /// session bridge) once they're complete, only when the numbers actually changed.
   private func publishWidgetSnapshot() {
-    guard isOverallSummaryReady else { return }
+    // A load or save still in flight at sign-out would otherwise republish the
+    // totals sign-out just cleared, leaving them on the widgets and the watch.
+    guard isOverallSummaryReady, authUseCase?.isAuthenticated == true else { return }
     let summary = overallSummary
     let snapshot = CreditSummarySnapshot(
       gpa: summary.gpa,

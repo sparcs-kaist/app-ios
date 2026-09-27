@@ -29,6 +29,9 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   public nonisolated var isAuthenticatedPublisher: AnyPublisher<Bool, Never> {
     _isAuthenticatedSubject.eraseToAnyPublisher()
   }
+  public nonisolated var isAuthenticated: Bool {
+    _isAuthenticatedSubject.value
+  }
 
   // In-flight refresh coordination. Because the check-and-assign of
   // `refreshTask` in `refreshAccessToken(force:)` runs without an intervening
