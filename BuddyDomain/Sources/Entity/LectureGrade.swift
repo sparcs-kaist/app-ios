@@ -29,9 +29,10 @@ public enum LectureGrade: String, CaseIterable, Sendable, Codable, Hashable {
   case satisfied = "S"
   case unsatisfied = "U"
 
-  /// Grades selectable for a lecture that carries credits.
+  /// Grades selectable for a lecture that carries credits. S/U applies to some of
+  /// these too, not just AU-only lectures.
   public static let creditOptions: [LectureGrade] = [
-    .pass, .fail, .nonRecord,
+    .pass, .fail, .satisfied, .unsatisfied, .nonRecord,
     .aPlus, .a, .aMinus, .bPlus, .b, .bMinus, .cPlus, .c, .cMinus, .dPlus, .d, .dMinus
   ]
 
@@ -76,6 +77,6 @@ public enum LectureGrade: String, CaseIterable, Sendable, Codable, Hashable {
 }
 
 public extension Lecture {
-  /// Lectures worth only AU are graded S/U and never count toward GPA.
+  /// Lectures worth only AU are graded only S/U and never count toward GPA.
   var isAUOnly: Bool { credit == 0 && creditAU > 0 }
 }
