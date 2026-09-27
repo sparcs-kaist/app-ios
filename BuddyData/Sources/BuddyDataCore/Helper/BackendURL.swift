@@ -9,6 +9,8 @@ import Foundation
 import BuddyDomain
 
 public enum BackendURL {
+  public static let applicationName = "buddyios"
+
   // MARK: Authorisation
   public static let authorisationURL: URL? = {
     if Status.isProduction {

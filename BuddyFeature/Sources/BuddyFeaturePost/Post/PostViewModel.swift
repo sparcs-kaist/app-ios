@@ -115,6 +115,7 @@ class PostViewModel: PostViewModelProtocol {
     }
     var request = URLRequest(url: url)
     request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    request.addValue("buddyios", forHTTPHeaderField: "X-Application-Name")
     return request
   }
 
@@ -381,4 +382,3 @@ class PostViewModel: PostViewModelProtocol {
     isAlertPresented = true
   }
 }
-

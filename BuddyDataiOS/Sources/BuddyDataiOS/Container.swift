@@ -33,6 +33,7 @@ extension Container: @retroactive AutoRegistering {
   private var timetableThemeRepository: Factory<TimetableThemeRepositoryProtocol> {
     self {
       TimetableThemeRepository(provider: MoyaProvider<TimetableThemeTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -41,6 +42,7 @@ extension Container: @retroactive AutoRegistering {
   private var feedPostRepository: Factory<FeedPostRepositoryProtocol> {
     self {
       FeedPostRepository(provider: MoyaProvider<FeedPostTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -49,6 +51,7 @@ extension Container: @retroactive AutoRegistering {
   private var feedCommentRepository: Factory<FeedCommentRepositoryProtocol> {
     self {
       FeedCommentRepository(provider: MoyaProvider<FeedCommentTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -57,6 +60,7 @@ extension Container: @retroactive AutoRegistering {
   private var feedImageRepository: Factory<FeedImageRepositoryProtocol> {
     self {
       FeedImageRepository(provider: MoyaProvider<FeedImageTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -65,6 +69,7 @@ extension Container: @retroactive AutoRegistering {
   private var feedProfileRepository: Factory<FeedProfileRepositoryProtocol> {
     self {
       FeedProfileRepository(provider: MoyaProvider<FeedProfileTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -73,6 +78,7 @@ extension Container: @retroactive AutoRegistering {
   private var fcmRepository: Factory<FCMRepositoryProtocol> {
     self {
       FCMRepository(provider: MoyaProvider<FCMTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -83,6 +89,7 @@ extension Container: @retroactive AutoRegistering {
       AraBoardRepository(
         provider: MoyaProvider<AraBoardTarget>(
           plugins: [
+            ApplicationNamePlugin(),
             self.authPlugin.resolve()
           ]
         )
@@ -93,6 +100,7 @@ extension Container: @retroactive AutoRegistering {
   private var araCommentRepository: Factory<AraCommentRepositoryProtocol> {
     self {
       AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -101,6 +109,7 @@ extension Container: @retroactive AutoRegistering {
   private var otlTimetableRepository: Factory<OTLTimetableRepositoryProtocol> {
     self {
       OTLTimetableRepository(provider: MoyaProvider<OTLTimetableTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -109,6 +118,7 @@ extension Container: @retroactive AutoRegistering {
   private var otlReviewRepository: Factory<OTLReviewRepositoryProtocol> {
     self {
       OTLReviewRepository(provider: MoyaProvider<OTLReviewTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -117,6 +127,7 @@ extension Container: @retroactive AutoRegistering {
   private var otlLectureRepository: Factory<OTLLectureRepositoryProtocol> {
     self {
       OTLLectureRepository(provider: MoyaProvider<OTLLectureTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -125,6 +136,7 @@ extension Container: @retroactive AutoRegistering {
   private var otlCourseRepository: Factory<OTLCourseRepositoryProtocol> {
     self {
       OTLCourseRepository(provider: MoyaProvider<OTLCourseTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -143,46 +155,49 @@ extension Container: @retroactive AutoRegistering {
 
     // MARK: - Repositories
     authRepository.register {
-      AuthRepository(provider: MoyaProvider<AuthTarget>())
+      AuthRepository(provider: MoyaProvider<AuthTarget>(plugins: [ApplicationNamePlugin()]))
     }
 
     versionRepository.register {
-      VersionRepository(provider: MoyaProvider<VersionTarget>())
+      VersionRepository(provider: MoyaProvider<VersionTarget>(plugins: [ApplicationNamePlugin()]))
     }
 
     // MARK: Taxi
     taxiRoomRepository.register {
       TaxiRoomRepository(provider: MoyaProvider<TaxiRoomTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
 
     taxiUserRepository.register {
       TaxiUserRepository(provider: MoyaProvider<TaxiUserTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
 
     taxiChatRepository.register {
       TaxiChatRepository(
-        provider: MoyaProvider<TaxiChatTarget>(plugins: [self.authPlugin.resolve()])
+        provider: MoyaProvider<TaxiChatTarget>(plugins: [ApplicationNamePlugin(), self.authPlugin.resolve()])
       )
     }
 
     taxiReportRepository.register {
       TaxiReportRepository(
-        provider: MoyaProvider<TaxiReportTarget>(plugins: [self.authPlugin.resolve()])
+        provider: MoyaProvider<TaxiReportTarget>(plugins: [ApplicationNamePlugin(), self.authPlugin.resolve()])
       )
     }
 
     // MARK: Ara
     araUserRepository.register {
-      AraUserRepository(provider: MoyaProvider<AraUserTarget>(plugins: [self.authPlugin.resolve()]))
+      AraUserRepository(provider: MoyaProvider<AraUserTarget>(plugins: [ApplicationNamePlugin(), self.authPlugin.resolve()]))
     }
 
     // MARK: Feed
     feedUserRepository.register {
       FeedUserRepository(provider: MoyaProvider<FeedUserTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
@@ -197,6 +212,7 @@ extension Container: @retroactive AutoRegistering {
     // MARK: OTL
     otlUserRepository.register {
       OTLUserRepository(provider: MoyaProvider<OTLUserTarget>(plugins: [
+        ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
     }
