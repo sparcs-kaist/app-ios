@@ -36,8 +36,7 @@ struct AddFriendsView: View {
 			.buttonSizing(.flexible)
 			.controlSize(.large)
 			.scenePadding()
-			.buttonStyle(.glassProminent)
-			.tint(.indigo)
+			.buttonStyle(.glass)
 		}
 		.background {
 			AnimatedMeshGradientView()
