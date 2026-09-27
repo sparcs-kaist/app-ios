@@ -43,7 +43,9 @@ struct AddFriendsView: View {
 			AnimatedMeshGradientView()
 				.ignoresSafeArea()
 		}
-		.preferredColorScheme(.dark)
+		// Scoped to this subtree; `.preferredColorScheme` would propagate to the
+		// presenting window and briefly flash the parent dark while presenting.
+		.environment(\.colorScheme, .dark)
 	}
 }
 
