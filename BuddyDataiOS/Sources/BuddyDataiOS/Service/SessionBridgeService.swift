@@ -14,6 +14,9 @@ private let logger = Logger(subsystem: "org.sparcs.soap", category: "WatchSessio
 
 public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBridgeServiceProtocol {
   private let session = WCSession.isSupported() ? WCSession.default : nil
+  /// Updates sent before activation completes, flushed once it does — otherwise a
+  /// sign-out right after launch would never clear the watch's credit totals.
+  private let pendingUpdates = OSAllocatedUnfairLock(initialState: [String: Data]())
 
   public override init() {
     super.init()
@@ -54,9 +57,20 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
   /// `updateApplicationContext` replaces the whole context, so merge into what
   /// was last sent — `session.applicationContext` survives relaunches, which
   /// keeps a theme-only push from wiping the timetable the watch already has.
-  private func send(_ updates: [String: Any], includingSelectedTheme: Bool) {
-    guard let session, session.activationState == .activated else {
-      logger.debug("send: session not activated. Skipping update.")
+  private func send(_ updates: [String: Data], includingSelectedTheme: Bool) {
+    guard let session else { return }
+
+    // Checked and queued under the lock the activation callback drains with, so
+    // an update can't slip in between the drain and activation.
+    // Unchecked: the closure reads the non-Sendable session, synchronously.
+    let isQueued = pendingUpdates.withLockUnchecked { pending in
+      guard session.activationState != .activated else { return false }
+      pending.merge(updates) { _, new in new }
+      return true
+    }
+    if isQueued {
+      // The theme is always sent on activation, so it needs no queueing.
+      logger.debug("send: session not activated. Queued update for activation.")
       return
     }
 
@@ -92,9 +106,14 @@ public final class SessionBridgeService: NSObject, WCSessionDelegate, SessionBri
     else { logger.debug("Activated: \(activationState.rawValue)") }
 
     // Activation is async, so this is the first point a push can land. Catches up
-    // the watch on any theme change made while it was unreachable.
+    // the watch on any theme change made while it was unreachable, and on the
+    // updates queued before activation.
     guard activationState == .activated else { return }
-    updateSelectedTheme()
+    let queued = pendingUpdates.withLock { pending in
+      defer { pending = [:] }
+      return pending
+    }
+    send(queued, includingSelectedTheme: true)
   }
 
   public func sessionDidBecomeInactive(_ session: WCSession) {
