@@ -272,7 +272,10 @@ final class CreditCalculationViewModel {
         try await lectureGradeUseCase.setGrade(grade, lectureID: lectureID, userID: userID)
       } catch {
         // Skip the revert if the user already picked something newer.
-        if grades[lectureID] == grade { grades[lectureID] = previous }
+        guard grades[lectureID] == grade else { return }
+        grades[lectureID] = previous
+        // The optimistic grade already reached the widgets and the watch.
+        publishWidgetSnapshot()
       }
     }
   }
