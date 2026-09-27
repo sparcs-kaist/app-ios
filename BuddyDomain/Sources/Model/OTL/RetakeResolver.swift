@@ -11,10 +11,9 @@ import Foundation
 ///
 /// Attempts are grouped by lecture code. Per group:
 /// 1. NR attempts are off the record and never count.
-/// 2. Otherwise the highest-graded attempt counts (P ranks above F; ties go to the
-///    later attempt), and the others are ignored for both GPA and credits.
-/// 3. An attempt without a grade yet — typically a retake in progress — counts only
-///    when no other attempt passed, so a failed course being retaken counts once.
+/// 2. Otherwise the latest attempt counts, overwriting every earlier grade — even a
+///    better one — and the earlier attempts are ignored for both GPA and credits.
+///    A retake still in progress (no grade yet) counts too.
 public enum RetakeResolver {
   /// The lectures that count, in their original order.
   /// - Parameter lectures: Every attempt, oldest semester first.
@@ -27,18 +26,8 @@ public enum RetakeResolver {
         continue
       }
 
-      let onRecord = attempts.filter { grades[$0.id] != .nonRecord }
-      // Later attempts win ties, so scan newest first and keep the first maximum.
-      let graded = onRecord.reversed().filter { grades[$0.id] != nil }
-      let best = graded.max { rank(grades[$0.id]) < rank(grades[$1.id]) }
-      let pending = onRecord.last { grades[$0.id] == nil }
-
-      if let best, isPassed(grades[best.id]) {
-        countedIDs.insert(best.id)
-      } else if let pending {
-        countedIDs.insert(pending.id)
-      } else if let best {
-        countedIDs.insert(best.id)
+      if let latest = attempts.last(where: { grades[$0.id] != .nonRecord }) {
+        countedIDs.insert(latest.id)
       }
     }
 
@@ -55,22 +44,5 @@ public enum RetakeResolver {
         .filter { retakenCodes.contains($0.code) && !countedIDs.contains($0.id) && grades[$0.id] != .nonRecord }
         .map(\.id)
     )
-  }
-
-  /// Higher is better. Letter grades and F by grade point; P and S just above F.
-  private static func rank(_ grade: LectureGrade?) -> Double {
-    switch grade {
-    case .pass, .satisfied: 0.5
-    case .unsatisfied: 0
-    case let grade?: grade.gradePoint ?? 0
-    case nil: -1
-    }
-  }
-
-  private static func isPassed(_ grade: LectureGrade?) -> Bool {
-    switch grade {
-    case .fail, .unsatisfied, .nonRecord, nil: false
-    default: true
-    }
   }
 }
