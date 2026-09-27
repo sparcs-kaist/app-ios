@@ -162,6 +162,16 @@ struct FeedPostView: View {
     HStack(alignment: .bottom) {
       // comment textfield
       VStack(alignment: .leading) {
+        if let targetComment {
+          FeedCommentReplyPreview(
+            authorName: targetComment.authorName,
+            content: targetComment.content,
+            isDeleted: targetComment.isDeleted,
+            onCancel: { self.targetComment = nil }
+          )
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+
         // maybe some images and anonymous selector
         TextField(
           text: $viewModel.text,
@@ -227,6 +237,7 @@ struct FeedPostView: View {
     .padding(isWritingCommentFocusState ? [.horizontal, .vertical] : [.horizontal])
     .contentWidth()
     .animation(.spring, value: isWritingCommentFocusState)
+    .animation(.spring, value: targetComment?.id)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
       value: viewModel.text.isEmpty

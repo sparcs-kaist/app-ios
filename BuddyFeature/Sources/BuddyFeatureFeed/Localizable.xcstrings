@@ -371,6 +371,22 @@
         }
       }
     },
+    "Replying to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replying to %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@님에게 답글 작성 중"
+          }
+        }
+      }
+    },
     "Report" : {
       "localizations" : {
         "en" : {
