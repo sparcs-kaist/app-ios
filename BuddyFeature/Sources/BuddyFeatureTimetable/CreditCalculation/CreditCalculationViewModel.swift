@@ -64,6 +64,10 @@ final class CreditCalculationViewModel {
   /// the Credits screen opening) don't fetch twice.
   @ObservationIgnored private var isLoadInFlight = false
 
+  /// The latest grade save; each new save waits for it, so saves land in the
+  /// order the grades were picked and the last pick is the one stored.
+  @ObservationIgnored private var lastGradeSave: Task<Void, Never>?
+
   /// Semesters whose table is loading or already loaded, so cells appearing
   /// don't refetch.
   @ObservationIgnored private var requestedTimetableIDs: Set<String> = []
@@ -270,7 +274,8 @@ final class CreditCalculationViewModel {
     publishWidgetSnapshot()
     guard let lectureGradeUseCase, let userID else { return }
 
-    Task {
+    lastGradeSave = Task { [previousSave = lastGradeSave] in
+      await previousSave?.value
       do {
         try await lectureGradeUseCase.setGrade(grade, lectureID: lectureID, userID: userID)
       } catch {

@@ -10,7 +10,10 @@ import SwiftData
 import BuddyDomain
 
 /// Stores lecture grades on-device with SwiftData.
-public final class LectureGradeUseCase: LectureGradeUseCaseProtocol, Sendable {
+///
+/// An actor so saves run one at a time: each is a fetch then an insert or update,
+/// and two overlapping ones could both miss the record and insert duplicates.
+public actor LectureGradeUseCase: LectureGradeUseCaseProtocol {
   private let modelContainer: ModelContainer
 
   public init(modelContainer: ModelContainer) {
