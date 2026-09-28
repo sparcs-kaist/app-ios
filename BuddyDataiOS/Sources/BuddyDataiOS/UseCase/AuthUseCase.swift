@@ -180,6 +180,8 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
       cancelRefreshTimer()
+      clearCreditSummary()
+      WidgetCenter.shared.reloadAllTimelines()
       throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
     }
 
@@ -211,6 +213,9 @@ public actor AuthUseCase: AuthUseCaseProtocol {
         tokenStorage.clearTokens()
         _isAuthenticatedSubject.value = false
         cancelRefreshTimer()
+        // The session is gone, so the Credits widgets mustn't keep showing the GPA.
+        clearCreditSummary()
+        WidgetCenter.shared.reloadAllTimelines()
       }
       throw AuthUseCaseError.refreshFailed(error)
     }
@@ -253,12 +258,17 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     }
     // Cleared before the reload, so the Credits widgets can't show this user's GPA,
     // on the watch too.
-    CreditSummarySnapshotStore().clear()
-    Container.shared.sessionBridgeService()?.updateCreditSummary(nil)
+    clearCreditSummary()
     WidgetCenter.shared.reloadAllTimelines()
     tokenStorage.clearTokens()
     _isAuthenticatedSubject.value = false
     cancelRefreshTimer()
     logger.info("Signed out.")
+  }
+
+  /// Removes the stored GPA snapshot, and the watch's copy, once the session ends.
+  private func clearCreditSummary() {
+    CreditSummarySnapshotStore().clear()
+    Container.shared.sessionBridgeService()?.updateCreditSummary(nil)
   }
 }
