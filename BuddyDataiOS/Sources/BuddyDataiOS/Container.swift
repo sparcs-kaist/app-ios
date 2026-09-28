@@ -158,6 +158,14 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  private var friendRepositoryImpl: Factory<FriendRepositoryProtocol> {
+    self {
+      FriendRepository(provider: MoyaProvider<FriendTarget>(plugins: [
+        self.authPlugin.resolve()
+      ]))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -231,6 +239,11 @@ extension Container: @retroactive AutoRegistering {
         ApplicationNamePlugin(),
         self.authPlugin.resolve()
       ]))
+    }
+
+    // MARK: Friend
+    friendRepository.register {
+      self.friendRepositoryImpl.resolve()
     }
 
     // MARK: - Services
@@ -405,6 +418,13 @@ extension Container: @retroactive AutoRegistering {
     araCommentUseCase.register {
       AraCommentUseCase(
         araCommentRepository: self.araCommentRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
+    friendUseCase.register {
+      FriendUseCase(
+        friendRepository: self.friendRepositoryImpl.resolve(),
         crashlyticsService: self.crashlyticsService.resolve()
       )
     }
