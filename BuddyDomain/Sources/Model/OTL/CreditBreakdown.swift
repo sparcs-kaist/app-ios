@@ -10,7 +10,7 @@ import Foundation
 /// Credits taken per requirement type, for graduation progress.
 ///
 /// Counts follow `SemesterGradeSummary.earnedCredits`: every lecture counts except
-/// F or NR ones (U still counts), and ungraded lectures count as in progress.
+/// F, U or NR ones, and ungraded lectures count as in progress.
 public struct CreditBreakdown: Equatable, Sendable {
   /// Major Required / Elective credits taken in one department.
   public struct MajorGroup: Identifiable, Equatable, Sendable {
@@ -39,7 +39,7 @@ public struct CreditBreakdown: Equatable, Sendable {
 
     for lecture in lectures {
       let grade = grades[lecture.id]
-      guard grade != .fail, grade != .nonRecord else { continue }
+      guard grade != .fail, grade != .unsatisfied, grade != .nonRecord else { continue }
       au += lecture.creditAU
 
       let credit = lecture.credit

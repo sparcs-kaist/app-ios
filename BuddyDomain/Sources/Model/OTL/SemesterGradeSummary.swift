@@ -17,7 +17,7 @@ public struct SemesterGradeSummary: Equatable, Sendable {
   /// the transcript. Ungraded lectures count, as they're assumed in progress.
   public let recordedCredits: Int
   /// Credits (not AU) counting toward graduation: recorded credits minus failed
-  /// (F) ones. P credits count.
+  /// (F or U) ones. P and S credits count.
   public let earnedCredits: Int
 
   /// Whether every lecture in the semester has a grade entered.
@@ -34,7 +34,7 @@ public struct SemesterGradeSummary: Equatable, Sendable {
       let grade = grades[lecture.id]
       if grade != .nonRecord {
         recordedCredits += lecture.credit
-        if grade != .fail { earnedCredits += lecture.credit }
+        if grade != .fail, grade != .unsatisfied { earnedCredits += lecture.credit }
       }
       guard let grade = grades[lecture.id] else { continue }
       gradedCount += 1
