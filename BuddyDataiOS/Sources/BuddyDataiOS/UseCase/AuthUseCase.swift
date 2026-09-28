@@ -256,13 +256,15 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()
     }
+    tokenStorage.clearTokens()
+    // Signed out before the snapshot is cleared, so a Credits load still in flight
+    // hits `publishWidgetSnapshot()`'s auth guard instead of republishing it.
+    _isAuthenticatedSubject.value = false
+    cancelRefreshTimer()
     // Cleared before the reload, so the Credits widgets can't show this user's GPA,
     // on the watch too.
     clearCreditSummary()
     WidgetCenter.shared.reloadAllTimelines()
-    tokenStorage.clearTokens()
-    _isAuthenticatedSubject.value = false
-    cancelRefreshTimer()
     logger.info("Signed out.")
   }
 

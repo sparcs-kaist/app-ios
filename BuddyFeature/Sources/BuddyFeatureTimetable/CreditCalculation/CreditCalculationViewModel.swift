@@ -50,6 +50,9 @@ final class CreditCalculationViewModel {
   private(set) var timetables: [String: Timetable] = [:]
   /// Grades the user entered, keyed by lecture ID.
   private(set) var grades: [Int: LectureGrade] = [:]
+  /// Grades as last stored, which a failed save reverts to. `grades` can be ahead
+  /// of it while saves are pending.
+  @ObservationIgnored private var savedGrades: [Int: LectureGrade] = [:]
 
   /// The signed-in OTL user; grades are stored per user.
   @ObservationIgnored private var userID: Int?
@@ -86,6 +89,7 @@ final class CreditCalculationViewModel {
     self.semesters = semesters
     self.timetables = timetables
     self.grades = grades
+    self.savedGrades = grades
     self.requestedTimetableIDs = Set(semesters.map(\.id))
   }
 
@@ -114,6 +118,7 @@ final class CreditCalculationViewModel {
       requirements = requirementsStore.requirements(userID: user.id)
       // Grades are on-device; a failure here shouldn't block the semester list.
       grades = (try? await lectureGradeUseCase?.grades(userID: user.id)) ?? [:]
+      savedGrades = grades
 
       async let history = lectureUseCase.fetchUserLectureHistory(userID: user.id)
       async let allSemesters = timetableUseCase.getSemesters()
@@ -269,7 +274,6 @@ final class CreditCalculationViewModel {
 
   /// Updates the grade immediately and persists it, reverting if saving fails.
   func setGrade(_ grade: LectureGrade?, lectureID: Int) {
-    let previous = grades[lectureID]
     grades[lectureID] = grade
     publishWidgetSnapshot()
     guard let lectureGradeUseCase, let userID else { return }
@@ -278,10 +282,13 @@ final class CreditCalculationViewModel {
       await previousSave?.value
       do {
         try await lectureGradeUseCase.setGrade(grade, lectureID: lectureID, userID: userID)
+        savedGrades[lectureID] = grade
       } catch {
         // Skip the revert if the user already picked something newer.
         guard grades[lectureID] == grade else { return }
-        grades[lectureID] = previous
+        // Saves run in order, so this is the last stored grade, not the pick
+        // before this one, which may itself have failed to save.
+        grades[lectureID] = savedGrades[lectureID]
         // The optimistic grade already reached the widgets and the watch.
         publishWidgetSnapshot()
       }
