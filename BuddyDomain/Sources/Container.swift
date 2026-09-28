@@ -59,6 +59,11 @@ extension Container {
     promised()
   }
 
+  // MARK: Friend
+  public var friendRepository: Factory<FriendRepositoryProtocol?> {
+    promised()
+  }
+
   // MARK: - Services
   public var sessionBridgeService: Factory<SessionBridgeServiceProtocol?> {
     promised()
@@ -150,6 +155,10 @@ extension Container {
   }
 
   public var araCommentUseCase: Factory<AraCommentUseCaseProtocol?> {
+    promised()
+  }
+
+  public var friendUseCase: Factory<FriendUseCaseProtocol?> {
     promised()
   }
 }
