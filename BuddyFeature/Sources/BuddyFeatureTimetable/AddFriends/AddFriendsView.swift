@@ -10,50 +10,79 @@ import BuddyDomain
 
 struct AddFriendsView: View {
   let viewModel: FriendsListViewModel
+  @State private var nearbyViewModel: NearbyFriendsViewModel
 
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.openURL) private var openURL
 
   @State private var isCodePromptPresented = false
   @State private var codeInput = ""
-  @State private var didCopyCode = false
+
+  init(
+    viewModel: FriendsListViewModel,
+    nearbyViewModel: NearbyFriendsViewModel = NearbyFriendsViewModel()
+  ) {
+    self.viewModel = viewModel
+    self._nearbyViewModel = State(initialValue: nearbyViewModel)
+  }
 
   var body: some View {
     NavigationStack {
-      VStack(spacing: 24) {
-        HStack {
-          Text("Nearby Friends", bundle: .module)
-            .font(.headline)
-            .foregroundStyle(.primary.opacity(0.8))
+      VStack(spacing: 16) {
+        NearbyHeader(isScanning: nearbyViewModel.isScanning)
+          .padding(.horizontal)
 
-          Spacer()
-        }
-
-        Text("Scanning for nearby friends...", bundle: .module)
-          .foregroundStyle(.secondary)
-          .padding()
-
-        Spacer()
-
-        // Centred in the remaining space so it never collides with the pinned
-        // bottom bar.
-        myCodeCard
-
-        Spacer()
+        NearbyFriendsSection(
+          state: nearbyViewModel.viewState,
+          onGrantPermission: { nearbyViewModel.grantPermission() },
+          onOpenSettings: { openSettings() },
+          onTapPeer: { nearbyViewModel.tap($0) }
+        )
       }
-      .padding()
+      // Only top padding: the grid's scroll view has to reach the bar's safe
+      // area and both screen edges, so it scrolls underneath the bar (with a
+      // full-width edge effect) instead of being clipped just above it.
+      // Horizontal padding is applied inside each piece instead.
+      .padding(.top)
+      .animation(.smooth, value: nearbyViewModel.viewState)
       .navigationTitle(Text("Add Friends", bundle: .module))
-    }
-    .safeAreaBar(edge: .bottom) {
-      Button {
-        codeInput = ""
-        isCodePromptPresented = true
-      } label: {
-        Text("Add Friends via Code", bundle: .module)
+      // Inside the stack so the content above is inset by the bar instead of
+      // running underneath it.
+      .safeAreaBar(edge: .bottom) {
+        VStack(spacing: 12) {
+          if !nearbyViewModel.incomingPeers.isEmpty {
+            IncomingRequestStack(
+              peers: nearbyViewModel.incomingPeers,
+              onAccept: { nearbyViewModel.accept($0) },
+              onDecline: { nearbyViewModel.decline($0) }
+            )
+            .transition(.blurReplace)
+          }
+
+          MyFriendCodeView(code: viewModel.myCode, isUnavailable: viewModel.isMyCodeUnavailable)
+
+          Button {
+            codeInput = ""
+            isCodePromptPresented = true
+          } label: {
+            Text("Add Friends via Code", bundle: .module)
+          }
+          .buttonSizing(.flexible)
+          .controlSize(.large)
+          .buttonStyle(.glass)
+        }
+        .scenePadding()
+        .animation(.smooth, value: nearbyViewModel.incomingPeers)
       }
-      .buttonSizing(.flexible)
-      .controlSize(.large)
-      .scenePadding()
-      .buttonStyle(.glass)
+      // Also inside the stack; outside, its opaque background covers the gradient.
+      .background {
+        AnimatedMeshGradientView()
+          .ignoresSafeArea()
+      }
+    }
+    // Restarts whenever discovery starts or stops, and is cancelled with the sheet.
+    .task(id: nearbyViewModel.isScanning) {
+      await nearbyViewModel.runDiscovery()
     }
     .alert(Text("Add Friend", bundle: .module), isPresented: $isCodePromptPresented) {
       TextField(String(localized: "6-character code", bundle: .module), text: $codeInput)
@@ -72,66 +101,16 @@ struct AddFriendsView: View {
       let sanitized = sanitizedCode(newValue)
       if sanitized != codeInput { codeInput = sanitized }
     }
-    .background {
-      AnimatedMeshGradientView()
-        .ignoresSafeArea()
-    }
     // Scoped to this subtree; `.preferredColorScheme` would propagate to the
     // presenting window and briefly flash the parent dark while presenting.
     .environment(\.colorScheme, .dark)
   }
 
-  // MARK: - My Code
+  // MARK: - Actions
 
-  @ViewBuilder
-  private var myCodeCard: some View {
-    // Mirrors the theme share code in `TimetableThemeSharingView`, minus the
-    // rounded background so it sits directly on the gradient.
-    VStack {
-      if let code = viewModel.myCode {
-        Button {
-          UIPasteboard.general.string = code
-          didCopyCode = true
-        } label: {
-          HStack {
-            Text(code)
-              .font(.largeTitle)
-              .fontDesign(.monospaced)
-
-            Image(systemName: didCopyCode ? "checkmark" : "document.on.document")
-              .contentTransition(.symbolEffect(.replace))
-          }
-          .padding()
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(Text(code))
-        .accessibilityHint(Text("Copies the code", bundle: .module))
-        // The checkmark is only confirmation, so it reverts to the copy symbol.
-        .task(id: didCopyCode) {
-          guard didCopyCode else { return }
-          try? await Task.sleep(for: .seconds(2))
-          didCopyCode = false
-        }
-
-        Text("Share this code with a friend so they can add you.", bundle: .module)
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .multilineTextAlignment(.center)
-          .padding()
-      } else if viewModel.isMyCodeUnavailable {
-        Text("Your code isn’t available right now.", bundle: .module)
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-          .multilineTextAlignment(.center)
-          .padding()
-      } else {
-        ProgressView()
-          .foregroundStyle(.secondary)
-      }
-    }
-    .frame(maxWidth: .infinity)
-    .transition(.blurReplace)
-    .animation(.smooth, value: viewModel.myCode)
+  private func openSettings() {
+    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+    openURL(url)
   }
 
   // MARK: - Code entry
@@ -200,15 +179,108 @@ struct AnimatedMeshGradientView: View {
   }
 }
 
-#Preview {
-  @Previewable @State var showSheet = true
+// MARK: - Previews
 
-  NavigationStack {
-    Button("hello") {
-      showSheet = true
-    }
-    .sheet(isPresented: $showSheet) {
-      AddFriendsView(viewModel: FriendsListViewModel())
-    }
+#if DEBUG
+/// Builds the screen in a fixed nearby state. Taps still work, so each preview
+/// can be driven by hand from there.
+@MainActor
+private func addFriendsPreview(
+  _ state: NearbyFriendsViewState,
+  simulatesDiscovery: Bool = false,
+  myCode: String? = "ACD347",
+  isMyCodeUnavailable: Bool = false
+) -> AddFriendsView {
+  let friendsViewModel = FriendsListViewModel()
+  friendsViewModel.myCode = myCode
+  friendsViewModel.isMyCodeUnavailable = isMyCodeUnavailable
+  return AddFriendsView(
+    viewModel: friendsViewModel,
+    nearbyViewModel: NearbyFriendsViewModel(viewState: state, simulatesDiscovery: simulatesDiscovery)
+  )
+}
+
+/// The mock list with the given states applied in order; extra peers stay idle.
+private func previewPeers(_ states: NearbyPeerState...) -> [NearbyPeer] {
+  NearbyPeer.mockList.enumerated().map { index, peer in
+    var peer = peer
+    if index < states.count { peer.state = states[index] }
+    return peer
   }
 }
+
+#Preview("Live Mock Flow") {
+  // Starts at the permission prompt; tap Allow Bluetooth to watch people
+  // appear and one of them send a request.
+  addFriendsPreview(.unavailable(.permissionRequired), simulatesDiscovery: true)
+}
+
+#Preview("Permission Required") {
+  addFriendsPreview(.unavailable(.permissionRequired))
+}
+
+#Preview("Permission Denied") {
+  addFriendsPreview(.unavailable(.permissionDenied))
+}
+
+#Preview("Bluetooth Off") {
+  addFriendsPreview(.unavailable(.bluetoothOff))
+}
+
+#Preview("Unsupported Device") {
+  addFriendsPreview(.unavailable(.unsupported))
+}
+
+#Preview("Searching") {
+  addFriendsPreview(.scanning(peers: []))
+}
+
+#Preview("People Found") {
+  addFriendsPreview(.scanning(peers: Array(previewPeers().prefix(3))))
+}
+
+#Preview("Request Sent") {
+  addFriendsPreview(.scanning(peers: previewPeers(.requested)))
+}
+
+#Preview("Incoming Request") {
+  addFriendsPreview(.scanning(peers: previewPeers(.idle, .incoming)))
+}
+
+#Preview("Multiple Requests") {
+  // Four pending: three cards drawn, "+3" on the front one. Accept or decline
+  // to watch the next card come forward.
+  addFriendsPreview(.scanning(peers: previewPeers(.incoming, .incoming, .idle, .incoming, .incoming)))
+}
+
+#Preview("Adding") {
+  addFriendsPreview(.scanning(peers: previewPeers(.adding)))
+}
+
+#Preview("Added") {
+  addFriendsPreview(.scanning(peers: previewPeers(.added, .added)))
+}
+
+#Preview("Failed") {
+  addFriendsPreview(.scanning(peers: previewPeers(.failed)))
+}
+
+#Preview("Every State") {
+  addFriendsPreview(.scanning(peers: previewPeers(.idle, .requested, .incoming, .adding, .added)))
+}
+
+#Preview("Code Unavailable") {
+  addFriendsPreview(.scanning(peers: []), myCode: nil, isMyCodeUnavailable: true)
+}
+
+#Preview("As Sheet") {
+  @Previewable @State var showSheet = true
+
+  Button("Show Add Friends") {
+    showSheet = true
+  }
+  .sheet(isPresented: $showSheet) {
+    addFriendsPreview(.scanning(peers: previewPeers()), simulatesDiscovery: true)
+  }
+}
+#endif
