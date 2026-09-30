@@ -36,6 +36,14 @@ public final class LectureUseCase: LectureUseCaseProtocol, Sendable {
     }
   }
 
+  public func fetchDepartmentOptions() async throws -> [DepartmentOption] {
+    let context = CrashContext(feature: feature)
+
+    return try await execute(context: context) {
+      try await self.otlLectureRepository.fetchDepartmentOptions()
+    }
+  }
+
   public func fetchUserLectureHistory(userID: Int) async throws -> OTLUserLectureHistory {
     let context = CrashContext(
       feature: feature,
