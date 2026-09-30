@@ -10,4 +10,5 @@ import Foundation
 public protocol OTLUserRepositoryProtocol: Sendable {
   func register(ssoInfo: String) async throws
   func fetchUser() async throws -> OTLUser
+  func updateInterestedDepartments(userID: Int, departmentIDs: [Int]) async throws
 }
