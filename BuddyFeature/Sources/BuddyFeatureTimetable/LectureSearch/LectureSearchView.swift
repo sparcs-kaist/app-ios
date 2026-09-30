@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import FirebaseAnalytics
 import BuddyDomain
+import BuddyFeatureShared
 
 struct LectureSearchView: View {
   @Binding var detent: PresentationDetent
@@ -70,7 +71,7 @@ struct LectureSearchView: View {
       .contentWidth()
       .safeAreaBar(edge: .bottom) {
         VStack(spacing: 8) {
-          LectureSearchFilterBar(
+          CourseFilterBar(
             filter: $viewModel.filter,
             selectedDepartments: viewModel.selectedDepartments,
             onSelectDepartments: { showDepartmentPicker = true }
@@ -91,7 +92,7 @@ struct LectureSearchView: View {
         }
       }
       .navigationDestination(isPresented: $showDepartmentPicker) {
-        LectureDepartmentPicker(
+        DepartmentPicker(
           departments: viewModel.departments,
           interestedDepartmentIDs: viewModel.interestedDepartmentIDs,
           state: viewModel.departmentState,

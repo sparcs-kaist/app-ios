@@ -1,5 +1,5 @@
 //
-//  LectureSearchFilterBar.swift
+//  CourseFilterBar.swift
 //  BuddyFeature
 //
 //  Created by Soongyu Kwon on 30/09/2026.
@@ -8,13 +8,32 @@
 import SwiftUI
 import BuddyDomain
 
-/// The row of filter chips that sits directly above the search field.
-struct LectureSearchFilterBar: View {
-  @Binding var filter: LectureSearchFilter
-  let selectedDepartments: [DepartmentOption]
-  let onSelectDepartments: () -> Void
+/// A row of Liquid Glass filter chips for narrowing a lecture or course search.
+///
+/// Pass `period` to add the "offered recently" chip, which only course search supports.
+public struct CourseFilterBar: View {
+  @Binding private var filter: LectureSearchFilter
+  private let period: Binding<CourseSearchPeriod?>?
+  private let selectedDepartments: [DepartmentOption]
+  private let onSelectDepartments: () -> Void
 
-  var body: some View {
+  public init(
+    filter: Binding<LectureSearchFilter>,
+    period: Binding<CourseSearchPeriod?>? = nil,
+    selectedDepartments: [DepartmentOption],
+    onSelectDepartments: @escaping () -> Void
+  ) {
+    self._filter = filter
+    self.period = period
+    self.selectedDepartments = selectedDepartments
+    self.onSelectDepartments = onSelectDepartments
+  }
+
+  private var isActive: Bool {
+    !filter.isEmpty || period?.wrappedValue != nil
+  }
+
+  public var body: some View {
     HStack(spacing: 8) {
       ScrollView(.horizontal) {
         GlassEffectContainer {
@@ -22,6 +41,9 @@ struct LectureSearchFilterBar: View {
             departmentChip
             classificationChip
             levelChip
+            if let period {
+              periodChip(period)
+            }
           }
           .padding(.vertical, 4)
         }
@@ -30,14 +52,16 @@ struct LectureSearchFilterBar: View {
       .scrollIndicators(.hidden)
 
       // Pinned beside the chips so it stays reachable and never shifts them around.
-      if !filter.isEmpty {
+      if isActive {
         clearButton
           .padding(.trailing)
           .transition(.scale.combined(with: .opacity))
       }
     }
     .animation(.snappy, value: filter)
+    .animation(.snappy, value: period?.wrappedValue)
     .sensoryFeedback(.selection, trigger: filter)
+    .sensoryFeedback(.selection, trigger: period?.wrappedValue)
   }
 
   // MARK: - Chips
@@ -45,12 +69,13 @@ struct LectureSearchFilterBar: View {
   private var clearButton: some View {
     Button {
       filter = LectureSearchFilter()
+      period?.wrappedValue = nil
     } label: {
-      // Not an xmark: the search field right below has its own clear button.
+      // Not an xmark: a search field next to the bar has its own clear button.
       Image(systemName: "arrow.counterclockwise")
         .font(.subheadline.weight(.semibold))
         .foregroundStyle(.secondary)
-        .frame(width: LectureSearchFilterChip.height, height: LectureSearchFilterChip.height)
+        .frame(width: CourseFilterChip.height, height: CourseFilterChip.height)
         .glassEffect(.regular.interactive(), in: .circle)
     }
     .buttonStyle(.plain)
@@ -59,7 +84,7 @@ struct LectureSearchFilterBar: View {
 
   private var departmentChip: some View {
     Button(action: onSelectDepartments) {
-      LectureSearchFilterChip(
+      CourseFilterChip(
         title: String(localized: "Department", bundle: .module),
         selection: departmentSummary
       )
@@ -74,7 +99,7 @@ struct LectureSearchFilterBar: View {
       }
       .menuActionDismissBehavior(.disabled)
     } label: {
-      LectureSearchFilterChip(
+      CourseFilterChip(
         title: String(localized: "Type", bundle: .module),
         selection: summary(of: LectureSearchFilter.Classification.allCases, in: \.classifications, by: \.shortCode)
       )
@@ -90,9 +115,27 @@ struct LectureSearchFilterBar: View {
       }
       .menuActionDismissBehavior(.disabled)
     } label: {
-      LectureSearchFilterChip(
+      CourseFilterChip(
         title: String(localized: "Level", bundle: .module),
         selection: summary(of: LectureSearchFilter.Level.allCases, in: \.levels, by: \.shortTitle)
+      )
+    }
+    .menuOrder(.fixed)
+    .buttonStyle(.plain)
+  }
+
+  private func periodChip(_ period: Binding<CourseSearchPeriod?>) -> some View {
+    Menu {
+      Picker(String(localized: "Period", bundle: .module), selection: period) {
+        Text("Any Time", bundle: .module).tag(CourseSearchPeriod?.none)
+        ForEach(CourseSearchPeriod.allCases) { period in
+          Text(period.title).tag(CourseSearchPeriod?.some(period))
+        }
+      }
+    } label: {
+      CourseFilterChip(
+        title: String(localized: "Period", bundle: .module),
+        selection: period.wrappedValue?.title
       )
     }
     .menuOrder(.fixed)
@@ -133,7 +176,7 @@ struct LectureSearchFilterBar: View {
 }
 
 /// A Liquid Glass capsule that shows a filter's name, or what is selected once it is in use.
-private struct LectureSearchFilterChip: View {
+private struct CourseFilterChip: View {
   /// Matches the system's glass toolbar controls, which is also the minimum touch target.
   static let height: CGFloat = 44
   private static let maximumTitleWidth: CGFloat = 200
@@ -181,6 +224,19 @@ private extension LectureSearchFilter.Level {
       "500+"
     default:
       String(rawValue)
+    }
+  }
+}
+
+private extension CourseSearchPeriod {
+  var title: String {
+    switch self {
+    case .oneYear:
+      String(localized: "Within 1 Year", bundle: .module)
+    case .twoYears:
+      String(localized: "Within 2 Years", bundle: .module)
+    case .threeYears:
+      String(localized: "Within 3 Years", bundle: .module)
     }
   }
 }

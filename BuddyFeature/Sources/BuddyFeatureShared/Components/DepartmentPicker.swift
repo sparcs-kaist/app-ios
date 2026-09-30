@@ -1,5 +1,5 @@
 //
-//  LectureDepartmentPicker.swift
+//  DepartmentPicker.swift
 //  BuddyFeature
 //
 //  Created by Soongyu Kwon on 30/09/2026.
@@ -7,19 +7,32 @@
 
 import SwiftUI
 import BuddyDomain
-import BuddyFeatureShared
 
-/// A searchable multi-select list of the departments lectures can be filtered by.
-struct LectureDepartmentPicker: View {
-  let departments: [DepartmentOption]
-  let interestedDepartmentIDs: Set<Int>
-  let state: LectureSearchViewModel.ViewState
-  @Binding var selection: Set<Int>
-  let onRetry: () async -> Void
+/// A searchable multi-select list of the departments lectures and courses can be filtered by.
+public struct DepartmentPicker: View {
+  private let departments: [DepartmentOption]
+  private let interestedDepartmentIDs: Set<Int>
+  private let state: DepartmentOptionsViewState
+  @Binding private var selection: Set<Int>
+  private let onRetry: () async -> Void
 
   @State private var searchText: String = ""
 
-  var body: some View {
+  public init(
+    departments: [DepartmentOption],
+    interestedDepartmentIDs: Set<Int>,
+    state: DepartmentOptionsViewState,
+    selection: Binding<Set<Int>>,
+    onRetry: @escaping () async -> Void
+  ) {
+    self.departments = departments
+    self.interestedDepartmentIDs = interestedDepartmentIDs
+    self.state = state
+    self._selection = selection
+    self.onRetry = onRetry
+  }
+
+  public var body: some View {
     List {
       switch state {
       case .loading:
