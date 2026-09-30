@@ -10,6 +10,7 @@ import Moya
 
 public enum OTLLectureTarget {
   case searchLecture(request: LectureSearchRequestDTO)
+  case fetchDepartmentOptions
 }
 
 extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
@@ -21,12 +22,14 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .searchLecture:
       "/api/v2/lectures"
+    case .fetchDepartmentOptions:
+      "/api/v2/department-options"
     }
   }
 
   public var method: Moya.Method {
     switch self {
-    case .searchLecture:
+    case .searchLecture, .fetchDepartmentOptions:
         .get
     }
   }
@@ -39,6 +42,8 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
           parameters: request.parameters,
           encoding: URLEncoding(destination: .queryString, arrayEncoding: .noBrackets)
         )
+    case .fetchDepartmentOptions:
+        .requestPlain
     }
   }
 

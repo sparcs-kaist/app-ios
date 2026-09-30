@@ -26,4 +26,11 @@ public final class OTLLectureRepository: OTLLectureRepositoryProtocol, Sendable 
 
     return result.courses.compactMap { $0.toModel() }
   }
+
+  public func fetchDepartmentOptions() async throws -> [DepartmentOption] {
+    let response = try await self.provider.request(.fetchDepartmentOptions)
+    let result = try response.map(DepartmentOptionListDTO.self)
+
+    return result.departments.map { $0.toModel() }
+  }
 }

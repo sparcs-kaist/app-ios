@@ -9,4 +9,5 @@ import Foundation
 
 public protocol OTLLectureRepositoryProtocol: Sendable {
   func searchLecture(request: LectureSearchRequest) async throws -> [CourseLecture]
+  func fetchDepartmentOptions() async throws -> [DepartmentOption]
 }
