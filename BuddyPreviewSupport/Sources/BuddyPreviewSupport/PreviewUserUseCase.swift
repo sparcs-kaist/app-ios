@@ -24,4 +24,5 @@ public struct PreviewUserUseCase: UserUseCaseProtocol {
   public func fetchFeedUser() async throws {}
   public func fetchOTLUser() async throws {}
   public func updateAraUser(params: [String: Any]) async throws {}
+  public func updateInterestedDepartments(departmentIDs: [Int]) async throws {}
 }
