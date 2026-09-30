@@ -32,7 +32,7 @@ class LectureSearchViewModel {
   private(set) var departments: [DepartmentOption] = []
   /// The user's interested departments from Settings, listed first in the department picker.
   private(set) var interestedDepartmentIDs: Set<Int> = []
-  private(set) var departmentState: ViewState = .loading
+  private(set) var departmentState: DepartmentOptionsViewState = .loading
   /// Whether the server may hold more lectures for the current search.
   private(set) var canLoadMore: Bool = false
 
