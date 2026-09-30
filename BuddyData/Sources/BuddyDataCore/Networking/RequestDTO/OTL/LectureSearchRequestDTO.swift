@@ -26,13 +26,9 @@ extension LectureSearchRequestDTO {
       year: model.semester.year,
       semester: model.semester.semesterType.intValue,
       keyword: model.keyword,
-      type: LectureSearchFilter.Classification.allCases
-        .filter(model.filter.classifications.contains)
-        .map(\.rawValue),
-      department: model.filter.departmentIDs.sorted(),
-      level: LectureSearchFilter.Level.allCases
-        .filter(model.filter.levels.contains)
-        .flatMap(\.queryValues),
+      type: model.filter.typeQueryValues,
+      department: model.filter.departmentQueryValues,
+      level: model.filter.levelQueryValues,
       limit: model.limit,
       offset: model.offset
     )
@@ -53,17 +49,5 @@ extension LectureSearchRequestDTO {
     if !level.isEmpty { parameters["level"] = level }
 
     return parameters
-  }
-}
-
-private extension LectureSearchFilter.Level {
-  /// The API only filters by exact hundreds, so the graduate band expands to each of its levels.
-  var queryValues: [Int] {
-    switch self {
-    case .graduate:
-      [500, 600, 700, 800, 900]
-    default:
-      [rawValue]
-    }
   }
 }
