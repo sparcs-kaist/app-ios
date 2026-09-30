@@ -307,6 +307,38 @@
           }
         }
       }
+    },
+    "Interested Departments" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interested Departments"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "관심 학과"
+          }
+        }
+      }
+    },
+    "Other Departments" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other Departments"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 학과"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
