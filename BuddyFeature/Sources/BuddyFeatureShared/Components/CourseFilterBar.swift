@@ -34,30 +34,26 @@ public struct CourseFilterBar: View {
   }
 
   public var body: some View {
-    HStack(spacing: 8) {
-      ScrollView(.horizontal) {
-        GlassEffectContainer {
-          HStack(spacing: 8) {
-            departmentChip
-            classificationChip
-            levelChip
-            if let period {
-              periodChip(period)
-            }
+    ScrollView(.horizontal) {
+      GlassEffectContainer {
+        HStack(spacing: 8) {
+          // Part of the row rather than pinned beside it, so it never cuts a chip off.
+          if isActive {
+            clearButton
+              .transition(.scale.combined(with: .opacity))
           }
-          .padding(.vertical, 4)
+          departmentChip
+          classificationChip
+          levelChip
+          if let period {
+            periodChip(period)
+          }
         }
-      }
-      .contentMargins(.horizontal, 16, for: .scrollContent)
-      .scrollIndicators(.hidden)
-
-      // Pinned beside the chips so it stays reachable and never shifts them around.
-      if isActive {
-        clearButton
-          .padding(.trailing)
-          .transition(.scale.combined(with: .opacity))
+        .padding(.vertical, 4)
       }
     }
+    .contentMargins(.horizontal, 16, for: .scrollContent)
+    .scrollIndicators(.hidden)
     .animation(.snappy, value: filter)
     .animation(.snappy, value: period?.wrappedValue)
     .sensoryFeedback(.selection, trigger: filter)
