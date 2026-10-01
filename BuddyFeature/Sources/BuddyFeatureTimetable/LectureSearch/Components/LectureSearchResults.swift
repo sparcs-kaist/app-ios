@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 /// A screen pushed from the lecture search results.
 enum LectureSearchRoute: Hashable {
@@ -54,7 +55,7 @@ private struct CourseHeader: View {
         // The server marks a course you have taken in any earlier semester.
         if course.completed {
           Spacer(minLength: 0)
-          takenBadge
+          TakenBadge()
         }
       }
 
@@ -63,20 +64,6 @@ private struct CourseHeader: View {
         .foregroundStyle(.secondary)
         .lineLimit(1)
     }
-  }
-
-  private var takenBadge: some View {
-    // Not a Label: list rows reduce a Label to its icon.
-    HStack(spacing: 3) {
-      Image(systemName: "checkmark.circle.fill")
-      Text("Taken", bundle: .module)
-    }
-    .font(.caption.weight(.semibold))
-    .foregroundStyle(.tint)
-    .padding(.horizontal, 8)
-    .padding(.vertical, 3)
-    .background(.tint.quaternary, in: .capsule)
-    .fixedSize()
   }
 
   private var details: [String] {

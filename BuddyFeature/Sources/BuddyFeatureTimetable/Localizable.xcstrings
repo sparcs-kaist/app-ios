@@ -2062,6 +2062,22 @@
           }
         }
       }
+    },
+    "Your section" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your section"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내가 수강한 분반"
+          }
+        }
+      }
     }
   },
   "version" : "1.3"

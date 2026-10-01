@@ -62,7 +62,8 @@ struct CourseHistorySection: View {
           .font(.subheadline)
           .fontWeight(.semibold)
         Spacer(minLength: 4)
-        if entry.myLectureID != nil {
+        // The section row carries the mark when it can; this covers a lecture missing from the list.
+        if let myLectureID = entry.myLectureID, !entry.classes.contains(where: { $0.lectureID == myLectureID }) {
           Image(systemName: "checkmark.circle.fill")
             .foregroundStyle(.tint)
             .accessibilityLabel(String(localized: "Taken", bundle: .module))
@@ -71,7 +72,7 @@ struct CourseHistorySection: View {
 
       VStack(alignment: .leading, spacing: 6) {
         ForEach(entry.classes, id: \.lectureID) { lectureClass in
-          classRow(lectureClass)
+          classRow(lectureClass, isTaken: lectureClass.lectureID == entry.myLectureID)
         }
       }
     }
@@ -84,7 +85,7 @@ struct CourseHistorySection: View {
     .accessibilityElement(children: .contain)
   }
 
-  private func classRow(_ lectureClass: CourseHistoryClass) -> some View {
+  private func classRow(_ lectureClass: CourseHistoryClass, isTaken: Bool) -> some View {
     let isMatch = selectedProfessorID.map { id in lectureClass.professors.contains { $0.id == id } } ?? false
     let names = lectureClass.professors.map(\.name)
     let professorID = lectureClass.professors.first?.id
@@ -105,6 +106,11 @@ struct CourseHistorySection: View {
           .foregroundStyle(isMatch ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
           .lineLimit(2)
           .multilineTextAlignment(.leading)
+        if isTaken {
+          Image(systemName: "checkmark.circle.fill")
+            .foregroundStyle(.tint)
+            .accessibilityLabel(String(localized: "Your section", bundle: .module))
+        }
       }
       .font(.footnote)
       .frame(maxWidth: .infinity, alignment: .leading)
