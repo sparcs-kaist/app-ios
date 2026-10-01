@@ -13,15 +13,25 @@ struct CourseReviewSection: View {
   let gradeLetter: String
   let loadLetter: String
   let speechLetter: String
+  /// The professor the reviews are narrowed to, if any.
+  var professorName: String? = nil
   let isLoaded: Bool
   @Binding var reviews: [LectureReview]
 
   var body: some View {
     VStack {
       HStack {
-        Text("Reviews", bundle: .module)
-          .font(.title3)
-          .fontWeight(.bold)
+        VStack(alignment: .leading, spacing: 2) {
+          Text("Reviews", bundle: .module)
+            .font(.title3)
+            .fontWeight(.bold)
+          if let professorName {
+            Text(professorName)
+              .font(.footnote)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+        }
         Spacer()
 
         summaryRow(title: "Grade", description: gradeLetter)
