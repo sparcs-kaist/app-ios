@@ -16,6 +16,12 @@ public struct OTLUserDTO: Codable {
   public let degree: String
   public let majorDepartments: [DepartmentDTO]
   public let interestedDepartments: [DepartmentDTO]
+
+  enum CodingKeys: String, CodingKey {
+    case id, name, studentNumber, degree, majorDepartments, interestedDepartments
+    // The OTL API returns the address under `mail`.
+    case email = "mail"
+  }
 }
 
 

@@ -26,4 +26,9 @@ public final class OTLLectureRepository: OTLLectureRepositoryProtocol, Sendable 
 
     return result.courses.compactMap { $0.toModel() }
   }
+
+  public func fetchUserLectureHistory(userID: Int) async throws -> OTLUserLectureHistory {
+    let response = try await provider.request(.fetchUserLectureHistory(userID: userID))
+    return try response.map(OTLUserLectureHistoryDTO.self).toModel()
+  }
 }

@@ -10,6 +10,12 @@
             "state" : "new",
             "value" : "Buddy"
           }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Buddy"
+          }
         }
       }
     },
@@ -21,6 +27,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "soap"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Buddy"
           }
         }
       }
@@ -49,5 +61,5 @@
       }
     }
   },
-  "version" : "1.1"
+  "version" : "1.3"
 }

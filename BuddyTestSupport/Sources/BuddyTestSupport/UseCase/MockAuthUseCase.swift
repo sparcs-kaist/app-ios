@@ -16,6 +16,7 @@ public final class MockAuthUseCase: AuthUseCaseProtocol, @unchecked Sendable {
   public nonisolated var isAuthenticatedPublisher: AnyPublisher<Bool, Never> {
     Just(true).eraseToAnyPublisher()
   }
+  public nonisolated var isAuthenticated: Bool { true }
 
   public init() { }
 

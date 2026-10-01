@@ -10,6 +10,7 @@ import Combine
 import os
 import BuddyDomain
 import BuddyDataCore
+import Factory
 import WidgetKit
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "Auth")
@@ -27,6 +28,9 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   private nonisolated(unsafe) let _isAuthenticatedSubject = CurrentValueSubject<Bool, Never>(false)
   public nonisolated var isAuthenticatedPublisher: AnyPublisher<Bool, Never> {
     _isAuthenticatedSubject.eraseToAnyPublisher()
+  }
+  public nonisolated var isAuthenticated: Bool {
+    _isAuthenticatedSubject.value
   }
 
   // In-flight refresh coordination. Because the check-and-assign of
@@ -176,6 +180,8 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
       cancelRefreshTimer()
+      clearCreditSummary()
+      WidgetCenter.shared.reloadAllTimelines()
       throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
     }
 
@@ -207,6 +213,9 @@ public actor AuthUseCase: AuthUseCaseProtocol {
         tokenStorage.clearTokens()
         _isAuthenticatedSubject.value = false
         cancelRefreshTimer()
+        // The session is gone, so the Credits widgets mustn't keep showing the GPA.
+        clearCreditSummary()
+        WidgetCenter.shared.reloadAllTimelines()
       }
       throw AuthUseCaseError.refreshFailed(error)
     }
@@ -247,10 +256,21 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()
     }
-    WidgetCenter.shared.reloadAllTimelines()
     tokenStorage.clearTokens()
+    // Signed out before the snapshot is cleared, so a Credits load still in flight
+    // hits `publishWidgetSnapshot()`'s auth guard instead of republishing it.
     _isAuthenticatedSubject.value = false
     cancelRefreshTimer()
+    // Cleared before the reload, so the Credits widgets can't show this user's GPA,
+    // on the watch too.
+    clearCreditSummary()
+    WidgetCenter.shared.reloadAllTimelines()
     logger.info("Signed out.")
+  }
+
+  /// Removes the stored GPA snapshot, and the watch's copy, once the session ends.
+  private func clearCreditSummary() {
+    CreditSummarySnapshotStore().clear()
+    Container.shared.sessionBridgeService()?.updateCreditSummary(nil)
   }
 }

@@ -37,6 +37,21 @@ public final class SessionBridgeServiceWatch: NSObject, WCSessionDelegate, Sessi
     if let data = applicationContext[BridgeKeys.timetableTheme] as? Data {
       receiveTheme(data)
     }
+    if let data = applicationContext[BridgeKeys.creditSummary] as? Data {
+      receiveCreditSummary(data)
+    }
+  }
+
+  /// Stores the phone's Credits totals for the watch's Credits widget. Empty data
+  /// means the phone signed out (or never computed them), so clear them.
+  private func receiveCreditSummary(_ data: Data) {
+    let store = CreditSummarySnapshotStore()
+    if let snapshot = try? JSONDecoder().decode(CreditSummarySnapshot.self, from: data) {
+      store.save(snapshot)
+    } else {
+      store.clear()
+    }
+    WidgetCenter.shared.reloadTimelines(ofKind: CreditSummarySnapshotStore.widgetKind)
   }
 
   private func receiveTimetable(_ data: Data) {
