@@ -26,6 +26,8 @@ struct LectureSearchResults: View {
   let timetable: Timetable?
   /// Opening a lecture also previews it, so it goes through the search view rather than a link.
   let onOpenLecture: (Lecture) -> Void
+  let onOpenCourse: (_ id: Int, _ name: String) -> Void
+  let onAddLecture: (Lecture) -> Void
 
   var body: some View {
     ForEach(courses) { course in
@@ -35,15 +37,13 @@ struct LectureSearchResults: View {
           CourseHeader(course: course)
         }
         ForEach(course.lectures) { lecture in
+          let conflicts = timetable?.conflicts(with: lecture) ?? []
+          let isAdded = timetable?.contains(lecture) ?? false
           Button {
             onOpenLecture(lecture)
           } label: {
             HStack {
-              LectureRow(
-                lecture: lecture,
-                conflicts: timetable?.conflicts(with: lecture) ?? [],
-                isAdded: timetable?.contains(lecture) ?? false
-              )
+              LectureRow(lecture: lecture, conflicts: conflicts, isAdded: isAdded)
               // Matches the chevron the course header's link draws.
               Image(systemName: "chevron.right")
                 .font(.footnote.weight(.semibold))
@@ -52,7 +52,50 @@ struct LectureSearchResults: View {
             .contentShape(.rect)
           }
           .buttonStyle(.plain)
+          // A long press peeks at the lecture's details without opening it.
+          .contextMenu {
+            lectureActions(lecture, conflicts: conflicts, isAdded: isAdded)
+          } preview: {
+            // In a stack so the preview carries the lecture's name as its title.
+            NavigationStack {
+              LectureDetailView(
+                lecture: lecture,
+                onAdd: nil,
+                conflicts: conflicts,
+                isAdded: isAdded,
+                lectureClass: lecture.classes.first
+              )
+            }
+            .frame(width: 380, height: 560)
+          }
         }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private func lectureActions(_ lecture: Lecture, conflicts: [String], isAdded: Bool) -> some View {
+    Button(String(localized: "Open", bundle: .module), systemImage: "arrow.up.right") {
+      onOpenLecture(lecture)
+    }
+    Button(String(localized: "View Course", bundle: .module), systemImage: "book.closed") {
+      onOpenCourse(lecture.courseID, lecture.name)
+    }
+    Section {
+      if isAdded {
+        Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
+          .disabled(true)
+      } else {
+        // Same rule as the detail's Add button: an overlapping lecture cannot be added.
+        Button {
+          onAddLecture(lecture)
+        } label: {
+          Label(String(localized: "Add to Timetable", bundle: .module), systemImage: "plus")
+          if !conflicts.isEmpty {
+            Text("Overlaps with \(conflicts.formatted(.list(type: .and)))", bundle: .module)
+          }
+        }
+        .disabled(!conflicts.isEmpty)
       }
     }
   }
