@@ -56,7 +56,13 @@ struct LectureSearchView: View {
             if viewModel.courses.isEmpty {
               noResults
             } else {
-              LectureSearchResults(courses: viewModel.courses, timetable: timetable, onOpenLecture: openLecture)
+              LectureSearchResults(
+                courses: viewModel.courses,
+                timetable: timetable,
+                onOpenLecture: openLecture,
+                onOpenCourse: { id, name in path.append(.course(id: id, name: name)) },
+                onAddLecture: onAdd
+              )
 
               if viewModel.canLoadMore {
                 ProgressView()
