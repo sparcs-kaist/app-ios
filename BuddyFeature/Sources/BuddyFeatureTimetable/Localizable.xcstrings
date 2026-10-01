@@ -2555,6 +2555,22 @@
         }
       }
     },
+    "View Course" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Course"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "과목 보기"
+          }
+        }
+      }
+    },
     "Write a Review" : {
       "localizations" : {
         "en" : {
