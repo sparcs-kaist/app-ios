@@ -25,6 +25,8 @@ struct LectureSearchView: View {
   @State private var path: [LectureSearchRoute] = []
   /// Whether the sheet offers its short preview height; see `detents`.
   @State private var offersPreviewHeight = false
+  /// A height change waiting for a push or pop to finish; see `setDetentAfterNavigation`.
+  @State private var pendingDetentChange: Task<Void, Never>?
   @FocusState private var isSearchFocused: Bool
 
   var body: some View {
@@ -123,7 +125,7 @@ struct LectureSearchView: View {
           onRetry: { await viewModel.fetchDepartments() }
         )
         .onAppear {
-          setDetent(.large)
+          setDetentAfterNavigation(.large)
         }
       }
       .onAppear {
@@ -138,7 +140,7 @@ struct LectureSearchView: View {
     .interactiveDismissDisabled(path.first?.lecture != nil)
     // Only a lecture opened from the results is shown short; every other screen pushed in the
     // search, such as the course page however it is reached, asks for full height.
-    .environment(\.expandSheet, { setDetent(.large) })
+    .environment(\.expandSheet, { setDetentAfterNavigation(.large) })
     .presentationDetents(detents, selection: $detent)
     .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
   }
@@ -159,15 +161,19 @@ struct LectureSearchView: View {
     isSearchFocused = false
     candidateLecture = lecture
     offersPreviewHeight = true
-    setDetent(Self.previewHeight)
     path.append(.lecture(lecture))
+    setDetentAfterNavigation(Self.previewHeight) {
+      // Skip the shrink if the user already left the lecture.
+      path.count == 1 && path.first?.lecture == lecture
+    }
   }
 
   /// Back on the results, the sheet opens to full height so there is room to browse them.
   private func endPreview() {
     candidateLecture = nil
-    setDetent(.large)
-    offersPreviewHeight = false
+    setDetentAfterNavigation(.large) {
+      path.first?.lecture == nil
+    }
   }
 
   /// Animates the sheet to a new height rather than letting it jump.
@@ -175,7 +181,29 @@ struct LectureSearchView: View {
     withAnimation(.smooth) {
       detent = newDetent
     }
+    // The short height is only offered while the sheet uses it, so it cannot be dragged to.
+    if newDetent != Self.previewHeight {
+      offersPreviewHeight = false
+    }
   }
+
+  /// Resizes the sheet once a push or pop has finished. Moving and resizing at the same time
+  /// makes the transition stutter. A newer change replaces one still waiting, and `isStillWanted`
+  /// drops a change the user has navigated away from in the meantime.
+  private func setDetentAfterNavigation(
+    _ newDetent: PresentationDetent,
+    if isStillWanted: @escaping @MainActor () -> Bool = { true }
+  ) {
+    pendingDetentChange?.cancel()
+    pendingDetentChange = Task {
+      try? await Task.sleep(for: Self.navigationDuration)
+      guard !Task.isCancelled, isStillWanted() else { return }
+      setDetent(newDetent)
+    }
+  }
+
+  /// How long a push or pop takes to animate.
+  private static let navigationDuration = Duration.milliseconds(400)
 
   @ViewBuilder
   private var noResults: some View {
