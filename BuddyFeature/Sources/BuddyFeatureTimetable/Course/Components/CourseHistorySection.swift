@@ -118,6 +118,27 @@ struct CourseHistorySection: View {
   private func isTaught(by professorID: Int, in entry: CourseHistory) -> Bool {
     entry.classes.contains { $0.professors.contains { $0.id == professorID } }
   }
+
+  /// Stand-in offerings shaped like real ones, redacted while the course loads.
+  static let placeholder: [CourseHistory] = [
+    (2026, SemesterType.autumn, 2),
+    (2026, .spring, 1),
+    (2025, .autumn, 2)
+  ].map { year, semester, sections in
+    CourseHistory(
+      year: year,
+      semester: semester,
+      classes: (0..<sections).map { index in
+        CourseHistoryClass(
+          lectureID: -(year * 10 + semester.intValue) * 10 - index,
+          subtitle: "",
+          section: String(UnicodeScalar(UInt8(65 + index))),
+          professors: [Professor(id: -index - 1, name: "Professor Name")]
+        )
+      },
+      myLectureID: nil
+    )
+  }
 }
 
 private extension CourseHistory {
