@@ -68,6 +68,13 @@ class LectureSearchViewModel {
   @ObservationIgnored private var searchGeneration = 0
   @ObservationIgnored private var selectedSemester: Semester?
 
+  /// The semester's wishlisted lectures, shown while there is nothing to search for.
+  private(set) var wishlist: [CourseLecture] = []
+  /// Wishlisted lecture IDs, updated as soon as a heart is tapped.
+  private(set) var wishlistedLectureIDs: Set<Int> = []
+  /// Set when a wishlist change fails, for the view to report.
+  var wishlistError: String?
+
   private var currentQuery: Query {
     Query(keyword: searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines), filter: filter, time: time)
   }
@@ -79,6 +86,9 @@ class LectureSearchViewModel {
   @ObservationIgnored @Injected(
     \.userUseCase
   ) private var userUseCase: UserUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.wishlistUseCase
+  ) private var wishlistUseCase: WishlistUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.crashlyticsService
   ) private var crashlyticsService: CrashlyticsServiceProtocol?
@@ -96,6 +106,57 @@ class LectureSearchViewModel {
 
   func retry() {
     restartSearch()
+  }
+
+  // MARK: - Wishlist
+
+  func isWishlisted(_ lecture: Lecture) -> Bool {
+    wishlistedLectureIDs.contains(lecture.id)
+  }
+
+  func fetchWishlist(semester: Semester) async {
+    guard let wishlistUseCase else { return }
+    do {
+      let courses = try await wishlistUseCase.fetchWishlist(semester: semester)
+      guard semester == selectedSemester || selectedSemester == nil else { return }
+      wishlist = courses
+      wishlistedLectureIDs = Set(courses.flatMap { $0.lectures.map(\.id) })
+    } catch {
+      // The wishlist is extra; search works without it, so a failure stays quiet.
+      crashlyticsService?.recordException(error: error)
+    }
+  }
+
+  /// Flips a lecture's wishlist state at once, then saves it, undoing the change if that fails.
+  func toggleWishlist(_ lecture: Lecture) async {
+    guard let wishlistUseCase else { return }
+    let isAdding = !isWishlisted(lecture)
+    let previousWishlist = wishlist
+    if isAdding {
+      wishlistedLectureIDs.insert(lecture.id)
+    } else {
+      wishlistedLectureIDs.remove(lecture.id)
+      wishlist = wishlist.removing(lectureID: lecture.id)
+    }
+    analyticsService?.logEvent(isAdding ? LectureSearchViewEvent.lectureWishlisted : LectureSearchViewEvent.lectureUnwishlisted)
+
+    do {
+      try await wishlistUseCase.setWishlisted(isAdding, lectureID: lecture.id)
+    } catch {
+      crashlyticsService?.recordException(error: error)
+      if isAdding {
+        wishlistedLectureIDs.remove(lecture.id)
+      } else {
+        wishlistedLectureIDs.insert(lecture.id)
+        wishlist = previousWishlist
+      }
+      wishlistError = error.localizedDescription
+      return
+    }
+    // An added lecture needs its course from the server to appear in the list.
+    if isAdding, let selectedSemester {
+      await fetchWishlist(semester: selectedSemester)
+    }
   }
 
   func fetchDepartments() async {
@@ -206,5 +267,17 @@ class LectureSearchViewModel {
 private extension Array where Element == CourseLecture {
   var lectureCount: Int {
     reduce(0) { $0 + $1.lectures.count }
+  }
+
+  /// Drops one lecture, and its course once it has none left.
+  func removing(lectureID: Int) -> [CourseLecture] {
+    compactMap { course in
+      let lectures = course.lectures.filter { $0.id != lectureID }
+      guard !lectures.isEmpty else { return nil }
+      return CourseLecture(
+        id: course.id, name: course.name, code: course.code, type: course.type,
+        lectures: lectures, completed: course.completed
+      )
+    }
   }
 }

@@ -33,10 +33,20 @@ struct LectureSearchView: View {
     NavigationStack(path: $path) {
       List {
         if !viewModel.hasCriteria {
-          ContentUnavailableView {
-            Label(String(localized: "Search", bundle: .module), systemImage: "magnifyingglass")
-          } description: {
-            Text("Search courses, codes or professors, or browse with filters.", bundle: .module)
+          if viewModel.wishlist.isEmpty {
+            ContentUnavailableView {
+              Label(String(localized: "Search", bundle: .module), systemImage: "magnifyingglass")
+            } description: {
+              Text("Search courses, codes or professors, or browse with filters.", bundle: .module)
+            }
+          } else {
+            // With nothing to search for yet, the lectures saved for this semester come first.
+            Label(String(localized: "Wishlist", bundle: .module), systemImage: "heart.fill")
+              .font(.title3.weight(.bold))
+              .foregroundStyle(.primary, .pink)
+              .listRowBackground(Color.clear)
+              .listRowInsets(EdgeInsets(top: 8, leading: 4, bottom: 0, trailing: 4))
+            results(for: viewModel.wishlist, showsRatings: false)
           }
         } else {
           switch viewModel.state {
@@ -56,13 +66,7 @@ struct LectureSearchView: View {
             if viewModel.courses.isEmpty {
               noResults
             } else {
-              LectureSearchResults(
-                courses: viewModel.courses,
-                timetable: timetable,
-                onOpenLecture: openLecture,
-                onOpenCourse: { id, name in path.append(.course(id: id, name: name)) },
-                onAddLecture: onAdd
-              )
+              results(for: viewModel.courses)
 
               if viewModel.canLoadMore {
                 ProgressView()
@@ -110,6 +114,8 @@ struct LectureSearchView: View {
             onAdd: { onAdd(lecture) },
             conflicts: timetable?.conflicts(with: lecture) ?? [],
             isAdded: timetable?.contains(lecture) ?? false,
+            isWishlisted: viewModel.isWishlisted(lecture),
+            onToggleWishlist: { Task { await viewModel.toggleWishlist(lecture) } },
             lectureClass: lecture.classes.first
           )
         case .course(let id, let name):
@@ -141,6 +147,15 @@ struct LectureSearchView: View {
       .task {
         await viewModel.fetchDepartments()
       }
+      .task(id: selectedSemester) {
+        await viewModel.fetchWishlist(semester: selectedSemester)
+      }
+      .alert(
+        String(localized: "Couldn't Update Wishlist", bundle: .module),
+        isPresented: Binding(get: { viewModel.wishlistError != nil }, set: { if !$0 { viewModel.wishlistError = nil } }),
+        actions: { Button(String(localized: "Okay", bundle: .module), role: .close) { } },
+        message: { Text(viewModel.wishlistError ?? "") }
+      )
     }
     // While a lecture is open the sheet is often at its smallest height, where a stray
     // downward swipe would dismiss the whole search. Leaving goes through the back button.
@@ -214,6 +229,19 @@ struct LectureSearchView: View {
 
   /// How long a push or pop takes to animate.
   private static let navigationDuration = Duration.milliseconds(400)
+
+  private func results(for courses: [CourseLecture], showsRatings: Bool = true) -> some View {
+    LectureSearchResults(
+      courses: courses,
+      timetable: timetable,
+      onOpenLecture: openLecture,
+      onOpenCourse: { id, name in path.append(.course(id: id, name: name)) },
+      onAddLecture: onAdd,
+      wishlistedLectureIDs: viewModel.wishlistedLectureIDs,
+      onToggleWishlist: { lecture in Task { await viewModel.toggleWishlist(lecture) } },
+      showsRatings: showsRatings
+    )
+  }
 
   @ViewBuilder
   private var noResults: some View {

@@ -209,6 +209,22 @@
         }
       }
     },
+    "Add to Wishlist" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to Wishlist"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "찜하기"
+          }
+        }
+      }
+    },
     "Added" : {
       "localizations" : {
         "en" : {
@@ -603,6 +619,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시간표를 다운로드하려면 인터넷에 연결하십시오."
+          }
+        }
+      }
+    },
+    "Couldn't Update Wishlist" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't Update Wishlist"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "찜 목록을 업데이트할 수 없음"
           }
         }
       }
@@ -1329,6 +1361,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시간표에서 제거"
+          }
+        }
+      }
+    },
+    "Remove from Wishlist" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove from Wishlist"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "찜 해제"
           }
         }
       }
@@ -2123,6 +2171,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "과목 보기"
+          }
+        }
+      }
+    },
+    "Wishlist" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wishlist"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "찜한 강의"
           }
         }
       }

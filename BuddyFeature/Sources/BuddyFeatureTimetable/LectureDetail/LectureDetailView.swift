@@ -18,6 +18,9 @@ struct LectureDetailView: View {
   let conflicts: [String]
   /// Whether the timetable already holds this lecture.
   let isAdded: Bool
+  let isWishlisted: Bool
+  /// Shows a heart in the toolbar when set.
+  let onToggleWishlist: (() -> Void)?
   let lectureClass: LectureClass?
 
   init(
@@ -25,12 +28,16 @@ struct LectureDetailView: View {
     onAdd: (() -> Void)?,
     conflicts: [String] = [],
     isAdded: Bool = false,
+    isWishlisted: Bool = false,
+    onToggleWishlist: (() -> Void)? = nil,
     lectureClass: LectureClass? = nil
   ) {
     self.lecture = lecture
     self.onAdd = onAdd
     self.conflicts = conflicts
     self.isAdded = isAdded
+    self.isWishlisted = isWishlisted
+    self.onToggleWishlist = onToggleWishlist
     self.lectureClass = lectureClass
   }
 
@@ -84,6 +91,11 @@ struct LectureDetailView: View {
     .navigationTitle(lecture.name)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
+      if let onToggleWishlist {
+        ToolbarItem(placement: .topBarTrailing) {
+          WishlistButton(isWishlisted: isWishlisted, action: onToggleWishlist)
+        }
+      }
       if onAdd != nil {
         ToolbarItem(placement: .topBarTrailing) {
           if isAdded {
