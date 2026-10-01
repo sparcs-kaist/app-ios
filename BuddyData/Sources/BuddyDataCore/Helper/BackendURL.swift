@@ -14,9 +14,9 @@ public enum BackendURL {
   // MARK: Authorisation
   public static let authorisationURL: URL? = {
     if Status.isProduction {
-      return URL(string: "https://taxi.sparcs.org/api/auth/sparcsapp/login")
+      return URL(string: "https://buddy.sparcs.org/v1/auth/sso")
     } else {
-      return URL(string: "https://taxi.dev.sparcs.org/api/auth/sparcsapp/login")
+      return URL(string: "https://buddy.dev.sparcs.org/v1/auth/sso")
     }
   }()
 
