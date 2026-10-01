@@ -135,6 +135,9 @@ struct LectureSearchView: View {
         await viewModel.fetchDepartments()
       }
     }
+    // While a lecture is open the sheet is often at its smallest height, where a stray
+    // downward swipe would dismiss the whole search. Leaving goes through the back button.
+    .interactiveDismissDisabled(path.first?.lecture != nil)
     .presentationDetents(detents, selection: $detent)
     .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
   }
