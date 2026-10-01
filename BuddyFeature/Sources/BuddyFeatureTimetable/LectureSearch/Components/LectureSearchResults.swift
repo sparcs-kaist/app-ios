@@ -24,6 +24,8 @@ enum LectureSearchRoute: Hashable {
 struct LectureSearchResults: View {
   let courses: [CourseLecture]
   let timetable: Timetable?
+  /// Opening a lecture also previews it, so it goes through the search view rather than a link.
+  let onOpenLecture: (Lecture) -> Void
 
   var body: some View {
     ForEach(courses) { course in
@@ -33,13 +35,23 @@ struct LectureSearchResults: View {
           CourseHeader(course: course)
         }
         ForEach(course.lectures) { lecture in
-          NavigationLink(value: LectureSearchRoute.lecture(lecture)) {
-            LectureRow(
-              lecture: lecture,
-              conflicts: timetable?.conflicts(with: lecture) ?? [],
-              isAdded: timetable?.contains(lecture) ?? false
-            )
+          Button {
+            onOpenLecture(lecture)
+          } label: {
+            HStack {
+              LectureRow(
+                lecture: lecture,
+                conflicts: timetable?.conflicts(with: lecture) ?? [],
+                isAdded: timetable?.contains(lecture) ?? false
+              )
+              // Matches the chevron the course header's link draws.
+              Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.tertiary)
+            }
+            .contentShape(.rect)
           }
+          .buttonStyle(.plain)
         }
       }
     }
