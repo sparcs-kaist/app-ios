@@ -105,6 +105,31 @@ struct AuthUseCaseTests {
     #expect(fixture.storage.getRefreshToken() == "refresh-new")
   }
 
+  @Test func signOutWaitsForRotationAndRevokesLatestToken() async throws {
+    let fixture = Fixture()
+    fixture.service.delay = .milliseconds(100)
+    let refresh = Task { try await fixture.auth.refreshAccessToken(force: true) }
+    while fixture.service.refreshCount == 0 { await Task.yield() }
+
+    try await fixture.auth.signOut()
+    try await refresh.value
+
+    #expect(fixture.service.logoutToken == "refresh-new")
+    #expect(fixture.storage.getRefreshToken() == nil)
+    #expect(!isAuthenticated(fixture.auth))
+  }
+
+  @Test func remoteSignOutFailureStillClearsLocalSession() async throws {
+    let fixture = Fixture()
+    fixture.service.logoutError = NetworkError.noConnection
+
+    try await fixture.auth.signOut()
+
+    #expect(fixture.storage.getAccessToken() == nil)
+    #expect(fixture.storage.getRefreshToken() == nil)
+    #expect(!isAuthenticated(fixture.auth))
+  }
+
   private func isAuthenticated(_ auth: AuthUseCase) -> Bool {
     var value = false
     let subscription = auth.isAuthenticatedPublisher.sink { value = $0 }
@@ -132,6 +157,8 @@ private final class TestAuthenticationService: AuthenticationServiceProtocol {
   var result: Result<TokenResponse, Error> = .success(.init(accessToken: "access-new", refreshToken: "refresh-new"))
   var delay: Duration = .zero
   private(set) var refreshCount = 0
+  private(set) var logoutToken: String?
+  var logoutError: (any Error)?
 
   func authenticate() async throws -> SignInResponse { throw AuthenticationServiceError.userCancelled }
 
@@ -141,6 +168,10 @@ private final class TestAuthenticationService: AuthenticationServiceProtocol {
     return try result.get()
   }
 
+  func logout(refreshToken: String) async throws {
+    logoutToken = refreshToken
+    if let logoutError { throw logoutError }
+  }
 
 }
 

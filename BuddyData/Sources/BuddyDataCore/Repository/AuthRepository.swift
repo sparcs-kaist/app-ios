@@ -33,4 +33,8 @@ public final class AuthRepository: AuthRepositoryProtocol, Sendable {
 
     return result
   }
+
+  public func logout(refreshToken: String) async throws {
+    _ = try await self.provider.request(.logout(refreshToken: refreshToken))
+  }
 }

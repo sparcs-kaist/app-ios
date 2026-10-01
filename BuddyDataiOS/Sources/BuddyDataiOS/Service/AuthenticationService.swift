@@ -118,6 +118,11 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
     return try await authRepository.refreshToken(refreshToken: refreshToken)
   }
 
+  public func logout(refreshToken: String) async throws {
+    guard let authRepository else { throw AuthenticationServiceError.unknown }
+    try await authRepository.logout(refreshToken: refreshToken)
+  }
+
   private static func secureRandomBytes(count: Int) throws -> Data {
     var bytes = [UInt8](repeating: 0, count: count)
     let status = SecRandomCopyBytes(kSecRandomDefault, count, &bytes)

@@ -33,6 +33,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   // `await`, actor isolation guarantees only one refresh task is ever created —
   // replacing the previous `Mutex`.
   private var refreshTask: Task<Void, Error>?
+  private var isSigningOut = false
   private var lastFailure: Date?
   private let refreshCooldown: TimeInterval = 10
 
@@ -135,6 +136,8 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func refreshAccessToken(force: Bool) async throws {
+    guard !isSigningOut else { throw NetworkError.unauthorized }
+
     // Coalesce concurrent callers onto the in-flight refresh, if any.
     if let refreshTask {
       try await refreshTask.value
@@ -242,12 +245,38 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func signOut() async throws {
+    guard !isSigningOut else { return }
+    isSigningOut = true
+    defer { isSigningOut = false }
+    let tokenStorage = self.tokenStorage
+    let authenticationService = self.authenticationService
+
+    // Wait for any refresh already in progress so logout uses the rotated token.
+    if let refreshTask {
+      try? await refreshTask.value
+    }
+
+    do {
+      try await AuthTokenRefreshCoordinator.shared.withExclusiveAccess {
+        if let refreshToken = try? tokenStorage.readRefreshToken() {
+          do {
+            try await authenticationService.logout(refreshToken: refreshToken)
+          } catch {
+            logger.error("Remote sign out failed: \(error.localizedDescription, privacy: .public)")
+          }
+        }
+        tokenStorage.clearTokens()
+      }
+    } catch {
+      logger.error("Unable to coordinate sign out: \(error.localizedDescription, privacy: .public)")
+      tokenStorage.clearTokens()
+    }
+
     TimetableSelectionStore().clear()
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()
     }
     WidgetCenter.shared.reloadAllTimelines()
-    tokenStorage.clearTokens()
     _isAuthenticatedSubject.value = false
     cancelRefreshTimer()
     logger.info("Signed out.")
