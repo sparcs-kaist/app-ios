@@ -45,16 +45,28 @@ public struct CourseView: View {
             code: viewModel.course?.code ?? summary?.code ?? "",
             typeName: (viewModel.course?.type ?? summary?.type)?.displayName.localized() ?? "",
             departmentName: viewModel.course?.department.name ?? summary?.department.name ?? "",
-            summary: viewModel.course?.summary ?? summary?.summary ?? ""
+            summary: viewModel.course?.summary ?? summary?.summary ?? "",
+            isLoadingDetails: viewModel.course == nil
           )
           .redacted(reason: viewModel.course == nil && summary == nil ? .placeholder : [])
 
-          if let history = viewModel.course?.history, !history.isEmpty {
+          if let history = viewModel.course?.history {
+            if !history.isEmpty {
+              CourseHistorySection(
+                history: history,
+                selectedProfessorID: viewModel.selectedProfessorID,
+                onSelectProfessor: viewModel.selectProfessor(id:)
+              )
+              .padding(.bottom, 28)
+            }
+          } else {
             CourseHistorySection(
-              history: history,
-              selectedProfessorID: viewModel.selectedProfessorID,
-              onSelectProfessor: viewModel.selectProfessor(id:)
+              history: CourseHistorySection.placeholder,
+              selectedProfessorID: nil,
+              onSelectProfessor: { _ in }
             )
+            .redacted(reason: .placeholder)
+            .disabled(true)
             .padding(.bottom, 28)
           }
 
