@@ -45,16 +45,38 @@ private struct CourseHeader: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      Text(course.name)
-        .font(.headline)
-        .lineLimit(2)
-        .multilineTextAlignment(.leading)
+      HStack(alignment: .firstTextBaseline, spacing: 8) {
+        Text(course.name)
+          .font(.headline)
+          .lineLimit(2)
+          .multilineTextAlignment(.leading)
+
+        // The server marks a course you have taken in any earlier semester.
+        if course.completed {
+          Spacer(minLength: 0)
+          takenBadge
+        }
+      }
 
       Text(details.joined(separator: " · "))
         .font(.footnote)
         .foregroundStyle(.secondary)
         .lineLimit(1)
     }
+  }
+
+  private var takenBadge: some View {
+    // Not a Label: list rows reduce a Label to its icon.
+    HStack(spacing: 3) {
+      Image(systemName: "checkmark.circle.fill")
+      Text("Taken", bundle: .module)
+    }
+    .font(.caption.weight(.semibold))
+    .foregroundStyle(.tint)
+    .padding(.horizontal, 8)
+    .padding(.vertical, 3)
+    .background(.tint.quaternary, in: .capsule)
+    .fixedSize()
   }
 
   private var details: [String] {
