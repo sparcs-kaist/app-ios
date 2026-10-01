@@ -70,8 +70,8 @@ struct LectureSearchView: View {
           }
         }
       }
-      // A soft edge lets the results fade under the filter chips and search field.
-      .scrollEdgeEffectStyle(.soft, for: .bottom)
+      // Soft edges let the results fade under the title and under the filter chips and search field.
+      .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
       .contentWidth()
       .safeAreaBar(edge: .bottom) {
         VStack(spacing: 8) {
