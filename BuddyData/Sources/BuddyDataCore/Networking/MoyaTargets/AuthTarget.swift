@@ -9,21 +9,21 @@ import Foundation
 import Moya
 
 public enum AuthTarget {
-  case requestTokens(authorisationCode: String, codeVerifier: String)
+  case requestTokens(session: String, codeVerifier: String)
   case refreshTokens(refreshToken: String)
 }
 
 extension AuthTarget: TargetType {
   public var baseURL: URL {
-    BackendURL.taxiBackendURL
+    BackendURL.feedBackendURL
   }
 
   public var path: String {
     switch self {
     case .requestTokens:
-      "/auth/sparcsapp/token/issue"
+      "/auth/token/issue"
     case .refreshTokens:
-      "/auth/sparcsapp/token/refresh"
+      "/auth/token/refresh"
     }
   }
 
@@ -36,9 +36,9 @@ extension AuthTarget: TargetType {
 
   public var task: Moya.Task {
     switch self {
-    case .requestTokens(_, let codeVerifier):
+    case .requestTokens(let session, let codeVerifier):
         .requestParameters(
-          parameters: ["codeVerifier": codeVerifier],
+          parameters: ["session": session, "codeVerifier": codeVerifier],
           encoding: JSONEncoding.default
         )
     case .refreshTokens(let refreshToken):
@@ -50,18 +50,9 @@ extension AuthTarget: TargetType {
   }
 
   public var headers: [String: String]? {
-    switch self {
-    case .requestTokens(let authorisationCode, _):
-      [
-        "Origin": "sparcsapp",
-        "Content-Type": "application/json",
-        "Cookie": "connect.sid=\(authorisationCode)"
-      ]
-    default:
-      [
-        "Origin": "sparcsapp",
-        "Content-Type": "application/json"
-      ]
-    }
+    [
+      "Origin": "sparcsapp",
+      "Content-Type": "application/json"
+    ]
   }
 }

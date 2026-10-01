@@ -18,7 +18,6 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   private let authenticationService: AuthenticationServiceProtocol
   private let tokenStorage: TokenStorageProtocol
   private let araUserRepository: AraUserRepositoryProtocol?
-  private let feedUserRepository: FeedUserRepositoryProtocol?
   private let otlUserRepository: OTLUserRepositoryProtocol?
 
   // `CurrentValueSubject` is internally thread-safe, so it is marked
@@ -51,13 +50,11 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     authenticationService: AuthenticationServiceProtocol,
     tokenStorage: TokenStorageProtocol,
     araUserRepository: AraUserRepositoryProtocol?,
-    feedUserRepository: FeedUserRepositoryProtocol?,
     otlUserRepository: OTLUserRepositoryProtocol?
   ) {
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
     self.araUserRepository = araUserRepository
-    self.feedUserRepository = feedUserRepository
     self.otlUserRepository = otlUserRepository
 
     let hasValidAccessToken = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
@@ -213,7 +210,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func signIn() async throws {
-    guard let araUserRepository, let feedUserRepository, let otlUserRepository else { return }
+    guard let araUserRepository, let otlUserRepository else { return }
     do {
       let tokenResponse: SignInResponse = try await authenticationService.authenticate()
       try tokenStorage
@@ -222,9 +219,6 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       // MARK: Sign up Ara
       let userInfo: AraSignInResponse = try await araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
       try? await araUserRepository.agreeTOS(userID: userInfo.userID)
-
-      // MARK: Sign up Feed
-      try await feedUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
       // MARK: Sign up OTL
       try await otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)

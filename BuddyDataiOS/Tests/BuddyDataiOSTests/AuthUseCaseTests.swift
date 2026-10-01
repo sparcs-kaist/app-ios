@@ -109,7 +109,7 @@ private final class Fixture {
 
   func makeAuth() -> AuthUseCase {
     AuthUseCase(authenticationService: service, tokenStorage: storage,
-      araUserRepository: nil, feedUserRepository: nil, otlUserRepository: nil)
+      araUserRepository: nil, otlUserRepository: nil)
   }
 }
 
@@ -126,6 +126,7 @@ private final class TestAuthenticationService: AuthenticationServiceProtocol {
     try await Task.sleep(for: delay)
     return try result.get()
   }
+
 
 }
 

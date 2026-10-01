@@ -9,16 +9,15 @@ import Foundation
 import Moya
 import AuthenticationServices
 import UIKit
+import Security
 import BuddyDomain
 import BuddyDataCore
 
 public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASWebAuthenticationPresentationContextProviding {
   private let authRepository: AuthRepositoryProtocol?
-  private let codeVerifier: String
 
   public init(authRepository: AuthRepositoryProtocol?) {
     self.authRepository = authRepository
-    self.codeVerifier = UUID().uuidString.replacingOccurrences(of: "-", with: "")
   }
   
   public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
@@ -34,6 +33,10 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
   }
   
   public func authenticate() async throws -> SignInResponse {
+    let verifierBytes = try Self.secureRandomBytes(count: 16)
+    let codeVerifier = verifierBytes.base64URLEncodedString()
+    let state = try Self.secureRandomBytes(count: 32).base64URLEncodedString()
+
     return try await withCheckedThrowingContinuation { continuation in
       guard let authURL = BackendURL.authorisationURL,
             var urlComponents = URLComponents(url: authURL, resolvingAgainstBaseURL: false) else {
@@ -41,9 +44,11 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
         return
       }
 
-      let codeChallenge = Data(codeVerifier.utf8).sha256().base64URLEncodedString()
+      let codeChallenge = verifierBytes.sha256().base64URLEncodedString()
       urlComponents.queryItems = [
-        URLQueryItem(name: "codeChallenge", value: codeChallenge)
+        URLQueryItem(name: "client", value: BackendURL.applicationName),
+        URLQueryItem(name: "state", value: state),
+        URLQueryItem(name: "challenge", value: codeChallenge)
       ]
 
       guard let authorisationURL = urlComponents.url else {
@@ -51,7 +56,7 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
         return
       }
 
-      let session = ASWebAuthenticationSession(url: authorisationURL, callbackURLScheme: "sparcsapp") { callbackURL, error in
+      let webAuthSession = ASWebAuthenticationSession(url: authorisationURL, callbackURLScheme: "sparcsapp") { callbackURL, error in
         if let error = error {
           // Handle user cancellation or other session errors
           if let authError = error as? ASWebAuthenticationSessionError,
@@ -68,17 +73,22 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
           return
         }
 
-        // Extract the access token and refresh token
         guard let urlComponents = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
               let queryItems = urlComponents.queryItems,
-              let authorisationCode = queryItems.first(where: { $0.name == "session" })?.value else{
+              let session = queryItems.first(where: { $0.name == "session" })?.value,
+              !session.isEmpty,
+              let returnedState = queryItems.first(where: { $0.name == "state" })?.value,
+              returnedState == state else {
           continuation.resume(throwing: AuthenticationServiceError.invalidCallbackURL)
           return
         }
 
         _Concurrency.Task {
           do {
-            let tokenResponse = try await self.exchangeCodeForTokens(authorisationCode)
+            let tokenResponse = try await self.exchangeSessionForTokens(
+              session: session,
+              codeVerifier: codeVerifier
+            )
             continuation.resume(returning: tokenResponse)
           } catch {
             continuation.resume(throwing: error)
@@ -86,20 +96,34 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
         }
       }
 
-      session.presentationContextProvider = self
-      session.prefersEphemeralWebBrowserSession = true
-      session.start()
+      webAuthSession.presentationContextProvider = self
+      webAuthSession.additionalHeaderFields = [
+        "X-Application-Name": BackendURL.applicationName
+      ]
+      webAuthSession.prefersEphemeralWebBrowserSession = true
+      guard webAuthSession.start() else {
+        continuation.resume(throwing: AuthenticationServiceError.unknown)
+        return
+      }
     }
   }
 
-  public func exchangeCodeForTokens(_ authorisationCode: String) async throws -> SignInResponse {
+  private func exchangeSessionForTokens(session: String, codeVerifier: String) async throws -> SignInResponse {
     guard let authRepository else { throw AuthenticationServiceError.unknown }
-    return try await authRepository
-      .requestToken(authorisationCode: authorisationCode, codeVerifier: Data(self.codeVerifier.utf8).base64URLEncodedString())
+    return try await authRepository.requestToken(session: session, codeVerifier: codeVerifier)
   }
 
   public func refreshAccessToken(refreshToken: String) async throws -> TokenResponse {
     guard let authRepository else { throw AuthenticationServiceError.unknown }
     return try await authRepository.refreshToken(refreshToken: refreshToken)
+  }
+
+  private static func secureRandomBytes(count: Int) throws -> Data {
+    var bytes = [UInt8](repeating: 0, count: count)
+    let status = SecRandomCopyBytes(kSecRandomDefault, count, &bytes)
+    guard status == errSecSuccess else {
+      throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+    }
+    return Data(bytes)
   }
 }

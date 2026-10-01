@@ -18,11 +18,6 @@ public final class FeedUserRepository: FeedUserRepositoryProtocol {
     self.provider = provider
   }
 
-  public func register(ssoInfo: String) async throws {
-    let response = try await provider.request(.register(ssoInfo: ssoInfo))
-    _ = try response.filterSuccessfulStatusCodes()
-  }
-
   public func fetchUser() async throws -> FeedUser {
     let response = try await provider.request(.getUser)
     _ = try response.filterSuccessfulStatusCodes()

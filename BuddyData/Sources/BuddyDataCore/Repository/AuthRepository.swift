@@ -18,9 +18,9 @@ public final class AuthRepository: AuthRepositoryProtocol, Sendable {
     self.provider = provider
   }
 
-  public func requestToken(authorisationCode: String, codeVerifier: String) async throws -> SignInResponse {
+  public func requestToken(session: String, codeVerifier: String) async throws -> SignInResponse {
     let response = try await self.provider.request(
-      .requestTokens(authorisationCode: authorisationCode, codeVerifier: codeVerifier)
+      .requestTokens(session: session, codeVerifier: codeVerifier)
     )
     let result = try response.map(SignInResponseDTO.self).toModel()
 

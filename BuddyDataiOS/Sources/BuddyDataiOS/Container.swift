@@ -242,7 +242,6 @@ extension Container: @retroactive AutoRegistering {
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve(),
         araUserRepository: self.araUserRepository.resolve(),
-        feedUserRepository: self.feedUserRepository.resolve(),
         otlUserRepository: self.otlUserRepository.resolve()
       )
       AuthRetryConfig.tokenRefresher = { [weak useCase] in

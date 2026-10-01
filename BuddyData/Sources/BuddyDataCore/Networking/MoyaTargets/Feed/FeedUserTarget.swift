@@ -9,7 +9,6 @@ import Foundation
 import Moya
 
 public enum FeedUserTarget {
-  case register(ssoInfo: String)
   case getUser
 }
 
@@ -19,32 +18,15 @@ extension FeedUserTarget: TargetType, AccessTokenAuthorizable {
   }
 
   public var path: String {
-    switch self {
-    case .register:
-      "/auth/bootstrap"
-    case .getUser:
-      "/me"
-    }
+    "/me"
   }
 
   public var method: Moya.Method {
-    switch self {
-    case .register:
-      .post
-    case .getUser:
-      .get
-    }
+    .get
   }
 
   public var task: Moya.Task {
-    switch self {
-    case .register(let ssoInfo):
-        .requestParameters(parameters: [
-          "sso_info": ssoInfo
-        ], encoding: JSONEncoding.default)
-    case .getUser:
-        .requestPlain
-    }
+    .requestPlain
   }
 
   public var headers: [String: String]? {
