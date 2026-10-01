@@ -231,6 +231,8 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       // MARK: Sign up OTL
       try await otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
+      // TODO: Sign up Taxi
+      
       _isAuthenticatedSubject.value = true
       logger.info("Signed in.")
       WidgetCenter.shared.reloadAllTimelines()

@@ -33,7 +33,7 @@ public class AuthenticationService: NSObject, AuthenticationServiceProtocol, ASW
   }
   
   public func authenticate() async throws -> SignInResponse {
-    let verifierBytes = try Self.secureRandomBytes(count: 16)
+    let verifierBytes = try Self.secureRandomBytes(count: 32)
     let codeVerifier = verifierBytes.base64URLEncodedString()
     let state = try Self.secureRandomBytes(count: 32).base64URLEncodedString()
 
