@@ -22,6 +22,7 @@ public struct TimetableView: View {
   @State private var showSearchSheet: Bool = false
 	@State private var showActivityCreationSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
+  @State private var scrollPosition = ScrollPosition(edge: .top)
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
@@ -40,6 +41,7 @@ public struct TimetableView: View {
           )
           .padding()
         }
+        .scrollPosition($scrollPosition)
         .refreshable { await viewModel.refresh() }
         .background {
           BackgroundGradientView(color: .pink)
@@ -52,6 +54,10 @@ public struct TimetableView: View {
           ToolbarItem(placement: .topBarTrailing) {
 						Menu("Add Event", systemImage: "square.badge.plus") {
 							Button(String(localized: "Add Lecture", bundle: .module), systemImage: "book.badge.plus") {
+								// Start from the top of the grid, which the search sheet leaves visible.
+								withAnimation(.smooth) {
+									scrollPosition.scrollTo(edge: .top)
+								}
 								showSearchSheet = true
 							}
 							
@@ -59,7 +65,7 @@ public struct TimetableView: View {
 								showActivityCreationSheet = true
 							}
 						}
-						.disabled(viewModel.isReadOnly || viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init))
+						.disabled(viewModel.isReadOnly || viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init) || showSearchSheet)
           }
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
@@ -195,14 +201,14 @@ public struct TimetableView: View {
         selectedTimetable: viewModel.timetableWithCandidate,
         candidateLecture: viewModel.candidateLecture,
         selectedLecture: { selectedLecture in
-          self.selectedLecture = selectedLecture
+          showLectureDetail(selectedLecture)
         },
         onDelete: viewModel.isReadOnly ? nil : { lecture in
           Task {
             await viewModel.deleteLecture(lecture: lecture)
           }
         },
-        onEditActivity: viewModel.isReadOnly || viewModel.selectedTimetableID == nil ? nil : { editingActivity = $0 },
+        onEditActivity: viewModel.isReadOnly || viewModel.selectedTimetableID == nil || showSearchSheet ? nil : { editingActivity = $0 },
         onDeleteActivity: viewModel.isReadOnly || viewModel.selectedTimetableID == nil ? nil : { activity in
           Task { await viewModel.deleteActivity(activity) }
         },
@@ -249,12 +255,19 @@ public struct TimetableView: View {
     .accessibilityElement(children: .contain)
   }
 
+  /// Opens a lecture's details, unless lecture search is open: the timetable stays usable behind
+  /// that sheet, but a second sheet cannot be presented over it.
+  private func showLectureDetail(_ lecture: LectureItem) {
+    guard !showSearchSheet else { return }
+    selectedLecture = lecture
+  }
+
   private var lectureListCard: some View {
     LectureList(
       lectures: viewModel.timetable?.lectures,
       activities: viewModel.timetable?.activities,
       selectedLecture: { selectedLecture in
-        self.selectedLecture = selectedLecture
+        showLectureDetail(selectedLecture)
       }
     )
     .timetableCardStyle()
