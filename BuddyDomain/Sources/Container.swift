@@ -117,6 +117,10 @@ extension Container {
     promised()
   }
 
+  public var wishlistUseCase: Factory<WishlistUseCaseProtocol?> {
+    promised()
+  }
+
   public var v2CourseUseCase: Factory<CourseUseCaseProtocol?> {
     promised()
   }
