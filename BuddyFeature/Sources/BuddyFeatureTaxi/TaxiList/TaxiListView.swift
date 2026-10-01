@@ -14,10 +14,6 @@ import FirebaseAnalytics
 import BuddyPreviewSupport
 
 public struct TaxiListView: View {
-  private enum Destination: Hashable {
-    case chatList
-  }
-
   @State var viewModel: TaxiListViewModelProtocol
   /// Backs the "Active Groups" section shown in the wide layout's left column.
   @State private var chatListViewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()
@@ -27,12 +23,16 @@ public struct TaxiListView: View {
   @State private var scrollTarget: String? = nil
 
   // show taxi room preview
+  @State private var showChatList: Bool = false
   @State private var showRoomCreationSheet: Bool = false
   @State private var selectedRoom: TaxiRoom? = nil
   @State private var selectedChatRoom: TaxiRoom? = nil
 
+  /// Non-nil only while an active fold runs vertically through the wide
+  /// layout; see `FoldSplit`.
+  @State private var foldSplit: FoldSplit?
+
   @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
     _viewModel = State(initialValue: viewModel)
@@ -96,23 +96,25 @@ public struct TaxiListView: View {
       ToolbarSpacer(.flexible, placement: .topBarTrailing)
 
       ToolbarItem(placement: .topBarTrailing) {
-        NavigationLink(value: Destination.chatList) {
+        Button {
+          showChatList = true
+        } label: {
           Label(String(localized: "Chats", bundle: .module), systemImage: "bubble.left.and.text.bubble.right")
         }
       }
     }
-    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Taxi", bundle: .module) : "")
+    .navigationTitle(String(localized: "Taxi", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
     .background {
       BackgroundGradientView(color: .purple)
         .ignoresSafeArea()
     }
     .background(Color.systemGroupedBackground)
-    .navigationDestination(for: Destination.self) { destination in
-      switch destination {
-      case .chatList:
-        TaxiChatListView()
-      }
+    // Presented as a root rather than pushed: `TaxiChatListView` owns a
+    // `NavigationSplitView`, which cannot live inside this stack without
+    // losing its back button.
+    .fullScreenCover(isPresented: $showChatList) {
+      TaxiChatListView()
     }
     .navigationDestination(item: $selectedChatRoom) { room in
       TaxiChatView(room: room)
@@ -121,6 +123,7 @@ public struct TaxiListView: View {
       TaxiRoomCreationView(viewModel: viewModel)
         .navigationTransition(.zoom(sourceID: "RoomCreationView", in: namespace))
         .presentationDragIndicator(.visible)
+        .leadingPresentationPlacement()
     }
     .sheet(item: $selectedRoom) { room in
       TaxiPreviewView(room: room)
@@ -131,6 +134,7 @@ public struct TaxiListView: View {
         }
         .presentationDragIndicator(.visible)
         .presentationDetents([.height(400), .height(500)])
+        .leadingPresentationPlacement()
     }
     .task {
       await viewModel.fetchData()
@@ -163,8 +167,11 @@ public struct TaxiListView: View {
 
   /// Two-column layout for wide screens: pickers and active chat groups scroll
   /// on the left half while the room list scrolls on the right half.
+  ///
+  /// Half-folded, the gutter widens to the fold band and the left column is
+  /// pinned to the leading half, so neither column is cut in two by the crease.
   private func wideLayout(scrollViewProxy: ScrollViewProxy) -> some View {
-    HStack(alignment: .top, spacing: 0) {
+    HStack(alignment: .top, spacing: foldSplit?.gutter ?? 0) {
       ScrollView {
         VStack(spacing: 16) {
           destinationPicker
@@ -176,6 +183,7 @@ public struct TaxiListView: View {
         .padding(.bottom)
         .contentWidth()
       }
+      .frame(minWidth: foldSplit?.leadingWidth, maxWidth: foldSplit?.leadingWidth ?? .infinity)
       .scrollEdgeEffectStyle(.soft, for: .top)
       .task {
         await chatListViewModel.fetchData()
@@ -188,9 +196,12 @@ public struct TaxiListView: View {
         .padding(.bottom)
         .contentWidth()
       }
+      .frame(maxWidth: .infinity)
       .scrollEdgeEffectStyle(.soft, for: .top)
       .scrollPosition(id: $scrollTarget, anchor: .top)
     }
+    .foldSplit($foldSplit)
+    .animation(.snappy, value: foldSplit)
   }
 
   private var destinationPicker: some View {

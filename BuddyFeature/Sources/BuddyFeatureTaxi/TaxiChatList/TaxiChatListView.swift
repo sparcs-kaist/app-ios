@@ -13,60 +13,87 @@ import BuddyFeatureShared
 import FirebaseAnalytics
 import BuddyPreviewSupport
 
+/// Presented as its own root (a full-screen cover from `TaxiListView`) rather
+/// than pushed onto the Taxi navigation stack, so it can own a real
+/// `NavigationSplitView`. That is what earns the system behaviour this screen
+/// used to hand-roll: collapsing to a single column on narrow displays, and —
+/// on iPhone Duo — sizing its columns so the fold falls between them.
 struct TaxiChatListView: View {
   @State private var viewModel: TaxiChatListViewModelProtocol
   @State private var selectedRoom: TaxiRoom?
 
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  /// Keeps the room list on screen once a chat is showing, rather than letting
+  /// the system hide it to give the detail more room.
+  @State private var columnVisibility: NavigationSplitViewVisibility = .all
+
+  /// Which column the collapsed split view shows. Only consulted when the
+  /// display is too narrow for two columns at all; the room list is a custom
+  /// `ScrollView` rather than a `List(selection:)`, so the split view cannot
+  /// infer the push from the selection on its own.
+  @State private var preferredCompactColumn: NavigationSplitViewColumn = .sidebar
+
+  @Environment(\.dismiss) private var dismiss
 
   init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()) {
     _viewModel = State(initialValue: viewModel)
   }
 
   var body: some View {
-    Group {
-      switch viewModel.state {
-      case .loading:
-        loadingView
+    NavigationSplitView(
+      columnVisibility: $columnVisibility,
+      preferredCompactColumn: $preferredCompactColumn
+    ) {
+      roomList
         .navigationTitle(Text("Chats", bundle: .module))
-        .background(Color.systemGroupedBackground)
-      case .loaded(let onGoing, let done):
-        if horizontalSizeClass == .compact {
-          loadedView(onGoing: onGoing, done: done)
-            .navigationDestination(item: $selectedRoom, destination: { room in
-              TaxiChatView(room: room)
-            })
-            .navigationTitle(Text("Chats", bundle: .module))
-        } else {
-          loadedLargeView(onGoing: onGoing, done: done)
+        .toolbar {
+          ToolbarItem(placement: .cancellationAction) {
+            Button(String(localized: "Close", bundle: .module), systemImage: "xmark") {
+              dismiss()
+            }
+          }
         }
-      case .error(let message):
-        errorView(errorMessage: message)
+    } detail: {
+      if let selectedRoom {
+        TaxiChatView(room: selectedRoom)
+          .id(selectedRoom.id)
+      } else {
+        ContentUnavailableView {
+          Label(String(localized: "Select a room", bundle: .module), systemImage: "bubble.left.and.text.bubble.right")
+        }
       }
     }
-    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-    .toolbar(.hidden, for: .tabBar)
+    // `.balanced` shrinks the detail to make room for the sidebar instead of
+    // hiding the sidebar to keep the detail large, so the chat appears beside
+    // the room list rather than in place of it.
+    .navigationSplitViewStyle(.balanced)
+    .onChange(of: selectedRoom) { _, room in
+      preferredCompactColumn = room == nil ? .sidebar : .detail
+    }
     .task {
       await viewModel.fetchData()
     }
     .analyticsScreen(name: "Taxi Chat List", class: String(describing: Self.self))
   }
 
-  private func loadedLargeView(onGoing: [TaxiRoom], done: [TaxiRoom]) -> some View {
-    HStack(spacing: 0) {
-      loadedView(onGoing: onGoing, done: done)
-        .containerRelativeFrame([.horizontal], { length, _ in
-          length * 0.4
-        })
-      if let selectedRoom {
-        TaxiChatView(room: selectedRoom)
-          .id(selectedRoom.id)
-          .toolbar(removing: .title)
-      } else {
-        Text("Select a room", bundle: .module)
-          .frame(maxWidth: .infinity)
-          .foregroundStyle(.secondary)
+  /// The sidebar column: one presentation for every state, so the title and
+  /// background no longer have to be re-applied per case.
+  @ViewBuilder
+  private var roomList: some View {
+    Group {
+      switch viewModel.state {
+      case .loading:
+        loadingView
+      case .loaded(let onGoing, let done):
+        loadedView(onGoing: onGoing, done: done)
+      case .error(let message):
+        errorView(errorMessage: message)
       }
+    }
+    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+    .background(Color.systemGroupedBackground)
+    .background {
+      BackgroundGradientView(color: .purple)
+        .ignoresSafeArea()
     }
   }
 
@@ -112,16 +139,6 @@ struct TaxiChatListView: View {
   @ViewBuilder
   private func loadedView(onGoing: [TaxiRoom], done: [TaxiRoom]) -> some View {
     ScrollView {
-      if horizontalSizeClass != .compact {
-        HStack {
-          Text("Chats", bundle: .module)
-            .font(.largeTitle)
-            .bold()
-            .padding()
-          Spacer()
-        }
-      }
-
       LazyVStack(spacing: 16) {
         if !onGoing.isEmpty {
           TaxiRoomGroupSection(
@@ -146,13 +163,6 @@ struct TaxiChatListView: View {
       .padding()
       .contentWidth()
     }
-    .background(Color.systemGroupedBackground)
-    .background {
-      if horizontalSizeClass == .compact {
-        BackgroundGradientView(color: .purple)
-          .ignoresSafeArea()
-      }
-    }
   }
 
   private func errorView(errorMessage: String) -> some View {
@@ -176,22 +186,18 @@ struct TaxiChatListView: View {
 
 
 // MARK: - Previews
+// The view provides its own NavigationSplitView, so previews must not wrap it
+// in a navigation container.
 #Preview("Loading State") {
-  NavigationStack {
-    TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: .loading))
-  }
+  TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: .loading))
 }
 
 #Preview("Loaded State") {
   let state = TaxiChatListViewState.loaded(onGoing: Array(TaxiRoom.mockList.prefix(3)), done: Array(TaxiRoom.mockList.suffix(5)))
 
-  return NavigationStack {
-    TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: state))
-  }
+  return TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: state))
 }
 
 #Preview("Error State") {
-  NavigationStack {
-    TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: .error(message: "Something went wrong")))
-  }
+  TaxiChatListView(viewModel: PreviewTaxiChatListViewModel(state: .error(message: "Something went wrong")))
 }

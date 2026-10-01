@@ -41,6 +41,8 @@ public struct SearchView: View {
         resultView
       }
     }
+    .navigationTitle(Text("Search", bundle: .module))
+    .toolbarTitleDisplayMode(.inlineLarge)
     .background {
       BackgroundGradientView(color: .blue)
         .ignoresSafeArea()
@@ -167,7 +169,6 @@ public struct SearchView: View {
       .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     }
     .scrollDismissesKeyboard(.immediately)
-    .toolbarTitleDisplayMode(.inlineLarge)
     .onChange(of: viewModel.searchScope) {
       viewModel.state = .loading
       

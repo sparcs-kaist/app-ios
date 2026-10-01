@@ -11,6 +11,9 @@ import BuddyDomain
 /// The grouped list of course sections and their lectures in the search sheet.
 struct LectureSearchResults: View {
   let courses: [CourseLecture]
+  /// The table being added to, so a lecture that clashes with a class or an
+  /// activity already in it can say so before the person taps Add.
+  let timetable: Timetable?
   @Binding var candidateLecture: Lecture?
   @Binding var detent: PresentationDetent
   let onAdd: (Lecture) -> Void
@@ -26,7 +29,7 @@ struct LectureSearchResults: View {
               onAdd: {
                 onAdd(lecture)
               },
-              isOverlapping: false,
+              isOverlapping: timetable?.hasCollision(with: lecture) ?? false,
               lectureClass: lecture.classes.first
             )
             .onAppear {

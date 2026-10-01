@@ -82,7 +82,7 @@ struct LectureDetailView: View {
     .alert(String(localized: "Cannot Add Lecture", bundle: .module), isPresented: $showCannotAddLectureAlert, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
-      Text("This lecture collides with an existing lecture in your timetable.", bundle: .module)
+      Text("This lecture overlaps a class or activity already in your timetable.", bundle: .module)
     })
     .sheet(isPresented: $showReviewComposeView) {
       ReviewComposeView(lecture: lecture)

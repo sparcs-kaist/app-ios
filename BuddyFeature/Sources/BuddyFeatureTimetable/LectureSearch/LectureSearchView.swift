@@ -13,6 +13,9 @@ import BuddyDomain
 struct LectureSearchView: View {
   @Binding var detent: PresentationDetent
   let timetableDisplayName: String
+  /// The table being added to, used to flag lectures that clash with what is
+  /// already scheduled.
+  let timetable: Timetable?
   let selectedSemester: Semester
   @Binding var candidateLecture: Lecture?
   let onAdd: (Lecture) -> Void
@@ -35,6 +38,7 @@ struct LectureSearchView: View {
         } else {
           LectureSearchResults(
             courses: viewModel.courses,
+            timetable: timetable,
             candidateLecture: $candidateLecture,
             detent: $detent,
             onAdd: onAdd
