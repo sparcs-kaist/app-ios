@@ -50,17 +50,20 @@ public class TimetableService: TimetableServiceProtocol {
   // MARK: - Helpers
 
   private func tokenRefreshIfNeeded() async throws {
-    guard self.authRepository != nil else { return }
+    guard let authRepository = self.authRepository else { return }
     // Reuse a valid token instead of refreshing for every widget update.
     if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired() { return }
     guard let token = try tokenStorage.readRefreshToken() else { return }
 
-    let tokenResponse: TokenResponse = try await AuthRetryConfig.$isRefreshing.withValue(true) {
-      try await self.authRepository!.refreshToken(refreshToken: token)
+    let tokenStorage = self.tokenStorage
+    try await AuthRetryConfig.$isRefreshing.withValue(true) {
+      try await AuthTokenRefreshCoordinator.shared.refresh(
+        refreshToken: token,
+        tokenStorage: tokenStorage
+      ) {
+        try await authRepository.refreshToken(refreshToken: token)
+      }
     }
-
-    try tokenStorage
-      .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
   }
 
   private func configureTimetableUseCase() {

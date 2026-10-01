@@ -6,7 +6,7 @@ import BuddyDomain
 import BuddyDataCore
 @testable import BuddyDataiOS
 
-@Suite("Session preservation")
+@Suite("Session preservation", .serialized)
 @MainActor
 struct AuthUseCaseTests {
   @Test(arguments: [NetworkError.noConnection, .timeout, .serverError(statusCode: 503),
@@ -89,6 +89,20 @@ struct AuthUseCaseTests {
     try await fixture.auth.refreshAccessToken(force: false)
     #expect(try await fixture.auth.getValidAccessToken() == "access-from-widget")
     #expect(fixture.service.refreshCount == 1)
+  }
+
+  @Test func appAndWidgetCallersShareOneRefreshAndPersistRotation() async throws {
+    let fixture = Fixture()
+    fixture.service.delay = .milliseconds(100)
+    let secondAuth = fixture.makeAuth()
+
+    async let first = fixture.auth.refreshAccessToken(force: true)
+    async let second = secondAuth.refreshAccessToken(force: true)
+    _ = try await (first, second)
+
+    #expect(fixture.service.refreshCount == 1)
+    #expect(fixture.storage.getAccessToken() == "access-new")
+    #expect(fixture.storage.getRefreshToken() == "refresh-new")
   }
 
   private func isAuthenticated(_ auth: AuthUseCase) -> Bool {

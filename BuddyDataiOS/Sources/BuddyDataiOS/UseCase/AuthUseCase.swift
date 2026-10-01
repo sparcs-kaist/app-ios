@@ -177,14 +177,19 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     }
 
     do {
+      let authenticationService = self.authenticationService
+      let tokenStorage = self.tokenStorage
       // Mark the in-flight refresh on the task-local
-      let tokenResponse: TokenResponse = try await AuthRetryConfig.$isRefreshing.withValue(true) {
-        try await self.authenticationService.refreshAccessToken(
-          refreshToken: currentRefreshToken
-        )
+      try await AuthRetryConfig.$isRefreshing.withValue(true) {
+        try await AuthTokenRefreshCoordinator.shared.refresh(
+          refreshToken: currentRefreshToken,
+          tokenStorage: tokenStorage
+        ) {
+          try await authenticationService.refreshAccessToken(
+            refreshToken: currentRefreshToken
+          )
+        }
       }
-      try tokenStorage
-        .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
       _isAuthenticatedSubject.value = true
       lastFailure = nil
       logger.info("Successfully refreshed access token.")

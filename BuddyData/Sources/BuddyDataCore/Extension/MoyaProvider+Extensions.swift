@@ -21,6 +21,12 @@ public extension MoyaProvider {
     do {
       return try await _request(target)
     } catch NetworkError.unauthorized {
+      // Auth endpoints use refresh tokens directly. Retrying them through the
+      // generic 401 handler could reuse a rotated refresh token and revoke the
+      // whole login session.
+      if target is AuthTarget {
+        throw NetworkError.unauthorized
+      }
       guard !AuthRetryConfig.isRefreshing, let refresher = AuthRetryConfig.tokenRefresher else {
         throw NetworkError.unauthorized
       }
