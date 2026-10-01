@@ -20,6 +20,17 @@ struct LectureInformationSection: View {
           .font(.title3)
           .fontWeight(.bold)
         Spacer()
+        // Every semester and professor of this course, beyond this one lecture.
+        NavigationLink {
+          CourseView(courseID: lecture.courseID, name: lecture.name)
+        } label: {
+          HStack(spacing: 4) {
+            Text("View Course", bundle: .module)
+            Image(systemName: "chevron.right")
+              .font(.footnote.weight(.semibold))
+          }
+          .font(.subheadline)
+        }
       }
 
       LectureDetailRow(title: String(localized: "Code", bundle: .module), description: lecture.code)
