@@ -18,7 +18,12 @@ struct LectureSearchResults: View {
   var body: some View {
     ForEach(courses) { course in
       Section {
-        courseHeader(course: course)
+        // The course page shows every semester it was offered and who taught it.
+        NavigationLink {
+          CourseView(courseID: course.id, name: course.name)
+        } label: {
+          courseHeader(course: course)
+        }
         ForEach(course.lectures) { lecture in
           NavigationLink(destination: {
             LectureDetailView(
