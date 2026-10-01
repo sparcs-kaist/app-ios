@@ -11,6 +11,7 @@ import Moya
 public enum AuthTarget {
   case requestTokens(session: String, codeVerifier: String)
   case refreshTokens(refreshToken: String)
+  case logout(refreshToken: String)
 }
 
 extension AuthTarget: TargetType {
@@ -24,12 +25,14 @@ extension AuthTarget: TargetType {
       "/auth/token/issue"
     case .refreshTokens:
       "/auth/token/refresh"
+    case .logout:
+      "/auth/logout"
     }
   }
 
   public var method: Moya.Method {
     switch self {
-    case .requestTokens, .refreshTokens:
+    case .requestTokens, .refreshTokens, .logout:
       .post
     }
   }
@@ -44,6 +47,11 @@ extension AuthTarget: TargetType {
     case .refreshTokens(let refreshToken):
       .requestParameters(
         parameters: ["refreshToken": "\(refreshToken)"],
+        encoding: JSONEncoding.default
+      )
+    case .logout(let refreshToken):
+      .requestParameters(
+        parameters: ["refreshToken": refreshToken],
         encoding: JSONEncoding.default
       )
     }
