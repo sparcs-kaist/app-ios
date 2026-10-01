@@ -8,43 +8,31 @@
 import SwiftUI
 import BuddyDomain
 
+/// A screen pushed from the lecture search results.
+enum LectureSearchRoute: Hashable {
+  case lecture(Lecture)
+  case course(id: Int, name: String)
+
+  var lecture: Lecture? {
+    if case .lecture(let lecture) = self { lecture } else { nil }
+  }
+}
+
 /// The grouped list of course sections and their lectures in the search sheet.
 struct LectureSearchResults: View {
   let courses: [CourseLecture]
-  @Binding var candidateLecture: Lecture?
-  @Binding var detent: PresentationDetent
-  let onAdd: (Lecture) -> Void
 
   var body: some View {
     ForEach(courses) { course in
       Section {
         // The course page shows every semester it was offered and who taught it.
-        NavigationLink {
-          CourseView(courseID: course.id, name: course.name)
-        } label: {
+        NavigationLink(value: LectureSearchRoute.course(id: course.id, name: course.name)) {
           courseHeader(course: course)
         }
         ForEach(course.lectures) { lecture in
-          NavigationLink(destination: {
-            LectureDetailView(
-              lecture: lecture,
-              onAdd: {
-                onAdd(lecture)
-              },
-              isOverlapping: false,
-              lectureClass: lecture.classes.first
-            )
-            .onAppear {
-              candidateLecture = lecture
-              detent = .height(130)
-            }
-            .onDisappear {
-              candidateLecture = nil
-              detent = .large
-            }
-          }, label: {
+          NavigationLink(value: LectureSearchRoute.lecture(lecture)) {
             lectureRow(lecture: lecture)
-          })
+          }
         }
       }
     }

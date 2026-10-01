@@ -20,10 +20,13 @@ struct LectureSearchView: View {
 
   @State private var viewModel = LectureSearchViewModel()
   @State private var showDepartmentPicker: Bool = false
+  @State private var path: [LectureSearchRoute] = []
+  /// The sheet height to return to once the user leaves a lecture they opened from the results.
+  @State private var detentBeforePreview: PresentationDetent?
   @FocusState private var isSearchFocused: Bool
 
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: $path) {
       List {
         if !viewModel.hasCriteria {
           ContentUnavailableView {
@@ -49,12 +52,7 @@ struct LectureSearchView: View {
             if viewModel.courses.isEmpty {
               noResults
             } else {
-              LectureSearchResults(
-                courses: viewModel.courses,
-                candidateLecture: $candidateLecture,
-                detent: $detent,
-                onAdd: onAdd
-              )
+              LectureSearchResults(courses: viewModel.courses)
 
               if viewModel.canLoadMore {
                 ProgressView()
@@ -93,6 +91,31 @@ struct LectureSearchView: View {
           detent = .large
         }
       }
+      .navigationDestination(for: LectureSearchRoute.self) { route in
+        switch route {
+        case .lecture(let lecture):
+          LectureDetailView(
+            lecture: lecture,
+            onAdd: { onAdd(lecture) },
+            isOverlapping: false,
+            lectureClass: lecture.classes.first
+          )
+        case .course(let id, let name):
+          CourseView(courseID: id, name: name)
+        }
+      }
+      .onChange(of: path) { oldPath, newPath in
+        // Only a lecture opened straight from the results is previewed. Views pushed on top of
+        // it, such as its course page, leave the preview and the sheet height alone.
+        let oldLecture = oldPath.first?.lecture
+        let newLecture = newPath.first?.lecture
+        guard oldLecture != newLecture else { return }
+        if let newLecture {
+          startPreview(newLecture)
+        } else {
+          endPreview()
+        }
+      }
       .navigationDestination(isPresented: $showDepartmentPicker) {
         DepartmentPicker(
           departments: viewModel.departments,
@@ -113,6 +136,23 @@ struct LectureSearchView: View {
       }
     }
     .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
+  }
+
+  /// Shows the lecture on the timetable and shrinks the sheet so its time slot is visible.
+  private func startPreview(_ lecture: Lecture) {
+    // An open keyboard holds the sheet up, so the shrink would not take effect.
+    isSearchFocused = false
+    candidateLecture = lecture
+    if detentBeforePreview == nil {
+      detentBeforePreview = detent
+    }
+    detent = .height(130)
+  }
+
+  private func endPreview() {
+    candidateLecture = nil
+    detent = detentBeforePreview ?? .large
+    detentBeforePreview = nil
   }
 
   @ViewBuilder
