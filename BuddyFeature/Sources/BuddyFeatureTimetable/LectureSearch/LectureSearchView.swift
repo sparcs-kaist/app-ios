@@ -23,8 +23,6 @@ struct LectureSearchView: View {
   @State private var viewModel = LectureSearchViewModel()
   @State private var showDepartmentPicker: Bool = false
   @State private var path: [LectureSearchRoute] = []
-  /// The sheet height to return to once the user leaves a lecture they opened from the results.
-  @State private var detentBeforePreview: PresentationDetent?
   /// Whether the sheet offers its short preview height; see `detents`.
   @State private var offersPreviewHeight = false
   @FocusState private var isSearchFocused: Bool
@@ -92,7 +90,7 @@ struct LectureSearchView: View {
       .onChange(of: isSearchFocused) {
         // Typing needs the room: at the medium height the keyboard would cover the results.
         if isSearchFocused {
-          detent = .large
+          setDetent(.large)
         }
       }
       .navigationDestination(for: LectureSearchRoute.self) { route in
@@ -125,7 +123,7 @@ struct LectureSearchView: View {
           onRetry: { await viewModel.fetchDepartments() }
         )
         .onAppear {
-          detent = .large
+          setDetent(.large)
         }
       }
       .onAppear {
@@ -161,22 +159,32 @@ struct LectureSearchView: View {
     // An open keyboard holds the sheet up, so the shrink would not take effect.
     isSearchFocused = false
     candidateLecture = lecture
-    if detentBeforePreview == nil {
-      detentBeforePreview = detent
-    }
     offersPreviewHeight = true
-    detent = Self.previewHeight
+    setDetent(Self.previewHeight)
     Task {
       try? await Task.sleep(for: .milliseconds(250))
       path.append(.lecture(lecture))
     }
   }
 
+  /// Back on the results, the sheet opens to full height so there is room to browse them.
   private func endPreview() {
     candidateLecture = nil
-    detent = detentBeforePreview ?? .large
-    offersPreviewHeight = false
-    detentBeforePreview = nil
+    // The sheet ignores a new height until the pop has finished, so wait for it. Meanwhile
+    // `detents` keeps the short height, so the sheet does not settle somewhere else first.
+    Task {
+      try? await Task.sleep(for: .milliseconds(450))
+      guard path.isEmpty else { return }
+      setDetent(.large)
+      offersPreviewHeight = false
+    }
+  }
+
+  /// Animates the sheet to a new height rather than letting it jump.
+  private func setDetent(_ newDetent: PresentationDetent) {
+    withAnimation(.smooth) {
+      detent = newDetent
+    }
   }
 
   @ViewBuilder
