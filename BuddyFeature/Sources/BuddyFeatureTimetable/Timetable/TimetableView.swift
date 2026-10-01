@@ -67,7 +67,6 @@ public struct TimetableView: View {
             LectureDetailView(
               lecture: item.lecture,
               onAdd: nil,
-              isOverlapping: false,
               lectureClass: item.lectureClass
             )
             .presentationDragIndicator(.visible)
@@ -79,6 +78,7 @@ public struct TimetableView: View {
             LectureSearchView(
               detent: $selectedDetent,
               timetableDisplayName: displayName,
+              timetable: viewModel.timetable,
               selectedSemester: selectedSemester,
               candidateLecture: $viewModel.candidateLecture,
               onAdd: { lecture in

@@ -23,6 +23,7 @@ enum LectureSearchRoute: Hashable {
 /// professor's section, so its row carries that section's schedule and review ratings.
 struct LectureSearchResults: View {
   let courses: [CourseLecture]
+  let timetable: Timetable?
 
   var body: some View {
     ForEach(courses) { course in
@@ -33,7 +34,11 @@ struct LectureSearchResults: View {
         }
         ForEach(course.lectures) { lecture in
           NavigationLink(value: LectureSearchRoute.lecture(lecture)) {
-            LectureRow(lecture: lecture)
+            LectureRow(
+              lecture: lecture,
+              conflicts: timetable?.conflicts(with: lecture) ?? [],
+              isAdded: timetable?.contains(lecture) ?? false
+            )
           }
         }
       }
@@ -81,6 +86,8 @@ private struct CourseHeader: View {
 
 private struct LectureRow: View {
   let lecture: Lecture
+  let conflicts: [String]
+  let isAdded: Bool
 
   var body: some View {
     HStack(alignment: .top, spacing: 12) {
@@ -110,9 +117,30 @@ private struct LectureRow: View {
           .lineLimit(2)
 
         ratings
+
+        if isAdded {
+          status(String(localized: "In your timetable", bundle: .module), systemImage: "checkmark.circle.fill")
+            .foregroundStyle(.tint)
+        } else if !conflicts.isEmpty {
+          status(
+            String(localized: "Overlaps with \(conflicts.formatted(.list(type: .and)))", bundle: .module),
+            systemImage: "exclamationmark.triangle.fill"
+          )
+          .foregroundStyle(.orange)
+        }
       }
     }
     .padding(.vertical, 2)
+  }
+
+  // Not a Label: list rows reduce a Label to its icon.
+  private func status(_ text: String, systemImage: String) -> some View {
+    HStack(alignment: .firstTextBaseline, spacing: 4) {
+      Image(systemName: systemImage)
+      Text(text)
+        .lineLimit(2)
+    }
+    .font(.caption.weight(.medium))
   }
 
   private var professors: String {

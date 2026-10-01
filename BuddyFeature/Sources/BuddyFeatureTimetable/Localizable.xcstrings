@@ -193,6 +193,22 @@
         }
       }
     },
+    "Added" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Added"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추가됨"
+          }
+        }
+      }
+    },
     "Adjust on Timetable" : {
       "localizations" : {
         "en" : {
@@ -865,6 +881,22 @@
         }
       }
     },
+    "In your timetable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In your timetable"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표에 있음"
+          }
+        }
+      }
+    },
     "Information" : {
       "localizations" : {
         "en" : {
@@ -1194,6 +1226,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "확인"
+          }
+        }
+      }
+    },
+    "Overlaps with %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overlaps with %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@와(과) 시간이 겹침"
           }
         }
       }
@@ -1623,18 +1671,18 @@
         }
       }
     },
-    "This lecture collides with an existing lecture in your timetable." : {
+    "This lecture overlaps with %@ in your timetable." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This lecture collides with an existing lecture in your timetable."
+            "value" : "This lecture overlaps with %@ in your timetable."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이미 시간표에 있는 강의와 시간이 겹칩니다."
+            "value" : "이 강의는 시간표의 %@와(과) 시간이 겹칩니다."
           }
         }
       }
