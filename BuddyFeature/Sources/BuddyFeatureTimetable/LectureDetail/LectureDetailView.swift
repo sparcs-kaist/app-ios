@@ -106,9 +106,17 @@ struct LectureDetailView: View {
     }, message: {
       Text("This lecture overlaps with \(conflictList) in your timetable.", bundle: .module)
     })
-    .sheet(isPresented: $showReviewComposeView) {
-      ReviewComposeView(lecture: lecture)
-        .presentationDragIndicator(.visible)
+    .background {
+      // Attached only while composing: this view usually sits inside a sheet, and while a
+      // `.sheet` modifier is anywhere in its content SwiftUI ignores changes to that sheet's
+      // height, such as lecture search shrinking it to preview a lecture.
+      if showReviewComposeView {
+        Color.clear
+          .sheet(isPresented: $showReviewComposeView) {
+            ReviewComposeView(lecture: lecture)
+              .presentationDragIndicator(.visible)
+          }
+      }
     }
     .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
   }
