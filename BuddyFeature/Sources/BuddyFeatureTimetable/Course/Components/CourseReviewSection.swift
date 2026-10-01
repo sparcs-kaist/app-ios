@@ -44,6 +44,13 @@ struct CourseReviewSection: View {
 
       LazyVStack(spacing: 16) {
         if isLoaded {
+          if reviews.isEmpty {
+            Text("No reviews yet.", bundle: .module)
+              .font(.callout)
+              .foregroundStyle(.secondary)
+              .frame(maxWidth: .infinity)
+              .padding(.vertical, 24)
+          }
           ForEach($reviews) { $review in
             LectureReviewCell(review: $review)
           }
