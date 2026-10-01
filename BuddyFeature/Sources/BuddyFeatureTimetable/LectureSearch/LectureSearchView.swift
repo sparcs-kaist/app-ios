@@ -41,12 +41,11 @@ struct LectureSearchView: View {
             }
           } else {
             // With nothing to search for yet, the lectures saved for this semester come first.
-            Label(String(localized: "Wishlist", bundle: .module), systemImage: "heart.fill")
-              .font(.title3.weight(.bold))
-              .foregroundStyle(.primary, .pink)
-              .listRowBackground(Color.clear)
-              .listRowInsets(EdgeInsets(top: 8, leading: 4, bottom: 0, trailing: 4))
-            results(for: viewModel.wishlist, showsRatings: false)
+            results(
+              for: viewModel.wishlist,
+              showsRatings: false,
+              wishlistHeader: String(localized: "Wishlist", bundle: .module)
+            )
           }
         } else {
           switch viewModel.state {
@@ -230,7 +229,11 @@ struct LectureSearchView: View {
   /// How long a push or pop takes to animate.
   private static let navigationDuration = Duration.milliseconds(400)
 
-  private func results(for courses: [CourseLecture], showsRatings: Bool = true) -> some View {
+  private func results(
+    for courses: [CourseLecture],
+    showsRatings: Bool = true,
+    wishlistHeader: String? = nil
+  ) -> some View {
     LectureSearchResults(
       courses: courses,
       timetable: timetable,
@@ -239,7 +242,8 @@ struct LectureSearchView: View {
       onAddLecture: onAdd,
       wishlistedLectureIDs: viewModel.wishlistedLectureIDs,
       onToggleWishlist: { lecture in Task { await viewModel.toggleWishlist(lecture) } },
-      showsRatings: showsRatings
+      showsRatings: showsRatings,
+      wishlistHeader: wishlistHeader
     )
   }
 

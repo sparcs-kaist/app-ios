@@ -32,6 +32,8 @@ struct LectureSearchResults: View {
   let onToggleWishlist: (Lecture) -> Void
   /// The wishlist endpoint's ratings are unreliable, so its rows leave them out.
   var showsRatings: Bool = true
+  /// The wishlist heading over the first course, when these results are the wishlist.
+  var wishlistHeader: String? = nil
 
   var body: some View {
     ForEach(courses) { course in
@@ -53,14 +55,16 @@ struct LectureSearchResults: View {
             }
             .buttonStyle(.plain)
 
-            WishlistButton(isWishlisted: isWishlisted) {
-              onToggleWishlist(lecture)
+            // The heart and the enrollment stack as the row's trailing column; tapping
+            // anywhere else opens the lecture.
+            VStack(alignment: .trailing, spacing: 2) {
+              WishlistButton(isWishlisted: isWishlisted) {
+                onToggleWishlist(lecture)
+              }
+              if lecture.capacity > 0 {
+                EnrollmentLabel(lecture: lecture)
+              }
             }
-
-            // Matches the chevron the course header's link draws.
-            Image(systemName: "chevron.right")
-              .font(.footnote.weight(.semibold))
-              .foregroundStyle(.tertiary)
           }
           .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
@@ -103,7 +107,18 @@ struct LectureSearchResults: View {
             .frame(width: 380, height: 560)
           }
         }
+      } header: {
+        if course.id == courses.first?.id, let wishlistHeader {
+          Label {
+            Text(wishlistHeader)
+          } icon: {
+            Image(systemName: "heart.fill")
+              .foregroundStyle(.pink)
+          }
+        }
       }
+      // The system's title-style header, in primary text like the course names below it.
+      .headerProminence(.increased)
     }
   }
 
@@ -199,15 +214,9 @@ private struct LectureRow: View {
       }
 
       VStack(alignment: .leading, spacing: 6) {
-        HStack(alignment: .firstTextBaseline) {
-          Text(professors)
-            .font(.body.weight(.medium))
-            .lineLimit(1)
-          Spacer(minLength: 8)
-          if lecture.capacity > 0 {
-            enrollment
-          }
-        }
+        Text(professors)
+          .font(.body.weight(.medium))
+          .lineLimit(1)
 
         Text(schedule)
           .font(.footnote)
@@ -229,6 +238,7 @@ private struct LectureRow: View {
           .foregroundStyle(.orange)
         }
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
     .padding(.vertical, 2)
   }
@@ -268,17 +278,6 @@ private struct LectureRow: View {
       .joined(separator: " · ")
   }
 
-  private var enrollment: some View {
-    HStack(spacing: 3) {
-      Image(systemName: "person.2.fill")
-      Text(verbatim: "\(lecture.enrolledCount)/\(lecture.capacity)")
-        .monospacedDigit()
-    }
-    .font(.caption)
-    .foregroundStyle(lecture.enrolledCount > lecture.capacity ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
-    .accessibilityElement(children: .ignore)
-    .accessibilityLabel(String(localized: "\(lecture.enrolledCount) of \(lecture.capacity) enrolled", bundle: .module))
-  }
 
   @ViewBuilder
   private var ratings: some View {
@@ -338,7 +337,7 @@ struct WishlistButton: View {
         .font(.title3)
         .foregroundStyle(isWishlisted ? AnyShapeStyle(.pink) : AnyShapeStyle(.secondary))
         .contentTransition(.symbolEffect(.replace))
-        .frame(width: 36, height: 44)
+        .frame(minWidth: 36, minHeight: 36, alignment: .trailing)
         .contentShape(.rect)
     }
     .buttonStyle(.plain)
@@ -348,5 +347,23 @@ struct WishlistButton: View {
         ? String(localized: "Remove from Wishlist", bundle: .module)
         : String(localized: "Add to Wishlist", bundle: .module)
     )
+  }
+}
+
+/// A section's enrollment against its capacity, in orange once it is over.
+private struct EnrollmentLabel: View {
+  let lecture: Lecture
+
+  var body: some View {
+    HStack(spacing: 3) {
+      Image(systemName: "person.2.fill")
+      Text(verbatim: "\(lecture.enrolledCount)/\(lecture.capacity)")
+        .monospacedDigit()
+    }
+    .font(.caption)
+    .foregroundStyle(lecture.enrolledCount > lecture.capacity ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
+    .fixedSize()
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(String(localized: "\(lecture.enrolledCount) of \(lecture.capacity) enrolled", bundle: .module))
   }
 }
