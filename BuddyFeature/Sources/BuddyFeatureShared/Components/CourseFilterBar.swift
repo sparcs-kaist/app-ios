@@ -10,27 +10,31 @@ import BuddyDomain
 
 /// A row of Liquid Glass filter chips for narrowing a lecture or course search.
 ///
-/// Pass `period` to add the "offered recently" chip, which only course search supports.
+/// Pass `period` to add the "offered recently" chip, which only course search supports, and
+/// `time` to add the class time chip, which only lecture search supports.
 public struct CourseFilterBar: View {
   @Binding private var filter: LectureSearchFilter
   private let period: Binding<CourseSearchPeriod?>?
+  private let time: Binding<LectureTimeFilter>?
   private let selectedDepartments: [DepartmentOption]
   private let onSelectDepartments: () -> Void
 
   public init(
     filter: Binding<LectureSearchFilter>,
     period: Binding<CourseSearchPeriod?>? = nil,
+    time: Binding<LectureTimeFilter>? = nil,
     selectedDepartments: [DepartmentOption],
     onSelectDepartments: @escaping () -> Void
   ) {
     self._filter = filter
     self.period = period
+    self.time = time
     self.selectedDepartments = selectedDepartments
     self.onSelectDepartments = onSelectDepartments
   }
 
   private var isActive: Bool {
-    !filter.isEmpty || period?.wrappedValue != nil
+    !filter.isEmpty || period?.wrappedValue != nil || time?.wrappedValue.isEmpty == false
   }
 
   public var body: some View {
@@ -45,6 +49,9 @@ public struct CourseFilterBar: View {
           departmentChip
           classificationChip
           levelChip
+          if let time {
+            timeChip(time)
+          }
           if let period {
             periodChip(period)
           }
@@ -56,8 +63,10 @@ public struct CourseFilterBar: View {
     .scrollIndicators(.hidden)
     .animation(.snappy, value: filter)
     .animation(.snappy, value: period?.wrappedValue)
+    .animation(.snappy, value: time?.wrappedValue)
     .sensoryFeedback(.selection, trigger: filter)
     .sensoryFeedback(.selection, trigger: period?.wrappedValue)
+    .sensoryFeedback(.selection, trigger: time?.wrappedValue)
   }
 
   // MARK: - Chips
@@ -66,6 +75,7 @@ public struct CourseFilterBar: View {
     Button {
       filter = LectureSearchFilter()
       period?.wrappedValue = nil
+      time?.wrappedValue = LectureTimeFilter()
     } label: {
       // Not an xmark: a search field next to the bar has its own clear button.
       Image(systemName: "arrow.counterclockwise")
@@ -138,7 +148,75 @@ public struct CourseFilterBar: View {
     .buttonStyle(.plain)
   }
 
+  private func timeChip(_ time: Binding<LectureTimeFilter>) -> some View {
+    Menu {
+      Picker(String(localized: "Day", bundle: .module), selection: time.day) {
+        Text("Any Day", bundle: .module).tag(DayType?.none)
+        ForEach(DayType.weekdays) { day in
+          Text(day.description).tag(DayType?.some(day))
+        }
+      }
+      .pickerStyle(.inline)
+
+      Section {
+        Picker(selection: time.begin) {
+          Text("Any Time", bundle: .module).tag(Int?.none)
+          ForEach(LectureTimeFilter.selectableTimes.dropLast(), id: \.self) { minutes in
+            Text(clockTime(minutes)).tag(Int?.some(minutes))
+          }
+        } label: {
+          Text("Starts After", bundle: .module)
+          Text(time.wrappedValue.begin.map(clockTime) ?? String(localized: "Any Time", bundle: .module))
+        }
+        .pickerStyle(.menu)
+
+        Picker(selection: time.end) {
+          Text("Any Time", bundle: .module).tag(Int?.none)
+          // Only times after the start, so the range can never be empty.
+          ForEach(LectureTimeFilter.selectableTimes.dropFirst().filter { $0 > (time.wrappedValue.begin ?? 0) }, id: \.self) { minutes in
+            Text(clockTime(minutes)).tag(Int?.some(minutes))
+          }
+        } label: {
+          Text("Ends Before", bundle: .module)
+          Text(time.wrappedValue.end.map(clockTime) ?? String(localized: "Any Time", bundle: .module))
+        }
+        .pickerStyle(.menu)
+      } footer: {
+        Text("Lectures with a class in this window.", bundle: .module)
+      }
+    } label: {
+      CourseFilterChip(
+        title: String(localized: "Time", bundle: .module),
+        selection: timeSummary(time.wrappedValue)
+      )
+    }
+    .menuOrder(.fixed)
+    .buttonStyle(.plain)
+    .onChange(of: time.wrappedValue.begin) {
+      // A later start can leave the end before it; drop the end rather than search nothing.
+      if let begin = time.wrappedValue.begin, let end = time.wrappedValue.end, end <= begin {
+        time.wrappedValue.end = nil
+      }
+    }
+  }
+
   // MARK: - Helpers
+
+  /// "Mon 09:00–12:00", "Mon", "From 13:00", or nil when no time is chosen.
+  private func timeSummary(_ time: LectureTimeFilter) -> String? {
+    guard !time.isEmpty else { return nil }
+    let range: String? = switch (time.begin, time.end) {
+    case let (begin?, end?): "\(clockTime(begin))–\(clockTime(end))"
+    case let (begin?, nil): String(localized: "From \(clockTime(begin))", bundle: .module)
+    case let (nil, end?): String(localized: "Until \(clockTime(end))", bundle: .module)
+    case (nil, nil): nil
+    }
+    return [time.day?.stringValue, range].compactMap { $0 }.joined(separator: " ")
+  }
+
+  private func clockTime(_ minutes: Int) -> String {
+    String(format: "%02d:%02d", minutes / 60, minutes % 60)
+  }
 
   /// Codes keep the chip compact however long the department names are.
   private var departmentSummary: String? {
