@@ -28,6 +28,10 @@ struct LectureSearchResults: View {
   let onOpenLecture: (Lecture) -> Void
   let onOpenCourse: (_ id: Int, _ name: String) -> Void
   let onAddLecture: (Lecture) -> Void
+  let wishlistedLectureIDs: Set<Int>
+  let onToggleWishlist: (Lecture) -> Void
+  /// The wishlist endpoint's ratings are unreliable, so its rows leave them out.
+  var showsRatings: Bool = true
 
   var body: some View {
     ForEach(courses) { course in
@@ -39,22 +43,52 @@ struct LectureSearchResults: View {
         ForEach(course.lectures) { lecture in
           let conflicts = timetable?.conflicts(with: lecture) ?? []
           let isAdded = timetable?.contains(lecture) ?? false
-          Button {
-            onOpenLecture(lecture)
-          } label: {
-            HStack {
-              LectureRow(lecture: lecture, conflicts: conflicts, isAdded: isAdded)
-              // Matches the chevron the course header's link draws.
-              Image(systemName: "chevron.right")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.tertiary)
+          let isWishlisted = wishlistedLectureIDs.contains(lecture.id)
+          HStack(spacing: 10) {
+            Button {
+              onOpenLecture(lecture)
+            } label: {
+              LectureRow(lecture: lecture, conflicts: conflicts, isAdded: isAdded, showsRatings: showsRatings)
+                .contentShape(.rect)
             }
-            .contentShape(.rect)
+            .buttonStyle(.plain)
+
+            WishlistButton(isWishlisted: isWishlisted) {
+              onToggleWishlist(lecture)
+            }
+
+            // Matches the chevron the course header's link draws.
+            Image(systemName: "chevron.right")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.tertiary)
           }
-          .buttonStyle(.plain)
+          .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+              onToggleWishlist(lecture)
+            } label: {
+              Label(
+                isWishlisted
+                  ? String(localized: "Remove from Wishlist", bundle: .module)
+                  : String(localized: "Add to Wishlist", bundle: .module),
+                systemImage: isWishlisted ? "heart.slash" : "heart"
+              )
+            }
+            .tint(.pink)
+          }
+          .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            // Only offered when it can succeed, like the Add button in the details.
+            if !isAdded && conflicts.isEmpty {
+              Button {
+                onAddLecture(lecture)
+              } label: {
+                Label(String(localized: "Add to Timetable", bundle: .module), systemImage: "plus")
+              }
+              .tint(.accentColor)
+            }
+          }
           // A long press peeks at the lecture's details without opening it.
           .contextMenu {
-            lectureActions(lecture, conflicts: conflicts, isAdded: isAdded)
+            lectureActions(lecture, conflicts: conflicts, isAdded: isAdded, isWishlisted: isWishlisted)
           } preview: {
             // In a stack so the preview carries the lecture's name as its title.
             NavigationStack {
@@ -74,7 +108,7 @@ struct LectureSearchResults: View {
   }
 
   @ViewBuilder
-  private func lectureActions(_ lecture: Lecture, conflicts: [String], isAdded: Bool) -> some View {
+  private func lectureActions(_ lecture: Lecture, conflicts: [String], isAdded: Bool, isWishlisted: Bool) -> some View {
     Button(String(localized: "Open", bundle: .module), systemImage: "arrow.up.right") {
       onOpenLecture(lecture)
     }
@@ -82,6 +116,14 @@ struct LectureSearchResults: View {
       onOpenCourse(lecture.courseID, lecture.name)
     }
     Section {
+      Button(
+        isWishlisted
+          ? String(localized: "Remove from Wishlist", bundle: .module)
+          : String(localized: "Add to Wishlist", bundle: .module),
+        systemImage: isWishlisted ? "heart.slash" : "heart"
+      ) {
+        onToggleWishlist(lecture)
+      }
       if isAdded {
         Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
           .disabled(true)
@@ -143,6 +185,7 @@ private struct LectureRow: View {
   let lecture: Lecture
   let conflicts: [String]
   let isAdded: Bool
+  var showsRatings: Bool = true
 
   var body: some View {
     HStack(alignment: .top, spacing: 12) {
@@ -171,7 +214,9 @@ private struct LectureRow: View {
           .foregroundStyle(.secondary)
           .lineLimit(2)
 
-        ratings
+        if showsRatings {
+          ratings
+        }
 
         if isAdded {
           status(String(localized: "In your timetable", bundle: .module), systemImage: "checkmark.circle.fill")
@@ -279,5 +324,29 @@ private struct RatingLabel: View {
     case "D", "F": .red
     default: .secondary
     }
+  }
+}
+
+/// A heart that saves a lecture to the wishlist, or takes it out.
+struct WishlistButton: View {
+  let isWishlisted: Bool
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      Image(systemName: isWishlisted ? "heart.fill" : "heart")
+        .font(.title3)
+        .foregroundStyle(isWishlisted ? AnyShapeStyle(.pink) : AnyShapeStyle(.secondary))
+        .contentTransition(.symbolEffect(.replace))
+        .frame(width: 36, height: 44)
+        .contentShape(.rect)
+    }
+    .buttonStyle(.plain)
+    .sensoryFeedback(.selection, trigger: isWishlisted)
+    .accessibilityLabel(
+      isWishlisted
+        ? String(localized: "Remove from Wishlist", bundle: .module)
+        : String(localized: "Add to Wishlist", bundle: .module)
+    )
   }
 }
