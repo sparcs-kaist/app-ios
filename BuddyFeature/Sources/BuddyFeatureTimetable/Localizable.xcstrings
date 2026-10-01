@@ -18,6 +18,50 @@
     "%lld" : {
       "shouldTranslate" : false
     },
+    "%lld AU" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld AU"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld AU"
+          }
+        }
+      }
+    },
+    "%lld credits" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld credit"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld credits"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld학점"
+          }
+        }
+      }
+    },
     "%lld Lectures" : {
       "localizations" : {
         "en" : {
@@ -42,6 +86,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld개의 강의"
+          }
+        }
+      }
+    },
+    "%lld of %lld enrolled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld enrolled"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정원 %2$lld명 중 %1$lld명 신청"
           }
         }
       }
@@ -976,6 +1036,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "새 시간표"
+          }
+        }
+      }
+    },
+    "No class time" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No class time"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수업 시간 없음"
+          }
+        }
+      }
+    },
+    "No ratings yet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No ratings yet"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 평가 없음"
           }
         }
       }
