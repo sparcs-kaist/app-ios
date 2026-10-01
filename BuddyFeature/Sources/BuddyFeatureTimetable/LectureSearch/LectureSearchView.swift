@@ -68,6 +68,8 @@ struct LectureSearchView: View {
           }
         }
       }
+      // A soft edge lets the results fade under the filter chips and search field.
+      .scrollEdgeEffectStyle(.soft, for: .bottom)
       .contentWidth()
       .safeAreaBar(edge: .bottom) {
         VStack(spacing: 8) {
