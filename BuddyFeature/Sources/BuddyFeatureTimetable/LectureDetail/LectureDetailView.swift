@@ -14,15 +14,27 @@ import FirebaseAnalytics
 struct LectureDetailView: View {
   let lecture: Lecture
   let onAdd: (() -> Void)?
-  let isOverlapping: Bool
+  /// Lectures and activities in the timetable whose times overlap this lecture.
+  let conflicts: [String]
+  /// Whether the timetable already holds this lecture.
+  let isAdded: Bool
   let lectureClass: LectureClass?
 
-  init(lecture: Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, lectureClass: LectureClass? = nil) {
+  init(
+    lecture: Lecture,
+    onAdd: (() -> Void)?,
+    conflicts: [String] = [],
+    isAdded: Bool = false,
+    lectureClass: LectureClass? = nil
+  ) {
     self.lecture = lecture
     self.onAdd = onAdd
-    self.isOverlapping = isOverlapping
+    self.conflicts = conflicts
+    self.isAdded = isAdded
     self.lectureClass = lectureClass
   }
+
+  private var isOverlapping: Bool { !conflicts.isEmpty }
 
   @Environment(\.dismiss) private var dismiss
   @State private var viewModel = LectureDetailViewModel()
@@ -36,6 +48,10 @@ struct LectureDetailView: View {
       LazyVStack(spacing: 20) {
         // Lecture Summary
         LectureSummary(lecture: lecture)
+
+        if onAdd != nil && !isAdded && isOverlapping {
+          conflictWarning
+        }
 
         // Lecture Information
         LectureInformationSection(lecture: lecture, lectureClass: lectureClass)
@@ -68,12 +84,18 @@ struct LectureDetailView: View {
     .toolbar {
       if onAdd != nil {
         ToolbarItem(placement: .topBarTrailing) {
-          Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
-            if isOverlapping {
-              showCannotAddLectureAlert = true
-            } else {
-              dismiss()
-              onAdd?()
+          if isAdded {
+            Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
+              .disabled(true)
+          } else {
+            // Still tappable when it conflicts, so the alert can say why it cannot be added.
+            Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
+              if isOverlapping {
+                showCannotAddLectureAlert = true
+              } else {
+                dismiss()
+                onAdd?()
+              }
             }
           }
         }
@@ -82,13 +104,31 @@ struct LectureDetailView: View {
     .alert(String(localized: "Cannot Add Lecture", bundle: .module), isPresented: $showCannotAddLectureAlert, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
-      Text("This lecture collides with an existing lecture in your timetable.", bundle: .module)
+      Text("This lecture overlaps with \(conflictList) in your timetable.", bundle: .module)
     })
     .sheet(isPresented: $showReviewComposeView) {
       ReviewComposeView(lecture: lecture)
         .presentationDragIndicator(.visible)
     }
     .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
+  }
+
+  private var conflictList: String {
+    conflicts.formatted(.list(type: .and))
+  }
+
+  private var conflictWarning: some View {
+    HStack(alignment: .firstTextBaseline, spacing: 8) {
+      Image(systemName: "exclamationmark.triangle.fill")
+      Text("Overlaps with \(conflictList)", bundle: .module)
+        .multilineTextAlignment(.leading)
+      Spacer(minLength: 0)
+    }
+    .font(.subheadline.weight(.medium))
+    .foregroundStyle(.orange)
+    .padding(12)
+    .background(.orange.opacity(0.12), in: .rect(cornerRadius: 14))
+    .accessibilityElement(children: .combine)
   }
 
 }

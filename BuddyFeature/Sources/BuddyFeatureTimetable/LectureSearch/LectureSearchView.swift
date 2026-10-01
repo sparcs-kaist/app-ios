@@ -14,6 +14,8 @@ import BuddyFeatureShared
 struct LectureSearchView: View {
   @Binding var detent: PresentationDetent
   let timetableDisplayName: String
+  /// The timetable being added to, for spotting lectures that are already in it or overlap it.
+  let timetable: Timetable?
   let selectedSemester: Semester
   @Binding var candidateLecture: Lecture?
   let onAdd: (Lecture) -> Void
@@ -52,7 +54,7 @@ struct LectureSearchView: View {
             if viewModel.courses.isEmpty {
               noResults
             } else {
-              LectureSearchResults(courses: viewModel.courses)
+              LectureSearchResults(courses: viewModel.courses, timetable: timetable)
 
               if viewModel.canLoadMore {
                 ProgressView()
@@ -97,7 +99,8 @@ struct LectureSearchView: View {
           LectureDetailView(
             lecture: lecture,
             onAdd: { onAdd(lecture) },
-            isOverlapping: false,
+            conflicts: timetable?.conflicts(with: lecture) ?? [],
+            isAdded: timetable?.contains(lecture) ?? false,
             lectureClass: lecture.classes.first
           )
         case .course(let id, let name):
