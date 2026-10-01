@@ -39,6 +39,8 @@ struct LectureDetailView: View {
   @Environment(\.dismiss) private var dismiss
   @State private var viewModel = LectureDetailViewModel()
   @State private var showReviewComposeView: Bool = false
+  /// Whether the review sheet's modifier is attached; see the `.background` below.
+  @State private var isReviewSheetAttached: Bool = false
   @State private var canWriteReview: Bool = false
 
   @State private var showCannotAddLectureAlert: Bool = false
@@ -64,7 +66,7 @@ struct LectureDetailView: View {
           state: viewModel.state,
           reviews: $viewModel.reviews,
           canWriteReview: canWriteReview,
-          onWriteReview: { showReviewComposeView = true }
+          onWriteReview: presentReviewCompose
         )
       }
       .padding([.horizontal, .bottom])
@@ -110,15 +112,24 @@ struct LectureDetailView: View {
       // Attached only while composing: this view usually sits inside a sheet, and while a
       // `.sheet` modifier is anywhere in its content SwiftUI ignores changes to that sheet's
       // height, such as lecture search shrinking it to preview a lecture.
-      if showReviewComposeView {
+      if isReviewSheetAttached {
         Color.clear
-          .sheet(isPresented: $showReviewComposeView) {
+          .sheet(isPresented: $showReviewComposeView, onDismiss: { isReviewSheetAttached = false }) {
             ReviewComposeView(lecture: lecture)
               .presentationDragIndicator(.visible)
           }
       }
     }
     .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
+  }
+
+  /// Attaches the review sheet, then presents it on the next update. A sheet presented in the
+  /// same update that attaches its modifier appears without animation.
+  private func presentReviewCompose() {
+    isReviewSheetAttached = true
+    Task { @MainActor in
+      showReviewComposeView = true
+    }
   }
 
   private var conflictList: String {
