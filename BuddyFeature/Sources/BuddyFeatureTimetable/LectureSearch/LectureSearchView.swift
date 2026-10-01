@@ -143,6 +143,9 @@ struct LectureSearchView: View {
     // search, such as the course page however it is reached, asks for full height.
     .environment(\.expandSheet, { setDetentAfterNavigation(.large) })
     .presentationDetents(detents, selection: $detent)
+    // The timetable stays usable behind the sheet, so its later hours can be scrolled into view
+    // while browsing or previewing a lecture. At full height it is covered anyway.
+    .presentationBackgroundInteraction(.enabled(upThrough: .medium))
     .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
   }
 
