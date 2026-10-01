@@ -25,6 +25,8 @@ struct LectureSearchView: View {
   @State private var path: [LectureSearchRoute] = []
   /// The sheet height to return to once the user leaves a lecture they opened from the results.
   @State private var detentBeforePreview: PresentationDetent?
+  /// Whether the sheet offers its short preview height; see `detents`.
+  @State private var offersPreviewHeight = false
   @FocusState private var isSearchFocused: Bool
 
   var body: some View {
@@ -54,7 +56,7 @@ struct LectureSearchView: View {
             if viewModel.courses.isEmpty {
               noResults
             } else {
-              LectureSearchResults(courses: viewModel.courses, timetable: timetable)
+              LectureSearchResults(courses: viewModel.courses, timetable: timetable, onOpenLecture: openLecture)
 
               if viewModel.canLoadMore {
                 ProgressView()
@@ -108,14 +110,9 @@ struct LectureSearchView: View {
         }
       }
       .onChange(of: path) { oldPath, newPath in
-        // Only a lecture opened straight from the results is previewed. Views pushed on top of
-        // it, such as its course page, leave the preview and the sheet height alone.
-        let oldLecture = oldPath.first?.lecture
-        let newLecture = newPath.first?.lecture
-        guard oldLecture != newLecture else { return }
-        if let newLecture {
-          startPreview(newLecture)
-        } else {
+        // Popping the previewed lecture ends the preview as the results come back into view.
+        // Views pushed on top of the lecture, such as its course page, leave it alone.
+        if oldPath.first?.lecture != nil && newPath.first?.lecture == nil {
           endPreview()
         }
       }
@@ -138,23 +135,44 @@ struct LectureSearchView: View {
         await viewModel.fetchDepartments()
       }
     }
+    .presentationDetents(detents, selection: $detent)
     .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
   }
 
-  /// Shows the lecture on the timetable and shrinks the sheet so its time slot is visible.
-  private func startPreview(_ lecture: Lecture) {
+  /// Tall enough for the lecture's title and Add button, short enough to show the timetable.
+  private static let previewHeight = PresentationDetent.height(130)
+
+  /// The short height only exists while a lecture is previewed, so the results cannot be
+  /// dragged down to a height too small to use.
+  private var detents: Set<PresentationDetent> {
+    offersPreviewHeight ? [Self.previewHeight, .medium, .large] : [.medium, .large]
+  }
+
+  /// Opens a lecture from the results: previews it on the timetable and shrinks the sheet so
+  /// its time slot is visible, then pushes its details.
+  ///
+  /// The sheet only applies a height change while the results are the visible screen; once the
+  /// lecture's details cover them, a change is ignored. So the sheet shrinks first, and the
+  /// details are pushed once it has.
+  private func openLecture(_ lecture: Lecture) {
     // An open keyboard holds the sheet up, so the shrink would not take effect.
     isSearchFocused = false
     candidateLecture = lecture
     if detentBeforePreview == nil {
       detentBeforePreview = detent
     }
-    detent = .height(130)
+    offersPreviewHeight = true
+    detent = Self.previewHeight
+    Task {
+      try? await Task.sleep(for: .milliseconds(250))
+      path.append(.lecture(lecture))
+    }
   }
 
   private func endPreview() {
     candidateLecture = nil
     detent = detentBeforePreview ?? .large
+    offersPreviewHeight = false
     detentBeforePreview = nil
   }
 

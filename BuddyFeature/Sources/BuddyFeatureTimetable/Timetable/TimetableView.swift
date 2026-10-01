@@ -87,7 +87,6 @@ public struct TimetableView: View {
                 }
               }
             )
-            .presentationDetents([.height(130), .medium, .large], selection: $selectedDetent)
             .onAppear {
               selectedDetent = .medium
             }
