@@ -136,6 +136,9 @@ struct LectureSearchView: View {
     // While a lecture is open the sheet is often at its smallest height, where a stray
     // downward swipe would dismiss the whole search. Leaving goes through the back button.
     .interactiveDismissDisabled(path.first?.lecture != nil)
+    // Only a lecture opened from the results is shown short; every other screen pushed in the
+    // search, such as the course page however it is reached, asks for full height.
+    .environment(\.expandSheet, { setDetent(.large) })
     .presentationDetents(detents, selection: $detent)
     .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
   }
@@ -151,33 +154,20 @@ struct LectureSearchView: View {
 
   /// Opens a lecture from the results: previews it on the timetable and shrinks the sheet so
   /// its time slot is visible, then pushes its details.
-  ///
-  /// The sheet only applies a height change while the results are the visible screen; once the
-  /// lecture's details cover them, a change is ignored. So the sheet shrinks first, and the
-  /// details are pushed once it has.
   private func openLecture(_ lecture: Lecture) {
     // An open keyboard holds the sheet up, so the shrink would not take effect.
     isSearchFocused = false
     candidateLecture = lecture
     offersPreviewHeight = true
     setDetent(Self.previewHeight)
-    Task {
-      try? await Task.sleep(for: .milliseconds(250))
-      path.append(.lecture(lecture))
-    }
+    path.append(.lecture(lecture))
   }
 
   /// Back on the results, the sheet opens to full height so there is room to browse them.
   private func endPreview() {
     candidateLecture = nil
-    // The sheet ignores a new height until the pop has finished, so wait for it. Meanwhile
-    // `detents` keeps the short height, so the sheet does not settle somewhere else first.
-    Task {
-      try? await Task.sleep(for: .milliseconds(450))
-      guard path.isEmpty else { return }
-      setDetent(.large)
-      offersPreviewHeight = false
-    }
+    setDetent(.large)
+    offersPreviewHeight = false
   }
 
   /// Animates the sheet to a new height rather than letting it jump.

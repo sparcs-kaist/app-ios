@@ -12,6 +12,7 @@ import FirebaseAnalytics
 
 public struct CourseView: View {
   @State private var viewModel: CourseViewModel
+  @Environment(\.expandSheet) private var expandSheet
   private let courseID: Int
   private let name: String
   /// Shown until the full course loads, when the caller already has it.
@@ -96,6 +97,10 @@ public struct CourseView: View {
         }
         ToolbarSpacer(.flexible, placement: .bottomBar)
       }
+    }
+    .onAppear {
+      // The course page needs room; in the lecture search sheet it may still be short.
+      expandSheet?()
     }
     .task {
       await viewModel.setup(courseID: courseID)
