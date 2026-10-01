@@ -33,4 +33,41 @@ public final class OTLUserRepository: OTLUserRepositoryProtocol, Sendable {
   public func updateInterestedDepartments(userID: Int, departmentIDs: [Int]) async throws {
     _ = try await provider.request(.updateInterestedDepartments(userID: userID, departmentIDs: departmentIDs))
   }
+
+  public func fetchWishlist(userID: Int, semester: Semester) async throws -> [CourseLecture] {
+    let response = try await provider.request(
+      .fetchWishlist(userID: userID, year: semester.year, semester: semester.semesterType.intValue)
+    )
+    let result = try response.map(CourseLecturePageDTO.self)
+
+    return result.courses.map { $0.toModel().withoutRatings }
+  }
+
+  public func updateWishlist(userID: Int, lectureID: Int, isWishlisted: Bool) async throws {
+    _ = try await provider.request(.updateWishlist(userID: userID, lectureID: lectureID, isWishlisted: isWishlisted))
+  }
+}
+
+private extension CourseLecture {
+  /// The wishlist endpoint fills its rating fields with review sums rather than averages, so
+  /// they cannot be shown. Clearing them keeps wrong letters off the screen until it is fixed.
+  var withoutRatings: CourseLecture {
+    CourseLecture(
+      id: id,
+      name: name,
+      code: code,
+      type: type,
+      lectures: lectures.map { lecture in
+        Lecture(
+          id: lecture.id, courseID: lecture.courseID, section: lecture.section, name: lecture.name,
+          subtitle: lecture.subtitle, code: lecture.code, department: lecture.department, type: lecture.type,
+          capacity: lecture.capacity, enrolledCount: lecture.enrolledCount, credit: lecture.credit,
+          creditAU: lecture.creditAU, grade: 0, load: 0, speech: 0, isEnglish: lecture.isEnglish,
+          professors: lecture.professors, classes: lecture.classes, exams: lecture.exams,
+          classDuration: lecture.classDuration, expDuration: lecture.expDuration
+        )
+      },
+      completed: completed
+    )
+  }
 }

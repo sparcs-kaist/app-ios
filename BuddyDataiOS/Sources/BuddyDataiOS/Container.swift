@@ -308,6 +308,14 @@ extension Container: @retroactive AutoRegistering {
       )
     }
 
+    wishlistUseCase.register {
+      WishlistUseCase(
+        otlUserRepository: self.otlUserRepository.resolve(),
+        userUseCase: self.userUseCase.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
     v2CourseUseCase.register {
       CourseUseCase(
         otlCourseRepository: self.otlCourseRepository.resolve(),
