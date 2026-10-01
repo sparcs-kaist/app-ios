@@ -15,6 +15,9 @@ public struct LectureSearchRequestDTO: Codable {
   let type: [String]
   let department: [Int]
   let level: [Int]
+  let day: Int?
+  let begin: Int?
+  let end: Int?
   let limit: Int
   let offset: Int
 }
@@ -29,6 +32,9 @@ extension LectureSearchRequestDTO {
       type: model.filter.typeQueryValues,
       department: model.filter.departmentQueryValues,
       level: model.filter.levelQueryValues,
+      day: model.time.day?.rawValue,
+      begin: model.time.begin,
+      end: model.time.end,
       limit: model.limit,
       offset: model.offset
     )
@@ -47,6 +53,9 @@ extension LectureSearchRequestDTO {
     if !type.isEmpty { parameters["type"] = type }
     if !department.isEmpty { parameters["department"] = department }
     if !level.isEmpty { parameters["level"] = level }
+    if let day { parameters["day"] = day }
+    if let begin { parameters["begin"] = begin }
+    if let end { parameters["end"] = end }
 
     return parameters
   }

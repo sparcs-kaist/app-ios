@@ -28,6 +28,10 @@ class LectureSearchViewModel {
   var filter = LectureSearchFilter() {
     didSet { scheduleSearch() }
   }
+  /// When the lectures meet. Separate from `filter`, which course search shares and cannot use.
+  var time = LectureTimeFilter() {
+    didSet { scheduleSearch() }
+  }
 
   private(set) var departments: [DepartmentOption] = []
   /// The user's interested departments from Settings, listed first in the department picker.
@@ -51,8 +55,9 @@ class LectureSearchViewModel {
   private struct Query: Equatable {
     var keyword: String = ""
     var filter = LectureSearchFilter()
+    var time = LectureTimeFilter()
 
-    var isEmpty: Bool { keyword.isEmpty && filter.isEmpty }
+    var isEmpty: Bool { keyword.isEmpty && filter.isEmpty && time.isEmpty }
   }
 
   private static let pageSize = 100
@@ -64,7 +69,7 @@ class LectureSearchViewModel {
   @ObservationIgnored private var selectedSemester: Semester?
 
   private var currentQuery: Query {
-    Query(keyword: searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines), filter: filter)
+    Query(keyword: searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines), filter: filter, time: time)
   }
 
   // MARK: - Dependencies
@@ -150,7 +155,7 @@ class LectureSearchViewModel {
 
     // Results for a different set of filters would be misleading, so they go at once.
     // Keyword edits keep the previous results on screen until the new ones arrive.
-    if query.filter != lastQuery.filter || query.isEmpty || state != .loaded {
+    if query.filter != lastQuery.filter || query.time != lastQuery.time || query.isEmpty || state != .loaded {
       courses.removeAll()
       state = .loading
     }
@@ -191,6 +196,7 @@ class LectureSearchViewModel {
       semester: semester,
       keyword: query.keyword,
       filter: query.filter,
+      time: query.time,
       limit: Self.pageSize,
       offset: offset
     )

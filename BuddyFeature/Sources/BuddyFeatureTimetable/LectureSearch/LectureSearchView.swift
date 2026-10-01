@@ -77,6 +77,7 @@ struct LectureSearchView: View {
         VStack(spacing: 8) {
           CourseFilterBar(
             filter: $viewModel.filter,
+            time: $viewModel.time,
             selectedDepartments: viewModel.selectedDepartments,
             onSelectDepartments: { showDepartmentPicker = true }
           )
@@ -207,7 +208,7 @@ struct LectureSearchView: View {
 
   @ViewBuilder
   private var noResults: some View {
-    if viewModel.filter.isEmpty {
+    if viewModel.filter.isEmpty && viewModel.time.isEmpty {
       ContentUnavailableView.search(text: viewModel.searchKeyword)
     } else {
       ContentUnavailableView {
