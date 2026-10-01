@@ -177,6 +177,22 @@
         }
       }
     },
+    "All Professors" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Professors"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 교수"
+          }
+        }
+      }
+    },
     "An unexpected error occurred while adding a lecture. Please try again later." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -773,6 +789,22 @@
         }
       }
     },
+    "History" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개설 이력"
+          }
+        }
+      }
+    },
     "Information" : {
       "localizations" : {
         "en" : {
@@ -994,6 +1026,34 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "선택된 시간표가 없습니다."
+          }
+        }
+      }
+    },
+    "Offered %lld times" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Offered once"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Offered %lld times"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld회 개설"
           }
         }
       }
@@ -1270,6 +1330,22 @@
         }
       }
     },
+    "Shows this professor's reviews" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows this professor's reviews"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 교수님의 후기를 표시합니다"
+          }
+        }
+      }
+    },
     "Some lectures or activities could not be copied." : {
       "localizations" : {
         "en" : {
@@ -1365,6 +1441,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시간표 %lld"
+          }
+        }
+      }
+    },
+    "Taken" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taken"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수강함"
           }
         }
       }
