@@ -46,7 +46,8 @@ public struct CourseView: View {
             typeName: (viewModel.course?.type ?? summary?.type)?.displayName.localized() ?? "",
             departmentName: viewModel.course?.department.name ?? summary?.department.name ?? "",
             summary: viewModel.course?.summary ?? summary?.summary ?? "",
-            isLoadingDetails: viewModel.course == nil
+            isLoadingDetails: viewModel.course == nil,
+            isTaken: isTaken
           )
           .redacted(reason: viewModel.course == nil && summary == nil ? .placeholder : [])
 
@@ -133,6 +134,14 @@ public struct CourseView: View {
     .menuOrder(.fixed)
     .accessibilityLabel(String(localized: "Professor", bundle: .module))
     .accessibilityValue(viewModel.selectedProfessor?.name ?? String(localized: "All Professors", bundle: .module))
+  }
+
+  /// The loaded history knows which semester you took; until then, trust the summary's flag.
+  private var isTaken: Bool {
+    if let history = viewModel.course?.history {
+      return history.contains { $0.myLectureID != nil }
+    }
+    return summary?.completed ?? false
   }
 
   private var totalCredit: Int {
