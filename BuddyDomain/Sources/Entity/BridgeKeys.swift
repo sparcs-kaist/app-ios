@@ -12,4 +12,6 @@ public enum BridgeKeys {
   /// The whole theme, not just its id: a user's own theme only exists on the
   /// phone, so the watch can't resolve an id it has never seen.
   public static let timetableTheme = "timetableTheme"
+  /// The Credits widget's totals (`CreditSummarySnapshot`), or empty data to clear them.
+  public static let creditSummary = "creditSummary"
 }

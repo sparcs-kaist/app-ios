@@ -52,7 +52,6 @@ public struct FeedView: View {
           await viewModel.deletePost(postID: postID)
         })
         .environment(spoilerContents)
-        .addKeyboardVisibilityToEnvironment()
       }
     }
     .task {

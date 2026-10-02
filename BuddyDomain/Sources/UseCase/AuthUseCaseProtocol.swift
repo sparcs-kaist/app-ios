@@ -10,6 +10,8 @@ import Combine
 
 public protocol AuthUseCaseProtocol: Sendable {
   var isAuthenticatedPublisher: AnyPublisher<Bool, Never> { get }
+  /// The current value of `isAuthenticatedPublisher`, for synchronous checks.
+  var isAuthenticated: Bool { get }
   func signIn() async throws
   func signOut() async throws
   func getAccessToken() -> String?
