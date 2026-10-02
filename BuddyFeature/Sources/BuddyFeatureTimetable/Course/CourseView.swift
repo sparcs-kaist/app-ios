@@ -13,6 +13,7 @@ import FirebaseAnalytics
 public struct CourseView: View {
   @State private var viewModel: CourseViewModel
   @Environment(\.expandSheet) private var expandSheet
+  @Environment(\.inspectorNavigation) private var inspectorNavigation
   private let courseID: Int
   private let name: String
   /// Shown until the full course loads, when the caller already has it.
@@ -87,17 +88,27 @@ public struct CourseView: View {
       .padding(.horizontal)
       .contentWidth()
     }
-    .navigationTitle(name)
-    .navigationBarTitleDisplayMode(.inline)
+    // Content fades under the bars, and in lecture search under the timetable preview.
+    .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+    .screenTitle(name) {
+      // In the inspector, which has no bottom bar, the picker joins its header.
+      if viewModel.professors.count > 1 {
+        professorPicker
+          .buttonStyle(.glass)
+          .buttonBorderShape(.capsule)
+      }
+    }
     .toolbar {
       // Only worth offering when the course has had more than one professor.
-      if viewModel.professors.count > 1 {
+      if inspectorNavigation == nil, viewModel.professors.count > 1 {
         ToolbarItem(placement: .bottomBar) {
           professorPicker
         }
         ToolbarSpacer(.flexible, placement: .bottomBar)
       }
     }
+    // In the full-screen lecture search, the timetable preview stays a tap away.
+    .lectureSearchTimetablePreview()
     .onAppear {
       // The course page needs room; in the lecture search sheet it may still be short.
       expandSheet?()

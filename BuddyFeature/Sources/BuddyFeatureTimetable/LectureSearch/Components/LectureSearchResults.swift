@@ -38,10 +38,22 @@ struct LectureSearchResults: View {
   var body: some View {
     ForEach(courses) { course in
       Section {
-        // The course page shows every semester it was offered and who taught it.
-        NavigationLink(value: LectureSearchRoute.course(id: course.id, name: course.name)) {
-          CourseHeader(course: course)
+        // The course page shows every semester it was offered and who taught it. A button
+        // rather than a link, because on larger screens it opens in the inspector.
+        Button {
+          onOpenCourse(course.id, course.name)
+        } label: {
+          HStack(spacing: 8) {
+            CourseHeader(course: course)
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.forward")
+              .font(.footnote.weight(.semibold))
+              .foregroundStyle(.tertiary)
+              .accessibilityHidden(true)
+          }
+          .contentShape(.rect)
         }
+        .buttonStyle(.plain)
         ForEach(course.lectures) { lecture in
           let conflicts = timetable?.conflicts(with: lecture) ?? []
           let isAdded = timetable?.contains(lecture) ?? false
@@ -105,6 +117,8 @@ struct LectureSearchResults: View {
               )
             }
             .frame(width: 380, height: 560)
+            // A peek, not a screen of the search: no Timetable button or preview card.
+            .environment(\.lectureSearchTimetablePreview, nil)
           }
         }
       } header: {

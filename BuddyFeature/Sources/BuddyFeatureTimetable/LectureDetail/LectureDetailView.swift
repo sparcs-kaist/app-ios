@@ -44,6 +44,7 @@ struct LectureDetailView: View {
   private var isOverlapping: Bool { !conflicts.isEmpty }
 
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.inspectorNavigation) private var inspectorNavigation
   @State private var viewModel = LectureDetailViewModel()
   @State private var showReviewComposeView: Bool = false
   /// Whether the review sheet's modifier is attached; see the `.background` below.
@@ -79,6 +80,8 @@ struct LectureDetailView: View {
       .padding([.horizontal, .bottom])
       .contentWidth()
     }
+    // Content fades under the navigation bar, and in lecture search under the timetable preview.
+    .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
     .task {
       async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
       async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)
@@ -88,29 +91,26 @@ struct LectureDetailView: View {
 
       canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
     }
-    .navigationTitle(lecture.name)
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
+    .screenTitle(lecture.name) {
+      // In the inspector, the same buttons in its header.
       if let onToggleWishlist {
-        ToolbarItem(placement: .topBarTrailing) {
-          WishlistButton(isWishlisted: isWishlisted, action: onToggleWishlist)
-        }
+        WishlistButton(isWishlisted: isWishlisted, action: onToggleWishlist)
       }
       if onAdd != nil {
-        ToolbarItem(placement: .topBarTrailing) {
-          if isAdded {
-            Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
-              .disabled(true)
-          } else {
-            // Still tappable when it conflicts, so the alert can say why it cannot be added.
-            Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
-              if isOverlapping {
-                showCannotAddLectureAlert = true
-              } else {
-                dismiss()
-                onAdd?()
-              }
-            }
+        addButton
+          .buttonStyle(.glassProminent)
+      }
+    }
+    .toolbar {
+      if inspectorNavigation == nil {
+        if let onToggleWishlist {
+          ToolbarItem(placement: .topBarTrailing) {
+            WishlistButton(isWishlisted: isWishlisted, action: onToggleWishlist)
+          }
+        }
+        if onAdd != nil {
+          ToolbarItem(placement: .topBarTrailing) {
+            addButton
           }
         }
       }
@@ -132,7 +132,30 @@ struct LectureDetailView: View {
           }
       }
     }
+    // In the full-screen lecture search, the timetable preview stays a tap away.
+    .lectureSearchTimetablePreview()
     .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
+  }
+
+  @ViewBuilder
+  private var addButton: some View {
+    if isAdded {
+      Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
+        .disabled(true)
+    } else {
+      // Still tappable when it conflicts, so the alert can say why it cannot be added.
+      Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
+        if isOverlapping {
+          showCannotAddLectureAlert = true
+        } else {
+          // In the inspector, adding closes it; dismiss would pop the search it sits in.
+          if inspectorNavigation == nil {
+            dismiss()
+          }
+          onAdd?()
+        }
+      }
+    }
   }
 
   /// Attaches the review sheet, then presents it on the next update. A sheet presented in the

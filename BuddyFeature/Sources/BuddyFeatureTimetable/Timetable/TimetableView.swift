@@ -23,9 +23,12 @@ public struct TimetableView: View {
 	@State private var showActivityCreationSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
   @State private var scrollPosition = ScrollPosition(edge: .top)
+  @State private var path = NavigationPath()
+  /// The full-screen lecture search's timetable preview, while that search is open.
+  @State private var searchPreview: LectureSearchTimetablePreview?
+  @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .sheet
   /// Shared with the Credits screen, so its data loads once and grade edits show here too.
   @State private var creditViewModel = CreditCalculationViewModel()
-  @State private var showsCredits = false
   @Namespace private var creditsTransition
 
   @Environment(\.colorScheme) private var colorScheme
@@ -37,7 +40,7 @@ public struct TimetableView: View {
 
   public var body: some View {
     GeometryReader { reader in
-      NavigationStack {
+      NavigationStack(path: $path) {
         ScrollView {
           content(
             gridHeight: max(reader.size.height * 0.8, Self.minimumGridHeight),
@@ -63,11 +66,7 @@ public struct TimetableView: View {
           ToolbarItem(placement: .topBarTrailing) {
 						Menu("Add Event", systemImage: "square.badge.plus") {
 							Button(String(localized: "Add Lecture", bundle: .module), systemImage: "book.badge.plus") {
-								// Start from the top of the grid, which the search sheet leaves visible.
-								withAnimation(.smooth) {
-									scrollPosition.scrollTo(edge: .top)
-								}
-								showSearchSheet = true
+								openLectureSearch()
 							}
 							
 							Button(String(localized: "New Activity", bundle: .module), systemImage: "calendar.badge.plus") {
@@ -77,9 +76,23 @@ public struct TimetableView: View {
 						.disabled(viewModel.isReadOnly || viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init) || showSearchSheet)
           }
         }
-        .navigationDestination(isPresented: $showsCredits) {
-          CreditCalculationView(viewModel: creditViewModel)
-            .navigationTransition(.zoom(sourceID: CreditsSummaryCard.transitionID, in: creditsTransition))
+        .navigationDestination(for: TimetableRoute.self) { route in
+          switch route {
+          case .lectureSearch:
+            if let selectedSemester = viewModel.selectedSemester, let searchPreview {
+              LectureSearchPage(
+                timetableViewModel: viewModel,
+                preview: searchPreview,
+                timetableDisplayName: displayName,
+                selectedSemester: selectedSemester,
+                containerSize: reader.size,
+                path: $path
+              )
+            }
+          case .credits:
+            CreditCalculationView(viewModel: creditViewModel)
+              .navigationTransition(.zoom(sourceID: CreditsSummaryCard.transitionID, in: creditsTransition))
+          }
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
           NavigationStack {
@@ -128,16 +141,39 @@ public struct TimetableView: View {
             )]
           )
         }
-        .alert(
-          viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
-          isPresented: $viewModel.isAlertPresented,
-          actions: {
-            Button(String(localized: "Okay", bundle: .module), role: .close) { }
-          }, message: {
-            Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
-          }
-        )
         .analyticsScreen(name: "Timetable", class: String(describing: Self.self))
+      }
+      // Over the stack rather than on its screens, so the full-screen search's timetable preview
+      // is one view that stays in place as its screens are pushed and popped.
+      .overlay(alignment: .top) {
+        if let searchPreview, !path.isEmpty {
+          LectureSearchPreviewOverlay(preview: searchPreview)
+        }
+      }
+      .animation(.smooth(duration: 0.2), value: path.isEmpty)
+      // On the stack rather than its root, so errors also show over the full-screen search, such
+      // as a lecture that could not be added.
+      .alert(
+        viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
+        isPresented: $viewModel.isAlertPresented,
+        actions: {
+          Button(String(localized: "Okay", bundle: .module), role: .close) { }
+        }, message: {
+          Text(viewModel.alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
+        }
+      )
+      .onChange(of: path.isEmpty) { _, isEmpty in
+        // Only leaving the full-screen search ends the preview of a lecture; leaving Credits must
+        // not end one shown by the search sheet.
+        guard isEmpty, searchPreview != nil else { return }
+        viewModel.candidateLecture = nil
+        // Once the search has slid away, so it keeps its preview while it leaves.
+        Task {
+          try? await Task.sleep(for: .milliseconds(500))
+          if path.isEmpty {
+            searchPreview = nil
+          }
+        }
       }
     }
     .timetableThemeFromSettings()
@@ -160,7 +196,7 @@ public struct TimetableView: View {
       isReady: creditViewModel.isOverallSummaryReady,
       isEnabled: creditViewModel.state != .loading,
       namespace: creditsTransition,
-      onTap: { showsCredits = true }
+      onTap: { path.append(TimetableRoute.credits) }
     )
     // Loads the first time the card scrolls into view, not when the screen opens:
     // it fetches every semester. `load()` ignores repeat calls.
@@ -287,6 +323,21 @@ public struct TimetableView: View {
     .accessibilityElement(children: .contain)
   }
 
+  /// Opens lecture search in the way chosen in Settings.
+  private func openLectureSearch() {
+    switch lectureSearchStyle {
+    case .sheet:
+      // Start from the top of the grid, which the search sheet leaves visible.
+      withAnimation(.smooth) {
+        scrollPosition.scrollTo(edge: .top)
+      }
+      showSearchSheet = true
+    case .fullScreen:
+      searchPreview = LectureSearchTimetablePreview(timetableViewModel: viewModel)
+      path.append(TimetableRoute.lectureSearch)
+    }
+  }
+
   /// Opens a lecture's details, unless lecture search is open: the timetable stays usable behind
   /// that sheet, but a second sheet cannot be presented over it.
   private func showLectureDetail(_ lecture: LectureItem) {
@@ -378,6 +429,12 @@ public struct TimetableView: View {
   public init(_ viewModel: TimetableViewModel) {
     self.viewModel = viewModel
   }
+}
+
+/// A screen pushed from the timetable.
+enum TimetableRoute: Hashable {
+  case lectureSearch
+  case credits
 }
 
 private struct TimetableShareImage: Identifiable {
