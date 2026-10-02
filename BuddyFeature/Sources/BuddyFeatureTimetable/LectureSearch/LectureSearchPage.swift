@@ -58,14 +58,15 @@ struct LectureSearchPage: View {
         .opacity(showsSearchPane ? 1 : 0)
         .allowsHitTesting(showsSearchPane)
         .accessibilityHidden(!showsSearchPane)
-    }
-    .background(Color.systemGroupedBackground)
-    .inspector(isPresented: isInspectorPresented) {
-      // Built only when shown: on a compact screen there is no inspector to show.
+
+      // A pane of the stack rather than a system inspector, which UIKit resizes the panes for
+      // without animation; here the panes narrow as it slides in. Only on a wide screen.
       if session.isInspectorPresented {
         LectureSearchInspector(session: session)
+          .transition(.move(edge: .trailing))
       }
     }
+    .background(Color.systemGroupedBackground)
     .navigationTitle(String(localized: "Add to \"\(timetableDisplayName)\"", bundle: .module))
     .navigationBarTitleDisplayMode(.inline)
     .toolbarVisibility(.hidden, for: .tabBar)
@@ -194,12 +195,6 @@ struct LectureSearchPage: View {
 
   // MARK: - Navigation
 
-  private var isInspectorPresented: Binding<Bool> {
-    Binding(
-      get: { session.isInspectorPresented },
-      set: { if !$0 { session.closeInspector() } }
-    )
-  }
 
   /// Opens a lecture and draws it into the timetable, unless the timetable already has it.
   private func openLecture(_ lecture: Lecture) {

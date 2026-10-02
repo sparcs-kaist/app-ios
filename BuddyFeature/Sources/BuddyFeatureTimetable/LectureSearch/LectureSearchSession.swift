@@ -36,15 +36,25 @@ final class LectureSearchSession {
 
   /// Shows a lecture or course in the inspector, in place of whatever it showed.
   func inspect(_ route: LectureSearchRoute) {
-    inspectorPath = []
-    inspectorRoot = route
+    // Opening it narrows the panes beside it, so that is animated; replacing what an open
+    // inspector shows moves nothing.
+    withAnimation(inspectorRoot == nil ? Self.inspectorAnimation : nil) {
+      inspectorPath = []
+      inspectorRoot = route
+    }
   }
 
   func closeInspector() {
-    inspectorRoot = nil
-    inspectorPath = []
-    timetableViewModel.candidateLecture = nil
+    // The panes widen back as the inspector leaves.
+    withAnimation(inspectorRoot == nil ? nil : Self.inspectorAnimation) {
+      inspectorRoot = nil
+      inspectorPath = []
+      timetableViewModel.candidateLecture = nil
+    }
   }
+
+  /// Opens and closes the inspector, and moves the panes beside it with it.
+  static let inspectorAnimation: Animation = .smooth(duration: 0.35)
 
   /// Takes what the inspector shows out of it, root first, such as when the screen becomes too
   /// narrow for it and the screens are pushed instead.
@@ -82,7 +92,12 @@ struct LectureSearchInspector: View {
       routes: session.inspectorRoot.map { [$0] + session.inspectorPath } ?? []
     )
     .ignoresSafeArea(edges: .bottom)
-    .inspectorColumnWidth(min: 320, ideal: Self.idealWidth, max: 440)
+    .frame(width: Self.idealWidth)
+    .background(Color.systemGroupedBackground, ignoresSafeAreaEdges: .bottom)
+    .overlay(alignment: .leading) {
+      Divider()
+        .ignoresSafeArea(edges: .bottom)
+    }
   }
 
   static let idealWidth: CGFloat = 360
