@@ -41,6 +41,7 @@ public final class TimetableViewModel {
       candidateLecture = nil
       lastUpdated = nil
       isShowingSavedData = false
+      isAwaitingFreshTable = false
       loadError = nil
       refreshFailures.subtract(["list", "table"])
       offlineFailures.subtract(["list", "table"])
@@ -70,6 +71,7 @@ public final class TimetableViewModel {
         candidateLecture = nil
         lastUpdated = nil
         isShowingSavedData = false
+        isAwaitingFreshTable = false
         loadError = nil
       }
       timetableLoadTask = Task {
@@ -94,6 +96,9 @@ public final class TimetableViewModel {
 
   public var isLoading: Bool = true
   public private(set) var isShowingSavedData = false
+  /// The saved table was just shown for a new selection and its network request is
+  /// still pending; the saved-data header waits for the result instead of flashing.
+  private var isAwaitingFreshTable = false
   public private(set) var lastUpdated: Date?
   public private(set) var loadError: String?
   private var refreshFailures: Set<String> = []
@@ -105,7 +110,9 @@ public final class TimetableViewModel {
   @ObservationIgnored private var isRefreshing = false
   public var isOffline: Bool { networkUnavailable || !offlineFailures.isEmpty }
   public var isReadOnly: Bool { isOffline || !refreshFailures.isEmpty || isShowingSavedData }
-  public var showsSavedStatus: Bool { isShowingSavedData || !refreshFailures.isEmpty || isOffline }
+  public var showsSavedStatus: Bool {
+    (isShowingSavedData && !isAwaitingFreshTable) || !refreshFailures.isEmpty || isOffline
+  }
   /// Duplicating replays every lecture and activity, so it is slow enough that the
   /// menu entry must not be tappable twice.
   public var isDuplicatingTable: Bool = false
@@ -315,6 +322,7 @@ public final class TimetableViewModel {
       timetable = table
       lastUpdated = cached.updatedAt
       isShowingSavedData = true
+      isAwaitingFreshTable = true
       loadError = nil
     }
 
@@ -332,6 +340,7 @@ public final class TimetableViewModel {
       timetable = result
       lastUpdated = .now
       isShowingSavedData = false
+      isAwaitingFreshTable = false
       loadError = nil
       succeeded("table")
 			WidgetCenter.shared.reloadAllTimelines()
@@ -341,6 +350,7 @@ public final class TimetableViewModel {
       guard !Task.isCancelled, generation == loadGeneration,
             selectedSemester == semester, selectedTimetableID == tableID else { return }
       failed(error, resource: "table")
+      isAwaitingFreshTable = false
       if !canKeepSavedData(after: error) { timetable = nil; lastUpdated = nil }
       isShowingSavedData = timetable != nil
       if timetable == nil {

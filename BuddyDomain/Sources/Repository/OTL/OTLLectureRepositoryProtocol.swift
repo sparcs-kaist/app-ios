@@ -10,4 +10,6 @@ import Foundation
 public protocol OTLLectureRepositoryProtocol: Sendable {
   func searchLecture(request: LectureSearchRequest) async throws -> [CourseLecture]
   func fetchDepartmentOptions() async throws -> [DepartmentOption]
+  /// Fetches a user's taken lectures using the numeric OTL user ID.
+  func fetchUserLectureHistory(userID: Int) async throws -> OTLUserLectureHistory
 }

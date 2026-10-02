@@ -23,6 +23,10 @@ public struct TimetableView: View {
 	@State private var showActivityCreationSheet: Bool = false
   @State private var selectedDetent: PresentationDetent = .medium
   @State private var scrollPosition = ScrollPosition(edge: .top)
+  /// Shared with the Credits screen, so its data loads once and grade edits show here too.
+  @State private var creditViewModel = CreditCalculationViewModel()
+  @State private var showsCredits = false
+  @Namespace private var creditsTransition
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
@@ -42,7 +46,12 @@ public struct TimetableView: View {
           .padding()
         }
         .scrollPosition($scrollPosition)
-        .refreshable { await viewModel.refresh() }
+        .refreshable {
+          // Credits too: My Table can change on the server, e.g. during add/drop.
+          async let timetable: Void = viewModel.refresh()
+          async let credits: Void = creditViewModel.refresh()
+          _ = await (timetable, credits)
+        }
         .background {
           BackgroundGradientView(color: .pink)
             .ignoresSafeArea()
@@ -67,6 +76,10 @@ public struct TimetableView: View {
 						}
 						.disabled(viewModel.isReadOnly || viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init) || showSearchSheet)
           }
+        }
+        .navigationDestination(isPresented: $showsCredits) {
+          CreditCalculationView(viewModel: creditViewModel)
+            .navigationTransition(.zoom(sourceID: CreditsSummaryCard.transitionID, in: creditsTransition))
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
           NavigationStack {
@@ -138,6 +151,23 @@ public struct TimetableView: View {
 
   @ViewBuilder
   private func content(gridHeight: CGFloat, isWide: Bool) -> some View {
+    // Built once and placed per layout: bottom of the right column when wide,
+    // bottom of the page otherwise.
+    let creditsCard = CreditsSummaryCard(
+      gpa: creditViewModel.overallSummary.gpa,
+      earnedCredits: creditViewModel.overallSummary.earnedCredits,
+      graduationCredits: creditViewModel.requirements.graduation,
+      isReady: creditViewModel.isOverallSummaryReady,
+      isEnabled: creditViewModel.state != .loading,
+      namespace: creditsTransition,
+      onTap: { showsCredits = true }
+    )
+    // Loads the first time the card scrolls into view, not when the screen opens:
+    // it fetches every semester. `load()` ignores repeat calls.
+    .onScrollVisibilityChange(threshold: 0.1) { isVisible in
+      if isVisible { Task { await creditViewModel.load() } }
+    }
+
     VStack(spacing: 28) {
       selector(isWide: isWide)
       if viewModel.showsSavedStatus || viewModel.loadError != nil {
@@ -154,6 +184,7 @@ public struct TimetableView: View {
 						lectureListCard
             creditGraphCard
             summaryCard
+            creditsCard
           }
           .frame(maxWidth: .infinity)
         }
@@ -162,6 +193,7 @@ public struct TimetableView: View {
         lectureListCard
         creditGraphCard
         summaryCard
+        creditsCard
       }
     }
   }
@@ -386,7 +418,7 @@ private struct TimetableCardStyle: ViewModifier {
   }
 }
 
-private extension View {
+extension View {
   /// The shared rounded, glass-backed card treatment used by every timetable section.
   func timetableCardStyle() -> some View {
     modifier(TimetableCardStyle())
