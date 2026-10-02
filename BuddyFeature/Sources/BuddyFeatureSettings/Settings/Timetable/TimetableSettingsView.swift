@@ -11,6 +11,7 @@ import FirebaseAnalytics
 
 struct TimetableSettingsView: View {
   @State private var viewModel: TimetableSettingsViewModelProtocol
+  @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .sheet
 
   init(_ viewModel: TimetableSettingsViewModelProtocol = TimetableSettingsViewModel()) {
     self._viewModel = State(initialValue: viewModel)
@@ -18,6 +19,20 @@ struct TimetableSettingsView: View {
 
   var body: some View {
     List {
+      Section {
+        Picker(String(localized: "Lecture Search", bundle: .module), selection: $lectureSearchStyle) {
+          ForEach(LectureSearchStyle.allCases) { style in
+            Text(style.title).tag(style)
+          }
+        }
+        .pickerStyle(.inline)
+        .labelsHidden()
+      } header: {
+        Text("Adding Lectures", bundle: .module)
+      } footer: {
+        Text(lectureSearchStyle.footer)
+      }
+
       Section {
         NavigationLink {
           InterestedDepartmentsView(viewModel)
@@ -50,6 +65,24 @@ struct TimetableSettingsView: View {
         .lineLimit(1)
     case .error:
       EmptyView()
+    }
+  }
+}
+
+private extension LectureSearchStyle {
+  var title: String {
+    switch self {
+    case .sheet: String(localized: "Sheet", bundle: .module)
+    case .fullScreen: String(localized: "Full Screen", bundle: .module)
+    }
+  }
+
+  var footer: String {
+    switch self {
+    case .sheet:
+      String(localized: "Lecture search opens in a sheet, with the timetable behind it.", bundle: .module)
+    case .fullScreen:
+      String(localized: "Lecture search takes the whole screen, with a timetable preview a tap away. On larger screens the timetable stays beside the results.", bundle: .module)
     }
   }
 }
