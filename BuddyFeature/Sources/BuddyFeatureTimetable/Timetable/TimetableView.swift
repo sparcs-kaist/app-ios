@@ -28,7 +28,7 @@ public struct TimetableView: View {
   @State private var searchSession: LectureSearchSession?
   /// Whether the window has room for the full-screen search's two panes and its inspector.
   @State private var isSearchWide = false
-  @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .sheet
+  @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .standard
   /// Shared with the Credits screen, so its data loads once and grade edits show here too.
   @State private var creditViewModel = CreditCalculationViewModel()
   @Namespace private var creditsTransition

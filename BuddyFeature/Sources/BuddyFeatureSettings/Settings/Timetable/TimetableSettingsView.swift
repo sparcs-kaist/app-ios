@@ -11,7 +11,7 @@ import FirebaseAnalytics
 
 struct TimetableSettingsView: View {
   @State private var viewModel: TimetableSettingsViewModelProtocol
-  @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .sheet
+  @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .standard
 
   init(_ viewModel: TimetableSettingsViewModelProtocol = TimetableSettingsViewModel()) {
     self._viewModel = State(initialValue: viewModel)
