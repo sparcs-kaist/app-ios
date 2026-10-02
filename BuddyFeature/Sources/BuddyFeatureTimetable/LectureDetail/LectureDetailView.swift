@@ -44,7 +44,7 @@ struct LectureDetailView: View {
   private var isOverlapping: Bool { !conflicts.isEmpty }
 
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.inspectorNavigation) private var inspectorNavigation
+  @Environment(\.isInLectureSearchInspector) private var isInInspector
   @State private var viewModel = LectureDetailViewModel()
   @State private var showReviewComposeView: Bool = false
   /// Whether the review sheet's modifier is attached; see the `.background` below.
@@ -91,27 +91,17 @@ struct LectureDetailView: View {
 
       canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
     }
-    .screenTitle(lecture.name) {
-      // In the inspector, the same buttons in its header.
-      if let onToggleWishlist {
-        WishlistButton(isWishlisted: isWishlisted, action: onToggleWishlist)
-      }
-      if onAdd != nil {
-        addButton
-          .buttonStyle(.glassProminent)
-      }
-    }
+    .lectureScreenTitle(lecture.name)
     .toolbar {
-      if inspectorNavigation == nil {
-        if let onToggleWishlist {
-          ToolbarItem(placement: .topBarTrailing) {
-            WishlistButton(isWishlisted: isWishlisted, action: onToggleWishlist)
-          }
+      // In lecture search's inspector, its navigation bar has these.
+      if let onToggleWishlist, !isInInspector {
+        ToolbarItem(placement: .topBarTrailing) {
+          WishlistToolbarButton(isWishlisted: isWishlisted, action: onToggleWishlist)
         }
-        if onAdd != nil {
-          ToolbarItem(placement: .topBarTrailing) {
-            addButton
-          }
+      }
+      if onAdd != nil, !isInInspector {
+        ToolbarItem(placement: .topBarTrailing) {
+          addButton
         }
       }
     }
@@ -148,8 +138,8 @@ struct LectureDetailView: View {
         if isOverlapping {
           showCannotAddLectureAlert = true
         } else {
-          // In the inspector, adding closes it; dismiss would pop the search it sits in.
-          if inspectorNavigation == nil {
+          // In lecture search's inspector, adding closes it.
+          if !isInInspector {
             dismiss()
           }
           onAdd?()

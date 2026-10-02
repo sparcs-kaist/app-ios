@@ -16,28 +16,24 @@ import TimetableUI
 /// On a compact screen the results take the whole view and the timetable is a preview opened
 /// from the toolbar, there on every screen pushed from the search. On a larger screen the
 /// timetable fills the leading half, the results the trailing half, and lectures and courses
-/// open in an inspector so the timetable stays in view.
+/// open in the session's inspector, which the timetable shows beside the search.
 struct LectureSearchPage: View {
-  @Bindable var timetableViewModel: TimetableViewModel
-  let preview: LectureSearchTimetablePreview
+  @Bindable var session: LectureSearchSession
   let timetableDisplayName: String
   let selectedSemester: Semester
   /// The whole screen's size, measured outside the inspector, which narrows this view.
   let containerSize: CGSize
   @Binding var path: NavigationPath
 
-  @State private var viewModel = LectureSearchViewModel()
   @State private var showDepartmentPicker = false
+  @State private var showTimeRangePicker = false
   /// The navigation depth of this screen, so returning to it can be told apart from leaving it.
   @State private var depth: Int?
-  /// What the inspector shows, last on top: a lecture or course, then any course opened from it.
-  /// Kept here rather than in a navigation stack, which inside the inspector of a pushed screen
-  /// would pop that screen.
-  @State private var inspectorRoutes: [LectureSearchRoute] = []
   @FocusState private var isSearchFocused: Bool
 
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  private var viewModel: LectureSearchViewModel { session.searchViewModel }
+  private var preview: LectureSearchTimetablePreview { session.preview }
+  private var timetableViewModel: TimetableViewModel { session.timetableViewModel }
 
   var body: some View {
     // One structure for both layouts, so the results keep their state and scroll position when
@@ -50,7 +46,7 @@ struct LectureSearchPage: View {
 
       searchList
         // The preview is only needed when the timetable is not already beside the results.
-        .lectureSearchTimetablePreview()
+        .lectureSearchTimetablePreview(sizesCard: true)
         .environment(\.lectureSearchTimetablePreview, isWide ? nil : preview)
         // With the inspector open there may not be room for all three. The results then make way
         // for it, keeping their size and scroll position for when it closes.
@@ -65,7 +61,10 @@ struct LectureSearchPage: View {
     }
     .background(Color.systemGroupedBackground)
     .inspector(isPresented: isInspectorPresented) {
-      inspector
+      // Built only when shown: on a compact screen there is no inspector to show.
+      if session.isInspectorPresented {
+        LectureSearchInspector(session: session)
+      }
     }
     .navigationTitle(String(localized: "Add to \"\(timetableDisplayName)\"", bundle: .module))
     .navigationBarTitleDisplayMode(.inline)
@@ -84,10 +83,23 @@ struct LectureSearchPage: View {
         departments: viewModel.departments,
         interestedDepartmentIDs: viewModel.interestedDepartmentIDs,
         state: viewModel.departmentState,
-        selection: $viewModel.filter.departmentIDs,
+        selection: Bindable(viewModel).filter.departmentIDs,
         onRetry: { await viewModel.fetchDepartments() }
       )
+      // The timetable preview stays in place over the picker, as over every screen of the search.
+      .lectureSearchTimetablePreview()
+      .environment(\.lectureSearchTimetablePreview, isWide ? nil : preview)
       .toolbarVisibility(.hidden, for: .tabBar)
+    }
+    .navigationDestination(isPresented: $showTimeRangePicker) {
+      LectureTimeRangePage(timetable: timetableViewModel.timetable, time: Bindable(viewModel).time)
+    }
+    .onChange(of: showTimeRangePicker) {
+      // The picker is the timetable itself, so the preview steps aside for it, at once rather
+      // than animating as the screens change.
+      withTransaction(Transaction(animation: nil)) {
+        preview.isCovered = showTimeRangePicker
+      }
     }
     .onAppear {
       if depth == nil {
@@ -108,15 +120,9 @@ struct LectureSearchPage: View {
     .onChange(of: isSearchFocused) {
       // The keyboard leaves too little room for the preview and the results together.
       if isSearchFocused {
-        withAnimation(.smooth) {
+        withAnimation(LectureSearchTimetablePreview.animation) {
           preview.isExpanded = false
         }
-      }
-    }
-    .onChange(of: showDepartmentPicker) {
-      // The department picker has no room for the timetable preview.
-      withAnimation(.smooth(duration: 0.2)) {
-        preview.isCovered = showDepartmentPicker
       }
     }
     .onChange(of: preview.isExpanded) {
@@ -129,12 +135,9 @@ struct LectureSearchPage: View {
 
   // MARK: - Layout
 
-  /// Regular in both directions, as on an iPad or the inner display of iPhone Duo, and wide
-  /// enough for two panes. A large iPhone in landscape is regular width but too short for them.
+  /// Decided by the timetable from the whole window: the open inspector narrows this screen.
   private var isWide: Bool {
-    horizontalSizeClass == .regular
-      && verticalSizeClass == .regular
-      && containerSize.width > LayoutMetrics.twoColumnWidthThreshold
+    session.isWide
   }
 
   private var searchList: some View {
@@ -146,7 +149,8 @@ struct LectureSearchPage: View {
       onOpenLecture: openLecture,
       onOpenCourse: openCourse,
       onAddLecture: addLecture,
-      onSelectDepartments: { showDepartmentPicker = true }
+      onSelectDepartments: { showDepartmentPicker = true },
+      onChooseTimeOnTimetable: { showTimeRangePicker = true }
     )
   }
 
@@ -170,31 +174,8 @@ struct LectureSearchPage: View {
   }
 
   private var showsSearchPane: Bool {
-    guard isWide, !inspectorRoutes.isEmpty else { return true }
-    return containerSize.width - Self.inspectorIdealWidth >= Self.timetablePaneMinWidth + Self.searchPaneMinWidth
-  }
-
-  private var inspector: some View {
-    Group {
-      // Built even while hidden, so only when wide: its screens' titles would otherwise take
-      // over the search's navigation bar on a compact screen.
-      if isWide, let route = inspectorRoutes.last {
-        destination(for: route)
-          // A different lecture or course is a different screen, not an update of this one.
-          .id(route)
-          .environment(\.inspectorNavigation, InspectorNavigation(
-            canGoBack: inspectorRoutes.count > 1,
-            goBack: { inspectorRoutes.removeLast() },
-            close: closeInspector
-          ))
-      }
-    }
-    // The timetable is already beside the inspector.
-    .environment(\.lectureSearchTimetablePreview, nil)
-    .environment(\.openCourse) { id, name in
-      inspectorRoutes.append(.course(id: id, name: name))
-    }
-    .inspectorColumnWidth(min: 320, ideal: Self.inspectorIdealWidth, max: 440)
+    guard session.isInspectorPresented else { return true }
+    return containerSize.width - LectureSearchInspector.idealWidth >= Self.timetablePaneMinWidth + Self.searchPaneMinWidth
   }
 
   private func destination(for route: LectureSearchRoute) -> some View {
@@ -210,14 +191,13 @@ struct LectureSearchPage: View {
   private static let minimumGridHeight: CGFloat = 480
   private static let timetablePaneMinWidth: CGFloat = 300
   private static let searchPaneMinWidth: CGFloat = 340
-  private static let inspectorIdealWidth: CGFloat = 360
 
   // MARK: - Navigation
 
   private var isInspectorPresented: Binding<Bool> {
     Binding(
-      get: { isWide && !inspectorRoutes.isEmpty },
-      set: { if !$0 { closeInspector() } }
+      get: { session.isInspectorPresented },
+      set: { if !$0 { session.closeInspector() } }
     )
   }
 
@@ -241,35 +221,21 @@ struct LectureSearchPage: View {
 
   private func show(_ route: LectureSearchRoute) {
     if isWide {
-      inspectorRoutes = [route]
+      session.inspect(route)
     } else {
       path.append(route)
     }
   }
 
-  private func closeInspector() {
-    inspectorRoutes = []
-    timetableViewModel.candidateLecture = nil
-  }
-
   /// Pushes whatever the inspector shows when the screen becomes too narrow for it, such as
   /// when iPhone Duo is closed, so the lecture stays open and previewed.
   private func moveInspectorToStack() {
-    let routes = inspectorRoutes
-    inspectorRoutes = []
-    for route in routes {
+    for route in session.takeInspectorRoutes() {
       path.append(route)
     }
   }
 
   private func addLecture(_ lecture: Lecture) {
-    // Added from the inspector, the lecture is done with. Added from the results beside it, the
-    // inspector may be showing something else, which stays.
-    if inspectorRoutes.contains(.lecture(lecture)) {
-      closeInspector()
-    }
-    Task {
-      await timetableViewModel.addLecture(lecture: lecture)
-    }
+    session.addLecture(lecture)
   }
 }

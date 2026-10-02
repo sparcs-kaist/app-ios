@@ -21,6 +21,7 @@ struct LectureSearchList: View {
   let onOpenCourse: (_ id: Int, _ name: String) -> Void
   let onAddLecture: (Lecture) -> Void
   let onSelectDepartments: () -> Void
+  let onChooseTimeOnTimetable: () -> Void
 
   var body: some View {
     List {
@@ -80,7 +81,8 @@ struct LectureSearchList: View {
           filter: $viewModel.filter,
           time: $viewModel.time,
           selectedDepartments: viewModel.selectedDepartments,
-          onSelectDepartments: onSelectDepartments
+          onSelectDepartments: onSelectDepartments,
+          onChooseTimeOnTimetable: onChooseTimeOnTimetable
         )
         LectureSearchField(text: $viewModel.searchKeyword, isFocused: isSearchFocused)
           .padding(.horizontal)

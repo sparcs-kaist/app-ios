@@ -24,8 +24,10 @@ public struct TimetableView: View {
   @State private var selectedDetent: PresentationDetent = .medium
   @State private var scrollPosition = ScrollPosition(edge: .top)
   @State private var path = NavigationPath()
-  /// The full-screen lecture search's timetable preview, while that search is open.
-  @State private var searchPreview: LectureSearchTimetablePreview?
+  /// The full-screen lecture search, while it is open.
+  @State private var searchSession: LectureSearchSession?
+  /// Whether the window has room for the full-screen search's two panes and its inspector.
+  @State private var isSearchWide = false
   @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .sheet
   /// Shared with the Credits screen, so its data loads once and grade edits show here too.
   @State private var creditViewModel = CreditCalculationViewModel()
@@ -33,6 +35,8 @@ public struct TimetableView: View {
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   /// Keeps the grid usable on short (landscape) screens where `80%` of the
   /// available height would otherwise squash it.
@@ -49,6 +53,7 @@ public struct TimetableView: View {
           .padding()
         }
         .scrollPosition($scrollPosition)
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .refreshable {
           // Credits too: My Table can change on the server, e.g. during add/drop.
           async let timetable: Void = viewModel.refresh()
@@ -79,10 +84,9 @@ public struct TimetableView: View {
         .navigationDestination(for: TimetableRoute.self) { route in
           switch route {
           case .lectureSearch:
-            if let selectedSemester = viewModel.selectedSemester, let searchPreview {
+            if let selectedSemester = viewModel.selectedSemester, let searchSession {
               LectureSearchPage(
-                timetableViewModel: viewModel,
-                preview: searchPreview,
+                session: searchSession,
                 timetableDisplayName: displayName,
                 selectedSemester: selectedSemester,
                 containerSize: reader.size,
@@ -146,8 +150,8 @@ public struct TimetableView: View {
       // Over the stack rather than on its screens, so the full-screen search's timetable preview
       // is one view that stays in place as its screens are pushed and popped.
       .overlay(alignment: .top) {
-        if let searchPreview, !path.isEmpty {
-          LectureSearchPreviewOverlay(preview: searchPreview)
+        if let searchSession, !path.isEmpty {
+          LectureSearchPreviewOverlay(preview: searchSession.preview)
         }
       }
       .animation(.smooth(duration: 0.2), value: path.isEmpty)
@@ -165,15 +169,19 @@ public struct TimetableView: View {
       .onChange(of: path.isEmpty) { _, isEmpty in
         // Only leaving the full-screen search ends the preview of a lecture; leaving Credits must
         // not end one shown by the search sheet.
-        guard isEmpty, searchPreview != nil else { return }
-        viewModel.candidateLecture = nil
+        guard isEmpty, let searchSession else { return }
+        searchSession.closeInspector()
         // Once the search has slid away, so it keeps its preview while it leaves.
         Task {
           try? await Task.sleep(for: .milliseconds(500))
           if path.isEmpty {
-            searchPreview = nil
+            self.searchSession = nil
           }
         }
+      }
+      .onChange(of: isWide(reader.size), initial: true) { _, isWide in
+        isSearchWide = isWide
+        searchSession?.isWide = isWide
       }
     }
     .timetableThemeFromSettings()
@@ -333,9 +341,20 @@ public struct TimetableView: View {
       }
       showSearchSheet = true
     case .fullScreen:
-      searchPreview = LectureSearchTimetablePreview(timetableViewModel: viewModel)
+      let session = LectureSearchSession(timetableViewModel: viewModel)
+      session.isWide = isSearchWide
+      searchSession = session
       path.append(TimetableRoute.lectureSearch)
     }
+  }
+
+  /// Regular in both directions, as on an iPad or the inner display of iPhone Duo, and wide enough
+  /// for two panes. A large iPhone in landscape is regular width but too short for them. Read here,
+  /// from the whole window, since the search's open inspector narrows it.
+  private func isWide(_ size: CGSize) -> Bool {
+    horizontalSizeClass == .regular
+      && verticalSizeClass == .regular
+      && size.width > LayoutMetrics.twoColumnWidthThreshold
   }
 
   /// Opens a lecture's details, unless lecture search is open: the timetable stays usable behind

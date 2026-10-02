@@ -22,6 +22,7 @@ struct LectureSearchView: View {
 
   @State private var viewModel = LectureSearchViewModel()
   @State private var showDepartmentPicker: Bool = false
+  @State private var showTimeRangePicker = false
   @State private var path: [LectureSearchRoute] = []
   /// Whether the sheet offers its short preview height; see `detents`.
   @State private var offersPreviewHeight = false
@@ -39,7 +40,8 @@ struct LectureSearchView: View {
         onOpenLecture: openLecture,
         onOpenCourse: { id, name in path.append(.course(id: id, name: name)) },
         onAddLecture: onAdd,
-        onSelectDepartments: { showDepartmentPicker = true }
+        onSelectDepartments: { showDepartmentPicker = true },
+        onChooseTimeOnTimetable: { showTimeRangePicker = true }
       )
       .navigationTitle(String(localized: "Add to \"\(timetableDisplayName)\"", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
@@ -59,6 +61,13 @@ struct LectureSearchView: View {
         if oldPath.first?.lecture != nil && newPath.first?.lecture == nil {
           endPreview()
         }
+      }
+      .navigationDestination(isPresented: $showTimeRangePicker) {
+        LectureTimeRangePage(timetable: timetable, time: $viewModel.time)
+          .onAppear {
+            // The whole timetable needs the sheet's full height.
+            setDetentAfterNavigation(.large)
+          }
       }
       .navigationDestination(isPresented: $showDepartmentPicker) {
         DepartmentPicker(

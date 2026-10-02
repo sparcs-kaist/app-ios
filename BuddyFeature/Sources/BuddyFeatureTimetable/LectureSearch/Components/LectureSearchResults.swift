@@ -364,6 +364,29 @@ struct WishlistButton: View {
   }
 }
 
+/// The wishlist heart for a toolbar: the toolbar's own icon size and placement, pink when the
+/// lecture is wishlisted. `WishlistButton`'s size and frame suit a list row, not a bar.
+struct WishlistToolbarButton: View {
+  let isWishlisted: Bool
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      Label {
+        Text(isWishlisted
+          ? String(localized: "Remove from Wishlist", bundle: .module)
+          : String(localized: "Add to Wishlist", bundle: .module))
+      } icon: {
+        Image(systemName: isWishlisted ? "heart.fill" : "heart")
+          .contentTransition(.symbolEffect(.replace))
+      }
+    }
+    // A bar colours its items' icons itself; the tint is what it takes the colour from.
+    .tint(isWishlisted ? .pink : nil)
+    .sensoryFeedback(.selection, trigger: isWishlisted)
+  }
+}
+
 /// A section's enrollment against its capacity, in orange once it is over.
 private struct EnrollmentLabel: View {
   let lecture: Lecture

@@ -13,7 +13,8 @@ import FirebaseAnalytics
 public struct CourseView: View {
   @State private var viewModel: CourseViewModel
   @Environment(\.expandSheet) private var expandSheet
-  @Environment(\.inspectorNavigation) private var inspectorNavigation
+  @Environment(\.isInLectureSearchInspector) private var isInInspector
+  @Environment(\.reportProfessorMenu) private var reportProfessorMenu
   private let courseID: Int
   private let name: String
   /// Shown until the full course loads, when the caller already has it.
@@ -90,17 +91,11 @@ public struct CourseView: View {
     }
     // Content fades under the bars, and in lecture search under the timetable preview.
     .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
-    .screenTitle(name) {
-      // In the inspector, which has no bottom bar, the picker joins its header.
-      if viewModel.professors.count > 1 {
-        professorPicker
-          .buttonStyle(.glass)
-          .buttonBorderShape(.capsule)
-      }
-    }
+    .lectureScreenTitle(name)
     .toolbar {
-      // Only worth offering when the course has had more than one professor.
-      if inspectorNavigation == nil, viewModel.professors.count > 1 {
+      // Only worth offering when the course has had more than one professor. In lecture search's
+      // inspector, its navigation bar has the picker.
+      if viewModel.professors.count > 1, !isInInspector {
         ToolbarItem(placement: .bottomBar) {
           professorPicker
         }
@@ -109,6 +104,13 @@ public struct CourseView: View {
     }
     // In the full-screen lecture search, the timetable preview stays a tap away.
     .lectureSearchTimetablePreview()
+    .onChange(of: ProfessorMenuState(professors: viewModel.professors, selectedID: viewModel.selectedProfessorID), initial: true) { _, state in
+      reportProfessorMenu?(InspectorProfessorMenu(
+        professors: state.professors,
+        selectedID: state.selectedID,
+        select: { viewModel.selectProfessor(id: $0) }
+      ))
+    }
     .onAppear {
       // The course page needs room; in the lecture search sheet it may still be short.
       expandSheet?()
@@ -180,3 +182,8 @@ public struct CourseView: View {
 //#Preview {
 //  CourseView(course: .mock)
 //}
+
+private struct ProfessorMenuState: Equatable {
+  var professors: [Professor]
+  var selectedID: Int?
+}

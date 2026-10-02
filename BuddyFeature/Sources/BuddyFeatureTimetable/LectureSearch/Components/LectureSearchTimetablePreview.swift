@@ -23,13 +23,15 @@ final class LectureSearchTimetablePreview {
   /// The height while the handle is dragged. Screens catch up when the drag ends, so a drag
   /// only resizes the card.
   var dragHeight: CGFloat?
-  /// The height of the screens showing the card, last measured.
+  /// The height of the search's results screen, which sizes the card. Measured there rather than on
+  /// each screen, so the card keeps its size as screens of other heights are pushed and popped.
   var containerHeight: CGFloat = 0
-  /// Where screens' room for the card begins, in global coordinates.
-  var cardTop: CGFloat = 0
+  /// Where screens' room for the card begins, in global coordinates; `nil` until first measured.
+  /// Measured on the results screen too, so the card stays in place as screens come and go.
+  var cardTop: CGFloat?
   /// The screens of the search on screen now that show the card.
   var screens: Set<UUID> = []
-  /// Set while a screen without the card, such as the department picker, covers the search.
+  /// Set while a screen that is itself a timetable, the class time picker, covers the search.
   var isCovered = false
   /// Observed through its own properties; this only hands it to the card.
   @ObservationIgnored let timetableViewModel: TimetableViewModel
@@ -39,12 +41,17 @@ final class LectureSearchTimetablePreview {
   }
 
   var isShown: Bool {
-    isExpanded && !isCovered && !screens.isEmpty && containerHeight > 0 && cardTop > 0
+    isExpanded && !isCovered && !screens.isEmpty && containerHeight > 0 && cardTop != nil
   }
 
   /// The height screens leave room for.
   var restingHeight: CGFloat {
     clamped(height ?? containerHeight * 0.42)
+  }
+
+  /// The room screens leave for the card: its resting height and the space around it.
+  var roomHeight: CGFloat {
+    Self.topSpacing + restingHeight + Self.bottomSpacing
   }
 
   /// The card's height, following the handle while it is dragged.
@@ -75,6 +82,9 @@ final class LectureSearchTimetablePreview {
   /// Space around the card within the room screens leave for it.
   static let topSpacing: CGFloat = 4
   static let bottomSpacing: CGFloat = 12
+  /// Shows and hides the card. The screens' room for it grows and shrinks with the same spring,
+  /// so the results move in step with the card.
+  static let animation: Animation = .spring(duration: 0.4, bounce: 0.2)
 }
 
 extension EnvironmentValues {
@@ -86,12 +96,16 @@ extension EnvironmentValues {
 extension View {
   /// In the full-screen lecture search, adds the Timetable button and leaves room for the
   /// preview card. Does nothing elsewhere.
-  func lectureSearchTimetablePreview() -> some View {
-    modifier(LectureSearchTimetablePreviewModifier())
+  ///
+  /// - Parameter sizesCard: Set on the search's results screen, which the card's size and place
+  ///   follow. Other screens of the search only fill them in before the results screen has.
+  func lectureSearchTimetablePreview(sizesCard: Bool = false) -> some View {
+    modifier(LectureSearchTimetablePreviewModifier(sizesCard: sizesCard))
   }
 }
 
 private struct LectureSearchTimetablePreviewModifier: ViewModifier {
+  let sizesCard: Bool
   @Environment(\.lectureSearchTimetablePreview) private var preview
   @State private var screenID = UUID()
   @State private var isOnScreen = false
@@ -107,15 +121,33 @@ private struct LectureSearchTimetablePreviewModifier: ViewModifier {
       .safeAreaBar(edge: .top, spacing: 0) {
         if let preview, preview.isExpanded, preview.containerHeight > 0 {
           Color.clear
-            .frame(height: LectureSearchTimetablePreview.topSpacing + preview.restingHeight + LectureSearchTimetablePreview.bottomSpacing)
+            .frame(height: preview.roomHeight)
             .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { top in
-              preview.cardTop = top
+              // A screen being pushed reports where it is before it is laid out in place.
+              guard isOnScreen, sizesCard || preview.cardTop == nil else { return }
+              if preview.cardTop == nil {
+                // The first time, the card waits for this to show, so it comes in as the
+                // Timetable button shows it.
+                withAnimation(LectureSearchTimetablePreview.animation) {
+                  preview.cardTop = top
+                }
+              } else if preview.cardTop != top {
+                // Once shown, the card stays where it is as screens are pushed and popped.
+                withTransaction(Transaction(animation: nil)) {
+                  preview.cardTop = top
+                }
+              }
             }
         }
       }
       .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
       .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
-        preview?.containerHeight = height
+        // Likewise, the size of a screen being pushed is not yet its size in place.
+        guard isOnScreen, let preview, sizesCard || preview.containerHeight == 0,
+              preview.containerHeight != height else { return }
+        withTransaction(Transaction(animation: nil)) {
+          preview.containerHeight = height
+        }
       }
       .onAppear {
         isOnScreen = true
@@ -142,7 +174,8 @@ private struct LectureSearchTimetablePreviewModifier: ViewModifier {
   private func register() {
     let current = isOnScreen ? preview : nil
     guard current !== registeredPreview else { return }
-    withAnimation(.smooth(duration: 0.2)) {
+    // Without animation: one screen replacing another must not make the card come in again.
+    withTransaction(Transaction(animation: nil)) {
       _ = registeredPreview?.screens.remove(screenID)
       _ = current?.screens.insert(screenID)
     }
@@ -156,13 +189,28 @@ struct LectureSearchPreviewOverlay: View {
 
   var body: some View {
     GeometryReader { proxy in
-      if preview.isShown {
-        TimetablePreviewCard(preview: preview)
+      // Placed by a stack around the card rather than on it, so the card's transition scales it
+      // from its own corner.
+      VStack(spacing: 0) {
+        if preview.isShown {
+          // In a stack, so the card comes and goes as one view with its own transition, not with
+          // the fade its grid and silhouette swap with.
+          ZStack {
+            TimetablePreviewCard(preview: preview)
+          }
           .padding(.horizontal)
           .contentWidth()
-          .padding(.top, max(0, preview.cardTop - proxy.frame(in: .global).minY) + LectureSearchTimetablePreview.topSpacing)
-          .transition(.scale(scale: 0.9, anchor: .topTrailing).combined(with: .opacity))
+          // Slides down into place as it grows and fades in, and back up as it shrinks and fades
+          // out. It travels as far as the room screens leave for it, so it moves with the results
+          // making way for it, and grows from the corner under the Timetable button.
+          .transition(
+            .offset(y: -preview.roomHeight)
+              .combined(with: .scale(scale: 0.85, anchor: .topTrailing))
+              .combined(with: .opacity)
+          )
+        }
       }
+      .padding(.top, max(0, (preview.cardTop ?? 0) - proxy.frame(in: .global).minY) + LectureSearchTimetablePreview.topSpacing)
     }
   }
 }
@@ -173,7 +221,7 @@ private struct TimetablePreviewButton: View {
 
   var body: some View {
     let button = Button(String(localized: "Timetable", bundle: .module), systemImage: "calendar") {
-      withAnimation(.smooth(duration: 0.3)) {
+      withAnimation(LectureSearchTimetablePreview.animation) {
         preview.isExpanded.toggle()
       }
     }
@@ -239,7 +287,9 @@ private struct TimetablePreviewCard: View {
     .overlay(alignment: .bottom) {
       resizeHandle
     }
-    .shadow(color: .black.opacity(0.14), radius: 24, y: 10)
+    // Light, as on the timetable's share cards: enough to lift it off the results.
+    .shadow(color: .black.opacity(0.04), radius: 2, y: 1)
+    .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
     // Under the Timetable button that shows it.
     .frame(maxWidth: .infinity, alignment: .trailing)
     // Only for resizing by hand, not for a screen or keyboard that changes the default height.
@@ -328,3 +378,4 @@ private struct TimetablePreviewCard: View {
   private static let handleRoom: CGFloat = 8
   private static let accessibilityStep: CGFloat = 60
 }
+
