@@ -37,12 +37,11 @@ extension OTLCourseTarget: TargetType, AccessTokenAuthorizable {
   public var task: Moya.Task {
     switch self {
     case .searchCourse(let request):
-        .requestParameters(parameters: [
-          "order": "code",
-          "keyword": request.keyword,
-          "limit": request.limit,
-          "offset": request.offset
-        ], encoding: URLEncoding.default)
+        // The server reads repeated keys (`level=300&level=400`), not the bracketed form.
+        .requestParameters(
+          parameters: request.parameters,
+          encoding: URLEncoding(destination: .queryString, arrayEncoding: .noBrackets)
+        )
     case .fetchCourse:
         .requestPlain
     }

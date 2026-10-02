@@ -7,15 +7,23 @@
 
 import Foundation
 
-public struct LectureSearchRequest {
+public struct LectureSearchRequest: Sendable {
   public let semester: Semester
   public let keyword: String
+  public let filter: LectureSearchFilter
   public let limit: Int
   public let offset: Int
 
-  public init(semester: Semester, keyword: String, limit: Int, offset: Int) {
+  public init(
+    semester: Semester,
+    keyword: String,
+    filter: LectureSearchFilter = LectureSearchFilter(),
+    limit: Int,
+    offset: Int
+  ) {
     self.semester = semester
     self.keyword = keyword
+    self.filter = filter
     self.limit = limit
     self.offset = offset
   }

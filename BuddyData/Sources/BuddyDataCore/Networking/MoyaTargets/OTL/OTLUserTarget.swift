@@ -11,6 +11,7 @@ import Moya
 public enum OTLUserTarget {
   case register(ssoInfo: String)
   case fetchUserInfo
+  case updateInterestedDepartments(userID: Int, departmentIDs: [Int])
 }
 
 extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
@@ -24,6 +25,8 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
       "/session/register-oneapp"
     case .fetchUserInfo:
       "/api/v2/users/info"
+    case .updateInterestedDepartments(let userID, _):
+      "/api/v2/users/\(userID)/interested-departments"
     }
   }
 
@@ -33,6 +36,8 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
       .post
     case .fetchUserInfo:
       .get
+    case .updateInterestedDepartments:
+      .put
     }
   }
 
@@ -42,6 +47,8 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
         .requestParameters(parameters: ["sso_info": ssoInfo], encoding: JSONEncoding.default)
     case .fetchUserInfo:
         .requestPlain
+    case .updateInterestedDepartments(_, let departmentIDs):
+        .requestParameters(parameters: ["interestedDepartmentIds": departmentIDs], encoding: JSONEncoding.default)
     }
   }
 
