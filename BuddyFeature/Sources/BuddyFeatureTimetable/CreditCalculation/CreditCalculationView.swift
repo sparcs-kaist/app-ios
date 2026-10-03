@@ -60,6 +60,7 @@ struct CreditCalculationView: View {
 			}
 		}
 		.navigationTitle(String(localized: "Credits", bundle: .module))
+		.scrollEdgeEffectStyle(.soft, for: .top)
 		.navigationSubtitle(semesterCountText)
 		// Explicit, like the Timetable screen; otherwise it changes after a push and pop.
 		.toolbarTitleDisplayMode(.inlineLarge)

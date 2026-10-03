@@ -22,6 +22,7 @@ public struct TimetableSilhouetteView: View {
   let beginTime: Int?
   let endTime: Int?
   let trackColor: Color?
+  let candidateLectureID: Int?
 
   @Environment(\.timetableTheme) private var theme
 
@@ -34,6 +35,8 @@ public struct TimetableSilhouetteView: View {
   ///
   ///   - trackColor: The empty day column's fill. Nil uses the system's quaternary
   ///     fill; pass a colour that reads over a themed background, e.g. in widgets.
+  ///   - candidateLectureID: A lecture only being previewed, drawn as tentative as
+  ///     `TimetableGrid` draws its candidate lecture.
   ///
   /// Custom times only widen the grid, matching `TimetableGrid`.
   public init(
@@ -41,13 +44,15 @@ public struct TimetableSilhouetteView: View {
     visibleDays: [DayType]? = nil,
     beginTime: Int? = nil,
     endTime: Int? = nil,
-    trackColor: Color? = nil
+    trackColor: Color? = nil,
+    candidateLectureID: Int? = nil
   ) {
     self.timetable = timetable
     self.visibleDays = visibleDays.flatMap { $0.isEmpty ? nil : Array(Set($0)).sorted() }
     self.beginTime = beginTime
     self.endTime = endTime
     self.trackColor = trackColor
+    self.candidateLectureID = candidateLectureID
   }
 
   public var body: some View {
@@ -85,7 +90,18 @@ public struct TimetableSilhouetteView: View {
             .offset(y: offset(at: activity.begin, layout: layout, height: geometry.size.height))
         }
         ForEach(cells) { cell in
-          block(color: theme.color(forCourseID: cell.item.lecture.courseID))
+          Group {
+            if cell.item.lecture.id == candidateLectureID {
+              TentativeBlock(
+                color: theme.color(forCourseID: cell.item.lecture.courseID),
+                lineWidth: 1,
+                dash: [3, 2],
+                showsStripes: false
+              )
+            } else {
+              block(color: theme.color(forCourseID: cell.item.lecture.courseID))
+            }
+          }
             .frame(
               width: cell.width(in: geometry.size.width),
               height: blockHeight(forDuration: cell.item.lectureClass.duration, layout: layout, height: geometry.size.height)

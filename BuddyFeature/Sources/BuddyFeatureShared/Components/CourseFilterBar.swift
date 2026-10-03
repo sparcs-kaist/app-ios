@@ -11,26 +11,30 @@ import BuddyDomain
 /// A row of Liquid Glass filter chips for narrowing a lecture or course search.
 ///
 /// Pass `period` to add the "offered recently" chip, which only course search supports, and
-/// `time` to add the class time chip, which only lecture search supports.
+/// `time` to add the class time chip, which only lecture search supports. Pass
+/// `onChooseTimeOnTimetable` as well to offer choosing that time by dragging on the timetable.
 public struct CourseFilterBar: View {
   @Binding private var filter: LectureSearchFilter
   private let period: Binding<CourseSearchPeriod?>?
   private let time: Binding<LectureTimeFilter>?
   private let selectedDepartments: [DepartmentOption]
   private let onSelectDepartments: () -> Void
+  private let onChooseTimeOnTimetable: (() -> Void)?
 
   public init(
     filter: Binding<LectureSearchFilter>,
     period: Binding<CourseSearchPeriod?>? = nil,
     time: Binding<LectureTimeFilter>? = nil,
     selectedDepartments: [DepartmentOption],
-    onSelectDepartments: @escaping () -> Void
+    onSelectDepartments: @escaping () -> Void,
+    onChooseTimeOnTimetable: (() -> Void)? = nil
   ) {
     self._filter = filter
     self.period = period
     self.time = time
     self.selectedDepartments = selectedDepartments
     self.onSelectDepartments = onSelectDepartments
+    self.onChooseTimeOnTimetable = onChooseTimeOnTimetable
   }
 
   private var isActive: Bool {
@@ -183,6 +187,13 @@ public struct CourseFilterBar: View {
         .pickerStyle(.menu)
       } footer: {
         Text("Lectures with a class in this window.", bundle: .module)
+      }
+
+      if let onChooseTimeOnTimetable {
+        Section {
+          // The same window, drawn on the timetable around the lectures already in it.
+          Button(String(localized: "Choose on Timetable", bundle: .module), systemImage: "calendar", action: onChooseTimeOnTimetable)
+        }
       }
     } label: {
       CourseFilterChip(

@@ -58,6 +58,7 @@ struct CreditRequirementsView: View {
 		.onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
 		.background(Color.systemGroupedBackground)
 		.navigationTitle(String(localized: "Credit Requirements", bundle: .module))
+		.scrollEdgeEffectStyle(.soft, for: .top)
 		.toolbarTitleDisplayMode(.inline)
 		.toolbar {
 			ToolbarItem(placement: .topBarTrailing) {
@@ -290,6 +291,7 @@ private struct CreditRequirementsEditor: View {
 				}
 			}
 			.navigationTitle(String(localized: "Minimum Credits", bundle: .module))
+			.scrollEdgeEffectStyle(.soft, for: .top)
 			.toolbarTitleDisplayMode(.inline)
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
