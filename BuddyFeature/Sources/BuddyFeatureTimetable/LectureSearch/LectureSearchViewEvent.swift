@@ -10,6 +10,8 @@ import Foundation
 
 enum LectureSearchViewEvent: Event {
   case lecturesSearched
+  case lectureWishlisted
+  case lectureUnwishlisted
 
   var source: String { "LectureSearchView" }
 
@@ -17,6 +19,10 @@ enum LectureSearchViewEvent: Event {
     switch self {
     case .lecturesSearched:
       "lectures_searched"
+    case .lectureWishlisted:
+      "lecture_wishlisted"
+    case .lectureUnwishlisted:
+      "lecture_unwishlisted"
     }
   }
 

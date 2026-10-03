@@ -11,6 +11,7 @@ public struct LectureSearchRequest: Sendable {
   public let semester: Semester
   public let keyword: String
   public let filter: LectureSearchFilter
+  public let time: LectureTimeFilter
   public let limit: Int
   public let offset: Int
 
@@ -18,12 +19,14 @@ public struct LectureSearchRequest: Sendable {
     semester: Semester,
     keyword: String,
     filter: LectureSearchFilter = LectureSearchFilter(),
+    time: LectureTimeFilter = LectureTimeFilter(),
     limit: Int,
     offset: Int
   ) {
     self.semester = semester
     self.keyword = keyword
     self.filter = filter
+    self.time = time
     self.limit = limit
     self.offset = offset
   }

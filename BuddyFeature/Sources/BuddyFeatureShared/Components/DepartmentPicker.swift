@@ -59,6 +59,7 @@ public struct DepartmentPicker: View {
     }
     .contentWidth()
     .navigationTitle(String(localized: "Department", bundle: .module))
+    .scrollEdgeEffectStyle(.soft, for: .top)
     .navigationBarTitleDisplayMode(.inline)
     .searchable(text: $searchText, prompt: Text("Name or code", bundle: .module))
     .scrollDismissesKeyboard(.immediately)

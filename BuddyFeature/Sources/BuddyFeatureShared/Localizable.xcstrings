@@ -50,6 +50,54 @@
       },
       "shouldTranslate" : false
     },
+    "Any Day" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Any Day"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 요일"
+          }
+        }
+      }
+    },
+    "Choose on Timetable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose on Timetable"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표에서 고르기"
+          }
+        }
+      }
+    },
+    "Day" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요일"
+          }
+        }
+      }
+    },
     "downvote" : {
       "localizations" : {
         "en" : {
@@ -66,6 +114,38 @@
         }
       }
     },
+    "Ends Before" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ends Before"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "종료 시각"
+          }
+        }
+      }
+    },
+    "From %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@부터"
+          }
+        }
+      }
+    },
     "It looks like there are no posts on this page right now." : {
       "localizations" : {
         "en" : {
@@ -78,6 +158,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "현재 이 페이지에 게시물이 존재하지 않습니다."
+          }
+        }
+      }
+    },
+    "Lectures with a class in this window." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lectures with a class in this window."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 시간대에 수업이 있는 강의를 찾습니다."
           }
         }
       }
@@ -212,6 +308,22 @@
         }
       }
     },
+    "Starts After" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starts After"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시작 시각"
+          }
+        }
+      }
+    },
     "Summarising..." : {
       "localizations" : {
         "en" : {
@@ -240,6 +352,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약"
+          }
+        }
+      }
+    },
+    "Taken" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taken"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수강함"
           }
         }
       }
@@ -288,6 +416,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 게시글은 숨김 처리되었습니다."
+          }
+        }
+      }
+    },
+    "Time" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간"
+          }
+        }
+      }
+    },
+    "Until %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Until %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@까지"
           }
         }
       }

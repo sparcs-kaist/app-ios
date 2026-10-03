@@ -87,7 +87,9 @@ public struct SearchView: View {
     .searchable(text: $viewModel.searchText, prompt: Text("Search", bundle: .module))
     .searchFocused($isFocused)
     .navigationDestination(for: CourseSummary.self) { course in
+      // The course page puts its professor picker in the bottom bar.
       CourseView(course: course)
+        .toolbar(.hidden, for: .tabBar)
     }
     .navigationDestination(for: AraPost.self) { post in
       PostView(post: post)

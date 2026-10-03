@@ -233,10 +233,10 @@ public final class TimetableViewModel {
           let selectedTimetableID else { return }
 
     do {
+      // Check against the server's copy, which may have changed since the search opened.
       let current = try await timetableUseCase.refreshTable(id: selectedTimetableID)
-      guard !current.activities.contains(where: { activity in
-        lecture.classes.contains { activity.draft.overlaps(day: $0.day, begin: $0.begin, end: $0.end) }
-      }) else { throw TimetableActivityError.overlap }
+      guard !current.contains(lecture) else { return }
+      guard current.conflicts(with: lecture).isEmpty else { throw TimetableActivityError.overlap }
       try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
       timetableLoadTask?.cancel()

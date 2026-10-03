@@ -11,6 +11,7 @@ import Foundation
 enum CourseViewEvent: Event {
   case courseLoaded
   case reviewsLoaded
+  case professorSelected
 
   var source: String { "CourseView" }
 
@@ -20,6 +21,8 @@ enum CourseViewEvent: Event {
       "course_loaded"
     case .reviewsLoaded:
       "reviews_loaded"
+    case .professorSelected:
+      "professor_selected"
     }
   }
 
