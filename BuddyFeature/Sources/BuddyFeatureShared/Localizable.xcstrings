@@ -66,6 +66,22 @@
         }
       }
     },
+    "Choose on Timetable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose on Timetable"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표에서 고르기"
+          }
+        }
+      }
+    },
     "Day" : {
       "localizations" : {
         "en" : {

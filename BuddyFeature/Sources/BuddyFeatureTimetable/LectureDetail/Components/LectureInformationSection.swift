@@ -13,6 +13,8 @@ struct LectureInformationSection: View {
   let lecture: Lecture
   let lectureClass: LectureClass?
 
+  @Environment(\.openCourse) private var openCourse
+
   var body: some View {
     VStack {
       HStack {
@@ -21,15 +23,18 @@ struct LectureInformationSection: View {
           .fontWeight(.bold)
         Spacer()
         // Every semester and professor of this course, beyond this one lecture.
-        NavigationLink {
-          CourseView(courseID: lecture.courseID, name: lecture.name)
-        } label: {
-          HStack(spacing: 4) {
-            Text("View Course", bundle: .module)
-            Image(systemName: "chevron.right")
-              .font(.footnote.weight(.semibold))
+        if let openCourse {
+          Button {
+            openCourse(lecture.courseID, lecture.name)
+          } label: {
+            viewCourseLabel
           }
-          .font(.subheadline)
+        } else {
+          NavigationLink {
+            CourseView(courseID: lecture.courseID, name: lecture.name)
+          } label: {
+            viewCourseLabel
+          }
         }
       }
 
@@ -57,5 +62,14 @@ struct LectureInformationSection: View {
           .joined(separator: "\n")
       )
     }
+  }
+
+  private var viewCourseLabel: some View {
+    HStack(spacing: 4) {
+      Text("View Course", bundle: .module)
+      Image(systemName: "chevron.right")
+        .font(.footnote.weight(.semibold))
+    }
+    .font(.subheadline)
   }
 }

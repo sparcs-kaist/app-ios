@@ -627,6 +627,22 @@
         }
       }
     },
+    "Class Time" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Class Time"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수업 시간"
+          }
+        }
+      }
+    },
     "Classroom" : {
       "localizations" : {
         "en" : {
@@ -701,6 +717,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "코드"
+          }
+        }
+      }
+    },
+    "Compact" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compact"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "간략히"
           }
         }
       }
@@ -964,6 +996,22 @@
         }
       }
     },
+    "Detailed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detailed"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자세히"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "en" : {
@@ -976,6 +1024,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "확인"
+          }
+        }
+      }
+    },
+    "Drag down a day to choose when classes meet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag down a day to choose when classes meet."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요일을 따라 아래로 드래그해 수업 시간을 고르세요."
           }
         }
       }
@@ -2433,6 +2497,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시간표가 일부만 복제되었습니다."
+          }
+        }
+      }
+    },
+    "Timetable Preview Height" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timetable Preview Height"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표 미리보기 높이"
           }
         }
       }
