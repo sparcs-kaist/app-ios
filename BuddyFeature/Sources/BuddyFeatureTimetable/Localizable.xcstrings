@@ -315,6 +315,22 @@
         }
       }
     },
+    "Allow Buddy to add photos in Settings, then try again." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Buddy to add photos in Settings, then try again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정에서 Buddy가 사진을 추가할 수 있도록 허용한 후 다시 시도하세요."
+          }
+        }
+      }
+    },
     "An unexpected error occurred while adding a lecture. Please try again later." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1163,6 +1179,22 @@
         }
       }
     },
+    "Instagram Story" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instagram Story"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인스타그램 스토리"
+          }
+        }
+      }
+    },
     "Language" : {
       "localizations" : {
         "en" : {
@@ -1676,6 +1708,38 @@
         }
       }
     },
+    "Save to Photos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save to Photos"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진에 저장"
+          }
+        }
+      }
+    },
+    "Saved" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장됨"
+          }
+        }
+      }
+    },
     "Search" : {
       "localizations" : {
         "en" : {
@@ -1746,6 +1810,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "공유"
+          }
+        }
+      }
+    },
+    "Share \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share \"%@\""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” 공유"
           }
         }
       }
@@ -2081,6 +2161,22 @@
         }
       }
     },
+    "Timetable Image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timetable Image"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표 이미지"
+          }
+        }
+      }
+    },
     "Timetable partially duplicated." : {
       "localizations" : {
         "en" : {
@@ -2325,6 +2421,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시간표 이름을 변경할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Unable to Save" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to Save"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장할 수 없음"
           }
         }
       }
