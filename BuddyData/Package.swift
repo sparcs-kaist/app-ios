@@ -38,6 +38,9 @@ let package = Package(
             dependencies: [
               "BuddyDataCore",
               "BuddyTestSupport"
+            ],
+            resources: [
+              .copy("Nearby/Resources/nearby-test-vectors.json")
             ]
         ),
     ]

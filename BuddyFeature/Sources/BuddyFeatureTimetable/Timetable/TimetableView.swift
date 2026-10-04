@@ -27,6 +27,10 @@ public struct TimetableView: View {
   @State private var showsCredits = false
   @Namespace private var creditsTransition
 
+  @State private var showFriendsList: Bool = false
+
+  @Namespace private var friendsTransition
+
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
 
@@ -59,6 +63,15 @@ public struct TimetableView: View {
         .background(Color.systemGroupedBackground)
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
+            Button(String(localized: "Friends", bundle: .module), systemImage: "person.2") {
+              showFriendsList = true
+            }
+          }
+          .matchedTransitionSource(id: "friends", in: friendsTransition)
+
+          ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+          ToolbarItem(placement: .topBarTrailing) {
 						Menu("Add Event", systemImage: "square.badge.plus") {
 							Button(String(localized: "Add Lecture", bundle: .module), systemImage: "book.badge.plus") {
 								showSearchSheet = true
@@ -74,6 +87,10 @@ public struct TimetableView: View {
         .navigationDestination(isPresented: $showsCredits) {
           CreditCalculationView(viewModel: creditViewModel)
             .navigationTransition(.zoom(sourceID: CreditsSummaryCard.transitionID, in: creditsTransition))
+        }
+        .navigationDestination(isPresented: $showFriendsList) {
+          FriendsListView()
+            .navigationTransition(.zoom(sourceID: "friends", in: friendsTransition))
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
           NavigationStack {

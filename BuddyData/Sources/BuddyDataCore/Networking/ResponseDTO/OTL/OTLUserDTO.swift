@@ -13,9 +13,11 @@ public struct OTLUserDTO: Codable {
   public let name: String
   public let email: String
   public let studentNumber: Int
-  public let degree: String
-  public let majorDepartments: [DepartmentDTO]
-  public let interestedDepartments: [DepartmentDTO]
+  /// Nullable on the server (`string | null`); a non-optional type here made
+  /// the whole user fail to decode for accounts without a degree.
+  public let degree: String?
+  public let majorDepartments: [DepartmentDTO]?
+  public let interestedDepartments: [DepartmentDTO]?
 
   enum CodingKeys: String, CodingKey {
     case id, name, studentNumber, degree, majorDepartments, interestedDepartments
@@ -33,8 +35,8 @@ public extension OTLUserDTO {
       email: email,
       studentNumber: studentNumber,
       degree: degree,
-      majorDepartments: majorDepartments.compactMap { $0.toModel () },
-      interestedDepartments: interestedDepartments.compactMap { $0.toModel() }
+      majorDepartments: (majorDepartments ?? []).compactMap { $0.toModel() },
+      interestedDepartments: (interestedDepartments ?? []).compactMap { $0.toModel() }
     )
   }
 }
