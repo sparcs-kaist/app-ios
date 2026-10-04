@@ -21,6 +21,8 @@
 	<array>
 		<string>instagram-stories</string>
 	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Buddy uses Bluetooth to find friends next to you while Add Friends is open.</string>
 	<key>TaxiBaseURL</key>
 	<string>$(TAXI_ASSOCIATED_DOMAIN)</string>
 	<key>UIBackgroundModes</key>
