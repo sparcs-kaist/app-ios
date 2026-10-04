@@ -16,6 +16,8 @@ public final class MockFriendUseCase: FriendUseCaseProtocol, @unchecked Sendable
   public var deleteFriendResult: Result<Void, Error> = .success(())
   public var setFavoriteResult: Result<Void, Error> = .success(())
   public var fetchMyCodeResult: Result<String, Error> = .success("ACD347")
+  public private(set) var addedCodes: [String] = []
+  public private(set) var fetchMyCodeCallCount = 0
 
   public init() { }
 
@@ -24,6 +26,7 @@ public final class MockFriendUseCase: FriendUseCaseProtocol, @unchecked Sendable
   }
 
   public func addFriend(code: String) async throws {
+    addedCodes.append(code)
     try addFriendResult.get()
   }
 
@@ -36,6 +39,7 @@ public final class MockFriendUseCase: FriendUseCaseProtocol, @unchecked Sendable
   }
 
   public func fetchMyCode() async throws -> String {
-    try fetchMyCodeResult.get()
+    fetchMyCodeCallCount += 1
+    return try fetchMyCodeResult.get()
   }
 }
