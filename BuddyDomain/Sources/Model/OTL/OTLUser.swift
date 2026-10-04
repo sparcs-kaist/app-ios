@@ -12,7 +12,8 @@ public struct OTLUser: Identifiable, Sendable {
   public let name: String
   public let email: String
   public let studentNumber: Int
-  public let degree: String
+  /// `nil` when OTL has no degree on record.
+  public let degree: String?
   public let majorDepartments: [Department]
   public let interestedDepartments: [Department]
 
@@ -21,7 +22,7 @@ public struct OTLUser: Identifiable, Sendable {
     name: String,
     email: String,
     studentNumber: Int,
-    degree: String,
+    degree: String?,
     majorDepartments: [Department],
     interestedDepartments: [Department]
   ) {
