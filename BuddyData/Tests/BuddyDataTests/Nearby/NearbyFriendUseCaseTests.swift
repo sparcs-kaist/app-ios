@@ -565,6 +565,137 @@ struct NearbyFriendUseCaseTests {
     #expect(await bob.state(of: alice) == .idle)
   }
 
+  // MARK: - Presence expiry
+
+  /// A phone with a beacon, prepared but not yet published.
+  private func beaconPhone(name: String = "Alice", code: String = "ALI456") async -> (NearbyFriendUseCase, MockNearbyBeaconService, MockFriendUseCase) {
+    let beacon = MockNearbyBeaconService()
+    let friends = MockFriendUseCase()
+    friends.fetchMyCodeResult = .success(code)
+    let useCase = NearbyFriendUseCase(
+      beaconService: beacon,
+      relayRepository: relay,
+      friendUseCase: friends,
+      crashlyticsService: nil,
+      now: { [clock] in clock.now }
+    )
+    await useCase.prepare(displayName: name)
+    return (useCase, beacon, friends)
+  }
+
+  @Test func advertisesOnlyAfterFirstPublish() async throws {
+    let (useCase, beacon, _) = await beaconPhone()
+    await relay.setFailPutPresence(true)
+    #expect(await useCase.publishPresence() == false)
+    #expect(beacon.advertisedTokens.isEmpty)
+    #expect(await useCase.isAdvertising == false)
+
+    await relay.setFailPutPresence(false)
+    #expect(await useCase.publishPresence())
+    let token = try #require(await useCase.session?.token)
+    #expect(beacon.advertisedTokens == [token])
+    #expect(await relay.presences[NearbyCrypto.lookupId(for: token)] != nil)
+
+    // Renewals don't restart the beacon.
+    #expect(await useCase.publishPresence())
+    #expect(beacon.advertisedTokens.count == 1)
+  }
+
+  @Test func freshPresenceIsNotRotated() async throws {
+    let (useCase, beacon, _) = await beaconPhone()
+    await useCase.publishPresence()
+    let token = try #require(await useCase.session?.token)
+    clock.advance(60)
+    await useCase.tick()
+    #expect(await useCase.session?.token == token)
+    #expect(beacon.advertisedTokens == [token])
+  }
+
+  @Test func suspendedPastExpiryRotatesToANewSession() async throws {
+    let (alice, beacon, _) = await beaconPhone()
+    await alice.publishPresence()
+    let oldToken = try #require(await alice.session?.token)
+    let oldLookup = NearbyCrypto.lookupId(for: oldToken)
+
+    // Bob was added before the app went to the background.
+    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
+    await alice.ingest(BeaconSighting(token: bob.session.token, rssi: -50, seenAt: clock.now))
+    await alice.tick()
+    await alice.request(bob.id)
+    try await bob.receive()
+    await bob.useCase.accept(oldToken.hexString)
+    try await alice.pollOnce(wait: 0)
+    #expect(await alice.visiblePeers().first?.state == .added)
+
+    // Suspended with no renewals until just inside the safety margin.
+    clock.advance(300 - 30)
+    await alice.tick()
+
+    let newToken = try #require(await alice.session?.token)
+    #expect(newToken != oldToken)
+    #expect(await relay.deletedLookupIds.contains(oldLookup))
+    #expect(await relay.presences[oldLookup] == nil)
+    #expect(await alice.exchanges[bob.session.token]?.state == .added)
+
+    // Not advertised until the new presence is published.
+    #expect(beacon.currentToken == nil)
+    #expect(await alice.isAdvertising == false)
+    #expect(await alice.publishPresence())
+    #expect(beacon.currentToken == newToken)
+    #expect(beacon.advertisedTokens == [oldToken, newToken])
+    #expect(await relay.presences[NearbyCrypto.lookupId(for: newToken)] != nil)
+  }
+
+  @Test func rotationDropsInFlightExchangesAndCancelsOurRequests() async throws {
+    let (alice, _, _) = await beaconPhone()
+    await alice.publishPresence()
+    let oldToken = try #require(await alice.session?.token)
+    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
+    await alice.ingest(BeaconSighting(token: bob.session.token, rssi: -50, seenAt: clock.now))
+    await alice.tick()
+    await alice.request(bob.id)
+    try await bob.receive()
+    #expect(await bob.useCase.visiblePeers().map(\.state) == [.incoming])
+
+    clock.advance(300)
+    await alice.tick()
+    #expect(await alice.session?.token != oldToken)
+    #expect(await alice.exchanges[bob.session.token] == nil)
+
+    // Bob got the withdrawal, sent from the old session.
+    try await bob.receive()
+    #expect(await bob.useCase.visiblePeers().allSatisfy { $0.state != .incoming })
+  }
+
+  @Test func failingRenewalsStopAdvertisingUntilAPublishSucceeds() async throws {
+    let (useCase, beacon, _) = await beaconPhone()
+    await useCase.publishPresence()
+    let oldToken = try #require(await useCase.session?.token)
+    #expect(beacon.currentToken == oldToken)
+
+    // The network goes away; renewals fail until the presence lapses.
+    await relay.setFailPutPresence(true)
+    for _ in 0..<5 {
+      clock.advance(60)
+      #expect(await useCase.publishPresence() == false)
+      await useCase.tick()
+    }
+    #expect(beacon.currentToken == nil)
+    let newToken = try #require(await useCase.session?.token)
+    #expect(newToken != oldToken)
+
+    // Still offline: retries don't advertise and don't rotate again.
+    clock.advance(5)
+    #expect(await useCase.publishPresence() == false)
+    await useCase.tick()
+    #expect(await useCase.session?.token == newToken)
+    #expect(beacon.currentToken == nil)
+
+    await relay.setFailPutPresence(false)
+    #expect(await useCase.publishPresence())
+    #expect(beacon.currentToken == newToken)
+  }
+
   @Test func streamPublishesPeersAndStopsOnCancel() async throws {
     let beacon = MockNearbyBeaconService()
     let friends = MockFriendUseCase()

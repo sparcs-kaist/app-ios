@@ -26,6 +26,11 @@ public actor NearbyFriendUseCase: NearbyFriendUseCaseProtocol {
     public var evictAfter: TimeInterval = 10
     public var tickInterval: TimeInterval = 1
     public var renewInterval: TimeInterval = 60
+    /// Rotate to a new session once our presence is this close to expiring
+    /// without having been renewed, e.g. after the app was suspended.
+    public var expiryMargin: TimeInterval = 30
+    /// Assumed presence lifetime when the relay's expiry can't be used.
+    public var presenceTTL: TimeInterval = 300
     public var retryPublishInterval: TimeInterval = 5
     public var pollWait: Int = 20
     public var maxPollBackoff: TimeInterval = 30
@@ -106,6 +111,13 @@ public actor NearbyFriendUseCase: NearbyFriendUseCaseProtocol {
   private var nextOrder = 0
   private var cursor: String?
   private var lastEmitted: [NearbyPeer]?
+  /// When our current presence lapses on the relay (on our clock); `nil`
+  /// until the session's first successful publish.
+  private(set) var presenceExpiresAt: Date?
+  private(set) var presencePublishedAt: Date?
+  /// Whether the beacon is advertising the current session's token.
+  private(set) var isAdvertising = false
+  private var isRotating = false
 
   public init(
     beaconService: NearbyBeaconServiceProtocol?,
@@ -161,11 +173,17 @@ public actor NearbyFriendUseCase: NearbyFriendUseCaseProtocol {
     lastEmitted = nil
     publish()
 
+    startLoops()
+  }
+
+  /// Starts the background loops for the current session. The beacon isn't
+  /// among them: it starts once the presence is first published, so nobody
+  /// hears a token they can't look up.
+  private func startLoops() {
     let generation = generation
     tasks = [
       Task { await self.loadMyCode() },
       Task { await self.presenceLoop(generation) },
-      Task { await self.beaconLoop(generation, token: session.token) },
       Task { await self.tickLoop(generation) },
       Task { await self.pollLoop(generation) }
     ]
@@ -193,7 +211,9 @@ public actor NearbyFriendUseCase: NearbyFriendUseCaseProtocol {
     streamID = nil
     tasks.forEach { $0.cancel() }
     tasks = []
-    beaconService?.stop()
+    stopAdvertising()
+    presenceExpiresAt = nil
+    presencePublishedAt = nil
     continuation?.finish()
     continuation = nil
 
@@ -289,16 +309,31 @@ public actor NearbyFriendUseCase: NearbyFriendUseCaseProtocol {
     }
   }
 
-  private func beaconLoop(_ generation: Int, token: Data) async {
-    guard let beaconService else { return }
+  private func beaconLoop(_ stream: AsyncThrowingStream<BeaconSighting, Error>, generation: Int) async {
     do {
-      for try await sighting in beaconService.start(advertising: token) {
+      for try await sighting in stream {
         guard generation == self.generation else { return }
         ingest(sighting)
       }
     } catch {
       logger.error("Beacon stopped: \(error.localizedDescription, privacy: .public)")
     }
+  }
+
+  /// Starts advertising the current session's token, once its presence is
+  /// published. Scanning starts with it.
+  private func startAdvertisingIfNeeded() {
+    guard !isAdvertising, presenceExpiresAt != nil, let session, let beaconService else { return }
+    isAdvertising = true
+    let stream = beaconService.start(advertising: session.token)
+    let generation = generation
+    tasks.append(Task { await self.beaconLoop(stream, generation: generation) })
+  }
+
+  private func stopAdvertising() {
+    guard isAdvertising else { return }
+    isAdvertising = false
+    beaconService?.stop()
   }
 
   private func tickLoop(_ generation: Int) async {
@@ -339,16 +374,85 @@ public actor NearbyFriendUseCase: NearbyFriendUseCaseProtocol {
         device: deviceID
       )
       let blob = try NearbyCrypto.sealPresence(card, session: session)
-      _ = try await relayRepository.putPresence(
+      let serverExpiry = try await relayRepository.putPresence(
         lookupId: session.lookupId,
         blob: blob,
         ownerSecret: session.ownerSecret
       )
+      // A rotation may have replaced the session while we waited.
+      guard self.session?.token == session.token else { return false }
+      recordPublished(serverExpiry: serverExpiry)
+      startAdvertisingIfNeeded()
       return true
     } catch {
       record(error, operation: "putPresence")
       return false
     }
+  }
+
+  /// Remembers when the presence lapses, on our own clock: the relay's expiry
+  /// is turned into a remaining lifetime so a skewed device clock can't make
+  /// every tick look expired (or never expired).
+  private func recordPublished(serverExpiry: Date) {
+    let date = now()
+    let remaining = serverExpiry.timeIntervalSince(Date())
+    let lifetime = (remaining > 0 && remaining <= configuration.presenceTTL) ? remaining : configuration.presenceTTL
+    presencePublishedAt = date
+    presenceExpiresAt = date.addingTimeInterval(lifetime)
+  }
+
+  /// Whether our presence is expired, or about to be, without a renewal:
+  /// the app was suspended or renewals kept failing.
+  var isPresenceStale: Bool {
+    guard let presenceExpiresAt else { return false }
+    return now() >= presenceExpiresAt.addingTimeInterval(-configuration.expiryMargin)
+  }
+
+  /// Replaces a session whose presence has lapsed with a brand-new one: new
+  /// key and token, published before it's advertised. The old token is never
+  /// advertised again. Finished adds carry over; anything in flight was tied
+  /// to the old session and goes back to idle.
+  func rotateSession() async {
+    guard let old = session else { return }
+    stopAdvertising()
+    generation += 1
+    let generation = generation
+    tasks.forEach { $0.cancel() }
+    tasks = []
+
+    let waiting = exchanges.compactMap { token, exchange in
+      exchange.state == .requested ? resolved[token] : nil
+    }
+    let fresh = NearbySession()
+    session = fresh
+    presenceExpiresAt = nil
+    presencePublishedAt = nil
+    pairKeys = [:]
+    seenMessageIds = []
+    cursor = nil
+    exchanges = exchanges.filter { $0.value.state == .added }
+    publish()
+
+    // Best effort, signed with the old keys: tell people we asked that we've
+    // gone, then take the old presence down.
+    for peer in waiting {
+      try? await send(.cancel, to: peer, session: old)
+    }
+    try? await relayRepository.deletePresence(lookupId: old.lookupId, ownerSecret: old.ownerSecret)
+    guard generation == self.generation, session?.token == fresh.token else { return }
+    if continuation != nil { startLoops() }
+  }
+
+  /// Rotates the session if its presence lapsed. Runs every tick, which also
+  /// covers the first tick after the app resumes from suspension.
+  func checkPresenceExpiry() async {
+    guard isPresenceStale, !isRotating else { return }
+    logger.info("Presence lapsed without renewal; rotating the nearby session")
+    isRotating = true
+    // Not a child of the tick loop: rotating cancels that loop, and the
+    // cleanup requests must still go out.
+    await Task.detached { await self.rotateSession() }.value
+    isRotating = false
   }
 
   /// Records one BLE sighting.
@@ -369,6 +473,7 @@ public actor NearbyFriendUseCase: NearbyFriendUseCaseProtocol {
   /// Evicts stale sightings, resolves new nearby tokens, applies timeouts and
   /// publishes the peer list. Runs once a second.
   func tick() async {
+    await checkPresenceExpiry()
     let date = now()
     let evicted = sightings.keys.filter { date.timeIntervalSince(sightings[$0]!.lastSeen) > configuration.evictAfter }
     evicted.forEach { sightings[$0] = nil }
