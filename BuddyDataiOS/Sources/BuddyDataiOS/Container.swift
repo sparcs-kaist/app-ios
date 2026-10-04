@@ -138,6 +138,18 @@ extension Container: @retroactive AutoRegistering {
     }
   }
 
+  private var nearbyRelayRepositoryImpl: Factory<NearbyRelayRepositoryProtocol> {
+    self {
+      // Mailbox long polls wait up to 20 s server-side, so allow well beyond that.
+      let configuration = URLSessionConfiguration.default
+      configuration.timeoutIntervalForRequest = 40
+      return NearbyRelayRepository(provider: MoyaProvider<NearbyRelayTarget>(
+        session: Session(configuration: configuration, startRequestsImmediately: false),
+        plugins: [self.authPlugin.resolve()]
+      ))
+    }
+  }
+
   // MARK: - Services
   private var authenticationService: Factory<AuthenticationServiceProtocol> {
     self {
@@ -214,7 +226,17 @@ extension Container: @retroactive AutoRegistering {
       self.friendRepositoryImpl.resolve()
     }
 
+    // MARK: Nearby
+    nearbyRelayRepository.register {
+      self.nearbyRelayRepositoryImpl.resolve()
+    }
+
     // MARK: - Services
+    nearbyBeaconService.register {
+      NearbyBeaconService()
+    }
+    .scope(.singleton)
+
     sessionBridgeService.register {
       SessionBridgeService()
     }
@@ -379,6 +401,15 @@ extension Container: @retroactive AutoRegistering {
     friendUseCase.register {
       FriendUseCase(
         friendRepository: self.friendRepositoryImpl.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
+    nearbyFriendUseCase.register {
+      NearbyFriendUseCase(
+        beaconService: self.nearbyBeaconService.resolve(),
+        relayRepository: self.nearbyRelayRepositoryImpl.resolve(),
+        friendUseCase: self.friendUseCase.resolve(),
         crashlyticsService: self.crashlyticsService.resolve()
       )
     }
