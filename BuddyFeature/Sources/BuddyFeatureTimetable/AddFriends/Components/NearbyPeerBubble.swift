@@ -67,7 +67,7 @@ struct NearbyPeerBubble: View {
 
   private var accessibilityHint: Text {
     switch peer.state {
-    case .idle:
+    case .idle, .declined:
       Text("Sends a friend request", bundle: .module)
     case .requested:
       Text("Cancels your request", bundle: .module)
@@ -100,7 +100,7 @@ struct NearbyPeerStateOverlay: View {
               .font(.title2.weight(.bold))
               .foregroundStyle(.white)
           }
-      case .idle, .incoming, .failed:
+      case .idle, .declined, .incoming, .failed:
         Color.clear
       }
     }
@@ -119,6 +119,9 @@ struct NearbyPeerStatusLabel: View {
           .foregroundStyle(.secondary)
       case .requested:
         Text("Waiting…", bundle: .module)
+          .foregroundStyle(.secondary)
+      case .declined:
+        Text("Declined", bundle: .module)
           .foregroundStyle(.secondary)
       case .incoming:
         Text("Wants to add you", bundle: .module)

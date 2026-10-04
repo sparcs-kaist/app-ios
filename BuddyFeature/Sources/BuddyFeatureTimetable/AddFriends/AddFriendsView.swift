@@ -14,6 +14,7 @@ struct AddFriendsView: View {
 
   @Environment(\.dismiss) private var dismiss
   @Environment(\.openURL) private var openURL
+  @Environment(\.scenePhase) private var scenePhase
 
   @State private var isCodePromptPresented = false
   @State private var codeInput = ""
@@ -80,9 +81,17 @@ struct AddFriendsView: View {
           .ignoresSafeArea()
       }
     }
-    // Restarts whenever discovery starts or stops, and is cancelled with the sheet.
-    .task(id: nearbyViewModel.isScanning) {
+    .task(id: nearbyViewModel.hasRequestedPermission) {
+      await nearbyViewModel.runAvailability()
+    }
+    // Restarts whenever discovery starts or stops and is cancelled with the
+    // sheet. Bluetooth only runs while the app is in the foreground.
+    .task(id: DiscoveryKey(isScanning: nearbyViewModel.isScanning, isActive: scenePhase == .active)) {
+      guard scenePhase == .active else { return }
       await nearbyViewModel.runDiscovery()
+    }
+    .onChange(of: nearbyViewModel.addedCount) {
+      Task { await viewModel.load() }
     }
     .alert(Text("Add Friend", bundle: .module), isPresented: $isCodePromptPresented) {
       TextField(String(localized: "6-character code", bundle: .module), text: $codeInput)
@@ -104,6 +113,11 @@ struct AddFriendsView: View {
     // Scoped to this subtree; `.preferredColorScheme` would propagate to the
     // presenting window and briefly flash the parent dark while presenting.
     .environment(\.colorScheme, .dark)
+  }
+
+  private struct DiscoveryKey: Equatable {
+    let isScanning: Bool
+    let isActive: Bool
   }
 
   // MARK: - Actions
@@ -187,7 +201,6 @@ struct AnimatedMeshGradientView: View {
 @MainActor
 private func addFriendsPreview(
   _ state: NearbyFriendsViewState,
-  simulatesDiscovery: Bool = false,
   myCode: String? = "ACD347",
   isMyCodeUnavailable: Bool = false
 ) -> AddFriendsView {
@@ -196,7 +209,7 @@ private func addFriendsPreview(
   friendsViewModel.isMyCodeUnavailable = isMyCodeUnavailable
   return AddFriendsView(
     viewModel: friendsViewModel,
-    nearbyViewModel: NearbyFriendsViewModel(viewState: state, simulatesDiscovery: simulatesDiscovery)
+    nearbyViewModel: NearbyFriendsViewModel(viewState: state, isPreview: true)
   )
 }
 
@@ -207,12 +220,6 @@ private func previewPeers(_ states: NearbyPeerState...) -> [NearbyPeer] {
     if index < states.count { peer.state = states[index] }
     return peer
   }
-}
-
-#Preview("Live Mock Flow") {
-  // Starts at the permission prompt; tap Allow Bluetooth to watch people
-  // appear and one of them send a request.
-  addFriendsPreview(.unavailable(.permissionRequired), simulatesDiscovery: true)
 }
 
 #Preview("Permission Required") {
@@ -280,7 +287,7 @@ private func previewPeers(_ states: NearbyPeerState...) -> [NearbyPeer] {
     showSheet = true
   }
   .sheet(isPresented: $showSheet) {
-    addFriendsPreview(.scanning(peers: previewPeers()), simulatesDiscovery: true)
+    addFriendsPreview(.scanning(peers: previewPeers(.idle, .incoming)))
   }
 }
 #endif
