@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "description": "Buddy nearby protocol v1 test vectors. All binary values are lowercase hex unless the key ends in Base64Url. AEAD outputs are nonce(12) ‖ ciphertext ‖ tag(16). Message direction: A sends to B.",
+  "a": {
+    "privateKeyRaw": "0e164620dec907fe4d72d48e1dd68d8e44e57c8ea1f884c0607c4170b6b9c349",
+    "publicKeyX963": "04199bf2dac3aa7bc5c3f456749a8eeb897753fe045a5345d76c7c8798146275c2af272d58fff9e08fd16689b2a2facbc66edeed9047c0c3f91e606543b26b3f5c",
+    "token": "12a90e85a255a4ca575cab94",
+    "beaconUuid": "b0dd1e01-12a9-0e85-a255-a4ca575cab94",
+    "lookupId": "0016d0202c04ed4be35fbfecf7301ecc5926b5bf7f8ef23f5bdbac15c961f30d",
+    "presenceKey": "89bce822cb5814dcff898aad6e9d84ef96e61cbdff1e343f6682888a8bd0b737",
+    "ownerSecret": "7b361aad55e29207d7d7aec2d681ec1a66234e1e2cc1e992ccabfe988efe0664",
+    "ownerSecretBase64Url": "ezYarVXikgfX167C1oHsGmYjTh4swemSzKv-mI7-BmQ"
+  },
+  "b": {
+    "privateKeyRaw": "f8a9950b22a8820aef10c0f57d0a507dff9683a0658e85fd56abbf78c0ff9722",
+    "publicKeyX963": "047bf7ad9a3c242cc4981343d676c0c57bdb8ed65f8b2d4221b30feaf88088fa79df6ddd661be8ab950629d6cfeff6526a86e122865b1649776e15f4bf31fc2b6e",
+    "token": "ad0ca7458993855504f2ae12",
+    "beaconUuid": "b0dd1e01-ad0c-a745-8993-855504f2ae12",
+    "lookupId": "183d78de6dadda13bf07d8f769f0d064c611234a00ff5db04b3fda70dc506a9e",
+    "presenceKey": "72dd22dd30973bda278073257eaef4344cf566b66f6f228c05a67d9fddc8cf55",
+    "ownerSecret": "3319c7bd3730e1342f80ee4655bdc4e43cdd1d4c68dbb15fa1e7272b658a8238",
+    "ownerSecretBase64Url": "MxnHvTcw4TQvgO5GVb3E5DzdHUxo27FfoecnK2WKgjg"
+  },
+  "presence": {
+    "owner": "a",
+    "plaintextUtf8": "{\"v\":1,\"pub\":\"BBmb8trDqnvFw_RWdJqO64l3U_4EWlNF12x8h5gUYnXCryctWP_54I_RZomyovrLxm7e7ZBHwMP5HmBlQ7JrP1w\",\"name\":\"홍길동\",\"platform\":\"ios\"}",
+    "aad": "62756464792d6e65617262792d76312f70726573656e63650016d0202c04ed4be35fbfecf7301ecc5926b5bf7f8ef23f5bdbac15c961f30d",
+    "nonce": "000102030405060708090a0b",
+    "sealed": "000102030405060708090a0b9a006f61b6a0fdda91ea5f2b66818bc08f8e3c2e336f34b3f27e0d9240de350d4e70f1446f9cb9786c5ddf7a6040462d10271e75e7a721507160fe97c363705b90d0943f0e8e1733ecdfa22ad72b16110f8b47263fab55dd3525a05e6ceae54a42eac6612a067acf722a394ec148419f95062d0f4d28fa4723e3ed3851c43d60112f5510dccb21803be6b696d9d4021a7c741bc15bc35b94071c85",
+    "sealedBase64Url": "AAECAwQFBgcICQoLmgBvYbag_dqR6l8rZoGLwI-OPC4zbzSz8n4NkkDeNQ1OcPFEb5y5eGxd33pgQEYtECcedeenIVBxYP6Xw2NwW5DQlD8Ojhcz7N-iKtcrFhEPi0cmP6tV3TUloF5s6uVKQurGYSoGes9yKjlOwUhBn5UGLQ9NKPpHI-PtOFHEPWARL1UQ3MshgDvmtpbZ1AIafHQbwVvDW5QHHIU"
+  },
+  "header": {
+    "plaintext": "12a90e85a255a4ca575cab94",
+    "key": "72dd22dd30973bda278073257eaef4344cf566b66f6f228c05a67d9fddc8cf55",
+    "aad": "62756464792d6e65617262792d76312f686561646572183d78de6dadda13bf07d8f769f0d064c611234a00ff5db04b3fda70dc506a9e",
+    "nonce": "0c0d0e0f1011121314151617",
+    "sealed": "0c0d0e0f10111213141516177175eb47d69c7ad9ac4a5bd335d5539bca9a500d04f87f31559b5448"
+  },
+  "pair": {
+    "sharedSecret": "2b633c41d08b7226d70493baa9a861fa11dd2bae4e3e85eeea27ac5065c30775",
+    "salt": "12a90e85a255a4ca575cab94ad0ca7458993855504f2ae12",
+    "pairKey": "4059d0c099e988aba278b993b79c8c9edfea2b03ffb393c331cf509e5e734927"
+  },
+  "body": {
+    "plaintextUtf8": "{\"v\":1,\"type\":\"accept\",\"msgId\":\"5f0c2a7e-3b1d-4c6a-9e8f-0123456789ab\",\"sentAt\":1790590000123,\"inReplyTo\":\"a1b2c3d4-0000-4000-8000-000000000000\",\"friendCode\":\"ACD347\"}",
+    "aad": "62756464792d6e65617262792d76312f626f6479183d78de6dadda13bf07d8f769f0d064c611234a00ff5db04b3fda70dc506a9e12a90e85a255a4ca575cab94",
+    "nonce": "18191a1b1c1d1e1f20212223",
+    "sealed": "18191a1b1c1d1e1f202122239528306dd5292c4749002e0ed54815c8825b9fbe473dda9a66a28b3893eafde814232a866d9543ff1eab72112425554d1cb2ccfb803e69739ef27aad4b352035528ff366c69d9b94fa07446324a1558a9a3f852f2f5b57a86e3913c59e903d08e51171f99dd660d0e7bbfe41ac2c2513f19ad1e26371cbb343de3b48e82fe4c91ae3685092604860af84e39ebe035f29f9f0db85aed1f51f06e2c132993eac05917f0deec1852c4ae8e6d84e859a164f84372c5ea609"
+  },
+  "beacon": {
+    "rejected": [
+      "0000180f-0000-1000-8000-00805f9b34fb",
+      "b0dd1e02-0000-0000-0000-000000000000"
+    ]
+  }
+}
