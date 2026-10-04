@@ -64,6 +64,15 @@ extension Container {
     promised()
   }
 
+  // MARK: Nearby
+  public var nearbyRelayRepository: Factory<NearbyRelayRepositoryProtocol?> {
+    promised()
+  }
+
+  public var nearbyBeaconService: Factory<NearbyBeaconServiceProtocol?> {
+    promised()
+  }
+
   // MARK: - Services
   public var sessionBridgeService: Factory<SessionBridgeServiceProtocol?> {
     promised()
@@ -151,6 +160,10 @@ extension Container {
   }
 
   public var friendUseCase: Factory<FriendUseCaseProtocol?> {
+    promised()
+  }
+
+  public var nearbyFriendUseCase: Factory<NearbyFriendUseCaseProtocol?> {
     promised()
   }
 }

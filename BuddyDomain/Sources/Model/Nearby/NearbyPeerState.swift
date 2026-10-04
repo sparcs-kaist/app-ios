@@ -13,6 +13,8 @@ public enum NearbyPeerState: Sendable, Equatable, Hashable {
   case idle
   /// We asked to add them and are waiting for their answer.
   case requested
+  /// They said no to our request. Tapping asks again.
+  case declined
   /// They asked to add us.
   case incoming
   /// Both sides agreed; friend codes are being exchanged and added.
