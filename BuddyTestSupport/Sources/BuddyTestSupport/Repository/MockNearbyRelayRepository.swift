@@ -27,6 +27,11 @@ public actor MockNearbyRelayRepository: NearbyRelayRepositoryProtocol {
 
   public var failPutPresence = false
   public var failPostMessage = false
+  public private(set) var putPresenceCallCount = 0
+
+  public func setFailPutPresence(_ fails: Bool) {
+    failPutPresence = fails
+  }
 
   public init() { }
 
@@ -48,6 +53,7 @@ public actor MockNearbyRelayRepository: NearbyRelayRepositoryProtocol {
   }
 
   public func putPresence(lookupId: Data, blob: Data, ownerSecret: Data) async throws -> Date {
+    putPresenceCallCount += 1
     if failPutPresence { throw TestError.testFailure }
     if let owner = owners[lookupId], owner != ownerSecret { throw NetworkError.serverError(statusCode: 409) }
     owners[lookupId] = ownerSecret

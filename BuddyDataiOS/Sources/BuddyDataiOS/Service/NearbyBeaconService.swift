@@ -31,6 +31,9 @@ public final class NearbyBeaconService: NSObject, NearbyBeaconServiceProtocol, @
   private var peripheral: CBPeripheralManager?
 
   private var advertisedUUID: CBUUID?
+  /// Identifies the latest `start`, so an older stream ending can't stop a
+  /// newer one (the use case restarts the beacon when it rotates sessions).
+  private var runID: UUID?
   private var sightings: AsyncThrowingStream<BeaconSighting, Error>.Continuation?
   private var authorizationObservers: [UUID: AsyncStream<NearbyBluetoothAuthorization>.Continuation] = [:]
 
@@ -61,11 +64,16 @@ public final class NearbyBeaconService: NSObject, NearbyBeaconServiceProtocol, @
 
   public func start(advertising token: Data) -> AsyncThrowingStream<BeaconSighting, Error> {
     let (stream, continuation) = AsyncThrowingStream.makeStream(of: BeaconSighting.self)
+    let id = UUID()
     continuation.onTermination = { [weak self] _ in
-      self?.stop()
+      self?.queue.async {
+        guard let self, self.runID == id else { return }
+        self.stopLocked()
+      }
     }
     queue.async {
       self.stopLocked()
+      self.runID = id
       guard let uuidString = NearbyBeaconUUID.string(for: token) else {
         continuation.finish()
         return
@@ -136,6 +144,7 @@ public final class NearbyBeaconService: NSObject, NearbyBeaconServiceProtocol, @
     if central?.isScanning == true { central?.stopScan() }
     if peripheral?.isAdvertising == true { peripheral?.stopAdvertising() }
     advertisedUUID = nil
+    runID = nil
     let continuation = sightings
     sightings = nil
     continuation?.finish()

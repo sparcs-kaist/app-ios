@@ -13,6 +13,8 @@ public final class MockNearbyBeaconService: NearbyBeaconServiceProtocol, @unchec
 
   public private(set) var advertisedTokens: [Data] = []
   public private(set) var stopCallCount = 0
+  /// The token being advertised right now, if any.
+  public private(set) var currentToken: Data?
   private var continuation: AsyncThrowingStream<BeaconSighting, Error>.Continuation?
 
   public init() { }
@@ -26,6 +28,7 @@ public final class MockNearbyBeaconService: NearbyBeaconServiceProtocol, @unchec
 
   public func start(advertising token: Data) -> AsyncThrowingStream<BeaconSighting, Error> {
     advertisedTokens.append(token)
+    currentToken = token
     let (stream, continuation) = AsyncThrowingStream.makeStream(of: BeaconSighting.self)
     self.continuation = continuation
     return stream
@@ -33,6 +36,7 @@ public final class MockNearbyBeaconService: NearbyBeaconServiceProtocol, @unchec
 
   public func stop() {
     stopCallCount += 1
+    currentToken = nil
     continuation?.finish()
     continuation = nil
   }
