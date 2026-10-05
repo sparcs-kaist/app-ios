@@ -19,6 +19,11 @@ public struct FeedView: View {
 
   @State private var showSettingsSheet: Bool = false
   @State private var showComposeView: Bool = false
+  /// The post whose comments are shown beside the feed on wide layouts.
+  @State private var commentsPostID: String? = nil
+  @State private var availableWidth: CGFloat = 0
+  /// The top-most visible post, kept in view when the feed column resizes.
+  @State private var scrolledPostID: String? = nil
 
   @State private var spoilerContents = SpoilerContents()
 
@@ -26,22 +31,43 @@ public struct FeedView: View {
     self._viewModel = State(initialValue: viewModel)
   }
 
+  /// Width from which comments open in a column beside the feed instead of on
+  /// the post page. Decided by the actual width rather than the size class so
+  /// that roomy compact screens, like the inner display of a foldable iPhone,
+  /// get the column too.
+  private static let commentsPanelMinimumWidth: CGFloat = 640
+
+  private var canShowCommentsPanel: Bool {
+    availableWidth >= Self.commentsPanelMinimumWidth
+  }
+
   public var body: some View {
-    ScrollView {
-      LazyVStack(spacing: 0) {
-        switch viewModel.state {
-        case .loading:
-          loadingView
-        case .loaded:
-          contentView
-        case .error(let message):
-          errorView(message: message)
+    HStack(spacing: 0) {
+      feedList
+
+      if canShowCommentsPanel, let commentsPostID,
+         let index = viewModel.posts.firstIndex(where: { $0.id == commentsPostID }) {
+        // The column slides in and out as a whole; switching posts swaps only
+        // its contents, so old and new panels never sit side by side. The
+        // divider rides along on its leading edge so it never lands on the feed
+        // before the feed has finished narrowing.
+        ZStack {
+          FeedCommentsPanel(post: $viewModel.posts[index], onClose: { self.commentsPostID = nil })
+            .id(commentsPostID)
         }
+        .frame(width: min(400, availableWidth * 0.45))
+        .overlay(alignment: .leading) {
+          Divider()
+            .ignoresSafeArea()
+        }
+        .transition(.move(edge: .trailing))
       }
-      .animation(.spring, value: viewModel.posts.map(\.id))
-      .contentWidth()
     }
-    .disabled(viewModel.state == .loading)
+    .animation(.spring, value: commentsPostID != nil)
+    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
+      availableWidth = width
+      if !canShowCommentsPanel { commentsPostID = nil }
+    }
     .navigationTitle(Text("Feed", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
     .navigationDestination(for: String.self) { postID in
@@ -55,9 +81,6 @@ public struct FeedView: View {
     .task {
       guard viewModel.state == .loading else { return }
       await viewModel.fetchInitialData()
-    }
-    .refreshable {
-      await viewModel.refreshFeed()
     }
     .toolbar {
       ToolbarItem {
@@ -103,32 +126,62 @@ public struct FeedView: View {
     .analyticsScreen(name: "Feed", class: String(describing: Self.self))
   }
 
+  private var feedList: some View {
+    ScrollView {
+      LazyVStack(spacing: 0) {
+        switch viewModel.state {
+        case .loading:
+          loadingView
+        case .loaded:
+          contentView
+        case .error(let message):
+          errorView(message: message)
+        }
+      }
+      .scrollTargetLayout()
+      .animation(.spring, value: viewModel.posts.map(\.id))
+      .contentWidth()
+    }
+    // Rows reflow when the comments column narrows the feed; anchoring on the
+    // top-most post keeps it in place instead of jumping by the height change.
+    .scrollPosition(id: $scrolledPostID, anchor: .top)
+    .disabled(viewModel.state == .loading)
+    .refreshable {
+      await viewModel.refreshFeed()
+    }
+  }
+
   @ViewBuilder
   private var contentView: some View {
     ForEach($viewModel.posts) { $post in
-      NavigationLink(value: post.id) {
-        FeedPostRow(post: $post, onPostDeleted: { postID in
-          Task {
-            await viewModel.deletePost(postID: postID)
+      VStack(spacing: 0) {
+        NavigationLink(value: post.id) {
+          FeedPostRow(post: $post, onPostDeleted: { postID in
+            if commentsPostID == postID { commentsPostID = nil }
+            Task {
+              await viewModel.deletePost(postID: postID)
+            }
+          }, onComment: canShowCommentsPanel ? {
+            commentsPostID = commentsPostID == post.id ? nil : post.id
+          } : nil)
+          .environment(spoilerContents)
+          .contentShape(.rect)
+        }
+        .padding(.vertical)
+        .navigationLinkIndicatorVisibility(.hidden)
+        .buttonStyle(.plain)
+        .onAppear {
+          let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) ?? 0
+          let threshold = Int(Double(viewModel.posts.count) * 0.6)
+          if index >= threshold {
+            Task { await viewModel.loadNextPage() }
           }
-        }, onComment: nil)
-        .environment(spoilerContents)
-        .contentShape(.rect)
+        }
+
+        Divider()
+          .padding(.horizontal)
       }
       .id(post.id)
-      .padding(.vertical)
-      .navigationLinkIndicatorVisibility(.hidden)
-      .buttonStyle(.plain)
-      .onAppear {
-        let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) ?? 0
-        let threshold = Int(Double(viewModel.posts.count) * 0.6)
-        if index >= threshold {
-          Task { await viewModel.loadNextPage() }
-        }
-      }
-
-      Divider()
-        .padding(.horizontal)
     }
 
     if viewModel.isLoadingMore {

@@ -159,95 +159,29 @@ struct FeedPostView: View {
   }
 
   private func inputBar(proxy: ScrollViewProxy) -> some View {
-    HStack(alignment: .bottom) {
-      // comment textfield
-      VStack(alignment: .leading) {
-        if let targetComment {
-          FeedCommentReplyPreview(
-            authorName: targetComment.authorName,
-            content: targetComment.content,
-            isDeleted: targetComment.isDeleted,
-            onCancel: { self.targetComment = nil }
-          )
-          .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
+    FeedCommentInputBar(
+      text: $viewModel.text,
+      isAnonymous: $viewModel.isAnonymous,
+      targetComment: $targetComment,
+      isFocused: $isWritingCommentFocusState,
+      isSubmitting: viewModel.isSubmittingComment,
+      onSubmit: {
+        Task {
+          if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: targetComment) {
+            post.commentCount += 1
+            targetComment = nil
+            isWritingCommentFocusState = false
 
-        // maybe some images and anonymous selector
-        TextField(
-          text: $viewModel.text,
-          prompt: Text(
-            targetComment != nil
-              ? String(localized: "Write a reply to \(targetComment?.authorName ?? String(localized: "unknown", bundle: .module))", bundle: .module)
-              : String(localized: "Write a comment", bundle: .module)
-          ),
-          axis: .vertical,
-          label: {
-          }
-        )
-        // Grows with the comment, but stops short of pushing the post off a
-        // short screen; longer text scrolls within the field.
-        .lineLimit(1...5)
-        .focused($isWritingCommentFocusState)
-
-        if isWritingCommentFocusState {
-          Toggle(String(localized: "Write Anonymously", bundle: .module), isOn: $viewModel.isAnonymous)
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .fontDesign(.rounded)
-            .font(.callout)
-            .fontWeight(.medium)
-        }
-      }
-      .padding(12)
-      .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
-
-      // write comment button
-      if !viewModel.text.isEmpty {
-        Button(action: {
-          guard !viewModel.text.isEmpty else { return }
-
-          Task {
-            if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: targetComment) {
-              post.commentCount += 1
-              targetComment = nil
-              isWritingCommentFocusState = false
-
-              withAnimation(.spring) {
-                proxy.scrollTo(uploadedComment.id, anchor: .center)
-              }
+            withAnimation(.spring) {
+              proxy.scrollTo(uploadedComment.id, anchor: .center)
             }
           }
-        }, label: {
-          Group {
-            if viewModel.isSubmittingComment {
-              ProgressView()
-                .tint(.white)
-            } else {
-              Label(String(localized: "Send", bundle: .module), systemImage: "paperplane")
-                .labelStyle(.iconOnly)
-                .tint(.white)
-            }
-          }
-          .padding(12)
-          .contentShape(.circle)
-        })
-        .fontWeight(.medium)
-        .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .circle)
-        .disabled(viewModel.text.isEmpty || viewModel.isSubmittingComment)
-        .transition(.move(edge: .trailing).combined(with: .opacity))
+        }
       }
-    }
-    .padding(isWritingCommentFocusState ? [.horizontal, .vertical] : [.horizontal])
-    .contentWidth()
+    )
     // The centred column crosses the hinge when half folded, splitting the
     // comment field across it.
     .avoidingFold()
-    .animation(.spring, value: isWritingCommentFocusState)
-    .animation(.spring, value: targetComment?.id)
-    .animation(
-      .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
-      value: viewModel.text.isEmpty
-    )
   }
 
 }
