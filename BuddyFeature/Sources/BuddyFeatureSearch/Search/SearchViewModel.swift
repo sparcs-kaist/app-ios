@@ -122,18 +122,22 @@ class SearchViewModel {
 
   // MARK: - Functions
   func fetchDepartments() async {
-    guard let lectureUseCase, departments.isEmpty else { return }
+    guard let lectureUseCase else { return }
 
-    departmentState = .loading
-    do {
-      async let interestedIDs = fetchInterestedDepartmentIDs()
-      departments = try await lectureUseCase.fetchDepartmentOptions()
-      interestedDepartmentIDs = await interestedIDs
-      departmentState = .loaded
-    } catch {
-      logger.error("Failed to load departments: \(error.localizedDescription, privacy: .public)")
-      departmentState = .error(message: error.localizedDescription)
+    // The Search tab keeps this view model for the app's lifetime, and interested departments can
+    // be changed in Settings meanwhile, so they are re-read every time. The list itself loads once.
+    async let interestedIDs = fetchInterestedDepartmentIDs()
+    if departments.isEmpty {
+      departmentState = .loading
+      do {
+        departments = try await lectureUseCase.fetchDepartmentOptions()
+        departmentState = .loaded
+      } catch {
+        logger.error("Failed to load departments: \(error.localizedDescription, privacy: .public)")
+        departmentState = .error(message: error.localizedDescription)
+      }
     }
+    interestedDepartmentIDs = await interestedIDs
   }
 
   /// Reloads every section for the current search.

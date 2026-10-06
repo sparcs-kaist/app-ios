@@ -104,6 +104,10 @@ public struct SearchView: View {
           selection: $viewModel.courseFilter.departmentIDs,
           onRetry: { await viewModel.fetchDepartments() }
         )
+        // Picks up interested departments changed in Settings since the tab first appeared.
+        .task {
+          await viewModel.fetchDepartments()
+        }
         .toolbar {
           ToolbarItem(placement: .cancellationAction) {
             Button(role: .close) {
