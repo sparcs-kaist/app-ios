@@ -83,8 +83,16 @@ class SearchViewModel {
   /// Set when the keyword changes, because posts and rides then need fetching again too.
   /// A filter change on its own only refetches courses.
   @ObservationIgnored private var needsFullFetch: Bool = false
+  /// Set when `courses` no longer match `lastCourseQuery`. The Posts and Rides scopes don't list
+  /// courses, so there this stays set until a scope that does is chosen.
+  @ObservationIgnored private var needsCourseFetch: Bool = false
   /// Bumped for every new fetch so a slow response cannot overwrite a newer one.
   @ObservationIgnored private var fetchGeneration = 0
+
+  /// Courses are only listed in the All and Courses scopes.
+  private var showsCourses: Bool {
+    searchScope == .all || searchScope == .courses
+  }
 
   private var keyword: String {
     searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -131,7 +139,9 @@ class SearchViewModel {
   /// Reloads every section for the current search.
   func scopedFetch() async {
     needsFullFetch = true
+    needsCourseFetch = true
     fetchGeneration += 1
+    resetCoursePaging()
     await fetchAll(generation: fetchGeneration)
   }
 
@@ -162,7 +172,8 @@ class SearchViewModel {
   }
 
   func loadCoursesNextPage() async {
-    guard hasMoreCourses, !isLoadingMoreCourses, let courseUseCase else { return }
+    // While loading, the list shows placeholder rows whose `onAppear` must not page anything.
+    guard state == .loaded, hasMoreCourses, !isLoadingMoreCourses, let courseUseCase else { return }
 
     isLoadingMoreCourses = true
     defer { isLoadingMoreCourses = false }
@@ -191,6 +202,9 @@ class SearchViewModel {
     if keyword != lastKeyword {
       needsFullFetch = true
     }
+    if courseQuery != lastCourseQuery {
+      needsCourseFetch = true
+    }
     lastKeyword = keyword
     lastCourseQuery = courseQuery
     startFetch(debounced: true)
@@ -198,14 +212,16 @@ class SearchViewModel {
 
   private func scopeDidChange() {
     let courseQuery = self.courseQuery
-    let courseQueryChanged = courseQuery != lastCourseQuery
-    lastCourseQuery = courseQuery
+    if courseQuery != lastCourseQuery {
+      lastCourseQuery = courseQuery
+      needsCourseFetch = true
+    }
 
     // Going back to All reloads every section.
     if searchScope == .all, !keyword.isEmpty {
       needsFullFetch = true
     }
-    if needsFullFetch || courseQueryChanged {
+    if needsFullFetch || (needsCourseFetch && showsCourses) {
       startFetch(debounced: false)
     } else {
       state = .loaded
@@ -215,12 +231,12 @@ class SearchViewModel {
   private func startFetch(debounced: Bool) {
     searchTask?.cancel()
     fetchGeneration += 1
+    resetCoursePaging()
 
     guard hasCriteria else {
       courses.removeAll()
       posts.removeAll()
       taxiRooms.removeAll()
-      hasMoreCourses = false
       state = .loaded
       return
     }
@@ -234,7 +250,7 @@ class SearchViewModel {
       if self.needsFullFetch {
         await self.fetchAll(generation: generation)
       } else {
-        await self.fetchCourses(generation: generation)
+        await self.fetchCoursesIfShown(generation: generation)
       }
     }
   }
@@ -249,7 +265,7 @@ class SearchViewModel {
       taxiRooms.removeAll()
       hasMorePages = false
       needsFullFetch = false
-      await fetchCourses(generation: generation)
+      await fetchCoursesIfShown(generation: generation)
       return
     }
     state = .loading
@@ -288,12 +304,22 @@ class SearchViewModel {
       self.taxiRooms = matchedRooms
       self.needsFullFetch = false
 
-      await fetchCourses(generation: generation)
+      await fetchCoursesIfShown(generation: generation)
     } catch {
       guard generation == fetchGeneration else { return }
       logger.error("Failed to load search results: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
+  }
+
+  /// Leaves courses stale in the Posts and Rides scopes; `needsCourseFetch` stays set, so they are
+  /// fetched once a scope that lists them is chosen.
+  private func fetchCoursesIfShown(generation: Int) async {
+    guard showsCourses else {
+      state = .loaded
+      return
+    }
+    await fetchCourses(generation: generation)
   }
 
   private func fetchCourses(generation: Int) async {
@@ -307,12 +333,21 @@ class SearchViewModel {
       self.courses = page
       self.courseOffset = page.count
       self.hasMoreCourses = page.count == Self.coursePageSize
+      // The query may have changed meanwhile, if the scope was switched while this was in flight.
+      self.needsCourseFetch = query != lastCourseQuery
       self.state = .loaded
     } catch {
       guard generation == fetchGeneration else { return }
       logger.error("Failed to load courses: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
+  }
+
+  /// Forgets the previous search's paging, so a load-more fired before the new first page arrives
+  /// cannot pair the new query with the old offset.
+  private func resetCoursePaging() {
+    hasMoreCourses = false
+    courseOffset = 0
   }
 
   private func request(for query: CourseQuery, offset: Int) -> CourseSearchRequest {
