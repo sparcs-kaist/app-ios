@@ -69,11 +69,28 @@ class LectureSearchViewModel {
   @ObservationIgnored private var selectedSemester: Semester?
 
   /// The semester's wishlisted lectures, shown while there is nothing to search for.
-  private(set) var wishlist: [CourseLecture] = []
+  var wishlist: [CourseLecture] {
+    pendingWishlistChanges.reduce(savedWishlist) { courses, change in
+      change.value ? courses : courses.removing(lectureID: change.key)
+    }
+  }
   /// Wishlisted lecture IDs, updated as soon as a heart is tapped.
-  private(set) var wishlistedLectureIDs: Set<Int> = []
+  var wishlistedLectureIDs: Set<Int> {
+    pendingWishlistChanges.reduce(into: savedWishlistIDs) { ids, change in
+      if change.value { ids.insert(change.key) } else { ids.remove(change.key) }
+    }
+  }
   /// Set when a wishlist change fails, for the view to report.
   var wishlistError: String?
+
+  /// The wishlist as the server last returned it, plus the changes saved since.
+  private var savedWishlist: [CourseLecture] = []
+  private var savedWishlistIDs: Set<Int> = []
+  /// Lectures whose wishlist change is still being saved, and whether each is being added.
+  /// Laid over the saved wishlist so a fetch that lands meanwhile cannot undo the tap.
+  private var pendingWishlistChanges: [Int: Bool] = [:]
+  /// Bumped for every saved change so a fetch that read the server before it can tell.
+  @ObservationIgnored private var wishlistGeneration = 0
 
   private var currentQuery: Query {
     Query(keyword: searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines), filter: filter, time: time)
@@ -117,10 +134,17 @@ class LectureSearchViewModel {
   func fetchWishlist(semester: Semester) async {
     guard let wishlistUseCase else { return }
     do {
-      let courses = try await wishlistUseCase.fetchWishlist(semester: semester)
+      // A change saved while this was in flight may be missing from the response, and nothing
+      // else fetches after a removal, so a response that may be stale is fetched again.
+      var courses: [CourseLecture]
+      var generation: Int
+      repeat {
+        generation = wishlistGeneration
+        courses = try await wishlistUseCase.fetchWishlist(semester: semester)
+      } while generation != wishlistGeneration
       guard semester == selectedSemester || selectedSemester == nil else { return }
-      wishlist = courses
-      wishlistedLectureIDs = Set(courses.flatMap { $0.lectures.map(\.id) })
+      savedWishlist = courses
+      savedWishlistIDs = Set(courses.flatMap { $0.lectures.map(\.id) })
     } catch {
       // The wishlist is extra; search works without it, so a failure stays quiet.
       crashlyticsService?.recordException(error: error)
@@ -129,29 +153,27 @@ class LectureSearchViewModel {
 
   /// Flips a lecture's wishlist state at once, then saves it, undoing the change if that fails.
   func toggleWishlist(_ lecture: Lecture) async {
-    guard let wishlistUseCase else { return }
+    // Taps on a lecture whose change is still saving are ignored: a second request racing the
+    // first, or the fetch after it, could leave the heart disagreeing with the server.
+    guard let wishlistUseCase, pendingWishlistChanges[lecture.id] == nil else { return }
     let isAdding = !isWishlisted(lecture)
-    let previousWishlist = wishlist
-    if isAdding {
-      wishlistedLectureIDs.insert(lecture.id)
-    } else {
-      wishlistedLectureIDs.remove(lecture.id)
-      wishlist = wishlist.removing(lectureID: lecture.id)
-    }
+    pendingWishlistChanges[lecture.id] = isAdding
+    defer { pendingWishlistChanges[lecture.id] = nil }
     analyticsService?.logEvent(isAdding ? LectureSearchViewEvent.lectureWishlisted : LectureSearchViewEvent.lectureUnwishlisted)
 
     do {
       try await wishlistUseCase.setWishlisted(isAdding, lectureID: lecture.id)
     } catch {
       crashlyticsService?.recordException(error: error)
-      if isAdding {
-        wishlistedLectureIDs.remove(lecture.id)
-      } else {
-        wishlistedLectureIDs.insert(lecture.id)
-        wishlist = previousWishlist
-      }
       wishlistError = error.localizedDescription
       return
+    }
+    wishlistGeneration += 1
+    if isAdding {
+      savedWishlistIDs.insert(lecture.id)
+    } else {
+      savedWishlistIDs.remove(lecture.id)
+      savedWishlist = savedWishlist.removing(lectureID: lecture.id)
     }
     // An added lecture needs its course from the server to appear in the list.
     if isAdding, let selectedSemester {
