@@ -268,6 +268,9 @@ public struct TimetableView: View {
 			isWide: isWide,
       isReadOnly: viewModel.isReadOnly
     )
+    // The search sheet leaves the timetable usable behind it for scrolling, but it searches and
+    // adds to one semester's table, so neither may change, nor the table be renamed or deleted.
+    .disabled(showSearchSheet)
     .redacted(reason: viewModel.isLoading ? .placeholder : [])
   }
 

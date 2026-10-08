@@ -94,6 +94,10 @@ struct LectureSearchList: View {
     .onAppear {
       viewModel.bind(selectedSemester: selectedSemester)
     }
+    // The semester can change while the list stays on screen, such as after a refresh.
+    .onChange(of: selectedSemester) {
+      viewModel.bind(selectedSemester: selectedSemester)
+    }
     .task {
       await viewModel.fetchDepartments()
     }

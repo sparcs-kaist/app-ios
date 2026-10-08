@@ -90,7 +90,8 @@ struct LectureSearchView: View {
     .environment(\.expandSheet, { setDetentAfterNavigation(.large) })
     .presentationDetents(detents, selection: $detent)
     // The timetable stays usable behind the sheet, so its later hours can be scrolled into view
-    // while browsing or previewing a lecture. At full height it is covered anyway.
+    // while browsing or previewing a lecture. At full height it is covered anyway. Its semester
+    // and table selector is disabled meanwhile, in `TimetableView`.
     .presentationBackgroundInteraction(.enabled(upThrough: .medium))
     .analyticsScreen(name: "Lecture Search", class: String(describing: Self.self))
   }

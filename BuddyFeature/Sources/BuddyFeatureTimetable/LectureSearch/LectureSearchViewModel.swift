@@ -117,6 +117,11 @@ class LectureSearchViewModel {
   // so it must leave a pending search alone unless the semester really changed.
   func bind(selectedSemester: Semester) {
     guard self.selectedSemester != selectedSemester else { return }
+    // Another semester's wishlist would be wrong until its own arrives.
+    if self.selectedSemester != nil {
+      savedWishlist = []
+      savedWishlistIDs = []
+    }
     self.selectedSemester = selectedSemester
     restartSearch()
   }
