@@ -107,4 +107,19 @@ public final class UserUseCase: UserUseCaseProtocol {
     try await araUserRepository.updateMe(id: araUser.id, params: params)
     try await fetchAraUser()
   }
+
+  public func updateInterestedDepartments(departmentIDs: [Int]) async throws {
+    guard let otlUserRepository else { return }
+
+    logger.debug("Updating OTL Interested Departments: \(departmentIDs)")
+    if await otlUser == nil {
+      try await fetchOTLUser()
+    }
+    guard let otlUser = await otlUser else {
+      logger.warning("OTL User Not Found")
+      return
+    }
+    try await otlUserRepository.updateInterestedDepartments(userID: otlUser.id, departmentIDs: departmentIDs)
+    try await fetchOTLUser()
+  }
 }

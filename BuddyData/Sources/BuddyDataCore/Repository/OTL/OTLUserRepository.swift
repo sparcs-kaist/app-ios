@@ -29,4 +29,8 @@ public final class OTLUserRepository: OTLUserRepositoryProtocol, Sendable {
 
     return result
   }
+
+  public func updateInterestedDepartments(userID: Int, departmentIDs: [Int]) async throws {
+    _ = try await provider.request(.updateInterestedDepartments(userID: userID, departmentIDs: departmentIDs))
+  }
 }

@@ -19,6 +19,7 @@ public struct SearchView: View {
   @State private var selectedRoom: TaxiRoom? = nil
 //  @State private var selectedCourse: Course? = nil
   @State private var courseSheetDetent: PresentationDetent = .height(200)
+  @State private var showDepartmentPicker: Bool = false
   @FocusState private var isFocused
 
   public init() { }
@@ -31,12 +32,20 @@ public struct SearchView: View {
           systemImage: "exclamationmark.circle",
           description: Text("Please try again later.", bundle: .module)
         )
-      } else if viewModel.searchText.isEmpty {
-        ContentUnavailableView(
-          "Search Anything",
-          systemImage: "magnifyingglass",
-          description: Text("Find courses, posts, rides and more.", bundle: .module)
-        )
+      } else if !viewModel.hasCriteria {
+        if viewModel.searchScope == .courses {
+          ContentUnavailableView(
+            String(localized: "Search Courses", bundle: .module),
+            systemImage: "magnifyingglass",
+            description: Text("Search by name, code or professor, or browse with filters.", bundle: .module)
+          )
+        } else {
+          ContentUnavailableView(
+            "Search Anything",
+            systemImage: "magnifyingglass",
+            description: Text("Find courses, posts, rides and more.", bundle: .module)
+          )
+        }
       } else {
         resultView
       }
@@ -51,17 +60,29 @@ public struct SearchView: View {
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .safeAreaBar(edge: .top) {
-      Picker(String(localized: "Search Scope", bundle: .module), selection: $viewModel.searchScope) {
-        ForEach(SearchScope.allCases) { scope in
-          Text(scope.description).tag(scope)
+      VStack(spacing: 8) {
+        Picker(String(localized: "Search Scope", bundle: .module), selection: $viewModel.searchScope) {
+          ForEach(SearchScope.allCases) { scope in
+            Text(scope.description).tag(scope)
+          }
+        }
+        .pickerStyle(.segmented)
+        .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
+        .padding(.horizontal)
+
+        // Course filters only apply in the Courses scope, so that is where they are offered.
+        if viewModel.searchScope == .courses {
+          CourseFilterBar(
+            filter: $viewModel.courseFilter,
+            period: $viewModel.coursePeriod,
+            selectedDepartments: viewModel.selectedDepartments,
+            onSelectDepartments: { showDepartmentPicker = true }
+          )
+          .transition(.opacity)
         }
       }
-      .pickerStyle(.segmented)
-      .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
-      .padding(.horizontal)
       .contentWidth()
-      .opacity(hideScopeBar ? 0 : 1)
-      .disabled(hideScopeBar)
+      .animation(.snappy, value: viewModel.searchScope)
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search", bundle: .module))
     .searchFocused($isFocused)
@@ -72,8 +93,33 @@ public struct SearchView: View {
       PostView(post: post)
         .toolbar(.hidden, for: .tabBar)
     }
+    // A sheet rather than a push: the search tab only shows a search field for its root view,
+    // and the department list needs its own.
+    .sheet(isPresented: $showDepartmentPicker) {
+      NavigationStack {
+        DepartmentPicker(
+          departments: viewModel.departments,
+          interestedDepartmentIDs: viewModel.interestedDepartmentIDs,
+          state: viewModel.departmentState,
+          selection: $viewModel.courseFilter.departmentIDs,
+          onRetry: { await viewModel.fetchDepartments() }
+        )
+        // Picks up interested departments changed in Settings since the tab first appeared.
+        .task {
+          await viewModel.fetchDepartments()
+        }
+        .toolbar {
+          ToolbarItem(placement: .cancellationAction) {
+            Button(role: .close) {
+              showDepartmentPicker = false
+            }
+          }
+        }
+      }
+      .presentationDragIndicator(.visible)
+    }
     .task {
-      viewModel.bind()
+      await viewModel.fetchDepartments()
     }
     .analyticsScreen(name: "Search", class: String(describing: Self.self))
   }
@@ -87,6 +133,10 @@ public struct SearchView: View {
         .foregroundStyle(.primary)
         .redacted(reason: viewModel.state == .loading ? .placeholder : [])
         .disabled(viewModel.state == .loading)
+      } onLoadMore: {
+        if viewModel.searchScope == .courses {
+          await viewModel.loadCoursesNextPage()
+        }
       }
     }
   }
@@ -168,25 +218,6 @@ public struct SearchView: View {
     }
     .scrollDismissesKeyboard(.immediately)
     .toolbarTitleDisplayMode(.inlineLarge)
-    .onChange(of: viewModel.searchScope) {
-      viewModel.state = .loading
-      
-      switch viewModel.searchScope {
-      case .all:
-        if viewModel.searchText.isEmpty {
-          return
-        }
-        Task {
-          await viewModel.fetchInitialData()
-        }
-      default:
-        viewModel.loadFull()
-      }
-    }
-  }
-  
-  private var hideScopeBar: Bool {
-    return viewModel.searchText.isEmpty
   }
 }
 

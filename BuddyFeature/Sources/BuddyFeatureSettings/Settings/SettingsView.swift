@@ -36,6 +36,7 @@ public struct SettingsView: View {
           NavigationLink(String(localized: "Feed", bundle: .module)) { FeedSettingsView() }
           NavigationLink(String(localized: "Ara", bundle: .module)) { AraSettingsView() }
           NavigationLink(String(localized: "Taxi", bundle: .module)) { TaxiSettingsView() }
+          NavigationLink(String(localized: "Timetable", bundle: .module)) { TimetableSettingsView() }
         }
 
         Section(header: Text("Appearance", bundle: .module)) {
