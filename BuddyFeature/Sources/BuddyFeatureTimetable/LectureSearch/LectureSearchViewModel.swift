@@ -28,6 +28,10 @@ class LectureSearchViewModel {
   var filter = LectureSearchFilter() {
     didSet { scheduleSearch() }
   }
+  /// When the lectures meet. Separate from `filter`, which course search shares and cannot use.
+  var time = LectureTimeFilter() {
+    didSet { scheduleSearch() }
+  }
 
   private(set) var departments: [DepartmentOption] = []
   /// The user's interested departments from Settings, listed first in the department picker.
@@ -51,8 +55,9 @@ class LectureSearchViewModel {
   private struct Query: Equatable {
     var keyword: String = ""
     var filter = LectureSearchFilter()
+    var time = LectureTimeFilter()
 
-    var isEmpty: Bool { keyword.isEmpty && filter.isEmpty }
+    var isEmpty: Bool { keyword.isEmpty && filter.isEmpty && time.isEmpty }
   }
 
   private static let pageSize = 100
@@ -63,8 +68,32 @@ class LectureSearchViewModel {
   @ObservationIgnored private var searchGeneration = 0
   @ObservationIgnored private var selectedSemester: Semester?
 
+  /// The semester's wishlisted lectures, shown while there is nothing to search for.
+  var wishlist: [CourseLecture] {
+    pendingWishlistChanges.reduce(savedWishlist) { courses, change in
+      change.value ? courses : courses.removing(lectureID: change.key)
+    }
+  }
+  /// Wishlisted lecture IDs, updated as soon as a heart is tapped.
+  var wishlistedLectureIDs: Set<Int> {
+    pendingWishlistChanges.reduce(into: savedWishlistIDs) { ids, change in
+      if change.value { ids.insert(change.key) } else { ids.remove(change.key) }
+    }
+  }
+  /// Set when a wishlist change fails, for the view to report.
+  var wishlistError: String?
+
+  /// The wishlist as the server last returned it, plus the changes saved since.
+  private var savedWishlist: [CourseLecture] = []
+  private var savedWishlistIDs: Set<Int> = []
+  /// Lectures whose wishlist change is still being saved, and whether each is being added.
+  /// Laid over the saved wishlist so a fetch that lands meanwhile cannot undo the tap.
+  private var pendingWishlistChanges: [Int: Bool] = [:]
+  /// Bumped for every saved change so a fetch that read the server before it can tell.
+  @ObservationIgnored private var wishlistGeneration = 0
+
   private var currentQuery: Query {
-    Query(keyword: searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines), filter: filter)
+    Query(keyword: searchKeyword.trimmingCharacters(in: .whitespacesAndNewlines), filter: filter, time: time)
   }
 
   // MARK: - Dependencies
@@ -74,6 +103,9 @@ class LectureSearchViewModel {
   @ObservationIgnored @Injected(
     \.userUseCase
   ) private var userUseCase: UserUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.wishlistUseCase
+  ) private var wishlistUseCase: WishlistUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.crashlyticsService
   ) private var crashlyticsService: CrashlyticsServiceProtocol?
@@ -85,12 +117,73 @@ class LectureSearchViewModel {
   // so it must leave a pending search alone unless the semester really changed.
   func bind(selectedSemester: Semester) {
     guard self.selectedSemester != selectedSemester else { return }
+    // Another semester's wishlist would be wrong until its own arrives.
+    if self.selectedSemester != nil {
+      savedWishlist = []
+      savedWishlistIDs = []
+    }
     self.selectedSemester = selectedSemester
     restartSearch()
   }
 
   func retry() {
     restartSearch()
+  }
+
+  // MARK: - Wishlist
+
+  func isWishlisted(_ lecture: Lecture) -> Bool {
+    wishlistedLectureIDs.contains(lecture.id)
+  }
+
+  func fetchWishlist(semester: Semester) async {
+    guard let wishlistUseCase else { return }
+    do {
+      // A change saved while this was in flight may be missing from the response, and nothing
+      // else fetches after a removal, so a response that may be stale is fetched again.
+      var courses: [CourseLecture]
+      var generation: Int
+      repeat {
+        generation = wishlistGeneration
+        courses = try await wishlistUseCase.fetchWishlist(semester: semester)
+      } while generation != wishlistGeneration
+      guard semester == selectedSemester || selectedSemester == nil else { return }
+      savedWishlist = courses
+      savedWishlistIDs = Set(courses.flatMap { $0.lectures.map(\.id) })
+    } catch {
+      // The wishlist is extra; search works without it, so a failure stays quiet.
+      crashlyticsService?.recordException(error: error)
+    }
+  }
+
+  /// Flips a lecture's wishlist state at once, then saves it, undoing the change if that fails.
+  func toggleWishlist(_ lecture: Lecture) async {
+    // Taps on a lecture whose change is still saving are ignored: a second request racing the
+    // first, or the fetch after it, could leave the heart disagreeing with the server.
+    guard let wishlistUseCase, pendingWishlistChanges[lecture.id] == nil else { return }
+    let isAdding = !isWishlisted(lecture)
+    pendingWishlistChanges[lecture.id] = isAdding
+    defer { pendingWishlistChanges[lecture.id] = nil }
+    analyticsService?.logEvent(isAdding ? LectureSearchViewEvent.lectureWishlisted : LectureSearchViewEvent.lectureUnwishlisted)
+
+    do {
+      try await wishlistUseCase.setWishlisted(isAdding, lectureID: lecture.id)
+    } catch {
+      crashlyticsService?.recordException(error: error)
+      wishlistError = error.localizedDescription
+      return
+    }
+    wishlistGeneration += 1
+    if isAdding {
+      savedWishlistIDs.insert(lecture.id)
+    } else {
+      savedWishlistIDs.remove(lecture.id)
+      savedWishlist = savedWishlist.removing(lectureID: lecture.id)
+    }
+    // An added lecture needs its course from the server to appear in the list.
+    if isAdding, let selectedSemester {
+      await fetchWishlist(semester: selectedSemester)
+    }
   }
 
   func fetchDepartments() async {
@@ -150,7 +243,7 @@ class LectureSearchViewModel {
 
     // Results for a different set of filters would be misleading, so they go at once.
     // Keyword edits keep the previous results on screen until the new ones arrive.
-    if query.filter != lastQuery.filter || query.isEmpty || state != .loaded {
+    if query.filter != lastQuery.filter || query.time != lastQuery.time || query.isEmpty || state != .loaded {
       courses.removeAll()
       state = .loading
     }
@@ -191,6 +284,7 @@ class LectureSearchViewModel {
       semester: semester,
       keyword: query.keyword,
       filter: query.filter,
+      time: query.time,
       limit: Self.pageSize,
       offset: offset
     )
@@ -200,5 +294,17 @@ class LectureSearchViewModel {
 private extension Array where Element == CourseLecture {
   var lectureCount: Int {
     reduce(0) { $0 + $1.lectures.count }
+  }
+
+  /// Drops one lecture, and its course once it has none left.
+  func removing(lectureID: Int) -> [CourseLecture] {
+    compactMap { course in
+      let lectures = course.lectures.filter { $0.id != lectureID }
+      guard !lectures.isEmpty else { return nil }
+      return CourseLecture(
+        id: course.id, name: course.name, code: course.code, type: course.type,
+        lectures: lectures, completed: course.completed
+      )
+    }
   }
 }

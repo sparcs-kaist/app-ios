@@ -57,6 +57,29 @@ struct LectureSearchTests {
     ])
   }
 
+  @Test func timeFilterSendsDayAndMinutes() throws {
+    let time = LectureTimeFilter(day: .wed, begin: 600, end: 780)
+    let request = LectureSearchRequest(semester: semester, keyword: "", time: time, limit: 100, offset: 0)
+    let items = try queryItems(for: request)
+
+    #expect(items.filter { ["day", "begin", "end"].contains($0.name) } == [
+      URLQueryItem(name: "begin", value: "600"),
+      URLQueryItem(name: "day", value: "2"),
+      URLQueryItem(name: "end", value: "780")
+    ])
+  }
+
+  @Test func partialTimeFilterOmitsUnsetParts() throws {
+    let request = LectureSearchRequest(
+      semester: semester, keyword: "", time: LectureTimeFilter(begin: 780), limit: 100, offset: 0
+    )
+    let names = try queryItems(for: request).map(\.name)
+
+    #expect(names.contains("begin"))
+    #expect(!names.contains("day"))
+    #expect(!names.contains("end"))
+  }
+
   @Test func graduateLevelExpandsToEveryLevelFrom500() {
     let filter = LectureSearchFilter(levels: [.graduate, .level400])
     let request = LectureSearchRequest(semester: semester, keyword: "", filter: filter, limit: 100, offset: 0)

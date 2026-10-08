@@ -14,19 +14,41 @@ import FirebaseAnalytics
 struct LectureDetailView: View {
   let lecture: Lecture
   let onAdd: (() -> Void)?
-  let isOverlapping: Bool
+  /// Lectures and activities in the timetable whose times overlap this lecture.
+  let conflicts: [String]
+  /// Whether the timetable already holds this lecture.
+  let isAdded: Bool
+  let isWishlisted: Bool
+  /// Shows a heart in the toolbar when set.
+  let onToggleWishlist: (() -> Void)?
   let lectureClass: LectureClass?
 
-  init(lecture: Lecture, onAdd: (() -> Void)?, isOverlapping: Bool, lectureClass: LectureClass? = nil) {
+  init(
+    lecture: Lecture,
+    onAdd: (() -> Void)?,
+    conflicts: [String] = [],
+    isAdded: Bool = false,
+    isWishlisted: Bool = false,
+    onToggleWishlist: (() -> Void)? = nil,
+    lectureClass: LectureClass? = nil
+  ) {
     self.lecture = lecture
     self.onAdd = onAdd
-    self.isOverlapping = isOverlapping
+    self.conflicts = conflicts
+    self.isAdded = isAdded
+    self.isWishlisted = isWishlisted
+    self.onToggleWishlist = onToggleWishlist
     self.lectureClass = lectureClass
   }
 
+  private var isOverlapping: Bool { !conflicts.isEmpty }
+
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.isInLectureSearchInspector) private var isInInspector
   @State private var viewModel = LectureDetailViewModel()
   @State private var showReviewComposeView: Bool = false
+  /// Whether the review sheet's modifier is attached; see the `.background` below.
+  @State private var isReviewSheetAttached: Bool = false
   @State private var canWriteReview: Bool = false
 
   @State private var showCannotAddLectureAlert: Bool = false
@@ -36,6 +58,10 @@ struct LectureDetailView: View {
       LazyVStack(spacing: 20) {
         // Lecture Summary
         LectureSummary(lecture: lecture)
+
+        if onAdd != nil && !isAdded && isOverlapping {
+          conflictWarning
+        }
 
         // Lecture Information
         LectureInformationSection(lecture: lecture, lectureClass: lectureClass)
@@ -48,12 +74,14 @@ struct LectureDetailView: View {
           state: viewModel.state,
           reviews: $viewModel.reviews,
           canWriteReview: canWriteReview,
-          onWriteReview: { showReviewComposeView = true }
+          onWriteReview: presentReviewCompose
         )
       }
       .padding([.horizontal, .bottom])
       .contentWidth()
     }
+    // Content fades under the navigation bar, and in lecture search under the timetable preview.
+    .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
     .task {
       async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
       async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)
@@ -63,32 +91,88 @@ struct LectureDetailView: View {
 
       canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
     }
-    .navigationTitle(lecture.name)
-    .navigationBarTitleDisplayMode(.inline)
+    .lectureScreenTitle(lecture.name)
     .toolbar {
-      if onAdd != nil {
+      // In lecture search's inspector, its navigation bar has these.
+      if let onToggleWishlist, !isInInspector {
         ToolbarItem(placement: .topBarTrailing) {
-          Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
-            if isOverlapping {
-              showCannotAddLectureAlert = true
-            } else {
-              dismiss()
-              onAdd?()
-            }
-          }
+          WishlistToolbarButton(isWishlisted: isWishlisted, action: onToggleWishlist)
+        }
+      }
+      if onAdd != nil, !isInInspector {
+        ToolbarItem(placement: .topBarTrailing) {
+          addButton
         }
       }
     }
     .alert(String(localized: "Cannot Add Lecture", bundle: .module), isPresented: $showCannotAddLectureAlert, actions: {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     }, message: {
-      Text("This lecture collides with an existing lecture in your timetable.", bundle: .module)
+      Text("This lecture overlaps with \(conflictList) in your timetable.", bundle: .module)
     })
-    .sheet(isPresented: $showReviewComposeView) {
-      ReviewComposeView(lecture: lecture)
-        .presentationDragIndicator(.visible)
+    .background {
+      // Attached only while composing: this view usually sits inside a sheet, and while a
+      // `.sheet` modifier is anywhere in its content SwiftUI ignores changes to that sheet's
+      // height, such as lecture search shrinking it to preview a lecture.
+      if isReviewSheetAttached {
+        Color.clear
+          .sheet(isPresented: $showReviewComposeView, onDismiss: { isReviewSheetAttached = false }) {
+            ReviewComposeView(lecture: lecture)
+              .presentationDragIndicator(.visible)
+          }
+      }
     }
+    // In the full-screen lecture search, the timetable preview stays a tap away.
+    .lectureSearchTimetablePreview()
     .analyticsScreen(name: "Lecture Detail", class: String(describing: Self.self))
+  }
+
+  @ViewBuilder
+  private var addButton: some View {
+    if isAdded {
+      Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
+        .disabled(true)
+    } else {
+      // Still tappable when it conflicts, so the alert can say why it cannot be added.
+      Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
+        if isOverlapping {
+          showCannotAddLectureAlert = true
+        } else {
+          // In lecture search's inspector, adding closes it.
+          if !isInInspector {
+            dismiss()
+          }
+          onAdd?()
+        }
+      }
+    }
+  }
+
+  /// Attaches the review sheet, then presents it on the next update. A sheet presented in the
+  /// same update that attaches its modifier appears without animation.
+  private func presentReviewCompose() {
+    isReviewSheetAttached = true
+    Task { @MainActor in
+      showReviewComposeView = true
+    }
+  }
+
+  private var conflictList: String {
+    conflicts.formatted(.list(type: .and))
+  }
+
+  private var conflictWarning: some View {
+    HStack(alignment: .firstTextBaseline, spacing: 8) {
+      Image(systemName: "exclamationmark.triangle.fill")
+      Text("Overlaps with \(conflictList)", bundle: .module)
+        .multilineTextAlignment(.leading)
+      Spacer(minLength: 0)
+    }
+    .font(.subheadline.weight(.medium))
+    .foregroundStyle(.orange)
+    .padding(12)
+    .background(.orange.opacity(0.12), in: .rect(cornerRadius: 14))
+    .accessibilityElement(children: .combine)
   }
 
 }

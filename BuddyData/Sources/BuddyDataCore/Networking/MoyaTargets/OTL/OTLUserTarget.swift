@@ -12,6 +12,8 @@ public enum OTLUserTarget {
   case register(ssoInfo: String)
   case fetchUserInfo
   case updateInterestedDepartments(userID: Int, departmentIDs: [Int])
+  case fetchWishlist(userID: Int, year: Int, semester: Int)
+  case updateWishlist(userID: Int, lectureID: Int, isWishlisted: Bool)
 }
 
 extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
@@ -27,6 +29,8 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
       "/api/v2/users/info"
     case .updateInterestedDepartments(let userID, _):
       "/api/v2/users/\(userID)/interested-departments"
+    case .fetchWishlist(let userID, _, _), .updateWishlist(let userID, _, _):
+      "/api/v2/users/\(userID)/wishlist"
     }
   }
 
@@ -34,10 +38,12 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .register:
       .post
-    case .fetchUserInfo:
+    case .fetchUserInfo, .fetchWishlist:
       .get
     case .updateInterestedDepartments:
       .put
+    case .updateWishlist:
+      .patch
     }
   }
 
@@ -49,6 +55,13 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
         .requestPlain
     case .updateInterestedDepartments(_, let departmentIDs):
         .requestParameters(parameters: ["interestedDepartmentIds": departmentIDs], encoding: JSONEncoding.default)
+    case .fetchWishlist(_, let year, let semester):
+        .requestParameters(parameters: ["year": year, "semester": semester], encoding: URLEncoding.queryString)
+    case .updateWishlist(_, let lectureID, let isWishlisted):
+        .requestParameters(
+          parameters: ["lectureId": lectureID, "mode": isWishlisted ? "add" : "delete"],
+          encoding: JSONEncoding.default
+        )
     }
   }
 

@@ -83,7 +83,8 @@ public final class TimetableViewModel {
   var timetableWithCandidate: Timetable? {
     guard let timetable else { return nil }
 
-    if let candidateLecture {
+    // Once the lecture is in the table, a preview of it would draw it twice.
+    if let candidateLecture, !timetable.contains(candidateLecture) {
       var table = timetable
       table.lectures.append(candidateLecture)
 
@@ -233,10 +234,13 @@ public final class TimetableViewModel {
           let selectedTimetableID else { return }
 
     do {
+      // Check against the server's copy, which may have changed since the search opened.
       let current = try await timetableUseCase.refreshTable(id: selectedTimetableID)
-      guard !current.activities.contains(where: { activity in
-        lecture.classes.contains { activity.draft.overlaps(day: $0.day, begin: $0.begin, end: $0.end) }
-      }) else { throw TimetableActivityError.overlap }
+      // Shown at once, so a lecture already added on another device, or whatever the lecture
+      // clashes with, is on screen rather than only behind a silent return or an alert.
+      showRefreshedTable(current, id: selectedTimetableID)
+      guard !current.contains(lecture) else { return }
+      guard current.conflicts(with: lecture).isEmpty else { throw TimetableActivityError.overlap }
       try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
       timetableLoadTask?.cancel()
@@ -252,6 +256,15 @@ public final class TimetableViewModel {
       )
       isAlertPresented = true
     }
+  }
+
+  /// Puts a table just fetched from the server on screen, if it is still the one selected.
+  private func showRefreshedTable(_ table: Timetable, id: Int) {
+    guard selectedTimetableID == id, table != timetable else { return }
+    timetableLoadTask?.cancel()
+    timetable = table
+    lastUpdated = .now
+    WidgetCenter.shared.reloadAllTimelines()
   }
 
   func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws {
