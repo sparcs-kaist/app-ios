@@ -24,6 +24,9 @@ public final class TimetableViewModel {
   @ObservationIgnored @Injected(
     \.analyticsService
   ) private var analyticsService: AnalyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.timetableIndexingService
+  ) private var timetableIndexingService: TimetableIndexingServiceProtocol?
 
   public var alertState: AlertState? = nil
   public var isAlertPresented: Bool = false
@@ -57,6 +60,7 @@ public final class TimetableViewModel {
   }
 
   @ObservationIgnored private var timetableListTask: Task<Void, Never>?
+  @ObservationIgnored private var widgetReloadTask: Task<Void, Never>?
   @ObservationIgnored private var timetableLoadTask: Task<Void, Never>?
 
   var timetables: [TimetableSummary] = []
@@ -64,6 +68,11 @@ public final class TimetableViewModel {
     didSet {
       if let selectedSemester {
         selectionStore.save(semester: selectedSemester, timetableID: selectedTimetableID)
+        if selectedTimetableID != oldValue {
+          // Siri, Spotlight and Mirror-mode widgets follow the selected timetable.
+          timetableIndexingService?.scheduleReindex()
+          scheduleWidgetReload()
+        }
       }
       timetableLoadTask?.cancel()
       if selectedTimetableID != oldValue {
@@ -485,6 +494,17 @@ public final class TimetableViewModel {
         message: error.localizedDescription
       )
       isAlertPresented = true
+    }
+  }
+
+  /// Reloads widgets once switching settles, so flicking through timetables
+  /// doesn't spend WidgetKit's reload budget on every intermediate selection.
+  private func scheduleWidgetReload() {
+    widgetReloadTask?.cancel()
+    widgetReloadTask = Task {
+      try? await Task.sleep(for: .seconds(1))
+      guard !Task.isCancelled else { return }
+      WidgetCenter.shared.reloadAllTimelines()
     }
   }
 
