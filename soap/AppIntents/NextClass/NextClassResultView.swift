@@ -25,7 +25,7 @@ struct NextClassResultView: View {
           contentView(
             title: item.lecture.name,
             subtitle: "\(classtime.buildingCode) \(classtime.roomName)",
-            date: dateOnSameDay(minutes: classtime.begin, date: Date(), calendar: .current) ?? Date(),
+            date: dateOnSameDay(minutes: classtime.begin, date: Date(), calendar: .kaist) ?? Date(),
             color: item.lecture.backgroundColor
           )
         } else {
