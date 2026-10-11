@@ -10,6 +10,12 @@ import SwiftUI
 import Haptica
 import BuddyDomain
 
+/// Whether the selector is showing its rename alert or delete confirmation.
+struct TimetableSelectorDialogKey: PreferenceKey {
+  static let defaultValue = false
+  static func reduce(value: inout Bool, nextValue: () -> Bool) { value = value || nextValue() }
+}
+
 struct CompactTimetableSelector: View {
   let semesters: [Semester]
   @Binding var selectedSemester: Semester?
@@ -63,6 +69,7 @@ struct CompactTimetableSelector: View {
       }
     }
     .frame(height: 30)
+    .preference(key: TimetableSelectorDialogKey.self, value: showRenameAlert || showDeleteConfirmation)
     .alert(String(localized: "Rename \"\(displayName)\"", bundle: .module), isPresented: $showRenameAlert, actions: {
       TextField(displayName, text: $renameText)
 

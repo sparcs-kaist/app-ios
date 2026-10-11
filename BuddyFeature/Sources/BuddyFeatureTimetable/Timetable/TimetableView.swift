@@ -22,6 +22,8 @@ public struct TimetableView: View {
   @State private var screenshotShareImage: TimetableShareImage?
   /// Whether the timetable itself is on screen, not covered by a pushed screen or another tab.
   @State private var isTimetableVisible = false
+  /// Whether the selector's rename alert or delete confirmation is up.
+  @State private var isSelectorDialogPresented = false
   @State private var selectedLecture: LectureItem? = nil
   @State private var showSearchSheet: Bool = false
 	@State private var showActivityCreationSheet: Bool = false
@@ -234,6 +236,7 @@ public struct TimetableView: View {
       isReadOnly: viewModel.isReadOnly
     )
     .redacted(reason: viewModel.isLoading ? .placeholder : [])
+    .onPreferenceChange(TimetableSelectorDialogKey.self) { isSelectorDialogPresented = $0 }
   }
 
   private func gridCard(height: CGFloat) -> some View {
@@ -335,7 +338,8 @@ public struct TimetableView: View {
   private func offerShareAfterScreenshot() {
     guard isTimetableVisible, scenePhase == .active,
       !showSearchSheet, !showActivityCreationSheet, editingActivity == nil,
-      selectedLecture == nil, sharedImage == nil, screenshotShareImage == nil
+      selectedLecture == nil, sharedImage == nil, screenshotShareImage == nil,
+      !viewModel.isAlertPresented, !isSelectorDialogPresented
     else { return }
     screenshotShareImage = makeShareImage()
   }

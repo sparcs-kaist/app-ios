@@ -18,6 +18,7 @@ struct TimetableShareSheet: View {
   @State private var showsActivitySheet = false
   @State private var saveState: SaveState = .idle
   @State private var showsSaveError = false
+  @State private var saveErrorMessage = ""
   @State private var isInstagramAvailable = false
 
   @Environment(\.dismiss) private var dismiss
@@ -49,7 +50,7 @@ struct TimetableShareSheet: View {
     .alert(String(localized: "Unable to Save", bundle: .module), isPresented: $showsSaveError) {
       Button(String(localized: "Okay", bundle: .module), role: .close) { }
     } message: {
-      Text("Allow Buddy to add photos in Settings, then try again.", bundle: .module)
+      Text(saveErrorMessage)
     }
     .onAppear {
       isInstagramAvailable = InstagramStory.isAvailable(appID: Constants.metaAppID)
@@ -116,6 +117,7 @@ struct TimetableShareSheet: View {
     let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
     guard status == .authorized || status == .limited else {
       saveState = .idle
+      saveErrorMessage = String(localized: "Allow Buddy to add photos in Settings, then try again.", bundle: .module)
       showsSaveError = true
       return
     }
@@ -126,7 +128,9 @@ struct TimetableShareSheet: View {
       }
       withAnimation(.snappy) { saveState = .saved }
     } catch {
+      // Anything else, such as a full device, comes with its own explanation.
       saveState = .idle
+      saveErrorMessage = error.localizedDescription
       showsSaveError = true
     }
   }
