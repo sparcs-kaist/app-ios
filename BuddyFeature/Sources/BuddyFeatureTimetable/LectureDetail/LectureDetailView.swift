@@ -74,6 +74,7 @@ struct LectureDetailView: View {
           state: viewModel.state,
           reviews: $viewModel.reviews,
           reviewDigest: viewModel.reviewDigest,
+          reviewSummaries: viewModel.reviewSummaries,
           canWriteReview: canWriteReview,
           onWriteReview: presentReviewCompose
         )

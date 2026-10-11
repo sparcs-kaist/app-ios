@@ -23,6 +23,8 @@ class LectureDetailViewModel {
   var course: Course? = nil
   /// The on-device summary of `reviews`.
   let reviewDigest = ReviewDigestModel(source: "LectureDetailView")
+  /// On-device summaries of single reviews.
+  let reviewSummaries = ReviewSummaryModel(source: "LectureDetailView")
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -55,6 +57,7 @@ class LectureDetailViewModel {
   func fetchReviews(lecture: Lecture) async {
     guard let reviewUseCase else { return }
     await reviewDigest.checkAvailability()
+    await reviewSummaries.checkAvailability()
 
     do {
       let page = try await reviewUseCase

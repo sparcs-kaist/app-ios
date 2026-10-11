@@ -18,6 +18,7 @@ struct LectureReviewsSection: View {
   let state: LectureDetailViewModel.ViewState
   @Binding var reviews: [LectureReview]
   let reviewDigest: ReviewDigestModel
+  let reviewSummaries: ReviewSummaryModel
   let canWriteReview: Bool
   let onWriteReview: () -> Void
 
@@ -66,6 +67,7 @@ struct LectureReviewsSection: View {
           ForEach(LectureReview.mockList.prefix(2)) { review in
             LectureReviewCell(review: .constant(review))
               .redacted(reason: .placeholder)
+              .disabled(true)
           }
         case .loaded:
           if reviews.isEmpty {
@@ -81,8 +83,10 @@ struct LectureReviewsSection: View {
         }
       }
     }
-    // Over the whole section rather than the summary card, so the reviews below
-    // slide down as the card grows instead of jumping.
+    // Over the whole section rather than the summaries, so the reviews below
+    // slide down as a summary grows instead of jumping.
     .animation(.spring, value: reviewDigest.phase)
+    .animation(.spring, value: reviewSummaries.phases)
+    .environment(reviewSummaries)
   }
 }

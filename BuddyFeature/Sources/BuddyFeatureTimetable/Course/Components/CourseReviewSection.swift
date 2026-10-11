@@ -18,6 +18,7 @@ struct CourseReviewSection: View {
   let isLoaded: Bool
   @Binding var reviews: [LectureReview]
   let reviewDigest: ReviewDigestModel
+  let reviewSummaries: ReviewSummaryModel
 
   var body: some View {
     VStack {
@@ -65,13 +66,16 @@ struct CourseReviewSection: View {
           ForEach(LectureReview.mockList.prefix(3)) { review in
             LectureReviewCell(review: .constant(review))
               .redacted(reason: .placeholder)
+              .disabled(true)
           }
         }
       }
     }
-    // Over the whole section rather than the summary card, so the reviews below
-    // slide down as the card grows instead of jumping.
+    // Over the whole section rather than the summaries, so the reviews below
+    // slide down as a summary grows instead of jumping.
     .animation(.spring, value: reviewDigest.phase)
+    .animation(.spring, value: reviewSummaries.phases)
+    .environment(reviewSummaries)
   }
 
   private func summaryRow(title: String, description: String) -> some View {

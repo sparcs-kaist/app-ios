@@ -247,6 +247,22 @@
         }
       }
     },
+    "Apple Intelligence isn't available right now. Check that it's turned on in Settings, then try again." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence isn't available right now. Check that it's turned on in Settings, then try again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금은 Apple Intelligence를 사용할 수 없습니다. 설정에서 켜져 있는지 확인한 후 다시 시도하세요."
+          }
+        }
+      }
+    },
     "Ara" : {
       "localizations" : {
         "en" : {
@@ -362,6 +378,22 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "벚꽃"
+          }
+        }
+      }
+    },
+    "Couldn't summarise this. Please try again." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't summarise this. Please try again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요약하지 못했습니다. 다시 시도하세요."
           }
         }
       }
@@ -1329,6 +1361,22 @@
         }
       },
       "shouldTranslate" : false
+    },
+    "This can't be summarised." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This can't be summarised."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 내용은 요약할 수 없습니다."
+          }
+        }
+      }
     },
     "This nickname is already in use." : {
       "localizations" : {

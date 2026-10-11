@@ -11,7 +11,6 @@ import Translation
 import Factory
 import BuddyDomain
 import Haptica
-import FoundationModels
 import BuddyFeatureShared
 import os
 
@@ -23,15 +22,18 @@ struct LectureReviewCell: View {
   @ObservationIgnored @Injected(
     \.v2ReviewUseCase
   ) private var reviewUseCase: ReviewUseCaseProtocol?
-  @Injected(
-    \.foundationModelsUseCase
-  ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?
 
+  /// The screen's summaries, so a summary outlives this cell scrolling away.
+  /// Absent for placeholder cells, which then offer no summary.
+  @Environment(ReviewSummaryModel.self) private var summaries: ReviewSummaryModel?
   @Environment(\.colorScheme) var colorScheme
   @Environment(\.openURL) private var openURL
   @State private var showTranslateSheet: Bool = false
-  @State private var summarisedContent: String? = nil
   @State private var isLikeButtonRunning: Bool = false
+
+  private var summaryPhase: ReviewSummaryModel.Phase? {
+    summaries?.phase(for: review)
+  }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
@@ -48,22 +50,12 @@ struct LectureReviewCell: View {
 
         Menu {
           Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
-          if SystemLanguageModel.default.isAvailable {
+          if let summaries, summaries.canSummarise(review) {
             Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
-              guard let foundationModelsUseCase else { return }
-              
-              // Explicit rather than `.animation(_:value:)` on the cell, so the reviews below
-              // slide down as the cell grows instead of jumping.
-              withAnimation(.spring) { summarisedContent = "" }
-              Task {
-                Haptic.start.generate()
-                let summary = await foundationModelsUseCase
-                  .summarise(review.content, maxWords: 50, tone: "concise")
-                withAnimation(.spring) { summarisedContent = summary }
-                Haptic.success.generate()
-              }
+              Haptic.start.generate()
+              summaries.summarise(review)
             }
-            .disabled(summarisedContent != nil)
+            .disabled(summaryPhase != nil)
           }
 //          Divider()
 //          Button(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") { report() }
@@ -75,8 +67,8 @@ struct LectureReviewCell: View {
         .labelStyle(.iconOnly)
       }
 
-      if let summarisedContent {
-        SummarisationView(text: summarisedContent)
+      if let summaryPhase {
+        summary(summaryPhase)
           .padding(.bottom)
           .transition(.asymmetric(
             insertion: .offset(y: -10).combined(with: .opacity),
@@ -120,6 +112,34 @@ struct LectureReviewCell: View {
     .clipShape(.rect(cornerRadius: 26))
     .shadow(color: .black.opacity(0.1), radius: 8)
     .translationPresentation(isPresented: $showTranslateSheet, text: review.content)
+    .sensoryFeedback(trigger: summaryPhase) { _, phase in
+      switch phase {
+      case .finished: .success
+      case .failed: .error
+      default: nil
+      }
+    }
+  }
+
+  @ViewBuilder
+  private func summary(_ phase: ReviewSummaryModel.Phase) -> some View {
+    switch phase {
+    case let .summarising(text):
+      SummarisationView(text: text, isSummarising: true)
+    case let .finished(text):
+      SummarisationView(text: text)
+    case let .failed(message):
+      VStack(alignment: .leading, spacing: 8) {
+        Label(message, systemImage: "exclamationmark.triangle")
+          .font(.footnote)
+          .foregroundStyle(.secondary)
+        Button(String(localized: "Try Again", bundle: .module), systemImage: "arrow.clockwise") {
+          summaries?.summarise(review)
+        }
+        .font(.footnote)
+        .buttonStyle(.glass)
+      }
+    }
   }
 
   private func reviewRatingLetter(title: String, rating: String) -> some View {

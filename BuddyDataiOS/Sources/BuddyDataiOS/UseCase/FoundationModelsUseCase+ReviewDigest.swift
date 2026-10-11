@@ -101,7 +101,7 @@ extension FoundationModelsUseCase {
           cost: Self.tokenCount
         )
         continuation.yield(.started(reviewCount: batches.reduce(0) { $0 + $1.count }))
-        let language = Self.digestLanguage(model: model)
+        let language = Self.deviceLanguage(model: model)
         let instructions = Self.digestInstructions(language: language)
 
         do {
@@ -188,7 +188,7 @@ extension FoundationModelsUseCase {
 
   /// The device's language, named in English for the model, or English when
   /// the model cannot write the device's language.
-  private static func digestLanguage(model: SystemLanguageModel) -> String {
+  static func deviceLanguage(model: SystemLanguageModel) -> String {
     let device = Locale(identifier: Locale.preferredLanguages.first ?? "en")
     guard model.supportsLocale(device), let code = device.language.languageCode?.identifier else {
       return "English"
@@ -197,7 +197,7 @@ extension FoundationModelsUseCase {
   }
 
   /// As in `generationError(for:)`, iOS 27 and iOS 26 throw different types.
-  private static func isGuardrailViolation(_ error: any Error) -> Bool {
+  static func isGuardrailViolation(_ error: any Error) -> Bool {
     if #available(iOS 27, *), let error = error as? LanguageModelError {
       if case .guardrailViolation = error { return true }
       if case .refusal = error { return true }

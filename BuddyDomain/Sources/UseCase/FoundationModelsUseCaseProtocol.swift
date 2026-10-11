@@ -9,7 +9,14 @@ import Foundation
 
 public protocol FoundationModelsUseCaseProtocol: Actor {
   func isAvailable() async -> Bool
-  func summarise(_ text: String, maxWords: Int, tone: String) async -> String
+  /// Streams a summary of plain `text` in the device's language, each update the
+  /// summary written so far. `kind` decides what the summary keeps and how long
+  /// it runs.
+  ///
+  /// The stream finishes by throwing a ``SummarisationError`` when the model is
+  /// unavailable or cannot summarise the text. Cancelling the consuming task
+  /// stops the generation.
+  func streamSummary(of text: String, as kind: SummaryKind) -> AsyncThrowingStream<String, any Error>
 
   /// Turns a description of a timetable theme — a mood, a season, a palette —
   /// into a ``TimetableThemeBrief``, yielding a snapshot every time the model

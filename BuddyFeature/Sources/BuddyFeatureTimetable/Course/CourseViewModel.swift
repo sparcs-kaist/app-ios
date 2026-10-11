@@ -39,6 +39,8 @@ public class CourseViewModel {
   public private(set) var selectedProfessorID: Int? = nil
   /// The on-device summary of `reviews`, written again when they are refetched for another professor.
   let reviewDigest = ReviewDigestModel(source: "CourseView")
+  /// On-device summaries of single reviews, kept across professors.
+  let reviewSummaries = ReviewSummaryModel(source: "CourseView")
 
   @ObservationIgnored private var reviewTask: Task<Void, Never>?
 
@@ -62,6 +64,7 @@ public class CourseViewModel {
   public func setup(courseID: Int) async {
     guard let courseUseCase else { return }
     await reviewDigest.checkAvailability()
+    await reviewSummaries.checkAvailability()
     do {
       self.course = try await courseUseCase.getCourse(courseID: courseID)
       analyticsService?.logEvent(CourseViewEvent.courseLoaded)

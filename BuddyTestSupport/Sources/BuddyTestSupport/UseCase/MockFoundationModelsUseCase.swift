@@ -11,6 +11,7 @@ import BuddyDomain
 public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
   var isAvailableValue: Bool = false
   var summariseResult: String = ""
+  var summaryError: (any Error)?
   /// The snapshots a generation streams, in order, as the real model's would
   /// arrive: partly filled in at first, complete by the last one.
   var themeBriefs: [TimetableThemeBrief] = []
@@ -29,8 +30,14 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
     isAvailableValue
   }
 
-  public func summarise(_ text: String, maxWords: Int, tone: String) async -> String {
-    summariseResult
+  /// Streams the stubbed summary in one update, or fails with the stubbed error.
+  public func streamSummary(of text: String, as kind: SummaryKind) -> AsyncThrowingStream<String, any Error> {
+    let summary = summariseResult
+    let error = summaryError
+    return AsyncThrowingStream { continuation in
+      if error == nil { continuation.yield(summary) }
+      continuation.finish(throwing: error)
+    }
   }
 
   public func streamThemeBrief(
@@ -68,9 +75,10 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
 
   /// Actors have no settable properties from the outside, so the stubs are set
   /// through here.
-  public func stub(isAvailable: Bool? = nil, summarise: String? = nil) {
+  public func stub(isAvailable: Bool? = nil, summarise: String? = nil, summaryError: (any Error)? = nil) {
     if let isAvailable { isAvailableValue = isAvailable }
     if let summarise { summariseResult = summarise }
+    self.summaryError = summaryError
   }
 
   public func stub(themeBriefs: [TimetableThemeBrief] = [], error: (any Error)? = nil) {
