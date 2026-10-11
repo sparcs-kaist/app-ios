@@ -1595,6 +1595,262 @@
           }
         }
       }
+    },
+    "Semester Begins" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semester Begins"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "학기 시작"
+          }
+        }
+      }
+    },
+    "Course Registration" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Course Registration"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수강신청"
+          }
+        }
+      }
+    },
+    "Add/Drop Period Ends" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add/Drop Period Ends"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수강변경 기간 종료"
+          }
+        }
+      }
+    },
+    "Course Drop Deadline" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Course Drop Deadline"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수강취소 마감"
+          }
+        }
+      }
+    },
+    "Course Evaluation Deadline" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Course Evaluation Deadline"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의평가 마감"
+          }
+        }
+      }
+    },
+    "Semester Ends" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semester Ends"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "학기 종료"
+          }
+        }
+      }
+    },
+    "Grades Posted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grades Posted"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "성적 공개"
+          }
+        }
+      }
+    },
+    "%lld credits" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld credits"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld학점"
+          }
+        }
+      }
+    },
+    "My Table follows your course registration, so Siri can't change it. In Buddy, duplicate My Table or select one of your own timetables, then try again." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Table follows your course registration, so Siri can't change it. In Buddy, duplicate My Table or select one of your own timetables, then try again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 시간표는 수강신청 내역을 따르기 때문에 Siri가 변경할 수 없습니다. Buddy에서 내 시간표를 복제하거나 직접 만든 시간표를 선택한 후 다시 시도하세요."
+          }
+        }
+      }
+    },
+    "Lectures follow your course registration, so Siri can't change them." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lectures follow your course registration, so Siri can't change them."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "과목은 수강신청 내역을 따르기 때문에 Siri가 변경할 수 없습니다."
+          }
+        }
+      }
+    },
+    "The KAIST academic calendar can't be changed." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The KAIST academic calendar can't be changed."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KAIST 학사일정은 변경할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Timetable activities need a start and end time." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timetable activities need a start and end time."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표 활동에는 시작 시간과 종료 시간이 필요합니다."
+          }
+        }
+      }
+    },
+    "Timetable activities repeat every week." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timetable activities repeat every week."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표 활동은 매주 반복됩니다."
+          }
+        }
+      }
+    },
+    "An activity must start and end on the same day." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An activity must start and end on the same day."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활동은 같은 날에 시작하고 끝나야 합니다."
+          }
+        }
+      }
+    },
+    "That activity is no longer in your timetable." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That activity is no longer in your timetable."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "해당 활동이 더 이상 시간표에 없습니다."
+          }
+        }
+      }
+    },
+    "Timetable activities repeat every week, so Siri can only change every week at once." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timetable activities repeat every week, so Siri can only change every week at once."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표 활동은 매주 반복되므로 Siri는 모든 주를 한꺼번에만 변경할 수 있습니다."
+          }
+        }
+      }
     }
   },
   "version" : "1.3"
