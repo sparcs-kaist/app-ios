@@ -39,6 +39,9 @@ struct ActivityCreationView: View {
   @State private var location = ""
   @State private var time = TimetableTimeSelection(day: .todayWeekday, begin: 9 * 60, end: 10 * 60)
   @State private var expandedField: TimeField?
+  /// What the person typed for Quick Fill.
+  @State private var activityDescription = ""
+  @FocusState private var isDescriptionFocused: Bool
   @State private var showTimetable = false
   @Environment(\.dismiss) private var dismiss
 
@@ -59,9 +62,16 @@ struct ActivityCreationView: View {
   var body: some View {
     NavigationStack {
       Form {
+        // Only for new activities: an edited one already has its details.
+        if activity == nil, viewModel.canParseDescriptions {
+          quickFillSection
+        }
+
         Section {
           TextField(String(localized: "Title", bundle: .module), text: $title)
           TextField(String(localized: "Location", bundle: .module), text: $location)
+        } header: {
+          Text("Information", bundle: .module)
         }
 
         Section {
@@ -130,7 +140,74 @@ struct ActivityCreationView: View {
       .navigationDestination(isPresented: $showTimetable) {
         ActivityTimetableCreationView(timetable: editingTimetable, title: title, time: $time)
       }
+      .task {
+        await viewModel.checkAvailability()
+      }
     }
+  }
+
+  // MARK: - Quick Fill
+
+  private var quickFillSection: some View {
+    Section {
+      HStack {
+        TextField(
+          String(localized: "Study group on Tuesday 7–9pm at the library", bundle: .module),
+          text: $activityDescription
+        )
+        .focused($isDescriptionFocused)
+        .submitLabel(.done)
+        .onSubmit(fillFromDescription)
+        .onChange(of: activityDescription) { viewModel.clearParseError() }
+        .accessibilityIdentifier("activity.quickFill")
+
+        Button(action: fillFromDescription) {
+          if viewModel.isParsing {
+            ProgressView()
+          } else {
+            Image(systemName: "wand.and.sparkles")
+          }
+        }
+        .buttonStyle(.borderless)
+        .disabled(isDescriptionBlank || viewModel.isParsing)
+        .accessibilityLabel(String(localized: "Fill In Details", bundle: .module))
+      }
+    } header: {
+      Text("Quick Fill", bundle: .module)
+    } footer: {
+      if let message = viewModel.parseErrorMessage {
+        Text(message)
+          .foregroundStyle(.red)
+      } else {
+        Text("Apple Intelligence fills in the details below, so check them before adding.", bundle: .module)
+      }
+    }
+  }
+
+  private var isDescriptionBlank: Bool {
+    activityDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+  }
+
+  private func fillFromDescription() {
+    guard !isDescriptionBlank else { return }
+    isDescriptionFocused = false
+    Task {
+      guard let parsed = await viewModel.parse(activityDescription) else { return }
+      withAnimation {
+        apply(parsed)
+      }
+    }
+  }
+
+  /// Fills in what the description gave, leaving the rest as it was.
+  private func apply(_ parsed: ParsedActivity) {
+    if let parsedTitle = parsed.title { title = parsedTitle }
+    if let parsedLocation = parsed.location { location = parsedLocation }
+    let begin = parsed.begin ?? time.begin
+    // A start with no end keeps the current length, as moving the start does.
+    let end = parsed.end ?? begin + time.duration
+    time = TimetableTimeSelection(day: parsed.day ?? time.day, begin: begin, end: end)
+    expandedField = nil
   }
 
   private var dayBinding: Binding<DayType> {

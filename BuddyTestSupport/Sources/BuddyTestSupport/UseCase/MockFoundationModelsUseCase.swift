@@ -18,6 +18,10 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
   /// The updates a review digest streams, in order.
   var reviewDigestProgress: [LectureReviewDigestProgress] = []
   var reviewDigestError: (any Error)?
+  var parsedActivity = ParsedActivity()
+  var parseActivityError: (any Error)?
+  /// The descriptions `parseActivity(_:today:)` was asked to read, in order.
+  public private(set) var parsedDescriptions: [String] = []
 
   public init() { }
 
@@ -56,6 +60,12 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
     }
   }
 
+  public func parseActivity(_ description: String, today: DayType) async throws -> ParsedActivity {
+    parsedDescriptions.append(description)
+    if let parseActivityError { throw parseActivityError }
+    return parsedActivity
+  }
+
   /// Actors have no settable properties from the outside, so the stubs are set
   /// through here.
   public func stub(isAvailable: Bool? = nil, summarise: String? = nil) {
@@ -71,5 +81,10 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
   public func stub(reviewDigest progress: [LectureReviewDigestProgress], error: (any Error)? = nil) {
     self.reviewDigestProgress = progress
     self.reviewDigestError = error
+  }
+
+  public func stub(parsedActivity: ParsedActivity = ParsedActivity(), error: (any Error)? = nil) {
+    self.parsedActivity = parsedActivity
+    self.parseActivityError = error
   }
 }

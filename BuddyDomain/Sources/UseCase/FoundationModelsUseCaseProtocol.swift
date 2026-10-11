@@ -36,4 +36,11 @@ public protocol FoundationModelsUseCaseProtocol: Actor {
   func streamReviewDigest(
     of reviews: [LectureReview]
   ) -> AsyncThrowingStream<LectureReviewDigestProgress, any Error>
+
+  /// Reads a description of a weekly activity, such as "Study group every
+  /// Tuesday 7–9pm at the library", into the fields of the activity form.
+  ///
+  /// - Parameter today: Resolves "today" and "tomorrow" in the description.
+  /// - Throws: An ``ActivityParsingError``.
+  func parseActivity(_ description: String, today: DayType) async throws -> ParsedActivity
 }
