@@ -67,6 +67,9 @@ class LectureSearchViewModel {
   /// Bumped for every new search so a slow response cannot overwrite a newer one.
   @ObservationIgnored private var searchGeneration = 0
   @ObservationIgnored private var selectedSemester: Semester?
+  /// The search generation whose next page is being fetched, so `loadMore()` runs once at a time.
+  /// Keyed by generation so a stale request from a previous search cannot block the new one.
+  @ObservationIgnored private var loadingMoreGeneration: Int?
 
   /// The semester's wishlisted lectures, shown while there is nothing to search for.
   var wishlist: [CourseLecture] {
@@ -202,8 +205,13 @@ class LectureSearchViewModel {
   }
 
   func loadMore() async {
-    guard canLoadMore, let lectureUseCase, let selectedSemester else { return }
+    guard canLoadMore, loadingMoreGeneration != searchGeneration,
+          let lectureUseCase, let selectedSemester else { return }
     let generation = searchGeneration
+    loadingMoreGeneration = generation
+    defer {
+      if loadingMoreGeneration == generation { loadingMoreGeneration = nil }
+    }
 
     do {
       let page = try await lectureUseCase.searchLecture(
