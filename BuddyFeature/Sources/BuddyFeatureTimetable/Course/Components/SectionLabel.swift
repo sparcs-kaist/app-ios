@@ -45,14 +45,10 @@ struct SectionLabel: Equatable {
     self.init(subtitle: lectureClass.subtitle, professors: lectureClass.professors)
   }
 
-  /// The subtitle without the angle brackets OTL wraps it in, e.g.
-  /// "<디자인 과제로부터 살아남기>", or nil when there is none.
+  /// The subtitle without the angle brackets OTL wraps it in, or nil when
+  /// there is none.
   static func topic(from subtitle: String) -> String? {
-    var topic = subtitle.trimmingCharacters(in: .whitespacesAndNewlines)
-    if topic.hasPrefix("<"), topic.hasSuffix(">"), topic.count >= 2 {
-      topic = String(topic.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-    return topic.isEmpty ? nil : topic
+    Lecture.topic(fromSubtitle: subtitle)
   }
 
   /// A stand-in OTL lists for a section whose instructor isn't named.
