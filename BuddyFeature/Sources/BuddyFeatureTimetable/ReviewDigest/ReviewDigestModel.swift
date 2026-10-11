@@ -47,6 +47,8 @@ final class ReviewDigestModel {
   @ObservationIgnored private var reviewIDs: [Int] = []
   /// The reviews a summary was last asked for, when summaries aren't automatic.
   @ObservationIgnored private var requestedReviewIDs: [Int]?
+  /// Counts runs, so a cancelled one can tell whether a newer one has started.
+  @ObservationIgnored private var runCount = 0
   /// The screen the digest is on, for analytics.
   @ObservationIgnored private let source: String
 
@@ -78,6 +80,8 @@ final class ReviewDigestModel {
       break
     }
 
+    runCount += 1
+    let run = runCount
     reviewIDs = ids
     reviewCount = Self.readableCount(of: reviews)
     phase = .reading(completed: 0, total: 0)
@@ -106,7 +110,9 @@ final class ReviewDigestModel {
       analyticsService?.logEvent(ReviewDigestEvent.finished(source: source))
     } catch {
       if error is CancellationError || Task.isCancelled {
-        phase = .idle
+        // A cancelled run resumes after any run replacing it has started, and
+        // mustn't reset that run's progress.
+        if run == runCount { phase = .idle }
         return
       }
       let reason = error as? LectureReviewDigestError ?? .failed

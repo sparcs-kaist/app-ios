@@ -19,6 +19,8 @@ public struct MyLecturesIntent: AppIntent {
     categoryName: "Buddy"
   )
   public static let supportedModes: IntentModes = [.background]
+  /// Nobody holding a locked phone can hear the timetable read out.
+  public static let authenticationPolicy: IntentAuthenticationPolicy = .requiresAuthentication
 
   public init() {}
 

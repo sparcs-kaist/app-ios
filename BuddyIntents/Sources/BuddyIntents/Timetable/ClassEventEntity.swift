@@ -5,6 +5,7 @@
 
 import AppIntents
 import CoreSpotlight
+import Factory
 import BuddyDomain
 import BuddyDataCore
 
@@ -115,11 +116,13 @@ struct ClassEventQuery: EnumerableEntityQuery, IndexedEntityQuery {
     return ClassEventEntity.all(for: active)
   }
 
+  /// Through the app's indexer, so the rebuild queues behind sign-out's clear
+  /// rather than racing it.
   func reindexEntities(for identifiers: [String], indexDescription: CSSearchableIndexDescription) async throws {
-    await TimetableEntityIndexer.reindex()
+    Container.shared.timetableIndexingService()?.scheduleReindex()
   }
 
   func reindexAllEntities(indexDescription: CSSearchableIndexDescription) async throws {
-    await TimetableEntityIndexer.reindex()
+    Container.shared.timetableIndexingService()?.scheduleReindex()
   }
 }
