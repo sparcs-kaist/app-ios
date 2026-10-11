@@ -228,9 +228,17 @@ private struct LectureRow: View {
       }
 
       VStack(alignment: .leading, spacing: 6) {
-        Text(professors)
-          .font(.body.weight(.medium))
-          .lineLimit(1)
+        VStack(alignment: .leading, spacing: 2) {
+          Text(label.title)
+            .font(.body.weight(.medium))
+            .lineLimit(2)
+          if let professors = label.professors {
+            Text(professors)
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+        }
 
         Text(schedule)
           .font(.footnote)
@@ -267,12 +275,9 @@ private struct LectureRow: View {
     .font(.caption.weight(.medium))
   }
 
-  private var professors: String {
-    let names = lecture.professors.map(\.name)
-    return names.isEmpty
-      ? String(localized: "Unknown", bundle: .module)
-      : names.formatted(.list(type: .and, width: .narrow))
-  }
+  /// The subtitle where the section has one, as Leadership sections do, and
+  /// otherwise the professors.
+  private var label: SectionLabel { SectionLabel(lecture) }
 
   /// Class times grouped by time slot, such as "Mon, Wed 10:30-11:45".
   private var schedule: String {

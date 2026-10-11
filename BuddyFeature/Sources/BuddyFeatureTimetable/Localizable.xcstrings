@@ -2512,6 +2512,22 @@
         }
       }
     },
+    "Subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subtitle"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "부제"
+          }
+        }
+      }
+    },
     "Summarise" : {
       "localizations" : {
         "en" : {
