@@ -19,6 +19,8 @@ struct CourseReviewSection: View {
   @Binding var reviews: [LectureReview]
   let reviewDigest: ReviewDigestModel
   let reviewSummaries: ReviewSummaryModel
+  /// Section subtitles by lecture ID, for the reviews' titles.
+  var sectionSubtitles: [Int: String] = [:]
 
   var body: some View {
     VStack {
@@ -60,7 +62,7 @@ struct CourseReviewSection: View {
               .padding(.vertical, 24)
           }
           ForEach($reviews) { $review in
-            LectureReviewCell(review: $review)
+            LectureReviewCell(review: $review, subtitle: sectionSubtitles[review.lectureID])
           }
         } else {
           ForEach(LectureReview.mockList.prefix(3)) { review in

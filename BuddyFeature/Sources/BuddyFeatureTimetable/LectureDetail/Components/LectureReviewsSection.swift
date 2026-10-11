@@ -19,6 +19,8 @@ struct LectureReviewsSection: View {
   @Binding var reviews: [LectureReview]
   let reviewDigest: ReviewDigestModel
   let reviewSummaries: ReviewSummaryModel
+  /// Section subtitles by lecture ID, for the reviews' titles.
+  var sectionSubtitles: [Int: String] = [:]
   let canWriteReview: Bool
   let onWriteReview: () -> Void
 
@@ -75,7 +77,7 @@ struct LectureReviewsSection: View {
             ContentUnavailableView(String(localized: "No Reviews", bundle: .module), systemImage: "text.book.closed", description: Text("There are no reviews for this lecture yet.", bundle: .module))
           } else {
             ForEach($reviews) { $review in
-              LectureReviewCell(review: $review)
+              LectureReviewCell(review: $review, subtitle: sectionSubtitles[review.lectureID])
             }
           }
         case .error(let message):

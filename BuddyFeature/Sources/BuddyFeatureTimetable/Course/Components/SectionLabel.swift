@@ -56,3 +56,14 @@ struct SectionLabel: Equatable {
     name.trimmingCharacters(in: .whitespaces).caseInsensitiveCompare("Staff") == .orderedSame
   }
 }
+
+extension Course {
+  /// Every section's subtitle by lecture ID, for labelling reviews, which
+  /// carry their lecture's ID but not its subtitle.
+  var sectionSubtitles: [Int: String] {
+    history
+      .flatMap(\.classes)
+      .filter { !$0.subtitle.isEmpty }
+      .reduce(into: [:]) { subtitles, lectureClass in subtitles[lectureClass.lectureID] = lectureClass.subtitle }
+  }
+}

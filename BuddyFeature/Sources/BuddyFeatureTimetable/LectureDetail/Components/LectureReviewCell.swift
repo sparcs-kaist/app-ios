@@ -18,6 +18,9 @@ private let logger = Logger(subsystem: "org.sparcs.soap", category: "LectureRevi
 
 struct LectureReviewCell: View {
   @Binding var review: LectureReview
+  /// The reviewed section's subtitle, which tells sections apart where they
+  /// share a placeholder professor, as Leadership sections do.
+  var subtitle: String? = nil
 
   @ObservationIgnored @Injected(
     \.v2ReviewUseCase
@@ -31,6 +34,12 @@ struct LectureReviewCell: View {
   @State private var showTranslateSheet: Bool = false
   @State private var isLikeButtonRunning: Bool = false
 
+  /// The section's subtitle where it has one, with any real professors beneath,
+  /// and otherwise its professors.
+  private var label: SectionLabel {
+    SectionLabel(subtitle: subtitle ?? "", professors: review.professors)
+  }
+
   private var summaryPhase: ReviewSummaryModel.Phase? {
     summaries?.phase(for: review)
   }
@@ -38,13 +47,25 @@ struct LectureReviewCell: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
-        Text(review.professors.first?.name ?? String(localized: "Unknown", bundle: .module))
-          .font(.headline)
+        VStack(alignment: .leading, spacing: 2) {
+          HStack(alignment: .firstTextBaseline) {
+            Text(label.title)
+              .font(.headline)
+              .lineLimit(1)
 
-        Text(String(review.year).suffix(2) + review.semester.shortCode)
-          .foregroundStyle(.secondary)
-          .fontDesign(.rounded)
-          .fontWeight(.semibold)
+            Text(String(review.year).suffix(2) + review.semester.shortCode)
+              .foregroundStyle(.secondary)
+              .fontDesign(.rounded)
+              .fontWeight(.semibold)
+          }
+          // A section with both a subtitle and a real professor shows both.
+          if let professors = label.professors {
+            Text(professors)
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+        }
 
         Spacer()
 

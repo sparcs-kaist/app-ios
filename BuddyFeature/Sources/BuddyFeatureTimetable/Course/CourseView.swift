@@ -82,7 +82,8 @@ public struct CourseView: View {
             isLoaded: viewModel.state == .loaded,
             reviews: $viewModel.reviews,
             reviewDigest: viewModel.reviewDigest,
-            reviewSummaries: viewModel.reviewSummaries
+            reviewSummaries: viewModel.reviewSummaries,
+            sectionSubtitles: viewModel.course?.sectionSubtitles ?? [:]
           )
         case .error(let message):
           ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
