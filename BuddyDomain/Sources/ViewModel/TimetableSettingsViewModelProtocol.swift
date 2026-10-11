@@ -20,6 +20,9 @@ public protocol TimetableSettingsViewModelProtocol: Observable {
   var isSaving: Bool { get }
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
+  /// Whether this device can summarise lecture reviews, which is the only time
+  /// the setting for it is worth showing.
+  var canSummariseReviews: Bool { get }
 
   func load() async
   func save() async -> Bool

@@ -17,6 +17,7 @@ struct LectureReviewsSection: View {
   let speechLetter: String
   let state: LectureDetailViewModel.ViewState
   @Binding var reviews: [LectureReview]
+  let reviewDigest: ReviewDigestModel
   let canWriteReview: Bool
   let onWriteReview: () -> Void
 
@@ -53,6 +54,12 @@ struct LectureReviewsSection: View {
       Spacer()
         .frame(height: 16)
 
+      // Outside the lazy list, which would cancel the summary on scrolling it away.
+      if state == .loaded, reviewDigest.canSummarise(reviews) {
+        ReviewDigestCard(model: reviewDigest, reviews: reviews)
+          .padding(.bottom, 16)
+      }
+
       LazyVStack(spacing: 16) {
         switch state {
         case .loading:
@@ -74,5 +81,8 @@ struct LectureReviewsSection: View {
         }
       }
     }
+    // Over the whole section rather than the summary card, so the reviews below
+    // slide down as the card grows instead of jumping.
+    .animation(.spring, value: reviewDigest.phase)
   }
 }

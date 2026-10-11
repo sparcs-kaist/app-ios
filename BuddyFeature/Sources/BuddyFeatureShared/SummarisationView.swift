@@ -17,7 +17,9 @@ public struct SummarisationView: View {
       HStack {
         Image(systemName: "text.append")
 
-        Text(isLoading ? "Summarising..." : "Summary")
+        Text(isLoading
+          ? String(localized: "Summarising...", bundle: .module)
+          : String(localized: "Summary", bundle: .module))
           .textCase(.uppercase)
           .contentTransition(.numericText())
 

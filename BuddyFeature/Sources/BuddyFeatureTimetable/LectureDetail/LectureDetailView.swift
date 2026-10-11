@@ -73,6 +73,7 @@ struct LectureDetailView: View {
           speechLetter: lecture.speechLetter,
           state: viewModel.state,
           reviews: $viewModel.reviews,
+          reviewDigest: viewModel.reviewDigest,
           canWriteReview: canWriteReview,
           onWriteReview: presentReviewCompose
         )
@@ -82,6 +83,7 @@ struct LectureDetailView: View {
     }
     // Content fades under the navigation bar, and in lecture search under the timetable preview.
     .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+    .summarisesReviews(viewModel.reviews, with: viewModel.reviewDigest, isLoaded: viewModel.state == .loaded)
     .task {
       async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
       async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)

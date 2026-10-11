@@ -52,11 +52,14 @@ struct LectureReviewCell: View {
             Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
               guard let foundationModelsUseCase else { return }
               
-              summarisedContent = ""
+              // Explicit rather than `.animation(_:value:)` on the cell, so the reviews below
+              // slide down as the cell grows instead of jumping.
+              withAnimation(.spring) { summarisedContent = "" }
               Task {
                 Haptic.start.generate()
-                summarisedContent = await foundationModelsUseCase
+                let summary = await foundationModelsUseCase
                   .summarise(review.content, maxWords: 50, tone: "concise")
+                withAnimation(.spring) { summarisedContent = summary }
                 Haptic.success.generate()
               }
             }
@@ -117,7 +120,6 @@ struct LectureReviewCell: View {
     .clipShape(.rect(cornerRadius: 26))
     .shadow(color: .black.opacity(0.1), radius: 8)
     .translationPresentation(isPresented: $showTranslateSheet, text: review.content)
-    .animation(.spring(), value: summarisedContent)
   }
 
   private func reviewRatingLetter(title: String, rating: String) -> some View {

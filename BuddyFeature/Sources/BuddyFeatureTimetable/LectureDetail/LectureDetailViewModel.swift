@@ -21,6 +21,8 @@ class LectureDetailViewModel {
   var state: ViewState = .loading
   var reviews: [LectureReview] = []
   var course: Course? = nil
+  /// The on-device summary of `reviews`.
+  let reviewDigest = ReviewDigestModel(source: "LectureDetailView")
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -52,6 +54,7 @@ class LectureDetailViewModel {
 
   func fetchReviews(lecture: Lecture) async {
     guard let reviewUseCase else { return }
+    await reviewDigest.checkAvailability()
 
     do {
       let page = try await reviewUseCase

@@ -15,6 +15,9 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
   /// arrive: partly filled in at first, complete by the last one.
   var themeBriefs: [TimetableThemeBrief] = []
   var themeBriefError: (any Error)?
+  /// The updates a review digest streams, in order.
+  var reviewDigestProgress: [LectureReviewDigestProgress] = []
+  var reviewDigestError: (any Error)?
 
   public init() { }
 
@@ -40,6 +43,19 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
     }
   }
 
+  public func streamReviewDigest(
+    of reviews: [LectureReview]
+  ) -> AsyncThrowingStream<LectureReviewDigestProgress, any Error> {
+    let progress = reviewDigestProgress
+    let error = reviewDigestError
+    return AsyncThrowingStream { continuation in
+      for update in progress {
+        continuation.yield(update)
+      }
+      continuation.finish(throwing: error)
+    }
+  }
+
   /// Actors have no settable properties from the outside, so the stubs are set
   /// through here.
   public func stub(isAvailable: Bool? = nil, summarise: String? = nil) {
@@ -50,5 +66,10 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
   public func stub(themeBriefs: [TimetableThemeBrief] = [], error: (any Error)? = nil) {
     self.themeBriefs = themeBriefs
     self.themeBriefError = error
+  }
+
+  public func stub(reviewDigest progress: [LectureReviewDigestProgress], error: (any Error)? = nil) {
+    self.reviewDigestProgress = progress
+    self.reviewDigestError = error
   }
 }

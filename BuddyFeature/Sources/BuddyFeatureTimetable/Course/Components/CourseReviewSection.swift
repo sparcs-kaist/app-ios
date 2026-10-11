@@ -17,6 +17,7 @@ struct CourseReviewSection: View {
   var professorName: String? = nil
   let isLoaded: Bool
   @Binding var reviews: [LectureReview]
+  let reviewDigest: ReviewDigestModel
 
   var body: some View {
     VStack {
@@ -42,6 +43,12 @@ struct CourseReviewSection: View {
       Spacer()
         .frame(height: 16)
 
+      // Outside the lazy list, which would cancel the summary on scrolling it away.
+      if isLoaded, reviewDigest.canSummarise(reviews) {
+        ReviewDigestCard(model: reviewDigest, reviews: reviews)
+          .padding(.bottom, 16)
+      }
+
       LazyVStack(spacing: 16) {
         if isLoaded {
           if reviews.isEmpty {
@@ -62,6 +69,9 @@ struct CourseReviewSection: View {
         }
       }
     }
+    // Over the whole section rather than the summary card, so the reviews below
+    // slide down as the card grows instead of jumping.
+    .animation(.spring, value: reviewDigest.phase)
   }
 
   private func summaryRow(title: String, description: String) -> some View {

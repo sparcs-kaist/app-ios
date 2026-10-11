@@ -26,4 +26,14 @@ public protocol FoundationModelsUseCaseProtocol: Actor {
     describing description: String,
     variation: UInt64
   ) -> AsyncThrowingStream<TimetableThemeBrief, any Error>
+
+  /// Reads a lecture's reviews and streams a ``LectureReviewDigest`` of them,
+  /// written in the device's language whatever language the reviews are in.
+  ///
+  /// The stream finishes by throwing a ``LectureReviewDigestError`` when the
+  /// model is unavailable or cannot read the reviews. Cancelling the consuming
+  /// task stops the generation.
+  func streamReviewDigest(
+    of reviews: [LectureReview]
+  ) -> AsyncThrowingStream<LectureReviewDigestProgress, any Error>
 }
