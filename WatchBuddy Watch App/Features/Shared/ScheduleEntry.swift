@@ -28,6 +28,15 @@ enum ScheduleEntry: Identifiable, Hashable {
     }
   }
 
+  /// A lecture section's subtitle, which tells sections of one course apart, as
+  /// for the Leadership courses. Activities have none.
+  var subtitle: String? {
+    switch self {
+    case .lecture(let item): item.lecture.subtitleTopic
+    case .activity: nil
+    }
+  }
+
   var location: String {
     switch self {
     case .lecture(let item): item.lectureClass.location
