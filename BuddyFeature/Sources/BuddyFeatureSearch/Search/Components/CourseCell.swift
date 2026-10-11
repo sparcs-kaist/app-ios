@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 struct CourseCell: View {
   let course: CourseSummary
@@ -19,6 +20,10 @@ struct CourseCell: View {
           .multilineTextAlignment(.leading)
           .font(.callout)
           .fontWeight(.semibold)
+
+        if course.completed {
+          TakenBadge()
+        }
 
         Spacer()
 

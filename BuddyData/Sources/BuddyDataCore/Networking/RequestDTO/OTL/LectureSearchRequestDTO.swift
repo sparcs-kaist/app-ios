@@ -13,8 +13,11 @@ public struct LectureSearchRequestDTO: Codable {
   let semester: Int
   let keyword: String
   let type: [String]
-  let department: [String]
-  let level: String
+  let department: [Int]
+  let level: [Int]
+  let day: Int?
+  let begin: Int?
+  let end: Int?
   let limit: Int
   let offset: Int
 }
@@ -26,12 +29,34 @@ extension LectureSearchRequestDTO {
       year: model.semester.year,
       semester: model.semester.semesterType.intValue,
       keyword: model.keyword,
-      type: [],
-      department: [],
-      level: "ALL",
+      type: model.filter.typeQueryValues,
+      department: model.filter.departmentQueryValues,
+      level: model.filter.levelQueryValues,
+      day: model.time.day?.rawValue,
+      begin: model.time.begin,
+      end: model.time.end,
       limit: model.limit,
       offset: model.offset
     )
   }
-}
 
+  /// Query parameters for `GET /api/v2/lectures`. Unused options are left out so the server
+  /// treats them as "any".
+  var parameters: [String: Any] {
+    var parameters: [String: Any] = [
+      "year": year,
+      "semester": semester,
+      "limit": limit,
+      "offset": offset
+    ]
+    if !keyword.isEmpty { parameters["keyword"] = keyword }
+    if !type.isEmpty { parameters["type"] = type }
+    if !department.isEmpty { parameters["department"] = department }
+    if !level.isEmpty { parameters["level"] = level }
+    if let day { parameters["day"] = day }
+    if let begin { parameters["begin"] = begin }
+    if let end { parameters["end"] = end }
+
+    return parameters
+  }
+}

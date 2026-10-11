@@ -52,6 +52,7 @@ struct GradeEntryView: View {
 		// Same backdrop as the Timetable screen, so the white cards stand out.
 		.background(Color.systemGroupedBackground)
 		.navigationTitle(item.title)
+		.scrollEdgeEffectStyle(.soft, for: .top)
 		// Updates live as grades are picked below.
 		.navigationSubtitle(String(localized: "\(formattedGPA(viewModel.summary(for: item)?.gpa))/4.3 GPA", bundle: .module))
 		.toolbarTitleDisplayMode(.inline)

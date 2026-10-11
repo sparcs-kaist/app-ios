@@ -42,6 +42,7 @@ struct ReviewComposeView: View {
       }
       .scrollDismissesKeyboard(.immediately)
       .navigationTitle(String(localized: "Write a Review", bundle: .module))
+      .scrollEdgeEffectStyle(.soft, for: .top)
       .navigationBarTitleDisplayMode(.inline)
       .safeAreaBar(edge: .top) {
         HStack {

@@ -12,13 +12,29 @@ import FirebaseAnalytics
 
 public struct CourseView: View {
   @State private var viewModel: CourseViewModel
-  @State private var course: CourseSummary
+  @Environment(\.expandSheet) private var expandSheet
+  @Environment(\.isInLectureSearchInspector) private var isInInspector
+  @Environment(\.reportProfessorMenu) private var reportProfessorMenu
+  private let courseID: Int
+  private let name: String
+  /// Shown until the full course loads, when the caller already has it.
+  private let summary: CourseSummary?
 
   public init(course: CourseSummary, viewModel: CourseViewModel = .init()) {
     self.viewModel = viewModel
-    self.course = course
+    self.courseID = course.id
+    self.name = course.name
+    self.summary = course
   }
-  
+
+  /// Opens a course known only by ID, such as a lecture search result.
+  public init(courseID: Int, name: String, viewModel: CourseViewModel = .init()) {
+    self.viewModel = viewModel
+    self.courseID = courseID
+    self.name = name
+    self.summary = nil
+  }
+
   public var body: some View {
     ScrollView {
       Group {
@@ -29,15 +45,40 @@ public struct CourseView: View {
             expDuration: viewModel.course?.expDuration ?? 0,
             credit: viewModel.course?.credit ?? 0,
             creditAU: viewModel.course?.creditAU ?? 0,
-            code: course.code,
-            typeName: course.type.displayName.localized(),
-            departmentName: course.department.name,
-            summary: course.summary
+            code: viewModel.course?.code ?? summary?.code ?? "",
+            typeName: (viewModel.course?.type ?? summary?.type)?.displayName.localized() ?? "",
+            departmentName: viewModel.course?.department.name ?? summary?.department.name ?? "",
+            summary: viewModel.course?.summary ?? summary?.summary ?? "",
+            isLoadingDetails: viewModel.course == nil,
+            isTaken: isTaken
           )
+          .redacted(reason: viewModel.course == nil && summary == nil ? .placeholder : [])
+
+          if let history = viewModel.course?.history {
+            if !history.isEmpty {
+              CourseHistorySection(
+                history: history,
+                selectedProfessorID: viewModel.selectedProfessorID,
+                onSelectProfessor: viewModel.selectProfessor(id:)
+              )
+              .padding(.bottom, 28)
+            }
+          } else {
+            CourseHistorySection(
+              history: CourseHistorySection.placeholder,
+              selectedProfessorID: nil,
+              onSelectProfessor: { _ in }
+            )
+            .redacted(reason: .placeholder)
+            .disabled(true)
+            .padding(.bottom, 28)
+          }
+
           CourseReviewSection(
             gradeLetter: gradeLetter,
             loadLetter: loadLetter,
             speechLetter: speechLetter,
+            professorName: viewModel.selectedProfessor?.name,
             isLoaded: viewModel.state == .loaded,
             reviews: $viewModel.reviews
           )
@@ -48,14 +89,79 @@ public struct CourseView: View {
       .padding(.horizontal)
       .contentWidth()
     }
-    .navigationTitle(course.name)
-    .navigationBarTitleDisplayMode(.inline)
+    // Content fades under the bars, and in lecture search under the timetable preview.
+    .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+    .lectureScreenTitle(name)
+    .toolbar {
+      // Only worth offering when the course has had more than one professor. In lecture search's
+      // inspector, its navigation bar has the picker.
+      if viewModel.professors.count > 1, !isInInspector {
+        ToolbarItem(placement: .bottomBar) {
+          professorPicker
+        }
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+      }
+    }
+    // In the full-screen lecture search, the timetable preview stays a tap away.
+    .lectureSearchTimetablePreview()
+    .onChange(of: ProfessorMenuState(professors: viewModel.professors, selectedID: viewModel.selectedProfessorID), initial: true) { _, state in
+      reportProfessorMenu?(InspectorProfessorMenu(
+        professors: state.professors,
+        selectedID: state.selectedID,
+        select: { viewModel.selectProfessor(id: $0) }
+      ))
+    }
+    .onAppear {
+      // The course page needs room; in the lecture search sheet it may still be short.
+      expandSheet?()
+    }
     .task {
-      await viewModel.setup(courseID: course.id)
+      await viewModel.setup(courseID: courseID)
     }
     .analyticsScreen(name: "Course", class: String(describing: Self.self))
   }
-  
+
+  /// Picks whose sections to highlight in the history and whose reviews to show.
+  private var professorPicker: some View {
+    Menu {
+      Picker(
+        String(localized: "Professor", bundle: .module),
+        selection: Binding(get: { viewModel.selectedProfessorID }, set: { viewModel.selectProfessor(id: $0) })
+      ) {
+        Label(String(localized: "All Professors", bundle: .module), systemImage: "person.2")
+          .tag(Int?.none)
+        Section {
+          ForEach(viewModel.professors) { professor in
+            Text(professor.name).tag(Int?.some(professor.id))
+          }
+        }
+      }
+    } label: {
+      // A plain stack, since toolbars reduce a `Label` to its icon and the name is the point.
+      HStack(spacing: 6) {
+        Image(systemName: viewModel.selectedProfessor == nil ? "person.2" : "person.crop.circle.fill")
+        Text(viewModel.selectedProfessor?.name ?? String(localized: "All Professors", bundle: .module))
+          .lineLimit(1)
+        Image(systemName: "chevron.up.chevron.down")
+          .font(.caption2.weight(.semibold))
+          .foregroundStyle(.secondary)
+      }
+      .padding(.horizontal, 4)
+    }
+    // Alphabetical from the top, rather than flipped because the menu opens upward.
+    .menuOrder(.fixed)
+    .accessibilityLabel(String(localized: "Professor", bundle: .module))
+    .accessibilityValue(viewModel.selectedProfessor?.name ?? String(localized: "All Professors", bundle: .module))
+  }
+
+  /// The loaded history knows which semester you took; until then, trust the summary's flag.
+  private var isTaken: Bool {
+    if let history = viewModel.course?.history {
+      return history.contains { $0.myLectureID != nil }
+    }
+    return summary?.completed ?? false
+  }
+
   private var totalCredit: Int {
     (viewModel.course?.credit ?? 0) + (viewModel.course?.creditAU ?? 0)
   }
@@ -76,3 +182,8 @@ public struct CourseView: View {
 //#Preview {
 //  CourseView(course: .mock)
 //}
+
+private struct ProfessorMenuState: Equatable {
+  var professors: [Professor]
+  var selectedID: Int?
+}

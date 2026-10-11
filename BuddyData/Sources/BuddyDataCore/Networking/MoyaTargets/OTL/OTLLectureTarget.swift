@@ -10,6 +10,7 @@ import Moya
 
 public enum OTLLectureTarget {
   case searchLecture(request: LectureSearchRequestDTO)
+  case fetchDepartmentOptions
   case fetchUserLectureHistory(userID: Int)
 }
 
@@ -22,6 +23,8 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .searchLecture:
       "/api/v2/lectures"
+    case .fetchDepartmentOptions:
+      "/api/v2/department-options"
     case .fetchUserLectureHistory(let userID):
       "/api/v2/users/\(userID)/lectures"
     }
@@ -29,7 +32,7 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
 
   public var method: Moya.Method {
     switch self {
-    case .searchLecture:
+    case .searchLecture, .fetchDepartmentOptions:
         .get
     case .fetchUserLectureHistory:
         .get
@@ -39,14 +42,12 @@ extension OTLLectureTarget: TargetType, AccessTokenAuthorizable {
   public var task: Moya.Task {
     switch self {
     case .searchLecture(let request):
-        .requestParameters(parameters: [
-          "year": request.year,
-          "semester": request.semester,
-          "keyword": request.keyword,
-          "limit": request.limit,
-          "offset": request.offset
-        ], encoding: URLEncoding.default)
-    case .fetchUserLectureHistory:
+        // The server reads repeated keys (`level=300&level=400`), not the bracketed form.
+        .requestParameters(
+          parameters: request.parameters,
+          encoding: URLEncoding(destination: .queryString, arrayEncoding: .noBrackets)
+        )
+    case .fetchDepartmentOptions, .fetchUserLectureHistory:
         .requestPlain
     }
   }

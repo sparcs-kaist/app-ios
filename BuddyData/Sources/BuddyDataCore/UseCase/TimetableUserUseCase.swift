@@ -51,5 +51,9 @@ public final class TimetableUserUseCase: UserUseCaseProtocol {
 
   }
 
+  public func updateInterestedDepartments(departmentIDs: [Int]) async throws {
+
+  }
+
 
 }

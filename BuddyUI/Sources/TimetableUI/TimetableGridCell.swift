@@ -32,10 +32,15 @@ public struct TimetableGridCell: View {
   public var body: some View {
     GeometryReader { geometry in
       ZStack(alignment: .topLeading) {
-        RoundedRectangle(cornerRadius: 4)
-          .foregroundStyle(backgroundColor)
-          .widgetAccentable()
-          .opacity(renderingMode == .accented ? 0.2 : 1)
+        if isCandidate {
+          // Only being previewed: the colour it would have, marked as not added yet.
+          TentativeBlock(color: colorScheme == .light ? cellColor : cellColor.darkTransformedHSB())
+        } else {
+          RoundedRectangle(cornerRadius: 4)
+            .foregroundStyle(backgroundColor)
+            .widgetAccentable()
+            .opacity(renderingMode == .accented ? 0.2 : 1)
+        }
         
         VStack(alignment: .leading, spacing: placement == .widget ? 2 : 4) {
           Text(lectureItem.lecture.name)
@@ -51,7 +56,8 @@ public struct TimetableGridCell: View {
               .opacity(0.8)
           }
         }
-        .foregroundStyle(isCandidate ? .white : theme.textColor)
+        // Over the tint, the grid's own label colour reads like the hour labels beside it.
+        .foregroundStyle(isCandidate ? theme.gridLabelColor ?? .primary : theme.textColor)
         .padding(6)
       }
       .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
@@ -59,13 +65,14 @@ public struct TimetableGridCell: View {
       .modifier(TimetableGlassModifier(
         placement: placement,
         colorScheme: colorScheme,
-        cellColor: cellColor
+        cellColor: cellColor,
+        isEnabled: !isCandidate
       ))
     }
   }
 
   private var cellColor: Color {
-    isCandidate ? Color.accentColor : theme.color(forCourseID: lectureItem.lecture.courseID)
+    theme.color(forCourseID: lectureItem.lecture.courseID)
   }
 
   private var descriptionText: Text {
@@ -96,9 +103,10 @@ struct TimetableGlassModifier: ViewModifier {
   let placement: TimetablePlacement
   let colorScheme: ColorScheme
   let cellColor: Color
+  var isEnabled = true
 
   func body(content: Content) -> some View {
-    if placement == .view && colorScheme == .light {
+    if isEnabled && placement == .view && colorScheme == .light {
       content
         .glassEffect(.regular.tint(cellColor), in: .rect(cornerRadius: 4))
     } else {

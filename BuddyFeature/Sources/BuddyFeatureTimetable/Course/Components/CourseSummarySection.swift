@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyFeatureShared
 
 /// A course's duration/credit summary and its information rows.
 struct CourseSummarySection: View {
@@ -17,6 +18,9 @@ struct CourseSummarySection: View {
   let typeName: String
   let departmentName: String
   let summary: String
+  /// Hides the duration and credit numbers, which only arrive with the full course.
+  var isLoadingDetails: Bool = false
+  var isTaken: Bool = false
 
   var body: some View {
     VStack(spacing: 20) {
@@ -29,6 +33,7 @@ struct CourseSummarySection: View {
           summaryRow(title: "Credit", description: String(credit))
         }
       }
+      .redacted(reason: isLoadingDetails ? .placeholder : [])
 
       VStack(alignment: .leading) {
         HStack {
@@ -36,6 +41,9 @@ struct CourseSummarySection: View {
             .font(.title3)
             .fontWeight(.bold)
           Spacer()
+          if isTaken {
+            TakenBadge()
+          }
         }
 
         LectureDetailRow(title: "Code", description: code)

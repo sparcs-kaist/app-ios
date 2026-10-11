@@ -410,6 +410,22 @@
         }
       }
     },
+    "EG" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EG"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "석박"
+          }
+        }
+      }
+    },
     "ETC" : {
       "localizations" : {
         "en" : {
@@ -552,6 +568,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "금요일"
+          }
+        }
+      }
+    },
+    "GR" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GR"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공통"
           }
         }
       }
@@ -712,6 +744,22 @@
         }
       }
     },
+    "MGC" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MGC"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "교필"
+          }
+        }
+      }
+    },
     "Mon" : {
       "localizations" : {
         "en" : {
@@ -830,6 +878,22 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "바다"
+          }
+        }
+      }
+    },
+    "OE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OE"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자선"
           }
         }
       }

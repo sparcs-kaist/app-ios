@@ -19,4 +19,5 @@ public protocol UserUseCaseProtocol: Sendable {
   func fetchFeedUser() async throws
   func fetchOTLUser() async throws
   func updateAraUser(params: [String: Any]) async throws
+  func updateInterestedDepartments(departmentIDs: [Int]) async throws
 }
