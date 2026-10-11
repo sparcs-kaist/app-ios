@@ -9,6 +9,7 @@ import Foundation
 import Factory
 import BuddyDomain
 import BuddyDataCore
+import BuddyIntents
 import Moya
 
 extension Container: @retroactive AutoRegistering {
@@ -211,6 +212,12 @@ extension Container: @retroactive AutoRegistering {
       CrashlyticsService()
     }
 
+    // One instance, so reindex requests from every timetable change coalesce.
+    timetableIndexingService.register {
+      TimetableEntityIndexer()
+    }
+    .scope(.singleton)
+
     taxiChatService.register {
       TaxiChatService(tokenStorage: self.tokenStorage.resolve())
     }
@@ -290,7 +297,8 @@ extension Container: @retroactive AutoRegistering {
         otlTimetableRepository: self.otlTimetableRepository.resolve(),
         cache: cache,
         sessionBridgeService: self.sessionBridgeService.resolve(),
-        crashlyticsService: self.crashlyticsService.resolve()
+        crashlyticsService: self.crashlyticsService.resolve(),
+        timetableIndexingService: self.timetableIndexingService.resolve()
       )
     }
 

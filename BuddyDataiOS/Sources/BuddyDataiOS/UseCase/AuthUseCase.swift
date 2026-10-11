@@ -257,6 +257,10 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       TimetableCache(modelContainer: container).clear()
     }
     tokenStorage.clearTokens()
+    // After the tokens and cache, so a rebuild still running finishes first and is
+    // wiped, and later ones see no session. The next account on this device must
+    // not inherit this schedule in Siri or Spotlight.
+    await Container.shared.timetableIndexingService()?.clear()
     // Signed out before the snapshot is cleared, so a Credits load still in flight
     // hits `publishWidgetSnapshot()`'s auth guard instead of republishing it.
     _isAuthenticatedSubject.value = false
