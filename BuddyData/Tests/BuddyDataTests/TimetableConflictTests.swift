@@ -27,6 +27,15 @@ struct TimetableConflictTests {
     #expect(timetable.conflicts(with: candidate) == ["Algorithms", "Club"])
   }
 
+  @Test func returnsTheOverlappingItemsToReplace() {
+    let candidate = lecture(id: 2, name: "Databases", [(.wed, 690, 780), (.fri, 840, 900)])
+    let overlapping = timetable.overlapping(with: candidate)
+    #expect(overlapping.lectures.map(\.id) == [1])
+    #expect(overlapping.activities.map(\.id) == [7])
+    let clear = timetable.overlapping(with: lecture(id: 3, name: "OS", [(.tue, 540, 630)]))
+    #expect(clear.lectures.isEmpty && clear.activities.isEmpty)
+  }
+
   @Test func touchingEdgesDoNotConflict() {
     let candidate = lecture(id: 2, name: "Databases", [(.mon, 720, 810), (.fri, 690, 780)])
     #expect(timetable.conflicts(with: candidate).isEmpty)

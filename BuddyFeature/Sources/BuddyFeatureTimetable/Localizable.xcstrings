@@ -3298,6 +3298,54 @@
           }
         }
       }
+    },
+    "Replace Overlapping Items?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace Overlapping Items?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "겹치는 항목을 대체하시겠습니까?"
+          }
+        }
+      }
+    },
+    "This lecture overlaps with %@ in your timetable. Remove them and add this lecture instead?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This lecture overlaps with %@ in your timetable. Remove them and add this lecture instead?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 강의는 시간표의 %@와(과) 시간이 겹칩니다. 겹치는 항목을 삭제하고 이 강의를 대신 추가하시겠습니까?"
+          }
+        }
+      }
+    },
+    "Replace" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대체"
+          }
+        }
+      }
     }
   },
   "version" : "1.3"

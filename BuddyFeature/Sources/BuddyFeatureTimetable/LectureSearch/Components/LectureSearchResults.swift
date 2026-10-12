@@ -28,6 +28,8 @@ struct LectureSearchResults: View {
   let onOpenLecture: (Lecture) -> Void
   let onOpenCourse: (_ id: Int, _ name: String) -> Void
   let onAddLecture: (Lecture) -> Void
+  /// Asks whether to add an overlapping lecture in place of what it overlaps.
+  let onReplaceLecture: (Lecture) -> Void
   let wishlistedLectureIDs: Set<Int>
   let onToggleWishlist: (Lecture) -> Void
   /// The wishlist endpoint's ratings are unreliable, so its rows leave them out.
@@ -157,16 +159,20 @@ struct LectureSearchResults: View {
         Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
           .disabled(true)
       } else {
-        // Same rule as the detail's Add button: an overlapping lecture cannot be added.
+        // Same rule as the detail's Add button: an overlapping lecture asks to replace what it
+        // overlaps first.
         Button {
-          onAddLecture(lecture)
+          if conflicts.isEmpty {
+            onAddLecture(lecture)
+          } else {
+            onReplaceLecture(lecture)
+          }
         } label: {
           Label(String(localized: "Add to Timetable", bundle: .module), systemImage: "plus")
           if !conflicts.isEmpty {
             Text("Overlaps with \(conflicts.formatted(.list(type: .and)))", bundle: .module)
           }
         }
-        .disabled(!conflicts.isEmpty)
       }
     }
   }
