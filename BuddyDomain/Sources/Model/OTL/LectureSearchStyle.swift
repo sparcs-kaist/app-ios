@@ -6,9 +6,6 @@
 //
 
 import Foundation
-#if os(iOS)
-import UIKit
-#endif
 
 /// How the timetable's Add Lecture search opens, chosen in Settings.
 public enum LectureSearchStyle: String, CaseIterable, Identifiable, Sendable {
@@ -23,14 +20,6 @@ public enum LectureSearchStyle: String, CaseIterable, Identifiable, Sendable {
 
   public var id: Self { self }
 
-  /// The style until one is chosen: full screen where there is room for the timetable beside the
-  /// results, such as on iPad, and the sheet on iPhone.
-  @MainActor
-  public static var standard: Self {
-    #if os(iOS)
-    UIDevice.current.userInterfaceIdiom == .phone ? .sheet : .fullScreen
-    #else
-    .sheet
-    #endif
-  }
+  /// The style until one is chosen in Settings: full screen on every device.
+  public static let standard: Self = .fullScreen
 }
