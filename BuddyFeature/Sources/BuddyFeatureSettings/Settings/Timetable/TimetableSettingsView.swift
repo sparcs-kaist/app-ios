@@ -22,13 +22,7 @@ struct TimetableSettingsView: View {
   var body: some View {
     List {
       Section {
-        Picker(String(localized: "Lecture Search", bundle: .module), selection: $lectureSearchStyle) {
-          ForEach(LectureSearchStyle.allCases) { style in
-            Text(style.title).tag(style)
-          }
-        }
-        .pickerStyle(.inline)
-        .labelsHidden()
+        LectureSearchStylePicker(selection: $lectureSearchStyle)
       } header: {
         Text("Adding Lectures", bundle: .module)
       } footer: {
@@ -82,13 +76,6 @@ struct TimetableSettingsView: View {
 }
 
 private extension LectureSearchStyle {
-  var title: String {
-    switch self {
-    case .sheet: String(localized: "Sheet", bundle: .module)
-    case .fullScreen: String(localized: "Full Screen", bundle: .module)
-    }
-  }
-
   var footer: String {
     switch self {
     case .sheet:
