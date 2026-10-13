@@ -46,7 +46,7 @@ enum LiveActivityDemo {
       try? await Task.sleep(for: .seconds(alertDelay))
       await activity.update(
         activity.content,
-        alertConfiguration: AlertConfiguration(title: "Physics I", body: "Starts in 12 minutes", sound: .default)
+        alertConfiguration: AlertConfiguration(title: "System Programming", body: "E3 304 · Starts in 20 minutes", sound: .default)
       )
       UIApplication.shared.endBackgroundTask(backgroundTask)
     }
@@ -55,33 +55,34 @@ enum LiveActivityDemo {
   static func state(for scenario: String, now date: Date = .now) -> TimetableActivityAttributes.ContentState? {
     let now = Int(date.timeIntervalSince1970)
     let korean = Locale.current.language.languageCode == .korean
-    let physics = korean ? "일반물리학 I" : "General Physics I"
-    let calculus = korean ? "미적분학 I" : "Calculus I"
-    // OTL's Korean names carry the code in brackets; the views strip it.
-    let e11 = korean ? "(E11)창의학습관" : "Creative Learning Building"
-    let e61 = korean ? "(E6-1)자연과학동" : "Natural Science Building"
+    let systems = korean ? "시스템 프로그래밍" : "System Programming"
+    let problemSolving = korean ? "문제해결기법" : "Problem Solving"
 
-    func physicsClass(begin: Int) -> TimetableActivityAttributes.Item {
-      .init(title: physics, buildingCode: "E11", buildingName: e11, room: "101", kind: .lecture,
-            colorID: 1, begin: begin, end: begin + 75 * 60)
+    func systemsClass(begin: Int) -> TimetableActivityAttributes.Item {
+      .init(title: systems, buildingCode: "E3", buildingName: korean ? "(E3)정보전자공학동" : "Information & Electronics Building",
+            room: "304", kind: .lecture, colorID: 10, begin: begin, end: begin + 75 * 60)
     }
-    func calculusClass(begin: Int) -> TimetableActivityAttributes.Item {
-      .init(title: calculus, buildingCode: "E6-1", buildingName: e61, room: "1501", kind: .lecture,
-            colorID: 2, begin: begin, end: begin + 75 * 60)
+    func problemSolvingClass(begin: Int) -> TimetableActivityAttributes.Item {
+      .init(title: problemSolving, buildingCode: "W3-1", buildingName: "W3-1", room: "1501", kind: .lecture,
+            colorID: 5, begin: begin, end: begin + 75 * 60)
     }
-    func calculusNext(begin: Int) -> TimetableActivityAttributes.NextItem {
-      .init(title: calculus, buildingCode: "E6-1", kind: .lecture, colorID: 2, begin: begin)
+    func problemSolvingNext(begin: Int) -> TimetableActivityAttributes.NextItem {
+      .init(title: problemSolving, buildingCode: "W3-1", buildingName: "W3-1", room: "1501", kind: .lecture,
+            colorID: 5, begin: begin)
     }
 
     switch scenario {
     case "upcoming":
-      let begin = now + 12 * 60 + 4
-      return .init(phase: .upcoming, current: physicsClass(begin: begin), next: calculusNext(begin: begin + 4 * 3600))
+      let begin = now + 20 * 60
+      return .init(phase: .upcoming, current: systemsClass(begin: begin), next: problemSolvingNext(begin: begin + 90 * 60))
     case "inProgress":
-      let begin = now - 33 * 60 - 48
-      return .init(phase: .upcoming, current: physicsClass(begin: begin), next: calculusNext(begin: begin + 4 * 3600))
+      let begin = now - 30 * 60
+      return .init(phase: .upcoming, current: systemsClass(begin: begin), next: problemSolvingNext(begin: begin + 90 * 60))
+    case "ending":
+      let begin = now - 60 * 60
+      return .init(phase: .upcoming, current: systemsClass(begin: begin), next: problemSolvingNext(begin: begin + 90 * 60))
     case "last":
-      return .init(phase: .upcoming, current: calculusClass(begin: now - 21 * 60), next: nil)
+      return .init(phase: .upcoming, current: problemSolvingClass(begin: now - 30 * 60), next: nil)
     case "activity":
       let begin = now + 8 * 60
       return .init(
@@ -92,7 +93,7 @@ enum LiveActivityDemo {
         next: nil
       )
     case "done":
-      return .init(phase: .done, current: calculusClass(begin: now - 77 * 60), next: nil)
+      return .init(phase: .done, current: problemSolvingClass(begin: now - 77 * 60), next: nil)
     default:
       return nil
     }

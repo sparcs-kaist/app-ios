@@ -35,11 +35,11 @@ struct BuddyiOSWidgetLiveActivity: Widget {
             .padding(.top, 4)
         }
       } compactLeading: {
-        TimetableActivityBadge(presentation, diameter: 22)
+        TimetableActivityBadge(presentation, diameter: 26)
       } compactTrailing: {
         TimetableActivityCompactTimer(presentation)
       } minimal: {
-        TimetableActivityBadge(presentation, diameter: 22)
+        TimetableActivityMinimal(presentation, diameter: 24)
       }
       .keylineTint(presentation.color.onBlack)
       .widgetURL(URL(string: "sparcsapp://timetable"))
@@ -77,7 +77,8 @@ private extension TimetableActivityAttributes.ContentState {
     return Self(
       phase: .upcoming,
       current: .physics(begin: begin),
-      next: .init(title: "Calculus I", buildingCode: "E6-1", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
+      next: .init(title: "Problem Solving", buildingCode: "W3-1", buildingName: "W3-1", room: "1501",
+                  kind: .lecture, colorID: 5, begin: begin + 90 * 60)
     )
   }
 
@@ -86,7 +87,8 @@ private extension TimetableActivityAttributes.ContentState {
     return Self(
       phase: .upcoming,
       current: .physics(begin: begin),
-      next: .init(title: "Calculus I", buildingCode: "E6-1", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
+      next: .init(title: "Problem Solving", buildingCode: "W3-1", buildingName: "W3-1", room: "1501",
+                  kind: .lecture, colorID: 5, begin: begin + 90 * 60)
     )
   }
 

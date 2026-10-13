@@ -56,9 +56,10 @@ private struct Sample {
 
   init(_ scenario: String) {
     let (hour, minute, second) = switch scenario {
-    case "upcoming": (8, 47, 56)
-    case "inProgress": (9, 33, 48)
-    case "last": (13, 21, 0)
+    case "upcoming": (8, 40, 0)
+    case "inProgress": (9, 30, 0)
+    case "ending": (10, 0, 0)
+    case "last": (13, 30, 0)
     case "activity": (18, 52, 0)
     default: (14, 17, 0)
     }
@@ -101,45 +102,14 @@ private struct CompactIsland: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      TimetableActivityBadge(presentation, diameter: 22)
-        .padding(.leading, Metrics.compactInset)
+      TimetableActivityBadge(presentation, diameter: 26)
+        .padding(.leading, Metrics.compactInset - 2)
       Color.clear.frame(width: Metrics.obstructionWidth)
       TimetableActivityCompactTimer(presentation)
         .padding(.trailing, Metrics.compactInset + 3)
     }
     .frame(height: Metrics.islandHeight)
     .background(.black, in: .capsule)
-    .environment(\.colorScheme, .dark)
-    .frozen(sample)
-  }
-}
-
-/// Another app's activity takes the main island; ours detaches into the minimal circle.
-private struct MinimalIsland: View {
-  let sample: Sample
-  private var presentation: TimetableActivityPresentation { sample.presentation }
-
-  var body: some View {
-    HStack(spacing: 8) {
-      HStack(spacing: 0) {
-        Image(systemName: "music.note")
-          .font(.system(size: 13, weight: .bold))
-          .foregroundStyle(.pink)
-          .frame(width: 22)
-          .padding(.leading, Metrics.compactInset)
-        Color.clear.frame(width: Metrics.obstructionWidth - 20)
-        Image(systemName: "waveform")
-          .font(.system(size: 14, weight: .bold))
-          .foregroundStyle(.pink)
-          .padding(.trailing, Metrics.compactInset + 3)
-      }
-      .frame(height: Metrics.islandHeight)
-      .background(.black, in: .capsule)
-
-      TimetableActivityBadge(presentation, diameter: 22)
-        .frame(width: Metrics.islandHeight, height: Metrics.islandHeight)
-        .background(.black, in: .circle)
-    }
     .environment(\.colorScheme, .dark)
     .frozen(sample)
   }
@@ -267,23 +237,37 @@ private struct LockScreenPage: View {
 
 private struct IslandPage: View {
   var body: some View {
-    VStack(spacing: 14) {
+    VStack(spacing: 12) {
       Caption(text: "Compact · before class")
-        .padding(.top, 70)
+        .padding(.top, 60)
       CompactIsland(sample: Sample("upcoming"))
-      Caption(text: "Compact · in class")
-      CompactIsland(sample: Sample("inProgress"))
-      Caption(text: "Minimal · beside another app")
-      MinimalIsland(sample: Sample("inProgress"))
+      Caption(text: "Compact · in class · minimal")
+      HStack(spacing: 8) {
+        CompactIsland(sample: Sample("inProgress"))
+        MinimalOnly(sample: Sample("inProgress"))
+      }
       Caption(text: "Expanded · before class")
       ExpandedIsland(sample: Sample("upcoming"))
       Caption(text: "Expanded · in class")
       ExpandedIsland(sample: Sample("inProgress"))
+      Caption(text: "Expanded · last 15 minutes")
+      ExpandedIsland(sample: Sample("ending"))
       Spacer()
     }
     .frame(width: Metrics.screen.width, height: Metrics.screen.height)
     .background(Color(.systemGroupedBackground))
     .environment(\.colorScheme, .light)
+  }
+}
+
+private struct MinimalOnly: View {
+  let sample: Sample
+
+  var body: some View {
+    TimetableActivityMinimal(sample.presentation, diameter: 24)
+      .frame(width: Metrics.islandHeight, height: Metrics.islandHeight)
+      .background(.black, in: .circle)
+      .frozen(sample)
   }
 }
 
@@ -307,10 +291,8 @@ private struct StatesPage: View {
         LockScreenCard(sample: Sample("upcoming"), scheme: scheme)
         label("In class")
         LockScreenCard(sample: Sample("inProgress"), scheme: scheme)
-        label("Last class of the day")
-        LockScreenCard(sample: Sample("last"), scheme: scheme)
-        label("Custom block")
-        LockScreenCard(sample: Sample("activity"), scheme: scheme)
+        label("Last 15 minutes, with a class after")
+        LockScreenCard(sample: Sample("ending"), scheme: scheme)
         label("After the last class")
         LockScreenCard(sample: Sample("done"), scheme: scheme)
         Spacer()

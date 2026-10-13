@@ -1,16 +1,6 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
-    "%@ ended at %@" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@에 끝남"
-          }
-        }
-      }
-    },
     "Done" : {
       "localizations" : {
         "ko" : {
@@ -41,12 +31,32 @@
         }
       }
     },
+    "Finished" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "종료"
+          }
+        }
+      }
+    },
     "Starts in" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "시작까지"
+          }
+        }
+      }
+    },
+    "Up next" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 수업"
           }
         }
       }

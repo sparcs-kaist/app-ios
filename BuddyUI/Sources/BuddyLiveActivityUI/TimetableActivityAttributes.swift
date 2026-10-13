@@ -90,13 +90,25 @@ public struct TimetableActivityAttributes: ActivityAttributes {
   public struct NextItem: Codable, Hashable, Sendable {
     public var title: String
     public var buildingCode: String?
+    public var buildingName: String
+    public var room: String?
     public var kind: Kind
     public var colorID: Int
     public var begin: Int
 
-    public init(title: String, buildingCode: String?, kind: Kind, colorID: Int, begin: Int) {
+    public init(
+      title: String,
+      buildingCode: String?,
+      buildingName: String,
+      room: String?,
+      kind: Kind,
+      colorID: Int,
+      begin: Int
+    ) {
       self.title = title
       self.buildingCode = buildingCode
+      self.buildingName = buildingName
+      self.room = room
       self.kind = kind
       self.colorID = colorID
       self.begin = begin
