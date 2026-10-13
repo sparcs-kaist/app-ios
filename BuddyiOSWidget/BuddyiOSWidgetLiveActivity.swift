@@ -32,7 +32,6 @@ struct BuddyiOSWidgetLiveActivity: Widget {
         DynamicIslandExpandedRegion(.bottom) {
           TimetableActivityExpandedBottom(presentation)
             .padding(.horizontal, 6)
-            .padding(.top, 4)
         }
       } compactLeading: {
         TimetableActivityBadge(presentation, diameter: 26)

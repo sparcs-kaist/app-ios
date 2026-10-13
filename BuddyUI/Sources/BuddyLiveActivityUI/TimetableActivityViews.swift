@@ -33,8 +33,8 @@ public struct TimetableActivityLockScreenView: View {
       }
       TimetableActivityBody(presentation)
     }
-    .padding(.horizontal, 22)
-    .padding(.vertical, 20)
+    .padding(.horizontal, 20)
+    .padding(.vertical, 16)
   }
 }
 
@@ -153,7 +153,11 @@ public struct TimetableActivityCompactTimer: View {
   public var body: some View {
     Group {
       if let target = presentation.countdownTarget {
+        // A live timer takes every point it's offered, which widens the island until the status
+        // bar disappears; pin it to its digits ("19:56" or "1:15:00").
         TimetableActivityTimerText(target: target)
+          .multilineTextAlignment(.trailing)
+          .frame(width: target.timeIntervalSinceNow >= 3600 ? 66 : 48, alignment: .trailing)
       } else {
         Text("Done", bundle: .module)
       }
@@ -214,8 +218,11 @@ private struct TimetableActivityBody: View {
   }
 
   var body: some View {
+    // Lock Screen and expanded presentations both stop at 160pt, so the state with the
+    // "Up next" pill trades a little size and spacing for it.
+    let tight = presentation.showsUpNext
     if let item = presentation.item {
-      VStack(alignment: .leading, spacing: 14) {
+      VStack(alignment: .leading, spacing: tight ? 8 : 14) {
         HStack(alignment: .firstTextBaseline) {
           Text(presentation.mode == .done ? String(localized: "Done for today", bundle: .module) : item.title)
             .font(.system(size: 22))
@@ -230,13 +237,15 @@ private struct TimetableActivityBody: View {
               Text(item.endDate, format: timeFormat)
             }
           }
-          .font(.system(size: 38))
+          .font(.system(size: tight ? 28 : 38))
           .monospacedDigit()
+          .multilineTextAlignment(.trailing)
           .foregroundStyle(.white)
         }
 
         if presentation.mode == .inProgress {
           TimetableActivityCapsuleBar(item: item, tint: presentation.color.onBlack)
+            .frame(height: tight ? 8 : 12)
         }
 
         if presentation.showsUpNext, let next = presentation.next, let nextColor = presentation.nextColor {
@@ -270,10 +279,10 @@ private struct TimetableActivityUpNext: View {
       Text(verbatim: next.shortPlace)
         .fixedSize()
     }
-    .font(.system(size: 16))
+    .font(.system(size: 15))
     .foregroundStyle(color)
     .padding(.horizontal, 14)
-    .padding(.vertical, 9)
+    .padding(.vertical, 6)
     .background(color.opacity(0.28), in: .capsule)
   }
 }
@@ -308,7 +317,6 @@ private struct TimetableActivityCapsuleBar: View {
         .clipShape(.capsule)
       }
     }
-    .frame(height: 12)
   }
 }
 

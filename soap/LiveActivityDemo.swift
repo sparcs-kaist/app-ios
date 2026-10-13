@@ -33,7 +33,8 @@ enum LiveActivityDemo {
         do {
           let activity = try Activity.request(
             attributes: TimetableActivityAttributes(sessionDate: "2026-10-13", sessionNo: index),
-            content: ActivityContent(state: state, staleDate: state.current?.beginDate)
+            // An activity that starts already stale is never shown, so only future begins count.
+            content: ActivityContent(state: state, staleDate: state.current.map(\.beginDate).flatMap { $0 > .now ? $0 : nil })
           )
           started.append(activity)
         } catch {
@@ -74,6 +75,10 @@ enum LiveActivityDemo {
     switch scenario {
     case "upcoming":
       let begin = now + 20 * 60
+      return .init(phase: .upcoming, current: systemsClass(begin: begin), next: problemSolvingNext(begin: begin + 90 * 60))
+    case "soon":
+      // Starts a few seconds from now, to watch the switch at class start happen on its own.
+      let begin = now + 20
       return .init(phase: .upcoming, current: systemsClass(begin: begin), next: problemSolvingNext(begin: begin + 90 * 60))
     case "inProgress":
       let begin = now - 30 * 60
