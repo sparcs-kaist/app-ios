@@ -147,30 +147,23 @@ private struct MinimalIsland: View {
 }
 
 /// Expanded regions laid out as the system does: leading and trailing beside the camera,
-/// centre under it, bottom across the full width.
+/// bottom across the full width beneath them.
 private struct ExpandedIsland: View {
   let sample: Sample
   private var presentation: TimetableActivityPresentation { sample.presentation }
 
   var body: some View {
-    VStack(spacing: 0) {
-      ZStack(alignment: .top) {
-        HStack(alignment: .top) {
-          TimetableActivityExpandedLeading(presentation)
-            .padding(.leading, 4)
-          Spacer()
-          TimetableActivityExpandedTrailing(presentation)
-            .padding(.trailing, 4)
-        }
-        VStack(spacing: 4) {
-          Color.clear.frame(height: Metrics.islandHeight - 8)
-          TimetableActivityExpandedCenter(presentation)
-        }
-        .frame(width: 170)
+    VStack(alignment: .leading, spacing: 0) {
+      HStack(alignment: .top) {
+        TimetableActivityExpandedLeading(presentation)
+          .padding(.leading, 4)
+        Spacer()
+        TimetableActivityExpandedTrailing(presentation)
+          .padding(.trailing, 4)
       }
       TimetableActivityExpandedBottom(presentation)
         .padding(.horizontal, 4)
-        .padding(.top, 6)
+        .padding(.top, 12)
     }
     .padding(.horizontal, 16)
     .padding(.top, 14)

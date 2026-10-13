@@ -59,9 +59,16 @@ public struct TimetableActivityPresentation {
   var symbol: String {
     switch (mode, item?.kind) {
     case (.done, _): "checkmark"
-    case (_, .activity): "figure.walk"
+    case (_, .activity): "mappin"
     default: "book.closed.fill"
     }
+  }
+}
+
+extension TimetableActivityAttributes.Item {
+  /// OTL names Korean buildings "(E11)창의학습관"; the code already has its own badge.
+  var displayBuildingName: String {
+    buildingName.replacing(/^\([^)]*\)\s*/, with: "")
   }
 }
 

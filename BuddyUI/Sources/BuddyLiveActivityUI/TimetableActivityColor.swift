@@ -13,14 +13,18 @@ import BuddyDomain
 public struct TimetableActivityColor: Hashable, Sendable {
   public let fill: Color
   public let onBlack: Color
+  /// Text drawn on `fill`: the theme's cell text colour, so badges read like timetable cells.
+  public let text: Color
 
-  init(fill: Color, onBlack: Color) {
+  init(fill: Color, onBlack: Color, text: Color = .white) {
     self.fill = fill
     self.onBlack = onBlack
+    self.text = text
   }
 
   public init(colorID: Int, theme: TimetableTheme) {
     let hexColors = theme.hexColors
+    text = theme.textColor
     guard !hexColors.isEmpty else {
       fill = .accentColor
       onBlack = .accentColor

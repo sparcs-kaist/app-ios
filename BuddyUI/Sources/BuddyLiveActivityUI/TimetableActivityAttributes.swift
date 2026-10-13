@@ -51,7 +51,11 @@ public struct TimetableActivityAttributes: ActivityAttributes {
   /// 2001, which silently shifts server-sent times by 31 years.
   public struct Item: Codable, Hashable, Sendable {
     public var title: String
-    public var location: String
+    /// OTL's building code ("E11"), the part of the room students navigate by. Nil for custom
+    /// blocks, whose place is free text in `buildingName`.
+    public var buildingCode: String?
+    public var buildingName: String
+    public var room: String?
     public var kind: Kind
     /// `courseID` for a lecture, the activity id for a custom block. Turned into a colour on
     /// the device with the selected timetable theme, so no colour travels in the payload.
@@ -59,9 +63,20 @@ public struct TimetableActivityAttributes: ActivityAttributes {
     public var begin: Int
     public var end: Int
 
-    public init(title: String, location: String, kind: Kind, colorID: Int, begin: Int, end: Int) {
+    public init(
+      title: String,
+      buildingCode: String?,
+      buildingName: String,
+      room: String?,
+      kind: Kind,
+      colorID: Int,
+      begin: Int,
+      end: Int
+    ) {
       self.title = title
-      self.location = location
+      self.buildingCode = buildingCode
+      self.buildingName = buildingName
+      self.room = room
       self.kind = kind
       self.colorID = colorID
       self.begin = begin
@@ -74,12 +89,14 @@ public struct TimetableActivityAttributes: ActivityAttributes {
 
   public struct NextItem: Codable, Hashable, Sendable {
     public var title: String
+    public var buildingCode: String?
     public var kind: Kind
     public var colorID: Int
     public var begin: Int
 
-    public init(title: String, kind: Kind, colorID: Int, begin: Int) {
+    public init(title: String, buildingCode: String?, kind: Kind, colorID: Int, begin: Int) {
       self.title = title
+      self.buildingCode = buildingCode
       self.kind = kind
       self.colorID = colorID
       self.begin = begin

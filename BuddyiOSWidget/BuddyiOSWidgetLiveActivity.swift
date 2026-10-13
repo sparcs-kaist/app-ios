@@ -28,9 +28,6 @@ struct BuddyiOSWidgetLiveActivity: Widget {
           TimetableActivityExpandedTrailing(presentation)
             .padding(.trailing, 4)
         }
-        DynamicIslandExpandedRegion(.center) {
-          TimetableActivityExpandedCenter(presentation)
-        }
         DynamicIslandExpandedRegion(.bottom) {
           TimetableActivityExpandedBottom(presentation)
             .padding(.horizontal, 4)
@@ -65,14 +62,20 @@ private extension TimetableActivityAttributes {
   static let preview = TimetableActivityAttributes(sessionDate: "2026-10-13", sessionNo: 0)
 }
 
+private extension TimetableActivityAttributes.Item {
+  static func physics(begin: Int) -> Self {
+    Self(title: "General Physics I", buildingCode: "E11", buildingName: "Creative Learning Building",
+         room: "101", kind: .lecture, colorID: 1, begin: begin, end: begin + 75 * 60)
+  }
+}
+
 private extension TimetableActivityAttributes.ContentState {
   static var upcoming: Self {
     let begin = Int(Date.now.addingTimeInterval(12 * 60).timeIntervalSince1970)
     return Self(
       phase: .upcoming,
-      current: .init(title: "Physics I", location: "E11 · Room 101", kind: .lecture, colorID: 1,
-                     begin: begin, end: begin + 75 * 60),
-      next: .init(title: "Calculus I", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
+      current: .physics(begin: begin),
+      next: .init(title: "Calculus I", buildingCode: "E6-1", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
     )
   }
 
@@ -80,9 +83,8 @@ private extension TimetableActivityAttributes.ContentState {
     let begin = Int(Date.now.addingTimeInterval(-34 * 60).timeIntervalSince1970)
     return Self(
       phase: .upcoming,
-      current: .init(title: "Physics I", location: "E11 · Room 101", kind: .lecture, colorID: 1,
-                     begin: begin, end: begin + 75 * 60),
-      next: .init(title: "Calculus I", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
+      current: .physics(begin: begin),
+      next: .init(title: "Calculus I", buildingCode: "E6-1", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
     )
   }
 
@@ -90,8 +92,7 @@ private extension TimetableActivityAttributes.ContentState {
     let end = Int(Date.now.addingTimeInterval(-3 * 60).timeIntervalSince1970)
     return Self(
       phase: .done,
-      current: .init(title: "Calculus I", location: "E6-1 · Room 1501", kind: .lecture, colorID: 2,
-                     begin: end - 75 * 60, end: end),
+      current: .physics(begin: end - 75 * 60),
       next: nil
     )
   }

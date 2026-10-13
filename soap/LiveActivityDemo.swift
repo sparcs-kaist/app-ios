@@ -54,47 +54,45 @@ enum LiveActivityDemo {
 
   static func state(for scenario: String, now date: Date = .now) -> TimetableActivityAttributes.ContentState? {
     let now = Int(date.timeIntervalSince1970)
+    let korean = Locale.current.language.languageCode == .korean
+    let physics = korean ? "일반물리학 I" : "General Physics I"
+    let calculus = korean ? "미적분학 I" : "Calculus I"
+    // OTL's Korean names carry the code in brackets; the views strip it.
+    let e11 = korean ? "(E11)창의학습관" : "Creative Learning Building"
+    let e61 = korean ? "(E6-1)자연과학동" : "Natural Science Building"
+
+    func physicsClass(begin: Int) -> TimetableActivityAttributes.Item {
+      .init(title: physics, buildingCode: "E11", buildingName: e11, room: "101", kind: .lecture,
+            colorID: 1, begin: begin, end: begin + 75 * 60)
+    }
+    func calculusClass(begin: Int) -> TimetableActivityAttributes.Item {
+      .init(title: calculus, buildingCode: "E6-1", buildingName: e61, room: "1501", kind: .lecture,
+            colorID: 2, begin: begin, end: begin + 75 * 60)
+    }
+    func calculusNext(begin: Int) -> TimetableActivityAttributes.NextItem {
+      .init(title: calculus, buildingCode: "E6-1", kind: .lecture, colorID: 2, begin: begin)
+    }
+
     switch scenario {
     case "upcoming":
       let begin = now + 12 * 60 + 4
-      return .init(
-        phase: .upcoming,
-        current: .init(title: "General Physics I", location: "E11 · Room 101", kind: .lecture,
-                       colorID: 1, begin: begin, end: begin + 75 * 60),
-        next: .init(title: "Calculus I", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
-      )
+      return .init(phase: .upcoming, current: physicsClass(begin: begin), next: calculusNext(begin: begin + 4 * 3600))
     case "inProgress":
       let begin = now - 33 * 60 - 48
-      return .init(
-        phase: .upcoming,
-        current: .init(title: "General Physics I", location: "E11 · Room 101", kind: .lecture,
-                       colorID: 1, begin: begin, end: begin + 75 * 60),
-        next: .init(title: "Calculus I", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
-      )
+      return .init(phase: .upcoming, current: physicsClass(begin: begin), next: calculusNext(begin: begin + 4 * 3600))
     case "last":
-      let begin = now - 21 * 60
-      return .init(
-        phase: .upcoming,
-        current: .init(title: "Calculus I", location: "E6-1 · Room 1501", kind: .lecture,
-                       colorID: 2, begin: begin, end: begin + 75 * 60),
-        next: nil
-      )
+      return .init(phase: .upcoming, current: calculusClass(begin: now - 21 * 60), next: nil)
     case "activity":
       let begin = now + 8 * 60
       return .init(
         phase: .upcoming,
-        current: .init(title: "SPARCS Meeting", location: "N13 · Room 201", kind: .activity,
-                       colorID: 9, begin: begin, end: begin + 60 * 60),
+        current: .init(title: korean ? "SPARCS 정기 회의" : "SPARCS Meeting", buildingCode: nil,
+                       buildingName: korean ? "SPARCS 동아리방" : "SPARCS Club Room", room: nil,
+                       kind: .activity, colorID: 9, begin: begin, end: begin + 60 * 60),
         next: nil
       )
     case "done":
-      let end = now - 2 * 60
-      return .init(
-        phase: .done,
-        current: .init(title: "Calculus I", location: "E6-1 · Room 1501", kind: .lecture,
-                       colorID: 2, begin: end - 75 * 60, end: end),
-        next: nil
-      )
+      return .init(phase: .done, current: calculusClass(begin: now - 77 * 60), next: nil)
     default:
       return nil
     }

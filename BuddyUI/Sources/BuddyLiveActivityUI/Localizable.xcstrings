@@ -41,22 +41,12 @@
         }
       }
     },
-    "Last class today" : {
+    "Room %@" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오늘의 마지막 수업"
-          }
-        }
-      }
-    },
-    "Next" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다음"
+            "value" : "%@호"
           }
         }
       }
