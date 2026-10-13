@@ -146,11 +146,23 @@ struct soapApp: App {
 
     // SwiftData – timetable cache
     TimetableCacheContainer.shared = try? TimetableCacheContainer.makeContainer()
+
+    #if DEBUG
+    LiveActivityDemo.runIfRequested()
+    #endif
   }
 
   var body: some Scene {
     WindowGroup {
+      #if DEBUG
+      if let page = LiveActivityGallery.requestedPage {
+        LiveActivityGallery(page: page)
+      } else {
+        ContentView()
+      }
+      #else
       ContentView()
+      #endif
     }
   }
 }

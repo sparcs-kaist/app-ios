@@ -29,6 +29,10 @@ let package = Package(
 			name: "BuddySharedUI",
 			targets: ["BuddySharedUI"]
 		),
+		.library(
+			name: "BuddyLiveActivityUI",
+			targets: ["BuddyLiveActivityUI"]
+		),
 	],
 	dependencies: [
 		.package(path: "../BuddyDomain"),
@@ -64,6 +68,12 @@ let package = Package(
 		),
 		.target(
 			name: "BuddySharedUI",
+			dependencies: [
+				"BuddyDomain",
+			]
+		),
+		.target(
+			name: "BuddyLiveActivityUI",
 			dependencies: [
 				"BuddyDomain",
 			]

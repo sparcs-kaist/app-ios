@@ -1,80 +1,128 @@
-////
-////  BuddyiOSWidgetLiveActivity.swift
-////  BuddyiOSWidget
-////
-////  Created by Soongyu Kwon on 25/12/2025.
-////
 //
-//import ActivityKit
-//import WidgetKit
-//import SwiftUI
+//  BuddyiOSWidgetLiveActivity.swift
+//  BuddyiOSWidget
 //
-//struct BuddyiOSWidgetAttributes: ActivityAttributes {
-//    public struct ContentState: Codable, Hashable {
-//        // Dynamic stateful properties about your activity go here!
-//        var emoji: String
-//    }
+//  Created by Soongyu Kwon on 25/12/2025.
 //
-//    // Fixed non-changing properties about your activity go here!
-//    var name: String
-//}
-//
-//struct BuddyiOSWidgetLiveActivity: Widget {
-//    var body: some WidgetConfiguration {
-//        ActivityConfiguration(for: BuddyiOSWidgetAttributes.self) { context in
-//            // Lock screen/banner UI goes here
-//            VStack {
-//                Text("Hello \(context.state.emoji)")
-//            }
-//            .activityBackgroundTint(Color.cyan)
-//            .activitySystemActionForegroundColor(Color.black)
-//
-//        } dynamicIsland: { context in
-//            DynamicIsland {
-//                // Expanded UI goes here.  Compose the expanded UI through
-//                // various regions, like leading/trailing/center/bottom
-//                DynamicIslandExpandedRegion(.leading) {
-//                    Text("Leading")
-//                }
-//                DynamicIslandExpandedRegion(.trailing) {
-//                    Text("Trailing")
-//                }
-//                DynamicIslandExpandedRegion(.bottom) {
-//                    Text("Bottom \(context.state.emoji)")
-//                    // more content
-//                }
-//            } compactLeading: {
-//                Text("L")
-//            } compactTrailing: {
-//                Text("T \(context.state.emoji)")
-//            } minimal: {
-//                Text(context.state.emoji)
-//            }
-//            .widgetURL(URL(string: "http://www.apple.com"))
-//            .keylineTint(Color.red)
-//        }
-//    }
-//}
-//
-//extension BuddyiOSWidgetAttributes {
-//    fileprivate static var preview: BuddyiOSWidgetAttributes {
-//        BuddyiOSWidgetAttributes(name: "World")
-//    }
-//}
-//
-//extension BuddyiOSWidgetAttributes.ContentState {
-//    fileprivate static var smiley: BuddyiOSWidgetAttributes.ContentState {
-//        BuddyiOSWidgetAttributes.ContentState(emoji: "😀")
-//     }
-//     
-//     fileprivate static var starEyes: BuddyiOSWidgetAttributes.ContentState {
-//         BuddyiOSWidgetAttributes.ContentState(emoji: "🤩")
-//     }
-//}
-//
-//#Preview("Notification", as: .content, using: BuddyiOSWidgetAttributes.preview) {
-//   BuddyiOSWidgetLiveActivity()
-//} contentStates: {
-//    BuddyiOSWidgetAttributes.ContentState.smiley
-//    BuddyiOSWidgetAttributes.ContentState.starEyes
-//}
+
+import ActivityKit
+import WidgetKit
+import SwiftUI
+import BuddyDomain
+import BuddyLiveActivityUI
+
+struct BuddyiOSWidgetLiveActivity: Widget {
+  var body: some WidgetConfiguration {
+    ActivityConfiguration(for: TimetableActivityAttributes.self) { context in
+      TimetableActivityLockScreenView(context.presentation)
+        .activitySystemActionForegroundColor(.primary)
+        .widgetURL(URL(string: "sparcsapp://timetable"))
+    } dynamicIsland: { context in
+      let presentation = context.presentation
+      return DynamicIsland {
+        DynamicIslandExpandedRegion(.leading) {
+          TimetableActivityExpandedLeading(presentation)
+            .padding(.leading, 4)
+        }
+        DynamicIslandExpandedRegion(.trailing) {
+          TimetableActivityExpandedTrailing(presentation)
+            .padding(.trailing, 4)
+        }
+        DynamicIslandExpandedRegion(.center) {
+          TimetableActivityExpandedCenter(presentation)
+        }
+        DynamicIslandExpandedRegion(.bottom) {
+          TimetableActivityExpandedBottom(presentation)
+            .padding(.horizontal, 4)
+        }
+      } compactLeading: {
+        TimetableActivityBadge(presentation, diameter: 22)
+      } compactTrailing: {
+        TimetableActivityCompactTimer(presentation)
+      } minimal: {
+        TimetableActivityBadge(presentation, diameter: 22)
+      }
+      .keylineTint(presentation.color.onBlack)
+      .widgetURL(URL(string: "sparcsapp://timetable"))
+    }
+  }
+}
+
+private extension ActivityViewContext<TimetableActivityAttributes> {
+  /// Colours follow the theme chosen in the app, read when the system renders the activity.
+  var presentation: TimetableActivityPresentation {
+    TimetableActivityPresentation(
+      state: state,
+      isStale: isStale,
+      theme: TimetableThemeStore().selectedTheme
+    )
+  }
+}
+
+// MARK: - Previews
+
+private extension TimetableActivityAttributes {
+  static let preview = TimetableActivityAttributes(sessionDate: "2026-10-13", sessionNo: 0)
+}
+
+private extension TimetableActivityAttributes.ContentState {
+  static var upcoming: Self {
+    let begin = Int(Date.now.addingTimeInterval(12 * 60).timeIntervalSince1970)
+    return Self(
+      phase: .upcoming,
+      current: .init(title: "Physics I", location: "E11 · Room 101", kind: .lecture, colorID: 1,
+                     begin: begin, end: begin + 75 * 60),
+      next: .init(title: "Calculus I", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
+    )
+  }
+
+  static var inProgress: Self {
+    let begin = Int(Date.now.addingTimeInterval(-34 * 60).timeIntervalSince1970)
+    return Self(
+      phase: .upcoming,
+      current: .init(title: "Physics I", location: "E11 · Room 101", kind: .lecture, colorID: 1,
+                     begin: begin, end: begin + 75 * 60),
+      next: .init(title: "Calculus I", kind: .lecture, colorID: 2, begin: begin + 4 * 3600)
+    )
+  }
+
+  static var done: Self {
+    let end = Int(Date.now.addingTimeInterval(-3 * 60).timeIntervalSince1970)
+    return Self(
+      phase: .done,
+      current: .init(title: "Calculus I", location: "E6-1 · Room 1501", kind: .lecture, colorID: 2,
+                     begin: end - 75 * 60, end: end),
+      next: nil
+    )
+  }
+}
+
+#Preview("Lock Screen", as: .content, using: TimetableActivityAttributes.preview) {
+  BuddyiOSWidgetLiveActivity()
+} contentStates: {
+  TimetableActivityAttributes.ContentState.upcoming
+  TimetableActivityAttributes.ContentState.inProgress
+  TimetableActivityAttributes.ContentState.done
+}
+
+#Preview("Expanded", as: .dynamicIsland(.expanded), using: TimetableActivityAttributes.preview) {
+  BuddyiOSWidgetLiveActivity()
+} contentStates: {
+  TimetableActivityAttributes.ContentState.upcoming
+  TimetableActivityAttributes.ContentState.inProgress
+  TimetableActivityAttributes.ContentState.done
+}
+
+#Preview("Compact", as: .dynamicIsland(.compact), using: TimetableActivityAttributes.preview) {
+  BuddyiOSWidgetLiveActivity()
+} contentStates: {
+  TimetableActivityAttributes.ContentState.upcoming
+  TimetableActivityAttributes.ContentState.inProgress
+}
+
+#Preview("Minimal", as: .dynamicIsland(.minimal), using: TimetableActivityAttributes.preview) {
+  BuddyiOSWidgetLiveActivity()
+} contentStates: {
+  TimetableActivityAttributes.ContentState.upcoming
+  TimetableActivityAttributes.ContentState.inProgress
+}

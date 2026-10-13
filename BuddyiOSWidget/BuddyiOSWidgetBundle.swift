@@ -15,8 +15,8 @@ struct BuddyiOSWidgetBundle: WidgetBundle {
 		BuddyDDayWidget()
     BuddyTimetableWidget()
     BuddyCreditsWidget()
+    BuddyiOSWidgetLiveActivity()
     //        BuddyiOSWidgetControl()
-    //        BuddyiOSWidgetLiveActivity()
   }
 }
 
