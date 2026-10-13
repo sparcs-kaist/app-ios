@@ -10,10 +10,12 @@ import SwiftUI
 
 private let timeFormat = Date.FormatStyle.dateTime.hour().minute()
 
+// Follows Apple's Live Activity layouts: a label row, one hero line or graphic, a detail row.
+// Black background, white text, the class colour as the only accent.
+
 // MARK: - Lock Screen
 
-/// The Lock Screen and banner presentation, laid out like a boarding pass: the class and its
-/// countdown on top, then where to go across the full width, so long building names fit.
+/// The Lock Screen and banner presentation. Set `.activityBackgroundTint(.black)` around it.
 public struct TimetableActivityLockScreenView: View {
   private let presentation: TimetableActivityPresentation
 
@@ -22,47 +24,66 @@ public struct TimetableActivityLockScreenView: View {
   }
 
   public var body: some View {
-    Group {
-      if presentation.mode == .done {
-        TimetableActivityDoneSummary(presentation: presentation)
-      } else if let item = presentation.item {
-        VStack(alignment: .leading, spacing: 10) {
-          HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 2) {
-              Text(item.title)
-                .font(.headline)
-              Text(verbatim: item.timeRange)
-                .font(.subheadline)
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
-            }
-            .lineLimit(1)
-            Spacer(minLength: 8)
-            TimetableActivityCountdown(presentation: presentation, size: 32, tint: .primary)
-          }
-
-          HStack(spacing: 12) {
-            TimetableActivityPlaceBadge(presentation, height: 44)
-            TimetableActivityPlace(item: item, roomFont: .title3.weight(.semibold))
-            Spacer(minLength: 0)
-          }
-
-          if presentation.mode == .inProgress {
-            TimetableActivityProgressBar(item: item, tint: presentation.color.fill)
-              .padding(.top, 2)
-          }
-        }
+    VStack(alignment: .leading, spacing: presentation.mode == .inProgress ? 12 : 4) {
+      HStack(alignment: .firstTextBaseline) {
+        TimetableActivityLabelLeading(presentation)
+        Spacer(minLength: 12)
+        TimetableActivityLabelTrailing(presentation)
       }
+      TimetableActivityBody(presentation)
     }
-    .padding(.horizontal, 16)
-    .padding(.vertical, 14)
+    .padding(.horizontal, 20)
+    .padding(.vertical, 18)
+    .environment(\.colorScheme, .dark)
   }
 }
 
 // MARK: - Dynamic Island
 
-/// Compact leading and minimal: before class, the building to head to; during class, a ring
-/// that empties until it ends.
+/// Expanded leading, beside the camera: the left label.
+public struct TimetableActivityExpandedLeading: View {
+  private let presentation: TimetableActivityPresentation
+
+  public init(_ presentation: TimetableActivityPresentation) {
+    self.presentation = presentation
+  }
+
+  public var body: some View {
+    TimetableActivityLabelLeading(presentation)
+      .environment(\.colorScheme, .dark)
+  }
+}
+
+/// Expanded trailing, beside the camera: the right label.
+public struct TimetableActivityExpandedTrailing: View {
+  private let presentation: TimetableActivityPresentation
+
+  public init(_ presentation: TimetableActivityPresentation) {
+    self.presentation = presentation
+  }
+
+  public var body: some View {
+    TimetableActivityLabelTrailing(presentation)
+      .environment(\.colorScheme, .dark)
+  }
+}
+
+/// Expanded bottom: the same hero and detail rows as the Lock Screen.
+public struct TimetableActivityExpandedBottom: View {
+  private let presentation: TimetableActivityPresentation
+
+  public init(_ presentation: TimetableActivityPresentation) {
+    self.presentation = presentation
+  }
+
+  public var body: some View {
+    TimetableActivityBody(presentation)
+      .environment(\.colorScheme, .dark)
+  }
+}
+
+/// Compact leading and minimal: before class, the building to head to; during it, a ring that
+/// empties until it ends.
 public struct TimetableActivityBadge: View {
   @Environment(\.timetableActivityFrozenDate) private var frozenDate
   private let presentation: TimetableActivityPresentation
@@ -74,15 +95,23 @@ public struct TimetableActivityBadge: View {
   }
 
   public var body: some View {
-    let tint = presentation.color.onBlack
+    let accent = presentation.color.onBlack
     Group {
       switch presentation.mode {
       case .upcoming:
-        TimetableActivityPlaceBadge(presentation, height: diameter)
+        if let code = presentation.item?.buildingCode, !code.isEmpty {
+          Text(verbatim: code)
+            .font(.system(size: diameter * 0.62, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+        } else {
+          Image(systemName: presentation.symbol)
+            .font(.system(size: diameter * 0.6, weight: .semibold))
+        }
       case .inProgress:
         if let item = presentation.item {
           if let frozenDate {
-            TimetableActivityStaticRing(remaining: 1 - item.fraction(at: frozenDate), tint: tint)
+            TimetableActivityStaticRing(remaining: 1 - item.fraction(at: frozenDate), tint: accent)
           } else {
             ProgressView(timerInterval: item.beginDate...max(item.endDate, item.beginDate), countsDown: true) {
               EmptyView()
@@ -90,21 +119,20 @@ public struct TimetableActivityBadge: View {
               EmptyView()
             }
             .progressViewStyle(.circular)
-            .tint(tint)
           }
         }
       case .done:
-        Image(systemName: "checkmark.circle.fill")
-          .resizable()
-          .symbolRenderingMode(.palette)
-          .foregroundStyle(.black, tint)
+        Image(systemName: "checkmark")
+          .font(.system(size: diameter * 0.6, weight: .bold))
       }
     }
+    .foregroundStyle(accent)
+    .tint(accent)
     .frame(minWidth: diameter, minHeight: diameter, maxHeight: diameter)
   }
 }
 
-/// Compact trailing: the countdown alone, sized to its digits so the island stays narrow.
+/// Compact trailing: the countdown alone.
 public struct TimetableActivityCompactTimer: View {
   private let presentation: TimetableActivityPresentation
 
@@ -120,170 +148,144 @@ public struct TimetableActivityCompactTimer: View {
         Text("Done", bundle: .module)
       }
     }
-    .font(.system(size: 15, weight: .semibold))
+    .font(.system(size: 15, weight: .semibold, design: .rounded))
     .monospacedDigit()
     .foregroundStyle(presentation.color.onBlack)
   }
 }
 
-/// Expanded leading, beside the camera: the building badge.
-public struct TimetableActivityExpandedLeading: View {
-  private let presentation: TimetableActivityPresentation
+// MARK: - Rows
 
-  public init(_ presentation: TimetableActivityPresentation) {
+/// Top left: the class before it starts, the time left once it has.
+private struct TimetableActivityLabelLeading: View {
+  let presentation: TimetableActivityPresentation
+
+  init(_ presentation: TimetableActivityPresentation) {
     self.presentation = presentation
   }
 
-  public var body: some View {
-    if presentation.mode == .done {
-      Image(systemName: "checkmark.circle.fill")
-        .font(.system(size: 40))
-        .symbolRenderingMode(.palette)
-        .foregroundStyle(.white, .green)
-    } else {
-      TimetableActivityPlaceBadge(presentation, height: 44)
-    }
-  }
-}
-
-/// Expanded trailing, beside the camera: the countdown.
-public struct TimetableActivityExpandedTrailing: View {
-  private let presentation: TimetableActivityPresentation
-
-  public init(_ presentation: TimetableActivityPresentation) {
-    self.presentation = presentation
-  }
-
-  public var body: some View {
-    if presentation.mode != .done {
-      TimetableActivityCountdown(presentation: presentation, size: 30, tint: presentation.color.onBlack)
-        .colorScheme(.dark)
-    }
-  }
-}
-
-/// Expanded bottom: the room under the badge, then the class and its progress.
-public struct TimetableActivityExpandedBottom: View {
-  private let presentation: TimetableActivityPresentation
-
-  public init(_ presentation: TimetableActivityPresentation) {
-    self.presentation = presentation
-  }
-
-  public var body: some View {
+  var body: some View {
     Group {
-      if presentation.mode == .done {
-        TimetableActivityDoneSummary(presentation: presentation, showsSymbol: false)
-      } else if let item = presentation.item {
-        VStack(alignment: .leading, spacing: 10) {
-          TimetableActivityPlace(item: item, roomFont: .title2.weight(.semibold))
-          HStack(alignment: .firstTextBaseline) {
-            Text(item.title)
-              .font(.subheadline.weight(.medium))
-              .lineLimit(1)
-            Spacer(minLength: 8)
-            Text(verbatim: item.timeRange)
-              .font(.subheadline)
+      switch presentation.mode {
+      case .upcoming:
+        Text(presentation.item?.title ?? "")
+          .foregroundStyle(.white)
+      case .inProgress:
+        if let target = presentation.countdownTarget {
+          HStack(spacing: 4) {
+            Text("Ends in", bundle: .module)
+            TimetableActivityTimerText(target: target)
               .monospacedDigit()
-              .foregroundStyle(.secondary)
           }
-          if presentation.mode == .inProgress {
-            TimetableActivityProgressBar(item: item, tint: presentation.color.onBlack)
-          }
+          .foregroundStyle(presentation.color.onBlack)
         }
+      case .done:
+        Text("Done for today", bundle: .module)
+          .foregroundStyle(.white)
       }
     }
-    .foregroundStyle(.white)
-    .colorScheme(.dark)
+    .font(.subheadline.weight(.semibold))
+    .lineLimit(1)
+  }
+}
+
+/// Top right: "Starts in", the end time, or a tick.
+private struct TimetableActivityLabelTrailing: View {
+  let presentation: TimetableActivityPresentation
+
+  init(_ presentation: TimetableActivityPresentation) {
+    self.presentation = presentation
+  }
+
+  var body: some View {
+    Group {
+      switch presentation.mode {
+      case .upcoming:
+        Text("Starts in", bundle: .module)
+          .foregroundStyle(presentation.color.onBlack)
+      case .inProgress:
+        if let item = presentation.item {
+          Text(item.endDate, format: timeFormat)
+            .foregroundStyle(.white)
+        }
+      case .done:
+        Image(systemName: "checkmark.circle.fill")
+          .foregroundStyle(.green)
+      }
+    }
+    .font(.subheadline.weight(.semibold))
+  }
+}
+
+/// Below the labels. Before class: where and how long, as large as the flight card's airport
+/// codes. During class: a bar filling towards the end. Afterwards: when the day finished.
+private struct TimetableActivityBody: View {
+  let presentation: TimetableActivityPresentation
+
+  init(_ presentation: TimetableActivityPresentation) {
+    self.presentation = presentation
+  }
+
+  var body: some View {
+    if let item = presentation.item {
+      switch presentation.mode {
+      case .upcoming:
+        VStack(alignment: .leading, spacing: 2) {
+          HStack(alignment: .firstTextBaseline) {
+            Text(verbatim: item.shortPlace)
+              .font(.system(size: 32, weight: .bold, design: .rounded))
+              .foregroundStyle(.white)
+              .lineLimit(1)
+              .minimumScaleFactor(0.6)
+            Spacer(minLength: 12)
+            if let target = presentation.countdownTarget {
+              TimetableActivityTimerText(target: target)
+                .font(.system(size: 32, weight: .medium, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(presentation.color.onBlack)
+            }
+          }
+          HStack(alignment: .firstTextBaseline) {
+            if item.buildingCode != nil {
+              Text(item.displayBuildingName)
+                .lineLimit(1)
+            }
+            Spacer(minLength: 12)
+            Text(item.beginDate, format: timeFormat)
+          }
+          .font(.footnote.weight(.medium))
+          .foregroundStyle(.secondary)
+        }
+
+      case .inProgress:
+        VStack(alignment: .leading, spacing: 12) {
+          TimetableActivityCapsuleBar(item: item, tint: presentation.color.onBlack)
+          HStack(alignment: .firstTextBaseline) {
+            Text(item.title)
+              .foregroundStyle(.white)
+              .lineLimit(1)
+            Spacer(minLength: 12)
+            Text(verbatim: item.shortPlace)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+          .font(.subheadline.weight(.semibold))
+        }
+
+      case .done:
+        Text("\(item.title) ended at \(item.endDate, format: timeFormat)", bundle: .module)
+          .font(.footnote.weight(.medium))
+          .foregroundStyle(.secondary)
+          .lineLimit(1)
+      }
+    }
   }
 }
 
 // MARK: - Building blocks
 
-/// The building code on the class colour, like a line badge on a transit sign. Custom blocks
-/// have no building code, so they show a pin instead.
-private struct TimetableActivityPlaceBadge: View {
-  private let presentation: TimetableActivityPresentation
-  private let height: CGFloat
-
-  init(_ presentation: TimetableActivityPresentation, height: CGFloat) {
-    self.presentation = presentation
-    self.height = height
-  }
-
-  var body: some View {
-    let code = presentation.item?.buildingCode
-    Group {
-      if let code, !code.isEmpty {
-        Text(verbatim: code)
-          .font(.system(size: height * 0.4, weight: .bold))
-          .fontWidth(code.count > 3 ? .condensed : .standard)
-          .lineLimit(1)
-          .minimumScaleFactor(0.5)
-          .padding(.horizontal, height * 0.14)
-      } else {
-        Image(systemName: presentation.symbol)
-          .font(.system(size: height * 0.42, weight: .semibold))
-      }
-    }
-    .foregroundStyle(presentation.color.text)
-    .frame(minWidth: height, minHeight: height, maxHeight: height)
-    .background(presentation.color.fill, in: .rect(cornerRadius: height * 0.27, style: .continuous))
-  }
-}
-
-/// "Room 101" over the building's name. Custom blocks show their free-text place alone.
-private struct TimetableActivityPlace: View {
-  let item: TimetableActivityAttributes.Item
-  let roomFont: Font
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 1) {
-      if let room = item.room, !room.isEmpty {
-        Text("Room \(room)", bundle: .module)
-          .font(roomFont)
-        Text(item.displayBuildingName)
-          .font(.subheadline)
-          .foregroundStyle(.secondary)
-      } else {
-        Text(item.displayBuildingName)
-          .font(roomFont)
-      }
-    }
-    .lineLimit(1)
-  }
-}
-
-/// "Starts in 12:04" / "Ends in 41:12", right-aligned.
-private struct TimetableActivityCountdown: View {
-  let presentation: TimetableActivityPresentation
-  let size: CGFloat
-  let tint: Color
-
-  var body: some View {
-    if let target = presentation.countdownTarget {
-      VStack(alignment: .trailing, spacing: 0) {
-        Group {
-          if presentation.mode == .upcoming {
-            Text("Starts in", bundle: .module)
-          } else {
-            Text("Ends in", bundle: .module)
-          }
-        }
-        .font(.caption.weight(.medium))
-        .foregroundStyle(.secondary)
-
-        TimetableActivityTimerText(target: target)
-          .font(.system(size: size, weight: .semibold))
-          .monospacedDigit()
-          .foregroundStyle(tint)
-      }
-    }
-  }
-}
-
-/// A thin bar that fills over the class.
-private struct TimetableActivityProgressBar: View {
+/// A thick capsule that fills over the class, like the progress tracks in Apple's examples.
+private struct TimetableActivityCapsuleBar: View {
   @Environment(\.timetableActivityFrozenDate) private var frozenDate
   let item: TimetableActivityAttributes.Item
   let tint: Color
@@ -291,45 +293,28 @@ private struct TimetableActivityProgressBar: View {
   var body: some View {
     Group {
       if let frozenDate {
-        ProgressView(value: item.fraction(at: frozenDate))
+        GeometryReader { proxy in
+          ZStack(alignment: .leading) {
+            Capsule().fill(tint.opacity(0.25))
+            Capsule()
+              .fill(tint)
+              .frame(width: max(proxy.size.height, proxy.size.width * item.fraction(at: frozenDate)))
+          }
+        }
       } else {
+        // The only bar the system advances on its own; scaled up to the same thickness.
         ProgressView(timerInterval: item.beginDate...max(item.endDate, item.beginDate), countsDown: false) {
           EmptyView()
         } currentValueLabel: {
           EmptyView()
         }
+        .progressViewStyle(.linear)
+        .tint(tint)
+        .scaleEffect(x: 1, y: 2.6, anchor: .center)
+        .clipShape(.capsule)
       }
     }
-    .progressViewStyle(.linear)
-    .tint(tint)
-  }
-}
-
-/// Shown for the few minutes between the last class ending and the activity going away.
-private struct TimetableActivityDoneSummary: View {
-  let presentation: TimetableActivityPresentation
-  var showsSymbol = true
-
-  var body: some View {
-    HStack(spacing: 12) {
-      if showsSymbol {
-        Image(systemName: "checkmark.circle.fill")
-          .font(.system(size: 40))
-          .symbolRenderingMode(.palette)
-          .foregroundStyle(.white, .green)
-      }
-      VStack(alignment: .leading, spacing: 2) {
-        Text("Done for today", bundle: .module)
-          .font(.headline)
-        if let item = presentation.item {
-          Text("\(item.title) ended at \(item.endDate, format: timeFormat)", bundle: .module)
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-        }
-      }
-      Spacer(minLength: 0)
-    }
+    .frame(height: 10)
   }
 }
 
@@ -379,8 +364,10 @@ public extension EnvironmentValues {
 }
 
 extension TimetableActivityAttributes.Item {
-  var timeRange: String {
-    "\(beginDate.formatted(timeFormat)) – \(endDate.formatted(timeFormat))"
+  /// "E11 101", the way students say a classroom. Custom blocks use their free-text place.
+  var shortPlace: String {
+    guard let buildingCode, !buildingCode.isEmpty else { return displayBuildingName }
+    return [buildingCode, room].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
   }
 
   func fraction(at date: Date) -> Double {

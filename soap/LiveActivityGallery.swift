@@ -90,8 +90,7 @@ private struct LockScreenCard: View {
       .frame(width: Metrics.lockCardWidth)
       .frame(minHeight: 64)
       .fixedSize(horizontal: false, vertical: true)
-      .background(.regularMaterial, in: .rect(cornerRadius: Metrics.lockCardCorner, style: .continuous))
-      .environment(\.colorScheme, scheme)
+      .background(.black, in: .rect(cornerRadius: Metrics.lockCardCorner, style: .continuous))
       .frozen(sample)
   }
 }
@@ -154,20 +153,21 @@ private struct ExpandedIsland: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      HStack(alignment: .top) {
+      HStack {
         TimetableActivityExpandedLeading(presentation)
-          .padding(.leading, 4)
-        Spacer()
+          .padding(.leading, 6)
+        Spacer(minLength: Metrics.obstructionWidth)
         TimetableActivityExpandedTrailing(presentation)
-          .padding(.trailing, 4)
+          .padding(.trailing, 6)
       }
+      .frame(height: Metrics.islandHeight)
       TimetableActivityExpandedBottom(presentation)
-        .padding(.horizontal, 4)
-        .padding(.top, 12)
+        .padding(.horizontal, 6)
+        .padding(.top, 8)
     }
     .padding(.horizontal, 16)
-    .padding(.top, 14)
-    .padding(.bottom, 18)
+    .padding(.top, 10)
+    .padding(.bottom, 20)
     .frame(width: Metrics.expandedWidth)
     .background(.black, in: .rect(cornerRadius: Metrics.expandedCorner, style: .continuous))
     .environment(\.colorScheme, .dark)

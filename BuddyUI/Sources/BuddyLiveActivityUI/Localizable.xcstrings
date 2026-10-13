@@ -41,16 +41,6 @@
         }
       }
     },
-    "Room %@" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@호"
-          }
-        }
-      }
-    },
     "Starts in" : {
       "localizations" : {
         "ko" : {

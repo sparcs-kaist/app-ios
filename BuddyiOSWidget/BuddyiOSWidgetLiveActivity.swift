@@ -15,22 +15,24 @@ struct BuddyiOSWidgetLiveActivity: Widget {
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: TimetableActivityAttributes.self) { context in
       TimetableActivityLockScreenView(context.presentation)
-        .activitySystemActionForegroundColor(.primary)
+        .activityBackgroundTint(.black)
+        .activitySystemActionForegroundColor(.white)
         .widgetURL(URL(string: "sparcsapp://timetable"))
     } dynamicIsland: { context in
       let presentation = context.presentation
       return DynamicIsland {
-        DynamicIslandExpandedRegion(.leading) {
+        DynamicIslandExpandedRegion(.leading, priority: 1) {
           TimetableActivityExpandedLeading(presentation)
-            .padding(.leading, 4)
+            .padding(.leading, 6)
         }
         DynamicIslandExpandedRegion(.trailing) {
           TimetableActivityExpandedTrailing(presentation)
-            .padding(.trailing, 4)
+            .padding(.trailing, 6)
         }
         DynamicIslandExpandedRegion(.bottom) {
           TimetableActivityExpandedBottom(presentation)
-            .padding(.horizontal, 4)
+            .padding(.horizontal, 6)
+            .padding(.top, 4)
         }
       } compactLeading: {
         TimetableActivityBadge(presentation, diameter: 22)
