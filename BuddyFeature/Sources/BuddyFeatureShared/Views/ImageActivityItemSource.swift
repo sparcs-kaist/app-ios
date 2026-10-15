@@ -5,8 +5,8 @@ import UniformTypeIdentifiers
 /// Shares a named PNG file with a title and image in the system share preview.
 public final class ImageActivityItemSource: NSObject, UIActivityItemSource {
   // Custom activities may receive the source itself during availability checks.
-  let image: UIImage
-  let instagramStoryImage: UIImage
+  public let image: UIImage
+  public let instagramStoryImage: UIImage
   private let title: String
   private let fileURL: URL
 

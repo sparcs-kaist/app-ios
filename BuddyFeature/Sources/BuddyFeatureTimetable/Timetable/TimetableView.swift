@@ -18,6 +18,12 @@ public struct TimetableView: View {
 
   @State private var editingActivity: TimetableActivity?
   @State private var sharedImage: TimetableShareImage?
+  /// Offered after a screenshot, with the timetable as its share image.
+  @State private var screenshotShareImage: TimetableShareImage?
+  /// Whether the timetable itself is on screen, not covered by a pushed screen or another tab.
+  @State private var isTimetableVisible = false
+  /// Whether the selector's rename alert or delete confirmation is up.
+  @State private var isSelectorDialogPresented = false
   @State private var selectedLecture: LectureItem? = nil
   @State private var showSearchSheet: Bool = false
 	@State private var showActivityCreationSheet: Bool = false
@@ -52,6 +58,8 @@ public struct TimetableView: View {
           )
           .padding()
         }
+        .onAppear { isTimetableVisible = true }
+        .onDisappear { isTimetableVisible = false }
         .scrollPosition($scrollPosition)
         .scrollEdgeEffectStyle(.soft, for: .top)
         .refreshable {
@@ -144,6 +152,14 @@ public struct TimetableView: View {
               backgroundColorHex: item.backgroundColorHex
             )]
           )
+        }
+        .sheet(item: $screenshotShareImage) { item in
+          TimetableShareSheet(item: item)
+        }
+        .task {
+          for await _ in NotificationCenter.default.notifications(named: UIApplication.userDidTakeScreenshotNotification) {
+            offerShareAfterScreenshot()
+          }
         }
         .analyticsScreen(name: "Timetable", class: String(describing: Self.self))
       }
@@ -272,6 +288,7 @@ public struct TimetableView: View {
     // adds to one semester's table, so neither may change, nor the table be renamed or deleted.
     .disabled(showSearchSheet)
     .redacted(reason: viewModel.isLoading ? .placeholder : [])
+    .onPreferenceChange(TimetableSelectorDialogKey.self) { isSelectorDialogPresented = $0 }
   }
 
   private func gridCard(height: CGFloat) -> some View {
@@ -399,7 +416,22 @@ public struct TimetableView: View {
   }
 
   private func shareTimetable() {
-    guard let semester = viewModel.selectedSemester, let timetable = viewModel.timetable else { return }
+    sharedImage = makeShareImage()
+  }
+
+  /// Shows the share sheet when the screenshot was of the timetable, and nothing covers it.
+  private func offerShareAfterScreenshot() {
+    guard isTimetableVisible, scenePhase == .active,
+      !showSearchSheet, !showActivityCreationSheet, editingActivity == nil,
+      selectedLecture == nil, sharedImage == nil, screenshotShareImage == nil,
+      !viewModel.isAlertPresented, !isSelectorDialogPresented
+    else { return }
+    screenshotShareImage = makeShareImage()
+  }
+
+  /// Renders the timetable as an image to share, or reports why it could not.
+  private func makeShareImage() -> TimetableShareImage? {
+    guard let semester = viewModel.selectedSemester, let timetable = viewModel.timetable else { return nil }
     let theme = TimetableThemeStore().selectedTheme
     // Themes without a background use the light system background for exports.
     let backgroundColorHex = theme.backgroundColorHex ?? "F2F2F7"
@@ -434,13 +466,14 @@ public struct TimetableView: View {
       }
       let title = "\(semester.description) - \(displayName)"
       let source = try ImageActivityItemSource(image: image, title: title, instagramStoryImage: stickerImage)
-      sharedImage = TimetableShareImage(source: source, backgroundColorHex: backgroundColorHex)
+      return TimetableShareImage(name: displayName, source: source, backgroundColorHex: backgroundColorHex)
     } catch {
       viewModel.alertState = AlertState(
         title: String(localized: "Error", bundle: .module),
         message: String(localized: "Unable to create the timetable image. Please try again.", bundle: .module)
       )
       viewModel.isAlertPresented = true
+      return nil
     }
   }
 
@@ -459,8 +492,10 @@ enum TimetableRoute: Hashable {
   case credits
 }
 
-private struct TimetableShareImage: Identifiable {
+struct TimetableShareImage: Identifiable {
   let id = UUID()
+  /// The timetable's name, as the timetable shows it.
+  let name: String
   let source: ImageActivityItemSource
   let backgroundColorHex: String
 }
