@@ -80,7 +80,10 @@ public struct CourseView: View {
             speechLetter: speechLetter,
             professorName: viewModel.selectedProfessor?.name,
             isLoaded: viewModel.state == .loaded,
-            reviews: $viewModel.reviews
+            reviews: $viewModel.reviews,
+            reviewDigest: viewModel.reviewDigest,
+            reviewSummaries: viewModel.reviewSummaries,
+            sectionSubtitles: viewModel.course?.sectionSubtitles ?? [:]
           )
         case .error(let message):
           ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
@@ -91,6 +94,7 @@ public struct CourseView: View {
     }
     // Content fades under the bars, and in lecture search under the timetable preview.
     .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+    .summarisesReviews(viewModel.reviews, with: viewModel.reviewDigest, isLoaded: viewModel.state == .loaded)
     .lectureScreenTitle(name)
     .toolbar {
       // Only worth offering when the course has had more than one professor. In lecture search's

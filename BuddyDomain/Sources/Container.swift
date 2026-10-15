@@ -68,6 +68,10 @@ extension Container {
     promised()
   }
 
+  public var timetableIndexingService: Factory<TimetableIndexingServiceProtocol?> {
+    promised()
+  }
+
   public var taxiChatService: Factory<TaxiChatServiceProtocol?> {
     promised()
   }

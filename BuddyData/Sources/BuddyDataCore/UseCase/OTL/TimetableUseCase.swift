@@ -17,18 +17,21 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   private let cache: TimetableCache?
   private let sessionBridgeService: SessionBridgeServiceProtocol?
   private let crashlyticsService: CrashlyticsServiceProtocol?
+  private let timetableIndexingService: TimetableIndexingServiceProtocol?
   
   // MARK: - Initialiser
   public init(
     otlTimetableRepository: OTLTimetableRepositoryProtocol,
     cache: TimetableCache? = nil,
     sessionBridgeService: SessionBridgeServiceProtocol? = nil,
-    crashlyticsService: CrashlyticsServiceProtocol? = nil
+    crashlyticsService: CrashlyticsServiceProtocol? = nil,
+    timetableIndexingService: TimetableIndexingServiceProtocol? = nil
   ) {
     self.otlTimetableRepository = otlTimetableRepository
     self.cache = cache
     self.sessionBridgeService = sessionBridgeService
     self.crashlyticsService = crashlyticsService
+    self.timetableIndexingService = timetableIndexingService
   }
 
   // MARK: - Functions
@@ -102,6 +105,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     try Task.checkCancellation()
     cache?.store(result, forKey: String(id))
     WidgetCenter.shared.reloadAllTimelines()
+    timetableIndexingService?.scheduleReindex()
     pushToWatchIfSelected(result, semester: nil, timetableID: id)
     return result
   }
@@ -148,6 +152,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   private func refreshAfterActivityMutation(id: Int) async throws -> Timetable {
     cache?.invalidate(key: String(id))
     WidgetCenter.shared.reloadAllTimelines()
+    timetableIndexingService?.scheduleReindex()
     do { return try await refreshTable(id: id) }
     catch { throw TimetableActivityError.refreshRequired }
   }
@@ -177,6 +182,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     try Task.checkCancellation()
     cache?.store(result, forKey: "\(semester.id)-myTable")
     WidgetCenter.shared.reloadAllTimelines()
+    timetableIndexingService?.scheduleReindex()
     pushToWatchIfSelected(result, semester: semester, timetableID: nil)
     Task.detached(priority: .background) { [weak self] in
       guard let self, let current = try? await self.refreshCurrentSemester(), current == semester else { return }
@@ -195,6 +201,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
       try await self.otlTimetableRepository.deleteTable(timetableID: id)
       self.cache?.invalidate(key: String(id))
       self.cache?.updateTimetableSummary(id: id, title: nil)
+      self.timetableIndexingService?.scheduleReindex()
     }
   }
 
@@ -207,6 +214,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     try await execute(context: context) {
       try await self.otlTimetableRepository.renameTable(timetableID: id, title: title)
       self.cache?.updateTimetableSummary(id: id, title: title)
+      self.timetableIndexingService?.scheduleReindex()
     }
   }
 
@@ -281,6 +289,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
       self.cache?.invalidate(key: String(creation.id))
       WidgetCenter.shared.reloadAllTimelines()
+      self.timetableIndexingService?.scheduleReindex()
 
       return TableDuplication(
         id: creation.id,

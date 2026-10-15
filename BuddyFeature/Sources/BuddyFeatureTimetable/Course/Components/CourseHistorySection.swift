@@ -87,7 +87,7 @@ struct CourseHistorySection: View {
 
   private func classRow(_ lectureClass: CourseHistoryClass, isTaken: Bool) -> some View {
     let isMatch = selectedProfessorID.map { id in lectureClass.professors.contains { $0.id == id } } ?? false
-    let names = lectureClass.professors.map(\.name)
+    let label = SectionLabel(lectureClass)
     let professorID = lectureClass.professors.first?.id
 
     return Button {
@@ -101,11 +101,19 @@ struct CourseHistorySection: View {
             .foregroundStyle(.secondary)
             .frame(minWidth: 14, alignment: .leading)
         }
-        Text(names.isEmpty ? String(localized: "Unknown", bundle: .module) : names.formatted(.list(type: .and, width: .narrow)))
-          .fontWeight(isMatch ? .semibold : .regular)
-          .foregroundStyle(isMatch ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
-          .lineLimit(2)
-          .multilineTextAlignment(.leading)
+        VStack(alignment: .leading, spacing: 1) {
+          // The subtitle where the section has one, as Leadership sections do.
+          Text(label.title)
+            .fontWeight(isMatch ? .semibold : .regular)
+            .foregroundStyle(isMatch ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
+            .lineLimit(2)
+            .multilineTextAlignment(.leading)
+          if let professors = label.professors {
+            Text(professors)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+        }
         if isTaken {
           Image(systemName: "checkmark.circle.fill")
             .foregroundStyle(.tint)

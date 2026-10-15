@@ -11,6 +11,25 @@ public extension Notification.Name {
   static let buddyInternalDeepLink = Notification.Name("buddyInternalDeepLink")
 }
 
+/// A deep link raised before the main screen could observe it, e.g. by an App
+/// Intent that launched the app. The main screen handles it once it appears.
+@MainActor
+public enum PendingDeepLink {
+  public private(set) static var value: DeepLink?
+
+  /// Hands `link` to the main screen, now if it's showing or when it appears.
+  public static func post(_ link: DeepLink) {
+    value = link
+    NotificationCenter.default.post(name: .buddyInternalDeepLink, object: link)
+  }
+
+  /// The pending link, cleared so it is handled once.
+  public static func take() -> DeepLink? {
+    defer { value = nil }
+    return value
+  }
+}
+
 public enum DeepLink {
   case taxiInvite(code: String)
   case araPost(id: Int)

@@ -18,7 +18,6 @@
       }
     },
     "My Table" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -47,6 +46,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시간표 %lld"
+          }
+        }
+      }
+    },
+    "Timetable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timetable"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간표"
           }
         }
       }

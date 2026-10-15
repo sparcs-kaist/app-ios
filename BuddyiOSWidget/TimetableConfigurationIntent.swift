@@ -13,7 +13,9 @@ struct TimetableConfigurationIntent: WidgetConfigurationIntent {
 	static var title: LocalizedStringResource { "Timetable Configuration" }
 	static var description: IntentDescription { "Select timetable for this widget." }
 	
-	@Parameter(title: "Mirror My Table", default: true)
+	/// Follows the timetable selected in Buddy, falling back to the current
+	/// semester's My Table, the same timetable Siri and the watch use.
+	@Parameter(title: "Mirror Selected Timetable", default: true)
 	var mirrorTimetable: Bool
 	
 	@Parameter(title: "Timetable", optionsProvider: TimetableOptionsProvider())

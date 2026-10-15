@@ -278,7 +278,18 @@ class PostViewModel: PostViewModelProtocol {
     guard let foundationModelsUseCase else { return "" }
 
     analyticsService?.logEvent(PostViewEvent.summariseRequested)
-    return await foundationModelsUseCase.summarise(post.content ?? "", maxWords: 50, tone: "concise")
+    // Posts are HTML. Converted here, on the main actor, as the HTML importer requires.
+    let text = (post.content ?? "").convertFromHTML()
+    do {
+      var summary = ""
+      for try await snapshot in await foundationModelsUseCase.streamSummary(of: text, as: .post) {
+        summary = snapshot
+      }
+      summary = summary.trimmingCharacters(in: .whitespacesAndNewlines)
+      return summary.isEmpty ? SummarisationError.failed.localizedDescription : summary
+    } catch {
+      return error.localizedDescription
+    }
   }
 
   func deletePost() async throws {

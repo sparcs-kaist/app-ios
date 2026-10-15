@@ -19,10 +19,18 @@ struct LectureView: View {
           .foregroundStyle(entry.backgroundColor)
           .padding(.top, 4)
 
-        Text(entry.title)
-          .font(.headline)
-          .lineLimit(4)
-          .minimumScaleFactor(0.8)
+        VStack(alignment: .leading, spacing: 2) {
+          Text(entry.title)
+            .font(.headline)
+            .lineLimit(4)
+            .minimumScaleFactor(0.8)
+          if let subtitle = entry.subtitle {
+            Text(subtitle)
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              .lineLimit(2)
+          }
+        }
 
         Spacer()
       }

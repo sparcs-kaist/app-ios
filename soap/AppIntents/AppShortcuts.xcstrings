@@ -1,6 +1,41 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "What are my lectures in ${applicationName}?" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "needs_review",
+            "values" : [
+              "What are my lectures in ${applicationName}?",
+              "What classes am I taking this semester in ${applicationName}?",
+              "My lectures in ${applicationName}."
+            ]
+          }
+        },
+        "en-GB" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "What are my lectures in ${applicationName}?",
+              "What classes am I taking this semester in ${applicationName}?",
+              "My lectures in ${applicationName}."
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "needs_review",
+            "values" : [
+              "이번 학기 수업 뭐야, ${applicationName}?",
+              "${applicationName}에서 이번 학기 수강 과목 알려줘",
+              "내 수업 목록, ${applicationName}."
+            ]
+          }
+        }
+      }
+    },
     "What is my next class in ${applicationName}?" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {

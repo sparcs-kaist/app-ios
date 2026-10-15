@@ -18,7 +18,7 @@ struct LectureSearchView: View {
   let timetable: Timetable?
   let selectedSemester: Semester
   @Binding var candidateLecture: Lecture?
-  let onAdd: (Lecture) -> Void
+  let onAdd: AddLectureAction
 
   @State private var viewModel = LectureSearchViewModel()
   @State private var showDepartmentPicker: Bool = false

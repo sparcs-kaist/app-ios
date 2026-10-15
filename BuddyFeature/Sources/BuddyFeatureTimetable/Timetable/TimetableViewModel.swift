@@ -24,6 +24,9 @@ public final class TimetableViewModel {
   @ObservationIgnored @Injected(
     \.analyticsService
   ) private var analyticsService: AnalyticsServiceProtocol?
+  @ObservationIgnored @Injected(
+    \.timetableIndexingService
+  ) private var timetableIndexingService: TimetableIndexingServiceProtocol?
 
   public var alertState: AlertState? = nil
   public var isAlertPresented: Bool = false
@@ -57,6 +60,7 @@ public final class TimetableViewModel {
   }
 
   @ObservationIgnored private var timetableListTask: Task<Void, Never>?
+  @ObservationIgnored private var widgetReloadTask: Task<Void, Never>?
   @ObservationIgnored private var timetableLoadTask: Task<Void, Never>?
 
   var timetables: [TimetableSummary] = []
@@ -64,6 +68,11 @@ public final class TimetableViewModel {
     didSet {
       if let selectedSemester {
         selectionStore.save(semester: selectedSemester, timetableID: selectedTimetableID)
+        if selectedTimetableID != oldValue {
+          // Siri, Spotlight and Mirror-mode widgets follow the selected timetable.
+          timetableIndexingService?.scheduleReindex()
+          scheduleWidgetReload()
+        }
       }
       timetableLoadTask?.cancel()
       if selectedTimetableID != oldValue {
@@ -117,6 +126,8 @@ public final class TimetableViewModel {
   /// Duplicating replays every lecture and activity, so it is slow enough that the
   /// menu entry must not be tappable twice.
   public var isDuplicatingTable: Bool = false
+  /// While a lecture is being added, so a second tap can't race the first.
+  @ObservationIgnored private var isAddingLecture = false
 
   public init(selectionStore: TimetableSelectionStore = .init(), timetableUseCase: TimetableUseCaseProtocol? = nil) {
     self.selectionStore = selectionStore
@@ -228,10 +239,18 @@ public final class TimetableViewModel {
     if isReadOnly { throw NetworkError.noConnection }
   }
 
-  func addLecture(lecture: Lecture) async {
-    guard !isReadOnly else { return }
+  /// Adds `lecture` to the selected timetable.
+  ///
+  /// - Parameter replacingConflicts: Set once the user has agreed to replace whatever the
+  ///   lecture overlaps: those lectures and activities are removed first. Without it, an
+  ///   overlapping lecture isn't added.
+  func addLecture(lecture: Lecture, replacingConflicts: Bool = false) async {
+    guard !isReadOnly, !isAddingLecture else { return }
     guard let timetableUseCase,
           let selectedTimetableID else { return }
+    // A second tap while the first add is in flight would race it.
+    isAddingLecture = true
+    defer { isAddingLecture = false }
 
     do {
       // Check against the server's copy, which may have changed since the search opened.
@@ -240,8 +259,14 @@ public final class TimetableViewModel {
       // clashes with, is on screen rather than only behind a silent return or an alert.
       showRefreshedTable(current, id: selectedTimetableID)
       guard !current.contains(lecture) else { return }
-      guard current.conflicts(with: lecture).isEmpty else { throw TimetableActivityError.overlap }
-      try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      let overlapping = current.overlapping(with: lecture)
+      if overlapping.lectures.isEmpty && overlapping.activities.isEmpty {
+        try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      } else {
+        guard replacingConflicts else { throw TimetableActivityError.overlap }
+        try await replace(overlapping, with: lecture, in: selectedTimetableID, using: timetableUseCase)
+        analyticsService?.logEvent(TimetableViewEvent.lectureReplaced)
+      }
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
       timetableLoadTask?.cancel()
       timetableLoadTask = Task {
@@ -255,6 +280,38 @@ public final class TimetableViewModel {
         message: error.localizedDescription
       )
       isAlertPresented = true
+    }
+  }
+
+  /// Removes what `lecture` overlaps, then adds it. If any step fails, whatever was removed is
+  /// put back, so a failed replacement never loses lectures or activities.
+  private func replace(
+    _ overlapping: (lectures: [Lecture], activities: [TimetableActivity]),
+    with lecture: Lecture,
+    in timetableID: Int,
+    using timetableUseCase: TimetableUseCaseProtocol
+  ) async throws {
+    var removedLectures: [Lecture] = []
+    var removedActivities: [TimetableActivity] = []
+    do {
+      for old in overlapping.lectures {
+        try await timetableUseCase.deleteLecture(timetableID: timetableID, lectureID: old.id)
+        removedLectures.append(old)
+      }
+      for activity in overlapping.activities {
+        _ = try await timetableUseCase.deleteActivity(timetableID: timetableID, activityID: activity.id)
+        removedActivities.append(activity)
+      }
+      try await timetableUseCase.addLecture(timetableID: timetableID, lectureID: lecture.id)
+    } catch {
+      for old in removedLectures {
+        try? await timetableUseCase.addLecture(timetableID: timetableID, lectureID: old.id)
+      }
+      for activity in removedActivities {
+        // Recreated with a new ID; the server assigns one.
+        _ = try? await timetableUseCase.saveActivity(timetableID: timetableID, activityID: nil, draft: activity.draft)
+      }
+      throw error
     }
   }
 
@@ -485,6 +542,17 @@ public final class TimetableViewModel {
         message: error.localizedDescription
       )
       isAlertPresented = true
+    }
+  }
+
+  /// Reloads widgets once switching settles, so flicking through timetables
+  /// doesn't spend WidgetKit's reload budget on every intermediate selection.
+  private func scheduleWidgetReload() {
+    widgetReloadTask?.cancel()
+    widgetReloadTask = Task {
+      try? await Task.sleep(for: .seconds(1))
+      guard !Task.isCancelled else { return }
+      WidgetCenter.shared.reloadAllTimelines()
     }
   }
 

@@ -6,6 +6,7 @@
 //
 
 import AppIntents
+import BuddyIntents
 
 struct BuddyShortcuts: AppShortcutsProvider {
   static let shortcutTileColor: ShortcutTileColor = .grape
@@ -19,6 +20,16 @@ struct BuddyShortcuts: AppShortcutsProvider {
       ],
       shortTitle: "Next Class",
       systemImageName: "calendar.badge.clock"
+    )
+    AppShortcut(
+      intent: MyLecturesIntent(),
+      phrases: [
+        "What are my lectures in \(.applicationName)?",
+        "What classes am I taking this semester in \(.applicationName)?",
+        "My lectures in \(.applicationName)."
+      ],
+      shortTitle: "My Lectures",
+      systemImageName: "books.vertical"
     )
   }
 }

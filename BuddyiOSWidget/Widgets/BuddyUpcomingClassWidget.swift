@@ -65,15 +65,7 @@ struct UpcomingClassProvider: AppIntentTimelineProvider {
       return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
 		
-		if !configuration.mirrorTimetable,
-			 let entity = configuration.timetable {
-			let timetable: Timetable = await timetableUseCase.getTable(timetableID: entity.id)
-			let entries = TimetableEventTimeline.entries(for: timetable, now: now, theme: theme)
-
-			return Timeline(entries: entries, policy: .atEnd)
-		}
-
-    let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
+    let timetable: Timetable = await WidgetTimetableLoader.timetable(for: configuration, useCase: timetableUseCase)
     let entries = TimetableEventTimeline.entries(for: timetable, now: now, theme: theme)
 
     return Timeline(entries: entries, policy: .atEnd)

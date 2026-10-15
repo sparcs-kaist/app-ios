@@ -14,6 +14,9 @@ import FirebaseAnalytics
 struct LectureDetailView: View {
   let lecture: Lecture
   let onAdd: (() -> Void)?
+  /// Adds the lecture in place of what it overlaps, once confirmed. Without it, an overlapping
+  /// lecture only explains why it can't be added.
+  let onReplace: (() -> Void)?
   /// Lectures and activities in the timetable whose times overlap this lecture.
   let conflicts: [String]
   /// Whether the timetable already holds this lecture.
@@ -26,6 +29,7 @@ struct LectureDetailView: View {
   init(
     lecture: Lecture,
     onAdd: (() -> Void)?,
+    onReplace: (() -> Void)? = nil,
     conflicts: [String] = [],
     isAdded: Bool = false,
     isWishlisted: Bool = false,
@@ -34,6 +38,7 @@ struct LectureDetailView: View {
   ) {
     self.lecture = lecture
     self.onAdd = onAdd
+    self.onReplace = onReplace
     self.conflicts = conflicts
     self.isAdded = isAdded
     self.isWishlisted = isWishlisted
@@ -52,6 +57,7 @@ struct LectureDetailView: View {
   @State private var canWriteReview: Bool = false
 
   @State private var showCannotAddLectureAlert: Bool = false
+  @State private var showReplaceAlert: Bool = false
 
   var body: some View {
     ScrollView {
@@ -73,6 +79,9 @@ struct LectureDetailView: View {
           speechLetter: lecture.speechLetter,
           state: viewModel.state,
           reviews: $viewModel.reviews,
+          reviewDigest: viewModel.reviewDigest,
+          reviewSummaries: viewModel.reviewSummaries,
+          sectionSubtitles: viewModel.course?.sectionSubtitles ?? [:],
           canWriteReview: canWriteReview,
           onWriteReview: presentReviewCompose
         )
@@ -82,6 +91,7 @@ struct LectureDetailView: View {
     }
     // Content fades under the navigation bar, and in lecture search under the timetable preview.
     .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+    .summarisesReviews(viewModel.reviews, with: viewModel.reviewDigest, isLoaded: viewModel.state == .loaded)
     .task {
       async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
       async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)
@@ -110,6 +120,17 @@ struct LectureDetailView: View {
     }, message: {
       Text("This lecture overlaps with \(conflictList) in your timetable.", bundle: .module)
     })
+    .alert(LectureReplacement.title, isPresented: $showReplaceAlert) {
+      Button(LectureReplacement.confirm, role: .destructive) {
+        if !isInInspector {
+          dismiss()
+        }
+        onReplace?()
+      }
+      Button(LectureReplacement.cancel, role: .cancel) { }
+    } message: {
+      Text(LectureReplacement.message(conflicts: conflicts))
+    }
     .background {
       // Attached only while composing: this view usually sits inside a sheet, and while a
       // `.sheet` modifier is anywhere in its content SwiftUI ignores changes to that sheet's
@@ -133,10 +154,15 @@ struct LectureDetailView: View {
       Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
         .disabled(true)
     } else {
-      // Still tappable when it conflicts, so the alert can say why it cannot be added.
+      // Still tappable when it conflicts: it offers to replace what it overlaps, or says why it
+      // cannot be added where replacing isn't offered.
       Button(String(localized: "Add", bundle: .module), systemImage: "plus", role: isOverlapping ? .close : .confirm) {
         if isOverlapping {
-          showCannotAddLectureAlert = true
+          if onReplace != nil {
+            showReplaceAlert = true
+          } else {
+            showCannotAddLectureAlert = true
+          }
         } else {
           // In lecture search's inspector, adding closes it.
           if !isInInspector {
