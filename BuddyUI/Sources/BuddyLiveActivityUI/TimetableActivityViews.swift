@@ -112,8 +112,10 @@ public struct TimetableActivityBadge: View {
   }
 }
 
-/// Minimal: the building code in a circle of the class colour.
+/// Minimal: a ring that fills over the class, the building code inside. Before class the ring
+/// is an empty track, so it starts filling at the moment the class begins.
 public struct TimetableActivityMinimal: View {
+  @Environment(\.timetableActivityFrozenDate) private var frozenDate
   private let presentation: TimetableActivityPresentation
   private let diameter: CGFloat
 
@@ -123,22 +125,69 @@ public struct TimetableActivityMinimal: View {
   }
 
   public var body: some View {
+    let tint = presentation.color.onBlack
     let code = presentation.item?.buildingCode ?? ""
-    Group {
-      if presentation.mode == .done || code.isEmpty {
-        Image(systemName: presentation.mode == .done ? "checkmark" : presentation.symbol)
+    ZStack {
+      if presentation.mode == .done {
+        Image(systemName: "checkmark")
           .font(.system(size: diameter * 0.45, weight: .bold))
+          .foregroundStyle(tint)
       } else {
-        Text(verbatim: code)
-          .font(.system(size: diameter * 0.42, weight: .semibold))
-          .lineLimit(1)
-          .minimumScaleFactor(0.5)
-          .padding(.horizontal, diameter * 0.12)
+        ring(tint: tint)
+        Group {
+          if code.isEmpty {
+            Image(systemName: presentation.symbol)
+              .font(.system(size: diameter * 0.36, weight: .semibold))
+          } else {
+            Text(verbatim: code)
+              .font(.system(size: diameter * 0.4, weight: .bold))
+              .fontWidth(code.count > 2 ? .condensed : .standard)
+              .lineLimit(1)
+              .minimumScaleFactor(0.5)
+              .padding(.horizontal, diameter * 0.2)
+          }
+        }
+        .foregroundStyle(.white)
       }
     }
-    .foregroundStyle(presentation.color.text)
     .frame(width: diameter, height: diameter)
-    .background(presentation.color.fill, in: .circle)
+  }
+
+  @ViewBuilder
+  private func ring(tint: Color) -> some View {
+    if presentation.mode == .inProgress, let item = presentation.item {
+      if let frozenDate {
+        TimetableActivityRing(fraction: item.fraction(at: frozenDate), tint: tint)
+      } else {
+        // The system advances a timer-driven ring on its own, like the Lock Screen bar.
+        ProgressView(timerInterval: item.beginDate...max(item.endDate, item.beginDate), countsDown: false) {
+          EmptyView()
+        } currentValueLabel: {
+          EmptyView()
+        }
+        .progressViewStyle(.circular)
+        .tint(tint)
+      }
+    } else {
+      TimetableActivityRing(fraction: 0, tint: tint)
+    }
+  }
+}
+
+/// The ring drawn by hand: the empty track before class, and the frozen design sheet.
+private struct TimetableActivityRing: View {
+  let fraction: Double
+  let tint: Color
+
+  var body: some View {
+    ZStack {
+      Circle().stroke(tint.opacity(0.3), lineWidth: 3)
+      Circle()
+        .trim(from: 0, to: fraction)
+        .stroke(tint, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+        .rotationEffect(.degrees(-90))
+    }
+    .padding(1.5)
   }
 }
 

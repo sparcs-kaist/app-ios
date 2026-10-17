@@ -38,7 +38,7 @@ struct BuddyiOSWidgetLiveActivity: Widget {
       } compactTrailing: {
         TimetableActivityCompactTimer(presentation)
       } minimal: {
-        TimetableActivityMinimal(presentation, diameter: 24)
+        TimetableActivityMinimal(presentation, diameter: 26)
       }
       .keylineTint(presentation.color.onBlack)
       .widgetURL(URL(string: "sparcsapp://timetable"))

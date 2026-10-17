@@ -238,9 +238,12 @@ private struct LockScreenPage: View {
 private struct IslandPage: View {
   var body: some View {
     VStack(spacing: 12) {
-      Caption(text: "Compact · before class")
+      Caption(text: "Compact · before class · minimal")
         .padding(.top, 60)
-      CompactIsland(sample: Sample("upcoming"))
+      HStack(spacing: 8) {
+        CompactIsland(sample: Sample("upcoming"))
+        MinimalOnly(sample: Sample("upcoming"))
+      }
       Caption(text: "Compact · in class · minimal")
       HStack(spacing: 8) {
         CompactIsland(sample: Sample("inProgress"))
@@ -264,7 +267,7 @@ private struct MinimalOnly: View {
   let sample: Sample
 
   var body: some View {
-    TimetableActivityMinimal(sample.presentation, diameter: 24)
+    TimetableActivityMinimal(sample.presentation, diameter: 26)
       .frame(width: Metrics.islandHeight, height: Metrics.islandHeight)
       .background(.black, in: .circle)
       .frozen(sample)
