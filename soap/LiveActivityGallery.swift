@@ -102,11 +102,11 @@ private struct CompactIsland: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      TimetableActivityBadge(presentation, diameter: 26)
-        .padding(.leading, Metrics.compactInset - 2)
+      TimetableActivityBadge(presentation, diameter: Metrics.islandHeight - 12)
+        .padding(.leading, 6)
       Color.clear.frame(width: Metrics.obstructionWidth)
       TimetableActivityCompactTimer(presentation)
-        .padding(.trailing, Metrics.compactInset + 3)
+        .padding(.trailing, 6)
     }
     .frame(height: Metrics.islandHeight)
     .background(.black, in: .capsule)

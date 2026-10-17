@@ -34,12 +34,16 @@ struct BuddyiOSWidgetLiveActivity: Widget {
             .padding(.horizontal, 6)
         }
       } compactLeading: {
-        TimetableActivityBadge(presentation, diameter: 26)
+        // Island height 36.67 − 2 × the 6pt margin below: the capsule then sits 6pt from the
+        // top, bottom and leading edge, so its radius is concentric with the island's.
+        TimetableActivityBadge(presentation, diameter: 24.67)
       } compactTrailing: {
         TimetableActivityCompactTimer(presentation)
       } minimal: {
         TimetableActivityMinimal(presentation, diameter: 26)
       }
+      .contentMargins(.all, 6, for: .compactLeading)
+      .contentMargins(.all, 6, for: .compactTrailing)
       .keylineTint(presentation.color.onBlack)
       .widgetURL(URL(string: "sparcsapp://timetable"))
     }
