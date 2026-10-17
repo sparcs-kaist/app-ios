@@ -21,29 +21,47 @@ public struct FeedView: View {
   @State private var showComposeView: Bool = false
   /// The post whose comments are shown beside the feed on wide layouts.
   @State private var commentsPostID: String? = nil
-  @State private var availableWidth: CGFloat = 0
+  @State private var layout = FeedLayout()
+  /// The selected post drives both manual and adaptive detail navigation.
+  @State private var detailPostID: String? = nil
   /// The top-most visible post, kept in view when the feed column resizes.
   @State private var scrolledPostID: String? = nil
 
   @State private var spoilerContents = SpoilerContents()
 
+  @Environment(\.layoutDirection) private var layoutDirection
+
   public init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
     self._viewModel = State(initialValue: viewModel)
   }
 
-  /// Width from which comments open in a column beside the feed instead of on
-  /// the post page. Decided by the actual width rather than the size class so
-  /// that roomy compact screens, like the inner display of a foldable iPhone,
-  /// get the column too.
-  private static let commentsPanelMinimumWidth: CGFloat = 640
+  private var availableCommentsWidth: CGFloat {
+    max(0, layout.width - ContentLayout.maxContentWidth)
+  }
+
+  private var commentsPanelWidth: CGFloat {
+    if let split = layout.foldSplit {
+      return max(0, layout.width - split.leadingWidth - split.gutter)
+    }
+    return min(Constants.feedCommentsPanelMaximumWidth, availableCommentsWidth)
+  }
 
   private var canShowCommentsPanel: Bool {
-    availableWidth >= Self.commentsPanelMinimumWidth
+    if layout.hasDivision {
+      // A horizontal division (inner portrait display) cannot support columns.
+      return layout.foldSplit != nil
+    }
+    return availableCommentsWidth >= Constants.feedCommentsPanelMinimumWidth
+  }
+
+  private var isCommentsPanelVisible: Bool {
+    canShowCommentsPanel && commentsPostID != nil
   }
 
   public var body: some View {
-    HStack(spacing: 0) {
+    HStack(spacing: isCommentsPanelVisible ? layout.foldSplit?.gutter ?? 0 : 0) {
       feedList
+        .frame(width: isCommentsPanelVisible ? layout.foldSplit?.leadingWidth : nil)
 
       if canShowCommentsPanel, let commentsPostID,
          let index = viewModel.posts.firstIndex(where: { $0.id == commentsPostID }) {
@@ -55,28 +73,33 @@ public struct FeedView: View {
           FeedCommentsPanel(post: $viewModel.posts[index], onClose: { self.commentsPostID = nil })
             .id(commentsPostID)
         }
-        .frame(width: min(400, availableWidth * 0.45))
+        .frame(width: commentsPanelWidth)
         .overlay(alignment: .leading) {
           Divider()
             .ignoresSafeArea()
+            .offset(x: (layout.foldSplit?.gutter ?? 0) / 2 * (layoutDirection == .leftToRight ? -1 : 1))
         }
         .transition(.move(edge: .trailing))
       }
     }
-    .animation(.spring, value: commentsPostID != nil)
-    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
-      availableWidth = width
-      if !canShowCommentsPanel { commentsPostID = nil }
+    .feedLayout($layout)
+    .onChange(of: canShowCommentsPanel) { _, isAvailable in
+      withAnimation(.spring) {
+        if isAvailable, let postID = detailPostID {
+          scrolledPostID = postID
+          commentsPostID = postID
+          detailPostID = nil
+        } else if !isAvailable, detailPostID == nil, let postID = commentsPostID {
+          commentsPostID = nil
+          detailPostID = postID
+        }
+      }
     }
+    .animation(.spring, value: isCommentsPanelVisible)
     .navigationTitle(Text("Feed", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
-    .navigationDestination(for: String.self) { postID in
-      if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
-        FeedPostView(post: $viewModel.posts[index], onDelete: {
-          await viewModel.deletePost(postID: postID)
-        })
-        .environment(spoilerContents)
-      }
+    .navigationDestination(item: $detailPostID) { postID in
+      postDestination(postID: postID)
     }
     .task {
       guard viewModel.state == .loading else { return }
@@ -126,6 +149,17 @@ public struct FeedView: View {
     .analyticsScreen(name: "Feed", class: String(describing: Self.self))
   }
 
+  @ViewBuilder
+  private func postDestination(postID: String) -> some View {
+    if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
+      FeedPostView(post: $viewModel.posts[index], onDelete: {
+        await viewModel.deletePost(postID: postID)
+      })
+      .feedLayout($layout)
+      .environment(spoilerContents)
+    }
+  }
+
   private var feedList: some View {
     ScrollView {
       LazyVStack(spacing: 0) {
@@ -155,7 +189,9 @@ public struct FeedView: View {
   private var contentView: some View {
     ForEach($viewModel.posts) { $post in
       VStack(spacing: 0) {
-        NavigationLink(value: post.id) {
+        Button {
+          detailPostID = post.id
+        } label: {
           FeedPostRow(post: $post, onPostDeleted: { postID in
             if commentsPostID == postID { commentsPostID = nil }
             Task {
@@ -168,7 +204,6 @@ public struct FeedView: View {
           .contentShape(.rect)
         }
         .padding(.vertical)
-        .navigationLinkIndicatorVisibility(.hidden)
         .buttonStyle(.plain)
         .onAppear {
           let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) ?? 0
@@ -227,6 +262,40 @@ private extension ToolbarContent {
   }
 }
 
+
+private nonisolated struct FeedLayout: Equatable, Sendable {
+  var width: CGFloat = 0
+  var foldSplit: FoldSplit? = nil
+  var hasDivision = false
+}
+
+/// Installed on both the feed and its detail, which can cover the feed
+/// while the active display changes.
+private struct FeedLayoutObserver: ViewModifier {
+  @Binding var layout: FeedLayout
+
+  func body(content: Content) -> some View {
+    content
+      .onGeometryChange(for: FeedLayout.self) { geometry in
+        if #available(iOS 27.1, *) {
+          return FeedLayout(
+            width: geometry.size.width,
+            foldSplit: FoldSplit(proxy: geometry, includeInactive: true),
+            hasDivision: !geometry.reservedRegions(kind: .division, options: .includeInactive).isEmpty
+          )
+        }
+        return FeedLayout(width: geometry.size.width)
+      } action: { layout in
+        self.layout = layout
+      }
+  }
+}
+
+private extension View {
+  func feedLayout(_ layout: Binding<FeedLayout>) -> some View {
+    modifier(FeedLayoutObserver(layout: layout))
+  }
+}
 
 // MARK: - Previews
 
