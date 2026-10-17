@@ -228,16 +228,46 @@ public final class ClassReminderService: ClassReminderServiceProtocol, @unchecke
       } else {
         try await timetableUseCase.getMyTable(semester: semester)
       }
+      var slots = ClassReminderSchedule.slots(of: timetable)
+      #if DEBUG
+      slots += Self.testSlots(from: slots)
+      #endif
       return Schedule(
         year: semester.year,
         semester: ClassReminderSchedule.otlNumber(of: semester.semesterType),
-        slots: ClassReminderSchedule.slots(of: timetable)
+        slots: slots
       )
     } catch {
       logger.error("Sync skipped: timetable unavailable: \(error.localizedDescription, privacy: .public)")
       return nil
     }
   }
+
+  #if DEBUG
+  /// `-ClassReminderTestClassIn <minutes>` copies two of the timetable's lectures into today,
+  /// the first starting that many minutes from now and the second 15 minutes after it ends, so
+  /// the server's pushes can be watched on any day.
+  private static func testSlots(from slots: [ClassReminderDeviceRequestDTO.Slot]) -> [ClassReminderDeviceRequestDTO.Slot] {
+    let minutes = UserDefaults.standard.integer(forKey: "ClassReminderTestClassIn")
+    guard minutes > 0 else { return [] }
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(identifier: "Asia/Seoul")!
+    let now = calendar.dateComponents([.weekday, .hour, .minute], from: .now)
+    let today = ((now.weekday ?? 2) + 5) % 7  // Calendar's Sunday = 1 → OTL's Monday = 0
+    let firstBegin = (now.hour ?? 0) * 60 + (now.minute ?? 0) + minutes
+    let lectures = slots.filter { $0.kind == "lecture" }
+    return [0, 1].compactMap { index -> ClassReminderDeviceRequestDTO.Slot? in
+      guard let source = lectures.indices.contains(index) ? lectures[index] : lectures.first else { return nil }
+      let begin = firstBegin + index * 90
+      guard begin + 75 <= 1440 else { return nil }
+      return .init(
+        id: "TEST:\(index)", day: today, begin: begin, end: begin + 75, title: source.title,
+        buildingCode: source.buildingCode, buildingName: source.buildingName, room: source.room,
+        kind: "lecture", colorID: source.colorID
+      )
+    }
+  }
+  #endif
 
   private static func hash(of body: ClassReminderDeviceRequestDTO) -> String {
     let encoder = JSONEncoder()
