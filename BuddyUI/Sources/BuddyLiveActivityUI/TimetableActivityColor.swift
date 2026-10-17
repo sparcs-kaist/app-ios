@@ -8,8 +8,7 @@
 import SwiftUI
 import BuddyDomain
 
-/// A class colour resolved from the theme, plus a variant that stays readable on the
-/// Dynamic Island's black background (dark theme colours such as navy disappear there).
+/// A class colour resolved from the theme, the same one the timetable uses for that lecture.
 public struct TimetableActivityColor: Hashable, Sendable {
   public let fill: Color
   public let onBlack: Color
@@ -36,12 +35,13 @@ public struct TimetableActivityColor: Hashable, Sendable {
     onBlack = Self.lifted(rgb)
   }
 
-  /// Mixes towards white until the colour reaches a readable brightness on black.
+  /// The theme colour as it is, so the activity matches the timetable. Only a near-black theme
+  /// colour, which would vanish on the black background, is lifted just enough to see.
   private static func lifted(_ rgb: (red: Double, green: Double, blue: Double)) -> Color {
     let luma = 0.299 * rgb.red + 0.587 * rgb.green + 0.114 * rgb.blue
-    let target = 0.6
-    guard luma < target else { return Color(red: rgb.red, green: rgb.green, blue: rgb.blue) }
-    let mix = (target - luma) / (1 - luma)
+    let floor = 0.22
+    guard luma < floor else { return Color(red: rgb.red, green: rgb.green, blue: rgb.blue) }
+    let mix = (floor - luma) / (1 - luma)
     return Color(
       red: rgb.red + (1 - rgb.red) * mix,
       green: rgb.green + (1 - rgb.green) * mix,

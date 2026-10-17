@@ -1,6 +1,6 @@
 //
 //  TimetableActivityAttributes.swift
-//  BuddyUI
+//  BuddyDomain
 //
 //  Created by Soongyu Kwon on 13/10/2026.
 //

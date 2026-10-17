@@ -8,6 +8,7 @@
 #if DEBUG
 import ActivityKit
 import UIKit
+import BuddyDomain
 import BuddyLiveActivityUI
 
 /// Starts a sample class Live Activity for design review, e.g.

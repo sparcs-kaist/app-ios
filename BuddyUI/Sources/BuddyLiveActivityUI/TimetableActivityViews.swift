@@ -7,6 +7,7 @@
 
 #if os(iOS)
 import SwiftUI
+import BuddyDomain
 
 private let timeFormat = Date.FormatStyle.dateTime.hour().minute()
 
@@ -202,11 +203,8 @@ public struct TimetableActivityCompactTimer: View {
   public var body: some View {
     Group {
       if let target = presentation.countdownTarget {
-        // A live timer takes every point it's offered, which widens the island until the status
-        // bar disappears; pin it to its digits ("19:56" or "1:15:00").
-        TimetableActivityTimerText(target: target)
-          .multilineTextAlignment(.trailing)
-          .frame(width: target.timeIntervalSinceNow >= 3600 ? 66 : 48, alignment: .trailing)
+        // Minutes only ("75분"), so the island stays narrow.
+        TimetableActivityTimerText(target: target, style: .minutes)
       } else {
         Text("Done", bundle: .module)
       }
@@ -277,7 +275,7 @@ private struct TimetableActivityBody: View {
             .font(.system(size: 22))
             .foregroundStyle(.white)
             .lineLimit(1)
-            .minimumScaleFactor(0.8)
+            .minimumScaleFactor(0.7)
           Spacer(minLength: 12)
           Group {
             if let target = presentation.countdownTarget {
@@ -286,10 +284,11 @@ private struct TimetableActivityBody: View {
               Text(item.endDate, format: timeFormat)
             }
           }
-          .font(.system(size: tight ? 28 : 38))
+          .font(.system(size: tight ? 28 : 34))
           .monospacedDigit()
           .multilineTextAlignment(.trailing)
           .foregroundStyle(.white)
+          .layoutPriority(1)
         }
 
         if presentation.mode == .inProgress {
@@ -354,40 +353,80 @@ private struct TimetableActivityCapsuleBar: View {
           }
         }
       } else {
-        // The only bar the system advances on its own; scaled up to the same thickness.
-        ProgressView(timerInterval: item.beginDate...max(item.endDate, item.beginDate), countsDown: false) {
-          EmptyView()
-        } currentValueLabel: {
-          EmptyView()
-        }
-        .progressViewStyle(.linear)
-        .tint(tint)
-        .scaleEffect(x: 1, y: 3, anchor: .center)
-        .clipShape(.capsule)
+        liveBar
       }
+    }
+  }
+
+  private var timerBar: some View {
+    ProgressView(timerInterval: item.beginDate...max(item.endDate, item.beginDate), countsDown: false) {
+      EmptyView()
+    } currentValueLabel: {
+      EmptyView()
+    }
+    .progressViewStyle(.linear)
+    .tint(tint)
+  }
+
+  /// The system's timer bar is about 4pt tall and can't be restyled, and it's the only bar that
+  /// advances without pushes. It's stretched past the container's height and the container is
+  /// clipped to a capsule, so the bar's own small caps never show and the ends stay round.
+  @ViewBuilder
+  private var liveBar: some View {
+    if #available(iOS 27, *) {
+      timerBar
+        .scaleEffect(x: 1, y: 4, anchor: .center)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(.capsule)
+    } else {
+      // Scaling a timer ProgressView has been reported to crash the Lock Screen renderer on
+      // iOS 26.5, so earlier versions keep the system's thin bar.
+      timerBar
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
   }
 }
 
-/// A countdown that ticks on its own, sized to its digits.
+/// A countdown in words ("15분", "1시간 15분") that the system keeps current to the minute on
+/// its own, so no push is needed while it runs.
 private struct TimetableActivityTimerText: View {
-  @Environment(\.timetableActivityFrozenDate) private var frozenDate
-  let target: Date
-
-  var body: some View {
-    if let frozenDate {
-      Text(verbatim: Self.formatted(target.timeIntervalSince(frozenDate)))
-    } else {
-      Text(.currentDate, format: .timer(countingDownIn: Date.now..<max(target, .now)))
-    }
+  enum Style {
+    /// Hours and minutes: "1시간 15분".
+    case full
+    /// Minutes only, for tight spaces: "75분".
+    case minutes
   }
 
-  private static func formatted(_ interval: TimeInterval) -> String {
-    let seconds = max(0, Int(interval.rounded()))
-    let (hours, minutes, rest) = (seconds / 3600, seconds % 3600 / 60, seconds % 60)
-    return hours > 0
-      ? String(format: "%d:%02d:%02d", hours, minutes, rest)
-      : String(format: "%d:%02d", minutes, rest)
+  @Environment(\.timetableActivityFrozenDate) private var frozenDate
+  let target: Date
+  var style: Style = .full
+
+  var body: some View {
+    let now = frozenDate ?? .now
+    let format = SystemFormatStyle.Timer(
+      countingDownIn: now..<max(target, now),
+      showsHours: style == .full,
+      maxFieldCount: style == .full ? 2 : 1,
+      maxPrecision: .seconds(60)
+    )
+    let current = Text(format.format(now))
+    Group {
+      if frozenDate != nil {
+        current
+      } else {
+        // A live timer fills every point it's offered, which would stretch the island over the
+        // status bar. Size it by the value it shows now; the live text then counts down inside.
+        current
+          .hidden()
+          .overlay(alignment: .trailing) {
+            Text(.currentDate, format: format)
+              .lineLimit(1)
+              .minimumScaleFactor(0.6)
+          }
+      }
+    }
+    .contentTransition(.numericText(countsDown: true))
+    .animation(.spring(duration: 0.5, bounce: 0.2), value: target)
   }
 }
 

@@ -32,6 +32,9 @@ struct BuddyiOSWidgetLiveActivity: Widget {
         DynamicIslandExpandedRegion(.bottom) {
           TimetableActivityExpandedBottom(presentation)
             .padding(.horizontal, 6)
+            // The island clips each region with rounded corners; content touching the region's
+            // bottom edge (the progress capsule) loses its bottom corners without this.
+            .padding(.bottom, 6)
         }
       } compactLeading: {
         // Island height 36.67 − 2 × the 6pt margin below: the capsule then sits 6pt from the
