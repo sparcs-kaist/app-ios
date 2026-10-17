@@ -51,6 +51,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // FCM
     Messaging.messaging().delegate = pushDelegate
 
+    // Class reminders: observe Live Activity tokens from the first moment, since a push-to-start
+    // launches the app in the background just long enough to hand over the new activity's token.
+    Container.shared.classReminderService()?.start()
+
     // Refresh token and fetch users
     Task {
       try? await authUseCase?.refreshAccessToken(force: true)
@@ -120,6 +124,7 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
     Task { @MainActor [fcmUseCase] in
       // save to Keychain / send to server / update view model
       guard let fcmToken else { return }
+      Container.shared.classReminderService()?.updateFCMToken(fcmToken)
       
       do {
         try await fcmUseCase?.register(fcmToken: fcmToken)
@@ -133,6 +138,7 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
 @main
 struct soapApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+  @Environment(\.scenePhase) private var scenePhase
   @Injected(\.sessionBridgeService) private var sessionBridgeService: SessionBridgeServiceProtocol?
 
   init() {
@@ -163,6 +169,11 @@ struct soapApp: App {
       #else
       ContentView()
       #endif
+    }
+    .onChange(of: scenePhase) { _, phase in
+      // Coming back picks up timetable edits made elsewhere; leaving uploads edits made here.
+      guard phase != .inactive else { return }
+      Task { await Container.shared.classReminderService()?.sync() }
     }
   }
 }

@@ -12,6 +12,9 @@ import FirebaseAnalytics
 struct TimetableSettingsView: View {
   @State private var viewModel: TimetableSettingsViewModelProtocol
   @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .standard
+  // Read so the summary updates when coming back from the Class Reminders screen.
+  @AppStorage(ClassReminderSettingsStore.storageKey, store: TimetableThemeStore.sharedDefaults)
+  private var classReminderData: Data = Data()
 
   init(_ viewModel: TimetableSettingsViewModelProtocol = TimetableSettingsViewModel()) {
     self._viewModel = State(initialValue: viewModel)
@@ -19,6 +22,16 @@ struct TimetableSettingsView: View {
 
   var body: some View {
     List {
+      Section {
+        NavigationLink {
+          ClassReminderSettingsView()
+        } label: {
+          LabeledContent(String(localized: "Class Reminders", bundle: .module)) {
+            Text(classReminderSummary)
+          }
+        }
+      }
+
       Section {
         Picker(String(localized: "Lecture Search", bundle: .module), selection: $lectureSearchStyle) {
           ForEach(LectureSearchStyle.allCases) { style in
@@ -50,6 +63,15 @@ struct TimetableSettingsView: View {
       await viewModel.load()
     }
     .analyticsScreen(name: "Timetable Settings", class: String(describing: Self.self))
+  }
+
+  private var classReminderSummary: String {
+    let settings = (try? JSONDecoder().decode(ClassReminderSettings.self, from: classReminderData)) ?? .default
+    return switch settings.mode {
+    case .liveActivity: String(localized: "Live Activity", bundle: .module)
+    case .notification: String(localized: "Notification", bundle: .module)
+    case .off: String(localized: "Off", bundle: .module)
+    }
   }
 
   @ViewBuilder

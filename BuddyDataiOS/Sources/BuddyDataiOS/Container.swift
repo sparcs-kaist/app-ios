@@ -220,6 +220,14 @@ extension Container: @retroactive AutoRegistering {
       AnalyticsService()
     }
 
+    classReminderService.register {
+      ClassReminderService(
+        provider: MoyaProvider<ClassReminderTarget>(plugins: [self.authPlugin.resolve()]),
+        timetableUseCase: self.v2TimetableUseCase.resolve()
+      )
+    }
+    .scope(.singleton)
+
     // MARK: - Use Cases
     authUseCase.register {
       let useCase = AuthUseCase(

@@ -107,7 +107,11 @@ public struct TimetableThemeStore {
     #if canImport(WidgetKit)
     WidgetCenter.shared.reloadAllTimelines()
     #endif
+    NotificationCenter.default.post(name: Self.didChangeNotification, object: nil)
   }
+
+  /// Posted after the selection or a user theme changes, so running Live Activities can repaint.
+  public static let didChangeNotification = Notification.Name("TimetableThemeDidChange")
 }
 
 public extension TimetableTheme {

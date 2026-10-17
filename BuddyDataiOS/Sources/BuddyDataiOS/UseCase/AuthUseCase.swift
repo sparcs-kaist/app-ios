@@ -252,6 +252,8 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func signOut() async throws {
+    // Before the tokens go, so the server can still authenticate the request.
+    await Container.shared.classReminderService()?.unregister()
     TimetableSelectionStore().clear()
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()

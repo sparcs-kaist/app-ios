@@ -76,6 +76,10 @@ extension Container {
     promised()
   }
 
+  public var classReminderService: Factory<ClassReminderServiceProtocol?> {
+    promised()
+  }
+
   // MARK: - Use Cases
   public var authUseCase: Factory<AuthUseCaseProtocol?> {
     promised()

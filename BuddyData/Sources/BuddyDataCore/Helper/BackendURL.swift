@@ -47,6 +47,13 @@ public enum BackendURL {
 
   // MARK: Feed
   public static let feedBackendURL = {
+    #if DEBUG
+    // Points a debug build at a local feed backend, e.g.
+    // `-FeedBackendURL http://127.0.0.1:8765/v1` as a launch argument.
+    if let override = UserDefaults.standard.string(forKey: "FeedBackendURL"), let url = URL(string: override) {
+      return url
+    }
+    #endif
     if Status.isProduction {
       return URL(string: "https://buddy.sparcs.org/v1")!
     } else {
