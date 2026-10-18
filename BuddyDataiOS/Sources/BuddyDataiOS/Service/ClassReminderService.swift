@@ -93,7 +93,20 @@ public final class ClassReminderService: ClassReminderServiceProtocol, @unchecke
     }
     for await activity in Activity<TimetableActivityAttributes>.activityUpdates {
       let id = activity.id
+      await endDuplicates(keeping: id)
       _Concurrency.Task { await self.observeToken(ofActivityWithID: id) }
+    }
+  }
+
+  /// One activity per session: if the server ever starts a session twice (a retried push, a
+  /// schedule edit mid-session), the newest activity stays and the others end.
+  private func endDuplicates(keeping id: String) async {
+    let activities = Activity<TimetableActivityAttributes>.activities
+    guard let kept = activities.first(where: { $0.id == id }) else { return }
+    for activity in activities where activity.id != id
+      && activity.attributes.sessionDate == kept.attributes.sessionDate
+      && activity.attributes.sessionNo == kept.attributes.sessionNo {
+      await activity.end(nil, dismissalPolicy: .immediate)
     }
   }
 
@@ -245,28 +258,45 @@ public final class ClassReminderService: ClassReminderServiceProtocol, @unchecke
 
   #if DEBUG
   /// `-ClassReminderTestClassIn <minutes>` copies two of the timetable's lectures into today,
-  /// the first starting that many minutes from now and the second 15 minutes after it ends, so
-  /// the server's pushes can be watched on any day.
+  /// the first starting that many minutes after launch and the second 5 minutes after it ends,
+  /// so the server's pushes can be watched on any day. The start time is fixed at the launch
+  /// that passed the argument and kept for later syncs, including background relaunches that
+  /// don't carry it, so re-syncs don't move the class.
   private static func testSlots(from slots: [ClassReminderDeviceRequestDTO.Slot]) -> [ClassReminderDeviceRequestDTO.Slot] {
-    let minutes = UserDefaults.standard.integer(forKey: "ClassReminderTestClassIn")
-    guard minutes > 0 else { return [] }
+    let defaults = UserDefaults.standard
+    let anchorKey = "ClassReminderTestClassAnchor"
+    if let minutes = defaults.volatileDomain(forName: UserDefaults.argumentDomain)["ClassReminderTestClassIn"]
+      .flatMap({ Int("\($0)") }), minutes > 0, testAnchorLaunch == nil {
+      testAnchorLaunch = Date.now.addingTimeInterval(TimeInterval(minutes * 60))
+      defaults.set(testAnchorLaunch, forKey: anchorKey)
+    }
+    guard let anchor = defaults.object(forKey: anchorKey) as? Date else { return [] }
+    // Drop the test classes once both are over.
+    guard anchor.addingTimeInterval(50 * 60) > .now else {
+      defaults.removeObject(forKey: anchorKey)
+      return []
+    }
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = TimeZone(identifier: "Asia/Seoul")!
-    let now = calendar.dateComponents([.weekday, .hour, .minute], from: .now)
-    let today = ((now.weekday ?? 2) + 5) % 7  // Calendar's Sunday = 1 → OTL's Monday = 0
-    let firstBegin = (now.hour ?? 0) * 60 + (now.minute ?? 0) + minutes
+    let start = calendar.dateComponents([.weekday, .hour, .minute], from: anchor)
+    let day = ((start.weekday ?? 2) + 5) % 7  // Calendar's Sunday = 1 → OTL's Monday = 0
+    let firstBegin = (start.hour ?? 0) * 60 + (start.minute ?? 0)
     let lectures = slots.filter { $0.kind == "lecture" }
+    // 20-minute classes 5 minutes apart, so a whole session fits even late in the evening.
     return [0, 1].compactMap { index -> ClassReminderDeviceRequestDTO.Slot? in
       guard let source = lectures.indices.contains(index) ? lectures[index] : lectures.first else { return nil }
-      let begin = firstBegin + index * 90
-      guard begin + 75 <= 1440 else { return nil }
+      let begin = firstBegin + index * 25
+      let end = min(begin + 20, 1440)
+      guard end - begin >= 5 else { return nil }
       return .init(
-        id: "TEST:\(index)", day: today, begin: begin, end: begin + 75, title: source.title,
+        id: "TEST:\(index)", day: day, begin: begin, end: end, title: source.title,
         buildingCode: source.buildingCode, buildingName: source.buildingName, room: source.room,
         kind: "lecture", colorID: source.colorID
       )
     }
   }
+
+  nonisolated(unsafe) private static var testAnchorLaunch: Date?
   #endif
 
   private static func hash(of body: ClassReminderDeviceRequestDTO) -> String {
