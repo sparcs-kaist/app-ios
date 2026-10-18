@@ -403,15 +403,21 @@ private struct TimetableActivityTimerText: View {
 
   var body: some View {
     let now = frozenDate ?? .now
+    // Counting to a minute past the target rounds the minutes up: 14:30 left reads "15분" and
+    // the last minute reads "1분", so "0분" never shows before the target. At the target the
+    // activity changes anyway (stale date or the next push).
     let format = SystemFormatStyle.Timer(
-      countingDownIn: now..<max(target, now),
+      countingDownIn: now..<max(target, now).addingTimeInterval(59),
       showsHours: style == .full,
       maxFieldCount: style == .full ? 2 : 1,
       maxPrecision: .seconds(60)
     )
     let current = Text(format.format(now))
     Group {
-      if frozenDate != nil {
+      if target.timeIntervalSince(now) < 60 {
+        // Drawn within the last minute: there's nothing left to count.
+        Text("Now", bundle: .module)
+      } else if frozenDate != nil {
         current
       } else {
         // A live timer fills every point it's offered, which would stretch the island over the

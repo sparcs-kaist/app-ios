@@ -41,6 +41,16 @@
         }
       }
     },
+    "Now" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금"
+          }
+        }
+      }
+    },
     "Starts in" : {
       "localizations" : {
         "ko" : {
