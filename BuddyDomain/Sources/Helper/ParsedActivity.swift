@@ -16,7 +16,8 @@ import Foundation
 public struct ParsedActivity: Equatable, Sendable {
   public var title: String?
   public var location: String?
-  public var day: DayType?
+  /// Every day it meets on, in the order named, e.g. all seven for "every day".
+  public var days: [DayType]
   /// Minutes from midnight.
   public var begin: Int?
   /// Minutes from midnight, after `begin`.
@@ -26,14 +27,21 @@ public struct ParsedActivity: Equatable, Sendable {
     title: String? = nil,
     location: String? = nil,
     day: DayType? = nil,
+    days: [DayType] = [],
     begin: Int? = nil,
     end: Int? = nil
   ) {
     self.title = title
     self.location = location
-    self.day = day
+    self.days = days.isEmpty ? day.map { [$0] } ?? [] : days
     self.begin = begin
     self.end = end
+  }
+
+  /// The first day it meets on.
+  public var day: DayType? {
+    get { days.first }
+    set { days = newValue.map { [$0] } ?? [] }
   }
 
   /// From the clock times the model gives, which it is asked for on a 24-hour
@@ -45,7 +53,8 @@ public struct ParsedActivity: Equatable, Sendable {
   public init(
     title: String?,
     location: String?,
-    day: DayType?,
+    day: DayType? = nil,
+    days: [DayType] = [],
     startHour: Int?,
     startMinute: Int?,
     endHour: Int?,
@@ -70,6 +79,7 @@ public struct ParsedActivity: Equatable, Sendable {
       title: Self.cleaned(title),
       location: Self.cleaned(location),
       day: day,
+      days: days,
       begin: begin,
       end: end
     )
@@ -77,7 +87,7 @@ public struct ParsedActivity: Equatable, Sendable {
 
   /// Whether the description gave anything to fill in.
   public var isEmpty: Bool {
-    title == nil && location == nil && day == nil && begin == nil
+    title == nil && location == nil && days.isEmpty && begin == nil
   }
 
   private static let minutesInDay = 24 * 60

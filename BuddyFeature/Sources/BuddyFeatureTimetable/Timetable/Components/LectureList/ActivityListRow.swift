@@ -25,7 +25,7 @@ struct ActivityListRow: View {
 					.lineLimit(1)
 				
 				HStack {
-					makeLabel("\(activity.day.stringValue) \(TimetableTimeSelection.formattedTime(activity.begin)) – \(TimetableTimeSelection.formattedTime(activity.end))", systemImage: "clock")
+					makeLabel(timesDescription, systemImage: "clock")
 					if !activity.location.isEmpty {
 						makeLabel(activity.location, systemImage: "mappin.and.ellipse")
 					}
@@ -38,6 +38,13 @@ struct ActivityListRow: View {
 		}
 	}
 	
+	/// Every time range, e.g. "Mon 10:00 – 11:00, Fri 14:00 – 15:00".
+	private var timesDescription: String {
+		activity.times
+			.map { "\($0.day.stringValue) \(TimetableTimeSelection.formattedTime($0.begin)) – \(TimetableTimeSelection.formattedTime($0.end))" }
+			.formatted(.list(type: .and, width: .narrow))
+	}
+
 	private func makeLabel(_ text: String, systemImage: String) -> some View {
 		HStack(alignment: .center, spacing: 4) {
 			Image(systemName: systemImage)

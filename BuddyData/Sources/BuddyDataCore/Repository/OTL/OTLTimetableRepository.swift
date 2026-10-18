@@ -40,15 +40,29 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
   }
 
   public func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws {
-    _ = try await provider.request(.createActivity(timetableID: timetableID, draft: draft))
+    try await updateItems(timetableID: timetableID, changes: [.addActivity(draft)])
   }
 
   public func updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft) async throws {
-    _ = try await provider.request(.updateActivity(timetableID: timetableID, activityID: activityID, draft: draft))
+    try await updateItems(timetableID: timetableID, changes: [.updateActivity(activityID: activityID, draft)])
   }
 
   public func deleteActivity(timetableID: Int, activityID: Int) async throws {
-    _ = try await provider.request(.deleteActivity(timetableID: timetableID, activityID: activityID))
+    try await updateItems(timetableID: timetableID, changes: [.removeActivity(activityID: activityID)])
+  }
+
+  /// Every lecture and activity change goes through the batch endpoint, which
+  /// checks overlaps against the server's own copy, times this client can't see
+  /// included.
+  @discardableResult
+  public func updateItems(timetableID: Int, changes: [TimetableItemChange]) async throws -> [Int] {
+    let response: Response
+    do {
+      response = try await provider.request(.updateItems(timetableID: timetableID, changes: changes))
+    } catch NetworkError.serverError(statusCode: 409) {
+      throw TimetableActivityError.overlap
+    }
+    return try response.map(TimetableItemsUpdateDTO.self).results.sorted { $0.index < $1.index }.map(\.id)
   }
 
   public func createTable(year: Int, semester: SemesterType) async throws -> TableCreation {
@@ -80,12 +94,11 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
   }
 
   public func addLecture(timetableID: Int, lectureID: Int) async throws {
-    _ = try await self.provider.request(.addLecture(timetableID: timetableID, lectureID: lectureID))
+    try await updateItems(timetableID: timetableID, changes: [.addLecture(lectureID: lectureID)])
   }
 
   public func deleteLecture(timetableID: Int, lectureID: Int) async throws {
-    _ = try await self.provider
-      .request(.deleteLecture(timetableID: timetableID, lectureID: lectureID))
+    try await updateItems(timetableID: timetableID, changes: [.removeLecture(lectureID: lectureID)])
   }
 
   public func getSemesters() async throws -> [Semester] {

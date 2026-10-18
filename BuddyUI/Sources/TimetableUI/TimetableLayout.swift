@@ -30,7 +30,7 @@ struct TimetableLayout {
     timeLabelWidth = placement == .widget ? 14 : Self.hoursWidth
 
     let validClasses = classes.filter { $0.end > $0.begin }
-    let validActivities = activities.filter { $0.duration > 0 }
+    let validActivities = activities.flatMap(\.times).filter { $0.duration > 0 }
     let earliest = (validClasses.map(\.begin) + validActivities.map(\.begin)).min()
     let latest = (validClasses.map(\.end) + validActivities.map(\.end)).max()
 

@@ -295,6 +295,23 @@
         }
       }
     },
+    "Add Time" : {
+      "comment" : "Adds another weekly time range to a custom activity.",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Time"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간 추가"
+          }
+        }
+      }
+    },
     "Add to \"%@\"" : {
       "localizations" : {
         "en" : {
@@ -2105,6 +2122,23 @@
         }
       }
     },
+    "Remove Time" : {
+      "comment" : "Removes one weekly time range from a custom activity.",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Time"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간 삭제"
+          }
+        }
+      }
+    },
     "Rename" : {
       "localizations" : {
         "en" : {
@@ -2783,6 +2817,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 시간표는 오프라인에서 사용할 수 없습니다. 다운로드하려면 인터넷에 연결하십시오."
+          }
+        }
+      }
+    },
+    "Time %lld" : {
+      "comment" : "Header for one of a custom activity's weekly time ranges. The argument is its position, starting at 1.",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time %lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시간 %lld"
           }
         }
       }

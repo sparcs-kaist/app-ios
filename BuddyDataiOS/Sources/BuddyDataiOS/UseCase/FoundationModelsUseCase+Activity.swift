@@ -20,8 +20,8 @@ private struct GeneratedActivity {
   @Guide(description: "Where the activity happens, only if the person names a place such as a building or room.")
   var location: String?
 
-  @Guide(description: "The day of the week, only if the person names one.")
-  var day: GeneratedDay?
+  @Guide(description: "Every day of the week it happens on, only if the person names them: all seven for every day, Monday to Friday for weekdays.")
+  var days: [GeneratedDay]
 
   @Guide(description: "The hour it starts on a 24-hour clock, from 0 to 23, only if given.")
   var startHour: Int?
@@ -56,7 +56,9 @@ extension FoundationModelsUseCase {
     repeats, such as every or weekly. Give the place only if they say where it \
     happens: the name of a club, team or event is not a place.
 
-    Give the day of the week only if they name one. Give times on a 24-hour \
+    Give the days of the week only if they name them, every one they name: \
+    all seven for every day, Monday to Friday for weekdays, Saturday and \
+    Sunday for weekends. Give times on a 24-hour \
     clock: afternoon and evening times are 12 or more, \
     so 7 in the evening is 19. Give an end time only if they give one, and a \
     length only if they give one instead. Leave out anything they don't say \
@@ -68,7 +70,7 @@ extension FoundationModelsUseCase {
   /// A description far longer than this is a paste, not an activity.
   private static let maximumActivityDescriptionLength = 200
 
-  /// The day and the times come from `ActivityDescriptionScanner` where it
+  /// The days and the times come from `ActivityDescriptionScanner` where it
   /// finds them, and from the model only where it doesn't: the model misread
   /// Korean times, and it isn't told today's day, which it answered with
   /// whatever day was named.
@@ -101,15 +103,16 @@ extension FoundationModelsUseCase {
     var parsed = ParsedActivity(
       title: generated.title,
       location: generated.location,
-      day: generated.day.map(Self.dayType),
+      days: generated.days.map(Self.dayType),
       startHour: generated.startHour,
       startMinute: generated.startMinute,
       endHour: generated.endHour,
       endMinute: generated.endMinute,
       durationMinutes: generated.durationMinutes
     )
-    if let day = ActivityDescriptionScanner.day(in: request, today: today) {
-      parsed.day = day
+    let days = ActivityDescriptionScanner.days(in: request, today: today)
+    if !days.isEmpty {
+      parsed.days = days
     }
     if let times = ActivityDescriptionScanner.times(in: request) {
       parsed.begin = times.begin

@@ -17,22 +17,38 @@ import Foundation
 public enum ActivityDescriptionScanner {
   /// The first day the description names, by name or as today or tomorrow.
   public static func day(in text: String, today: DayType) -> DayType? {
-    var found: (position: Int, day: DayType)?
-    func consider(_ position: Int, _ day: DayType) {
-      if found == nil || position < found!.position { found = (position, day) }
-    }
+    days(in: text, today: today).first
+  }
+
+  /// Every day the description names, in the order it names them: by name,
+  /// as a run such as 월수금, as today or tomorrow, or as a group such as
+  /// "every day", weekdays or 주말.
+  public static func days(in text: String, today: DayType) -> [DayType] {
+    var found: [(position: Int, days: [DayType])] = []
 
     for match in matches(of: koreanDay, in: text) {
-      if let name = match.groups[1], let day = koreanDays[String(name)] { consider(match.position, day) }
+      if let name = match.groups[1], let day = koreanDays[String(name)] { found.append((match.position, [day])) }
+    }
+    for match in matches(of: koreanDayRun, in: text) {
+      guard let run = match.groups[1] else { continue }
+      found.append((match.position, run.compactMap { koreanDays[String($0)] }))
     }
     for match in matches(of: englishDay, in: text) {
-      if let name = match.groups[1], let day = englishDays[name.lowercased()] { consider(match.position, day) }
+      if let name = match.groups[1], let day = englishDays[name.lowercased()] { found.append((match.position, [day])) }
     }
     for match in matches(of: relativeDay, in: text) {
       let isTomorrow = ["내일", "tomorrow"].contains(match.groups[1]?.lowercased() ?? "")
-      consider(match.position, isTomorrow ? today.next : today)
+      found.append((match.position, [isTomorrow ? today.next : today]))
     }
-    return found?.day
+    for (expression, days) in dayGroups {
+      for match in matches(of: expression, in: text) { found.append((match.position, days)) }
+    }
+
+    var days: [DayType] = []
+    for day in found.sorted(by: { $0.position < $1.position }).flatMap(\.days) where !days.contains(day) {
+      days.append(day)
+    }
+    return days
   }
 
   /// The first time or range of times the description gives, in minutes from
@@ -139,6 +155,16 @@ public enum ActivityDescriptionScanner {
     #"\b((?i:monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tues|tue|weds|wed|thurs|thur|thu|fri)|Sat|Sun)s?\b"#
   )
   private static let relativeDay = expression(#"(오늘|내일|(?i:today|tomorrow))"#)
+  /// Two or more day initials together, such as 월수금 or 화/목, standing alone
+  /// so words such as 일요일 or 금요일 aren't read as runs.
+  private static let koreanDayRun = expression(
+    #"(?<![가-힣])([월화수목금토일](?:\s*[,/·]?\s*[월화수목금토일])+)(?![가-힣])"#
+  )
+  private static let dayGroups: [(NSRegularExpression, [DayType])] = [
+    (expression(#"매일|날마다|(?i:\bevery\s*day\b|\bdaily\b)"#), DayType.allCases.sorted()),
+    (expression(#"평일|주중|(?i:\bweekdays\b|\bevery\s+weekday\b)"#), DayType.weekdays),
+    (expression(#"주말|(?i:\bweekends?\b)"#), [.sat, .sun]),
+  ]
 
   // MARK: - Matching
 

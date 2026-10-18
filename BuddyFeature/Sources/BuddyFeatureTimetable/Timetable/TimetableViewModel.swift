@@ -264,7 +264,14 @@ public final class TimetableViewModel {
         try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       } else {
         guard replacingConflicts else { throw TimetableActivityError.overlap }
-        try await replace(overlapping, with: lecture, in: selectedTimetableID, using: timetableUseCase)
+        // One batch, which the server applies all together or not at all: a failure
+        // leaves every lecture and activity where it was, with nothing to put back.
+        let removals: [TimetableItemChange] = overlapping.lectures.map { .removeLecture(lectureID: $0.id) }
+          + overlapping.activities.map { .removeActivity(activityID: $0.id) }
+        try await timetableUseCase.applyChanges(
+          timetableID: selectedTimetableID,
+          changes: removals + [.addLecture(lectureID: lecture.id)]
+        )
         analyticsService?.logEvent(TimetableViewEvent.lectureReplaced)
       }
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
@@ -280,38 +287,6 @@ public final class TimetableViewModel {
         message: error.localizedDescription
       )
       isAlertPresented = true
-    }
-  }
-
-  /// Removes what `lecture` overlaps, then adds it. If any step fails, whatever was removed is
-  /// put back, so a failed replacement never loses lectures or activities.
-  private func replace(
-    _ overlapping: (lectures: [Lecture], activities: [TimetableActivity]),
-    with lecture: Lecture,
-    in timetableID: Int,
-    using timetableUseCase: TimetableUseCaseProtocol
-  ) async throws {
-    var removedLectures: [Lecture] = []
-    var removedActivities: [TimetableActivity] = []
-    do {
-      for old in overlapping.lectures {
-        try await timetableUseCase.deleteLecture(timetableID: timetableID, lectureID: old.id)
-        removedLectures.append(old)
-      }
-      for activity in overlapping.activities {
-        _ = try await timetableUseCase.deleteActivity(timetableID: timetableID, activityID: activity.id)
-        removedActivities.append(activity)
-      }
-      try await timetableUseCase.addLecture(timetableID: timetableID, lectureID: lecture.id)
-    } catch {
-      for old in removedLectures {
-        try? await timetableUseCase.addLecture(timetableID: timetableID, lectureID: old.id)
-      }
-      for activity in removedActivities {
-        // Recreated with a new ID; the server assigns one.
-        _ = try? await timetableUseCase.saveActivity(timetableID: timetableID, activityID: nil, draft: activity.draft)
-      }
-      throw error
     }
   }
 

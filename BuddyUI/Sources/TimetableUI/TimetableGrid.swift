@@ -94,12 +94,12 @@ public struct TimetableGrid: View {
     return GeometryReader { geometry in
       ZStack(alignment: .topLeading) {
         gridHorizontalLines(layout: layout, height: geometry.size.height)
-        ForEach(selectedTimetable?.activities.filter { $0.day == day && $0.duration > 0 } ?? []) { activity in
-          activityCell(activity)
+        ForEach(selectedTimetable?.activitySlots(day: day) ?? []) { slot in
+          activityCell(slot)
             .frame(width: geometry.size.width, height: max(0,
-              layout.offset(at: activity.end, height: geometry.size.height)
-              - layout.offset(at: activity.begin, height: geometry.size.height) - TimetableLayout.cellSpacing))
-            .offset(y: layout.offset(at: activity.begin, height: geometry.size.height))
+              layout.offset(at: slot.end, height: geometry.size.height)
+              - layout.offset(at: slot.begin, height: geometry.size.height) - TimetableLayout.cellSpacing))
+            .offset(y: layout.offset(at: slot.begin, height: geometry.size.height))
         }
         ForEach(cells) { cell in
           TimetableGridCell(
@@ -127,9 +127,10 @@ public struct TimetableGrid: View {
   }
 
   @ViewBuilder
-  private func activityCell(_ activity: TimetableActivity) -> some View {
+  private func activityCell(_ slot: TimetableActivitySlot) -> some View {
+    let activity = slot.activity
     if placement == .view, onEditActivity != nil || onDeleteActivity != nil {
-      TimetableActivityCell(activity: activity, placement: placement)
+      TimetableActivityCell(slot: slot, placement: placement)
         .contextMenu {
           if let onEditActivity {
             Button(String(localized: "Edit Activity", bundle: .module), systemImage: "pencil") { onEditActivity(activity) }
@@ -139,7 +140,7 @@ public struct TimetableGrid: View {
           }
         }
     } else {
-      TimetableActivityCell(activity: activity, placement: placement)
+      TimetableActivityCell(slot: slot, placement: placement)
     }
   }
 

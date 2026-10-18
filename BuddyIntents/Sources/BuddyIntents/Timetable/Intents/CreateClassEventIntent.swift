@@ -45,9 +45,7 @@ struct CreateClassEventIntent {
       let updated = try await ClassEventWriting.useCase()
         .saveActivity(timetableID: timetableID, activityID: nil, draft: draft)
       // The server assigns the ID. Overlaps are rejected, so the new slot's time is unique.
-      guard let created = updated.activities.first(where: {
-              $0.day == draft.day && $0.begin == draft.begin && $0.end == draft.end
-            }),
+      guard let created = updated.activities.first(where: { $0.times == draft.times }),
             let entity = ClassEventWriting.entity(activityID: created.id, in: updated,
                                                    timetableID: timetableID, active: active) else {
         throw ClassEventIntentError.timetableUnavailable

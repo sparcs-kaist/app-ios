@@ -3,7 +3,7 @@ import Foundation
 /// Turns the weekly timetable and the semester's academic dates into dated
 /// calendar events, always in KAIST time (`Calendar.kaist`).
 public enum ClassEventBuilder {
-  /// One weekly event per lecture class time and per activity, from the first
+  /// One weekly event per lecture class time and per activity time, from the first
   /// occurrence on or after the semester's start until the semester ends.
   ///
   /// - Parameter timetableID: The user table's ID, or nil for My Table.
@@ -32,16 +32,17 @@ public enum ClassEventBuilder {
       }
     }
 
-    let activities: [ClassEvent] = timetable.activities.compactMap { activity in
-      guard activity.duration > 0,
-            let start = firstOccurrence(of: activity.day, minute: activity.begin,
+    let activities: [ClassEvent] = timetable.activities.flatMap(\.slots).compactMap { slot in
+      let activity = slot.activity
+      guard slot.duration > 0,
+            let start = firstOccurrence(of: slot.day, minute: slot.begin,
                                         onOrAfter: semester.beginDate, calendar: calendar) else { return nil }
       let location = activity.location.trimmingCharacters(in: .whitespacesAndNewlines)
       return ClassEvent(
-        id: ClassEvent.activityID(timetableID: timetableID, activityID: activity.id),
+        id: ClassEvent.activityID(timetableID: timetableID, activityID: activity.id, timeIndex: slot.timeIndex),
         title: activity.title,
         startDate: start,
-        endDate: start.addingTimeInterval(TimeInterval(activity.duration * 60)),
+        endDate: start.addingTimeInterval(TimeInterval(slot.duration * 60)),
         recurrence: recurrence,
         location: location.isEmpty ? nil : location
       )

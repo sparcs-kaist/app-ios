@@ -43,7 +43,7 @@ struct UpdateClassEventIntent {
       // Unspecified values keep their current setting; a new start keeps the length.
       let newStart = startDate ?? event.startDate
       let newEnd = endDate ?? newStart.addingTimeInterval(event.endDate.timeIntervalSince(event.startDate))
-      let draft = try ClassEventWritePolicy.draft(
+      let moved = try ClassEventWritePolicy.draft(
         title: title ?? activity.title,
         startDate: newStart,
         endDate: newEnd,
@@ -51,14 +51,16 @@ struct UpdateClassEventIntent {
         isAllDay: isAllDay ?? false,
         recurrence: recurrence
       )
+      // Only this event's time range moves; the activity's other ranges stay.
+      let draft = try ClassEventWritePolicy.updating(activity, timeIndex: target.timeIndex, with: moved)
 
       let updated = try await useCase.saveActivity(
         timetableID: target.timetableID,
         activityID: target.activityID,
         draft: draft
       )
-      guard let entity = ClassEventWriting.entity(activityID: target.activityID, in: updated,
-                                                   timetableID: target.timetableID, active: active) else {
+      guard let entity = ClassEventWriting.entity(activityID: target.activityID, timeIndex: target.timeIndex,
+                                                   in: updated, timetableID: target.timetableID, active: active) else {
         throw ClassEventWriteError.activityNotFound
       }
       return .result(value: entity, dialog: "Updated \(entity.title) for every week.")

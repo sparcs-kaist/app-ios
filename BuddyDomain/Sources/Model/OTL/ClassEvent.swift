@@ -5,8 +5,9 @@ import Foundation
 public struct ClassEvent: Hashable, Sendable, Identifiable {
   public enum Kind: Hashable, Sendable {
     case lecture(lectureID: Int)
-    /// `timetableID` is nil for an activity on My Table.
-    case activity(timetableID: Int?, activityID: Int)
+    /// `timetableID` is nil for an activity on My Table. `timeIndex` is which of
+    /// the activity's time ranges the event is.
+    case activity(timetableID: Int?, activityID: Int, timeIndex: Int)
     case academic
   }
 
@@ -60,8 +61,11 @@ public struct ClassEvent: Hashable, Sendable, Identifiable {
     "lec:\(lecture.id):\(lectureClass.day.rawValue):\(lectureClass.begin)-\(lectureClass.end)"
   }
 
-  public static func activityID(timetableID: Int?, activityID: Int) -> String {
-    "act:\(timetableID.map(String.init) ?? "my"):\(activityID)"
+  /// The first time range keeps the original three-part form, so a single-range
+  /// activity's identifier is unchanged; later ranges append their index.
+  public static func activityID(timetableID: Int?, activityID: Int, timeIndex: Int = 0) -> String {
+    let id = "act:\(timetableID.map(String.init) ?? "my"):\(activityID)"
+    return timeIndex == 0 ? id : "\(id):\(timeIndex)"
   }
 
   public static func academicID(semester: Semester, field: String) -> String {
@@ -81,10 +85,12 @@ public struct ClassEvent: Hashable, Sendable, Identifiable {
       guard parts.count == 4, let lectureID = Int(parts[1]) else { return nil }
       return .lecture(lectureID: lectureID)
     case "act":
-      guard parts.count == 3, let activityID = Int(parts[2]) else { return nil }
-      if parts[1] == "my" { return .activity(timetableID: nil, activityID: activityID) }
+      guard parts.count == 3 || parts.count == 4, let activityID = Int(parts[2]) else { return nil }
+      let timeIndex = parts.count == 4 ? Int(parts[3]) : 0
+      guard let timeIndex, timeIndex >= 0 else { return nil }
+      if parts[1] == "my" { return .activity(timetableID: nil, activityID: activityID, timeIndex: timeIndex) }
       guard let timetableID = Int(parts[1]) else { return nil }
-      return .activity(timetableID: timetableID, activityID: activityID)
+      return .activity(timetableID: timetableID, activityID: activityID, timeIndex: timeIndex)
     case "acad":
       return parts.count == 3 ? .academic : nil
     default:

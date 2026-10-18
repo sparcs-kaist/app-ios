@@ -124,11 +124,47 @@ struct ClassEventBuilderTests {
     table.activities = [TimetableActivity(id: 17, title: "Gym", location: " ", day: .fri, begin: 900, end: 960)]
     let event = ClassEventBuilder.events(for: table, timetableID: 42, semester: autumn2026)[0]
     #expect(event.id == "act:42:17")
-    #expect(event.kind == .activity(timetableID: 42, activityID: 17))
+    #expect(event.kind == .activity(timetableID: 42, activityID: 17, timeIndex: 0))
     #expect(event.location == nil)
     #expect(event.startDate == date("2026-09-04T06:00:00Z"))   // Fri 15:00 KST
     let onMyTable = ClassEventBuilder.events(for: table, timetableID: nil, semester: autumn2026)[0]
-    #expect(onMyTable.kind == .activity(timetableID: nil, activityID: 17))
+    #expect(onMyTable.kind == .activity(timetableID: nil, activityID: 17, timeIndex: 0))
+  }
+
+  @Test func eachActivityTimeIsItsOwnSeries() {
+    var table = Timetable(id: "42", lectures: [])
+    table.activities = [TimetableActivity(id: 17, title: "Study", location: "Library", times: [
+      .init(day: .mon, begin: 600, end: 660),
+      .init(day: .fri, begin: 840, end: 900),
+    ])]
+    // Sorted by start: the semester's first Friday comes before its first Monday.
+    let events = ClassEventBuilder.events(for: table, timetableID: 42, semester: autumn2026)
+    // The first range keeps the single-range identifier, so existing Spotlight entries stay valid.
+    #expect(events.map(\.id) == ["act:42:17:1", "act:42:17"])
+    #expect(events.map(\.kind) == [
+      .activity(timetableID: 42, activityID: 17, timeIndex: 1),
+      .activity(timetableID: 42, activityID: 17, timeIndex: 0),
+    ])
+    #expect(events[0].startDate == date("2026-09-04T05:00:00Z"))   // Fri 14:00 KST
+  }
+
+  @Test func siriChangesOnlyTheTargetedTime() throws {
+    let activity = TimetableActivity(id: 17, title: "Study", location: "Library", times: [
+      .init(day: .mon, begin: 600, end: 660),
+      .init(day: .fri, begin: 840, end: 900),
+    ])
+    let moved = TimetableActivityDraft(title: "Study", location: "Library", day: .fri, begin: 1020, end: 1080)
+    let updated = try ClassEventWritePolicy.updating(activity, timeIndex: 1, with: moved)
+    #expect(updated.times == [.init(day: .mon, begin: 600, end: 660), .init(day: .fri, begin: 1020, end: 1080)])
+    let clash = TimetableActivityDraft(title: "Study", location: "Library", day: .mon, begin: 630, end: 690)
+    #expect(throws: TimetableActivityError.self) { try ClassEventWritePolicy.updating(activity, timeIndex: 1, with: clash) }
+    #expect(throws: ClassEventWriteError.activityNotFound) {
+      try ClassEventWritePolicy.updating(activity, timeIndex: 2, with: moved)
+    }
+
+    #expect(try ClassEventWritePolicy.removing(timeIndex: 0, from: activity)?.times == [.init(day: .fri, begin: 840, end: 900)])
+    let single = TimetableActivity(id: 18, title: "Gym", location: "", day: .tue, begin: 600, end: 660)
+    #expect(try ClassEventWritePolicy.removing(timeIndex: 0, from: single) == nil)
   }
 
   @Test func academicDatesAreAllDayAndSkipMissingDates() {
@@ -185,9 +221,11 @@ struct ClassEventBuilderTests {
     let lectureID = ClassEvent.lectureID(systemProgramming, systemProgramming.classes[0])
     #expect(lectureID == "lec:101:0:540-630")
     #expect(ClassEvent.kind(of: lectureID) == .lecture(lectureID: 101))
-    #expect(ClassEvent.kind(of: "act:my:3") == .activity(timetableID: nil, activityID: 3))
+    #expect(ClassEvent.kind(of: "act:my:3") == .activity(timetableID: nil, activityID: 3, timeIndex: 0))
     #expect(ClassEvent.kind(of: lectureID + "@2026-09-07") == .lecture(lectureID: 101))
-    #expect(ClassEvent.kind(of: "act:42:3@2026-09-04") == .activity(timetableID: 42, activityID: 3))
+    #expect(ClassEvent.kind(of: "act:42:3@2026-09-04") == .activity(timetableID: 42, activityID: 3, timeIndex: 0))
+    #expect(ClassEvent.kind(of: "act:42:3:1@2026-09-04") == .activity(timetableID: 42, activityID: 3, timeIndex: 1))
+    #expect(ClassEvent.kind(of: "act:42:3:x") == nil)
     #expect(ClassEvent.kind(of: "acad:2026-Autumn:end") == .academic)
     #expect(ClassEvent.kind(of: "act:x:3") == nil)
     #expect(ClassEvent.kind(of: "lec:101") == nil)
@@ -278,10 +316,10 @@ struct ClassEventWritePolicyTests {
     #expect(throws: ClassEventWriteError.lectureIsReadOnly) { try ClassEventWritePolicy.activity(for: .lecture(lectureID: 1)) }
     #expect(throws: ClassEventWriteError.academicIsReadOnly) { try ClassEventWritePolicy.activity(for: .academic) }
     #expect(throws: ClassEventWriteError.myTableIsReadOnly) {
-      try ClassEventWritePolicy.activity(for: .activity(timetableID: nil, activityID: 3))
+      try ClassEventWritePolicy.activity(for: .activity(timetableID: nil, activityID: 3, timeIndex: 0))
     }
-    let target = try ClassEventWritePolicy.activity(for: .activity(timetableID: 42, activityID: 3))
-    #expect(target.timetableID == 42 && target.activityID == 3)
+    let target = try ClassEventWritePolicy.activity(for: .activity(timetableID: 42, activityID: 3, timeIndex: 1))
+    #expect(target.timetableID == 42 && target.activityID == 3 && target.timeIndex == 1)
   }
 
   @Test func draftsUseKAISTTimeAndDefaultToOneHour() throws {
@@ -294,7 +332,48 @@ struct ClassEventWritePolicyTests {
     let weekly = Calendar.RecurrenceRule.weekly(calendar: .kaist)
     let draft = try ClassEventWritePolicy.draft(title: "Gym", startDate: date("2026-10-16T06:00:00Z"),
                                                 endDate: date("2026-10-16T08:00:00Z"), location: nil, recurrence: weekly)
-    #expect(draft.end == 1020)
+    #expect(draft.times.first?.end == 1020)
+  }
+
+  @Test func weeklyRulesOnSeveralWeekdaysBecomeATimeEach() throws {
+    // "Study every Monday and Wednesday at 7pm", starting Monday 12 October.
+    var rule = Calendar.RecurrenceRule.weekly(calendar: .kaist)
+    rule.weekdays = [.every(.monday), .every(.wednesday)]
+    let draft = try ClassEventWritePolicy.draft(title: "Study", startDate: date("2026-10-12T10:00:00Z"),
+                                                endDate: nil, location: nil, recurrence: rule)
+    #expect(draft.times == [.init(day: .mon, begin: 1140, end: 1200), .init(day: .wed, begin: 1140, end: 1200)])
+
+    // A start on a day the rule doesn't name still meets then.
+    rule.weekdays = [.every(.friday)]
+    let fromTuesday = try ClassEventWritePolicy.draft(title: "Study", startDate: date("2026-10-13T10:00:00Z"),
+                                                      endDate: nil, location: nil, recurrence: rule)
+    #expect(fromTuesday.times.map(\.day) == [.tue, .fri])
+  }
+
+  @Test func weeklyRulesThatNarrowFurtherAreRefused() {
+    let start = date("2026-10-12T10:00:00Z")
+    var nth = Calendar.RecurrenceRule.weekly(calendar: .kaist)
+    nth.weekdays = [.nth(2, .monday)]
+    #expect(throws: ClassEventWriteError.nonWeeklyRecurrence) {
+      try ClassEventWritePolicy.draft(title: "Study", startDate: start, endDate: nil, location: nil, recurrence: nth)
+    }
+    var months = Calendar.RecurrenceRule.weekly(calendar: .kaist)
+    months.months = [10]
+    #expect(throws: ClassEventWriteError.nonWeeklyRecurrence) {
+      try ClassEventWritePolicy.draft(title: "Study", startDate: start, endDate: nil, location: nil, recurrence: months)
+    }
+  }
+
+  @Test func siriMovingOneTimeOntoSeveralDaysKeepsTheOthers() throws {
+    let activity = TimetableActivity(id: 17, title: "Study", location: "", times: [
+      .init(day: .mon, begin: 600, end: 660),
+      .init(day: .fri, begin: 840, end: 900),
+    ])
+    let moved = TimetableActivityDraft(title: "Study", location: "", times: [
+      .init(day: .tue, begin: 600, end: 660), .init(day: .thu, begin: 600, end: 660),
+    ])
+    let updated = try ClassEventWritePolicy.updating(activity, timeIndex: 0, with: moved)
+    #expect(updated.times.map(\.day) == [.tue, .thu, .fri])
   }
 
   @Test func draftsRefuseWhatAWeeklyActivityCannotBe() {

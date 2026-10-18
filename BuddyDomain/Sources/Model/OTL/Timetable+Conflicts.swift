@@ -22,7 +22,7 @@ public extension Timetable {
     let overlappingLectures = lectures.filter { other in
       other.id != lecture.id && other.classes.contains { overlapsLecture(day: $0.day, begin: $0.begin, end: $0.end) }
     }
-    let overlappingActivities = activities.filter { overlapsLecture(day: $0.day, begin: $0.begin, end: $0.end) }
+    let overlappingActivities = activities.filter { $0.times.contains { overlapsLecture(day: $0.day, begin: $0.begin, end: $0.end) } }
     return (overlappingLectures, overlappingActivities)
   }
 

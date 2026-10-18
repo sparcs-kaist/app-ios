@@ -36,6 +36,21 @@ struct TimetableConflictTests {
     #expect(clear.lectures.isEmpty && clear.activities.isEmpty)
   }
 
+  @Test func everyActivityTimeRangeCountsAndLaysOut() {
+    var table = timetable
+    table.activities = [TimetableActivity(id: 8, title: "Study", location: "", times: [
+      .init(day: .tue, begin: 540, end: 600),
+      .init(day: .thu, begin: 840, end: 900),
+    ])]
+    let candidate = lecture(id: 2, name: "Databases", [(.thu, 870, 960)])
+    #expect(table.overlapping(with: candidate).activities.map(\.id) == [8])
+    #expect(table.hasCollision(with: candidate))
+    #expect(table.activitySlots(day: .thu).map(\.id) == ["8-1"])
+    #expect(table.activitySlots(day: .tue).map(\.begin) == [540])
+    #expect(table.visibleDays.contains(.thu))
+    #expect(table.maxMinutes == 900)
+  }
+
   @Test func touchingEdgesDoNotConflict() {
     let candidate = lecture(id: 2, name: "Databases", [(.mon, 720, 810), (.fri, 690, 780)])
     #expect(timetable.conflicts(with: candidate).isEmpty)

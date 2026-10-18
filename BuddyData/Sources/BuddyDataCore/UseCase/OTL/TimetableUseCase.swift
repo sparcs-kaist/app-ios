@@ -330,6 +330,23 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     }
   }
 
+  public func applyChanges(timetableID: Int, changes: [TimetableItemChange]) async throws {
+    let context = CrashContext(
+      feature: feature,
+      metadata: [
+        "timetableID": "\(timetableID)",
+        "changeCount": "\(changes.count)"
+      ]
+    )
+
+    try await execute(context: context) {
+      try await self.otlTimetableRepository.updateItems(timetableID: timetableID, changes: changes)
+      self.cache?.invalidate(key: String(timetableID))
+      WidgetCenter.shared.reloadAllTimelines()
+      self.timetableIndexingService?.scheduleReindex()
+    }
+  }
+
   // MARK: - Private
   private func execute<T>(
     context: CrashContext,

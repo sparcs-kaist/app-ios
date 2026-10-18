@@ -325,6 +325,7 @@ private final class SelectionUseCase: TimetableUseCaseProtocol {
   func duplicateMyTable(semester: Semester, title: String) async throws -> TableDuplication { throw NetworkError.notFound }
   func addLecture(timetableID: Int, lectureID: Int) async throws { mutationCount += 1 }
   func deleteLecture(timetableID: Int, lectureID: Int) async throws { }
+  func applyChanges(timetableID: Int, changes: [TimetableItemChange]) async throws { mutationCount += 1 }
   func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws -> Timetable { throw NetworkError.notFound }
   func deleteActivity(timetableID: Int, activityID: Int) async throws -> Timetable { throw NetworkError.notFound }
 }

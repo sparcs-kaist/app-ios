@@ -36,15 +36,17 @@ enum ClassEventWriting {
     return active
   }
 
-  /// The activity's next meeting after a write, from the timetable the write
-  /// returned; its first meeting if the semester's meetings are all past.
+  /// The next meeting of one of the activity's time ranges after a write, from
+  /// the timetable the write returned; its first meeting if the semester's
+  /// meetings are all past.
   static func entity(
     activityID: Int,
+    timeIndex: Int = 0,
     in timetable: Timetable,
     timetableID: Int,
     active: ActiveTimetable
   ) -> ClassEventEntity? {
-    let id = ClassEvent.activityID(timetableID: timetableID, activityID: activityID)
+    let id = ClassEvent.activityID(timetableID: timetableID, activityID: activityID, timeIndex: timeIndex)
     let calendar = TimetableCalendarEntity(kind: .timetable, active: active)
     let meetings = ClassEventBuilder.occurrences(for: timetable, timetableID: timetableID, semester: active.semester)
       .filter { $0.id.hasPrefix(id + "@") }

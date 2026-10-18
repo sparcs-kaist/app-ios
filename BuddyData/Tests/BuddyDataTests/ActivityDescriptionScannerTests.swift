@@ -31,6 +31,27 @@ struct ActivityDescriptionScannerTests {
     #expect(ActivityDescriptionScanner.day(in: "화요일이랑 목요일 스터디", today: .sun) == .tue)
   }
 
+  @Test(arguments: [
+    ("Meeting at 22:00, everyday", DayType.allCases.sorted()),
+    ("Gym every day 7am", DayType.allCases.sorted()),
+    ("매일 밤 10시 회의", DayType.allCases.sorted()),
+    ("평일 아침 운동", DayType.weekdays),
+    ("Study on weekends 2pm", [.sat, .sun]),
+    ("화요일이랑 목요일 스터디", [.tue, .thu]),
+    ("월수금 9시 수영", [.mon, .wed, .fri]),
+    ("화/목 19:00 스터디", [.tue, .thu]),
+    ("Band practice Mon and Wed at 6pm", [.mon, .wed]),
+  ])
+  func everyNamedDay(text: String, days: [DayType]) {
+    #expect(ActivityDescriptionScanner.days(in: text, today: .sun) == days)
+  }
+
+  @Test func singleDaysAndWordsStayAsTheyAre() {
+    #expect(ActivityDescriptionScanner.days(in: "월요일 21-22시 SPARCS 정모", today: .sun) == [.mon])
+    #expect(ActivityDescriptionScanner.days(in: "일요일 예배", today: .mon) == [.sun])
+    #expect(ActivityDescriptionScanner.days(in: "SPARCS 정모", today: .mon).isEmpty)
+  }
+
   @Test func wordsThatOnlyLookLikeDaysAreIgnored() {
     #expect(ActivityDescriptionScanner.day(in: "I sat in the sun for a month", today: .mon) == nil)
     #expect(ActivityDescriptionScanner.day(in: "SPARCS 정모", today: .mon) == nil)

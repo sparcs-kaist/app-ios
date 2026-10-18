@@ -17,12 +17,9 @@ public enum OTLTimetableTarget {
   case createTable(year: Int, semester: Int)
   case deleteTable(timetableID: Int)
   case renameTable(timetableID: Int, title: String)
-  case addLecture(timetableID: Int, lectureID: Int)
-  case deleteLecture(timetableID: Int, lectureID: Int)
   case fetchActivities(timetableID: Int)
-  case createActivity(timetableID: Int, draft: TimetableActivityDraft)
-  case updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft)
-  case deleteActivity(timetableID: Int, activityID: Int)
+  /// Lecture and activity changes, applied all together or not at all.
+  case updateItems(timetableID: Int, changes: [TimetableItemChange])
   case fetchSemesters
   case fetchCurrentSemester
 }
@@ -42,12 +39,10 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
       "/api/v2/timetables/\(timetableID)"
     case .fetchMyTable:
       "/api/v2/timetables/my-timetable"
-    case .addLecture(let timetableID, _), .deleteLecture(let timetableID, _):
-      "/api/v2/timetables/\(timetableID)"
-    case .fetchActivities(let id), .createActivity(let id, _):
+    case .fetchActivities(let id):
       "/api/v2/timetables/\(id)/custom-blocks"
-    case .updateActivity(let id, let activityID, _), .deleteActivity(let id, let activityID):
-      "/api/v2/timetables/\(id)/custom-blocks/\(activityID)"
+    case .updateItems(let id, _):
+      "/api/v2/timetables/\(id)/items"
     case .fetchSemesters:
       "/api/v2/semesters"
     case .fetchCurrentSemester:
@@ -65,11 +60,11 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
          .fetchSemesters,
          .fetchCurrentSemester:
         .get
-    case .createTable, .createActivity:
+    case .createTable:
         .post
-    case .renameTable, .addLecture, .deleteLecture, .updateActivity:
+    case .renameTable, .updateItems:
         .patch
-    case .deleteTable, .deleteActivity:
+    case .deleteTable:
         .delete
     }
   }
@@ -81,21 +76,11 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
           "year": year,
           "semester": semester
         ], encoding: URLEncoding.default)
-    case .addLecture(_, let lectureID):
-        .requestParameters(parameters: [
-          "action": "add",
-          "lectureId": lectureID
-        ], encoding: JSONEncoding.default)
     case .createTable(let year, let semester):
         .requestParameters(parameters: [
           "year": year,
           "semester": semester,
           "lectureIds": []
-        ], encoding: JSONEncoding.default)
-    case .deleteLecture(_, let lectureID):
-        .requestParameters(parameters: [
-          "action": "delete",
-          "lectureId": lectureID
         ], encoding: JSONEncoding.default)
     case .deleteTable(let timetableID):
         .requestParameters(parameters: [
@@ -106,17 +91,34 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
           "id": timetableID,
           "name": title
         ], encoding: JSONEncoding.default)
-    case .createActivity(_, let draft), .updateActivity(_, _, let draft):
+    case .updateItems(_, let changes):
         .requestParameters(parameters: [
-          "block_name": draft.title,
-          "place": draft.location,
-          "day": draft.day.rawValue,
-          "begin": draft.begin,
-          "end": draft.end
+          "changes": changes.map(Self.parameters)
         ], encoding: JSONEncoding.default)
-    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester, .fetchActivities, .deleteActivity:
+    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester, .fetchActivities:
         .requestPlain
     }
+  }
+
+  private static func parameters(for change: TimetableItemChange) -> [String: Any] {
+    switch change {
+    case .addLecture(let lectureID): ["op": "add", "kind": "lecture", "lectureId": lectureID]
+    case .removeLecture(let lectureID): ["op": "remove", "kind": "lecture", "id": lectureID]
+    case .addActivity(let draft): ["op": "add", "kind": "custom", "data": parameters(for: draft)]
+    case .updateActivity(let activityID, let draft):
+      ["op": "update", "kind": "custom", "id": activityID, "data": parameters(for: draft)]
+    case .removeActivity(let activityID): ["op": "remove", "kind": "custom", "id": activityID]
+    }
+  }
+
+  /// `times` carries every range and replaces the block's existing ones on
+  /// update; the server derives the legacy day/begin/end from the first.
+  private static func parameters(for draft: TimetableActivityDraft) -> [String: Any] {
+    [
+      "block_name": draft.title,
+      "place": draft.location,
+      "times": draft.times.map { ["day": $0.day.rawValue, "begin": $0.begin, "end": $0.end] }
+    ]
   }
 
   public var headers: [String: String]? {
