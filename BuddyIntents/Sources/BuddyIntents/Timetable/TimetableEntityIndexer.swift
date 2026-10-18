@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import OSLog
 import CoreSpotlight
 import Synchronization
 import AppIntents
@@ -43,7 +44,7 @@ public final class TimetableEntityIndexer: TimetableIndexingServiceProtocol {
     guard #available(iOS 27.0, *) else { return }
     // Queued behind any rebuild already running, so it wipes whatever that wrote.
     await queue.run {
-      try? await Self.index.deleteAllSearchableItems()
+      try? await Self.removeAll(from: Self.index)
     }
   }
 
@@ -60,17 +61,38 @@ public final class TimetableEntityIndexer: TimetableIndexingServiceProtocol {
           let cache = TimetableCacheContainer.makeCache(),
           let active = await ActiveTimetableResolver(useCase: CachedTimetableUseCase(cache: cache)).resolve(),
           isSignedIn else {
+      logger.debug("Reindex skipped: signed out or no active timetable")
       return
     }
     let index = Self.index
+    let events = ClassEventEntity.all(for: active)
+    let lectures = LectureEntity.all(for: active)
+    logger.debug("""
+      Reindexing \(String(describing: active.source), privacy: .private): \
+      \(active.timetable.lectures.count) lectures, \(active.timetable.activities.count) activities, \
+      \(events.count) events
+      """)
     do {
-      try await index.deleteAllSearchableItems()
-      try await index.indexAppEntities(ClassEventEntity.all(for: active))
-      try await index.indexAppEntities(LectureEntity.all(for: active))
+      try await removeAll(from: index)
+      try await index.indexAppEntities(events)
+      try await index.indexAppEntities(lectures)
     } catch {
       // Spotlight is best-effort; the next timetable change reindexes again.
+      logger.error("Reindex failed: \(error, privacy: .public)")
     }
   }
+
+  /// Removes every entity as entities, which is what drops them from the
+  /// semantic index Siri answers from; clearing the searchable items alone left
+  /// Siri on the previous table after a selection change or an edit.
+  @available(iOS 27.0, *)
+  private static func removeAll(from index: CSSearchableIndex) async throws {
+    try await index.deleteAppEntities(ofType: ClassEventEntity.self)
+    try await index.deleteAppEntities(ofType: LectureEntity.self)
+    try await index.deleteAllSearchableItems()
+  }
+
+  private static let logger = Logger(subsystem: "org.sparcs.soap", category: "TimetableIndex")
 
   /// Sign-out clears the tokens before the index, so a missing refresh token
   /// means there is no schedule to index. A locked keychain reads as signed out
