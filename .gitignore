@@ -68,5 +68,3 @@ fastlane/test_output
 # Debug Secrets
 OTLDebugSecrets.swift
 
-# Local planning notes
-docs/live-activity-plan.md
