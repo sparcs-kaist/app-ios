@@ -282,19 +282,24 @@ struct ActivityCreationView: View {
   }
 
   /// Fills in what the description gave, leaving the rest as it was. Several
-  /// days, as in "every day at 22:00", become one time each, all at the same
-  /// hours; otherwise the description's time goes into the first range.
+  /// days or several times, as in "every day at 22:00" or "수요일 아침 7시,
+  /// 저녁 9시", become a time for each day at each hour; otherwise the
+  /// description's time goes into the first range.
   private func apply(_ parsed: ParsedActivity) {
     if let parsedTitle = parsed.title { title = parsedTitle }
     if let parsedLocation = parsed.location { location = parsedLocation }
     guard let time = times.first?.selection else { return }
-    let begin = parsed.begin ?? time.begin
+    let first = ParsedActivity.Time(begin: parsed.begin ?? time.begin, end: parsed.end)
+    let hours = [first] + parsed.laterTimes
+    let days = parsed.days.isEmpty ? [time.day] : parsed.days
     // A start with no end keeps the current length, as moving the start does.
-    let end = parsed.end ?? begin + time.duration
-    if parsed.days.count > 1 {
-      times = parsed.days.map { EditableTime(selection: TimetableTimeSelection(day: $0, begin: begin, end: end)) }
+    func selection(on day: DayType, at hour: ParsedActivity.Time) -> TimetableTimeSelection {
+      TimetableTimeSelection(day: day, begin: hour.begin, end: hour.end ?? hour.begin + time.duration)
+    }
+    if days.count > 1 || hours.count > 1 {
+      times = days.flatMap { day in hours.map { EditableTime(selection: selection(on: day, at: $0)) } }
     } else {
-      times[0].selection = TimetableTimeSelection(day: parsed.day ?? time.day, begin: begin, end: end)
+      times[0].selection = selection(on: days[0], at: first)
     }
     expandedField = nil
   }

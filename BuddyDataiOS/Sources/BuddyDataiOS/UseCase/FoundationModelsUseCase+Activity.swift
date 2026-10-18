@@ -114,12 +114,17 @@ extension FoundationModelsUseCase {
     if !days.isEmpty {
       parsed.days = days
     }
-    if let times = ActivityDescriptionScanner.times(in: request) {
-      parsed.begin = times.begin
+    let times = ActivityDescriptionScanner.allTimes(in: request)
+    if let first = times.first {
       // A length the model read still applies to a start found here.
-      parsed.end = times.end ?? generated.durationMinutes.flatMap { minutes in
-        minutes > 0 ? min(times.begin + minutes, 24 * 60) : nil
+      func end(from begin: Int, given end: Int?) -> Int? {
+        end ?? generated.durationMinutes.flatMap { minutes in
+          minutes > 0 ? min(begin + minutes, 24 * 60) : nil
+        }
       }
+      parsed.begin = first.begin
+      parsed.end = end(from: first.begin, given: first.end)
+      parsed.laterTimes = times.dropFirst().map { ParsedActivity.Time(begin: $0.begin, end: end(from: $0.begin, given: $0.end)) }
     }
     guard !parsed.isEmpty else { throw ActivityParsingError.nothingFound }
     return parsed

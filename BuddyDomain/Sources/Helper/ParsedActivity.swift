@@ -22,6 +22,20 @@ public struct ParsedActivity: Equatable, Sendable {
   public var begin: Int?
   /// Minutes from midnight, after `begin`.
   public var end: Int?
+  /// Any times after the first, for a description that names several, such as
+  /// "아침 7시, 저녁 9시". Empty unless `begin` is set.
+  public var laterTimes: [Time] = []
+
+  /// A start, in minutes from midnight, and an end when one was given.
+  public struct Time: Equatable, Sendable {
+    public var begin: Int
+    public var end: Int?
+
+    public init(begin: Int, end: Int? = nil) {
+      self.begin = begin
+      self.end = end
+    }
+  }
 
   public init(
     title: String? = nil,

@@ -86,6 +86,26 @@ struct ActivityDescriptionScannerTests {
     #expect(times("10-11시 스터디") == [10 * 60, 11 * 60])
   }
 
+  /// Each description with the begin and end, in minutes, of every time it gives.
+  private static let severalTimes: [(String, [[Int?]])] = [
+    ("수요일 아침 7시, 저녁 9시 운동", [[420, nil], [1260, nil]]),
+    ("수요일 아침 저녁 9시 운동", [[540, nil], [1260, nil]]),
+    ("아침이랑 저녁 9시 운동", [[540, nil], [1260, nil]]),
+    ("오전 오후 3시-4시 스터디", [[180, 240], [900, 960]]),
+    ("Gym at 7am and 9pm", [[420, nil], [1260, nil]]),
+    ("월요일 9-10시, 13-14시 조교", [[540, 600], [780, 840]]),
+  ]
+
+  @Test(arguments: severalTimes)
+  func everyTimeGiven(text: String, expected: [[Int?]]) {
+    #expect(ActivityDescriptionScanner.allTimes(in: text).map { [$0.begin, $0.end] } == expected)
+  }
+
+  @Test func lengthsAreNotTimes() {
+    #expect(ActivityDescriptionScanner.allTimes(in: "저녁 7시부터 2시간 운동").map { [$0.begin, $0.end] } == [[19 * 60, nil]])
+    #expect(times("저녁 9시 운동") == [21 * 60, nil])
+  }
+
   @Test func numbersThatAreNotTimesAreIgnored() {
     #expect(times("E11 412호에서 스터디") == nil)
     #expect(times("SPARCS 정모 with 3 people") == nil)

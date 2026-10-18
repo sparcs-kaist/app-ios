@@ -54,21 +54,52 @@ public enum ActivityDescriptionScanner {
   /// The first time or range of times the description gives, in minutes from
   /// midnight. `end` is `nil` when only a start is given.
   public static func times(in text: String) -> (begin: Int, end: Int?)? {
+    allTimes(in: text).first
+  }
+
+  /// Every time or range of times the description gives, in the order it gives
+  /// them, such as both in "아침 7시, 저녁 9시". Meridiems sharing one hour, as in
+  /// "아침 저녁 9시", each get that hour.
+  public static func allTimes(in text: String) -> [(begin: Int, end: Int?)] {
+    let text = expandingSharedHours(in: text)
+    var found: [(position: Int, time: (begin: Int, end: Int?))] = []
+    var rangeSpans: [Range<Int>] = []
+
     for match in matches(of: timeRange, in: text) {
       // Groups 1–7 are the start, 8 the word between, and 9–15 the end.
-      guard let start = Token(match.groups[1...7]), let end = Token(match.groups[9...15]) else { continue }
-      if start.isTimeLike || end.isTimeLike, let resolved = resolve(start, end) {
-        return resolved
-      }
+      guard let start = Token(match.groups[1...7]), let end = Token(match.groups[9...15]),
+            start.isTimeLike || end.isTimeLike, let resolved = resolve(start, end) else { continue }
+      found.append((match.position, resolved))
+      rangeSpans.append(match.position..<(match.position + match.length))
     }
-    for match in matches(of: singleTime, in: text) {
+    for match in matches(of: singleTime, in: text) where !rangeSpans.contains(where: { $0.contains(match.position) }) {
       guard let token = Token(match.groups[1...7]), token.isTimeLike,
             var hour = token.hour24(), hour < 24 else { continue }
       // As for ranges: nobody's weekly activity starts at 3am.
       if token.meridiem == nil, (1...6).contains(hour) { hour += 12 }
-      return (hour * 60 + token.minute, nil)
+      found.append((match.position, (hour * 60 + token.minute, nil)))
     }
-    return nil
+
+    var times: [(begin: Int, end: Int?)] = []
+    for (_, time) in found.sorted(by: { $0.position < $1.position })
+    where !times.contains(where: { $0.begin == time.begin && $0.end == time.end }) {
+      times.append(time)
+    }
+    return times
+  }
+
+  /// "아침 저녁 9시" as "아침 9시, 저녁 9시", so each meridiem reads as its own time.
+  private static func expandingSharedHours(in text: String) -> String {
+    var text = text
+    // Each pass splits off one leading meridiem; a handful covers any real description.
+    for _ in 0..<4 {
+      let expanded = sharedHour.stringByReplacingMatches(
+        in: text, range: NSRange(text.startIndex..., in: text), withTemplate: "$1 $3, $2$3"
+      )
+      if expanded == text { break }
+      text = expanded
+    }
+    return text
   }
 
   // MARK: - Times
@@ -139,13 +170,26 @@ public enum ActivityDescriptionScanner {
   /// A time: an optional Korean meridiem, the hour, then minutes after a colon
   /// or as 시 and 분, 시 반, and an optional am or pm. The hour can't follow a
   /// Latin letter or digit, so room numbers such as E11 aren't read as times.
-  private static let time = #"(?:(오전|오후|저녁|밤|아침|새벽|낮)\s*)?(?<![A-Za-z0-9])(\d{1,2})(?!\d)(?:\s*:\s*(\d{2})|\s*(시)(?:\s*(\d{1,2})\s*분|\s*(반))?)?(?:\s*([apAP])\.?\s*[mM]\b\.?)?"#
+  /// 시 followed by 간 is a length, as in 2시간, not a time.
+  private static let time = #"(?:(오전|오후|저녁|밤|아침|새벽|낮)\s*)?(?<![A-Za-z0-9])(\d{1,2})(?!\d)(?:\s*:\s*(\d{2})|\s*(시)(?!간)(?:\s*(\d{1,2})\s*분|\s*(반))?)?(?:\s*([apAP])\.?\s*[mM]\b\.?)?"#
 
   private static let timeRange = expression(
     time + #"\s*(-|–|—|~|〜|to|until|till|부터)\s*"# + time,
     options: .caseInsensitive
   )
   private static let singleTime = expression(time, options: .caseInsensitive)
+
+  /// A meridiem, an optional joining word, then another meridiem with the hour
+  /// (or range) both share: 1 is the first meridiem, 2 the second with its
+  /// spacing, and 3 the shared hour.
+  private static let sharedHour: NSRegularExpression = {
+    let meridiem = "오전|오후|저녁|밤|아침|새벽|낮"
+    let clock = #"\d{1,2}(?:\s*:\s*\d{2}|\s*시(?!간)(?:\s*\d{1,2}\s*분|\s*반)?)?"#
+    return expression(
+      "(\(meridiem))\\s*(?:,|및|과|와|이랑|랑|하고|그리고|/)?\\s*((?:\(meridiem))\\s*)"
+        + "(\(clock)(?:\\s*(?:-|–|—|~|〜|부터)\\s*\(clock))?)"
+    )
+  }()
 
   // MARK: - Days
 
@@ -180,12 +224,12 @@ public enum ActivityDescriptionScanner {
   private static func matches(
     of expression: NSRegularExpression,
     in text: String
-  ) -> [(position: Int, groups: [Substring?])] {
+  ) -> [(position: Int, length: Int, groups: [Substring?])] {
     expression.matches(in: text, range: NSRange(text.startIndex..., in: text)).map { result in
       let groups = (0..<result.numberOfRanges).map { index in
         Range(result.range(at: index), in: text).map { text[$0] }
       }
-      return (result.range.location, groups)
+      return (result.range.location, result.range.length, groups)
     }
   }
 
