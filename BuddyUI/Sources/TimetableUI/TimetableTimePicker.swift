@@ -34,8 +34,10 @@ public struct TimetableTimePicker: View {
     self.title = title
     self._selection = selection
     self.occupiedTimes = occupiedTimes
-    // Keep the columns stable for the whole editing session, including during a drag.
-    self._days = State(initialValue: selection.wrappedValue.editingDays)
+    // Keep the columns stable for the whole editing session, including during a
+    // drag. The activity's other times keep their weekend columns too.
+    let otherDays = occupiedTimes.map(\.day).filter { !DayType.weekdays.contains($0) }
+    self._days = State(initialValue: Array(Set(selection.wrappedValue.editingDays + otherDays)).sorted())
   }
 
   private var isMoving: Bool { interaction?.kind == .move }
@@ -66,6 +68,9 @@ public struct TimetableTimePicker: View {
           placement: .view
         )
         .allowsHitTesting(false)
+        .overlay(alignment: .topLeading) {
+          occupiedBlocks(layout: layout, gridHeight: gridHeight, dayWidth: dayWidth, dayStride: dayStride)
+        }
         .frame(width: contentWidth, height: gridHeight)
         .padding(.horizontal, contentPadding)
       }
@@ -145,6 +150,41 @@ public struct TimetableTimePicker: View {
       width: contentPadding + TimetableLayout.contentLeading + CGFloat(days.firstIndex(of: selection.day) ?? 0) * dayStride,
       height: layout.offset(at: selection.begin, height: gridHeight) - scrollOffset
     )
+  }
+
+  /// The activity's other times, tentative because they aren't saved yet and
+  /// fixed because only `selection` moves here.
+  private func occupiedBlocks(layout: TimetableLayout, gridHeight: CGFloat, dayWidth: CGFloat, dayStride: CGFloat) -> some View {
+    ZStack(alignment: .topLeading) {
+      ForEach(Array(occupiedTimes.enumerated()), id: \.offset) { _, time in
+        if let column = days.firstIndex(of: time.day) {
+          let height = max(0, CGFloat(time.duration) * pointsPerMinute - TimetableLayout.cellSpacing)
+          TentativeBlock(color: .indigo)
+            .overlay(alignment: .topLeading) {
+              VStack(alignment: .leading, spacing: 3) {
+                Text(title.isEmpty ? String(localized: "New Activity", bundle: .module) : title)
+                  .font(.caption.weight(.semibold))
+                  .lineLimit(2)
+                if height > 55 {
+                  Text(time.formattedTimeRange)
+                    .font(.caption2)
+                    .lineLimit(2)
+                }
+              }
+              .foregroundStyle(.indigo.opacity(0.8))
+              .padding(6)
+            }
+            .clipped()
+            .frame(width: dayWidth, height: height)
+            .offset(
+              x: TimetableLayout.contentLeading + CGFloat(column) * dayStride,
+              y: layout.offset(at: time.begin, height: gridHeight)
+            )
+        }
+      }
+    }
+    .allowsHitTesting(false)
+    .accessibilityHidden(true)
   }
 
   private func indicator(dayWidth: CGFloat, dayStride: CGFloat) -> some View {

@@ -22,6 +22,8 @@ struct DayTimetableView: View {
   private static let hourHeight: CGFloat = 44
   private static let gutterWidth: CGFloat = 16
   private static let blockSpacing: CGFloat = 2
+  /// About an hour and a half: a block's height with room for a subtitle line.
+  private static let subtitleMinimumHeight: CGFloat = 60
 
   private var items: [ScheduleEntry] {
     timetable.scheduleEntries(day: day)
@@ -118,6 +120,13 @@ struct DayTimetableView: View {
           Text(entry.title)
             .font(.system(size: 11, weight: .semibold))
             .lineLimit(2)
+          // Only where there's room: an hour's block is full with the name and room.
+          if let subtitle = entry.subtitle,
+             blockHeight(forDuration: entry.classTime.duration) >= Self.subtitleMinimumHeight {
+            Text(subtitle)
+              .font(.system(size: 9, weight: .medium))
+              .lineLimit(1)
+          }
           Text(entry.location)
             .font(.system(size: 9))
             .lineLimit(1)

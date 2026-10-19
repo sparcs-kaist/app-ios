@@ -9,6 +9,20 @@ import BuddyDomain
 struct TimetableActivityTests {
   private let draft = TimetableActivityDraft(title: "Study", location: "Library", day: .thu, begin: 1020, end: 1170)
   private let blocks = #"{"custom_blocks":[{"id":17,"block_name":"Study","place":"Library","day":3,"begin":1020,"end":1170}]}"#
+  private let multiTimeDraft = TimetableActivityDraft(title: "Study", location: "Library", times: [
+    .init(day: .mon, begin: 600, end: 660),
+    .init(day: .fri, begin: 840, end: 900),
+  ])
+  private let multiTimeBlocks = #"""
+    {"custom_blocks":[{"id":17,"block_name":"Study","place":"Library","day":0,"begin":600,"end":660,
+    "times":[{"day":0,"begin":600,"end":660},{"day":4,"begin":840,"end":900}]}]}
+    """#
+  private let applied = #"{"timetableItems":[],"results":[{"index":0,"kind":"custom","id":17}]}"#
+
+  private func changes(_ target: OTLTimetableTarget) -> [[String: Any]]? {
+    guard case .requestParameters(let payload, _) = target.task else { return nil }
+    return payload["changes"] as? [[String: Any]]
+  }
 
   @Test func decodesServerFieldsAndCachesActivities() async throws {
     let stub = ActivityAPIStub { target in
@@ -26,23 +40,103 @@ struct TimetableActivityTests {
     #expect(stub.paths == ["/api/v2/timetables/354045", "/api/v2/timetables/354045/custom-blocks"])
   }
 
-  @Test func mutationRoutesAndPayloads() async throws {
-    let stub = ActivityAPIStub { _ in (204, "") }
+  @Test func everyMutationGoesThroughTheItemsBatch() async throws {
+    let stub = ActivityAPIStub { _ in (200, applied) }
     let repository = stub.repository
     try await repository.createActivity(timetableID: 354045, draft: draft)
     try await repository.updateActivity(timetableID: 354045, activityID: 17, draft: draft)
     try await repository.deleteActivity(timetableID: 354045, activityID: 17)
-    #expect(stub.targets.map(\.method) == [.post, .patch, .delete])
-    #expect(stub.paths == ["/api/v2/timetables/354045/custom-blocks", "/api/v2/timetables/354045/custom-blocks/17", "/api/v2/timetables/354045/custom-blocks/17"])
-    for target in stub.targets.prefix(2) {
-      guard case .requestParameters(let payload, _) = target.task else { Issue.record("Expected JSON payload"); return }
-      #expect(payload["block_name"] as? String == "Study")
-      #expect(payload["place"] as? String == "Library")
-      #expect(payload["day"] as? Int == 3)
-      #expect(payload["begin"] as? Int == 1020)
-      #expect(payload["end"] as? Int == 1170)
-      #expect(payload.count == 5)
+    try await repository.addLecture(timetableID: 354045, lectureID: 5)
+    try await repository.deleteLecture(timetableID: 354045, lectureID: 5)
+    #expect(stub.targets.allSatisfy { $0.method == .patch })
+    #expect(Set(stub.paths) == ["/api/v2/timetables/354045/items"])
+
+    let sent = stub.targets.compactMap(changes).map { $0.first ?? [:] }
+    #expect(sent.map { "\($0["op"] ?? "")/\($0["kind"] ?? "")" }
+            == ["add/custom", "update/custom", "remove/custom", "add/lecture", "remove/lecture"])
+    #expect(sent[1]["id"] as? Int == 17 && sent[2]["id"] as? Int == 17)
+    #expect(sent[3]["lectureId"] as? Int == 5 && sent[4]["id"] as? Int == 5)
+    for change in sent.prefix(2) {
+      let data = change["data"] as? [String: Any] ?? [:]
+      #expect(data["block_name"] as? String == "Study")
+      #expect(data["place"] as? String == "Library")
+      #expect(data["times"] as? [[String: Int]] == [["day": 3, "begin": 1020, "end": 1170]])
+      #expect(data.count == 3)
     }
+  }
+
+  @Test func replacingIsOneBatchAndReportsTheItemsInOrder() async throws {
+    let stub = ActivityAPIStub { _ in
+      (200, #"{"timetableItems":[],"results":[{"index":1,"kind":"lecture","id":5},{"index":0,"kind":"custom","id":17}]}"#)
+    }
+    let ids = try await stub.repository.updateItems(
+      timetableID: 354045,
+      changes: [.removeActivity(activityID: 17), .addLecture(lectureID: 5)]
+    )
+    #expect(ids == [17, 5])
+    #expect(stub.targets.count == 1)
+    #expect(stub.targets.first.flatMap(changes)?.count == 2)
+  }
+
+  @Test func serverOverlapsReadAsOverlaps() async throws {
+    // The server checks times this client can't see, and refuses the whole batch.
+    let stub = ActivityAPIStub { _ in (409, #"{"message":"Timetable items overlap"}"#) }
+    await #expect(throws: TimetableActivityError.overlap) {
+      try await stub.repository.addLecture(timetableID: 354045, lectureID: 5)
+    }
+  }
+
+  @Test func decodesEveryTimeRange() async throws {
+    let stub = ActivityAPIStub { target in
+      switch target {
+      case .fetchTable: (200, #"{"lectures":[]}"#)
+      default: (200, multiTimeBlocks)
+      }
+    }
+    let result = try await TimetableUseCase(otlTimetableRepository: stub.repository).getTable(id: 354045)
+    #expect(result.activities.first?.times == multiTimeDraft.times)
+    #expect(result.activities.first?.draft == multiTimeDraft)
+  }
+
+  @Test func mutationsSendEveryTimeRange() async throws {
+    let stub = ActivityAPIStub { _ in (200, applied) }
+    try await stub.repository.createActivity(timetableID: 354045, draft: multiTimeDraft)
+    let data = stub.targets.first.flatMap(changes)?.first?["data"] as? [String: Any]
+    #expect(data?["times"] as? [[String: Int]] == [
+      ["day": 0, "begin": 600, "end": 660],
+      ["day": 4, "begin": 840, "end": 900],
+    ])
+  }
+
+  @Test func secondaryTimeRangesConflict() async throws {
+    // Friday 14:30 overlaps only the block's second range.
+    let friday = TimetableActivityDraft(title: "Gym", location: "", day: .fri, begin: 870, end: 930)
+    let stub = ActivityAPIStub { target in
+      if case .fetchTable = target { return (200, #"{"lectures":[]}"#) }
+      return (200, multiTimeBlocks)
+    }
+    let useCase = TimetableUseCase(otlTimetableRepository: stub.repository)
+    await #expect(throws: TimetableActivityError.overlap) {
+      try await useCase.saveActivity(timetableID: 354045, activityID: nil, draft: friday)
+    }
+    #expect(stub.targets.allSatisfy { $0.method == .get })
+  }
+
+  @Test func draftsRejectTimesThatOverlapEachOther() {
+    var draft = multiTimeDraft
+    #expect(draft.isValid)
+    draft.times.append(.init(day: .mon, begin: 630, end: 700))
+    #expect(!draft.isValid)
+    draft.times = []
+    #expect(!draft.isValid)
+  }
+
+  @Test func activitiesRoundTripAndDecodeSingleRangeCaches() throws {
+    let activity = TimetableActivity(id: 17, title: "Study", location: "Library", times: multiTimeDraft.times)
+    let encoded = try JSONEncoder().encode(activity)
+    #expect(try JSONDecoder().decode(TimetableActivity.self, from: encoded) == activity)
+    let legacy = Data(#"{"id":17,"title":"Study","location":"Library","day":3,"begin":1020,"end":1170}"#.utf8)
+    #expect(try JSONDecoder().decode(TimetableActivity.self, from: legacy).draft == draft)
   }
 
   @Test func saveAlwaysRefetchesAndUsesServerResult() async throws {
@@ -50,7 +144,7 @@ struct TimetableActivityTests {
     let stub = ActivityAPIStub { target in
       switch target {
       case .fetchTable: return (200, #"{"lectures":[]}"#)
-      case .createActivity: state.mutated = true; return (201, "")
+      case .updateItems: state.mutated = true; return (200, applied)
       case .fetchActivities: return (200, state.mutated ? blocks : #"{"custom_blocks":[]}"#)
       default: return (500, "")
       }
@@ -60,7 +154,7 @@ struct TimetableActivityTests {
     let result = try await useCase.saveActivity(timetableID: 354045, activityID: nil, draft: draft)
     #expect(result.activities.first?.id == 17)
     #expect(cache.timetable(forKey: "354045")?.activities == result.activities)
-    #expect(stub.targets.map(\.method) == [.get, .get, .post, .get, .get])
+    #expect(stub.targets.map(\.method) == [.get, .get, .patch, .get, .get])
   }
 
   @Test func editingExcludesItselfAndDeletingRefetches() async throws {
@@ -69,8 +163,9 @@ struct TimetableActivityTests {
       switch target {
       case .fetchTable: return (200, #"{"lectures":[]}"#)
       case .fetchActivities: return (200, state.mutated ? #"{"custom_blocks":[]}"# : blocks)
-      case .deleteActivity: state.mutated = true; return (204, "")
-      case .updateActivity: return (204, "")
+      case .updateItems(_, let changes):
+        if changes == [.removeActivity(activityID: 17)] { state.mutated = true }
+        return (200, applied)
       default: return (500, "")
       }
     }
@@ -79,7 +174,7 @@ struct TimetableActivityTests {
     #expect(updated.activities.count == 1)
     let deleted = try await useCase.deleteActivity(timetableID: 354045, activityID: 17)
     #expect(deleted.activities.isEmpty)
-    #expect(Array(stub.targets.suffix(3)).map(\.method) == [.delete, .get, .get])
+    #expect(Array(stub.targets.suffix(3)).map(\.method) == [.patch, .get, .get])
   }
 
   @Test func overlapDoesNotSendMutation() async throws {
@@ -98,7 +193,7 @@ struct TimetableActivityTests {
     let state = ActivityAPIState()
     let stub = ActivityAPIStub { target in
       switch target {
-      case .createActivity: state.mutated = true; return (201, "")
+      case .updateItems: state.mutated = true; return (200, applied)
       case .fetchTable: return (200, #"{"lectures":[]}"#)
       default: return state.mutated ? (503, "") : (200, #"{"custom_blocks":[]}"#)
       }
@@ -110,7 +205,7 @@ struct TimetableActivityTests {
       Issue.record("Expected refresh failure")
     } catch TimetableActivityError.refreshRequired { }
     #expect(cache.timetable(forKey: "354045") == nil)
-    #expect(stub.targets.filter { $0.method == .post }.count == 1)
+    #expect(stub.targets.filter { $0.method == .patch }.count == 1)
   }
 
   @Test func fetchDoesNotReturnStaleCacheWhenOnlineAndFallsBackWhenUnavailable() async throws {

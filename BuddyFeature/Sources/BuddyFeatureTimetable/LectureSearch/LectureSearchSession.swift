@@ -65,14 +65,14 @@ final class LectureSearchSession {
     return routes
   }
 
-  func addLecture(_ lecture: Lecture) {
+  func addLecture(_ lecture: Lecture, replacingConflicts: Bool = false) {
     // Added from the inspector, the lecture is done with. Added from the results beside it, the
     // inspector may be showing something else, which stays.
     if inspectorRoot == .lecture(lecture) || inspectorPath.contains(.lecture(lecture)) {
       closeInspector()
     }
     Task {
-      await timetableViewModel.addLecture(lecture: lecture)
+      await timetableViewModel.addLecture(lecture: lecture, replacingConflicts: replacingConflicts)
     }
   }
 }
@@ -196,11 +196,11 @@ private struct InspectorScreen: View {
       title: String(localized: "Add", bundle: .module),
       image: UIImage(systemName: "plus"),
       primaryAction: UIAction { _ in
-        // Still tappable when it overlaps, so the alert can say why it cannot be added.
+        // Still tappable when it overlaps, so it can offer to replace what it overlaps.
         if state.conflicts.isEmpty {
           session.addLecture(lecture)
         } else {
-          showCannotAddAlert(conflicts: state.conflicts)
+          showReplaceAlert(for: lecture, conflicts: state.conflicts)
         }
       }
     )
@@ -242,14 +242,16 @@ private struct InspectorScreen: View {
     )
   }
 
-  private func showCannotAddAlert(conflicts: [String]) {
-    let list = conflicts.formatted(.list(type: .and))
+  private func showReplaceAlert(for lecture: Lecture, conflicts: [String]) {
     let alert = UIAlertController(
-      title: String(localized: "Cannot Add Lecture", bundle: .module),
-      message: String(localized: "This lecture overlaps with \(list) in your timetable.", bundle: .module),
+      title: LectureReplacement.title,
+      message: LectureReplacement.message(conflicts: conflicts),
       preferredStyle: .alert
     )
-    alert.addAction(UIAlertAction(title: String(localized: "Okay", bundle: .module), style: .cancel))
+    alert.addAction(UIAlertAction(title: LectureReplacement.cancel, style: .cancel))
+    alert.addAction(UIAlertAction(title: LectureReplacement.confirm, style: .destructive) { _ in
+      session.addLecture(lecture, replacingConflicts: true)
+    })
     host.controller?.present(alert, animated: true)
   }
 }

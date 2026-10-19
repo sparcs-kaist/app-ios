@@ -75,19 +75,19 @@ public struct TimetableSilhouetteView: View {
 
   private func dayColumn(day: DayType, layout: TimetableLayout) -> some View {
     let cells = TimetableLayout.cells(for: timetable?.getLectures(day: day) ?? [])
-    let activities = timetable?.activities.filter { $0.day == day && $0.duration > 0 } ?? []
+    let activities = timetable?.activitySlots(day: day) ?? []
 
     return ZStack(alignment: .topLeading) {
       RoundedRectangle(cornerRadius: 4)
         .fill(trackColor.map(AnyShapeStyle.init) ?? AnyShapeStyle(.quaternary))
       GeometryReader { geometry in
-        ForEach(activities) { activity in
-          block(color: theme.color(forActivityID: activity.id))
+        ForEach(activities) { slot in
+          block(color: theme.color(forActivityID: slot.activity.id))
             .frame(
               width: geometry.size.width,
-              height: blockHeight(forDuration: activity.duration, layout: layout, height: geometry.size.height)
+              height: blockHeight(forDuration: slot.duration, layout: layout, height: geometry.size.height)
             )
-            .offset(y: offset(at: activity.begin, layout: layout, height: geometry.size.height))
+            .offset(y: offset(at: slot.begin, layout: layout, height: geometry.size.height))
         }
         ForEach(cells) { cell in
           Group {

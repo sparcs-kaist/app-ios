@@ -26,6 +26,9 @@ public protocol TimetableUseCaseProtocol: Observable, Sendable {
   func duplicateMyTable(semester: Semester, title: String) async throws -> TableDuplication
   func addLecture(timetableID: Int, lectureID: Int) async throws
   func deleteLecture(timetableID: Int, lectureID: Int) async throws
+  /// Applies `changes` all together or not at all, such as removing what a lecture
+  /// overlaps and adding the lecture, so a failure never leaves the table half changed.
+  func applyChanges(timetableID: Int, changes: [TimetableItemChange]) async throws
   func saveActivity(timetableID: Int, activityID: Int?, draft: TimetableActivityDraft) async throws -> Timetable
   func deleteActivity(timetableID: Int, activityID: Int) async throws -> Timetable
   func refreshTable(id: Int) async throws -> Timetable

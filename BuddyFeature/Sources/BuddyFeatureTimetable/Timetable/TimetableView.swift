@@ -125,9 +125,9 @@ public struct TimetableView: View {
               timetable: viewModel.timetable,
               selectedSemester: selectedSemester,
               candidateLecture: $viewModel.candidateLecture,
-              onAdd: { lecture in
+              onAdd: { lecture, replacingConflicts in
                 Task {
-                  await viewModel.addLecture(lecture: lecture)
+                  await viewModel.addLecture(lecture: lecture, replacingConflicts: replacingConflicts)
                 }
               }
             )

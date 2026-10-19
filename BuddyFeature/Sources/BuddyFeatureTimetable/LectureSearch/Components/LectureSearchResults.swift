@@ -28,6 +28,8 @@ struct LectureSearchResults: View {
   let onOpenLecture: (Lecture) -> Void
   let onOpenCourse: (_ id: Int, _ name: String) -> Void
   let onAddLecture: (Lecture) -> Void
+  /// Asks whether to add an overlapping lecture in place of what it overlaps.
+  let onReplaceLecture: (Lecture) -> Void
   let wishlistedLectureIDs: Set<Int>
   let onToggleWishlist: (Lecture) -> Void
   /// The wishlist endpoint's ratings are unreliable, so its rows leave them out.
@@ -157,16 +159,20 @@ struct LectureSearchResults: View {
         Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
           .disabled(true)
       } else {
-        // Same rule as the detail's Add button: an overlapping lecture cannot be added.
+        // Same rule as the detail's Add button: an overlapping lecture asks to replace what it
+        // overlaps first.
         Button {
-          onAddLecture(lecture)
+          if conflicts.isEmpty {
+            onAddLecture(lecture)
+          } else {
+            onReplaceLecture(lecture)
+          }
         } label: {
           Label(String(localized: "Add to Timetable", bundle: .module), systemImage: "plus")
           if !conflicts.isEmpty {
             Text("Overlaps with \(conflicts.formatted(.list(type: .and)))", bundle: .module)
           }
         }
-        .disabled(!conflicts.isEmpty)
       }
     }
   }
@@ -228,9 +234,17 @@ private struct LectureRow: View {
       }
 
       VStack(alignment: .leading, spacing: 6) {
-        Text(professors)
-          .font(.body.weight(.medium))
-          .lineLimit(1)
+        VStack(alignment: .leading, spacing: 2) {
+          Text(label.title)
+            .font(.body.weight(.medium))
+            .lineLimit(2)
+          if let professors = label.professors {
+            Text(professors)
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+        }
 
         Text(schedule)
           .font(.footnote)
@@ -267,12 +281,9 @@ private struct LectureRow: View {
     .font(.caption.weight(.medium))
   }
 
-  private var professors: String {
-    let names = lecture.professors.map(\.name)
-    return names.isEmpty
-      ? String(localized: "Unknown", bundle: .module)
-      : names.formatted(.list(type: .and, width: .narrow))
-  }
+  /// The subtitle where the section has one, as Leadership sections do, and
+  /// otherwise the professors.
+  private var label: SectionLabel { SectionLabel(lecture) }
 
   /// Class times grouped by time slot, such as "Mon, Wed 10:30-11:45".
   private var schedule: String {

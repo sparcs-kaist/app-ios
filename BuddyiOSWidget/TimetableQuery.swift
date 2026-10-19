@@ -29,12 +29,6 @@ struct TimetableQuery: EntityQuery {
 			return []
 		}
 		
-		let list: [SemesterWithTimetables] = await timetableUseCase.getTableList()
-		
-		return list.flatMap { semester in
-			semester.timetables.map { timetable in
-				TimetableEntity(id: timetable.id, name: timetable.name, year: semester.year, semester: semester.semester)
-			}
-		}
+		return await TimetableEntity.semesters(timetableUseCase).flatMap(TimetableEntity.entities(in:))
 	}
 }

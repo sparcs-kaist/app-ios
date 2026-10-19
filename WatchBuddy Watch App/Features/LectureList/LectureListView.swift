@@ -33,6 +33,11 @@ struct LectureListView: View {
               .font(.headline)
               .lineLimit(2)
               .minimumScaleFactor(0.8)
+            if let subtitle = entry.subtitle {
+              Text(subtitle)
+                .font(.caption)
+                .lineLimit(1)
+            }
             Text(entry.classTime.description)
               .font(.caption)
               .opacity(0.8)

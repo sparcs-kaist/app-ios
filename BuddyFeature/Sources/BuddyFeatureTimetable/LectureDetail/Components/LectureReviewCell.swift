@@ -11,7 +11,6 @@ import Translation
 import Factory
 import BuddyDomain
 import Haptica
-import FoundationModels
 import BuddyFeatureShared
 import os
 
@@ -19,48 +18,65 @@ private let logger = Logger(subsystem: "org.sparcs.soap", category: "LectureRevi
 
 struct LectureReviewCell: View {
   @Binding var review: LectureReview
+  /// The reviewed section's subtitle, which tells sections apart where they
+  /// share a placeholder professor, as Leadership sections do.
+  var subtitle: String? = nil
 
   @ObservationIgnored @Injected(
     \.v2ReviewUseCase
   ) private var reviewUseCase: ReviewUseCaseProtocol?
-  @Injected(
-    \.foundationModelsUseCase
-  ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?
 
+  /// The screen's summaries, so a summary outlives this cell scrolling away.
+  /// Absent for placeholder cells, which then offer no summary.
+  @Environment(ReviewSummaryModel.self) private var summaries: ReviewSummaryModel?
   @Environment(\.colorScheme) var colorScheme
   @Environment(\.openURL) private var openURL
   @State private var showTranslateSheet: Bool = false
-  @State private var summarisedContent: String? = nil
   @State private var isLikeButtonRunning: Bool = false
+
+  /// The section's subtitle where it has one, with any real professors beneath,
+  /// and otherwise its professors.
+  private var label: SectionLabel {
+    SectionLabel(subtitle: subtitle ?? "", professors: review.professors)
+  }
+
+  private var summaryPhase: ReviewSummaryModel.Phase? {
+    summaries?.phase(for: review)
+  }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
-        Text(review.professors.first?.name ?? String(localized: "Unknown", bundle: .module))
-          .font(.headline)
+        VStack(alignment: .leading, spacing: 2) {
+          HStack(alignment: .firstTextBaseline) {
+            Text(label.title)
+              .font(.headline)
+              .lineLimit(1)
 
-        Text(String(review.year).suffix(2) + review.semester.shortCode)
-          .foregroundStyle(.secondary)
-          .fontDesign(.rounded)
-          .fontWeight(.semibold)
+            Text(String(review.year).suffix(2) + review.semester.shortCode)
+              .foregroundStyle(.secondary)
+              .fontDesign(.rounded)
+              .fontWeight(.semibold)
+          }
+          // A section with both a subtitle and a real professor shows both.
+          if let professors = label.professors {
+            Text(professors)
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+          }
+        }
 
         Spacer()
 
         Menu {
           Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
-          if SystemLanguageModel.default.isAvailable {
+          if let summaries, summaries.canSummarise(review) {
             Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
-              guard let foundationModelsUseCase else { return }
-              
-              summarisedContent = ""
-              Task {
-                Haptic.start.generate()
-                summarisedContent = await foundationModelsUseCase
-                  .summarise(review.content, maxWords: 50, tone: "concise")
-                Haptic.success.generate()
-              }
+              Haptic.start.generate()
+              summaries.summarise(review)
             }
-            .disabled(summarisedContent != nil)
+            .disabled(summaryPhase != nil)
           }
 //          Divider()
 //          Button(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") { report() }
@@ -72,8 +88,8 @@ struct LectureReviewCell: View {
         .labelStyle(.iconOnly)
       }
 
-      if let summarisedContent {
-        SummarisationView(text: summarisedContent)
+      if let summaryPhase {
+        summary(summaryPhase)
           .padding(.bottom)
           .transition(.asymmetric(
             insertion: .offset(y: -10).combined(with: .opacity),
@@ -117,7 +133,34 @@ struct LectureReviewCell: View {
     .clipShape(.rect(cornerRadius: 26))
     .shadow(color: .black.opacity(0.1), radius: 8)
     .translationPresentation(isPresented: $showTranslateSheet, text: review.content)
-    .animation(.spring(), value: summarisedContent)
+    .sensoryFeedback(trigger: summaryPhase) { _, phase in
+      switch phase {
+      case .finished: .success
+      case .failed: .error
+      default: nil
+      }
+    }
+  }
+
+  @ViewBuilder
+  private func summary(_ phase: ReviewSummaryModel.Phase) -> some View {
+    switch phase {
+    case let .summarising(text):
+      SummarisationView(text: text, isSummarising: true)
+    case let .finished(text):
+      SummarisationView(text: text)
+    case let .failed(message):
+      VStack(alignment: .leading, spacing: 8) {
+        Label(message, systemImage: "exclamationmark.triangle")
+          .font(.footnote)
+          .foregroundStyle(.secondary)
+        Button(String(localized: "Try Again", bundle: .module), systemImage: "arrow.clockwise") {
+          summaries?.summarise(review)
+        }
+        .font(.footnote)
+        .buttonStyle(.glass)
+      }
+    }
   }
 
   private func reviewRatingLetter(title: String, rating: String) -> some View {

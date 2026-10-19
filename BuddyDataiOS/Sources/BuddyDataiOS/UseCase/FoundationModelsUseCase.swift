@@ -14,36 +14,84 @@ public actor FoundationModelsUseCase: FoundationModelsUseCaseProtocol {
     SystemLanguageModel.default.isAvailable
   }
 
-  public func summarise(_ text: String, maxWords: Int = 120, tone: String = "concise") async -> String {
-    guard case .available = SystemLanguageModel.default.availability else {
-      return String(
-        localized: "Model is currently unavailable. Please try again later.",
-        bundle: .module
-      )
+  /// Model-facing, so deliberately not localised: the language to write in is
+  /// named instead.
+  private static func summaryInstructions(for kind: SummaryKind, language: String) -> String {
+    let task = switch kind {
+    case .lectureReview:
+      """
+      You summarise one student's review of a university lecture, for someone \
+      deciding whether to take it. Keep what the review says about the \
+      lecturing, the workload, the exams and assignments, the grading, and any \
+      advice it gives. Leave out remarks that say nothing about the lecture.
+      """
+    case .post:
+      """
+      You summarise a post on a university community board, for someone \
+      deciding whether to read it in full. Keep the key facts: subjects, names, \
+      dates, times, places and numbers. Leave out greetings unless they are the \
+      point.
+      """
     }
+    return """
+      \(task)
 
-    let cleanedText = text.convertFromHTML()
+      Write plain sentences, without a heading or bullet points. Write in \
+      \(language), whatever language the text is in.
+      """
+  }
 
-    if cleanedText.count <= 20 {
-      return String(localized: "This content is too short to summarize.", bundle: .module)
+  /// A review summary sits right above the review, so it must be clearly shorter.
+  private static func summaryWordLimit(for kind: SummaryKind) -> Int {
+    switch kind {
+    case .lectureReview: 40
+    case .post: 50
     }
+  }
 
-    let session = LanguageModelSession(model: .default)
-    session.prewarm()
+  /// Summarising someone else's words is a transformation of them, so blunt or
+  /// rude text is reworded rather than refused, as review notes are.
+  public func streamSummary(of text: String, as kind: SummaryKind) -> AsyncThrowingStream<String, any Error> {
+    let request = text.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    let prompt = String(localized: """
-      Summarise the following content in a \(tone) style, preserving key facts and subjects, names, dates, numbers.
-      Ignore greetings if that is not the main topic.
-      Limit the summary to \(maxWords) words.
-      
-      Content:
-      \(cleanedText)
-      """, bundle: .module)
-    do {
-      let response = try await session.respond(to: prompt)
-      return response.content.trimmingCharacters(in: .whitespacesAndNewlines)
-    } catch {
-      return String(localized: "Failed to summarise text. Please try again later.", bundle: .module)
+    return AsyncThrowingStream { continuation in
+      // As in `streamThemeBrief`, the session lives and dies inside this task.
+      let task = Task {
+        let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
+        guard case .available = model.availability else {
+          continuation.finish(throwing: SummarisationError.unavailable)
+          return
+        }
+        guard !request.isEmpty else {
+          continuation.finish(throwing: SummarisationError.failed)
+          return
+        }
+
+        let language = Self.deviceLanguage(model: model)
+        let session = LanguageModelSession(
+          model: model,
+          instructions: Self.summaryInstructions(for: kind, language: language)
+        )
+        do {
+          let stream = session.streamResponse(
+            // The language repeated from the instructions: text in another
+            // language otherwise pulls the summary into its own.
+            to: "Summarise this in \(language), in at most \(Self.summaryWordLimit(for: kind)) words:\n\(request)",
+            options: GenerationOptions(samplingMode: .greedy)
+          )
+          for try await snapshot in stream {
+            continuation.yield(snapshot.content)
+          }
+          continuation.finish()
+        } catch is CancellationError {
+          continuation.finish()
+        } catch {
+          continuation.finish(
+            throwing: Self.isGuardrailViolation(error) ? SummarisationError.unsafeContent : SummarisationError.failed
+          )
+        }
+      }
+      continuation.onTermination = { _ in task.cancel() }
     }
   }
 

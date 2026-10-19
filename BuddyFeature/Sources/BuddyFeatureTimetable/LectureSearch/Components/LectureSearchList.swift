@@ -19,9 +19,11 @@ struct LectureSearchList: View {
   var isSearchFocused: FocusState<Bool>.Binding
   let onOpenLecture: (Lecture) -> Void
   let onOpenCourse: (_ id: Int, _ name: String) -> Void
-  let onAddLecture: (Lecture) -> Void
+  let onAddLecture: AddLectureAction
   let onSelectDepartments: () -> Void
   let onChooseTimeOnTimetable: () -> Void
+  /// An overlapping lecture waiting for the user to agree to replace what it overlaps.
+  @State private var lectureToReplace: Lecture?
 
   var body: some View {
     List {
@@ -105,6 +107,11 @@ struct LectureSearchList: View {
       await viewModel.fetchWishlist(semester: selectedSemester)
     }
     .wishlistErrorAlert(viewModel)
+    .lectureReplacementAlert(
+      for: $lectureToReplace,
+      conflicts: { timetable?.conflicts(with: $0) ?? [] },
+      onReplace: { onAddLecture($0, true) }
+    )
   }
 
   private func results(
@@ -117,7 +124,8 @@ struct LectureSearchList: View {
       timetable: timetable,
       onOpenLecture: onOpenLecture,
       onOpenCourse: onOpenCourse,
-      onAddLecture: onAddLecture,
+      onAddLecture: { onAddLecture($0, false) },
+      onReplaceLecture: { lectureToReplace = $0 },
       wishlistedLectureIDs: viewModel.wishlistedLectureIDs,
       onToggleWishlist: { lecture in Task { await viewModel.toggleWishlist(lecture) } },
       showsRatings: showsRatings,
@@ -157,14 +165,15 @@ struct LectureSearchDestination: View {
   let route: LectureSearchRoute
   let viewModel: LectureSearchViewModel
   let timetable: Timetable?
-  let onAdd: (Lecture) -> Void
+  let onAdd: AddLectureAction
 
   var body: some View {
     switch route {
     case .lecture(let lecture):
       LectureDetailView(
         lecture: lecture,
-        onAdd: { onAdd(lecture) },
+        onAdd: { onAdd(lecture, false) },
+        onReplace: { onAdd(lecture, true) },
         conflicts: timetable?.conflicts(with: lecture) ?? [],
         isAdded: timetable?.contains(lecture) ?? false,
         isWishlisted: viewModel.isWishlisted(lecture),

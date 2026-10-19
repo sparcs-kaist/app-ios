@@ -23,6 +23,7 @@ final class TimetableSettingsViewModel: TimetableSettingsViewModelProtocol {
   var isSaving: Bool = false
   var alertState: AlertState?
   var isAlertPresented: Bool = false
+  var canSummariseReviews: Bool = false
 
   var hasChanges: Bool { selectedDepartmentIDs != savedDepartmentIDs }
 
@@ -30,9 +31,11 @@ final class TimetableSettingsViewModel: TimetableSettingsViewModelProtocol {
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.v2LectureUseCase) private var lectureUseCase: LectureUseCaseProtocol?
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
+  @ObservationIgnored @Injected(\.foundationModelsUseCase) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?
 
   // MARK: - Functions
   func load() async {
+    canSummariseReviews = await foundationModelsUseCase?.isAvailable() ?? false
     guard let userUseCase, let lectureUseCase else { return }
 
     // Reloading when the screen reappears should not flash a spinner over a list already shown.

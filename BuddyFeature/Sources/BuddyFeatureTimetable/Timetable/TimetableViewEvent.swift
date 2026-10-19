@@ -12,6 +12,8 @@ enum TimetableViewEvent: Event {
   case semesterChanged
   case timetableSelected
   case lectureAdded
+  /// Added in place of the lectures and activities it overlapped.
+  case lectureReplaced
   case lectureDeleted
   case tableRenamed
   case tableDeleted
@@ -28,6 +30,8 @@ enum TimetableViewEvent: Event {
       "timetable_selected"
     case .lectureAdded:
       "lecture_added"
+    case .lectureReplaced:
+      "lecture_replaced"
     case .lectureDeleted:
       "lecture_deleted"
     case .tableRenamed:

@@ -44,6 +44,10 @@ struct LectureInformationSection: View {
         description: lecture.type.displayName.localized()
       )
       LectureDetailRow(title: String(localized: "Department", bundle: .module), description: lecture.department.name)
+      // What tells this section apart from the others, as for Leadership sections.
+      if let topic = SectionLabel.topic(from: lecture.subtitle) {
+        LectureDetailRow(title: String(localized: "Subtitle", bundle: .module), description: topic)
+      }
       LectureDetailRow(
         title: String(localized: "Professor", bundle: .module),
         description: lecture.professors.isEmpty ? String(localized: "Unknown", bundle: .module) : lecture.professors.map { $0.name }.joined(separator: "\n")

@@ -101,7 +101,12 @@ struct MainView: View {
     }
     .onReceive(NotificationCenter.default.publisher(for: .buddyInternalDeepLink)) { notification in
       guard let deepLink = notification.object as? DeepLink else { return }
+      _ = PendingDeepLink.take()
       handle(deepLink: deepLink)
+    }
+    .onAppear {
+      // Raised by an App Intent before this view existed, e.g. on a cold launch.
+      if let deepLink = PendingDeepLink.take() { handle(deepLink: deepLink) }
     }
     .sheet(item: $viewModel.invitedRoom) { room in
       TaxiPreviewView(room: room)

@@ -16,6 +16,7 @@ let package = Package(
     ],
     dependencies: [
       .package(path: "../BuddyData"),
+      .package(path: "../BuddyIntents"),
       .package(
         url: "https://github.com/firebase/firebase-ios-sdk.git",
         .upToNextMajor(from: "12.3.0")
@@ -30,6 +31,7 @@ let package = Package(
             name: "BuddyDataiOS",
             dependencies: [
               .product(name: "BuddyDataCore", package: "BuddyData"),
+              .product(name: "BuddyIntents", package: "BuddyIntents"),
               .product(name: "SocketIO", package: "socket.io-client-swift"),
               .product(
                 name: "FirebaseCrashlytics",

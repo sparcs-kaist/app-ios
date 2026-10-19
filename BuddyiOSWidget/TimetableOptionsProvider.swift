@@ -20,24 +20,12 @@ struct TimetableOptionsProvider: DynamicOptionsProvider {
 			throw NSError(domain: "TimetableUseCase Not Initialised", code: -1)
 		}
 		
-		let list: [SemesterWithTimetables] = await timetableUseCase.getTableList()
+		let list: [SemesterWithTimetables] = await TimetableEntity.semesters(timetableUseCase)
 		
 		let sections: [IntentItemSection<TimetableEntity>] = list
-			.sorted {
-				($0.year, $0.semester.rawValue) > ($1.year, $1.semester.rawValue)
-			}
 			.compactMap { semester in
-				let items: [IntentItem<TimetableEntity>] = semester.timetables
-					.map { timetable in
-						let entity = TimetableEntity(
-							id: timetable.id,
-							name: timetable.name,
-							year: semester.year,
-							semester: semester.semester
-						)
-						
-						return IntentItem(entity, title: "\(timetable.name)")
-					}
+				let items: [IntentItem<TimetableEntity>] = TimetableEntity.entities(in: semester)
+					.map { IntentItem($0, title: "\($0.name)") }
 				
 				return IntentItemSection(
 					"\(semester.year.formatted(.number.grouping(.never))) \(semester.semester.description)",

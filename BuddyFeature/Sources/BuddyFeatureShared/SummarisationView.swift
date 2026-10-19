@@ -10,6 +10,8 @@ import SwiftUI
 
 public struct SummarisationView: View {
   let text: String
+  /// Still being written, though some text may already have arrived.
+  let isSummarising: Bool
   private var isLoading: Bool { text.isEmpty }
 
   public var body: some View {
@@ -17,7 +19,9 @@ public struct SummarisationView: View {
       HStack {
         Image(systemName: "text.append")
 
-        Text(isLoading ? "Summarising..." : "Summary")
+        Text(isLoading || isSummarising
+          ? String(localized: "Summarising...", bundle: .module)
+          : String(localized: "Summary", bundle: .module))
           .textCase(.uppercase)
           .contentTransition(.numericText())
 
@@ -44,8 +48,11 @@ public struct SummarisationView: View {
     .animation(.spring, value: text)
   }
 
-  public init(text: String) {
+  /// - Parameter isSummarising: Whether `text` is still being written. Empty
+  ///   text always reads as still being written.
+  public init(text: String, isSummarising: Bool = false) {
     self.text = text
+    self.isSummarising = isSummarising
   }
 }
 

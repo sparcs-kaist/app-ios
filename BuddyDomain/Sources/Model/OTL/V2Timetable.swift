@@ -43,20 +43,20 @@ public struct Timetable: Identifiable, Hashable, Codable, Sendable {
 public extension Timetable {
   // Return the minimum start minutes.
   var minMinutes: Int {
-    (lectures.flatMap { $0.classes }.map { $0.begin } + activities.map { $0.begin })
+    (lectures.flatMap { $0.classes }.map { $0.begin } + activities.flatMap(\.times).map(\.begin))
       .min()
       .map { ($0 / 60) * 60 } ?? defaultMinMinutes
   }
 
   // Return the maximum end minutes.
   var gappedMaxMinutes: Int {
-    (lectures.flatMap { $0.classes }.map { $0.end } + activities.map { $0.end })
+    (lectures.flatMap { $0.classes }.map { $0.end } + activities.flatMap(\.times).map(\.end))
       .max()
       .map { (($0 / 60) + 1) * 60 } ?? defaultMaxMinutes
   }
 
   var maxMinutes: Int {
-    (lectures.flatMap { $0.classes }.map { $0.end } + activities.map { $0.end })
+    (lectures.flatMap { $0.classes }.map { $0.end } + activities.flatMap(\.times).map(\.end))
       .max() ?? defaultMaxMinutes
   }
 
@@ -68,7 +68,7 @@ public extension Timetable {
   var visibleDays: [DayType] {
     let classDays = lectures.flatMap { $0.classes.map { $0.day } }
 
-    let combinedDays = Array(Set(classDays + activities.map(\.day) + DayType.weekdays))
+    let combinedDays = Array(Set(classDays + activities.flatMap(\.times).map(\.day) + DayType.weekdays))
 
     return combinedDays.sorted()
   }
@@ -169,7 +169,7 @@ public extension Timetable {
       }
     }
     return activities.contains { activity in
-      newLecture.classes.contains { activity.draft.overlaps(day: $0.day, begin: $0.begin, end: $0.end) }
+      newLecture.classes.contains { activity.overlaps(day: $0.day, begin: $0.begin, end: $0.end) }
     }
   }
 

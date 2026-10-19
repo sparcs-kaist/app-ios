@@ -12,6 +12,8 @@ import FirebaseAnalytics
 struct TimetableSettingsView: View {
   @State private var viewModel: TimetableSettingsViewModelProtocol
   @AppStorage(LectureSearchStyle.storageKey) private var lectureSearchStyle: LectureSearchStyle = .standard
+  @AppStorage(ReviewSummarySettings.automaticKey)
+  private var summarisesReviewsAutomatically = ReviewSummarySettings.automaticDefault
 
   init(_ viewModel: TimetableSettingsViewModelProtocol = TimetableSettingsViewModel()) {
     self._viewModel = State(initialValue: viewModel)
@@ -20,13 +22,7 @@ struct TimetableSettingsView: View {
   var body: some View {
     List {
       Section {
-        Picker(String(localized: "Lecture Search", bundle: .module), selection: $lectureSearchStyle) {
-          ForEach(LectureSearchStyle.allCases) { style in
-            Text(style.title).tag(style)
-          }
-        }
-        .pickerStyle(.inline)
-        .labelsHidden()
+        LectureSearchStylePicker(selection: $lectureSearchStyle)
       } header: {
         Text("Adding Lectures", bundle: .module)
       } footer: {
@@ -43,6 +39,16 @@ struct TimetableSettingsView: View {
         }
       } footer: {
         Text("Interested departments appear first when you filter lectures by department.", bundle: .module)
+      }
+
+      if viewModel.canSummariseReviews {
+        Section {
+          Toggle(String(localized: "Summarise Reviews Automatically", bundle: .module), isOn: $summarisesReviewsAutomatically)
+        } header: {
+          Text("Reviews", bundle: .module)
+        } footer: {
+          Text("Lecture and course pages summarise their reviews with Apple Intelligence as soon as they open. When this is off, you can still summarise them on request.", bundle: .module)
+        }
       }
     }
     .navigationTitle(String(localized: "Timetable", bundle: .module))
@@ -70,13 +76,6 @@ struct TimetableSettingsView: View {
 }
 
 private extension LectureSearchStyle {
-  var title: String {
-    switch self {
-    case .sheet: String(localized: "Sheet", bundle: .module)
-    case .fullScreen: String(localized: "Full Screen", bundle: .module)
-    }
-  }
-
   var footer: String {
     switch self {
     case .sheet:

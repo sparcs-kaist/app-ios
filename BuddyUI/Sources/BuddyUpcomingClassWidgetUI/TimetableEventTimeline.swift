@@ -15,7 +15,7 @@ public enum TimetableEventTimeline {
     let calendar = Calendar.current
     let day = DayType.from(date: now, calendar: calendar)
     let lectures = timetable.lectureItems(for: now)
-    let activities = timetable.activities.filter { $0.day == day && $0.duration > 0 }
+    let activities = timetable.activitySlots(day: day)
     var events: [(begin: Int, end: Int, entry: (Date, Date) -> LectureEntry)] = lectures.map { item in
       (item.lectureClass.begin, item.lectureClass.end, { date, start in
         LectureEntry(date: date, lecture: item.lecture, lectureClass: item.lectureClass,
@@ -23,11 +23,11 @@ public enum TimetableEventTimeline {
           backgroundColor: theme.color(forCourseID: item.lecture.courseID), relevance: .init(score: 80))
       })
     }
-    events += activities.map { activity in
-      (activity.begin, activity.end, { date, start in
+    events += activities.map { slot in
+      (slot.begin, slot.end, { date, start in
         LectureEntry(date: date, lecture: nil, lectureClass: nil, startDate: start,
-          signInRequired: false, backgroundColor: theme.color(forActivityID: activity.id),
-          relevance: .init(score: 80), activity: activity)
+          signInRequired: false, backgroundColor: theme.color(forActivityID: slot.activity.id),
+          relevance: .init(score: 80), activitySlot: slot)
       })
     }
     events.sort { $0.begin < $1.begin }

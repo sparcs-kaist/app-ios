@@ -40,12 +40,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
       return entry
     }
 
-    let timetable: Timetable
-    if !configuration.mirrorTimetable, let selected = configuration.timetable {
-      timetable = await timetableUseCase.getTable(timetableID: selected.id)
-    } else {
-      timetable = await timetableUseCase.getCurrentMyTable()
-    }
+    let timetable: Timetable = await WidgetTimetableLoader.timetable(for: configuration, useCase: timetableUseCase)
     let entry = TimetableEntry(
       date: now,
       timetable: timetable,
@@ -75,22 +70,7 @@ struct TimetableProvider: AppIntentTimelineProvider {
       return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*30)))
     }
 		
-		if !configuration.mirrorTimetable,
-			 let entity = configuration.timetable {
-			// user selected timetable
-			let timetable: Timetable = await timetableUseCase.getTable(timetableID: entity.id)
-			let entry = TimetableEntry(
-				date: now,
-				timetable: timetable,
-				signInRequired: false,
-				relevance: .init(score: 100),
-				theme: theme
-			)
-			
-			return Timeline(entries: [entry], policy: .after(now.addingTimeInterval(60*60)))
-		}
-		
-    let timetable: Timetable = await timetableUseCase.getCurrentMyTable()
+    let timetable: Timetable = await WidgetTimetableLoader.timetable(for: configuration, useCase: timetableUseCase)
     let entry = TimetableEntry(
       date: now,
       timetable: timetable,

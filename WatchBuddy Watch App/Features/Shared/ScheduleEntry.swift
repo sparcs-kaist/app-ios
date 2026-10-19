@@ -12,26 +12,35 @@ import BuddyDomain
 /// unified so the watch views can page, list, and lay out both alike.
 enum ScheduleEntry: Identifiable, Hashable {
   case lecture(LectureItem)
-  case activity(TimetableActivity)
+  case activity(TimetableActivitySlot)
 
   var id: String {
     switch self {
     case .lecture(let item): item.id
-    case .activity(let activity): "activity-\(activity.id)-\(activity.day)-\(activity.begin)"
+    case .activity(let slot): "activity-\(slot.activity.id)-\(slot.day)-\(slot.begin)"
     }
   }
 
   var title: String {
     switch self {
     case .lecture(let item): item.lecture.name
-    case .activity(let activity): activity.title
+    case .activity(let slot): slot.activity.title
+    }
+  }
+
+  /// A lecture section's subtitle, which tells sections of one course apart, as
+  /// for the Leadership courses. Activities have none.
+  var subtitle: String? {
+    switch self {
+    case .lecture(let item): item.lecture.subtitleTopic
+    case .activity: nil
     }
   }
 
   var location: String {
     switch self {
     case .lecture(let item): item.lectureClass.location
-    case .activity(let activity): activity.location
+    case .activity(let slot): slot.activity.location
     }
   }
 
@@ -41,14 +50,14 @@ enum ScheduleEntry: Identifiable, Hashable {
     switch self {
     case .lecture(let item):
       item.lectureClass
-    case .activity(let activity):
+    case .activity(let slot):
       LectureClass(
-        day: activity.day,
-        begin: activity.begin,
-        end: activity.end,
+        day: slot.day,
+        begin: slot.begin,
+        end: slot.end,
         buildingCode: "",
         buildingName: "",
-        roomName: activity.location
+        roomName: slot.activity.location
       )
     }
   }
@@ -57,7 +66,7 @@ enum ScheduleEntry: Identifiable, Hashable {
   var backgroundColor: Color {
     switch self {
     case .lecture(let item): item.lecture.backgroundColor
-    case .activity(let activity): activity.backgroundColor
+    case .activity(let slot): slot.activity.backgroundColor
     }
   }
 
@@ -65,7 +74,7 @@ enum ScheduleEntry: Identifiable, Hashable {
   func color(in theme: TimetableTheme) -> Color {
     switch self {
     case .lecture(let item): theme.color(forCourseID: item.lecture.courseID)
-    case .activity(let activity): theme.color(forActivityID: activity.id)
+    case .activity(let slot): theme.color(forActivityID: slot.activity.id)
     }
   }
 }
@@ -76,8 +85,7 @@ extension Timetable {
     let lectures = getLectures(day: day)
       .filter { $0.lectureClass.duration > 0 }
       .map(ScheduleEntry.lecture)
-    let dayActivities = activities
-      .filter { $0.day == day && $0.duration > 0 }
+    let dayActivities = activitySlots(day: day)
       .map(ScheduleEntry.activity)
     return (lectures + dayActivities).sorted { $0.classTime.begin < $1.classTime.begin }
   }

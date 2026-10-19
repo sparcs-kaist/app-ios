@@ -23,5 +23,11 @@ public protocol OTLTimetableRepositoryProtocol: Sendable {
   func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws
   func updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft) async throws
   func deleteActivity(timetableID: Int, activityID: Int) async throws
+  /// Applies `changes` all together or not at all.
+  ///
+  /// - Returns: The ID of the item each change touched, in the order of `changes`;
+  ///   for an added activity, the ID the server gave it.
+  @discardableResult
+  func updateItems(timetableID: Int, changes: [TimetableItemChange]) async throws -> [Int]
 
 }

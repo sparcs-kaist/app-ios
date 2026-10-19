@@ -13,8 +13,9 @@ import UIKit
 #endif
 
 struct TimetableActivityCell: View {
-  let activity: TimetableActivity
+  let slot: TimetableActivitySlot
   let placement: TimetablePlacement
+  private var activity: TimetableActivity { slot.activity }
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.widgetRenderingMode) private var renderingMode
   @Environment(\.timetableTheme) private var theme
@@ -49,8 +50,8 @@ struct TimetableActivityCell: View {
     }
     .contentShape(.rect)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(Text("\(activity.title), \(activity.location), \(TimetableTimeSelection.formattedTime(activity.begin)) – \(TimetableTimeSelection.formattedTime(activity.end))"))
-    .accessibilityIdentifier("activity.cell.\(activity.id)")
+    .accessibilityLabel(Text("\(activity.title), \(activity.location), \(TimetableTimeSelection.formattedTime(slot.begin)) – \(TimetableTimeSelection.formattedTime(slot.end))"))
+    .accessibilityIdentifier(slot.timeIndex == 0 ? "activity.cell.\(activity.id)" : "activity.cell.\(activity.id).\(slot.timeIndex)")
     .modifier(ActivityPopoverModifier(activity: activity, isEnabled: placement == .view))
   }
 

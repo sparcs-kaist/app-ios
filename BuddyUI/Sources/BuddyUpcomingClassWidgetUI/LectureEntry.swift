@@ -11,12 +11,14 @@ import BuddyDomain
 
 public struct LectureEntry: TimelineEntry {
   public let date: Date
-  public let activity: TimetableActivity?
+  /// The activity time range this entry shows, when it isn't a lecture.
+  public let activitySlot: TimetableActivitySlot?
+  public var activity: TimetableActivity? { activitySlot?.activity }
   public var title: String? { activity?.title ?? lecture?.name }
   public var location: String? { activity?.location ?? lectureClass?.location }
   public var timeDescription: String? {
-    if let activity {
-      return String(format: "%02d:%02d–%02d:%02d", activity.begin / 60, activity.begin % 60, activity.end / 60, activity.end % 60)
+    if let slot = activitySlot {
+      return String(format: "%02d:%02d–%02d:%02d", slot.begin / 60, slot.begin % 60, slot.end / 60, slot.end % 60)
     }
     return lectureClass?.description
   }
@@ -35,9 +37,9 @@ public struct LectureEntry: TimelineEntry {
     signInRequired: Bool,
     backgroundColor: Color,
     relevance: TimelineEntryRelevance,
-    activity: TimetableActivity? = nil
+    activitySlot: TimetableActivitySlot? = nil
   ) {
-    self.activity = activity
+    self.activitySlot = activitySlot
     self.date = date
     self.lecture = lecture
     self.lectureClass = lectureClass

@@ -49,6 +49,16 @@ public struct TimetableGridCell: View {
             .lineLimit(3)
           
           if geometry.size.height > 40 {
+            // Ahead of the room: it tells apart sections of one course, such as
+            // the Leadership ones, which the room and professor don't.
+            if let subtitle = lectureItem.lecture.subtitleTopic {
+              // Not scaled down to fit, so it matches the room beneath it. One line
+              // in a short cell, so the room still shows.
+              Text(subtitle)
+                .lineLimit(geometry.size.height > 90 ? 3 : 1)
+                .font(.caption2)
+            }
+
             descriptionText
               .minimumScaleFactor(0.8)
               .lineLimit(2)

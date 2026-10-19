@@ -230,7 +230,7 @@ struct LectureSearchPage: View {
     }
   }
 
-  private func addLecture(_ lecture: Lecture) {
-    session.addLecture(lecture)
+  private func addLecture(_ lecture: Lecture, replacingConflicts: Bool) {
+    session.addLecture(lecture, replacingConflicts: replacingConflicts)
   }
 }

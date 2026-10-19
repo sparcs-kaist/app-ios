@@ -50,7 +50,7 @@ public struct TimetableTimeSelection: Equatable, Sendable {
   }
 
   public func conflictingActivities(in timetable: Timetable?) -> [TimetableActivity] {
-    timetable?.activities.filter { $0.day == day && $0.begin < end && begin < $0.end } ?? []
+    timetable?.activities.filter { $0.overlaps(day: day, begin: begin, end: end) } ?? []
   }
 
   public var formattedTimeRange: String {

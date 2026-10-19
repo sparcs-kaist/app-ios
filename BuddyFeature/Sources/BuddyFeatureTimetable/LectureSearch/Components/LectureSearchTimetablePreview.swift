@@ -16,7 +16,8 @@ import TimetableUI
 @MainActor
 @Observable
 final class LectureSearchTimetablePreview {
-  var isExpanded = false
+  /// Shown when the search opens, so the timetable being added to is in view from the start.
+  var isExpanded = true
   /// The height chosen with the handle, which screens leave room for; `nil` until then, for a
   /// default that suits the screen.
   var height: CGFloat?
