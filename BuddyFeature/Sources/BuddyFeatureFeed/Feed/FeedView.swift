@@ -26,6 +26,7 @@ public struct FeedView: View {
   @State private var detailPostID: String? = nil
   /// The top-most visible post, kept in view when the feed column resizes.
   @State private var scrolledPostID: String? = nil
+  @State private var activePost = ActivePostViewModel()
 
   @State private var spoilerContents = SpoilerContents()
 
@@ -55,7 +56,21 @@ public struct FeedView: View {
   }
 
   private var isCommentsPanelVisible: Bool {
-    canShowCommentsPanel && commentsPostID != nil
+    canShowCommentsPanel && commentsPostID.flatMap(postBinding(id:)) != nil
+  }
+
+  /// Looks the post up by ID on every access, so writes that land after the
+  /// feed has changed (e.g. a comment finishing after a refresh) still reach
+  /// the right post, or nothing if it's gone.
+  private func postBinding(id: String) -> Binding<FeedPost>? {
+    guard let post = viewModel.posts.first(where: { $0.id == id }) else { return nil }
+    return Binding(
+      get: { viewModel.posts.first(where: { $0.id == id }) ?? post },
+      set: { newValue in
+        guard let index = viewModel.posts.firstIndex(where: { $0.id == id }) else { return }
+        viewModel.posts[index] = newValue
+      }
+    )
   }
 
   public var body: some View {
@@ -63,15 +78,18 @@ public struct FeedView: View {
       feedList
         .frame(width: isCommentsPanelVisible ? layout.foldSplit?.leadingWidth : nil)
 
-      if canShowCommentsPanel, let commentsPostID,
-         let index = viewModel.posts.firstIndex(where: { $0.id == commentsPostID }) {
+      if canShowCommentsPanel, let commentsPostID, let post = postBinding(id: commentsPostID) {
         // The column slides in and out as a whole; switching posts swaps only
         // its contents, so old and new panels never sit side by side. The
         // divider rides along on its leading edge so it never lands on the feed
         // before the feed has finished narrowing.
         ZStack {
-          FeedCommentsPanel(post: $viewModel.posts[index], onClose: { self.commentsPostID = nil })
-            .id(commentsPostID)
+          FeedCommentsPanel(
+            post: post,
+            viewModel: activePost.viewModel(for: commentsPostID),
+            onClose: { self.commentsPostID = nil }
+          )
+          .id(commentsPostID)
         }
         .frame(width: commentsPanelWidth)
         .overlay(alignment: .leading) {
@@ -82,7 +100,8 @@ public struct FeedView: View {
         .transition(.move(edge: .trailing))
       }
     }
-    .feedLayout($layout)
+    // The pushed detail reports the layout while it covers the feed.
+    .feedLayout($layout, isEnabled: detailPostID == nil)
     .onChange(of: canShowCommentsPanel) { _, isAvailable in
       withAnimation(.spring) {
         if isAvailable, let postID = detailPostID {
@@ -94,6 +113,15 @@ public struct FeedView: View {
           detailPostID = postID
         }
       }
+    }
+    .onChange(of: viewModel.posts.map(\.id)) { _, postIDs in
+      // Closes the panel once its post is deleted or drops out of the feed.
+      if let commentsPostID, !postIDs.contains(commentsPostID) {
+        self.commentsPostID = nil
+      }
+    }
+    .onChange(of: [commentsPostID, detailPostID]) { _, postIDs in
+      if postIDs.allSatisfy({ $0 == nil }) { activePost.reset() }
     }
     .animation(.spring, value: isCommentsPanelVisible)
     .navigationTitle(Text("Feed", bundle: .module))
@@ -152,10 +180,10 @@ public struct FeedView: View {
   @ViewBuilder
   private func postDestination(postID: String) -> some View {
     if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
-      FeedPostView(post: $viewModel.posts[index], onDelete: {
+      FeedPostView(post: $viewModel.posts[index], viewModel: activePost.viewModel(for: postID), onDelete: {
         await viewModel.deletePost(postID: postID)
       })
-      .feedLayout($layout)
+      .feedLayout($layout, isEnabled: true)
       .environment(spoilerContents)
     }
   }
@@ -190,10 +218,12 @@ public struct FeedView: View {
     ForEach($viewModel.posts) { $post in
       VStack(spacing: 0) {
         Button {
+          // The detail covers the feed, so it takes over from the panel and
+          // only one post is ever active.
+          commentsPostID = nil
           detailPostID = post.id
         } label: {
           FeedPostRow(post: $post, onPostDeleted: { postID in
-            if commentsPostID == postID { commentsPostID = nil }
             Task {
               await viewModel.deletePost(postID: postID)
             }
@@ -273,6 +303,11 @@ private nonisolated struct FeedLayout: Equatable, Sendable {
 /// while the active display changes.
 private struct FeedLayoutObserver: ViewModifier {
   @Binding var layout: FeedLayout
+  /// Only one observer may write at a time, or the two views' differing
+  /// geometry makes the layout flip between them.
+  /// A covered feed isn't laid out, so it reports again once uncovered rather
+  /// than replaying a stale measurement.
+  let isEnabled: Bool
 
   func body(content: Content) -> some View {
     content
@@ -286,14 +321,15 @@ private struct FeedLayoutObserver: ViewModifier {
         }
         return FeedLayout(width: geometry.size.width)
       } action: { layout in
+        guard isEnabled else { return }
         self.layout = layout
       }
   }
 }
 
 private extension View {
-  func feedLayout(_ layout: Binding<FeedLayout>) -> some View {
-    modifier(FeedLayoutObserver(layout: layout))
+  func feedLayout(_ layout: Binding<FeedLayout>, isEnabled: Bool) -> some View {
+    modifier(FeedLayoutObserver(layout: layout, isEnabled: isEnabled))
   }
 }
 

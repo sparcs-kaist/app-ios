@@ -18,14 +18,23 @@ struct FeedCommentsPanel: View {
   let onClose: () -> Void
 
   @FocusState private var isWritingCommentFocusState: Bool
-  @State private var targetComment: FeedComment? = nil
 
   /// The comment to pin to the top while a reply to it is being written.
   private var replyScrollTargetID: String? {
-    isWritingCommentFocusState ? targetComment?.id : nil
+    isWritingCommentFocusState ? viewModel.targetComment?.id : nil
   }
 
-  @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
+  @State private var viewModel: FeedPostViewModelProtocol
+
+  init(
+    post: Binding<FeedPost>,
+    viewModel: FeedPostViewModelProtocol = FeedPostViewModel(),
+    onClose: @escaping () -> Void
+  ) {
+    self._post = post
+    self._viewModel = State(initialValue: viewModel)
+    self.onClose = onClose
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -40,7 +49,7 @@ struct FeedCommentsPanel: View {
               commentCount: post.commentCount,
               showsLeadingDivider: false,
               onReply: { comment in
-                targetComment = comment
+                viewModel.targetComment = comment
                 isWritingCommentFocusState = true
               }
             )
@@ -71,14 +80,14 @@ struct FeedCommentsPanel: View {
           FeedCommentInputBar(
             text: $viewModel.text,
             isAnonymous: $viewModel.isAnonymous,
-            targetComment: $targetComment,
+            targetComment: $viewModel.targetComment,
             isFocused: $isWritingCommentFocusState,
             isSubmitting: viewModel.isSubmittingComment,
             onSubmit: {
               Task {
-                if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: targetComment) {
+                if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: viewModel.targetComment) {
                   post.commentCount += 1
-                  targetComment = nil
+                  viewModel.targetComment = nil
                   isWritingCommentFocusState = false
 
                   withAnimation(.spring) {
