@@ -20,6 +20,9 @@ public struct TimetableView: View {
   @State private var sharedImage: TimetableShareImage?
   /// Offered after a screenshot, with the timetable as its share image.
   @State private var screenshotShareImage: TimetableShareImage?
+  /// A screenshot taken while the scene was inactive, such as under the full-screen screenshot
+  /// preview, waiting to be offered once the scene is active again.
+  @State private var isScreenshotSharePending = false
   /// Whether the timetable itself is on screen, not covered by a pushed screen or another tab.
   @State private var isTimetableVisible = false
   /// Whether the selector's rename alert or delete confirmation is up.
@@ -203,7 +206,19 @@ public struct TimetableView: View {
     .timetableThemeFromSettings()
     .task { await viewModel.observeConnectivity() }
     .onChange(of: scenePhase) { _, phase in
-      if phase == .active { Task { await viewModel.refresh() } }
+      switch phase {
+      case .active:
+        Task { await viewModel.refresh() }
+        if isScreenshotSharePending {
+          isScreenshotSharePending = false
+          offerShareAfterScreenshot()
+        }
+      case .background:
+        // Left the app rather than just looking at the screenshot: the offer is stale.
+        isScreenshotSharePending = false
+      default:
+        break
+      }
     }
   }
 
@@ -421,7 +436,12 @@ public struct TimetableView: View {
 
   /// Shows the share sheet when the screenshot was of the timetable, and nothing covers it.
   private func offerShareAfterScreenshot() {
-    guard isTimetableVisible, scenePhase == .active,
+    // The full-screen screenshot preview makes the scene inactive as the notification arrives.
+    guard scenePhase == .active else {
+      isScreenshotSharePending = isTimetableVisible
+      return
+    }
+    guard isTimetableVisible,
       !showSearchSheet, !showActivityCreationSheet, editingActivity == nil,
       selectedLecture == nil, sharedImage == nil, screenshotShareImage == nil,
       !viewModel.isAlertPresented, !isSelectorDialogPresented

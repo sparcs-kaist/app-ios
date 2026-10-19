@@ -108,6 +108,8 @@ struct TimetableShareSheet: View {
       // Centred while the buttons fit, scrolling once they do not.
       .containerRelativeFrame(.horizontal, alignment: .center) { width, _ in width }
     }
+    // Interactive glass grows past the button while pressed; clipping would cut it off.
+    .scrollClipDisabled()
     .scrollIndicators(.hidden)
     .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
   }
@@ -123,15 +125,21 @@ struct TimetableShareSheet: View {
     }
     let image = item.source.image
     do {
-      try await PHPhotoLibrary.shared().performChanges {
-        PHAssetChangeRequest.creationRequestForAsset(from: image)
-      }
+      try await Self.addToPhotoLibrary(image)
       withAnimation(.snappy) { saveState = .saved }
     } catch {
       // Anything else, such as a full device, comes with its own explanation.
       saveState = .idle
       saveErrorMessage = error.localizedDescription
       showsSaveError = true
+    }
+  }
+
+  /// Photos runs the change block on its own queue, so it must not be built in the view's
+  /// main-actor context: a closure written there inherits that isolation and traps when run.
+  private nonisolated static func addToPhotoLibrary(_ image: UIImage) async throws {
+    try await PHPhotoLibrary.shared().performChanges {
+      PHAssetChangeRequest.creationRequestForAsset(from: image)
     }
   }
 
