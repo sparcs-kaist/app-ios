@@ -26,23 +26,32 @@ struct FeedPostView: View {
   @State private var showDeleteConfirmation: Bool = false
 
   @FocusState private var isWritingCommentFocusState: Bool
-  @State private var targetComment: FeedComment? = nil
 
   /// The comment to pin to the top while a reply to it is being written.
   private var replyScrollTargetID: String? {
-    isWritingCommentFocusState ? targetComment?.id : nil
+    isWritingCommentFocusState ? viewModel.targetComment?.id : nil
   }
 
   @State private var showTranslateSheet: Bool = false
 
-  @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
+  @State private var viewModel: FeedPostViewModelProtocol
+
+  init(
+    post: Binding<FeedPost>,
+    viewModel: FeedPostViewModelProtocol = FeedPostViewModel(),
+    onDelete: (() async throws -> Void)?
+  ) {
+    self._post = post
+    self._viewModel = State(initialValue: viewModel)
+    self.onDelete = onDelete
+  }
 
   var body: some View {
     ScrollViewReader { proxy in
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
           FeedPostRow(post: $post, onPostDeleted: nil, onComment: {
-            targetComment = nil
+            viewModel.targetComment = nil
             isWritingCommentFocusState = true
           }, showFullContent: true)
 
@@ -51,7 +60,7 @@ struct FeedPostView: View {
             comments: $viewModel.comments,
             commentCount: post.commentCount,
             onReply: { comment in
-              targetComment = comment
+              viewModel.targetComment = comment
               isWritingCommentFocusState = true
             }
           )
@@ -162,14 +171,14 @@ struct FeedPostView: View {
     FeedCommentInputBar(
       text: $viewModel.text,
       isAnonymous: $viewModel.isAnonymous,
-      targetComment: $targetComment,
+      targetComment: $viewModel.targetComment,
       isFocused: $isWritingCommentFocusState,
       isSubmitting: viewModel.isSubmittingComment,
       onSubmit: {
         Task {
-          if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: targetComment) {
+          if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: viewModel.targetComment) {
             post.commentCount += 1
-            targetComment = nil
+            viewModel.targetComment = nil
             isWritingCommentFocusState = false
 
             withAnimation(.spring) {
