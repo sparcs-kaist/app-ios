@@ -135,6 +135,15 @@ public struct TimetableView: View {
               onAdd: nil,
               lectureClass: item.lectureClass
             )
+            // On a short screen, such as a phone in landscape or iPhone Duo's outer display, the
+            // sheet covers the timetable and its bar is vertical; Close leads that bar.
+            .toolbar {
+              ToolbarItem(placement: .cancellationAction) {
+                Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .close) {
+                  selectedLecture = nil
+                }
+              }
+            }
             .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])
             .trailingPresentationPlacement()
@@ -221,9 +230,31 @@ public struct TimetableView: View {
           }
         }
       }
+      .onChange(of: verticalSizeClass) {
+        // Turned or closed to a screen too short for it, the full-screen search's preview makes way
+        // for the results, as it does when the search opens on one. Observed here rather than in
+        // the search, which may be covered by a lecture pushed on top of it.
+        if verticalSizeClass == .compact, let searchSession {
+          withAnimation(LectureSearchTimetablePreview.animation) {
+            searchSession.preview.isExpanded = false
+          }
+        }
+      }
       .onChange(of: isWide(reader.size), initial: true) { _, isWide in
         isSearchWide = isWide
-        searchSession?.isWide = isWide
+        guard let searchSession else { return }
+        // Decided before the search sees the new width, so the inspector's screens are already
+        // in the stack, or back in the inspector, when it lays out for it. Here rather than in
+        // the search, which may be covered by a lecture pushed on top of it.
+        if isWide {
+          moveStackToInspector(searchSession)
+        } else {
+          moveInspectorToStack(searchSession)
+        }
+        searchSession.isWide = isWide
+      }
+      .onChange(of: path.count) { _, count in
+        searchSession?.stackDidChange(count: count)
       }
     }
     .timetableThemeFromSettings()
@@ -430,8 +461,39 @@ public struct TimetableView: View {
     case .fullScreen:
       let session = LectureSearchSession(timetableViewModel: viewModel)
       session.isWide = isSearchWide
+      // Too short a screen for the preview, the filters and the results together, such as a phone
+      // in landscape or the outer display of iPhone Duo: the search opens on the results, with the
+      // timetable a tap away.
+      session.preview.isExpanded = verticalSizeClass != .compact
       searchSession = session
       path.append(TimetableRoute.lectureSearch)
+      session.stackBase = path.count
+    }
+  }
+
+  /// Pushes whatever the search's inspector shows when the screen becomes too narrow for it, such
+  /// as when iPhone Duo is closed or an iPad window is narrowed, so the lecture stays open and
+  /// previewed.
+  private func moveInspectorToStack(_ session: LectureSearchSession) {
+    for route in session.takeInspectorRoutes() {
+      path.append(route)
+      session.stackRoutes.append(route)
+    }
+  }
+
+  /// Takes the lectures and courses pushed above the search back into its inspector when the
+  /// screen becomes wide enough for it, such as when iPhone Duo is opened or an iPad window is
+  /// widened, so the lecture stays open and previewed beside the results.
+  private func moveStackToInspector(_ session: LectureSearchSession) {
+    let routes = session.stackRoutes
+    // Only when they are all that is pushed above the search, with no picker on top of them.
+    guard !routes.isEmpty, path.count == session.stackBase + routes.count else { return }
+    session.restoreInspector(routes)
+    session.stackRoutes = []
+    var transaction = Transaction()
+    transaction.disablesAnimations = true
+    withTransaction(transaction) {
+      path.removeLast(routes.count)
     }
   }
 
@@ -603,48 +665,6 @@ struct TimetableShareImage: Identifiable {
   let name: String
   let source: ImageActivityItemSource
   let backgroundColorHex: String
-}
-
-// MARK: - Fold Avoidance
-
-/// The active fold, expressed as the two-column geometry that keeps it in the
-/// gutter: the grid takes everything up to the fold, the gutter *is* the fold
-/// band, and the supporting cards take the rest.
-///
-/// `nonisolated` and `Sendable` because it is handed to a geometry closure: a
-/// plain value type picks up a main-actor-isolated `Equatable` conformance
-/// under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` and then fails to satisfy
-/// the `Sendable` requirement.
-private nonisolated struct TimetableFoldSplit: Equatable, Sendable {
-  /// Width of the leading column — the distance to the near edge of the fold.
-  let leadingWidth: CGFloat
-  /// Gap between the columns, matching the fold band (40 pt on iPhone Duo).
-  let gutter: CGFloat
-
-  /// Narrower than this and a column stops being worth keeping; the even split
-  /// reads better than two slivers.
-  private static let minimumColumnWidth: CGFloat = 240
-
-  /// `nil` whenever the columns should keep their even split: no fold, the
-  /// device lying flat (inactive regions are not returned by default), a fold
-  /// running *horizontally* across the layout — the inner display in portrait,
-  /// where the band spans the full width and no column arrangement avoids it —
-  /// or a fold so far off-centre that one column would be unusable.
-  @available(iOS 27.1, *)
-  init?(proxy: GeometryProxy) {
-    guard let fold = proxy.reservedRegions(kind: .division).first else { return nil }
-
-    let band = fold.frame
-    let width = proxy.size.width
-    // `frame` already includes the clearance margins, so the columns only have
-    // to stay outside it.
-    guard band.minX > 0, band.maxX < width else { return nil }
-    guard band.minX >= Self.minimumColumnWidth,
-          width - band.maxX >= Self.minimumColumnWidth else { return nil }
-
-    self.leadingWidth = band.minX
-    self.gutter = band.width
-  }
 }
 
 // MARK: - Card Styling

@@ -22,6 +22,18 @@ final class LectureSearchSession {
   /// The lecture or course the inspector shows, under any course opened from it.
   var inspectorRoot: LectureSearchRoute?
   var inspectorPath: [LectureSearchRoute] = []
+  /// The lectures and courses pushed on the timetable's stack above the search, in order, which
+  /// a `NavigationPath` cannot be asked for. When the screen widens they go back to the inspector.
+  @ObservationIgnored var stackRoutes: [LectureSearchRoute] = []
+  /// The timetable stack's depth with the search on top, below the lectures and courses pushed
+  /// from it.
+  @ObservationIgnored var stackBase = 0
+  /// Whether the window's bar is vertical, as on iPhone Duo's inner display in landscape. The
+  /// inspector's actions then join the search's in that one bar instead of a bar of its own,
+  /// which would take the window's vertical bar over and leave the search without Back.
+  var sharesWindowBar = false
+  /// The course page's professors, reported by the inspector's course page for the shared bar.
+  var inspectorProfessorMenu: InspectorProfessorMenu?
   /// Observed through its own properties; this only hands it to the search's screens.
   @ObservationIgnored let timetableViewModel: TimetableViewModel
 
@@ -32,6 +44,11 @@ final class LectureSearchSession {
 
   var isInspectorPresented: Bool {
     isWide && inspectorRoot != nil
+  }
+
+  /// The screen the inspector shows on top.
+  var inspectorTopRoute: LectureSearchRoute? {
+    inspectorPath.last ?? inspectorRoot
   }
 
   /// Shows a lecture or course in the inspector, in place of whatever it showed.
@@ -63,6 +80,23 @@ final class LectureSearchSession {
     inspectorRoot = nil
     inspectorPath = []
     return routes
+  }
+
+  /// Shows screens taken from the stack in the inspector, root first, such as when iPhone Duo is
+  /// opened on a lecture pushed while it was closed. In place at once: the panes are already
+  /// moving with the screen's new size.
+  func restoreInspector(_ routes: [LectureSearchRoute]) {
+    guard let root = routes.first else { return }
+    inspectorRoot = root
+    inspectorPath = Array(routes.dropFirst())
+  }
+
+  /// Forgets the lectures and courses popped off the stack with the back button or a swipe.
+  func stackDidChange(count: Int) {
+    let pushed = max(0, count - stackBase)
+    if pushed < stackRoutes.count {
+      stackRoutes.removeLast(stackRoutes.count - pushed)
+    }
   }
 
   func addLecture(_ lecture: Lecture, replacingConflicts: Bool = false) {
@@ -125,8 +159,23 @@ private struct InspectorScreen: View {
     .environment(\.openCourse) { id, name in
       session.inspectorPath.append(.course(id: id, name: name))
     }
-    .environment(\.reportProfessorMenu) { professorMenu = $0 }
+    .environment(\.reportProfessorMenu) { menu in
+      professorMenu = menu
+      session.inspectorProfessorMenu = menu
+    }
     .wishlistErrorAlert(session.searchViewModel)
+    .safeAreaInset(edge: .top, spacing: 0) {
+      // In place of the hidden navigation bar's title.
+      if session.sharesWindowBar {
+        Text(barState.title)
+          .font(.headline)
+          .lineLimit(1)
+          .padding(.horizontal)
+          .padding(.vertical, 12)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .background(Color.systemGroupedBackground)
+      }
+    }
     // A hosting controller of its own does not inherit the timetable's environment.
     .timetableThemeFromSettings()
     .onChange(of: barState, initial: true) {
@@ -143,6 +192,7 @@ private struct InspectorScreen: View {
     var conflicts: [String] = []
     var professors: [Professor] = []
     var selectedProfessorID: Int?
+    var sharesWindowBar = false
   }
 
   private var barState: BarState {
@@ -153,13 +203,15 @@ private struct InspectorScreen: View {
         title: lecture.name,
         isWishlisted: session.searchViewModel.isWishlisted(lecture),
         isAdded: timetable?.contains(lecture) ?? false,
-        conflicts: timetable?.conflicts(with: lecture) ?? []
+        conflicts: timetable?.conflicts(with: lecture) ?? [],
+        sharesWindowBar: session.sharesWindowBar
       )
     case .course(_, let name):
       return BarState(
         title: name,
         professors: professorMenu?.professors ?? [],
-        selectedProfessorID: professorMenu?.selectedID
+        selectedProfessorID: professorMenu?.selectedID,
+        sharesWindowBar: session.sharesWindowBar
       )
     }
   }
@@ -169,6 +221,14 @@ private struct InspectorScreen: View {
     let state = barState
     navigationItem.title = state.title
     navigationItem.largeTitleDisplayMode = .never
+    // Sharing the window's vertical bar, the actions are the search's toolbar items; any here,
+    // even the back button, would take that bar over. Only the title stays, over the pane.
+    navigationItem.hidesBackButton = state.sharesWindowBar
+    if state.sharesWindowBar {
+      navigationItem.leftBarButtonItem = nil
+      navigationItem.rightBarButtonItems = []
+      return
+    }
     navigationItem.leftBarButtonItem = isRoot
       ? UIBarButtonItem(systemItem: .close, primaryAction: UIAction { _ in session.closeInspector() })
       : nil
@@ -303,14 +363,27 @@ private struct InspectorNavigationController: UIViewControllerRepresentable {
   }
 
   func makeUIViewController(context: Context) -> UINavigationController {
-    let navigationController = UINavigationController()
+    let navigationController = InspectorStackController()
     navigationController.delegate = context.coordinator
+    if #available(iOS 27.1, *) {
+      let coordinator = context.coordinator
+      navigationController.registerForTraitChanges(UITraitCollection.systemTraitsAffectingVerticalBarEdge) {
+        (controller: UINavigationController, _) in
+        coordinator.updateSharesWindowBar(controller)
+      }
+    }
     return navigationController
   }
 
   func updateUIViewController(_ navigationController: UINavigationController, context: Context) {
     let coordinator = context.coordinator
     coordinator.session = session
+    coordinator.updateSharesWindowBar(navigationController)
+    // Sharing the window's vertical bar, the inspector has no bar of its own: even an empty one
+    // reserves a place in the window's bar and insets the inspector's screens by its width.
+    if navigationController.isNavigationBarHidden != session.sharesWindowBar {
+      navigationController.setNavigationBarHidden(session.sharesWindowBar, animated: false)
+    }
     let shown = coordinator.routes
     guard routes != shown else { return }
 
@@ -340,6 +413,14 @@ private struct InspectorNavigationController: UIViewControllerRepresentable {
     /// The routes of the screens in the navigation controller.
     var routes: [LectureSearchRoute] = []
 
+    func updateSharesWindowBar(_ controller: UIViewController) {
+      guard #available(iOS 27.1, *), let session else { return }
+      let shares = controller.traitCollection.verticalBarEdge != .unspecified
+      if session.sharesWindowBar != shares {
+        session.sharesWindowBar = shares
+      }
+    }
+
     func navigationController(
       _ navigationController: UINavigationController,
       didShow viewController: UIViewController,
@@ -350,6 +431,31 @@ private struct InspectorNavigationController: UIViewControllerRepresentable {
       guard count < routes.count, let session else { return }
       routes = Array(routes.prefix(count))
       session.inspectorPath = Array(routes.dropFirst())
+    }
+  }
+}
+
+/// The inspector's navigation controller, which gives its screens the pane's own safe area.
+///
+/// In a window with a vertical bar, as on iPhone Duo's inner display in landscape, a navigation
+/// controller passes the bar's whole inset on to its screens even when it sits clear of the bar,
+/// as the inspector does beside it. That inset is taken back off, so the screens are not left
+/// with an empty strip the bar's width down their trailing side.
+private final class InspectorStackController: UINavigationController {
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    for child in viewControllers {
+      var additional = child.additionalSafeAreaInsets
+      let inherited = child.view.safeAreaInsets
+      let excessLeft = inherited.left - additional.left - view.safeAreaInsets.left
+      let excessRight = inherited.right - additional.right - view.safeAreaInsets.right
+      let left = excessLeft > 0 ? -excessLeft : 0
+      let right = excessRight > 0 ? -excessRight : 0
+      if additional.left != left || additional.right != right {
+        additional.left = left
+        additional.right = right
+        child.additionalSafeAreaInsets = additional
+      }
     }
   }
 }

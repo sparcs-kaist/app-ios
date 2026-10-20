@@ -21,6 +21,8 @@ struct LectureTimeRangePage: View {
       TimetableRangeSelector(timetable: timetable, filter: $time)
     }
     .padding()
+    // Half-folded, the grid keeps to one side of the crease, so no day is dragged across it.
+    .avoidingFold()
     // As behind the timetable, so its card stands out in light mode.
     .background(Color.systemGroupedBackground)
     .safeAreaBar(edge: .bottom) {
@@ -30,7 +32,8 @@ struct LectureTimeRangePage: View {
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
-        Button(String(localized: "Clear", bundle: .module)) {
+        // With a symbol, so it joins a vertical bar rather than standing apart from it.
+        Button(String(localized: "Clear", bundle: .module), systemImage: "xmark.circle") {
           time = LectureTimeFilter()
         }
         .disabled(time.isEmpty)
@@ -58,6 +61,9 @@ struct LectureTimeRangePage: View {
     .glassEffect(.regular, in: .capsule)
     .padding()
     .animation(.snappy(duration: 0.2), value: time)
+    // Across the bar, so it is measured against the screen and kept on the grid's side of a fold.
+    .frame(maxWidth: .infinity)
+    .avoidingFold()
   }
 
   /// The range as the timetable shows it: an open end reads as the first or last time offered.
