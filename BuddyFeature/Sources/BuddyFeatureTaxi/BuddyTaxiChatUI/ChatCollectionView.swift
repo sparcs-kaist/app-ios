@@ -43,11 +43,16 @@ struct ChatCollectionView: UIViewRepresentable {
     collectionView.scrollIndicatorInsets = indicatorInsets
 
     // Insets on the section shrink the message rows while the viewport and
-    // its scroll-edge effect extend under the side bar.
-    if context.coordinator.leadingInset != safeAreaInsets.leading ||
-       context.coordinator.trailingInset != safeAreaInsets.trailing {
-      context.coordinator.leadingInset = safeAreaInsets.leading
-      context.coordinator.trailingInset = safeAreaInsets.trailing
+    // its scroll-edge effect extend under the side bar. Beside iPhone Duo's
+    // vertical bar the rows' own padding is taken back off too, so the
+    // bubbles run right up to the bar.
+    let barEdge = Self.verticalBarEdge(of: collectionView)
+    let leadingInset = Self.inset(safeAreaInsets.leading, besideBar: barEdge == .leading)
+    let trailingInset = Self.inset(safeAreaInsets.trailing, besideBar: barEdge == .trailing)
+    if context.coordinator.leadingInset != leadingInset ||
+       context.coordinator.trailingInset != trailingInset {
+      context.coordinator.leadingInset = leadingInset
+      context.coordinator.trailingInset = trailingInset
       collectionView.collectionViewLayout.invalidateLayout()
     }
 
@@ -151,6 +156,27 @@ struct ChatCollectionView: UIViewRepresentable {
 
     let bottomEdge = collectionView.contentOffset.y + collectionView.bounds.height - inset.bottom
     return contentHeight - bottomEdge <= threshold
+  }
+
+  /// The horizontal padding of every row.
+  static let rowPadding: CGFloat = 8
+
+  /// The side the window's vertical bar is on, as on iPhone Duo, or `nil` where bars are
+  /// horizontal.
+  private static func verticalBarEdge(of view: UIView) -> HorizontalEdge? {
+    guard #available(iOS 27.1, *) else { return nil }
+    switch view.traitCollection.verticalBarEdge {
+    case .leading: return .leading
+    case .trailing: return .trailing
+    default: return nil
+    }
+  }
+
+  /// A side's section inset: its safe area, less the rows' padding beside the vertical bar,
+  /// whose inset is the bar. Other insets, such as an iPhone's notch in landscape, keep the
+  /// padding.
+  private static func inset(_ safeArea: CGFloat, besideBar: Bool) -> CGFloat {
+    besideBar && safeArea >= rowPadding ? safeArea - rowPadding : safeArea
   }
 
   private func layout(coordinator: Coordinator) -> UICollectionViewLayout {
@@ -260,7 +286,7 @@ struct ChatCollectionView: UIViewRepresentable {
             Text("not supported", bundle: .module)
           }
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, ChatCollectionView.rowPadding)
         .padding(.top, position == .middle || position == .bottom ? 4 : 8)
       }
     }
