@@ -87,15 +87,6 @@ struct MainView: View {
 //      }
 //
 //    }
-    .fullScreenCover(isPresented: $extendTimetableView) {
-      TimetableView(timetableViewModel)
-        .safeAreaInset(edge: .top) {
-          Capsule()
-            .fill(.primary.secondary)
-            .frame(width: 36, height: 4)
-        }
-        .navigationTransition(.zoom(sourceID: "TimetableViewSource", in: namespace))
-    }
     .onOpenURL { url in
       guard let deepLink = DeepLink(url: url) else { return }
       handle(deepLink: deepLink)
@@ -112,7 +103,9 @@ struct MainView: View {
     .sheet(item: $viewModel.invitedRoom) { room in
       TaxiPreviewView(room: room)
         .presentationDragIndicator(.visible)
-        .presentationDetents([.height(400), .height(500)])
+        // `.large` lets the preview grow to fit on a short screen, such as the outer display of
+        // iPhone Duo in landscape; the sheet still opens at the smallest detent.
+        .presentationDetents([.height(400), .height(500), .large])
     }
     .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented) {
       Button(String(localized: "Okay"), role: .cancel) { }
@@ -146,7 +139,6 @@ struct MainView: View {
 
 
   private var isTabViewAccessoryEnabled: Bool {
-    guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
     switch selectedTab {
     case .feed:
       return feedPath.isEmpty
