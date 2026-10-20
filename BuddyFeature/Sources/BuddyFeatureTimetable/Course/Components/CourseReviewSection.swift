@@ -38,9 +38,9 @@ struct CourseReviewSection: View {
         }
         Spacer()
 
-        summaryRow(title: "Grade", description: gradeLetter)
-        summaryRow(title: "Load", description: loadLetter)
-        summaryRow(title: "Speech", description: speechLetter)
+        summaryRow(title: String(localized: "Grade", bundle: .module), description: gradeLetter)
+        summaryRow(title: String(localized: "Load", bundle: .module), description: loadLetter)
+        summaryRow(title: String(localized: "Speech", bundle: .module), description: speechLetter)
       }
 
       Spacer()

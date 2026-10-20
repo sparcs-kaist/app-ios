@@ -712,7 +712,14 @@
       }
     },
     "AU" : {
-      "shouldTranslate" : false
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AU"
+          }
+        }
+      }
     },
     "B" : {
       "shouldTranslate" : false
@@ -3858,6 +3865,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "대체"
+          }
+        }
+      }
+    },
+    "Hours" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의 시간"
+          }
+        }
+      }
+    },
+    "Lab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실험 시간"
           }
         }
       }
