@@ -280,6 +280,9 @@ public struct PostView: View {
           }
 
           TextField(text: $comment, prompt: Text(placeholder), axis: .vertical, label: {})
+            // Without a cap a long comment grows the bar over the post, which on a short screen
+            // such as the outer display of iPhone Duo leaves almost nothing of the post visible.
+            .lineLimit(1...5)
             .focused($isWritingCommentFocusState)
             .onChange(of: isWritingCommentFocusState) {
               isWritingComment = isWritingCommentFocusState
@@ -344,6 +347,8 @@ public struct PostView: View {
     }
     .padding(keyboardShowing ? [.horizontal, .vertical] : [.horizontal])
     .contentWidth()
+    // The capped bar is centred, so half-folded on iPhone Duo it would straddle the hinge.
+    .avoidingFold()
     .animation(.spring, value: keyboardShowing)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),

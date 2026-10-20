@@ -94,8 +94,9 @@ struct PostComposeView: View {
       .navigationTitle(String(localized: "Write", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        // Top tool bar
-        ToolbarItem(placement: .topBarLeading) {
+        // Top tool bar. Semantic placements let the system move these into the vertical bar on
+        // iPhone Duo; on iPhone and iPad they resolve to the same leading and trailing slots.
+        ToolbarItem(placement: .cancellationAction) {
           Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .close) {
             isShowingCancelDialog = true
           }
@@ -111,7 +112,7 @@ struct PostComposeView: View {
           .disabled(isUploading)
         }
 
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .confirmationAction) {
           Button(
             role: .confirm,
             action: {
@@ -153,7 +154,8 @@ struct PostComposeView: View {
         }
 
         ToolbarItem(placement: .bottomBar) {
-          Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
+          // Not `ellipsis`: in a vertical bar that reads as the system's own overflow menu.
+          Menu(String(localized: "More", bundle: .module), systemImage: "slider.horizontal.3") {
             Button(action: {
               viewModel.writeAsAnonymous.toggle()
             }, label: {
