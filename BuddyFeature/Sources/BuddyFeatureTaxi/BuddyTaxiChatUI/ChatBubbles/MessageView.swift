@@ -10,6 +10,18 @@ import SwiftUI
 import BuddyDomain
 import NukeUI
 
+/// Widths that keep messages readable when the chat spans a wide display —
+/// an iPad, or an unfolded iPhone Duo — rather than a phone's width. Below
+/// these widths, as on an iPhone in portrait, they change nothing.
+enum ChatBubbleMetrics {
+  /// The whole row, avatar and read receipt included. Leaves a text bubble
+  /// about 450 to 490 points: lines of a comfortable length.
+  static let maxRowWidth: CGFloat = 560
+  /// Content of bubbles that carry a full-width button, so it stays a button
+  /// rather than a banner.
+  static let maxActionBubbleWidth: CGFloat = 360
+}
+
 struct MessageView<Content: View>: View {
   let chat: TaxiChat
   let kind: TaxiChat.ChatType
@@ -73,6 +85,11 @@ struct MessageView<Content: View>: View {
         }
       }
     }
+    // The row already fills its width through its spacer, so on a narrow
+    // display these frames are no-ops; on a wide one the capped row keeps to
+    // its sender's side.
+    .frame(maxWidth: ChatBubbleMetrics.maxRowWidth, alignment: sender.isMine ? .trailing : .leading)
+    .frame(maxWidth: .infinity, alignment: sender.isMine ? .trailing : .leading)
   }
 
   private var authorNameplace: some View {

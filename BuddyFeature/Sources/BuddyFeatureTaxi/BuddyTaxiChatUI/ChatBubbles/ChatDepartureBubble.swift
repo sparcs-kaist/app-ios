@@ -46,6 +46,7 @@ struct ChatDepartureBubble: View {
       .fontWeight(.medium)
       .buttonStyle(.glassProminent)
     }
+    .frame(maxWidth: ChatBubbleMetrics.maxActionBubbleWidth)
     .padding(12)
     .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 24))
     .alert(

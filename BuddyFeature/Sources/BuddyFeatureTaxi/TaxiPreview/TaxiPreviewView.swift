@@ -21,6 +21,7 @@ public struct TaxiPreviewView: View {
   @State private var viewModel = TaxiPreviewViewModel()
 
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
   @State private var route: MKRoute?
   @State private var mapCamPos: MapCameraPosition = .automatic
 
@@ -32,6 +33,39 @@ public struct TaxiPreviewView: View {
   }
 
   public var body: some View {
+    Group {
+      if verticalSizeClass == .compact {
+        // Short screens — iPhone in landscape, the outer display of iPhone
+        // Duo — may not fit the map and details at once. Scroll rather than
+        // push the Join button off the bottom of the sheet.
+        ViewThatFits(in: .vertical) {
+          content
+          ScrollView {
+            content
+          }
+          .scrollBounceBehavior(.basedOnSize)
+        }
+      } else {
+        content
+      }
+    }
+    .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
+      Button(String(localized: "Okay", bundle: .module), role: .close) { }
+    }, message: {
+      Text(errorMessage)
+    })
+    // Vertical edges only, so the map still runs to the top of the sheet but
+    // the controls stay clear of a side bar — and of the front camera beside
+    // it on iPhone Duo's outer display.
+    .ignoresSafeArea(edges: .vertical)
+    .analyticsScreen(name: "Taxi Preview", class: String(describing: Self.self))
+  }
+
+  private var mapHeight: CGFloat {
+    verticalSizeClass == .compact ? 120 : 200
+  }
+
+  private var content: some View {
     VStack(spacing: 0) {
       Map(position: $mapCamPos) {
         Marker(
@@ -55,7 +89,10 @@ public struct TaxiPreviewView: View {
         }
       }
       .disabled(true)
-      .frame(height: 200)
+      .frame(height: mapHeight)
+      // The map is backdrop, so it may run under a side bar; the controls
+      // below may not.
+      .ignoresSafeArea(edges: .horizontal)
       .task {
         let calculatedRoute = try? await viewModel.calculateRoute(
           source: room.source.coordinate,
@@ -141,13 +178,6 @@ public struct TaxiPreviewView: View {
       }
       .padding()
     }
-    .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
-      Button(String(localized: "Okay", bundle: .module), role: .close) { }
-    }, message: {
-      Text(errorMessage)
-    })
-    .ignoresSafeArea()
-    .analyticsScreen(name: "Taxi Preview", class: String(describing: Self.self))
   }
   
   private var isJoinButtonDisabled: Bool {

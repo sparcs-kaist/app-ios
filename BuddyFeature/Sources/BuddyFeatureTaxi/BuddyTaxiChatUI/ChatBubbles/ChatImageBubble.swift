@@ -22,9 +22,11 @@ struct ChatImageBubble: View {
           .frame(maxHeight: 240)
           .clipShape(.rect(cornerRadius: 24))
       } else {
+        // As tall as a loaded image is allowed to be, so the row does not
+        // jump when it arrives; 2:3 like the portrait photos most chats hold.
         RoundedRectangle(cornerRadius: 24)
           .foregroundStyle(Color.secondarySystemBackground)
-          .frame(width: 200, height: 300)
+          .frame(width: 160, height: 240)
       }
     }
     .processors([.resize(height: 360)])

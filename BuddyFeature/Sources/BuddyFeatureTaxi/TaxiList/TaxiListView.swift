@@ -92,6 +92,10 @@ public struct TaxiListView: View {
         }
       }
       .matchedTransitionSource(id: "RoomCreationView", in: namespace)
+      // Create is this screen's main action: when a vertical bar runs out of
+      // room, as on iPhone Duo's outer display, it should be the last item
+      // to collapse into the overflow menu.
+      .prefersStayingVisible()
 
       ToolbarSpacer(.flexible, placement: .topBarTrailing)
 
@@ -340,6 +344,18 @@ public struct TaxiListView: View {
 
 }
 
+private extension ToolbarContent {
+  /// `visibilityPriority` is iOS 27.0; on 26 there is no vertical bar to
+  /// overflow from.
+  @ToolbarContentBuilder
+  func prefersStayingVisible() -> some ToolbarContent {
+    if #available(iOS 27.0, *) {
+      visibilityPriority(.high)
+    } else {
+      self
+    }
+  }
+}
 
 // MARK: - Previews
 #Preview("Loading State") {

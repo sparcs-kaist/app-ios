@@ -54,7 +54,10 @@ struct TaxiChatListView: View {
         }
     } detail: {
       if let selectedRoom {
-        TaxiChatView(room: selectedRoom)
+        // Leaving clears the selection rather than calling `dismiss()`: in
+        // the expanded split the chat is the detail column's root, where
+        // `dismiss()` closes this whole full-screen cover.
+        TaxiChatView(room: selectedRoom, onLeave: { leaveSelectedRoom() })
           .id(selectedRoom.id)
       } else {
         ContentUnavailableView {
@@ -66,13 +69,27 @@ struct TaxiChatListView: View {
     // hiding the sidebar to keep the detail large, so the chat appears beside
     // the room list rather than in place of it.
     .navigationSplitViewStyle(.balanced)
-    .onChange(of: selectedRoom) { _, room in
-      preferredCompactColumn = room == nil ? .sidebar : .detail
-    }
     .task {
       await viewModel.fetchData()
     }
     .analyticsScreen(name: "Taxi Chat List", class: String(describing: Self.self))
+  }
+
+  /// Shows `room` in the detail column. The compact column is set here
+  /// rather than derived from `selectedRoom` changing: after Back in the
+  /// collapsed split the selection still holds the room just left, so tapping
+  /// that room again would not change it and nothing would push.
+  private func select(_ room: TaxiRoom) {
+    selectedRoom = room
+    preferredCompactColumn = .detail
+  }
+
+  private func leaveSelectedRoom() {
+    selectedRoom = nil
+    preferredCompactColumn = .sidebar
+    Task {
+      await viewModel.fetchData()
+    }
   }
 
   /// The sidebar column: one presentation for every state, so the title and
@@ -146,7 +163,7 @@ struct TaxiChatListView: View {
             rooms: onGoing,
             selectedRoom: selectedRoom,
             taxiUser: viewModel.taxiUser,
-            onSelect: { selectedRoom = $0 }
+            onSelect: { select($0) }
           )
         }
 
@@ -156,7 +173,7 @@ struct TaxiChatListView: View {
             rooms: done,
             selectedRoom: selectedRoom,
             taxiUser: viewModel.taxiUser,
-            onSelect: { selectedRoom = $0 }
+            onSelect: { select($0) }
           )
         }
       }
