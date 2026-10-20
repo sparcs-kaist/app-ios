@@ -33,6 +33,7 @@ struct TaxiChatListView: View {
   @State private var preferredCompactColumn: NavigationSplitViewColumn = .sidebar
 
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   init(viewModel: TaxiChatListViewModelProtocol = TaxiChatListViewModel()) {
     _viewModel = State(initialValue: viewModel)
@@ -82,6 +83,12 @@ struct TaxiChatListView: View {
   private func select(_ room: TaxiRoom) {
     selectedRoom = room
     preferredCompactColumn = .detail
+  }
+
+  /// The room shown beside the list. On a narrow screen the list and the chat are never on
+  /// screen together, so after going back the room just left is not highlighted.
+  private var highlightedRoom: TaxiRoom? {
+    horizontalSizeClass == .compact ? nil : selectedRoom
   }
 
   private func leaveSelectedRoom() {
@@ -161,7 +168,7 @@ struct TaxiChatListView: View {
           TaxiRoomGroupSection(
             title: String(localized: "Active Groups", bundle: .module),
             rooms: onGoing,
-            selectedRoom: selectedRoom,
+            selectedRoom: highlightedRoom,
             taxiUser: viewModel.taxiUser,
             onSelect: { select($0) }
           )
@@ -171,7 +178,7 @@ struct TaxiChatListView: View {
           TaxiRoomGroupSection(
             title: String(localized: "Past Groups", bundle: .module),
             rooms: done,
-            selectedRoom: selectedRoom,
+            selectedRoom: highlightedRoom,
             taxiUser: viewModel.taxiUser,
             onSelect: { select($0) }
           )

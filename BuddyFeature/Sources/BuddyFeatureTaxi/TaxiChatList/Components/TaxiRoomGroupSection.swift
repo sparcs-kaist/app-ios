@@ -34,10 +34,13 @@ struct TaxiRoomGroupSection: View {
           .onTapGesture {
             onSelect(room)
           }
-          .overlay(
-            Color.secondary.opacity(selectedRoom == room ? 0.3 : 0),
-            in: .rect(cornerRadius: 28)
-          )
+          .overlay {
+            // Over the cell, the highlight would take its taps, so the selected room could not
+            // be opened again, such as after going back to the list on an iPhone.
+            RoundedRectangle(cornerRadius: 28)
+              .fill(Color.secondary.opacity(selectedRoom == room ? 0.3 : 0))
+              .allowsHitTesting(false)
+          }
       }
     }
   }
