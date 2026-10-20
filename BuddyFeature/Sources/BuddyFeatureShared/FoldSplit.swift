@@ -20,6 +20,8 @@ public nonisolated struct FoldSplit: Equatable, Sendable {
   public let leadingWidth: CGFloat
   /// Gap between the columns, matching the fold band (40 pt on iPhone Duo).
   public let gutter: CGFloat
+  /// Width of the trailing column — from the far edge of the fold to the end.
+  public let trailingWidth: CGFloat
 
   /// Narrower than this and a column stops being worth keeping; the layout's
   /// usual split reads better than two slivers.
@@ -44,6 +46,7 @@ public nonisolated struct FoldSplit: Equatable, Sendable {
 
     self.leadingWidth = band.minX
     self.gutter = band.width
+    self.trailingWidth = width - band.maxX
   }
 }
 
@@ -51,20 +54,59 @@ public extension View {
   /// Reports the active fold, as column geometry measured in this view's own
   /// bounds, so a two-column layout can put its gutter on the crease.
   ///
-  /// The reader lives in a `background`, which is layout-neutral: it measures
-  /// without disturbing the view's height inside a `ScrollView`. Region frames
-  /// arrive in that proxy's coordinate space, which is the same space the
-  /// column widths are expressed in.
+  /// Measured with `onGeometryChange`, which runs again whenever the reserved
+  /// regions change, including when the device folds without changing size.
+  /// Region frames arrive in this view's coordinate space, which is the same
+  /// space the column widths are expressed in.
   func foldSplit(_ split: Binding<FoldSplit?>) -> some View {
-    background {
+    onGeometryChange(for: FoldSplit?.self) { proxy in
       if #available(iOS 27.1, *) {
-        GeometryReader { proxy in
-          Color.clear
-            .onChange(of: FoldSplit(proxy: proxy), initial: true) { _, new in
-              split.wrappedValue = new
-            }
-        }
+        FoldSplit(proxy: proxy)
+      } else {
+        nil
       }
+    } action: { new in
+      split.wrappedValue = new
     }
+  }
+
+  /// Keeps this view's content off an active vertical fold by confining it to
+  /// the wider side of the crease, such as a search field, a filter bar or a
+  /// comment field that would otherwise span the hinge.
+  ///
+  /// Apply it to a view that spans the screen's width, such as the outer frame
+  /// of `contentWidth()`: the content is inset by padding, so the measured
+  /// width stays the whole screen's and the fold is never measured against the
+  /// inset content. With no active fold, as on every iPhone and iPad, nothing
+  /// changes.
+  func avoidingFold() -> some View {
+    modifier(FoldAvoidance())
+  }
+}
+
+private struct FoldAvoidance: ViewModifier {
+  @State private var split: FoldSplit?
+
+  func body(content: Content) -> some View {
+    content
+      .padding(.leading, leadingInset)
+      .padding(.trailing, trailingInset)
+      .foldSplit($split)
+      .animation(.snappy, value: split)
+  }
+
+  private var keepsLeadingSide: Bool {
+    guard let split else { return true }
+    return split.leadingWidth >= split.trailingWidth
+  }
+
+  private var leadingInset: CGFloat {
+    guard let split, !keepsLeadingSide else { return 0 }
+    return split.leadingWidth + split.gutter
+  }
+
+  private var trailingInset: CGFloat {
+    guard let split, keepsLeadingSide else { return 0 }
+    return split.gutter + split.trailingWidth
   }
 }
