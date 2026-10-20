@@ -67,6 +67,10 @@ public struct DepartmentPicker: View {
     .searchable(text: $searchText, prompt: Text("Name or code", bundle: .module))
     .scrollDismissesKeyboard(.immediately)
     .toolbar {
+      // At the bottom, as on the lecture search's results. Left to the system, the field moves to
+      // the top, under the lecture search's timetable preview.
+      DefaultToolbarItem(kind: .search, placement: .bottomBar)
+
       ToolbarItem(placement: .topBarTrailing) {
         // Needs a symbol: on iPhone Duo a title-only item leaves the vertical bar for a pill of
         // its own at the top.
