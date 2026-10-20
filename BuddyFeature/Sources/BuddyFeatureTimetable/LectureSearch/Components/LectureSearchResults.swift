@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
+import TipKit
 
 /// A screen pushed from the lecture search results.
 enum LectureSearchRoute: Hashable {
@@ -62,6 +63,7 @@ struct LectureSearchResults: View {
           let isWishlisted = wishlistedLectureIDs.contains(lecture.id)
           HStack(spacing: 10) {
             Button {
+              Task { await PeekLectureTip.lectureOpened.donate() }
               onOpenLecture(lecture)
             } label: {
               LectureRow(lecture: lecture, conflicts: conflicts, isAdded: isAdded, showsRatings: showsRatings)
@@ -82,6 +84,7 @@ struct LectureSearchResults: View {
           }
           .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
+              SwipeToAddTip().invalidate(reason: .actionPerformed)
               onToggleWishlist(lecture)
             } label: {
               Label(
@@ -97,6 +100,7 @@ struct LectureSearchResults: View {
             // Only offered when it can succeed, like the Add button in the details.
             if !isAdded && conflicts.isEmpty {
               Button {
+                SwipeToAddTip().invalidate(reason: .actionPerformed)
                 onAddLecture(lecture)
               } label: {
                 Label(String(localized: "Add to Timetable", bundle: .module), systemImage: "plus")
@@ -121,6 +125,9 @@ struct LectureSearchResults: View {
             .frame(width: 380, height: 560)
             // A peek, not a screen of the search: no Timetable button or preview card.
             .environment(\.lectureSearchTimetablePreview, nil)
+            .onAppear {
+              PeekLectureTip().invalidate(reason: .actionPerformed)
+            }
           }
         }
       } header: {

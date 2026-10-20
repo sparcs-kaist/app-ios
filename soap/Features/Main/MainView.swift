@@ -56,6 +56,7 @@ struct MainView: View {
 //      if UIDevice.current.userInterfaceIdiom != .phone {
         Tab("Timetable", systemImage: "square.grid.2x2", value: .timetable) {
           TimetableView(timetableViewModel)
+            .environment(\.timetableSiriTipIntent, NextClassAppIntents())
         }
 //      }
 

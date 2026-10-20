@@ -9,6 +9,7 @@ import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
 import TimetableUI
+import TipKit
 
 /// The timetable preview of the full-screen lecture search: one card over the search's navigation
 /// stack, the same view on every screen of the search, shown and hidden with a Timetable button in
@@ -222,6 +223,8 @@ private struct TimetablePreviewButton: View {
 
   var body: some View {
     let button = Button(String(localized: "Timetable", bundle: .module), systemImage: "calendar") {
+      TogglePreviewTip().invalidate(reason: .actionPerformed)
+      TimetableOnboarding.complete(.togglePreview)
       withAnimation(LectureSearchTimetablePreview.animation) {
         preview.isExpanded.toggle()
       }
@@ -248,6 +251,9 @@ private struct TimetablePreviewCard: View {
   @GestureState private var isDragging = false
   /// Changes when a resize crosses between the grid and the silhouette.
   @State private var modeChanges = 0
+  /// Set once the card has settled, after the search slides in: a popover presented while its
+  /// anchor is still moving is dismissed straight away.
+  @State private var isSettled = false
   @Environment(\.timetableTheme) private var theme
 
   var body: some View {
@@ -336,6 +342,11 @@ private struct TimetablePreviewCard: View {
         @unknown default: break
         }
       }
+      .popoverTip(isSettled && preview.isResizable ? ResizePreviewTip() : nil, arrowEdge: .top)
+      .task {
+        try? await Task.sleep(for: .seconds(1))
+        isSettled = true
+      }
   }
 
   private func drag(by translation: CGFloat) {
@@ -356,6 +367,8 @@ private struct TimetablePreviewCard: View {
   private func endDrag() {
     dragAnchor = nil
     guard let dragHeight = preview.dragHeight else { return }
+    ResizePreviewTip().invalidate(reason: .actionPerformed)
+    TimetableOnboarding.complete(.resizePreview)
     withAnimation(.smooth(duration: 0.3)) {
       preview.height = dragHeight
       preview.dragHeight = nil
@@ -364,6 +377,8 @@ private struct TimetablePreviewCard: View {
 
   private func setHeight(_ height: CGFloat) {
     guard preview.isResizable else { return }
+    ResizePreviewTip().invalidate(reason: .actionPerformed)
+    TimetableOnboarding.complete(.resizePreview)
     let wasSilhouette = preview.restingHeight < LectureSearchTimetablePreview.silhouetteHeight
     withAnimation(.smooth(duration: 0.3)) {
       preview.height = preview.clamped(height)

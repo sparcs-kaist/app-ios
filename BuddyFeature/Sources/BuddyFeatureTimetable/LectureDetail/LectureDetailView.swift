@@ -10,6 +10,7 @@ import SwiftUI
 import Factory
 import BuddyDomain
 import FirebaseAnalytics
+import TipKit
 
 struct LectureDetailView: View {
   let lecture: Lecture
@@ -50,6 +51,7 @@ struct LectureDetailView: View {
 
   @Environment(\.dismiss) private var dismiss
   @Environment(\.isInLectureSearchInspector) private var isInInspector
+  @Environment(\.lectureSearchTimetableName) private var timetableName
   @State private var viewModel = LectureDetailViewModel()
   @State private var showReviewComposeView: Bool = false
   /// Whether the review sheet's modifier is attached; see the `.background` below.
@@ -62,6 +64,12 @@ struct LectureDetailView: View {
   var body: some View {
     ScrollView {
       LazyVStack(spacing: 20) {
+        // Not for an overlapping lecture, whose Add button first asks to replace what it overlaps,
+        // nor in the inspector, whose Add button is in a bar of its own.
+        if onAdd != nil && !isAdded && !isOverlapping && !isInInspector {
+          TipView(AddFromDetailTip(timetableName: timetableName))
+        }
+
         // Lecture Summary
         LectureSummary(lecture: lecture)
 
@@ -164,6 +172,7 @@ struct LectureDetailView: View {
             showCannotAddLectureAlert = true
           }
         } else {
+          AddFromDetailTip(timetableName: timetableName).invalidate(reason: .actionPerformed)
           // In lecture search's inspector, adding closes it.
           if !isInInspector {
             dismiss()
@@ -171,6 +180,7 @@ struct LectureDetailView: View {
           onAdd?()
         }
       }
+      // Not for an overlapping lecture, whose first tap asks to replace what it overlaps.
     }
   }
 

@@ -11,6 +11,8 @@ import BuddyDomain
 import BuddyFeatureShared
 import FirebaseAnalytics
 import TimetableUI
+import TipKit
+import AppIntents
 import UIKit
 
 public struct TimetableView: View {
@@ -41,6 +43,15 @@ public struct TimetableView: View {
   /// Shared with the Credits screen, so its data loads once and grade edits show here too.
   @State private var creditViewModel = CreditCalculationViewModel()
   @Namespace private var creditsTransition
+  private let startEditingTip = StartEditingTip()
+  private let addEventTip = AddEventTip()
+  /// Sharing, then asking Siri, once the onboarding is over.
+  @State private var followUpTips = TipGroup(.ordered) {
+    ShareTimetableTip()
+    AskSiriTip()
+  }
+  @State private var isSiriTipVisible = true
+  @Environment(\.timetableSiriTipIntent) private var siriTipIntent
 
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
@@ -82,14 +93,18 @@ public struct TimetableView: View {
           ToolbarItem(placement: .topBarTrailing) {
 						Menu("Add Event", systemImage: "square.badge.plus") {
 							Button(String(localized: "Add Lecture", bundle: .module), systemImage: "book.badge.plus") {
+								addEventTip.invalidate(reason: .actionPerformed)
+								TimetableOnboarding.complete(.addButton)
 								openLectureSearch()
 							}
 							
 							Button(String(localized: "New Activity", bundle: .module), systemImage: "calendar.badge.plus") {
+								addEventTip.invalidate(reason: .actionPerformed)
+								TimetableOnboarding.complete(.addButton)
 								showActivityCreationSheet = true
 							}
 						}
-						.disabled(viewModel.isReadOnly || viewModel.selectedTimetableID == nil || viewModel.timetable?.id != viewModel.selectedTimetableID.map(String.init) || showSearchSheet)
+						.disabled(!canAddEvent)
           }
         }
         .navigationDestination(for: TimetableRoute.self) { route in
@@ -205,6 +220,14 @@ public struct TimetableView: View {
     }
     .timetableThemeFromSettings()
     .task { await viewModel.observeConnectivity() }
+    .task { await TimetableOnboarding.observeTips() }
+    .onChange(of: viewModel.selectedTimetableID, initial: true) { _, id in
+      // A table of the user's own, however it was chosen or made, is what the first tip asks for.
+      if id != nil {
+        startEditingTip.invalidate(reason: .actionPerformed)
+        TimetableOnboarding.complete(.startEditing)
+      }
+    }
     .onChange(of: scenePhase) { _, phase in
       switch phase {
       case .active:
@@ -248,11 +271,27 @@ public struct TimetableView: View {
       if viewModel.showsSavedStatus || viewModel.loadError != nil {
         offlineStatus
       }
+      if showsStartEditingTip {
+        TipView(startEditingTip) { action in
+          Task {
+            switch action.id {
+            case StartEditingTip.newTable: await viewModel.createTable()
+            case StartEditingTip.duplicateMyTable: await viewModel.duplicateMyTable()
+            default: break
+            }
+          }
+        }
+        .tint(.pink)
+      } else if canAddEvent {
+        TipView(addEventTip)
+          .tint(.pink)
+      }
+      siriTip
       if isWide {
         // Leverage the wider screen: lay the supporting cards out in two
         // columns instead of one long vertical scroll.
         HStack(alignment: .top, spacing: 28) {
-					gridCard(height: gridHeight)
+          gridCard(height: gridHeight)
             .frame(maxWidth: .infinity)
 
           VStack(spacing: 28) {
@@ -297,7 +336,8 @@ public struct TimetableView: View {
       shareTimetable: shareTimetable,
       canShareTimetable: viewModel.selectedSemester != nil && viewModel.timetable != nil,
 			isWide: isWide,
-      isReadOnly: viewModel.isReadOnly
+      isReadOnly: viewModel.isReadOnly,
+      shareTip: showsShareTip ? followUpTips.currentTip as? ShareTimetableTip : nil
     )
     // The search sheet leaves the timetable usable behind it for scrolling, but it searches and
     // adds to one semester's table, so neither may change, nor the table be renamed or deleted.
@@ -431,6 +471,7 @@ public struct TimetableView: View {
   }
 
   private func shareTimetable() {
+    ShareTimetableTip().invalidate(reason: .actionPerformed)
     sharedImage = makeShareImage()
   }
 
@@ -499,6 +540,38 @@ public struct TimetableView: View {
 
   private var selectedTimetable: TimetableSummary? {
     viewModel.timetables.first(where: { $0.id == viewModel.selectedTimetableID })
+  }
+
+  // MARK: - Tips
+
+  /// Whether the add button works: a table of the user's own, loaded, with nothing in the way.
+  private var canAddEvent: Bool {
+    !viewModel.isReadOnly
+      && viewModel.selectedTimetableID != nil
+      && viewModel.timetable?.id == viewModel.selectedTimetableID.map(String.init)
+      && !showSearchSheet
+  }
+
+  /// On My Table, once it has loaded and can be copied.
+  private var showsStartEditingTip: Bool {
+    viewModel.selectedTimetableID == nil && !viewModel.isReadOnly && !viewModel.isLoading
+  }
+
+  /// Once the timetable has enough in it to be worth sharing.
+  private var showsShareTip: Bool {
+    path.isEmpty && !showSearchSheet && (viewModel.timetable?.lectures.count ?? 0) >= 3
+  }
+
+  @ViewBuilder
+  private var siriTip: some View {
+    if followUpTips.currentTip is AskSiriTip, let siriTipIntent, !(viewModel.timetable?.lectures.isEmpty ?? true) {
+      SiriTipView(intent: siriTipIntent, isVisible: $isSiriTipVisible)
+        .onChange(of: isSiriTipVisible) { _, isVisible in
+          if !isVisible {
+            AskSiriTip().invalidate(reason: .tipClosed)
+          }
+        }
+    }
   }
 
   public init(_ viewModel: TimetableViewModel) {

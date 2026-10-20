@@ -784,6 +784,7 @@
       }
     },
     "Debug Menu" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -793,6 +794,23 @@
         }
       },
       "shouldTranslate" : false
+    },
+    "Debug Settings" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debug Settings"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디버그 설정"
+          }
+        }
+      }
     },
     "Deep ocean" : {
       "comment" : "Name of a theme.",
@@ -1253,6 +1271,7 @@
       }
     },
     "Force Crash" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1486,6 +1505,7 @@
       }
     },
     "Invoke Exception" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1565,6 +1585,23 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "레이블 색상"
+          }
+        }
+      }
+    },
+    "Later" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나중에"
           }
         }
       }
@@ -2156,6 +2193,23 @@
         }
       }
     },
+    "Quit Buddy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit Buddy"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buddy 종료"
+          }
+        }
+      }
+    },
     "Reason" : {
       "localizations" : {
         "en" : {
@@ -2237,6 +2291,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "신고 유형"
+          }
+        }
+      }
+    },
+    "Reset Tips" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Tips"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "팁 초기화"
+          }
+        }
+      }
+    },
+    "Reset Tips shows every tip again and starts the timetable onboarding over, as for a new user. Both settings apply the next time Buddy opens." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Tips shows every tip again and starts the timetable onboarding over, as for a new user. Both settings apply the next time Buddy opens."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "팁 초기화는 모든 팁을 다시 보여 주고, 새 사용자처럼 시간표 안내를 처음부터 시작해요. 두 설정 모두 Buddy를 다시 열 때 적용돼요."
           }
         }
       }
@@ -2432,6 +2520,22 @@
         }
       }
     },
+    "Share and Edit Themes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share and Edit Themes"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마 공유 및 편집"
+          }
+        }
+      }
+    },
     "Share Theme" : {
       "localizations" : {
         "en" : {
@@ -2494,6 +2598,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "배지 표시"
+          }
+        }
+      }
+    },
+    "Show Tips Immediately" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Tips Immediately"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "팁 바로 보기"
           }
         }
       }
@@ -2772,6 +2893,73 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "시간표 테마"
+          }
+        }
+      }
+    },
+    "Tips" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "팁"
+          }
+        }
+      }
+    },
+    "Tips Reset" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips Reset"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "팁 초기화됨"
+          }
+        }
+      }
+    },
+    "Tips show again the next time Buddy opens." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips show again the next time Buddy opens."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buddy를 다시 열면 팁이 다시 표시돼요."
+          }
+        }
+      }
+    },
+    "Touch and hold a theme to share or duplicate it, or swipe one of yours to edit it." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch and hold a theme to share or duplicate it, or swipe one of yours to edit it."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마를 길게 눌러 공유하거나 복제하고, 내가 만든 테마는 쓸어서 편집하세요."
           }
         }
       }

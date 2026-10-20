@@ -11,6 +11,7 @@ import BuddyDomain
 import Haptica
 import FirebaseAnalytics
 import BuddyFeatureShared
+import TipKit
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostView")
@@ -41,6 +42,7 @@ public struct PostView: View {
   @State private var showDeleteConfirmation: Bool = false
 
   @State private var summarisedContent: String? = nil
+  @State private var showsToolsTip = false
 
   let onPostDeleted: ((Int) -> Void)?
 
@@ -62,6 +64,10 @@ public struct PostView: View {
             isAnonymous: viewModel.post.author.username == "anonymous",
             onAuthorTapped: { selectedAuthor = viewModel.post.author }
           )
+
+          if showsToolsTip {
+            TipView(PostToolsTip())
+          }
 
           PostContent(
             summarisedContent: summarisedContent,
@@ -180,6 +186,13 @@ public struct PostView: View {
       .task {
         await viewModel.fetchPost()
       }
+      .task(id: viewModel.post.id) {
+        await PostToolsTip.postOpened.donate()
+      }
+      .task(id: viewModel.post.content) {
+        let content = viewModel.post.content ?? ""
+        showsToolsTip = await Task.detached { PostToolsTip.isWorthShowing(forHTML: content) }.value
+      }
       .refreshable {
         await viewModel.fetchPost()
       }
@@ -208,11 +221,13 @@ public struct PostView: View {
       if viewModel.post.isMine == false { Divider () }
 
       Button(String(localized: "Translate", bundle: .module), systemImage: "translate") {
+        PostToolsTip().invalidate(reason: .actionPerformed)
         showTranslationView = true
       }
 
       if viewModel.isFoundationModelsAvailable {
         Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
+          PostToolsTip().invalidate(reason: .actionPerformed)
           summarisedContent = ""
           Task {
             Haptic.start.generate()
