@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import TimetableUI
+import BuddyFeatureShared
 
 /// A semester's timetable with a grade picker for each of its lectures.
 struct GradeEntryView: View {
@@ -15,6 +16,8 @@ struct GradeEntryView: View {
 	let viewModel: CreditCalculationViewModel
 
 	@State private var size: CGSize = .zero
+	/// Non-nil only while an active fold runs vertically through the two columns; see `FoldSplit`.
+	@State private var foldSplit: FoldSplit?
 
 	/// Like the Timetable screen: 80% of the height, never squashed below 500pt.
 	private static let minimumGridHeight: CGFloat = 500
@@ -27,15 +30,21 @@ struct GradeEntryView: View {
 		ScrollView {
 			Group {
 				if CreditLayout.isWide(size.width) {
-					// Side by side on wide screens, like the Timetable screen.
-					HStack(alignment: .top, spacing: 20) {
+					// Side by side on wide screens, like the Timetable screen, and likewise split at an
+					// active fold: the grid takes the leading half and the gutter the fold band.
+					HStack(alignment: .top, spacing: foldSplit?.gutter ?? 20) {
 						GradeEntryGridCard(timetable: timetable, height: gridHeight)
-							.frame(maxWidth: .infinity)
+							.frame(minWidth: foldSplit?.leadingWidth, maxWidth: foldSplit?.leadingWidth ?? .infinity)
 						if !lectures.isEmpty {
 							GradeEntryLectureList(lectures: lectures, retakenIDs: viewModel.supersededLectureIDs, grade: gradeBinding)
 								.frame(maxWidth: .infinity)
 						}
 					}
+					// Full width even with no lectures beside the grid, so the fold is always measured
+					// against the whole row rather than the pinned grid.
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.foldSplit($foldSplit)
+					.animation(.snappy, value: foldSplit)
 				} else {
 					VStack(spacing: 20) {
 						GradeEntryGridCard(timetable: timetable, height: gridHeight)

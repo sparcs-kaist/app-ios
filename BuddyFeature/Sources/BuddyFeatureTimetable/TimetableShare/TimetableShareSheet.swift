@@ -20,6 +20,9 @@ struct TimetableShareSheet: View {
   @State private var showsSaveError = false
   @State private var saveErrorMessage = ""
   @State private var isInstagramAvailable = false
+  /// Opens at medium; large is there for a short screen, such as iPhone Duo's outer display in
+  /// landscape, where medium leaves the image a sliver.
+  @State private var detent: PresentationDetent = .medium
 
   @Environment(\.dismiss) private var dismiss
 
@@ -36,7 +39,7 @@ struct TimetableShareSheet: View {
           }
         }
     }
-    .presentationDetents([.medium])
+    .presentationDetents([.medium, .large], selection: $detent)
     .presentationDragIndicator(.visible)
     .sheet(isPresented: $showsActivitySheet) {
       ActivityView(

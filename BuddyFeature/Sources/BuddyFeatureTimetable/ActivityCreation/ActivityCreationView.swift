@@ -110,19 +110,25 @@ struct ActivityCreationView: View {
 			.scrollDismissesKeyboard(.immediately)
       .toolbar {
         if adjustingTimeID == nil {
-          ToolbarItem(placement: .topBarLeading) {
+          ToolbarItem(placement: .cancellationAction) {
             Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .cancel) { dismiss() }
               .disabled(viewModel.isSaving)
           }
-          ToolbarItem(placement: .topBarTrailing) {
+          ToolbarItem(placement: .confirmationAction) {
+            // A title and a symbol when idle, so it joins a vertical bar.
             Button {
               Task {
                 guard let onSave, let onRefresh else { return }
                 if await viewModel.save(draft: draft, onSave: onSave, onRefresh: onRefresh) { dismiss() }
               }
             } label: {
-              if viewModel.isSaving { ProgressView() }
-              else { Text(viewModel.needsRefresh ? String(localized: "Refresh", bundle: .module) : activity == nil ? String(localized: "Add", bundle: .module) : String(localized: "Save", bundle: .module)) }
+              if viewModel.isSaving {
+                ProgressView()
+              } else if viewModel.needsRefresh {
+                Label(String(localized: "Refresh", bundle: .module), systemImage: "arrow.clockwise")
+              } else {
+                Label(activity == nil ? String(localized: "Add", bundle: .module) : String(localized: "Save", bundle: .module), systemImage: "checkmark")
+              }
             }
             .disabled(viewModel.isSaving || (!viewModel.needsRefresh && !canSave))
             .accessibilityIdentifier("activity.save")
