@@ -42,11 +42,16 @@ public struct TimetableGridCell: View {
             .opacity(renderingMode == .accented ? 0.2 : 1)
         }
         
-        VStack(alignment: .leading, spacing: placement == .widget ? 2 : 4) {
+        let isPacked = isPackedCell(geometry.size)
+        VStack(alignment: .leading, spacing: placement == .widget || isPacked ? 2 : 4) {
           Text(lectureItem.lecture.name)
+            // Only widgets shrink their text to fit. Elsewhere every cell keeps one size, so a
+            // grid doesn't mix sizes cell by cell; a long name ends in an ellipsis instead.
             .minimumScaleFactor(placement == .widget ? 0.8 : 1)
-            .font(.caption)
-            .lineLimit(3)
+            // Packed, a size down and set apart from the room by weight instead.
+            .font(isPacked ? .caption2.weight(.medium) : .caption)
+            .lineLimit(isPacked && geometry.size.height < 60 ? 2 : 3)
+            .layoutPriority(1)
           
           if geometry.size.height > 40 {
             // Ahead of the room: it tells apart sections of one course, such as
@@ -59,16 +64,21 @@ public struct TimetableGridCell: View {
                 .font(.caption2)
             }
 
-            descriptionText
-              .minimumScaleFactor(0.8)
-              .lineLimit(2)
+            descriptionText(isPacked: isPacked)
+              .minimumScaleFactor(placement == .widget ? 0.8 : 1)
+              .lineLimit(isPacked ? 1 : 2)
               .font(.caption2)
+              // Set a touch tighter in every packed cell, with the narrower sides, so a wide room
+              // such as "W1-2 1201" fits.
+              .tracking(isPacked ? -0.3 : 0)
               .opacity(0.8)
           }
         }
         // Over the tint, the grid's own label colour reads like the hour labels beside it.
         .foregroundStyle(isCandidate ? theme.gridLabelColor ?? .primary : theme.textColor)
-        .padding(6)
+        // Packed, narrower at the sides, for the room beneath the title.
+        .padding(.horizontal, isPacked ? 3 : 6)
+        .padding(.vertical, isPacked ? 4 : 6)
       }
       .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
       .clipped()
@@ -85,14 +95,27 @@ public struct TimetableGridCell: View {
     theme.color(forCourseID: lectureItem.lecture.courseID)
   }
 
-  private var descriptionText: Text {
+  /// Too small for the usual padding and room name, such as in a full week or the lecture search's
+  /// timetable preview. Widgets size their text their own way.
+  private func isPackedCell(_ size: CGSize) -> Bool {
+    placement != .widget && (size.width < 72 || size.height < 60)
+  }
+
+  private func descriptionText(isPacked: Bool) -> Text {
     // Rendered exports prefer the professor, but lectures without one (like the
     // theme-sharing sample) fall back to the location instead of a blank line.
     if placement == .render, let professor = lectureItem.lecture.professors.first?.name, !professor.isEmpty {
-      Text(professor)
-    } else {
-      Text("\(lectureItem.lectureClass.buildingCode) \(lectureItem.lectureClass.roomName)", bundle: .module)
+      return Text(professor)
     }
+    let room = lectureItem.lectureClass.roomName
+    return Text("\(lectureItem.lectureClass.buildingCode) \(isPacked ? Self.roomNumber(in: room) ?? room : room)", bundle: .module)
+  }
+
+  /// The number from a room name such as "(1501호)강의실-제1공동강의실", all a packed cell has
+  /// room for beside the building code; `nil` when the name has none.
+  static func roomNumber(in roomName: String) -> String? {
+    guard let match = roomName.firstMatch(of: /^\s*\(\s*([^)]+?)\s*호\s*\)/) else { return nil }
+    return String(match.1)
   }
 
   private var backgroundColor: Color {
