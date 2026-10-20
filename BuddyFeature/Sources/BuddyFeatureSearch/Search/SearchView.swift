@@ -21,6 +21,7 @@ public struct SearchView: View {
   @State private var courseSheetDetent: PresentationDetent = .height(200)
   @State private var showDepartmentPicker: Bool = false
   @FocusState private var isFocused
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   public init() { }
 
@@ -51,7 +52,9 @@ public struct SearchView: View {
       }
     }
     .navigationTitle(Text("Search", bundle: .module))
-    .toolbarTitleDisplayMode(.inlineLarge)
+    // A large title plus the scope picker, filter bar and search field leaves
+    // little of a short screen for results, so the title goes inline there.
+    .toolbarTitleDisplayMode(verticalSizeClass == .compact ? .inline : .inlineLarge)
     .background {
       BackgroundGradientView(color: .blue)
         .ignoresSafeArea()
@@ -69,7 +72,10 @@ public struct SearchView: View {
           }
         }
         .pickerStyle(.segmented)
-        .glassEffect(.regular.interactive(), in: ContainerRelativeShape())
+        // A capsule to match the segmented control: the bar has no container
+        // shape, so `ContainerRelativeShape` resolved to a rectangle whose
+        // square corners showed past the control's rounded ends.
+        .glassEffect(.regular.interactive(), in: .capsule)
         .padding(.horizontal)
 
         // Course filters only apply in the Courses scope, so that is where they are offered.
@@ -84,6 +90,9 @@ public struct SearchView: View {
         }
       }
       .contentWidth()
+      // The centred column crosses the hinge when half folded, splitting the
+      // scope picker across it.
+      .avoidingFold()
       .animation(.snappy, value: viewModel.searchScope)
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search", bundle: .module))

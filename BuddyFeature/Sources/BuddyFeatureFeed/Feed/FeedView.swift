@@ -66,6 +66,7 @@ public struct FeedView: View {
           showComposeView = true
         }
       }
+      .keptOutOfOverflow()
       .matchedTransitionSource(id: "ComposeView", in: namespace)
 
       ToolbarSpacer(.fixed)
@@ -156,6 +157,21 @@ public struct FeedView: View {
     )
   }
 
+}
+
+private extension ToolbarContent {
+  /// Keeps Write in the bar when a short, vertical bar (the outer display of
+  /// iPhone Duo in landscape) runs out of room and folds items into its
+  /// overflow menu. `visibilityPriority` is iOS 27.0; earlier systems have no
+  /// such overflow.
+  @MainActor @ToolbarContentBuilder
+  func keptOutOfOverflow() -> some ToolbarContent {
+    if #available(iOS 27.0, *) {
+      visibilityPriority(.high)
+    } else {
+      self
+    }
+  }
 }
 
 

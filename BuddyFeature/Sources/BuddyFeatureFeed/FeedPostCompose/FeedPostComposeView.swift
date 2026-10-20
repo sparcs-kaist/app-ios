@@ -57,14 +57,16 @@ struct FeedPostComposeView: View {
       .navigationTitle(String(localized: "Write", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
+        // Semantic placements rather than leading/trailing, so the actions keep
+        // their roles when the bar moves to the side on iPhone Duo.
+        ToolbarItem(placement: .cancellationAction) {
           Button(String(localized: "Close", bundle: .module), systemImage: "xmark") {
             dismiss()
           }
           .disabled(viewModel.isUploading)
         }
 
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .confirmationAction) {
           Button(
             role: .confirm,
             action: {
