@@ -7,6 +7,7 @@
 
 #if DEBUG
 import SwiftUI
+import BuddyDomain
 import BuddyFeatureShared
 
 /// Settings for development, compiled into Debug builds only, whichever server they use.
@@ -14,6 +15,7 @@ struct DebugSettingsView: View {
   let viewModel: SettingsViewModel
   @State private var showsTipsResetAlert = false
   @State private var showsTipsImmediately = BuddyTips.showsTipsImmediately
+  @AppStorage(ModelLanguageSettings.forcedLanguageKey) private var forcedModelLanguage = ""
 
   var body: some View {
     List {
@@ -43,6 +45,21 @@ struct DebugSettingsView: View {
         Text("Tips", bundle: .module)
       } footer: {
         Text("Reset Tips shows every tip again and starts the timetable onboarding over, as for a new user. Both settings apply the next time Buddy opens.", bundle: .module)
+      }
+
+      Section {
+        Picker(selection: $forcedModelLanguage) {
+          Text("Automatic", bundle: .module).tag("")
+          ForEach(ModelLanguageSettings.languageCodes, id: \.self) { code in
+            Text(Locale.current.localizedString(forLanguageCode: code) ?? code).tag(code)
+          }
+        } label: {
+          Label(String(localized: "Output Language", bundle: .module), systemImage: "character.bubble")
+        }
+      } header: {
+        Text("Apple Intelligence", bundle: .module)
+      } footer: {
+        Text("The language summaries are written in. Automatic follows the device, or English when the model cannot write its language. The simulator writes English whatever is chosen.", bundle: .module)
       }
     }
     .navigationTitle(Text("Debug Settings", bundle: .module))
