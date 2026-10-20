@@ -475,9 +475,20 @@ public struct TimetableView: View {
   /// as when iPhone Duo is closed or an iPad window is narrowed, so the lecture stays open and
   /// previewed.
   private func moveInspectorToStack(_ session: LectureSearchSession) {
-    for route in session.takeInspectorRoutes() {
-      path.append(route)
-      session.stackRoutes.append(route)
+    let routes = session.takeInspectorRoutes()
+    guard !routes.isEmpty else { return }
+    // Pushed once the screen has settled at its new size: pushed in the same update, as when
+    // iPhone Duo is closed, the screens' hidden tab bar was not applied and the tab bar showed.
+    Task { @MainActor in
+      guard searchSession === session, !session.isWide else { return }
+      var transaction = Transaction()
+      transaction.disablesAnimations = true
+      withTransaction(transaction) {
+        for route in routes {
+          path.append(route)
+          session.stackRoutes.append(route)
+        }
+      }
     }
   }
 
