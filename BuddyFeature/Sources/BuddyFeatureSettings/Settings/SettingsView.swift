@@ -53,16 +53,16 @@ public struct SettingsView: View {
           terms
         }
         
-        if !Status.isProduction {
-          Section(header: Text("Debug Menu", bundle: .module)) {
-            Button(String(localized: "Force Crash", bundle: .module), systemImage: "exclamationmark.triangle") {
-              fatalError("DEBUG: User forced a crash")
-            }
-            Button(String(localized: "Invoke Exception", bundle: .module), systemImage: "exclamationmark.triangle") {
-              viewModel.handleException(NSError(domain: "Test", code: 1001))
-            }
+        #if DEBUG
+        // Debug builds only, whichever server they use.
+        Section {
+          NavigationLink {
+            DebugSettingsView(viewModel: viewModel)
+          } label: {
+            Label(String(localized: "Debug Settings", bundle: .module), systemImage: "hammer")
           }
         }
+        #endif
 
         Section {
           Button(String(localized: "Sign Out", bundle: .module), systemImage: "iphone.and.arrow.right.outward", role: .destructive) {

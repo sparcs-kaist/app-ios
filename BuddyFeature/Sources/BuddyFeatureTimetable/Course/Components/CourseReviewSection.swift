@@ -62,7 +62,11 @@ struct CourseReviewSection: View {
               .padding(.vertical, 24)
           }
           ForEach($reviews) { $review in
-            LectureReviewCell(review: $review, subtitle: sectionSubtitles[review.lectureID])
+            LectureReviewCell(
+              review: $review,
+              subtitle: sectionSubtitles[review.lectureID],
+              showsSummariseTip: review.id == reviewSummaries.tipReviewID(in: reviews)
+            )
           }
         } else {
           ForEach(LectureReview.mockList.prefix(3)) { review in

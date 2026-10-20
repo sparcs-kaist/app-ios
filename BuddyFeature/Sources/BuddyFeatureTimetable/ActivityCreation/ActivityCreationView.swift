@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TipKit
 import BuddyDomain
 import TimetableUI
 
@@ -79,6 +80,9 @@ struct ActivityCreationView: View {
       Form {
         // Only for new activities: an edited one already has its details.
         if activity == nil, viewModel.canParseDescriptions {
+          TipView(QuickFillTip())
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
           quickFillSection
         }
 
@@ -141,6 +145,12 @@ struct ActivityCreationView: View {
       }
       .task {
         await viewModel.checkAvailability()
+      }
+      .task {
+        // Quick Fill's tip waits for a second new activity, so it doesn't greet the first.
+        if activity == nil {
+          await QuickFillTip.activityCreationOpened.donate()
+        }
       }
     }
   }
@@ -272,6 +282,7 @@ struct ActivityCreationView: View {
 
   private func fillFromDescription() {
     guard !isDescriptionBlank else { return }
+    QuickFillTip().invalidate(reason: .actionPerformed)
     isDescriptionFocused = false
     Task {
       guard let parsed = await viewModel.parse(activityDescription) else { return }

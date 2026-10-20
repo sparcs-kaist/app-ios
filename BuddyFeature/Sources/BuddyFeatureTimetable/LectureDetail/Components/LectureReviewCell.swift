@@ -12,6 +12,7 @@ import Factory
 import BuddyDomain
 import Haptica
 import BuddyFeatureShared
+import TipKit
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "LectureReviewCell")
@@ -21,6 +22,8 @@ struct LectureReviewCell: View {
   /// The reviewed section's subtitle, which tells sections apart where they
   /// share a placeholder professor, as Leadership sections do.
   var subtitle: String? = nil
+  /// Whether this review's More menu shows `SummariseReviewTip`.
+  var showsSummariseTip = false
 
   @ObservationIgnored @Injected(
     \.v2ReviewUseCase
@@ -33,6 +36,12 @@ struct LectureReviewCell: View {
   @Environment(\.openURL) private var openURL
   @State private var showTranslateSheet: Bool = false
   @State private var isLikeButtonRunning: Bool = false
+  /// Set while the More button has been on screen for a moment. A lazy list
+  /// makes cells just past the screen's edge, and a popover presented there, or
+  /// while its anchor is still moving, is dismissed by the next scroll.
+  @State private var isSettledOnScreen = false
+  /// The More button's, not the cell's: a long review can be taller than the screen.
+  @State private var isMenuOnScreen = false
 
   /// The section's subtitle where it has one, with any real professors beneath,
   /// and otherwise its professors.
@@ -73,6 +82,7 @@ struct LectureReviewCell: View {
           Button(String(localized: "Translate", bundle: .module), systemImage: "translate") { showTranslateSheet = true }
           if let summaries, summaries.canSummarise(review) {
             Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
+              SummariseReviewTip().invalidate(reason: .actionPerformed)
               Haptic.start.generate()
               summaries.summarise(review)
             }
@@ -86,6 +96,11 @@ struct LectureReviewCell: View {
             .contentShape(.rect)
         }
         .labelStyle(.iconOnly)
+        .popoverTip(isSettledOnScreen && showsSummariseTip && summaryPhase == nil ? SummariseReviewTip() : nil, arrowEdge: .top)
+        .onGeometryChange(for: Bool.self) { proxy in
+          // Wholly inside the scroll view's visible part.
+          proxy.bounds(of: .scrollView)?.contains(CGRect(origin: .zero, size: proxy.size)) ?? false
+        } action: { isMenuOnScreen = $0 }
       }
 
       if let summaryPhase {
@@ -133,6 +148,12 @@ struct LectureReviewCell: View {
     .clipShape(.rect(cornerRadius: 26))
     .shadow(color: .black.opacity(0.1), radius: 8)
     .translationPresentation(isPresented: $showTranslateSheet, text: review.content)
+    .task(id: showsSummariseTip && isMenuOnScreen) {
+      isSettledOnScreen = false
+      guard showsSummariseTip, isMenuOnScreen else { return }
+      try? await Task.sleep(for: .seconds(1))
+      isSettledOnScreen = !Task.isCancelled
+    }
     .sensoryFeedback(trigger: summaryPhase) { _, phase in
       switch phase {
       case .finished: .success

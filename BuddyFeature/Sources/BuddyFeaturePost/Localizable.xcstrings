@@ -620,6 +620,38 @@
         }
       }
     },
+    "Translate a post, or summarise a long one, from the %@ menu." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Translate a post, or summarise a long one, from the %@ menu."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 메뉴에서 글을 번역하거나 긴 글을 요약할 수 있어요."
+          }
+        }
+      }
+    },
+    "Translate or Summarise" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Translate or Summarise"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "번역 또는 요약"
+          }
+        }
+      }
+    },
     "Unable to delete post." : {
       "localizations" : {
         "en" : {

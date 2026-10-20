@@ -88,6 +88,11 @@ struct LectureSearchView: View {
     // Only a lecture opened from the results is shown short; every other screen pushed in the
     // search, such as the course page however it is reached, asks for full height.
     .environment(\.expandSheet, { setDetentAfterNavigation(.large) })
+    .environment(\.lectureSearchTimetableName, timetableDisplayName)
+    .onAppear {
+      // The sheet shows the timetable itself behind it, with no preview to teach.
+      TimetableOnboarding.skipPreviewSteps()
+    }
     .presentationDetents(detents, selection: $detent)
     // The timetable stays usable behind the sheet, so its later hours can be scrolled into view
     // while browsing or previewing a lecture. At full height it is covered anyway. Its semester

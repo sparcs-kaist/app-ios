@@ -18,6 +18,7 @@ import FirebaseAnalytics
 import SwiftData
 import ChannelIOFront
 import FirebaseCrashlytics
+import BuddyFeatureShared
 
 let logger = Logger(subsystem: "org.sparcs.soap", category: "App")
 
@@ -146,6 +147,9 @@ struct soapApp: App {
 
     // SwiftData – timetable cache
     TimetableCacheContainer.shared = try? TimetableCacheContainer.makeContainer()
+
+    // TipKit
+    BuddyTips.configure()
   }
 
   var body: some Scene {

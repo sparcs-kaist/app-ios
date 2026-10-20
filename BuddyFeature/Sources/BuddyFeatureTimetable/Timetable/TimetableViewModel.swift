@@ -275,6 +275,7 @@ public final class TimetableViewModel {
         analyticsService?.logEvent(TimetableViewEvent.lectureReplaced)
       }
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
+      TimetableOnboarding.lectureAdded()
       timetableLoadTask?.cancel()
       timetableLoadTask = Task {
         await loadTimetable()
@@ -423,6 +424,7 @@ public final class TimetableViewModel {
       guard generation == listGeneration, self.selectedSemester == selectedSemester else { return }
       timetables = result
       succeeded("list")
+      TimetableOnboarding.checkForExistingTables(hasTables: !result.isEmpty)
       // Only a successful list response can invalidate a restored selection.
       // A failed/offline refresh must not erase the user's preference.
       if let selectedTimetableID, !result.contains(where: { $0.id == selectedTimetableID }) {

@@ -57,6 +57,12 @@ final class ReviewSummaryModel {
       && review.content.trimmingCharacters(in: .whitespacesAndNewlines).count >= Self.minimumReviewLength
   }
 
+  /// The review whose More menu shows `SummariseReviewTip`: the first that can
+  /// be summarised, so only one review in a list offers it.
+  func tipReviewID(in reviews: [LectureReview]) -> Int? {
+    reviews.first(where: canSummarise)?.id
+  }
+
   func phase(for review: LectureReview) -> Phase? {
     phases[review.id]
   }

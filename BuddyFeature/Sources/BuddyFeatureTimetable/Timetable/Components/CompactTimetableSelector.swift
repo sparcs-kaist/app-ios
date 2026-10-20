@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Haptica
+import TipKit
 import BuddyDomain
 
 /// Whether the selector is showing its rename alert or delete confirmation.
@@ -30,6 +31,8 @@ struct CompactTimetableSelector: View {
   let canShareTimetable: Bool
 	let isWide: Bool
   var isReadOnly: Bool = false
+  /// Points at the table menu, which holds Share.
+  var shareTip: ShareTimetableTip? = nil
 
   @State private var showRenameAlert: Bool = false
   @State private var renameText: String = ""
@@ -158,6 +161,7 @@ struct CompactTimetableSelector: View {
     })
     .tint(.primary)
     .glassEffect(.regular.interactive())
+    .popoverTip(shareTip)
   }
 
   private var semesterSelector: some View {

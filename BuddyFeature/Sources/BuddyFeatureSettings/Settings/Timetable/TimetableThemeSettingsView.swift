@@ -9,6 +9,7 @@ import SwiftUI
 import BuddyDomain
 import TimetableUI
 import FirebaseAnalytics
+import TipKit
 
 /// `sheet(item:)` needs an identity to present against, and a share code is its
 /// own identity.
@@ -39,6 +40,7 @@ public struct TimetableThemeSettingsView: View {
       }
 
       Section {
+        TipView(ThemeActionsTip())
         ForEach(viewModel.builtInThemes) { theme in
           themeRow(theme)
         }
@@ -131,6 +133,7 @@ public struct TimetableThemeSettingsView: View {
       Text("“\(theme.displayName)” will be removed, and any widget using it falls back to the default.", bundle: .module)
     }
     .onAppear { viewModel.reload() }
+    .task { await ThemeActionsTip.screenVisited.donate() }
     .analyticsScreen(name: "TimetableTheme", class: String(describing: Self.self))
   }
 
@@ -188,18 +191,22 @@ public struct TimetableThemeSettingsView: View {
     .accessibilityAddTraits(viewModel.selectedThemeID == theme.id ? [.isButton, .isSelected] : .isButton)
     .contextMenu {
       Button(String(localized: "Share Theme", bundle: .module), systemImage: "square.and.arrow.up") {
+        ThemeActionsTip().invalidate(reason: .actionPerformed)
         sharingTheme = theme
       }
       if !theme.isBuiltIn {
         Button(String(localized: "Edit", bundle: .module), systemImage: "pencil") {
+          ThemeActionsTip().invalidate(reason: .actionPerformed)
           editingTheme = theme
         }
       }
       Button(String(localized: "Duplicate", bundle: .module), systemImage: "plus.square.on.square") {
+        ThemeActionsTip().invalidate(reason: .actionPerformed)
         editingTheme = viewModel.duplicate(theme)
       }
       if !theme.isBuiltIn {
         Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
+          ThemeActionsTip().invalidate(reason: .actionPerformed)
           themePendingDeletion = theme
         }
       }
@@ -207,13 +214,16 @@ public struct TimetableThemeSettingsView: View {
     .swipeActions(edge: .trailing) {
       if !theme.isBuiltIn {
         Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
+          ThemeActionsTip().invalidate(reason: .actionPerformed)
           themePendingDeletion = theme
         }
         Button(String(localized: "Edit", bundle: .module), systemImage: "pencil") {
+          ThemeActionsTip().invalidate(reason: .actionPerformed)
           editingTheme = theme
         }
         .tint(.accentColor)
         Button(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up") {
+          ThemeActionsTip().invalidate(reason: .actionPerformed)
           sharingTheme = theme
         }
         .tint(.blue)

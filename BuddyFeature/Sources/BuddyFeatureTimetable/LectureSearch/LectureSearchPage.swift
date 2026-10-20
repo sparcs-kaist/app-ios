@@ -73,6 +73,7 @@ struct LectureSearchPage: View {
     .navigationDestination(for: LectureSearchRoute.self) { route in
       destination(for: route)
         .environment(\.lectureSearchTimetablePreview, preview)
+        .environment(\.lectureSearchTimetableName, timetableDisplayName)
         .environment(\.openCourse) { id, name in
           path.append(LectureSearchRoute.course(id: id, name: name))
         }
@@ -116,6 +117,18 @@ struct LectureSearchPage: View {
     .onChange(of: isWide) { _, isWide in
       if !isWide {
         moveInspectorToStack()
+      }
+    }
+    .onChange(of: isWide, initial: true) { _, isWide in
+      // Beside the results, the timetable needs no preview, nor its tips.
+      if isWide {
+        TimetableOnboarding.skipPreviewSteps()
+      }
+    }
+    .onChange(of: preview.containerHeight) { _, height in
+      // Too short a screen to resize on, such as a phone in landscape.
+      if height > 0 && !preview.isResizable {
+        TimetableOnboarding.complete(.resizePreview)
       }
     }
     .onChange(of: isSearchFocused) {

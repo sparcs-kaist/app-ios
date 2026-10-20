@@ -77,7 +77,11 @@ struct LectureReviewsSection: View {
             ContentUnavailableView(String(localized: "No Reviews", bundle: .module), systemImage: "text.book.closed", description: Text("There are no reviews for this lecture yet.", bundle: .module))
           } else {
             ForEach($reviews) { $review in
-              LectureReviewCell(review: $review, subtitle: sectionSubtitles[review.lectureID])
+              LectureReviewCell(
+                review: $review,
+                subtitle: sectionSubtitles[review.lectureID],
+                showsSummariseTip: review.id == reviewSummaries.tipReviewID(in: reviews)
+              )
             }
           }
         case .error(let message):

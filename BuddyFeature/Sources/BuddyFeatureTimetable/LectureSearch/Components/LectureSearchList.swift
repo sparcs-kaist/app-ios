@@ -8,6 +8,7 @@
 import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
+import TipKit
 
 /// The lecture search results with the filter chips and search field beneath them. Shared by
 /// the search sheet and the full-screen search, which differ only in what surrounds it.
@@ -24,9 +25,25 @@ struct LectureSearchList: View {
   let onChooseTimeOnTimetable: () -> Void
   /// An overlapping lecture waiting for the user to agree to replace what it overlaps.
   @State private var lectureToReplace: Lecture?
+  /// Set in the full-screen search on a compact screen, whose timetable preview has a tip here.
+  @Environment(\.lectureSearchTimetablePreview) private var preview
+  /// Swiping, then peeking, above whichever results are showing.
+  @State private var resultTips = TipGroup(.ordered) {
+    SwipeToAddTip()
+    PeekLectureTip()
+  }
 
   var body: some View {
     List {
+      if preview != nil {
+        // A section of its own: as a row of the first section, it squares off that section's
+        // top corners and draws a separator under itself.
+        Section {
+          TipView(TogglePreviewTip())
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+        }
+      }
       if !viewModel.hasCriteria {
         if viewModel.wishlist.isEmpty {
           ContentUnavailableView {
@@ -114,11 +131,17 @@ struct LectureSearchList: View {
     )
   }
 
+  @ViewBuilder
   private func results(
     for courses: [CourseLecture],
     showsRatings: Bool = true,
     wishlistHeader: String? = nil
   ) -> some View {
+    if let tip = resultTips.currentTip {
+      TipView(tip)
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+    }
     LectureSearchResults(
       courses: courses,
       timetable: timetable,
@@ -158,6 +181,11 @@ extension View {
       message: { Text(viewModel.wishlistError ?? "") }
     )
   }
+}
+
+extension EnvironmentValues {
+  /// The timetable lecture search adds to, for the screens pushed from it.
+  @Entry var lectureSearchTimetableName = ""
 }
 
 /// Builds the screens pushed from lecture search, the same way in each presentation.
