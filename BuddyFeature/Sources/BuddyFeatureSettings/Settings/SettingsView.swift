@@ -16,6 +16,7 @@ private let logger = Logger(subsystem: "org.sparcs.soap", category: "SettingsVie
 
 public struct SettingsView: View {
   @Environment(\.openURL) private var openURL
+  @Environment(\.dismiss) private var dismiss
   @State private var viewModel: SettingsViewModel
   @State private var showLogoutError: Bool = false
   @State private var isCrashlyticsEnabled: Bool = false
@@ -79,6 +80,15 @@ public struct SettingsView: View {
         }
       }
       .navigationTitle(Text("Settings", bundle: .module))
+      .toolbar {
+        // Presented as a sheet; swiping down is not the only way out, and a vertical bar such as
+        // the one on iPhone Duo's outer display has no drag indicator to hint at it.
+        ToolbarItem(placement: .cancellationAction) {
+          Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .close) {
+            dismiss()
+          }
+        }
+      }
       .alert(String(localized: "Error", bundle: .module), isPresented: $showLogoutError) {
         Button(role: .confirm) { }
       } message: {

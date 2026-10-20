@@ -18,6 +18,7 @@ struct FeedSettingsView: View {
   @State private var viewModel: FeedSettingsViewModelProtocol
   
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
   
   init(viewModel: FeedSettingsViewModelProtocol = FeedSettingsViewModel()) {
     self.viewModel = viewModel
@@ -53,7 +54,9 @@ struct FeedSettingsView: View {
           if viewModel.isUpdatingProfile {
             ProgressView()
           } else {
-            Image(systemName: "checkmark")
+            // A titled label rather than a bare image, so a bar that shows items as text, such as
+            // the vertical bar on iPhone Duo, has a title to show.
+            Label(String(localized: "Done", bundle: .module), systemImage: "checkmark")
           }
         })
         .disabled(!editButtonEnabled || viewModel.isUpdatingProfile)
@@ -89,7 +92,7 @@ struct FeedSettingsView: View {
       profileImage
         .aspectRatio(contentMode: .fill)
         .clipShape(Circle())
-        .frame(width: 200, height: 200)
+        .frame(width: avatarSize, height: avatarSize)
         .overlay(alignment: .bottomTrailing) {
           PhotosPicker(
             selection: $viewModel.selectedProfileImageItem,
@@ -130,10 +133,16 @@ struct FeedSettingsView: View {
     RowElementView(title: "Karma", content: "\(viewModel.feedUser?.karma ?? 0)")
   }
   
+  /// Smaller on a short screen, such as an iPhone in landscape or the outer display of iPhone Duo,
+  /// where a 200pt avatar would fill most of the height and push the nickname field off screen.
+  private var avatarSize: CGFloat {
+    verticalSizeClass == .compact ? 120 : 200
+  }
+  
   private var placeholderImage: some View {
     Circle()
       .fill(Color.secondarySystemGroupedBackground)
-      .frame(width: 200, height: 200)
+      .frame(width: avatarSize, height: avatarSize)
       .overlay {
         Text(verbatim: "😀")
           .font(.largeTitle)
@@ -143,7 +152,7 @@ struct FeedSettingsView: View {
   private var errorImage: some View {
     Circle()
       .fill(Color.secondarySystemGroupedBackground)
-      .frame(width: 200, height: 200)
+      .frame(width: avatarSize, height: avatarSize)
       .overlay {
         Image(systemName: "exclamationmark.triangle.fill")
           .font(.largeTitle)

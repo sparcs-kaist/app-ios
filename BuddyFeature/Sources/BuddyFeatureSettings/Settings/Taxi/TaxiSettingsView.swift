@@ -42,7 +42,7 @@ struct TaxiSettingsView: View {
       }
     }
     .toolbar {
-      ToolbarItem(placement: .topBarTrailing) {
+      ToolbarItem(placement: .confirmationAction) {
         Button(String(localized: "Done", bundle: .module), systemImage: "checkmark", role: .confirm) {
           Task {
             if hasNumberChanged {

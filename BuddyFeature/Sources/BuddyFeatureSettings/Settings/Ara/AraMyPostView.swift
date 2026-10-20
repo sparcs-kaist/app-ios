@@ -78,6 +78,7 @@ struct AraMyPostView: View {
   private var loadingView: some View {
     PostList(posts: AraPost.mockList)
       .redacted(reason: .placeholder)
+      .contentWidth()
   }
   
   private var loadedView: some View {
@@ -91,6 +92,8 @@ struct AraMyPostView: View {
         Task { await vm.loadNextPage() }
       }
     )
+    // Capped like PostListView, so on a wide screen posts read as one column.
+    .contentWidth()
     .navigationDestination(for: AraPost.self) { post in
       PostView(post: post)
         .addKeyboardVisibilityToEnvironment()

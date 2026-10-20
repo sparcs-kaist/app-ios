@@ -20,25 +20,30 @@ struct TaxiReportListView: View {
   
   var body: some View {
     ScrollView {
-      Picker(String(localized: "Report Type", bundle: .module), selection: $taxiReportType) {
-        ForEach(TaxiReportType.allCases, id: \.rawValue) { item in
-          Text(item.description).tag(item)
+      // Padded inside the scroll view and capped, so on a wide screen the rows form a readable
+      // column while the scroll view itself still spans the screen.
+      VStack {
+        Picker(String(localized: "Report Type", bundle: .module), selection: $taxiReportType) {
+          ForEach(TaxiReportType.allCases, id: \.rawValue) { item in
+            Text(item.description).tag(item)
+          }
         }
+        .pickerStyle(.segmented)
+        .padding(.bottom)
+        Group {
+          switch vm.state {
+            case .loaded:
+              loadedView
+            case .loading:
+              loadingView
+            case .error(let message):
+            ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
+          }
+        }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
       }
-      .pickerStyle(.segmented)
-      .padding(.bottom)
-      Group {
-        switch vm.state {
-          case .loaded:
-            loadedView
-          case .loading:
-            loadingView
-          case .error(let message):
-          ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
-        }
-      }.transition(.opacity.animation(.easeInOut(duration: 0.3)))
+      .padding()
+      .contentWidth()
     }
-    .padding()
     .background(Color.secondarySystemBackground)
     .task {
       await vm.fetchReports()
