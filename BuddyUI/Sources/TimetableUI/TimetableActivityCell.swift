@@ -27,21 +27,25 @@ struct TimetableActivityCell: View {
           .fill(backgroundColor)
           .widgetAccentable()
           .opacity(renderingMode == .accented ? 0.2 : 1)
-        VStack(alignment: .leading, spacing: placement == .widget ? 2 : 4) {
+        // Packed as lecture cells are; see `TimetableGridCell`.
+        let isPacked = placement != .widget && (geometry.size.width < 72 || geometry.size.height < 60)
+        VStack(alignment: .leading, spacing: placement == .widget || isPacked ? 2 : 4) {
           Text(activity.title)
 						.minimumScaleFactor(placement == .widget ? 0.8 : 1)
-						.font(.caption)
-						.lineLimit(3)
+						.font(isPacked ? .caption2.weight(.medium) : .caption)
+						.lineLimit(isPacked && geometry.size.height < 60 ? 2 : 3)
+						.layoutPriority(1)
 					
           if geometry.size.height > 40, !activity.location.isEmpty {
             Text(activity.location)
-							.minimumScaleFactor(0.8)
-							.lineLimit(2)
+							.minimumScaleFactor(placement == .widget ? 0.8 : 1)
+							.lineLimit(isPacked ? 1 : 2)
 							.font(.caption2)
 							.opacity(0.8)
           }
         }
-        .padding(6)
+        .padding(.horizontal, isPacked ? 3 : 6)
+        .padding(.vertical, isPacked ? 4 : 6)
         .foregroundStyle(theme.textColor)
       }
       .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)

@@ -90,8 +90,14 @@ struct TaxiReportView: View {
       }
       .navigationTitle(String(localized: "Report", bundle: .module))
       .navigationBarTitleDisplayMode(.inline)
-      .toolbar {        
-        ToolbarItem(placement: .topBarTrailing) {
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .cancel) {
+            dismiss()
+          }
+        }
+
+        ToolbarItem(placement: .confirmationAction) {
           Button(
             role: .confirm,
             action: {

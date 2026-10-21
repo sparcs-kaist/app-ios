@@ -184,6 +184,9 @@ struct FeedPostView: View {
           label: {
           }
         )
+        // Grows with the comment, but stops short of pushing the post off a
+        // short screen; longer text scrolls within the field.
+        .lineLimit(1...5)
         .focused($isWritingCommentFocusState)
 
         if isWritingCommentFocusState {
@@ -236,6 +239,9 @@ struct FeedPostView: View {
     }
     .padding(isWritingCommentFocusState ? [.horizontal, .vertical] : [.horizontal])
     .contentWidth()
+    // The centred column crosses the hinge when half folded, splitting the
+    // comment field across it.
+    .avoidingFold()
     .animation(.spring, value: isWritingCommentFocusState)
     .animation(.spring, value: targetComment?.id)
     .animation(

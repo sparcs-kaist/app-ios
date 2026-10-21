@@ -187,8 +187,14 @@ extension FoundationModelsUseCase {
   }
 
   /// The device's language, named in English for the model, or English when
-  /// the model cannot write the device's language.
+  /// the model cannot write the device's language. Debug builds can force a
+  /// language from Debug Settings, whether or not the model claims to write it.
   static func deviceLanguage(model: SystemLanguageModel) -> String {
+    #if DEBUG
+    if let code = ModelLanguageSettings.forcedLanguageCode {
+      return Locale(identifier: "en").localizedString(forLanguageCode: code) ?? "English"
+    }
+    #endif
     let device = Locale(identifier: Locale.preferredLanguages.first ?? "en")
     guard model.supportsLocale(device), let code = device.language.languageCode?.identifier else {
       return "English"

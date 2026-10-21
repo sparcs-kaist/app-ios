@@ -24,50 +24,13 @@ struct TimetableThemeImportView: View {
 	
 	var body: some View {
 		NavigationStack {
-			VStack {
-				switch viewModel.viewState {
-				case .loading:
-					Spacer()
-					loadingView
-					Spacer()
-				case .loaded(let theme):
-					ThemedSampleGrid(theme: theme, timetable: TimetableThemeSample.timetable)
-						.transition(.blurReplace)
-					
-					Spacer()
-					
-					loadedView(theme: theme)
-					
-					Spacer()
-				case .failed(let message):
-					Spacer()
-					failedView(message: message)
-					Spacer()
-				}
-				
-				switch viewModel.viewState {
-				case .loading:
-					Button(action: {}, label: { importLabel })
-						.buttonStyle(.glassProminent)
-						.disabled(true)
-						.transition(.blurReplace)
-				case .loaded(let theme):
-					Button {
-						onImport(theme)
-						dismiss()
-					} label: {
-						importLabel
-					}
-					.buttonStyle(.glassProminent)
-					.accessibilityIdentifier("theme.saveImport")
-					.transition(.blurReplace)
-				case .failed:
-					retryButton
-						.transition(.blurReplace)
-				}
+			// Laid out exactly as before whenever it fits; scrolls only on a screen too short for it,
+			// such as the outer display of iPhone Duo in landscape or at a large text size.
+			ViewThatFits(in: .vertical) {
+				content
+				ScrollView { content }
+					.scrollBounceBehavior(.basedOnSize)
 			}
-			.animation(.smooth, value: viewModel.viewState)
-			.padding(.horizontal)
 			.navigationBarTitleDisplayMode(.inline)
 			.navigationTitle(Text("Import Theme", bundle: .module))
 			.toolbar {
@@ -80,6 +43,53 @@ struct TimetableThemeImportView: View {
 		}
 		.presentationDragIndicator(.visible)
 		.task { await viewModel.fetch(code: code) }
+	}
+	
+	private var content: some View {
+		VStack {
+			switch viewModel.viewState {
+			case .loading:
+				Spacer()
+				loadingView
+				Spacer()
+			case .loaded(let theme):
+				ThemedSampleGrid(theme: theme, timetable: TimetableThemeSample.timetable)
+					.transition(.blurReplace)
+				
+				Spacer()
+				
+				loadedView(theme: theme)
+				
+				Spacer()
+			case .failed(let message):
+				Spacer()
+				failedView(message: message)
+				Spacer()
+			}
+			
+			switch viewModel.viewState {
+			case .loading:
+				Button(action: {}, label: { importLabel })
+					.buttonStyle(.glassProminent)
+					.disabled(true)
+					.transition(.blurReplace)
+			case .loaded(let theme):
+				Button {
+					onImport(theme)
+					dismiss()
+				} label: {
+					importLabel
+				}
+				.buttonStyle(.glassProminent)
+				.accessibilityIdentifier("theme.saveImport")
+				.transition(.blurReplace)
+			case .failed:
+				retryButton
+					.transition(.blurReplace)
+			}
+		}
+		.animation(.smooth, value: viewModel.viewState)
+		.padding(.horizontal)
 	}
 	
 	private var loadingView: some View {
@@ -126,7 +136,8 @@ struct TimetableThemeImportView: View {
 	private var importLabel: some View {
 		Label(String(localized: "Add Theme", bundle: .module), systemImage: "square.and.arrow.down")
 			.padding(8)
-			.frame(maxWidth: .infinity)
+			// Full width on iPhone; capped so it does not stretch across a wide sheet.
+			.frame(maxWidth: 400)
 	}
 	
 	private var retryButton: some View {
@@ -135,7 +146,7 @@ struct TimetableThemeImportView: View {
 		} label: {
 			Label(String(localized: "Try Again", bundle: .module), systemImage: "arrow.clockwise")
 				.padding(8)
-				.frame(maxWidth: .infinity)
+				.frame(maxWidth: 400)
 		}
 		.buttonStyle(.glassProminent)
 		.accessibilityIdentifier("theme.importRetry")

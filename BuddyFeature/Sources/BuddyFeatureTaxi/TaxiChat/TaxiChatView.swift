@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 import FirebaseAnalytics
 import BuddyPreviewSupport
 import os
@@ -26,17 +27,25 @@ struct TaxiChatView: View {
   @State private var showPayMoneyAlert: Bool = false
   @State private var showSettlementAmountSheet: Bool = false
   @State private var showReportSheet: Bool = false
+  @State private var reportSheetDetent: PresentationDetent = .height(450)
 
   @State private var tappedImageID: String? = nil
 
   @Namespace private var namespace
 
-  init(room: TaxiRoom) {
+  /// Called after leaving the room, in place of `dismiss()`. A container that
+  /// shows this view as a column root rather than a pushed screen passes it,
+  /// since `dismiss()` there would close the container's own presentation.
+  private let onLeave: (() -> Void)?
+
+  init(room: TaxiRoom, onLeave: (() -> Void)? = nil) {
     _viewModel = State(initialValue: TaxiChatViewModel(room: room))
+    self.onLeave = onLeave
   }
 
-  init(viewModel: TaxiChatViewModelProtocol) {
+  init(viewModel: TaxiChatViewModelProtocol, onLeave: (() -> Void)? = nil) {
     _viewModel = State(initialValue: viewModel)
+    self.onLeave = onLeave
   }
 
   var body: some View {
@@ -54,7 +63,9 @@ struct TaxiChatView: View {
         )
         .redacted(reason: .placeholder)
         .disabled(true)
-        .ignoresSafeArea()
+        .padding(.leading, -reader.safeAreaInsets.leading)
+        .padding(.trailing, -reader.safeAreaInsets.trailing)
+        .ignoresSafeArea(.all, edges: .vertical)
       case .loaded:
         ChatCollectionView(
           items: viewModel.renderItems,
@@ -67,7 +78,12 @@ struct TaxiChatView: View {
           safeAreaInsets: reader.safeAreaInsets,
           scrollToBottomTrigger: viewModel.scrollToBottomTrigger
         )
-        .ignoresSafeArea()
+        // Expand only by this column's measured side insets. Ignoring the
+        // horizontal safe area here can extend under the neighboring column.
+        // ChatCollectionView applies these insets to its rows, not its viewport.
+        .padding(.leading, -reader.safeAreaInsets.leading)
+        .padding(.trailing, -reader.safeAreaInsets.trailing)
+        .ignoresSafeArea(.all, edges: .vertical)
       case .error(let message):
         errorView(errorMessage: message)
       }
@@ -76,6 +92,7 @@ struct TaxiChatView: View {
     .navigationTitle(Text(chatTitle))
     .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
     .navigationBarTitleDisplayMode(.inline)
+    .staticNavigationBar()
     .toolbar { toolbarContent }
     .safeAreaBar(edge: .bottom) {
       TaxiChatInputBar(
@@ -110,6 +127,11 @@ struct TaxiChatView: View {
           viewModel.isAlertPresented = true
         }
       )
+      // Pushed from the wide Taxi list, the chat spans the whole display:
+      // keep the field a readable width, and on one side of a half-folded
+      // iPhone Duo rather than across the crease.
+      .contentWidth()
+      .avoidingFold()
     }
     .toolbar(.hidden, for: .tabBar)
     .navigationDestination(item: $tappedImageID) { id in
@@ -176,7 +198,9 @@ struct TaxiChatView: View {
     .sheet(isPresented: $showReportSheet) {
       TaxiReportView(room: viewModel.room)
         .presentationDragIndicator(.visible)
-        .presentationDetents([.height(450)])
+        // `.large` as well for when the participant list outgrows 450
+        // points; the selection keeps 450 as the opening height.
+        .presentationDetents([.height(450), .large], selection: $reportSheetDetent)
     }
     .sheet(isPresented: $showSettlementAmountSheet) {
       TaxiSettlementAmountSheet(participantCount: viewModel.room.participants.count) { amount in
@@ -193,7 +217,9 @@ struct TaxiChatView: View {
   @ToolbarContentBuilder
   private var toolbarContent: some ToolbarContent {
     ToolbarItem(placement: .topBarTrailing) {
-      Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
+      // Not `ellipsis`: that is the system's overflow menu, which shares a
+      // vertical bar with this item on iPhone Duo.
+      Menu(String(localized: "More", bundle: .module), systemImage: "info.circle") {
         ControlGroup {
           ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + viewModel.room.id)!, message: Text("🚕 Looking for someone to ride with on \(viewModel.room.departAt.formattedString) from \(viewModel.room.source.title) to \(viewModel.room.destination.title)! 🚕", bundle: .module)) {
             Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
@@ -202,6 +228,7 @@ struct TaxiChatView: View {
             showCallTaxiAlert = true
           }
           Button(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
+            reportSheetDetent = .height(450)
             showReportSheet = true
           }
           .disabled(viewModel.room.participants.count <= 1)
@@ -230,7 +257,11 @@ struct TaxiChatView: View {
           Task {
             do {
               try await viewModel.leaveRoom()
-              dismiss()
+              if let onLeave {
+                onLeave()
+              } else {
+                dismiss()
+              }
             } catch {
               logger.error("Failed to leave room: \(error.localizedDescription, privacy: .public)")
               viewModel.alertState = AlertState(title: String(localized: "Error", bundle: .module), message: error.localizedDescription)
@@ -276,6 +307,23 @@ struct TaxiChatView: View {
         }
       }
     )
+  }
+}
+
+private extension View {
+  /// Stops the navigation bar minimising as the transcript scrolls. The title
+  /// and subtitle identify the room, and should stay put and legible while
+  /// reading back through messages.
+  ///
+  /// `toolbarMinimizationBehavior` is iOS 27.0; on 26 the bar already holds
+  /// still unless the view is searchable, which this one is not.
+  @ViewBuilder
+  func staticNavigationBar() -> some View {
+    if #available(iOS 27.0, *) {
+      toolbarMinimizationBehavior(.never, for: .navigationBar)
+    } else {
+      self
+    }
   }
 }
 

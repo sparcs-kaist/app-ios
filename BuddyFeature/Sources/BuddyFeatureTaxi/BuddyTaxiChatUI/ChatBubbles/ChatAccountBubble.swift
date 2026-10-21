@@ -59,6 +59,7 @@ struct ChatAccountBubble: View {
       .buttonStyle(.glassProminent)
       .disabled(!isCommitPaymentAvailable)
     }
+    .frame(maxWidth: ChatBubbleMetrics.maxActionBubbleWidth)
     .padding(12)
     .background(Color.secondarySystemBackground, in: .rect(cornerRadius: 24))
 //    .contextMenu {

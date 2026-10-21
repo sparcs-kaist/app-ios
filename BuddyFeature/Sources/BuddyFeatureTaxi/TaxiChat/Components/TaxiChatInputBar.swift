@@ -35,6 +35,8 @@ struct TaxiChatInputBar: View {
   @State private var selectedImage: UIImage?
   @FocusState private var isFocused: Bool
 
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+
   var body: some View {
     HStack(alignment: .bottom) {
       Menu {
@@ -79,7 +81,9 @@ struct TaxiChatInputBar: View {
           Image(uiImage: image)
             .resizable()
             .scaledToFit()
-            .frame(maxHeight: 200)
+            // On a short screen a 200-point preview plus the keyboard would
+            // leave almost no room for the conversation.
+            .frame(maxHeight: verticalSizeClass == .compact ? 120 : 200)
             .clipShape(.containerRelative)
             .overlay(alignment: .topTrailing) {
               Button(String(localized: "Remove", bundle: .module), systemImage: "xmark") {
@@ -100,6 +104,9 @@ struct TaxiChatInputBar: View {
             text: $text,
             axis: .vertical
           )
+            // Grow with the message, then scroll, so a long draft cannot push
+            // the conversation off a short screen.
+            .lineLimit(1...5)
             .padding(.leading, 4)
             .frame(minHeight: 32)
             .focused($isFocused)

@@ -132,6 +132,8 @@ private struct CreditsOverview: View {
 	let onOpenRequirements: () -> Void
 
 	@State private var width: CGFloat = 0
+	/// Non-nil only while an active fold runs vertically through the two columns; see `FoldSplit`.
+	@State private var foldSplit: FoldSplit?
 
 	var body: some View {
 		let summary = viewModel.overallSummary
@@ -154,10 +156,15 @@ private struct CreditsOverview: View {
 		ScrollView {
 			VStack(spacing: 28) {
 				if CreditLayout.isWide(width) {
-					HStack(alignment: .top, spacing: 28) {
-						summarySection.frame(maxWidth: .infinity)
+					// Half-folded, the gutter widens to the fold band and the summary is pinned to the
+					// leading half, so no semester card straddles the crease.
+					HStack(alignment: .top, spacing: foldSplit?.gutter ?? 28) {
+						summarySection
+							.frame(minWidth: foldSplit?.leadingWidth, maxWidth: foldSplit?.leadingWidth ?? .infinity)
 						semestersSection.frame(maxWidth: .infinity)
 					}
+					.foldSplit($foldSplit)
+					.animation(.snappy, value: foldSplit)
 				} else {
 					VStack(alignment: .leading, spacing: 28) {
 						summarySection

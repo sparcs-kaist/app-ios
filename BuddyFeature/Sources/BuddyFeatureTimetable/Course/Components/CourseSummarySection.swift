@@ -25,12 +25,12 @@ struct CourseSummarySection: View {
   var body: some View {
     VStack(spacing: 20) {
       HStack {
-        summaryRow(title: "Hours", description: String(classDuration))
-        summaryRow(title: "Lab", description: String(expDuration))
+        summaryRow(title: String(localized: "Hours", bundle: .module), description: String(classDuration))
+        summaryRow(title: String(localized: "Lab", bundle: .module), description: String(expDuration))
         if credit == 0 {
-          summaryRow(title: "AU", description: String(creditAU))
+          summaryRow(title: String(localized: "AU", bundle: .module), description: String(creditAU))
         } else {
-          summaryRow(title: "Credit", description: String(credit))
+          summaryRow(title: String(localized: "Credit", bundle: .module), description: String(credit))
         }
       }
       .redacted(reason: isLoadingDetails ? .placeholder : [])
@@ -46,9 +46,9 @@ struct CourseSummarySection: View {
           }
         }
 
-        LectureDetailRow(title: "Code", description: code)
-        LectureDetailRow(title: "Type", description: typeName)
-        LectureDetailRow(title: "Department", description: departmentName)
+        LectureDetailRow(title: String(localized: "Code", bundle: .module), description: code)
+        LectureDetailRow(title: String(localized: "Type", bundle: .module), description: typeName)
+        LectureDetailRow(title: String(localized: "Department", bundle: .module), description: departmentName)
 
         if summary != "" {
           Text("Summary", bundle: .module)

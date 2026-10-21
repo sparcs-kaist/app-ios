@@ -100,10 +100,14 @@ public struct CourseView: View {
       // Only worth offering when the course has had more than one professor. In lecture search's
       // inspector, its navigation bar has the picker.
       if viewModel.professors.count > 1, !isInInspector {
+        // Kept horizontal where bars are vertical, as on iPhone Duo's outer display: the name is
+        // the point, and a vertical bar would show only a symbol.
         ToolbarItem(placement: .bottomBar) {
           professorPicker
         }
+        .horizontalOnly()
         ToolbarSpacer(.flexible, placement: .bottomBar)
+          .horizontalOnly()
       }
     }
     // In the full-screen lecture search, the timetable preview stays a tap away.
@@ -190,4 +194,17 @@ public struct CourseView: View {
 private struct ProfessorMenuState: Equatable {
   var professors: [Professor]
   var selectedID: Int?
+}
+
+private extension ToolbarContent {
+  /// Keeps the content in a horizontal bar on iOS 27.1, where bars can be vertical; earlier bars
+  /// are always horizontal.
+  @ToolbarContentBuilder
+  func horizontalOnly() -> some ToolbarContent {
+    if #available(iOS 27.1, *) {
+      axisBehavior(.horizontalOnly)
+    } else {
+      self
+    }
+  }
 }

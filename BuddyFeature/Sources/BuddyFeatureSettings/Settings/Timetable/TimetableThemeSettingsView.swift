@@ -238,6 +238,8 @@ struct ThemedSampleGrid: View {
   let theme: TimetableTheme
   let timetable: Timetable
 
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+
   var body: some View {
     TimetableGrid(
       selectedTimetable: timetable,
@@ -246,7 +248,9 @@ struct ThemedSampleGrid: View {
       placement: .view
     )
     .timetableTheme(theme)
-    .frame(height: 280)
+    // Shorter on a short screen, such as an iPhone in landscape or the outer display of
+    // iPhone Duo, so the controls below the sample stay in view.
+    .frame(height: verticalSizeClass == .compact ? 180 : 280)
     .padding(8)
     .background {
       if let background = theme.backgroundColor {

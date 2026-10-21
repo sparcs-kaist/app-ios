@@ -58,14 +58,23 @@ public struct DepartmentPicker: View {
       }
     }
     .contentWidth()
+    // The list's own background stops at the capped width, leaving bare strips beside it on a
+    // wide screen such as an iPad or the inner display of iPhone Duo.
+    .background(Color.systemGroupedBackground, ignoresSafeAreaEdges: .all)
     .navigationTitle(String(localized: "Department", bundle: .module))
     .scrollEdgeEffectStyle(.soft, for: .top)
     .navigationBarTitleDisplayMode(.inline)
     .searchable(text: $searchText, prompt: Text("Name or code", bundle: .module))
     .scrollDismissesKeyboard(.immediately)
     .toolbar {
+      // At the bottom, as on the lecture search's results. Left to the system, the field moves to
+      // the top, under the lecture search's timetable preview.
+      DefaultToolbarItem(kind: .search, placement: .bottomBar)
+
       ToolbarItem(placement: .topBarTrailing) {
-        Button(String(localized: "Clear", bundle: .module)) {
+        // Needs a symbol: on iPhone Duo a title-only item leaves the vertical bar for a pill of
+        // its own at the top.
+        Button(String(localized: "Clear", bundle: .module), systemImage: "xmark.circle") {
           selection.removeAll()
         }
         .disabled(selection.isEmpty)

@@ -53,6 +53,10 @@ public struct TimetableView: View {
   @State private var isSiriTipVisible = true
   @Environment(\.timetableSiriTipIntent) private var siriTipIntent
 
+  /// Non-nil only while an active fold runs vertically through the two-column
+  /// layout; see `FoldSplit`.
+  @State private var foldSplit: FoldSplit?
+
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -131,8 +135,18 @@ public struct TimetableView: View {
               onAdd: nil,
               lectureClass: item.lectureClass
             )
+            // On a short screen, such as a phone in landscape or iPhone Duo's outer display, the
+            // sheet covers the timetable and its bar is vertical; Close leads that bar.
+            .toolbar {
+              ToolbarItem(placement: .cancellationAction) {
+                Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .close) {
+                  selectedLecture = nil
+                }
+              }
+            }
             .presentationDragIndicator(.visible)
             .presentationDetents([.medium, .large])
+            .trailingPresentationPlacement()
           }
         }
         .sheet(isPresented: $showSearchSheet) {
@@ -149,6 +163,7 @@ public struct TimetableView: View {
                 }
               }
             )
+            .trailingPresentationPlacement()
             .onAppear {
               selectedDetent = .medium
             }
@@ -157,10 +172,12 @@ public struct TimetableView: View {
 				.sheet(isPresented: $showActivityCreationSheet) {
 					activityEditor()
 						.presentationDragIndicator(.visible)
+						.trailingPresentationPlacement()
 				}
         .sheet(item: $editingActivity) { activity in
           activityEditor(activity: activity)
             .presentationDragIndicator(.visible)
+            .trailingPresentationPlacement()
         }
         .sheet(item: $sharedImage) { item in
           ActivityView(
@@ -213,9 +230,31 @@ public struct TimetableView: View {
           }
         }
       }
+      .onChange(of: verticalSizeClass) {
+        // Turned or closed to a screen too short for it, the full-screen search's preview makes way
+        // for the results, as it does when the search opens on one. Observed here rather than in
+        // the search, which may be covered by a lecture pushed on top of it.
+        if verticalSizeClass == .compact, let searchSession {
+          withAnimation(LectureSearchTimetablePreview.animation) {
+            searchSession.preview.isExpanded = false
+          }
+        }
+      }
       .onChange(of: isWide(reader.size), initial: true) { _, isWide in
         isSearchWide = isWide
-        searchSession?.isWide = isWide
+        guard let searchSession else { return }
+        // Decided before the search sees the new width, so the inspector's screens are already
+        // in the stack, or back in the inspector, when it lays out for it. Here rather than in
+        // the search, which may be covered by a lecture pushed on top of it.
+        if isWide {
+          moveStackToInspector(searchSession)
+        } else {
+          moveInspectorToStack(searchSession)
+        }
+        searchSession.isWide = isWide
+      }
+      .onChange(of: path.count) { _, count in
+        searchSession?.stackDidChange(count: count)
       }
     }
     .timetableThemeFromSettings()
@@ -289,10 +328,12 @@ public struct TimetableView: View {
       siriTip
       if isWide {
         // Leverage the wider screen: lay the supporting cards out in two
-        // columns instead of one long vertical scroll.
-        HStack(alignment: .top, spacing: 28) {
+        // columns instead of one long vertical scroll. When the device is
+        // half-folded the gutter widens to the fold band and the grid is pinned
+        // to the leading half, so neither column is cut in two by the crease.
+        HStack(alignment: .top, spacing: foldSplit?.gutter ?? 28) {
           gridCard(height: gridHeight)
-            .frame(maxWidth: .infinity)
+            .frame(minWidth: foldSplit?.leadingWidth, maxWidth: foldSplit?.leadingWidth ?? .infinity)
 
           VStack(spacing: 28) {
 						lectureListCard
@@ -302,6 +343,8 @@ public struct TimetableView: View {
           }
           .frame(maxWidth: .infinity)
         }
+        .foldSplit($foldSplit)
+        .animation(.snappy, value: foldSplit)
       } else {
 				gridCard(height: gridHeight)
         lectureListCard
@@ -418,8 +461,50 @@ public struct TimetableView: View {
     case .fullScreen:
       let session = LectureSearchSession(timetableViewModel: viewModel)
       session.isWide = isSearchWide
+      // Too short a screen for the preview, the filters and the results together, such as a phone
+      // in landscape or the outer display of iPhone Duo: the search opens on the results, with the
+      // timetable a tap away.
+      session.preview.isExpanded = verticalSizeClass != .compact
       searchSession = session
       path.append(TimetableRoute.lectureSearch)
+      session.stackBase = path.count
+    }
+  }
+
+  /// Pushes whatever the search's inspector shows when the screen becomes too narrow for it, such
+  /// as when iPhone Duo is closed or an iPad window is narrowed, so the lecture stays open and
+  /// previewed.
+  private func moveInspectorToStack(_ session: LectureSearchSession) {
+    let routes = session.takeInspectorRoutes()
+    guard !routes.isEmpty else { return }
+    // Pushed once the screen has settled at its new size: pushed in the same update, as when
+    // iPhone Duo is closed, the screens' hidden tab bar was not applied and the tab bar showed.
+    Task { @MainActor in
+      guard searchSession === session, !session.isWide else { return }
+      var transaction = Transaction()
+      transaction.disablesAnimations = true
+      withTransaction(transaction) {
+        for route in routes {
+          path.append(route)
+          session.stackRoutes.append(route)
+        }
+      }
+    }
+  }
+
+  /// Takes the lectures and courses pushed above the search back into its inspector when the
+  /// screen becomes wide enough for it, such as when iPhone Duo is opened or an iPad window is
+  /// widened, so the lecture stays open and previewed beside the results.
+  private func moveStackToInspector(_ session: LectureSearchSession) {
+    let routes = session.stackRoutes
+    // Only when they are all that is pushed above the search, with no picker on top of them.
+    guard !routes.isEmpty, path.count == session.stackBase + routes.count else { return }
+    session.restoreInspector(routes)
+    session.stackRoutes = []
+    var transaction = Transaction()
+    transaction.disablesAnimations = true
+    withTransaction(transaction) {
+      path.removeLast(routes.count)
     }
   }
 

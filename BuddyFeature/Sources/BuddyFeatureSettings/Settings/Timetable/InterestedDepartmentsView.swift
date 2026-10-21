@@ -47,12 +47,15 @@ struct InterestedDepartmentsView: View {
       }
     }
     .contentWidth()
+    // The list's own background stops at the capped width, leaving bare strips beside it on a
+    // wide screen such as an iPad or the inner display of iPhone Duo.
+    .background(Color.systemGroupedBackground, ignoresSafeAreaEdges: .all)
     .navigationTitle(String(localized: "Interested Departments", bundle: .module))
     .navigationBarTitleDisplayMode(.inline)
     .searchable(text: $searchText, prompt: Text("Name or code", bundle: .module))
     .scrollDismissesKeyboard(.immediately)
     .toolbar {
-      ToolbarItem(placement: .topBarTrailing) {
+      ToolbarItem(placement: .confirmationAction) {
         Button(String(localized: "Done", bundle: .module), systemImage: "checkmark", role: .confirm) {
           Task {
             if await viewModel.save() {

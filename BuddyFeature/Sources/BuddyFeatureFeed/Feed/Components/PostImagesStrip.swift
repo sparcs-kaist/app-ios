@@ -11,16 +11,22 @@ import BuddyDomain
 struct PostImagesStrip: View {
   let images: [FeedImage]
   private let hPadding: CGFloat = 16 // match your .padding(.horizontal, 16)
-  private let maxImageHeight: CGFloat = 400
+
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   @State private var parentWidth: CGFloat = 0
   @State private var selectedImage: FeedImage?
 
+  /// 400 pt would all but fill a short screen (landscape, or the outer display
+  /// of iPhone Duo), leaving no room for the post around the image.
+  private var maxImageHeight: CGFloat {
+    verticalSizeClass == .compact ? 240 : 400
+  }
+
   var body: some View {
-    // Fallback until we read the actual width, capped to the content column so
-    // wide screens (landscape / iPad) don't briefly oversize the images.
-    let pw = parentWidth > 0 ? parentWidth : min(CGFloat.screenWidth, ContentLayout.maxContentWidth)
-    let contentWidth = max(0, pw - hPadding * 2)
+    // Zero until measured, which happens in the same layout pass, so images are
+    // only ever sized to the column they are actually in.
+    let contentWidth = max(0, parentWidth - hPadding * 2)
     
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 12) {
@@ -36,7 +42,12 @@ struct PostImagesStrip: View {
       }
       .padding(.horizontal, hPadding)
     }
-    .measureWidth { parentWidth = $0 }
+    // Let images continue through the margins around the capped feed column.
+    // The enclosing feed scroll view still clips them at the viewport edge.
+    .scrollClipDisabled()
+    // Not `measureWidth`: its preference never reported while the strip was still zero high,
+    // so the images stayed unsized.
+    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { parentWidth = $0 }
     .fullScreenCover(item: $selectedImage) { item in
       FullScreenImageViewer(url: item.url)
     }

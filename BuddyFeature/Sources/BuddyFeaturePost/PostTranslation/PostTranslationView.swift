@@ -10,6 +10,7 @@ import SwiftUI
 import BuddyDomain
 import Factory
 import FirebaseAnalytics
+import BuddyFeatureShared
 
 @preconcurrency
 import Translation
@@ -82,14 +83,18 @@ struct PostTranslationView: View {
         }
       }
       .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
-          Button(String(localized: "Dismiss", bundle: .module), systemImage: "xmark") {
+        ToolbarItem(placement: .cancellationAction) {
+          Button(String(localized: "Dismiss", bundle: .module), systemImage: "xmark", role: .close) {
             dismiss()
           }
         }
       }
       .safeAreaBar(edge: .bottom) {
         languageSelector
+          // Spans the width so a half-folded iPhone Duo can move the centred picker off the hinge;
+          // it stays centred everywhere else.
+          .frame(maxWidth: .infinity)
+          .avoidingFold()
       }
       .translationTask(configuration) { session in
         isTranslating = true

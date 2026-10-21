@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 /// Credits taken per requirement type against the user's editable minimums,
 /// grouped into cards: graduation, basic, each major, humanities, AU and other.
@@ -16,6 +17,8 @@ struct CreditRequirementsView: View {
 
 	@State private var isEditing = false
 	@State private var width: CGFloat = 0
+	/// Non-nil only while an active fold runs vertically through the pairs; see `FoldSplit`.
+	@State private var foldSplit: FoldSplit?
 
 	var body: some View {
 		let breakdown = viewModel.creditBreakdown
@@ -29,9 +32,11 @@ struct CreditRequirementsView: View {
 			VStack(spacing: 20) {
 				if CreditLayout.isWide(width) {
 					ForEach(Self.pairs(of: groups), id: \.first.id) { pair in
-						// Fixed vertical size lets both cards stretch to the taller one.
-						HStack(alignment: .top, spacing: 20) {
+						// Fixed vertical size lets both cards stretch to the taller one. Half-folded, each
+						// pair splits at the fold, as the Timetable screen's columns do.
+						HStack(alignment: .top, spacing: foldSplit?.gutter ?? 20) {
 							RequirementSection(group: pair.first)
+								.frame(minWidth: foldSplit?.leadingWidth, maxWidth: foldSplit?.leadingWidth ?? .infinity)
 							if let second = pair.second {
 								RequirementSection(group: second)
 							} else {
@@ -52,6 +57,9 @@ struct CreditRequirementsView: View {
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.padding(.horizontal, 4)
 			}
+			// Measured once across the column, which every pair spans, rather than on each pair.
+			.foldSplit($foldSplit)
+			.animation(.snappy, value: foldSplit)
 			.padding()
 			.creditContentWidth()
 		}
@@ -62,7 +70,8 @@ struct CreditRequirementsView: View {
 		.toolbarTitleDisplayMode(.inline)
 		.toolbar {
 			ToolbarItem(placement: .topBarTrailing) {
-				Button(String(localized: "Edit", bundle: .module)) {
+				// With a symbol, so it joins a vertical bar rather than standing apart from it.
+				Button(String(localized: "Edit", bundle: .module), systemImage: "pencil") {
 					isEditing = true
 				}
 			}

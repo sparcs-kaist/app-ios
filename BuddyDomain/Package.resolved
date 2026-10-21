@@ -1,5 +1,5 @@
 {
-  "originHash" : "963ae36bf6a6ec8f1f4b75be77840266c72ae488c4bf7f9edd4b5fab8ce2eb38",
+  "originHash" : "4e531c9fd7f0ac4c0ce403fafbb6cc18cd1c00a999e370b1bd6b1a0e02d43ab7",
   "pins" : [
     {
       "identity" : "factory",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "ccc898f21992ebc130bc04cc197460a5ae230bcf",
         "version" : "2.5.3"
-      }
-    },
-    {
-      "identity" : "version",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mxcl/Version.git",
-      "state" : {
-        "revision" : "67ce582bb9de70e1eb2ee41fd71aad3b5f86d97b",
-        "version" : "2.2.0"
       }
     }
   ],

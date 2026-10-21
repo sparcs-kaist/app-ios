@@ -29,7 +29,11 @@ struct LectureSearchPage: View {
   @State private var showTimeRangePicker = false
   /// The navigation depth of this screen, so returning to it can be told apart from leaving it.
   @State private var depth: Int?
+  /// Non-nil only while an active fold runs vertically through the two panes; see `FoldSplit`.
+  @State private var foldSplit: FoldSplit?
   @FocusState private var isSearchFocused: Bool
+  /// A lecture whose overlaps the user is being asked to replace, from the shared bar's Add.
+  @State private var replacingLecture: Lecture?
 
   private var viewModel: LectureSearchViewModel { session.searchViewModel }
   private var preview: LectureSearchTimetablePreview { session.preview }
@@ -40,8 +44,11 @@ struct LectureSearchPage: View {
     // the screen changes size, such as when iPhone Duo is opened or closed.
     HStack(spacing: 0) {
       if isWide {
+        // Half-folded, the timetable takes the leading half and the fold band is left empty,
+        // so neither the grid nor the results and their search field sit on the crease.
         timetablePane
-          .frame(maxWidth: .infinity)
+          .frame(minWidth: foldSplit?.leadingWidth, maxWidth: foldSplit?.leadingWidth ?? .infinity)
+          .padding(.trailing, foldSplit?.gutter ?? 0)
       }
 
       searchList
@@ -66,16 +73,28 @@ struct LectureSearchPage: View {
           .transition(.move(edge: .trailing))
       }
     }
+    // Always the full width, so the fold is measured against the screen. Half-folded with the
+    // inspector open, the panes come to a little less than the screen, and a stack that hugged
+    // them would be centred, move the fold it measures, and narrow the panes again each pass.
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .foldSplit($foldSplit)
+    .animation(.snappy, value: foldSplit)
     .background(Color.systemGroupedBackground)
     .navigationTitle(String(localized: "Add to \"\(timetableDisplayName)\"", bundle: .module))
     .navigationBarTitleDisplayMode(.inline)
     .toolbarVisibility(.hidden, for: .tabBar)
+    .toolbar { inspectorToolbar }
+    .lectureReplacementAlert(
+      for: $replacingLecture,
+      conflicts: { timetableViewModel.timetable?.conflicts(with: $0) ?? [] },
+      onReplace: { addLecture($0, replacingConflicts: true) }
+    )
     .navigationDestination(for: LectureSearchRoute.self) { route in
       destination(for: route)
         .environment(\.lectureSearchTimetablePreview, preview)
         .environment(\.lectureSearchTimetableName, timetableDisplayName)
         .environment(\.openCourse) { id, name in
-          path.append(LectureSearchRoute.course(id: id, name: name))
+          push(.course(id: id, name: name))
         }
         .toolbarVisibility(.hidden, for: .tabBar)
         .wishlistErrorAlert(viewModel)
@@ -95,6 +114,7 @@ struct LectureSearchPage: View {
     }
     .navigationDestination(isPresented: $showTimeRangePicker) {
       LectureTimeRangePage(timetable: timetableViewModel.timetable, time: Bindable(viewModel).time)
+        .toolbarVisibility(.hidden, for: .tabBar)
     }
     .onChange(of: showTimeRangePicker) {
       // The picker is the timetable itself, so the preview steps aside for it, at once rather
@@ -109,14 +129,11 @@ struct LectureSearchPage: View {
       }
     }
     .onChange(of: path.count) { _, count in
-      // Back on the results, the lecture that was open is no longer previewed.
-      if let depth, count <= depth {
+      guard let depth else { return }
+      // Back on the results, the lecture that was open is no longer previewed, unless it has just
+      // moved to the inspector.
+      if count <= depth && session.inspectorRoot == nil {
         timetableViewModel.candidateLecture = nil
-      }
-    }
-    .onChange(of: isWide) { _, isWide in
-      if !isWide {
-        moveInspectorToStack()
       }
     }
     .onChange(of: isWide, initial: true) { _, isWide in
@@ -206,6 +223,88 @@ struct LectureSearchPage: View {
   private static let timetablePaneMinWidth: CGFloat = 300
   private static let searchPaneMinWidth: CGFloat = 340
 
+  // MARK: - Shared bar
+
+  /// The inspector's actions, in the window's vertical bar under the search's Back, while it
+  /// shares that bar. Elsewhere, as on an iPad, the inspector has a bar of its own.
+  @ToolbarContentBuilder
+  private var inspectorToolbar: some ToolbarContent {
+    if session.sharesWindowBar, session.isInspectorPresented, let route = session.inspectorTopRoute {
+      ToolbarItemGroup(placement: .topBarTrailing) {
+        if !session.inspectorPath.isEmpty {
+          Button(String(localized: "Back", bundle: .module), systemImage: "chevron.backward") {
+            session.inspectorPath.removeLast()
+          }
+        }
+        Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .close) {
+          session.closeInspector()
+        }
+        switch route {
+        case .lecture(let lecture):
+          wishlistButton(for: lecture)
+          addButton(for: lecture)
+        case .course:
+          professorMenu
+        }
+      }
+    }
+  }
+
+  private func wishlistButton(for lecture: Lecture) -> some View {
+    let isWishlisted = viewModel.isWishlisted(lecture)
+    return Button(
+      isWishlisted
+        ? String(localized: "Remove from Wishlist", bundle: .module)
+        : String(localized: "Add to Wishlist", bundle: .module),
+      systemImage: isWishlisted ? "heart.fill" : "heart"
+    ) {
+      Task { await viewModel.toggleWishlist(lecture) }
+    }
+    .tint(isWishlisted ? .pink : nil)
+  }
+
+  @ViewBuilder
+  private func addButton(for lecture: Lecture) -> some View {
+    let timetable = timetableViewModel.timetable
+    if timetable?.contains(lecture) ?? false {
+      Button(String(localized: "Added", bundle: .module), systemImage: "checkmark") { }
+        .disabled(true)
+    } else {
+      let conflicts = timetable?.conflicts(with: lecture) ?? []
+      Button(String(localized: "Add", bundle: .module), systemImage: "plus") {
+        // Still tappable when it overlaps, so it can offer to replace what it overlaps.
+        if conflicts.isEmpty {
+          addLecture(lecture, replacingConflicts: false)
+        } else {
+          replacingLecture = lecture
+        }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var professorMenu: some View {
+    // Only worth offering when the course has had more than one professor.
+    if let menu = session.inspectorProfessorMenu, menu.professors.count > 1 {
+      Menu(
+        menu.professors.first { $0.id == menu.selectedID }?.name
+          ?? String(localized: "All Professors", bundle: .module),
+        systemImage: "person.2"
+      ) {
+        Picker(
+          String(localized: "All Professors", bundle: .module),
+          selection: Binding(get: { menu.selectedID }, set: { menu.select($0) })
+        ) {
+          Label(String(localized: "All Professors", bundle: .module), systemImage: "person.2")
+            .tag(Int?.none)
+          ForEach(menu.professors) { professor in
+            Text(professor.name).tag(Optional(professor.id))
+          }
+        }
+      }
+    }
+  }
+
   // MARK: - Navigation
 
 
@@ -231,17 +330,16 @@ struct LectureSearchPage: View {
     if isWide {
       session.inspect(route)
     } else {
-      path.append(route)
+      push(route)
     }
   }
 
-  /// Pushes whatever the inspector shows when the screen becomes too narrow for it, such as
-  /// when iPhone Duo is closed, so the lecture stays open and previewed.
-  private func moveInspectorToStack() {
-    for route in session.takeInspectorRoutes() {
-      path.append(route)
-    }
+  /// Pushes a lecture or course on the stack, keeping the session's record of it.
+  private func push(_ route: LectureSearchRoute) {
+    path.append(route)
+    session.stackRoutes.append(route)
   }
+
 
   private func addLecture(_ lecture: Lecture, replacingConflicts: Bool) {
     session.addLecture(lecture, replacingConflicts: replacingConflicts)

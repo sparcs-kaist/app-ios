@@ -22,8 +22,6 @@ public struct FeedView: View {
 
   @State private var spoilerContents = SpoilerContents()
 
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
   public init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
     self._viewModel = State(initialValue: viewModel)
   }
@@ -44,7 +42,7 @@ public struct FeedView: View {
       .contentWidth()
     }
     .disabled(viewModel.state == .loading)
-    .navigationTitle(horizontalSizeClass == .compact ? String(localized: "Feed", bundle: .module) : "")
+    .navigationTitle(Text("Feed", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
     .navigationDestination(for: String.self) { postID in
       if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
@@ -68,6 +66,7 @@ public struct FeedView: View {
           showComposeView = true
         }
       }
+      .keptOutOfOverflow()
       .matchedTransitionSource(id: "ComposeView", in: namespace)
 
       ToolbarSpacer(.fixed)
@@ -158,6 +157,21 @@ public struct FeedView: View {
     )
   }
 
+}
+
+private extension ToolbarContent {
+  /// Keeps Write in the bar when a short, vertical bar (the outer display of
+  /// iPhone Duo in landscape) runs out of room and folds items into its
+  /// overflow menu. `visibilityPriority` is iOS 27.0; earlier systems have no
+  /// such overflow.
+  @MainActor @ToolbarContentBuilder
+  func keptOutOfOverflow() -> some ToolbarContent {
+    if #available(iOS 27.0, *) {
+      visibilityPriority(.high)
+    } else {
+      self
+    }
+  }
 }
 
 

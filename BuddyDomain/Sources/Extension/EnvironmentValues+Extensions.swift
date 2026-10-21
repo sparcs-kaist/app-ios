@@ -9,5 +9,4 @@ import SwiftUI
 
 public extension EnvironmentValues {
   @Entry var taxiUser: TaxiUser? = nil
-  @Entry var windowSizeClass: UserInterfaceSizeClass? = .regular
 }

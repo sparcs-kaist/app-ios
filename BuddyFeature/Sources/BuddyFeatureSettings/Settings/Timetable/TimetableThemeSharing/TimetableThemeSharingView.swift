@@ -28,43 +28,13 @@ struct TimetableThemeSharingView: View {
 	
 	var body: some View {
 		NavigationStack {
-			VStack {
-				ThemedSampleGrid(theme: theme, timetable: TimetableThemeSample.timetable)
-				
-				Spacer()
-				
-				switch viewModel.viewState {
-				case .loading:
-					loadingView
-				case .shared(let code):
-					loadedView(code: code)
-				case .failed(let message):
-					failedView(message: message)
-				}
-				
-				Spacer()
-				
-				switch viewModel.viewState {
-				case .loading:
-					Button(action: {}, label: { shareLabel })
-						.buttonStyle(.glassProminent)
-						.disabled(true)
-						.transition(.blurReplace)
-				case .shared(let code):
-					Button {
-						shareAsImage(code: code)
-					} label: {
-						shareLabel
-					}
-					.buttonStyle(.glassProminent)
-					.transition(.blurReplace)
-				case .failed:
-					retryButton
-						.transition(.blurReplace)
-				}
+			// Laid out exactly as before whenever it fits; scrolls only on a screen too short for it,
+			// such as the outer display of iPhone Duo in landscape or at a large text size.
+			ViewThatFits(in: .vertical) {
+				content
+				ScrollView { content }
+					.scrollBounceBehavior(.basedOnSize)
 			}
-			.animation(.smooth, value: viewModel.viewState)
-			.padding(.horizontal)
 			.navigationBarTitleDisplayMode(.inline)
 			.navigationTitle(Text("Share \"\(theme.displayName)\"", bundle: .module))
 			.toolbar {
@@ -93,6 +63,46 @@ struct TimetableThemeSharingView: View {
 		}
 	}
 
+	private var content: some View {
+		VStack {
+			ThemedSampleGrid(theme: theme, timetable: TimetableThemeSample.timetable)
+			
+			Spacer()
+			
+			switch viewModel.viewState {
+			case .loading:
+				loadingView
+			case .shared(let code):
+				loadedView(code: code)
+			case .failed(let message):
+				failedView(message: message)
+			}
+			
+			Spacer()
+			
+			switch viewModel.viewState {
+			case .loading:
+				Button(action: {}, label: { shareLabel })
+					.buttonStyle(.glassProminent)
+					.disabled(true)
+					.transition(.blurReplace)
+			case .shared(let code):
+				Button {
+					shareAsImage(code: code)
+				} label: {
+					shareLabel
+				}
+				.buttonStyle(.glassProminent)
+				.transition(.blurReplace)
+			case .failed:
+				retryButton
+					.transition(.blurReplace)
+			}
+		}
+		.animation(.smooth, value: viewModel.viewState)
+		.padding(.horizontal)
+	}
+	
 	/// Mirrors the timetable share export: a transparent sticker for Instagram
 	/// and a padded, theme-coloured image for everything else.
 	private func shareAsImage(code: String) {
@@ -196,7 +206,8 @@ struct TimetableThemeSharingView: View {
 	private var shareLabel: some View {
 		Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
 			.padding(8)
-			.frame(maxWidth: .infinity)
+			// Full width on iPhone; capped so it does not stretch across a wide sheet.
+			.frame(maxWidth: 400)
 	}
 	
 	private var retryButton: some View {
@@ -205,7 +216,7 @@ struct TimetableThemeSharingView: View {
 		} label: {
 			Label(String(localized: "Try Again", bundle: .module), systemImage: "arrow.clockwise")
 				.padding(8)
-				.frame(maxWidth: .infinity)
+				.frame(maxWidth: 400)
 		}
 		.buttonStyle(.glassProminent)
 		.accessibilityIdentifier("theme.shareRetry")

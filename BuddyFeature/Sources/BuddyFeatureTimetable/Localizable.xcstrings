@@ -712,7 +712,14 @@
       }
     },
     "AU" : {
-      "shouldTranslate" : false
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AU"
+          }
+        }
+      }
     },
     "B" : {
       "shouldTranslate" : false
@@ -745,6 +752,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "**참고**: 평가 %lld개를 바탕으로 함. 오류가 포함될 수 있음, 사실을 재확인하세요."
+          }
+        }
+      }
+    },
+    "Back" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "뒤로"
           }
         }
       }
@@ -3842,6 +3865,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "대체"
+          }
+        }
+      }
+    },
+    "Hours" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "강의 시간"
+          }
+        }
+      }
+    },
+    "Lab" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실험 시간"
           }
         }
       }

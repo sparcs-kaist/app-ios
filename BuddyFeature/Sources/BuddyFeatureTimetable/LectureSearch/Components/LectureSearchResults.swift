@@ -38,6 +38,8 @@ struct LectureSearchResults: View {
   /// The wishlist heading over the first course, when these results are the wishlist.
   var wishlistHeader: String? = nil
 
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+
   var body: some View {
     ForEach(courses) { course in
       Section {
@@ -122,7 +124,9 @@ struct LectureSearchResults: View {
                 lectureClass: lecture.classes.first
               )
             }
-            .frame(width: 380, height: 560)
+            // Shorter on a short screen, such as a phone in landscape or the outer display of
+            // iPhone Duo, where 560 points would not fit beside the menu.
+            .frame(width: 380, height: verticalSizeClass == .compact ? 300 : 560)
             // A peek, not a screen of the search: no Timetable button or preview card.
             .environment(\.lectureSearchTimetablePreview, nil)
             .onAppear {

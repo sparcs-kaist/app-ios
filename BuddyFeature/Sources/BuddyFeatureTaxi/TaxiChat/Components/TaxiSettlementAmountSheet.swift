@@ -8,6 +8,7 @@ struct TaxiSettlementAmountSheet: View {
   @Environment(\.dismiss) private var dismiss
   @FocusState private var isAmountFocused: Bool
   @State private var amountText: String = ""
+  @State private var detent: PresentationDetent = .medium
 
   private var totalAmount: Int? {
     guard let amount = Int(amountText), amount > 0 else { return nil }
@@ -62,13 +63,15 @@ struct TaxiSettlementAmountSheet: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button(String(localized: "Cancel", bundle: .module)) {
+          // Title and symbol both: a vertical bar on iPhone Duo shows only
+          // symbols, and shows a title-only item as a separate pill.
+          Button(String(localized: "Cancel", bundle: .module), systemImage: "xmark", role: .cancel) {
             dismiss()
           }
         }
 
         ToolbarItem(placement: .confirmationAction) {
-          Button(String(localized: "Request Settlement", bundle: .module)) {
+          Button(String(localized: "Request Settlement", bundle: .module), systemImage: "checkmark", role: .confirm) {
             guard let totalAmount else { return }
             onCommit(totalAmount)
             dismiss()
@@ -77,7 +80,9 @@ struct TaxiSettlementAmountSheet: View {
         }
       }
     }
-    .presentationDetents([.medium])
+    // `.large` for short screens, where a medium sheet leaves little room
+    // above the keyboard; the selection keeps medium as the opening height.
+    .presentationDetents([.medium, .large], selection: $detent)
     .presentationDragIndicator(.visible)
   }
 
