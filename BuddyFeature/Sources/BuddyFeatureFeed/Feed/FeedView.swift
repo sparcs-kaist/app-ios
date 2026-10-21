@@ -24,6 +24,9 @@ public struct FeedView: View {
   @State private var layout = FeedLayout()
   /// The selected post drives both manual and adaptive detail navigation.
   @State private var detailPostID: String? = nil
+  /// Whether the detail covers the feed, which lags `detailPostID` by the
+  /// push or pop transition.
+  @State private var isDetailOnScreen = false
   /// The top-most visible post, kept in view when the feed column resizes.
   @State private var scrolledPostID: String? = nil
   @State private var activePost = ActivePostViewModel()
@@ -100,8 +103,11 @@ public struct FeedView: View {
         .transition(.move(edge: .trailing))
       }
     }
-    // The pushed detail reports the layout while it covers the feed.
-    .feedLayout($layout, isEnabled: detailPostID == nil)
+    // The pushed detail reports the layout while it covers the feed. It takes
+    // over as its push begins, but hands back only once its pop ends, so the
+    // feed's stale size, reported as it starts to be uncovered, can't undo the
+    // change that popped it.
+    .feedLayout($layout, isEnabled: !isDetailOnScreen)
     .onChange(of: canShowCommentsPanel) { _, isAvailable in
       withAnimation(.spring) {
         if isAvailable, let postID = detailPostID {
@@ -183,7 +189,9 @@ public struct FeedView: View {
       FeedPostView(post: $viewModel.posts[index], viewModel: activePost.viewModel(for: postID), onDelete: {
         await viewModel.deletePost(postID: postID)
       })
-      .feedLayout($layout, isEnabled: true)
+      .feedLayout($layout, isEnabled: isDetailOnScreen)
+      .onAppear { isDetailOnScreen = true }
+      .onDisappear { isDetailOnScreen = false }
       .environment(spoilerContents)
     }
   }
@@ -305,9 +313,11 @@ private struct FeedLayoutObserver: ViewModifier {
   @Binding var layout: FeedLayout
   /// Only one observer may write at a time, or the two views' differing
   /// geometry makes the layout flip between them.
-  /// A covered feed isn't laid out, so it reports again once uncovered rather
-  /// than replaying a stale measurement.
   let isEnabled: Bool
+
+  /// The latest measurement, applied once enabled: a view that was just
+  /// uncovered may not change size again to report it.
+  @State private var measured: FeedLayout? = nil
 
   func body(content: Content) -> some View {
     content
@@ -321,8 +331,13 @@ private struct FeedLayoutObserver: ViewModifier {
         }
         return FeedLayout(width: geometry.size.width)
       } action: { layout in
+        measured = layout
         guard isEnabled else { return }
         self.layout = layout
+      }
+      .onChange(of: isEnabled) { _, isEnabled in
+        guard isEnabled, let measured else { return }
+        layout = measured
       }
   }
 }
