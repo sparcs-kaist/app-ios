@@ -67,7 +67,9 @@ extension OTLUserTarget: TargetType, AccessTokenAuthorizable {
 
   public var headers: [String: String]? {
     var headers = [
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      // Department names in the profile follow it, like the other OTL targets.
+      "Accept-Language": Bundle.main.preferredLocalizations.first ?? "ko"
     ]
     
     #if DEBUG

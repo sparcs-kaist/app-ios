@@ -36,6 +36,41 @@
         }
       }
     },
+    "What classes do I have ${day} in ${applicationName}?" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "What classes do I have ${day} in ${applicationName}?",
+              "What lectures do I have ${day} in ${applicationName}?",
+              "My classes ${day} in ${applicationName}."
+            ]
+          }
+        },
+        "en-GB" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "What classes do I have ${day} in ${applicationName}?",
+              "What lectures do I have ${day} in ${applicationName}?",
+              "My classes ${day} in ${applicationName}."
+            ]
+          }
+        },
+        "ko" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "${applicationName}에서 ${day} 수업 뭐야?",
+              "${day} 수업 알려줘, ${applicationName}",
+              "${day} 수업, ${applicationName}."
+            ]
+          }
+        }
+      }
+    },
     "What is my next class in ${applicationName}?" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {

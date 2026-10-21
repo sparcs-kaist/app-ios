@@ -22,6 +22,16 @@ struct BuddyShortcuts: AppShortcutsProvider {
       systemImageName: "calendar.badge.clock"
     )
     AppShortcut(
+      intent: ClassesOnDayIntent(),
+      phrases: [
+        "What classes do I have \(\.$day) in \(.applicationName)?",
+        "What lectures do I have \(\.$day) in \(.applicationName)?",
+        "My classes \(\.$day) in \(.applicationName)."
+      ],
+      shortTitle: "Classes on a Day",
+      systemImageName: "calendar"
+    )
+    AppShortcut(
       intent: MyLecturesIntent(),
       phrases: [
         "What are my lectures in \(.applicationName)?",

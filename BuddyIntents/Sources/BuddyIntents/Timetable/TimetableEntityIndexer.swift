@@ -25,10 +25,14 @@ public final class TimetableEntityIndexer: TimetableIndexingServiceProtocol {
 
   public func scheduleReindex() {
     guard #available(iOS 27.0, *) else { return }
+    // Switching timetables and leaving the app straight away would otherwise
+    // suspend the app before the index catches up, leaving Siri on the old table.
+    let activity = BackgroundActivity(reason: "Reindex timetable")
     pending.withLock { task in
       task?.cancel()
       // A selection change and the refresh it triggers arrive together; index once.
       task = Task { [queue] in
+        defer { activity.end() }
         try? await Task.sleep(for: .seconds(1))
         guard !Task.isCancelled else { return }
         await queue.run { await Self.reindex() }
@@ -59,7 +63,7 @@ public final class TimetableEntityIndexer: TimetableIndexingServiceProtocol {
   static func reindex() async {
     guard isSignedIn,
           let cache = TimetableCacheContainer.makeCache(),
-          let active = await ActiveTimetableResolver(useCase: CachedTimetableUseCase(cache: cache)).resolve(),
+          let active = await resolver(cache: cache).resolve(),
           isSignedIn else {
       logger.debug("Reindex skipped: signed out or no active timetable")
       return
@@ -82,6 +86,18 @@ public final class TimetableEntityIndexer: TimetableIndexingServiceProtocol {
     }
   }
 
+  /// Reads the cache the app has just refreshed. A table selected just before
+  /// leaving the app may not be fetched yet, and from the cache alone it would
+  /// resolve to My Table, so that case goes through the app's use case instead.
+  private static func resolver(cache: TimetableCache) -> ActiveTimetableResolver {
+    if let id = TimetableSelectionStore().selection?.timetableID,
+       cache.timetable(forKey: String(id)) == nil,
+       let app = ActiveTimetableResolver.app() {
+      return app
+    }
+    return ActiveTimetableResolver(useCase: CachedTimetableUseCase(cache: cache))
+  }
+
   /// Removes every entity as entities, which is what drops them from the
   /// semantic index Siri answers from; clearing the searchable items alone left
   /// Siri on the previous table after a selection change or an edit.
@@ -102,4 +118,19 @@ public final class TimetableEntityIndexer: TimetableIndexingServiceProtocol {
   }
 
   private static let tokenStorage = TokenStorage()
+}
+
+/// Keeps the process running after the app leaves the foreground, until `end()`
+/// or the system's deadline, whichever comes first.
+private final class BackgroundActivity: Sendable {
+  private let finished = DispatchSemaphore(value: 0)
+
+  init(reason: String) {
+    ProcessInfo.processInfo.performExpiringActivity(withReason: reason) { [finished] expired in
+      // Called a second time with `expired` when time runs out; release the first.
+      if expired { finished.signal() } else { finished.wait() }
+    }
+  }
+
+  func end() { finished.signal() }
 }
