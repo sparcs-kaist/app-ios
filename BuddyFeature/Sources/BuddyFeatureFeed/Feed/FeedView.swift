@@ -251,6 +251,9 @@ public struct FeedView: View {
     .disabled(viewModel.state == .loading)
     .refreshable {
       await viewModel.refreshFeed()
+      // The scroll position would otherwise hold on to the post that was on
+      // top, hiding any new posts above it.
+      scrolledPostID = viewModel.posts.first?.id
     }
   }
 
