@@ -15,6 +15,9 @@ import FirebaseAnalytics
 
 public struct FeedView: View {
   @State private var viewModel: FeedViewModelProtocol = FeedViewModel()
+  /// The feed tab's stack. Only narrow layouts push a post onto it; wide ones
+  /// show its comments beside the feed instead.
+  @Binding private var path: NavigationPath
   @Namespace private var namespace
 
   @State private var showSettingsSheet: Bool = false
@@ -22,7 +25,8 @@ public struct FeedView: View {
   /// The post whose comments are shown beside the feed on wide layouts.
   @State private var commentsPostID: String? = nil
   @State private var layout = FeedLayout()
-  /// The selected post drives both manual and adaptive detail navigation.
+  /// The post pushed onto `path`, which a `NavigationPath` cannot be asked
+  /// for, so the detail can move into the panel when the layout widens.
   @State private var detailPostID: String? = nil
   /// Whether the detail covers the feed, which lags `detailPostID` by the
   /// push or pop transition.
@@ -35,8 +39,9 @@ public struct FeedView: View {
 
   @Environment(\.layoutDirection) private var layoutDirection
 
-  public init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
+  public init(_ viewModel: FeedViewModelProtocol = FeedViewModel(), path: Binding<NavigationPath>) {
     self._viewModel = State(initialValue: viewModel)
+    self._path = path
   }
 
   private var availableCommentsWidth: CGFloat {
@@ -113,12 +118,17 @@ public struct FeedView: View {
         if isAvailable, let postID = detailPostID {
           scrolledPostID = postID
           commentsPostID = postID
-          detailPostID = nil
+          popDetail()
         } else if !isAvailable, detailPostID == nil, let postID = commentsPostID {
           commentsPostID = nil
-          detailPostID = postID
+          pushDetail(postID: postID)
         }
       }
+    }
+    .onChange(of: path.isEmpty) { _, isEmpty in
+      // The detail is the only screen the feed pushes, so an empty stack means
+      // it was popped, by Back or by reselecting the tab.
+      if isEmpty { detailPostID = nil }
     }
     .onChange(of: viewModel.posts.map(\.id)) { _, postIDs in
       // Closes the panel once its post is deleted or drops out of the feed.
@@ -132,7 +142,7 @@ public struct FeedView: View {
     .animation(.spring, value: isCommentsPanelVisible)
     .navigationTitle(Text("Feed", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
-    .navigationDestination(item: $detailPostID) { postID in
+    .navigationDestination(for: String.self) { postID in
       postDestination(postID: postID)
     }
     .task {
@@ -183,6 +193,29 @@ public struct FeedView: View {
     .analyticsScreen(name: "Feed", class: String(describing: Self.self))
   }
 
+  private func pushDetail(postID: String) {
+    detailPostID = postID
+    path.append(postID)
+  }
+
+  private func popDetail() {
+    detailPostID = nil
+    if !path.isEmpty { path.removeLast() }
+  }
+
+  /// Shows the post's comments beside the feed when there's room, or pushes
+  /// the post otherwise.
+  private func open(postID: String) {
+    if canShowCommentsPanel {
+      commentsPostID = postID
+    } else {
+      // The detail covers the feed, so it takes over from the panel and only
+      // one post is ever active.
+      commentsPostID = nil
+      pushDetail(postID: postID)
+    }
+  }
+
   @ViewBuilder
   private func postDestination(postID: String) -> some View {
     if let index = viewModel.posts.firstIndex(where: { $0.id == postID }) {
@@ -226,10 +259,7 @@ public struct FeedView: View {
     ForEach($viewModel.posts) { $post in
       VStack(spacing: 0) {
         Button {
-          // The detail covers the feed, so it takes over from the panel and
-          // only one post is ever active.
-          commentsPostID = nil
-          detailPostID = post.id
+          open(postID: post.id)
         } label: {
           FeedPostRow(post: $post, onPostDeleted: { postID in
             Task {
@@ -351,25 +381,29 @@ private extension View {
 // MARK: - Previews
 
 #Preview("Loading") {
-  NavigationStack {
-    FeedView(PreviewFeedViewModel(state: .loading, posts: FeedPost.mockList))
+  @Previewable @State var path = NavigationPath()
+  NavigationStack(path: $path) {
+    FeedView(PreviewFeedViewModel(state: .loading, posts: FeedPost.mockList), path: $path)
   }
 }
 
 #Preview("Loaded") {
-  NavigationStack {
-    FeedView(PreviewFeedViewModel(state: .loaded, posts: FeedPost.mockList))
+  @Previewable @State var path = NavigationPath()
+  NavigationStack(path: $path) {
+    FeedView(PreviewFeedViewModel(state: .loaded, posts: FeedPost.mockList), path: $path)
   }
 }
 
 #Preview("Error") {
-  NavigationStack {
-    FeedView(PreviewFeedViewModel(state: .error(message: "Something went wrong")))
+  @Previewable @State var path = NavigationPath()
+  NavigationStack(path: $path) {
+    FeedView(PreviewFeedViewModel(state: .error(message: "Something went wrong")), path: $path)
   }
 }
 
 #Preview("Empty") {
-  NavigationStack {
-    FeedView(PreviewFeedViewModel(state: .loaded, posts: []))
+  @Previewable @State var path = NavigationPath()
+  NavigationStack(path: $path) {
+    FeedView(PreviewFeedViewModel(state: .loaded, posts: []), path: $path)
   }
 }
