@@ -50,10 +50,10 @@
 		8B89693F2F2CCF8700955B84 /* BuddyFeatureSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */; };
 		8BAB4E142F9E0E7800328925 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAB4E132F9E0E7800328925 /* BuddyDataCore */; };
 		8BAB4E182F9E0E9600328925 /* BuddyDDayWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAB4E172F9E0E9600328925 /* BuddyDDayWidgetUI */; };
+		8BB1A7E13070000100A1B2C3 /* BuddyIntents in Frameworks */ = {isa = PBXBuildFile; productRef = 8BB1A7E23070000100A1B2C3 /* BuddyIntents */; };
 		8BBA1ADA2E8EBD24009CD124 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */; };
 		8BCE7E8C2FC1CBAC000368D2 /* ChannelIOSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCE7E8B2FC1CBAC000368D2 /* ChannelIOSDK */; };
 		8BE537AF2F27833F00735E7A /* BuddyDataiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE537AE2F27833F00735E7A /* BuddyDataiOS */; };
-		8BB1A7E13070000100A1B2C3 /* BuddyIntents in Frameworks */ = {isa = PBXBuildFile; productRef = 8BB1A7E23070000100A1B2C3 /* BuddyIntents */; };
 		8BE539532F2B767900735E7A /* BuddyFeatureTimetable in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539522F2B767900735E7A /* BuddyFeatureTimetable */; };
 		8BE539552F2B775A00735E7A /* BuddyFeatureShared in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539542F2B775A00735E7A /* BuddyFeatureShared */; };
 		8BE539592F2B8A2000735E7A /* BuddyFeatureFeed in Frameworks */ = {isa = PBXBuildFile; productRef = 8BE539582F2B8A2000735E7A /* BuddyFeatureFeed */; };
@@ -174,9 +174,9 @@
 		8B8DFBE62CCF771700AB82CC /* soap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = soap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFBF82CCF771800AB82CC /* soapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8DFC022CCF771800AB82CC /* soapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = soapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BB1A7E33070000100A1B2C3 /* BuddyIntents */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyIntents; sourceTree = "<group>"; };
 		8BBA1AD92E8EBD24009CD124 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		8BE537AD2F2780A700735E7A /* BuddyDataiOS */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyDataiOS; sourceTree = "<group>"; };
-		8BB1A7E33070000100A1B2C3 /* BuddyIntents */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyIntents; sourceTree = "<group>"; };
 		8BE539512F2B75DA00735E7A /* BuddyFeature */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyFeature; sourceTree = "<group>"; };
 		8BE804162E49EE3A00904AC6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		8BFAD2612E927C41005D8639 /* BuddyData */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuddyData; sourceTree = "<group>"; };
@@ -900,7 +900,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.watchkitapp.BuddyWatchWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -936,7 +936,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.watchkitapp.BuddyWatchWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -972,7 +972,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.BuddyiOSWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1005,7 +1005,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.BuddyiOSWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1040,7 +1040,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1081,7 +1081,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1256,7 +1256,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1302,7 +1302,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1410,7 +1410,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1442,7 +1442,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.sparcs.soap.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1735,6 +1735,10 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDDayWidgetUI;
 		};
+		8BB1A7E23070000100A1B2C3 /* BuddyIntents */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyIntents;
+		};
 		8BCE7E8B2FC1CBAC000368D2 /* ChannelIOSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8BCE7E8A2FC1CBAC000368D2 /* XCRemoteSwiftPackageReference "channel-talk-ios-framework" */;
@@ -1743,10 +1747,6 @@
 		8BE537AE2F27833F00735E7A /* BuddyDataiOS */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyDataiOS;
-		};
-		8BB1A7E23070000100A1B2C3 /* BuddyIntents */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BuddyIntents;
 		};
 		8BE539522F2B767900735E7A /* BuddyFeatureTimetable */ = {
 			isa = XCSwiftPackageProductDependency;
