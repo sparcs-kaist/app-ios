@@ -70,14 +70,10 @@ public struct BoardListView: View {
   @ViewBuilder
   func loadedView(boards: [AraBoard], groups: [AraBoardGroup]) -> some View {
     let boardsByGroup = Dictionary(grouping: boards, by: { $0.group.id })
-    if !viewModel.trendingPosts.isEmpty {
-      HighlightSection(highlight: .trending, posts: viewModel.trendingPosts) { selectedHighlightPost = $0 }
-    }
-    if !viewModel.latestPosts.isEmpty {
-      HighlightSection(
-        highlight: .latest(boardIDs: BoardListViewModel.latestBoardIDs(in: boards)),
-        posts: viewModel.latestPosts
-      ) { selectedHighlightPost = $0 }
+    highlight(.trending, posts: viewModel.trendingPosts)
+    highlight(.latest(boardIDs: BoardListViewModel.latestBoardIDs(in: boards)), posts: viewModel.latestPosts)
+    if let market = boards.first(where: \.isMarket) {
+      marketShelf(market, posts: viewModel.marketPosts)
     }
     ForEach(groups) { group in
       ListGlassSection(
@@ -108,8 +104,44 @@ public struct BoardListView: View {
     .animation(.snappy, value: viewModel.boardsWithNewPosts)
   }
 
+  /// A highlight section, as a placeholder while its posts load and hidden if there are none.
+  @ViewBuilder
+  private func highlight(_ highlight: BoardHighlight, posts: [AraPost]?) -> some View {
+    if let posts {
+      if !posts.isEmpty {
+        HighlightSection(highlight: highlight, posts: posts) { selectedHighlightPost = $0 }
+      }
+    } else {
+      HighlightSection(highlight: highlight, posts: Self.placeholderPosts(count: 3)) { _ in }
+        .redacted(reason: .placeholder)
+        .disabled(true)
+    }
+  }
+
+  @ViewBuilder
+  private func marketShelf(_ board: AraBoard, posts: [AraPost]?) -> some View {
+    if let posts {
+      if !posts.isEmpty {
+        MarketShelf(board: board, posts: posts) { selectedHighlightPost = $0 }
+      }
+    } else {
+      MarketShelf(board: board, posts: Self.placeholderPosts(count: 4)) { _ in }
+        .redacted(reason: .placeholder)
+        .disabled(true)
+    }
+  }
+
+  /// Stand-ins shaped like real posts (the mocks have distinct ids).
+  private static func placeholderPosts(count: Int) -> [AraPost] {
+    let mocks = AraPost.mockList
+    return (0..<count).map { mocks[$0 % mocks.count] }
+  }
+
   @ViewBuilder
   var loadingView: some View {
+    highlight(.trending, posts: nil)
+    highlight(.latest(boardIDs: []), posts: nil)
+    marketShelf(.mock, posts: nil)
     ForEach(0..<5) { _ in
       ListGlassSection(header: Label(String(localized: "Notice", bundle: .module), systemImage: "bell.badge.fill")) {
         ForEach(0..<3) { _ in

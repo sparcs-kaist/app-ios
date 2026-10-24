@@ -22,8 +22,12 @@ public class BoardListViewModel: BoardListViewModelProtocol {
   var boards: [AraBoard] = []
   var groups: [AraBoardGroup] = []
   public private(set) var boardsWithNewPosts: Set<Int> = []
-  public private(set) var trendingPosts: [AraPost] = []
-  public private(set) var latestPosts: [AraPost] = []
+  public private(set) var trendingPosts: [AraPost]?
+  public private(set) var latestPosts: [AraPost]?
+  public private(set) var marketPosts: [AraPost]?
+
+  /// How many listings the Market shelf shows before See All.
+  static let marketShelfCount = 10
 
   /// How many posts each highlight section shows, as on Ara's main page.
   static let highlightCount = 3
@@ -38,40 +42,56 @@ public class BoardListViewModel: BoardListViewModelProtocol {
     \.analyticsService
   ) private var analyticsService: AnalyticsServiceProtocol?
 
+  /// Loads the boards and every section at once. Latest waits only for the boards, which it
+  /// needs to leave Portal Notice out; a section that fails is hidden on a first load and left
+  /// as it was on a refresh.
   public func fetchBoards() async {
     guard let araBoardUseCase else { return }
+    await withDiscardingTaskGroup { group in
+      group.addTask { await self.loadTrending(using: araBoardUseCase) }
+      group.addTask { await self.loadMarket(using: araBoardUseCase) }
+      group.addTask { await self.loadBoardsAndLatest(using: araBoardUseCase) }
+    }
+  }
 
-    // Alongside the boards; the list shows without it if it fails.
-    async let trending = try? araBoardUseCase.fetchPosts(
+  private func loadTrending(using useCase: AraBoardUseCaseProtocol) async {
+    let page = try? await useCase.fetchPosts(
       type: .trending, page: 1, pageSize: Self.highlightCount, searchKeyword: nil
     )
+    trendingPosts = page?.results ?? trendingPosts ?? []
+  }
 
+  /// The Market board's newest listings, by slug so they needn't wait for the boards.
+  private func loadMarket(using useCase: AraBoardUseCaseProtocol) async {
+    let page = try? await useCase.fetchPosts(
+      type: .boardSlug(AraBoard.marketSlug), page: 1, pageSize: Self.marketShelfCount, searchKeyword: nil
+    )
+    marketPosts = page?.results ?? marketPosts ?? []
+  }
+
+  private func loadBoardsAndLatest(using useCase: AraBoardUseCaseProtocol) async {
     do {
-      let boards = try await araBoardUseCase.fetchBoards()
+      let boards = try await useCase.fetchBoards()
 
       let sortedBoards = boards.sorted { $0.id < $1.id }
       let uniqueGroups = Array(Set(sortedBoards.map(\.group))).sorted { $0.id < $1.id }
 
       self.boards = sortedBoards
       self.groups = uniqueGroups
-      trendingPosts = await trending?.results ?? trendingPosts
       state = .loaded(boards: sortedBoards, groups: uniqueGroups)
-      latestPosts = await fetchLatest(in: sortedBoards, using: araBoardUseCase) ?? latestPosts
       analyticsService?.logEvent(BoardListViewEvent.boardsLoaded)
-      await checkForNewPosts(in: sortedBoards, using: araBoardUseCase)
 
+      async let newPosts: Void = checkForNewPosts(in: sortedBoards, using: useCase)
+      let latest = try? await useCase.fetchPosts(
+        type: .latest(boardIDs: Self.latestBoardIDs(in: sortedBoards)),
+        page: 1, pageSize: Self.highlightCount, searchKeyword: nil
+      )
+      latestPosts = latest?.results ?? latestPosts ?? []
+      await newPosts
     } catch {
       logger.error("Failed to load boards: \(error.localizedDescription, privacy: .public)")
       state = .error(message: String(localized: "Failed to load boards.", bundle: .module))
     }
-  }
-
-  /// The newest posts across every board but Portal Notice; `nil` if they couldn't be loaded.
-  private func fetchLatest(in boards: [AraBoard], using useCase: AraBoardUseCaseProtocol) async -> [AraPost]? {
-    try? await useCase.fetchPosts(
-      type: .latest(boardIDs: Self.latestBoardIDs(in: boards)),
-      page: 1, pageSize: Self.highlightCount, searchKeyword: nil
-    ).results
   }
 
   static func latestBoardIDs(in boards: [AraBoard]) -> [Int] {

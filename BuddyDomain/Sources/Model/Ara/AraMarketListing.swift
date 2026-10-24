@@ -30,7 +30,9 @@ public struct AraMarketListing: Hashable, Sendable {
 
 extension AraBoard {
   /// The Market board, whose posts are listings with a price.
+  public static let marketSlug = "market"
+
   public var isMarket: Bool {
-    slug == "market"
+    slug == Self.marketSlug
   }
 }

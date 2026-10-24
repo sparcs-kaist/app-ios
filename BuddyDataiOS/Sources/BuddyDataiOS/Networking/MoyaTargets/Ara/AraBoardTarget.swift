@@ -95,6 +95,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
         }
       case .user(let userID):
         parameters["created_by"] = userID
+      case .boardSlug(let slug):
+        parameters["board"] = slug
       case .trending:
         break // the path chooses them
       case .latest(let boardIDs):
