@@ -20,6 +20,8 @@ protocol FeedPostViewModelProtocol: Observable {
   var text: String { get set }
   var image: UIImage? { get set }
   var isAnonymous: Bool { get set }
+  /// The comment being replied to, kept here so it survives with the draft.
+  var targetComment: FeedComment? { get set }
 
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
@@ -53,6 +55,7 @@ class FeedPostViewModel: FeedPostViewModelProtocol {
   var text: String = ""
   var image: UIImage? = nil
   var isAnonymous: Bool = true
+  var targetComment: FeedComment? = nil
 
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false

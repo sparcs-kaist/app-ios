@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyDomain
 
 /// An active fold, expressed as the two-column geometry that keeps it in the
 /// gutter: the leading column runs up to the fold, the gutter *is* the fold
@@ -23,26 +24,23 @@ public nonisolated struct FoldSplit: Equatable, Sendable {
   /// Width of the trailing column — from the far edge of the fold to the end.
   public let trailingWidth: CGFloat
 
-  /// Narrower than this and a column stops being worth keeping; the layout's
-  /// usual split reads better than two slivers.
-  private static let minimumColumnWidth: CGFloat = 240
-
-  /// `nil` whenever the columns should keep their usual split: no fold, the
-  /// device lying flat (inactive regions are not returned by default), a fold
+  /// Pass `includeInactive` to keep the split when the device lies flat.
+  /// `nil` whenever the columns should keep their usual split: no fold, an
+  /// inactive fold (unless included), a fold
   /// running *horizontally* across the layout — the inner display in portrait,
   /// where the band spans the full width and no column arrangement avoids it —
   /// or a fold so far off-centre that one column would be unusable.
   @available(iOS 27.1, *)
-  public init?(proxy: GeometryProxy) {
-    guard let fold = proxy.reservedRegions(kind: .division).first else { return nil }
+  public init?(proxy: GeometryProxy, includeInactive: Bool = false) {
+    guard let fold = proxy.reservedRegions(kind: .division, options: includeInactive ? .includeInactive : []).first else { return nil }
 
     let band = fold.frame
     let width = proxy.size.width
     // `frame` already includes the clearance margins, so the columns only have
     // to stay outside it.
     guard band.minX > 0, band.maxX < width else { return nil }
-    guard band.minX >= Self.minimumColumnWidth,
-          width - band.maxX >= Self.minimumColumnWidth else { return nil }
+    guard band.minX >= Constants.foldSplitMinimumColumnWidth,
+          width - band.maxX >= Constants.foldSplitMinimumColumnWidth else { return nil }
 
     self.leadingWidth = band.minX
     self.gutter = band.width
