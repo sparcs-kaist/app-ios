@@ -71,6 +71,7 @@ public struct PostView: View {
 
           PostContent(
             summarisedContent: summarisedContent,
+            content: viewModel.contentBody,
             requestProvider: { viewModel.makePostRequest() },
             onLinkTapped: { tappedURL = $0 }
           )
@@ -190,8 +191,13 @@ public struct PostView: View {
         await PostToolsTip.postOpened.donate()
       }
       .task(id: viewModel.post.content) {
-        let content = viewModel.post.content ?? ""
-        showsToolsTip = await Task.detached { PostToolsTip.isWorthShowing(forHTML: content) }.value
+        await viewModel.prepareContentBody()
+        let content = if case .tiptap(_, let plainText) = viewModel.contentBody {
+          plainText
+        } else {
+          viewModel.post.content ?? ""
+        }
+        showsToolsTip = await Task.detached { PostToolsTip.isWorthShowing(for: content) }.value
       }
       .refreshable {
         await viewModel.fetchPost()

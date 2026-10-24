@@ -25,11 +25,14 @@ protocol PostViewModelProtocol: Observable {
   var myScrap: Bool { get }
   var commentCount: Int { get set }
   var comments: [AraPostComment] { get set }
+  /// `nil` until `prepareContentBody()` has parsed the fetched content.
+  var contentBody: PostBody? { get }
   var isFoundationModelsAvailable: Bool { get }
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
 
   func makePostRequest() -> URLRequest?
+  func prepareContentBody() async
   func fetchPost() async
   func upvote() async
   func downvote() async
@@ -65,6 +68,7 @@ class PostViewModel: PostViewModelProtocol {
   private(set) var myScrap: Bool = false
   var commentCount: Int = 0
   var comments: [AraPostComment] = []
+  private(set) var contentBody: PostBody? = nil
   var isFoundationModelsAvailable: Bool = false
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
@@ -116,6 +120,18 @@ class PostViewModel: PostViewModelProtocol {
     var request = URLRequest(url: url)
     request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
     return request
+  }
+
+  /// Parses `post.content` off the main actor. The previous body stays on screen until the new
+  /// one is ready, so a refresh doesn't flash a spinner.
+  func prepareContentBody() async {
+    // A post opened from a list has no content until `fetchPost` returns.
+    guard let content = post.content else { return }
+    let body = await Task.detached(priority: .userInitiated) {
+      PostBody.make(from: content)
+    }.value
+    guard !Task.isCancelled else { return }
+    contentBody = body
   }
 
   private func refreshFoundationModelsAvailability() async {
@@ -278,8 +294,7 @@ class PostViewModel: PostViewModelProtocol {
     guard let foundationModelsUseCase else { return "" }
 
     analyticsService?.logEvent(PostViewEvent.summariseRequested)
-    // Posts are HTML. Converted here, on the main actor, as the HTML importer requires.
-    let text = (post.content ?? "").convertFromHTML()
+    let text = post.contentPlainText
     do {
       var summary = ""
       for try await snapshot in await foundationModelsUseCase.streamSummary(of: text, as: .post) {
