@@ -1,6 +1,116 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Allow Buddy to add photos in Settings, then try again." : {
+      "comment" : "Shown when saving a photo is not allowed.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정에서 Buddy가 사진을 추가할 수 있도록 허용한 다음 다시 시도하세요."
+          }
+        }
+      }
+    },
+    "Copied" : {
+      "comment" : "Confirms an image was copied.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복사됨"
+          }
+        }
+      }
+    },
+    "Copy" : {
+      "comment" : "Copies an image.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복사"
+          }
+        }
+      }
+    },
+    "More" : {
+      "comment" : "A menu of actions for the image shown full screen.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 보기"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "comment" : "Dismisses an alert.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
+    "Photo" : {
+      "comment" : "The title of a shared photo.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진"
+          }
+        }
+      }
+    },
+    "Save to Photos" : {
+      "comment" : "Saves an image to the photo library.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진에 저장"
+          }
+        }
+      }
+    },
+    "Saved to Photos" : {
+      "comment" : "Confirms an image was saved to the photo library.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진에 저장됨"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "comment" : "Shares an image.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유"
+          }
+        }
+      }
+    },
+    "Unable to Save Photo" : {
+      "comment" : "The title of an alert when saving a photo fails.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진을 저장할 수 없음"
+          }
+        }
+      }
+    },
     "Updated" : {
       "comment" : "Marks a post with new comments or edits since it was read.",
       "localizations" : {

@@ -43,19 +43,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save shared timetable images to your photo library."
+            "value" : "Save timetables and images from posts to your photo library."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save shared timetable images to your photo library."
+            "value" : "Save timetables and images from posts to your photo library."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "공유한 시간표 이미지를 사진 앱에 저장합니다."
+            "value" : "시간표와 게시물의 이미지를 사진 앱에 저장합니다."
           }
         }
       }
