@@ -83,6 +83,16 @@ public final class AraBoardUseCase: AraBoardUseCaseProtocol {
     }
   }
 
+  public func uploadFile(data: Data, fileName: String, mimeType: String) async throws -> AraAttachment {
+    let context = CrashContext(
+      feature: feature,
+      metadata: ["mimeType": mimeType, "size": String(data.count)]
+    )
+    return try await execute(context: context) {
+      try await araBoardRepository.uploadFile(data: data, fileName: fileName, mimeType: mimeType)
+    }
+  }
+
   public func writePost(request: AraCreatePost) async throws {
     let context = CrashContext(
       feature: feature,

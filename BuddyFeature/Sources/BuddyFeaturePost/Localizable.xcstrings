@@ -1,6 +1,28 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Attach File" : {
+      "comment" : "Attaches a document to the post being written.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일 첨부"
+          }
+        }
+      }
+    },
+    "Remove" : {
+      "comment" : "Removes a file from the post being written.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제"
+          }
+        }
+      }
+    },
     "All" : {
       "comment" : "Shows a board's posts under every topic.",
       "localizations" : {
