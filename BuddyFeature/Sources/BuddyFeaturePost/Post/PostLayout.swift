@@ -117,6 +117,11 @@ struct PostSection: View {
       onScrollToImage: onScrollToImage
     )
 
+    let files = viewModel.post.attachments?.filter { !$0.mimeType.hasPrefix("image/") } ?? []
+    if !files.isEmpty {
+      PostAttachmentList(attachments: files)
+    }
+
     PostFooter(
       myVote: viewModel.myVote,
       votes: viewModel.upvotes - viewModel.downvotes,

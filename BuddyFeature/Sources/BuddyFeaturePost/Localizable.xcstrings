@@ -1,6 +1,61 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Open" : {
+      "comment" : "Opens a downloaded attachment.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "열기"
+          }
+        }
+      }
+    },
+    "Attachments" : {
+      "comment" : "Heading over the files attached to a post.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첨부파일"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "comment" : "Dismisses an error.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
+    "Save to Files" : {
+      "comment" : "Saves an attached file to the Files app.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일에 저장"
+          }
+        }
+      }
+    },
+    "Unable to Open File" : {
+      "comment" : "Shown when an attached file can't be downloaded.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일을 열 수 없음"
+          }
+        }
+      }
+    },
     "" : {
       "shouldTranslate" : false
     },
