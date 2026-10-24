@@ -98,15 +98,20 @@ public struct MarketGrid: View {
 }
 
 /// One listing: a square photo with its sale state, then the title and price.
-struct MarketGridCell: View {
+public struct MarketGridCell: View {
   let post: AraPost
   var transitionNamespace: Namespace.ID? = nil
+
+  public init(post: AraPost, transitionNamespace: Namespace.ID? = nil) {
+    self.post = post
+    self.transitionNamespace = transitionNamespace
+  }
 
   private var listing: AraMarketListing? { post.marketListing }
   private var isSold: Bool { listing?.state == .soldOut }
   private var isRead: Bool { post.readStatus == .read }
 
-  var body: some View {
+  public var body: some View {
     VStack(alignment: .leading, spacing: 6) {
       thumbnail
         .overlay(alignment: .topLeading) {
