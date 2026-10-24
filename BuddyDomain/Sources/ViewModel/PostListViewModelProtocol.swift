@@ -13,6 +13,8 @@ public protocol PostListViewModelProtocol: Observable {
   var board: AraBoard { get }
   var posts: [AraPost] { get }
   var searchKeyword: String { get set }
+  /// Shows only posts under this topic; `nil` for the whole board.
+  var selectedTopic: AraBoardTopic? { get set }
 
   var isLoadingMore: Bool { get }
   var hasMorePages: Bool { get }

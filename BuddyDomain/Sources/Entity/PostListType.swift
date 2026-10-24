@@ -9,7 +9,8 @@ import Foundation
 
 public enum PostListType: Sendable {
   case all
-  case board(boardID: Int)
+  /// A board's posts, or only those under one of its topics.
+  case board(boardID: Int, topicID: Int? = nil)
   case user(userID: Int)
 }
 

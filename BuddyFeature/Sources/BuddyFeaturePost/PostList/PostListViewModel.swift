@@ -27,6 +27,16 @@ class PostListViewModel: PostListViewModelProtocol {
   @ObservationIgnored private var searchTask: Task<Void, Never>?
   @ObservationIgnored private var lastSearchKeyword: String?
 
+  var selectedTopic: AraBoardTopic? {
+    didSet {
+      guard selectedTopic != oldValue else { return }
+      analyticsService?.logEvent(PostListViewEvent.topicSelected(topic: selectedTopic?.slug))
+      posts = []
+      state = .loading
+      Task { await fetchInitialPosts() }
+    }
+  }
+
   // Infinite Scroll Properties
   var isLoadingMore: Bool = false
   var hasMorePages: Bool = true
@@ -73,7 +83,7 @@ class PostListViewModel: PostListViewModelProtocol {
 
     do {
       let page = try await araBoardUseCase.fetchPosts(
-        type: .board(boardID: board.id),
+        type: .board(boardID: board.id, topicID: selectedTopic?.id),
         page: 1,
         pageSize: pageSize,
         searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
@@ -98,13 +108,14 @@ class PostListViewModel: PostListViewModelProtocol {
 
     let nextPage = currentPage + 1
     let boardID = board.id
+    let topicID = selectedTopic?.id
     let ps = pageSize
     let sk = searchKeyword.isEmpty ? nil : searchKeyword
 
     Task.detached {
       do {
         let page = try await araBoardUseCase.fetchPosts(
-          type: .board(boardID: boardID),
+          type: .board(boardID: boardID, topicID: topicID),
           page: nextPage,
           pageSize: ps,
           searchKeyword: sk

@@ -1,6 +1,17 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "All" : {
+      "comment" : "Shows a board's posts under every topic.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체"
+          }
+        }
+      }
+    },
     "Describe the item: its condition, and how to reach you." : {
       "comment" : "Placeholder for the body of a Market listing.",
       "localizations" : {
