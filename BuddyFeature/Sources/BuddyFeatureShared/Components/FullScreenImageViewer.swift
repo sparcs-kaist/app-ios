@@ -7,6 +7,7 @@
 
 import SwiftUI
 import NukeUI
+import Photos
 
 /// A set of images to show full screen, opened at one of them.
 public struct ImageGallery: Identifiable, Hashable, Sendable {
@@ -47,6 +48,11 @@ public struct FullScreenImageViewer: View {
   /// Decided at the start of each drag, so a horizontal page swipe never moves the image down.
   @State private var isDismissDrag: Bool?
 
+  /// Images loaded so far, for sharing, saving and copying the one showing.
+  @State private var loadedImages: [URL: UIImage] = [:]
+  @State private var toast: ImageActionToast?
+  @State private var saveErrorMessage: String?
+
   /// How far a swipe down has to go, in points, to dismiss rather than spring back.
   private let dismissDistance: CGFloat = 120
 
@@ -65,8 +71,15 @@ public struct FullScreenImageViewer: View {
     NavigationStack {
       TabView(selection: $selection) {
         ForEach(Array(gallery.urls.enumerated()), id: \.offset) { index, url in
-          ZoomableImage(url: url, isZoomed: index == selection ? $isZoomed : .constant(false))
-            .tag(index)
+          ZoomableImage(url: url, isZoomed: index == selection ? $isZoomed : .constant(false)) { image in
+            loadedImages[url] = image
+          }
+          .contextMenu {
+            if let image = loadedImages[url] {
+              imageActions(for: image)
+            }
+          }
+          .tag(index)
         }
       }
       .tabViewStyle(.page(indexDisplayMode: gallery.urls.count > 1 && dismissDrag == .zero ? .automatic : .never))
@@ -88,11 +101,38 @@ public struct FullScreenImageViewer: View {
       .toolbarBackground(.hidden, for: .navigationBar)
       .toolbar(dismissDrag == .zero ? .automatic : .hidden, for: .navigationBar)
       .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
+            if let image = currentImage {
+              imageActions(for: image)
+            }
+          }
+          .disabled(currentImage == nil)
+        }
         ToolbarItem(placement: .topBarTrailing) {
           Button(role: .close) {
             dismiss()
           }
         }
+      }
+      .overlay(alignment: .bottom) {
+        if let toast {
+          Label(toast.title, systemImage: toast.systemImage)
+            .font(.subheadline.weight(.medium))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .glassEffect(.regular, in: .capsule)
+            .padding(.bottom, 48)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+      }
+      .alert(
+        String(localized: "Unable to Save Photo", bundle: .module),
+        isPresented: Binding(get: { saveErrorMessage != nil }, set: { if !$0 { saveErrorMessage = nil } })
+      ) {
+        Button(String(localized: "OK", bundle: .module), role: .cancel) {}
+      } message: {
+        Text(saveErrorMessage ?? "")
       }
     }
     // Light glass and title on the black backdrop.
@@ -101,6 +141,60 @@ public struct FullScreenImageViewer: View {
     .presentationBackground(.clear)
     .modifier(ZoomTransition(sourceID: gallery.urls.indices.contains(selection) ? gallery.urls[selection] : nil,
                              namespace: transitionNamespace))
+  }
+
+  // MARK: - Image actions
+
+  private var currentImage: UIImage? {
+    gallery.urls.indices.contains(selection) ? loadedImages[gallery.urls[selection]] : nil
+  }
+
+  @ViewBuilder
+  private func imageActions(for image: UIImage) -> some View {
+    ShareLink(
+      item: Image(uiImage: image),
+      preview: SharePreview(String(localized: "Photo", bundle: .module), image: Image(uiImage: image))
+    ) {
+      Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
+    }
+    Button(String(localized: "Save to Photos", bundle: .module), systemImage: "square.and.arrow.down") {
+      Task { await save(image) }
+    }
+    Button(String(localized: "Copy", bundle: .module), systemImage: "doc.on.doc") {
+      UIPasteboard.general.image = image
+      show(.copied)
+    }
+  }
+
+  private func save(_ image: UIImage) async {
+    let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+    guard status == .authorized || status == .limited else {
+      saveErrorMessage = String(localized: "Allow Buddy to add photos in Settings, then try again.", bundle: .module)
+      return
+    }
+    do {
+      try await Self.addToPhotoLibrary(image)
+      show(.saved)
+    } catch {
+      saveErrorMessage = error.localizedDescription
+    }
+  }
+
+  /// `nonisolated` so the change block isn't inferred as main-actor: Photos runs it on its own
+  /// queue, and a main-actor closure traps there.
+  private nonisolated static func addToPhotoLibrary(_ image: UIImage) async throws {
+    try await PHPhotoLibrary.shared().performChanges {
+      PHAssetChangeRequest.creationRequestForAsset(from: image)
+    }
+  }
+
+  private func show(_ newToast: ImageActionToast) {
+    withAnimation(.snappy) { toast = newToast }
+    Task {
+      try? await Task.sleep(for: .seconds(1.5))
+      guard toast == newToast else { return }
+      withAnimation(.snappy) { toast = nil }
+    }
   }
 
   private var backdropOpacity: Double {
@@ -147,10 +241,31 @@ private struct ZoomTransition: ViewModifier {
   }
 }
 
+/// A brief confirmation after an image action.
+private enum ImageActionToast: Equatable {
+  case saved, copied
+
+  var title: String {
+    switch self {
+    case .saved: String(localized: "Saved to Photos", bundle: .module)
+    case .copied: String(localized: "Copied", bundle: .module)
+    }
+  }
+
+  var systemImage: String {
+    switch self {
+    case .saved: "checkmark.circle.fill"
+    case .copied: "doc.on.doc.fill"
+    }
+  }
+}
+
 /// One page: an image that zooms with a pinch or double tap and pans while zoomed.
 private struct ZoomableImage: View {
   let url: URL
   @Binding var isZoomed: Bool
+  /// Reports the image once it has loaded.
+  var onLoad: (UIImage) -> Void = { _ in }
 
   @State private var scale: CGFloat = 1.0
   @State private var lastScale: CGFloat = 1.0
@@ -179,6 +294,11 @@ private struct ZoomableImage: View {
       } else {
         ProgressView()
           .tint(.white)
+      }
+    }
+    .onCompletion { result in
+      if case .success(let response) = result {
+        onLoad(response.image)
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
