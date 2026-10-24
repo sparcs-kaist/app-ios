@@ -8,6 +8,9 @@
 import Foundation
 import Moya
 import BuddyDomain
+import os
+
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "Networking")
 
 extension Response: @unchecked @retroactive Sendable {}
 
@@ -40,6 +43,9 @@ public extension MoyaProvider {
 
           // Filtering Status Code
           guard (200...299).contains(response.statusCode) else {
+            // The thrown error keeps only the status, so log what the server said about it.
+            let body = String(decoding: response.data.prefix(500), as: UTF8.self)
+            logger.error("\(target.method.rawValue, privacy: .public) \(target.path, privacy: .public) failed with \(response.statusCode): \(body, privacy: .public)")
             let error: NetworkError = switch response.statusCode {
             case 401: .unauthorized
             case 404: .notFound
