@@ -51,6 +51,10 @@ public final class MockAraBoardUseCase: AraBoardUseCaseProtocol, @unchecked Send
     throw TestError.notConfigured
   }
 
+  public func updatePost(postID: Int, request: AraUpdatePost) async throws {
+    throw TestError.notConfigured
+  }
+
   public func upvotePost(postID: Int) async throws {
     try upvotePostResult.get()
   }

@@ -77,6 +77,10 @@ public final class AraBoardRepository: AraBoardRepositoryProtocol, @unchecked Se
     _ = try await provider.request(.writePost(AraPostRequestDTO.fromModel(request)))
   }
 
+  public func updatePost(postID: Int, request: AraUpdatePost) async throws {
+    _ = try await provider.request(.updatePost(postID: postID, AraPostUpdateRequestDTO.fromModel(request)))
+  }
+
   public func upvotePost(postID: Int) async throws {
     _ = try await provider.request(.upvote(postID: postID))
   }
