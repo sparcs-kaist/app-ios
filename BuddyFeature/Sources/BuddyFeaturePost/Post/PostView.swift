@@ -72,7 +72,7 @@ public struct PostView: View {
       }
       .onGeometryChange(for: CGSize.self) { $0.size } action: { viewport = $0 }
       .modifier(PinnedNavigationBar(isPinned: usesPanes))
-      .scrollDismissesKeyboard(.interactively)
+      .scrollDismissesKeyboard(.immediately)
       .onKeyboardDismiss {
         if comment.isEmpty {
           targetComment = nil
