@@ -10,6 +10,7 @@ import Foundation
 
 enum PostComposeViewEvent: Event {
   case postSubmitted
+  case postEdited
 
   var source: String { "PostComposeView" }
 
@@ -17,6 +18,8 @@ enum PostComposeViewEvent: Event {
     switch self {
     case .postSubmitted:
       "post_submitted"
+    case .postEdited:
+      "post_edited"
     }
   }
 

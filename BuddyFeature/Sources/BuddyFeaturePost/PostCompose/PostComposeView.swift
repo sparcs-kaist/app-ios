@@ -33,8 +33,22 @@ struct PostComposeView: View {
 
   @State private var isUploading: Bool = false
 
+  /// Called once an edit is saved, so the post can be fetched again.
+  private let onSaved: () -> Void
+
   init(board: AraBoard) {
     _viewModel = State(initialValue: PostComposeViewModel(board: board))
+    self.onSaved = {}
+  }
+
+  /// Edits `post`. Its board, topic and name type can't change.
+  init(editing post: AraPost, board: AraBoard, onSaved: @escaping () -> Void) {
+    _viewModel = State(initialValue: PostComposeViewModel(editing: post, board: board))
+    self.onSaved = onSaved
+  }
+
+  private var isEditingPost: Bool {
+    viewModel.editingPost != nil
   }
 
   var body: some View {
@@ -43,7 +57,8 @@ struct PostComposeView: View {
         VStack(alignment: .leading) {
           topicSelector
             .padding(.horizontal)
-            .disabled(isUploading)
+            // Ara keeps a post's topic once it's written.
+            .disabled(isUploading || isEditingPost)
 
           Spacer()
             .frame(maxHeight: 16)
@@ -84,7 +99,15 @@ struct PostComposeView: View {
         .contentWidth()
       }
       .scrollDismissesKeyboard(.interactively)
-      .navigationTitle(String(localized: "Write", bundle: .module))
+      .navigationTitle(isEditingPost ? String(localized: "Edit Post", bundle: .module) : String(localized: "Write", bundle: .module))
+      .overlay {
+        if viewModel.isLoadingContent {
+          ProgressView()
+        }
+      }
+      .task {
+        await viewModel.loadContentForEditing()
+      }
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         // Top tool bar. Semantic placements let the system move these into the vertical bar on
@@ -98,7 +121,10 @@ struct PostComposeView: View {
             isPresented: $isShowingCancelDialog,
             titleVisibility: .hidden
           ) {
-            Button(String(localized: "Discard Post", bundle: .module), role: .destructive) {
+            Button(
+              isEditingPost ? String(localized: "Discard Changes", bundle: .module) : String(localized: "Discard Post", bundle: .module),
+              role: .destructive
+            ) {
               dismiss()
             }
           }
@@ -113,7 +139,10 @@ struct PostComposeView: View {
                 isUploading = true
                 defer { isUploading = false }
                 do {
-                  try await viewModel.writePost()
+                  try await viewModel.submit()
+                  if isEditingPost {
+                    onSaved()
+                  }
                   dismiss()
                 } catch {
                   logger.error("Failed to write post: \(error.localizedDescription, privacy: .public)")
@@ -229,8 +258,11 @@ struct PostComposeView: View {
   private var optionsMenu: some View {
     // Not `ellipsis`: in a vertical bar that reads as the system's own overflow menu.
     Menu {
-      Toggle(isOn: $viewModel.writeAsAnonymous) {
-        Text("Anonymous", bundle: .module)
+      // Ara keeps the name a post was written under.
+      if !isEditingPost {
+        Toggle(isOn: $viewModel.writeAsAnonymous) {
+          Text("Anonymous", bundle: .module)
+        }
       }
       Toggle(isOn: $viewModel.isNSFW) {
         Text("NSFW", bundle: .module)
