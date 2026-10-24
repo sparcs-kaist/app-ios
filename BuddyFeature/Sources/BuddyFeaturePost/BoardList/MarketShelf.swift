@@ -59,7 +59,7 @@ struct MarketShelf: View {
             Button {
               onSelect(post)
             } label: {
-              MarketGridCell(post: post)
+              MarketGridCell(post: post, titleLineLimit: 1)
                 .frame(width: isInColumn && width > 0 ? columnCardWidth : Self.cardWidth)
             }
             .buttonStyle(.plain)

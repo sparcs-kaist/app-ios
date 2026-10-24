@@ -101,10 +101,12 @@ public struct MarketGrid: View {
 public struct MarketGridCell: View {
   let post: AraPost
   var transitionNamespace: Namespace.ID? = nil
+  var titleLineLimit: Int = 2
 
-  public init(post: AraPost, transitionNamespace: Namespace.ID? = nil) {
+  public init(post: AraPost, transitionNamespace: Namespace.ID? = nil, titleLineLimit: Int = 2) {
     self.post = post
     self.transitionNamespace = transitionNamespace
+    self.titleLineLimit = titleLineLimit
   }
 
   private var listing: AraMarketListing? { post.marketListing }
@@ -145,7 +147,7 @@ public struct MarketGridCell: View {
           Text(title)
             .font(.subheadline)
             .foregroundStyle(post.isHidden || isRead ? .secondary : .primary)
-            .lineLimit(2)
+            .lineLimit(titleLineLimit)
             .multilineTextAlignment(.leading)
         }
 
