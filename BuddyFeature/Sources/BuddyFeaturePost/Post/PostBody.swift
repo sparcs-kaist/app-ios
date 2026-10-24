@@ -12,17 +12,24 @@ import TiptapUI
 
 /// How a post's `content` is presented. Boards post Tiptap JSON, rendered natively;
 /// Portal Notice (and posts written before the editor change, or from this app) are HTML,
-/// left to the web view.
+/// rendered in a local web view.
 enum PostBody: Equatable, Sendable {
   case tiptap(TiptapLayout, plainText: String)
-  case html
+  /// `baseURL` resolves the HTML's relative image and link URLs.
+  case html(String, baseURL: URL)
+
+  /// Portal Notice is crawled from the KAIST portal, which leaves its image paths relative to it.
+  private static let portalURL = URL(string: "https://portal.kaist.ac.kr/")!
 
   /// Parses and lays out `content`. Pure, so it can run off the main actor.
-  static func make(from content: String) -> PostBody {
+  static func make(from content: String, boardSlug: String?) -> PostBody {
+    let baseURL = boardSlug == "portal-notice" ? portalURL : Constants.araPostURL
     // Malformed JSON falls back to HTML too, as the Ara web client does.
-    guard let document = try? TiptapParser().parse(content) else { return .html }
+    guard let document = try? TiptapParser().parse(content) else {
+      return .html(content, baseURL: baseURL)
+    }
     return .tiptap(
-      TiptapLayout(document: document, baseURL: Constants.araPostURL),
+      TiptapLayout(document: document, baseURL: baseURL),
       plainText: document.plainText
     )
   }

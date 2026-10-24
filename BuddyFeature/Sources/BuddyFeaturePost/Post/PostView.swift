@@ -22,12 +22,7 @@ public struct PostView: View {
 
   @Environment(\.keyboardShowing) var keyboardShowing
 
-  @State private var htmlHeight: CGFloat = .zero
   @State private var tappedURL: URL?
-
-  @State private var isWebViewLoading: Bool = false
-  @State private var webViewLoadError: DynamicHeightWebView.LoadError?
-  @State private var webViewReloadToken: Int = 0
 
   @State private var comment: String = ""
   @FocusState private var isWritingCommentFocusState: Bool
@@ -72,7 +67,6 @@ public struct PostView: View {
           PostContent(
             summarisedContent: summarisedContent,
             content: viewModel.contentBody,
-            requestProvider: { viewModel.makePostRequest() },
             onLinkTapped: { tappedURL = $0 }
           )
 

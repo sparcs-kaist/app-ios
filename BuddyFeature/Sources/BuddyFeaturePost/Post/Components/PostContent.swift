@@ -14,7 +14,6 @@ import BuddyFeatureShared
 struct PostContent: View {
   let summarisedContent: String?
   let content: PostBody?
-  let requestProvider: () -> URLRequest?
   let onLinkTapped: (URL) -> Void
 
   var body: some View {
@@ -37,8 +36,8 @@ struct PostContent: View {
           onLinkTapped(url)
           return .handled
         })
-    case .html:
-      PostHTMLContent(requestProvider: requestProvider, onLinkTapped: onLinkTapped)
+    case .html(let html, let baseURL):
+      PostHTMLContent(html: html, baseURL: baseURL, onLinkTapped: onLinkTapped)
     case nil:
       ProgressView()
         .frame(maxWidth: .infinity)
@@ -76,50 +75,26 @@ private struct PostContentImage: View {
   }
 }
 
-/// HTML content (Portal Notice and older posts), rendered by the Ara web frame.
+/// HTML content (Portal Notice and older posts), rendered locally.
 private struct PostHTMLContent: View {
-  let requestProvider: () -> URLRequest?
+  let html: String
+  let baseURL: URL
   let onLinkTapped: (URL) -> Void
 
-  @State private var htmlHeight: CGFloat = .zero
-  @State private var isWebViewLoading: Bool = false
-  @State private var webViewLoadError: DynamicHeightWebView.LoadError?
-  @State private var webViewReloadToken: Int = 0
+  @State private var height: CGFloat = .zero
 
   var body: some View {
-    ZStack {
-      DynamicHeightWebView(
-        htmlString: "",
-        dynamicHeight: $htmlHeight,
-        requestProvider: requestProvider,
-        isLoading: $isWebViewLoading,
-        loadError: $webViewLoadError,
-        reloadToken: webViewReloadToken,
-        onLinkTapped: onLinkTapped
-      )
-      .frame(height: max(1, htmlHeight))
-      .opacity(webViewLoadError == nil ? 1 : 0)
-
-      if isWebViewLoading && webViewLoadError == nil {
+    DynamicHeightWebView(
+      html: html,
+      baseURL: baseURL,
+      height: $height,
+      onLinkTapped: onLinkTapped
+    )
+    .frame(height: max(1, height))
+    .overlay {
+      if height == .zero {
         ProgressView()
           .padding()
-      }
-
-      if let webViewLoadError {
-        VStack(spacing: 12) {
-          Text(webViewLoadError.errorDescription ?? String(localized: "Unable to load post.", bundle: .module))
-            .font(.callout)
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.center)
-          Button {
-            self.webViewLoadError = nil
-            webViewReloadToken += 1
-          } label: {
-            Text("Retry", bundle: .module)
-          }
-          .buttonStyle(.bordered)
-        }
-        .padding()
       }
     }
   }
