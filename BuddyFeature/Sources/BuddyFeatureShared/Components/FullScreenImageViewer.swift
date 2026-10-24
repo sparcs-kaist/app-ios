@@ -51,6 +51,9 @@ public struct FullScreenImageViewer: View {
   /// Images loaded so far, for sharing, saving and copying the one showing.
   @State private var loadedImages: [URL: UIImage] = [:]
   @State private var toast: ImageActionToast?
+  /// The screen (the paging view, at rest) and the safe area within it, in global coordinates.
+  @State private var screenFrame: CGRect = .zero
+  @State private var safeAreaFrame: CGRect = .zero
   @State private var saveErrorMessage: String?
 
   /// How far a swipe down has to go, in points, to dismiss rather than spring back.
@@ -69,33 +72,47 @@ public struct FullScreenImageViewer: View {
 
   public var body: some View {
     NavigationStack {
-      TabView(selection: $selection) {
-        ForEach(Array(gallery.urls.enumerated()), id: \.offset) { index, url in
-          ZoomableImage(url: url, isZoomed: index == selection ? $isZoomed : .constant(false)) { image in
-            loadedImages[url] = image
-          }
-          .contextMenu {
-            if let image = loadedImages[url] {
-              imageActions(for: image)
+      ZStack {
+        // The pages ignore the safe area, so this tells them where it is.
+        Color.clear
+          .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { safeAreaFrame = $0 }
+        TabView(selection: $selection) {
+          ForEach(Array(gallery.urls.enumerated()), id: \.offset) { index, url in
+            ZoomableImage(url: url, screen: screen, isZoomed: index == selection ? $isZoomed : .constant(false)) { image in
+              loadedImages[url] = image
             }
+            .contextMenu {
+              if let image = loadedImages[url] {
+                imageActions(for: image)
+              }
+            }
+            .tag(index)
+            .scrollEdgeEffectHidden()
           }
-          .tag(index)
         }
-      }
-      .tabViewStyle(.page(indexDisplayMode: gallery.urls.count > 1 && dismissDrag == .zero ? .automatic : .never))
-      // Follows the finger and shrinks a little on the way down, as in Photos.
-      .scaleEffect(1 - min(max(dismissDrag.height, 0) / 1500, 0.25))
-      .offset(dismissDrag)
-      .simultaneousGesture(dismissGesture, including: isZoomed ? .subviews : .all)
-      // A page reset when left only reports it through its old binding.
-      .onChange(of: selection) { _, selection in
-        isZoomed = false
-        if gallery.urls.indices.contains(selection) {
-          onPageChange?(gallery.urls[selection])
+        // Pages place their image in this space, so it still moves with a swipe down.
+        .coordinateSpace(.named(ScreenGeometry.space))
+        .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+          // Mid-swipe the frame includes the swipe's transform; the screen hasn't changed.
+          if dismissDrag == .zero { screenFrame = frame }
         }
+        .tabViewStyle(.page(indexDisplayMode: gallery.urls.count > 1 && dismissDrag == .zero ? .automatic : .never))
+        // Follows the finger and shrinks a little on the way down, as in Photos.
+        .scaleEffect(1 - min(max(dismissDrag.height, 0) / 1500, 0.25))
+        .offset(dismissDrag)
+        .simultaneousGesture(dismissGesture, including: isZoomed ? .subviews : .all)
+        // A page reset when left only reports it through its old binding.
+        .onChange(of: selection) { _, selection in
+          isZoomed = false
+          if gallery.urls.indices.contains(selection) {
+            onPageChange?(gallery.urls[selection])
+          }
+        }
+        // The bars float over the image; nothing dims it behind them.
+        .scrollEdgeEffectHidden()
+        .background(Color.black.opacity(backdropOpacity))
+        .ignoresSafeArea()
       }
-      .background(Color.black.opacity(backdropOpacity))
-      .ignoresSafeArea()
       .navigationTitle(title)
       .navigationBarTitleDisplayMode(.inline)
       .toolbarBackground(.hidden, for: .navigationBar)
@@ -139,6 +156,9 @@ public struct FullScreenImageViewer: View {
     .environment(\.colorScheme, .dark)
     // The screen behind shows through as the backdrop fades during a swipe down.
     .presentationBackground(.clear)
+    // A pinch belongs to the image (smaller settles it in the safe area); the zoom transition
+    // would otherwise take it as pinch-to-close. The swipe down above still dismisses.
+    .interactiveDismissDisabled()
     .modifier(ZoomTransition(sourceID: gallery.urls.indices.contains(selection) ? gallery.urls[selection] : nil,
                              namespace: transitionNamespace))
   }
@@ -195,6 +215,14 @@ public struct FullScreenImageViewer: View {
       guard toast == newToast else { return }
       withAnimation(.snappy) { toast = nil }
     }
+  }
+
+  /// The screen and its safe area, relative to the paging view.
+  private var screen: ScreenGeometry {
+    ScreenGeometry(
+      bounds: CGRect(origin: .zero, size: screenFrame.size),
+      safeArea: safeAreaFrame.offsetBy(dx: -screenFrame.minX, dy: -screenFrame.minY)
+    )
   }
 
   private var backdropOpacity: Double {
@@ -261,8 +289,12 @@ private enum ImageActionToast: Equatable {
 }
 
 /// One page: an image that zooms with a pinch or double tap and pans while zoomed.
+///
+/// It fills the whole screen, safe area included. Pinching it smaller settles it inside the
+/// safe area instead, clear of the bars (on iPhone Duo, the one down the side).
 private struct ZoomableImage: View {
   let url: URL
+  let screen: ScreenGeometry
   @Binding var isZoomed: Bool
   /// Reports the image once it has loaded.
   var onLoad: (UIImage) -> Void = { _ in }
@@ -271,10 +303,11 @@ private struct ZoomableImage: View {
   @State private var lastScale: CGFloat = 1.0
   @State private var offset: CGSize = .zero
   @State private var lastOffset: CGSize = .zero
+  @State private var imageSize: CGSize?
+  /// Where this page is on screen, to centre the image on the screen rather than the page.
+  @State private var pageFrame: CGRect = .zero
 
-  private let minScale: CGFloat = 1.0
   private let maxScale: CGFloat = 5.0
-
 
   var body: some View {
     LazyImage(url: url) { state in
@@ -282,12 +315,14 @@ private struct ZoomableImage: View {
         image
           .resizable()
           .aspectRatio(contentMode: .fit)
+          .frame(width: screenSize.width, height: screenSize.height)
           .scaleEffect(scale)
           .offset(offset)
           .gesture(magnifyGesture)
           // Panning only takes over while zoomed; otherwise the drag pages to the next image.
           .gesture(panGesture, including: isZoomed ? .all : .subviews)
           .onTapGesture(count: 2) { handleDoubleTap() }
+          .onAppear { imageSize = state.imageContainer?.image.size }
       } else if let error = state.error {
         ContentUnavailableView(error.localizedDescription, systemImage: "exclamationmark.triangle")
           .foregroundStyle(.white)
@@ -298,27 +333,57 @@ private struct ZoomableImage: View {
     }
     .onCompletion { result in
       if case .success(let response) = result {
+        imageSize = response.image.size
         onLoad(response.image)
       }
     }
+    // Centred on the screen, whatever part of it the paging view gave this page.
+    .position(
+      x: screen.bounds.isEmpty ? pageFrame.width / 2 : screen.bounds.midX - pageFrame.minX,
+      y: screen.bounds.isEmpty ? pageFrame.height / 2 : screen.bounds.midY - pageFrame.minY
+    )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .contentShape(.rect)
+    .onGeometryChange(for: CGRect.self) {
+      $0.frame(in: .named(ScreenGeometry.space))
+    } action: { pageFrame = $0 }
     // Swiping back to this page shows it whole again.
     .onDisappear(perform: resetZoom)
     .onChange(of: scale) { _, scale in
-      isZoomed = scale > minScale
+      isZoomed = scale > 1
     }
+  }
+
+  private var screenSize: CGSize {
+    screen.bounds.isEmpty ? pageFrame.size : screen.bounds.size
+  }
+
+  /// The scale and offset that fit the image inside the safe area rather than the whole screen.
+  private var safeAreaFit: (scale: CGFloat, offset: CGSize) {
+    let full = screen.bounds, safe = screen.safeArea
+    guard let imageSize, imageSize.width > 0, imageSize.height > 0,
+          !full.isEmpty, !safe.isEmpty else { return (1, .zero) }
+    let screenFit = min(full.width / imageSize.width, full.height / imageSize.height)
+    let safeFit = min(safe.width / imageSize.width, safe.height / imageSize.height)
+    return (
+      min(safeFit / screenFit, 1),
+      // Centred in the safe area, which is off-centre when only one side has a bar.
+      CGSize(width: safe.midX - full.midX, height: safe.midY - full.midY)
+    )
   }
 
   private var magnifyGesture: some Gesture {
     MagnifyGesture()
       .onChanged { value in
-        scale = min(max(lastScale * value.magnification, minScale), maxScale)
+        scale = min(max(lastScale * value.magnification, safeAreaFit.scale * 0.8), maxScale)
       }
       .onEnded { _ in
-        lastScale = scale
-        if scale <= minScale {
-          withAnimation(.spring) { resetZoom() }
+        if scale <= 1 {
+          // Smaller than the screen settles inside the safe area; growing from there, back to full.
+          let isShrinking = scale < lastScale
+          withAnimation(.spring) { isShrinking ? fitToSafeArea() : resetZoom() }
+        } else {
+          lastScale = scale
         }
       }
   }
@@ -338,7 +403,7 @@ private struct ZoomableImage: View {
 
   private func handleDoubleTap() {
     withAnimation(.spring) {
-      if isZoomed {
+      if scale != 1 {
         resetZoom()
       } else {
         scale = 2.0
@@ -348,9 +413,25 @@ private struct ZoomableImage: View {
   }
 
   private func resetZoom() {
-    scale = minScale
-    lastScale = minScale
+    scale = 1
+    lastScale = 1
     offset = .zero
     lastOffset = .zero
   }
+
+  private func fitToSafeArea() {
+    let fit = safeAreaFit
+    scale = fit.scale
+    lastScale = fit.scale
+    offset = fit.offset
+    lastOffset = fit.offset
+  }
+}
+
+/// The screen the viewer covers and the safe area within it, in the paging view's space.
+private nonisolated struct ScreenGeometry: Equatable, Sendable {
+  static let space = "FullScreenImageViewer"
+
+  var bounds: CGRect = .zero
+  var safeArea: CGRect = .zero
 }
