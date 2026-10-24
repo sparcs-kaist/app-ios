@@ -15,6 +15,14 @@ public struct AraPost: Identifiable, Hashable, Sendable {
     case both = "BOTH"
   }
 
+  /// Whether the signed-in user has opened the post, from Ara's read log.
+  public enum ReadStatus: Sendable {
+    case unread
+    case read
+    /// Opened, but commented on or edited since.
+    case updated
+  }
+
   public enum CommunicationArticleStatus: Int, Sendable {
     case answered = 2
     case waitingForAnswer = 1
@@ -29,6 +37,8 @@ public struct AraPost: Identifiable, Hashable, Sendable {
   public let board: AraBoard?
   public let title: String?
   public let author: AraPostAuthor
+  /// Sent with list responses only; `nil` elsewhere.
+  public var readStatus: ReadStatus?
   public let attachmentType: AttachmentType
   public let communicationArticleStatus: CommunicationArticleStatus?
   public let createdAt: Date
@@ -58,6 +68,7 @@ public struct AraPost: Identifiable, Hashable, Sendable {
     board: AraBoard?,
     title: String?,
     author: AraPostAuthor,
+    readStatus: ReadStatus? = nil,
     attachmentType: AttachmentType,
     communicationArticleStatus: CommunicationArticleStatus?,
     createdAt: Date,
@@ -84,6 +95,7 @@ public struct AraPost: Identifiable, Hashable, Sendable {
     self.board = board
     self.title = title
     self.author = author
+    self.readStatus = readStatus
     self.attachmentType = attachmentType
     self.communicationArticleStatus = communicationArticleStatus
     self.createdAt = createdAt

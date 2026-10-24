@@ -144,6 +144,13 @@ class PostListViewModel: PostListViewModelProtocol {
     }
   }
 
+  func markRead(postID: Int) {
+    guard let idx = self.posts.firstIndex(where: { $0.id == postID }),
+          self.posts[idx].readStatus != .read else { return }
+    self.posts[idx].readStatus = .read
+    self.state = .loaded(posts: self.posts)
+  }
+
   func removePost(postID: Int) {
     if let idx = self.posts.firstIndex(where: { $0.id == postID }) {
       self.posts.remove(at: idx)

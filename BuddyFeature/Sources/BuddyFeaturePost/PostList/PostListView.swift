@@ -66,6 +66,9 @@ struct PostListView: View {
       })
       .id(post.id)
       .addKeyboardVisibilityToEnvironment()
+      .onAppear {
+        viewModel.markRead(postID: post.id)
+      }
       .onDisappear {
         viewModel.refreshItem(postID: post.id)
       }

@@ -68,6 +68,18 @@ public struct AraPostDTO: Codable {
 }
 
 
+extension AraPost.ReadStatus {
+  /// Ara's `read_status`: `N` unread, `-` read, `U` updated since read.
+  init?(rawValue: String) {
+    switch rawValue {
+    case "N": self = .unread
+    case "-": self = .read
+    case "U": self = .updated
+    default: return nil
+    }
+  }
+}
+
 public extension AraPostDTO {
   func toModel() -> AraPost {
     AraPost(
@@ -79,6 +91,7 @@ public extension AraPostDTO {
       board: board?.toModel(),
       title: title,
       author: author.toModel(),
+      readStatus: readStatus.flatMap(AraPost.ReadStatus.init(rawValue:)),
       attachmentType: AraPost.AttachmentType(rawValue: attachmentType ?? "") ?? .none,
       communicationArticleStatus: communicationArticleStatus != nil ? AraPost
         .CommunicationArticleStatus(rawValue: communicationArticleStatus!) : nil,
