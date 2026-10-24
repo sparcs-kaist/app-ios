@@ -37,6 +37,10 @@ let package = Package(
 			name: "TiptapUI",
 			targets: ["TiptapUI"]
 		),
+		.library(
+			name: "TiptapEditor",
+			targets: ["TiptapEditor"]
+		),
 	],
 	dependencies: [
 		.package(path: "../BuddyDomain"),
@@ -86,9 +90,16 @@ let package = Package(
 				"TiptapKit",
 			]
 		),
+		// A Notes-like rich text editor producing Tiptap documents. iOS only.
+		.target(
+			name: "TiptapEditor",
+			dependencies: [
+				"TiptapKit",
+			]
+		),
 		.testTarget(
 			name: "BuddyUITests",
-			dependencies: ["TimetableUI", "BuddyDomain", "BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI", "TiptapKit", "TiptapUI"]
+			dependencies: ["TimetableUI", "BuddyDomain", "BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI", "TiptapKit", "TiptapUI", "TiptapEditor"]
 		),
   ]
 )
