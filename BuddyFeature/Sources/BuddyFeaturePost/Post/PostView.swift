@@ -35,6 +35,7 @@ public struct PostView: View {
 
   @State private var showTranslationView: Bool = false
   @State private var showDeleteConfirmation: Bool = false
+  @State private var showEditView: Bool = false
 
   @State private var summarisedContent: String? = nil
   @State private var showsToolsTip = false
@@ -173,6 +174,13 @@ public struct PostView: View {
       .sheet(item: $tappedURL) { url in
         SafariViewWrapper(url: url)
       }
+      .sheet(isPresented: $showEditView) {
+        if let board = viewModel.post.board {
+          PostComposeView(editing: viewModel.post, board: board) {
+            Task { await viewModel.fetchPost() }
+          }
+        }
+      }
       .sheet(isPresented: $showTranslationView) {
         PostTranslationView(post: viewModel.post)
       }
@@ -202,6 +210,13 @@ public struct PostView: View {
       "is_author": viewModel.post.isMine ?? false,
       "has_comments": viewModel.commentCount > 0
     ])
+  }
+
+  /// Whether the app can load this post into its editor: Tiptap posts, and the simple HTML
+  /// earlier versions of the app wrote. A post that hasn't loaded its content can't be edited.
+  private var canEdit: Bool {
+    guard viewModel.post.board != nil, let content = viewModel.post.content else { return false }
+    return PostEditableContent.document(from: content) != nil
   }
 
   private var actionsMenu: some View {
@@ -240,6 +255,12 @@ public struct PostView: View {
       }
 
       if viewModel.post.isMine == true { Divider () }
+
+      if viewModel.post.isMine == true, canEdit {
+        Button(String(localized: "Edit", bundle: .module), systemImage: "pencil") {
+          showEditView = true
+        }
+      }
 
       if viewModel.post.isMine == true {
         Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
