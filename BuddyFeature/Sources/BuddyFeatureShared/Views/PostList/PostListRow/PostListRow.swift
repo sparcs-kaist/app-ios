@@ -24,6 +24,14 @@ public struct PostListRow: View {
   public var body: some View {
     VStack(alignment: .leading, spacing: 4) {
       HStack(spacing: 4) {
+        // Read before, but commented on or edited since.
+        if post.readStatus == .updated {
+          Circle()
+            .fill(Color.accentColor)
+            .frame(width: 7, height: 7)
+            .accessibilityLabel(Text("Updated", bundle: .module))
+        }
+
         if let topic = post.topic {
           Text("[\(topic.name.localized())]")
             .font(.subheadline)
