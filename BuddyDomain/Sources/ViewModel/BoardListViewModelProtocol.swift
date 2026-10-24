@@ -11,6 +11,8 @@ import Observation
 @MainActor
 public protocol BoardListViewModelProtocol: Observable {
   var state: BoardListViewState { get }
+  /// Boards with posts newer than the newest one seen in their list.
+  var boardsWithNewPosts: Set<Int> { get }
 
   func fetchBoards() async
 }

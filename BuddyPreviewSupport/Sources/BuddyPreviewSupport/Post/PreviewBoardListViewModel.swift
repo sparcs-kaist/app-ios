@@ -13,6 +13,7 @@ import Observation
 @Observable
 public final class PreviewBoardListViewModel: BoardListViewModelProtocol {
   public var state: BoardListViewState
+  public var boardsWithNewPosts: Set<Int> = []
 
   public init(state: BoardListViewState) {
     self.state = state

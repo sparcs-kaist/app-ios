@@ -73,6 +73,13 @@ public struct BoardListView: View {
               Text(board.name.localized())
                 .multilineTextAlignment(.leading)
               Spacer()
+              if viewModel.boardsWithNewPosts.contains(board.id) {
+                Circle()
+                  .fill(Color.accentColor)
+                  .frame(width: 8, height: 8)
+                  .accessibilityLabel(Text("New Posts", bundle: .module))
+                  .transition(.scale.combined(with: .opacity))
+              }
               Image(systemName: "chevron.right")
                 .opacity(0.3)
             }
@@ -82,6 +89,7 @@ public struct BoardListView: View {
       }
       .id(group.id)
     }
+    .animation(.snappy, value: viewModel.boardsWithNewPosts)
   }
 
   @ViewBuilder

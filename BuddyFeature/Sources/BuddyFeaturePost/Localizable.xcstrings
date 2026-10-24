@@ -1,6 +1,17 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "New Posts" : {
+      "comment" : "Marks a board with posts since its list was last opened.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 게시물"
+          }
+        }
+      }
+    },
     "Attach File" : {
       "comment" : "Attaches a document to the post being written.",
       "localizations" : {

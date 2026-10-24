@@ -14,6 +14,7 @@ import BuddyFeatureShared
 struct DebugSettingsView: View {
   let viewModel: SettingsViewModel
   @State private var showsTipsResetAlert = false
+  @State private var showsBoardsResetAlert = false
   @State private var showsTipsImmediately = BuddyTips.showsTipsImmediately
   @AppStorage(ModelLanguageSettings.forcedLanguageKey) private var forcedModelLanguage = ""
 
@@ -48,6 +49,17 @@ struct DebugSettingsView: View {
       }
 
       Section {
+        Button(String(localized: "Reset New Post Dots", bundle: .module), systemImage: "circle.badge.xmark") {
+          BoardSeenPosts.reset()
+          showsBoardsResetAlert = true
+        }
+      } header: {
+        Text("Boards", bundle: .module)
+      } footer: {
+        Text("Forgets the newest post seen in each board's list, so every board with an unread newest post shows a dot again.", bundle: .module)
+      }
+
+      Section {
         Picker(selection: $forcedModelLanguage) {
           Text("Automatic", bundle: .module).tag("")
           ForEach(ModelLanguageSettings.languageCodes, id: \.self) { code in
@@ -70,6 +82,11 @@ struct DebugSettingsView: View {
       Button(String(localized: "Later", bundle: .module), role: .cancel) { }
     } message: {
       Text("Tips show again the next time Buddy opens.", bundle: .module)
+    }
+    .alert(String(localized: "Dots Reset", bundle: .module), isPresented: $showsBoardsResetAlert) {
+      Button(String(localized: "OK", bundle: .module), role: .cancel) { }
+    } message: {
+      Text("Boards show new post dots again the next time the Boards list appears.", bundle: .module)
     }
   }
 }
