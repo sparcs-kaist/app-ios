@@ -14,5 +14,7 @@ public enum PostListType: Sendable {
   case user(userID: Int)
   /// The most viewed posts of the past week, across boards.
   case trending
+  /// The newest posts across these boards.
+  case latest(boardIDs: [Int])
 }
 

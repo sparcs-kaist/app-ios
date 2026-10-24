@@ -1,6 +1,17 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Latest" : {
+      "comment" : "The newest posts across boards.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최신 게시물"
+          }
+        }
+      }
+    },
     "%lld comments" : {
       "comment" : "How many comments a trending post has.",
       "localizations" : {

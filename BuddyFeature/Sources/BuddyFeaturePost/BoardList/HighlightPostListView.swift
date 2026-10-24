@@ -1,5 +1,5 @@
 //
-//  TrendingPostListView.swift
+//  HighlightPostListView.swift
 //  BuddyFeature
 //
 //  Created by Soongyu Kwon on 24/10/2026.
@@ -12,15 +12,17 @@ import BuddyDomain
 import BuddyFeatureShared
 import os
 
-private let logger = Logger(subsystem: "org.sparcs.soap", category: "TrendingPostListView")
+private let logger = Logger(subsystem: "org.sparcs.soap", category: "HighlightPostListView")
 
-/// Every trending post: the past week's, most viewed first.
-struct TrendingPostListView: View {
-  @State private var viewModel: TrendingPostListViewModelProtocol
+/// Every post of a highlight: the week's trending posts, or the newest, a page at a time.
+struct HighlightPostListView: View {
+  let highlight: BoardHighlight
+  @State private var viewModel: HighlightPostListViewModelProtocol
   @State private var selectedPost: AraPost?
 
-  init(viewModel: TrendingPostListViewModelProtocol = TrendingPostListViewModel()) {
-    _viewModel = State(initialValue: viewModel)
+  init(highlight: BoardHighlight) {
+    self.highlight = highlight
+    _viewModel = State(initialValue: HighlightPostListViewModel(listType: highlight.listType))
   }
 
   var body: some View {
@@ -37,7 +39,7 @@ struct TrendingPostListView: View {
           isLoadingMore: viewModel.isLoadingMore,
           onRefresh: { await viewModel.fetchInitialPosts() },
           onLoadMore: { viewModel.loadNextPage() },
-          // Pushed by item, like the Boards list's own trending posts.
+          // Pushed by item, like the Boards list's own highlighted posts.
           onSelect: { selectedPost = $0 }
         )
         .contentWidth()
@@ -47,7 +49,7 @@ struct TrendingPostListView: View {
       PostView(post: post)
         .addKeyboardVisibilityToEnvironment()
     }
-    .navigationTitle(String(localized: "Trending", bundle: .module))
+    .navigationTitle(highlight.title)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.hidden, for: .tabBar)
     .background {
@@ -64,7 +66,7 @@ struct TrendingPostListView: View {
 }
 
 @MainActor
-protocol TrendingPostListViewModelProtocol: Observable {
+protocol HighlightPostListViewModelProtocol: Observable {
   /// `nil` until the first page loads.
   var posts: [AraPost]? { get }
   var isLoadingMore: Bool { get }
@@ -75,7 +77,9 @@ protocol TrendingPostListViewModelProtocol: Observable {
 }
 
 @Observable
-final class TrendingPostListViewModel: TrendingPostListViewModelProtocol {
+final class HighlightPostListViewModel: HighlightPostListViewModelProtocol {
+  private let listType: PostListType
+
   private(set) var posts: [AraPost]?
   private(set) var isLoadingMore = false
   private(set) var errorMessage: String?
@@ -84,6 +88,10 @@ final class TrendingPostListViewModel: TrendingPostListViewModelProtocol {
   @ObservationIgnored private var totalPages = 1
   private let pageSize = 30
 
+  init(listType: PostListType) {
+    self.listType = listType
+  }
+
   @ObservationIgnored @Injected(
     \.araBoardUseCase
   ) private var araBoardUseCase: AraBoardUseCaseProtocol?
@@ -91,13 +99,13 @@ final class TrendingPostListViewModel: TrendingPostListViewModelProtocol {
   func fetchInitialPosts() async {
     guard let araBoardUseCase else { return }
     do {
-      let page = try await araBoardUseCase.fetchPosts(type: .trending, page: 1, pageSize: pageSize, searchKeyword: nil)
+      let page = try await araBoardUseCase.fetchPosts(type: listType, page: 1, pageSize: pageSize, searchKeyword: nil)
       currentPage = page.currentPage
       totalPages = page.pages
       posts = page.results
       errorMessage = nil
     } catch {
-      logger.error("Failed to load trending posts: \(error.localizedDescription, privacy: .public)")
+      logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
       errorMessage = error.localizedDescription
     }
   }
@@ -109,11 +117,11 @@ final class TrendingPostListViewModel: TrendingPostListViewModelProtocol {
     Task {
       defer { isLoadingMore = false }
       do {
-        let page = try await araBoardUseCase.fetchPosts(type: .trending, page: nextPage, pageSize: pageSize, searchKeyword: nil)
+        let page = try await araBoardUseCase.fetchPosts(type: listType, page: nextPage, pageSize: pageSize, searchKeyword: nil)
         currentPage = page.currentPage
         posts = (posts ?? []) + page.results
       } catch {
-        logger.error("Failed to load more trending posts: \(error.localizedDescription, privacy: .public)")
+        logger.error("Failed to load more posts: \(error.localizedDescription, privacy: .public)")
       }
     }
   }

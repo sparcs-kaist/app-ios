@@ -23,9 +23,10 @@ public class BoardListViewModel: BoardListViewModelProtocol {
   var groups: [AraBoardGroup] = []
   public private(set) var boardsWithNewPosts: Set<Int> = []
   public private(set) var trendingPosts: [AraPost] = []
+  public private(set) var latestPosts: [AraPost] = []
 
-  /// How many trending posts the Boards list shows, as on Ara's main page.
-  static let trendingCount = 3
+  /// How many posts each highlight section shows, as on Ara's main page.
+  static let highlightCount = 3
 
   public init() { }
 
@@ -42,7 +43,7 @@ public class BoardListViewModel: BoardListViewModelProtocol {
 
     // Alongside the boards; the list shows without it if it fails.
     async let trending = try? araBoardUseCase.fetchPosts(
-      type: .trending, page: 1, pageSize: Self.trendingCount, searchKeyword: nil
+      type: .trending, page: 1, pageSize: Self.highlightCount, searchKeyword: nil
     )
 
     do {
@@ -55,6 +56,7 @@ public class BoardListViewModel: BoardListViewModelProtocol {
       self.groups = uniqueGroups
       trendingPosts = await trending?.results ?? trendingPosts
       state = .loaded(boards: sortedBoards, groups: uniqueGroups)
+      latestPosts = await fetchLatest(in: sortedBoards, using: araBoardUseCase) ?? latestPosts
       analyticsService?.logEvent(BoardListViewEvent.boardsLoaded)
       await checkForNewPosts(in: sortedBoards, using: araBoardUseCase)
 
@@ -62,6 +64,18 @@ public class BoardListViewModel: BoardListViewModelProtocol {
       logger.error("Failed to load boards: \(error.localizedDescription, privacy: .public)")
       state = .error(message: String(localized: "Failed to load boards.", bundle: .module))
     }
+  }
+
+  /// The newest posts across every board but Portal Notice; `nil` if they couldn't be loaded.
+  private func fetchLatest(in boards: [AraBoard], using useCase: AraBoardUseCaseProtocol) async -> [AraPost]? {
+    try? await useCase.fetchPosts(
+      type: .latest(boardIDs: Self.latestBoardIDs(in: boards)),
+      page: 1, pageSize: Self.highlightCount, searchKeyword: nil
+    ).results
+  }
+
+  static func latestBoardIDs(in boards: [AraBoard]) -> [Int] {
+    boards.filter { $0.slug != "portal-notice" && $0.userReadable != false }.map(\.id)
   }
 
   /// Looks at each board's newest post, all at once, after the list is on screen.
