@@ -382,7 +382,6 @@ extension Container: @retroactive AutoRegistering {
     araBoardUseCase.register {
       AraBoardUseCase(
         araBoardRepository: self.araBoardRepository.resolve(),
-        tokenStorage: self.tokenStorage.resolve(),
         crashlyticsService: self.crashlyticsService.resolve()
       )
     }
