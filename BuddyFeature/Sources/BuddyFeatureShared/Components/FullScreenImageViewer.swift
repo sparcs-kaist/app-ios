@@ -337,9 +337,11 @@ private struct ZoomableImage: View {
         onLoad(response.image)
       }
     }
-    // Centred on the screen, whatever part of it the paging view gave this page.
+    // Centred on the screen, whatever part of it the paging view gave this page. Horizontally
+    // that is where the page rests, not where it is: its live position moves with a page swipe,
+    // and following it would hold the image still while the page slides.
     .position(
-      x: screen.bounds.isEmpty ? pageFrame.width / 2 : screen.bounds.midX - pageFrame.minX,
+      x: screen.bounds.isEmpty ? pageFrame.width / 2 : screen.bounds.midX,
       y: screen.bounds.isEmpty ? pageFrame.height / 2 : screen.bounds.midY - pageFrame.minY
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
