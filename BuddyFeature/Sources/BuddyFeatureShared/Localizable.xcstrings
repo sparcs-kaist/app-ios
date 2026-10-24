@@ -23,6 +23,23 @@
     "%lld" : {
       "shouldTranslate" : false
     },
+    "%lld of %lld" : {
+      "comment" : "The position of the image shown full screen, as in 2 of 5.",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld개 중 %1$lld"
+          }
+        }
+      }
+    },
     "%lld views" : {
       "localizations" : {
         "en" : {
