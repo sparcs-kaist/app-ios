@@ -22,6 +22,7 @@ struct PostImagesStrip: View {
   @Namespace private var imageTransition
   /// The image the strip is scrolled to, kept in step with the full-screen viewer.
   @State private var scrolledImageID: String?
+  private let isPad = UIDevice.current.userInterfaceIdiom == .pad
 
   /// 400 pt would all but fill a short screen (landscape, or the outer display
   /// of iPhone Duo), leaving no room for the post around the image.
@@ -48,6 +49,14 @@ struct PostImagesStrip: View {
           )
           .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
           .matchedTransitionSource(id: item.url, in: imageTransition)
+          // On iPad the strip is drawn past the feed column into the wide margins around it,
+          // so images fade and shrink as they leave the column instead of being cut off.
+          .scrollTransition(.interactive(timingCurve: .linear), axis: .horizontal) { image, phase in
+            let out = isPad ? min(abs(phase.value), 1) : 0
+            return image
+              .opacity(1 - out)
+              .scaleEffect(1 - out * 0.3, anchor: phase.value < 0 ? .trailing : .leading)
+          }
         }
       }
       .padding(.horizontal, hPadding)
