@@ -17,6 +17,7 @@ public enum AraBoardTarget {
   case fetchBookmarks(page: Int, pageSize: Int)
   case uploadImage(imageData: Data)
   case writePost(_ request: AraPostRequestDTO)
+  case updatePost(postID: Int, _ request: AraPostUpdateRequestDTO)
   case upvote(postID: Int)
   case downvote(postID: Int)
   case cancelVote(postID: Int)
@@ -37,7 +38,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/boards/"
     case .fetchPosts, .writePost:
       "/articles/"
-    case .fetchPost(_, let postID):
+    case .fetchPost(_, let postID), .updatePost(let postID, _):
       "/articles/\(postID)/"
     case .fetchBookmarks, .addBookmark:
       "/scraps/"
@@ -66,6 +67,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       .post
     case .delete, .removeBookmark:
       .delete
+    case .updatePost:
+      .patch
     }
   }
 
@@ -124,6 +127,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       )
       return .uploadMultipart([imageMultipart])
     case .writePost(let request):
+      return .requestJSONEncodable(request)
+    case .updatePost(_, let request):
       return .requestJSONEncodable(request)
     case .report(let postID, let type):
       return .requestParameters(parameters: [

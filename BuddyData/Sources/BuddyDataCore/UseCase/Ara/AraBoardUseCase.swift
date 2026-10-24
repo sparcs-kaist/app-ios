@@ -103,6 +103,16 @@ public final class AraBoardUseCase: AraBoardUseCaseProtocol {
     }
   }
 
+  public func updatePost(postID: Int, request: AraUpdatePost) async throws {
+    let context = CrashContext(
+      feature: feature,
+      metadata: ["postID": "\(postID)"]
+    )
+    try await execute(context: context) {
+      try await araBoardRepository.updatePost(postID: postID, request: request)
+    }
+  }
+
   public func upvotePost(postID: Int) async throws {
     let context = CrashContext(
       feature: feature,

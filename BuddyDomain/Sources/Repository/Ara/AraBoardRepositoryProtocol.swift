@@ -15,6 +15,7 @@ public protocol AraBoardRepositoryProtocol: Sendable {
   func fetchBookmarks(page: Int, pageSize: Int) async throws -> AraPostPage
   func uploadImage(image: UIImage) async throws -> AraAttachment
   func writePost(request: AraCreatePost) async throws
+  func updatePost(postID: Int, request: AraUpdatePost) async throws
   func upvotePost(postID: Int) async throws
   func downvotePost(postID: Int) async throws
   func cancelVote(postID: Int) async throws
