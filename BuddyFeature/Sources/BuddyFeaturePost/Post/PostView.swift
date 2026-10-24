@@ -22,6 +22,9 @@ public struct PostView: View {
   @Environment(\.dismiss) private var dismiss
 
   @Environment(\.keyboardShowing) var keyboardShowing
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @State private var viewport: CGSize = .zero
 
   @State private var tappedURL: URL?
 
@@ -50,92 +53,25 @@ public struct PostView: View {
 
   public var body: some View {
     ScrollViewReader { proxy in
-      ScrollView {
-        Group {
-          PostHeader(
-            title: title,
-            createdAtText: viewModel.post.createdAt.formattedString,
-            views: viewModel.post.views,
-            authorProfileURL: viewModel.post.author.profile.profilePictureURL,
-            authorNickname: viewModel.post.author.profile.nickname,
-            isAnonymous: viewModel.post.isAnonymous,
-            marketListing: viewModel.post.board?.isMarket == true ? viewModel.post.marketListing : nil,
-            onAuthorTapped: { selectedAuthor = viewModel.post.author }
-          )
-
-          if showsToolsTip {
-            TipView(PostToolsTip())
-          }
-
-          PostTranslationBanner(state: viewModel.translationState) {
-            viewModel.showOriginal()
-          }
-
-          PostContent(
-            summarisedContent: summarisedContent,
-            content: displayedContent,
-            attachedImages: viewModel.post.attachedImageURLs,
-            contentID: viewModel.translationState.target?.minimalIdentifier ?? "original",
-            isTranslating: isTranslating,
-            onLinkTapped: { tappedURL = $0 },
-            onScrollToImage: { proxy.scrollTo($0, anchor: .center) }
-          )
-
-          PostFooter(
-            myVote: viewModel.myVote,
-            votes: viewModel.upvotes - viewModel.downvotes,
-            isMine: viewModel.post.isMine,
-            commentCount: viewModel.commentCount,
-            isBookmarked: viewModel.myScrap,
-            shareURL: Constants.araPostURL.appending(path: String(viewModel.post.id)),
-            onUpvote: { await viewModel.upvote() },
-            onDownvote: { await viewModel.downvote() },
-            onToggleBookmark: { await viewModel.toggleBookmark() },
-            onCommentTapped: {
-              targetComment = nil
-              isWritingCommentFocusState = true
-            }
-          )
-
-          PostCommentsSection(
-            comments: $viewModel.comments,
-            onReply: { selectedComment in
-              targetComment = selectedComment
-              isWritingCommentFocusState = true
-            },
-            onCommentDeleted: {
-              viewModel.commentCount -= 1
-            },
-            onEdit: { selectedComment in
-              withAnimation(.spring) {
-                comment = selectedComment.content ?? ""
-                targetComment = nil
-                commentOnEdit = selectedComment
+      Group {
+        if usesPanes {
+          PostPanes {
+            column { postSection(proxy: proxy) }
+          } comments: {
+            column { commentsSection }
+              .safeAreaBar(edge: .bottom) {
+                inputBar(proxy: proxy)
               }
-              isWritingCommentFocusState = true
-            },
-            onUpvote: { target in
-              await viewModel.upvoteComment(comment: target)
-            },
-            onDownvote: { target in
-              await viewModel.downvoteComment(comment: target)
-            },
-            onReport: { commentID, type in
-              try await viewModel.reportComment(commentID: commentID, type: type)
-            },
-            onDeleteComment: { target in
-              await viewModel.deleteComment(comment: target)
-            }
-          )
-          .padding(.top, 4)
-          .animation(.spring, value: viewModel.comments.map(\.id))
+          }
+        } else {
+          column {
+            postSection(proxy: proxy)
+            commentsSection
+          }
         }
-        .padding()
-        .contentWidth()
-        .animation(.spring(), value: summarisedContent)
-        // The title and body settle into their translation, or back to the original.
-        .animation(.spring(duration: 0.5, bounce: 0.15), value: viewModel.translationState)
       }
+      .onGeometryChange(for: CGSize.self) { $0.size } action: { viewport = $0 }
+      .modifier(PinnedNavigationBar(isPinned: usesPanes))
       .scrollDismissesKeyboard(.interactively)
       .onKeyboardDismiss {
         if comment.isEmpty {
@@ -145,7 +81,10 @@ public struct PostView: View {
       .contentMargins(.bottom, 64)
       .navigationTitle(viewModel.post.board?.name.localized() ?? "")
       .safeAreaBar(edge: .bottom) {
-        inputBar(proxy: proxy)
+        // Side by side, it belongs to the comments pane.
+        if !usesPanes {
+          inputBar(proxy: proxy)
+        }
       }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
@@ -222,6 +161,63 @@ public struct PostView: View {
       "is_author": viewModel.post.isMine ?? false,
       "has_comments": viewModel.commentCount > 0
     ])
+  }
+
+  // MARK: - Layout
+
+  /// Post on the left, comments on the right, when there's room for both side by side: iPad and
+  /// the inner display of iPhone Duo, wider than tall. Max iPhones in landscape are regular width
+  /// but compact height, and keep the single column.
+  private var usesPanes: Bool {
+    horizontalSizeClass == .regular
+      && verticalSizeClass == .regular
+      && viewport.width > viewport.height
+      && viewport.width >= PostPaneWidth.post + PostPaneWidth.comments
+  }
+
+  private func column(@ViewBuilder content: () -> some View) -> some View {
+    PostColumn(summarisedContent: summarisedContent, translationState: viewModel.translationState, content: content)
+  }
+
+  private func postSection(proxy: ScrollViewProxy) -> some View {
+    PostSection(
+      viewModel: viewModel,
+      title: title,
+      content: displayedContent,
+      summarisedContent: summarisedContent,
+      isTranslating: isTranslating,
+      showsToolsTip: showsToolsTip,
+      onAuthorTapped: { selectedAuthor = viewModel.post.author },
+      onLinkTapped: { tappedURL = $0 },
+      onScrollToImage: { proxy.scrollTo($0, anchor: .center) },
+      onCommentTapped: {
+        targetComment = nil
+        isWritingCommentFocusState = true
+      }
+    )
+  }
+
+  private var commentsSection: some View {
+    PostComments(
+      viewModel: viewModel,
+      comments: $viewModel.comments,
+      showsTopDivider: !usesPanes,
+      onReply: { selectedComment in
+        targetComment = selectedComment
+        isWritingCommentFocusState = true
+      },
+      onEdit: { selectedComment in
+        withAnimation(.spring) {
+          comment = selectedComment.content ?? ""
+          targetComment = nil
+          commentOnEdit = selectedComment
+        }
+        isWritingCommentFocusState = true
+      },
+      onCommentDeleted: {
+        viewModel.commentCount -= 1
+      }
+    )
   }
 
   /// Whether the app can load this post into its editor: Tiptap posts, and the simple HTML
@@ -516,4 +512,3 @@ public struct PostView: View {
     PostView(post: .mockWithoutComments, onPostDeleted: nil)
   }
 }
-

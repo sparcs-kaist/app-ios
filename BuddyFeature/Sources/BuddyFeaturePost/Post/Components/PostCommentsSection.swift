@@ -19,11 +19,15 @@ struct PostCommentsSection: View {
   let onDownvote: (Binding<AraPostComment>) async -> Void
   let onReport: (Int, AraContentReportType) async throws -> Void
   let onDeleteComment: (Binding<AraPostComment>) async -> Void
+  /// Separates an empty section from the post above it; off when the comments have a pane of their own.
+  var showsTopDivider = true
 
   var body: some View {
     VStack(spacing: 16) {
       if comments.isEmpty {
-        Divider()
+        if showsTopDivider {
+          Divider()
+        }
         ContentUnavailableView(
           String(localized: "No one has commented yet.", bundle: .module),
           systemImage: "text.bubble",
