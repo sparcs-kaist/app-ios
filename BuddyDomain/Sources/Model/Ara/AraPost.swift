@@ -8,6 +8,12 @@
 import Foundation
 
 public struct AraPost: Identifiable, Hashable, Sendable {
+  /// Whether the author is hidden. Ara sends the anonymous username translated ("익명" in
+  /// Korean), so a username check misses it; the name type is authoritative.
+  public var isAnonymous: Bool {
+    nameType.map { $0 == .anonymous } ?? (author.username == "anonymous")
+  }
+
   public enum AttachmentType: String, Sendable {
     case none = "NONE"
     case image = "IMAGE"
@@ -37,6 +43,8 @@ public struct AraPost: Identifiable, Hashable, Sendable {
   public let board: AraBoard?
   public let title: String?
   public let author: AraPostAuthor
+  /// How the author is named: their nickname, anonymous, or their real name.
+  public let nameType: AraPostNicknameType?
   /// Sent with list responses only; `nil` elsewhere.
   public var readStatus: ReadStatus?
   public let attachmentType: AttachmentType
@@ -68,6 +76,7 @@ public struct AraPost: Identifiable, Hashable, Sendable {
     board: AraBoard?,
     title: String?,
     author: AraPostAuthor,
+    nameType: AraPostNicknameType? = nil,
     readStatus: ReadStatus? = nil,
     attachmentType: AttachmentType,
     communicationArticleStatus: CommunicationArticleStatus?,
@@ -95,6 +104,7 @@ public struct AraPost: Identifiable, Hashable, Sendable {
     self.board = board
     self.title = title
     self.author = author
+    self.nameType = nameType
     self.readStatus = readStatus
     self.attachmentType = attachmentType
     self.communicationArticleStatus = communicationArticleStatus
