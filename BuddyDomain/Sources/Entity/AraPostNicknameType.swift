@@ -10,4 +10,15 @@ import Foundation
 public enum AraPostNicknameType: String, Sendable {
   case anonymous = "ANONYMOUS"
   case regular = "REGULAR"
+  case realName = "REALNAME"
+
+  /// Ara's numeric `name_type` in responses (flags: regular 1, anonymous 2, real name 4).
+  public init?(code: Int) {
+    switch code {
+    case 1: self = .regular
+    case 2: self = .anonymous
+    case 4: self = .realName
+    default: return nil
+    }
+  }
 }

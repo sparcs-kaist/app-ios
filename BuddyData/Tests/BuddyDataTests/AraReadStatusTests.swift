@@ -18,3 +18,20 @@ struct AraReadStatusTests {
     #expect(AraPost.ReadStatus(rawValue: "R") == nil)
   }
 }
+
+@Suite("Ara name type")
+struct AraNameTypeTests {
+  @Test(arguments: [
+    (1, AraPostNicknameType.regular),
+    (2, .anonymous),
+    (4, .realName),
+  ])
+  func mapsServerCodes(code: Int, expected: AraPostNicknameType) {
+    #expect(AraPostNicknameType(code: code) == expected)
+  }
+
+  @Test func ignoresUnknownCodes() {
+    #expect(AraPostNicknameType(code: 0) == nil)
+    #expect(AraPostNicknameType(code: 3) == nil)
+  }
+}
