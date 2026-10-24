@@ -37,7 +37,7 @@ public extension AraPostRequestDTO {
     AraPostRequestDTO(
       title: model.title,
       content: model.content,
-      attachments: model.attachments.compactMap { $0.id },
+      attachments: model.attachmentIDs,
       topic: model.topic?.id,
       isNSFW: model.isNSFW,
       isPolitical: model.isPolitical,

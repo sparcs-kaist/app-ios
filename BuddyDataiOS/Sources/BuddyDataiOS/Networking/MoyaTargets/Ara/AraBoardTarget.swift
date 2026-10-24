@@ -16,6 +16,7 @@ public enum AraBoardTarget {
   case fetchPost(origin: PostOrigin?, postID: Int)
   case fetchBookmarks(page: Int, pageSize: Int)
   case uploadImage(imageData: Data)
+  case uploadFile(data: Data, fileName: String, mimeType: String)
   case writePost(_ request: AraPostRequestDTO)
   case updatePost(postID: Int, _ request: AraPostUpdateRequestDTO)
   case upvote(postID: Int)
@@ -50,7 +51,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/articles/\(postID)/vote_cancel/"
     case .report:
       "/reports/"
-    case .uploadImage:
+    case .uploadImage, .uploadFile:
       "/attachments/"
     case .delete(let postID):
       "/articles/\(postID)/"
@@ -63,7 +64,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards, .fetchPosts, .fetchPost, .fetchBookmarks:
       .get
-    case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage, .addBookmark:
+    case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage, .uploadFile, .addBookmark:
       .post
     case .delete, .removeBookmark:
       .delete
@@ -129,6 +130,11 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
         mimeType: "image/png"
       )
       return .uploadMultipart([imageMultipart])
+    case .uploadFile(let data, let fileName, let mimeType):
+      // Ara names the attachment after the uploaded file, which is what readers see.
+      return .uploadMultipart([
+        MultipartFormData(provider: .data(data), name: "file", fileName: fileName, mimeType: mimeType)
+      ])
     case .writePost(let request):
       return .requestJSONEncodable(request)
     case .updatePost(_, let request):

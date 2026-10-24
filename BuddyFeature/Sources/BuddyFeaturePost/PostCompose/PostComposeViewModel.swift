@@ -36,6 +36,12 @@ protocol PostComposeViewModelProtocol: Observable {
   /// Whether a Market listing is still for sale. Only offered when editing.
   var saleState: AraMarketListing.State { get set }
 
+  /// Files attached under the text: documents, and an edited post's photos that aren't in it.
+  var files: [ComposeFile] { get }
+  /// Attaches files picked from Files. Throws if one can't be read.
+  func addFiles(_ urls: [URL]) throws
+  func removeFile(_ file: ComposeFile)
+
   /// Loads the edited post's body, photos included, into the editor.
   func loadContentForEditing() async
   /// Writes the new post, or saves the edited one.
@@ -66,6 +72,7 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
     }
   }
   var saleState: AraMarketListing.State = .onSale
+  private(set) var files: [ComposeFile] = []
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -108,6 +115,39 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
       self.saleState = listing.state
     }
     self.writeAsAnonymous = post.isAnonymous
+    // Everything attached but not shown in the text, so editing keeps it unless removed.
+    let attachedImages = Set(post.attachedImageURLs)
+    self.files = (post.attachments ?? [])
+      .filter { !$0.mimeType.hasPrefix("image/") || $0.file.map(attachedImages.contains) == true }
+      .map(ComposeFile.init(existing:))
+  }
+
+  // MARK: - Files
+
+  func addFiles(_ urls: [URL]) throws {
+    files += try urls.map(ComposeFile.init(picked:))
+  }
+
+  func removeFile(_ file: ComposeFile) {
+    files.removeAll { $0.id == file.id }
+    if case .local(let url) = file.source {
+      try? FileManager.default.removeItem(at: url.deletingLastPathComponent())
+    }
+  }
+
+  /// Uploads the files picked in this session; ones the post already had are kept as they are.
+  private func uploadFiles(using useCase: AraBoardUseCaseProtocol) async throws -> [Int] {
+    var ids: [Int] = []
+    for file in files {
+      switch file.source {
+      case .existing(let id):
+        ids.append(id)
+      case .local(let url):
+        let data = try Data(contentsOf: url)
+        ids.append(try await useCase.uploadFile(data: data, fileName: file.name, mimeType: file.mimeType).id)
+      }
+    }
+    return ids
   }
 
   // MARK: - Loading
@@ -192,12 +232,13 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
       ])
     }
     let document = converter.document(from: editor.attributedText)
+    let fileIDs = try await uploadFiles(using: araBoardUseCase)
 
     if let post = editingPost {
       let request = AraUpdatePost(
         title: title,
         content: document.jsonString(),
-        attachmentIDs: Self.attachmentIDs(keptBy: document, from: post),
+        attachmentIDs: Self.attachmentIDs(keptBy: document, from: post, files: fileIDs),
         isNSFW: isNSFW,
         isPolitical: isPolitical,
         marketListing: marketListing
@@ -208,7 +249,7 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
       let request = AraCreatePost(
         title: title,
         content: document.jsonString(),
-        attachments: editor.imageAttachments.compactMap { uploaded[$0.id] },
+        attachmentIDs: editor.imageAttachments.compactMap { uploaded[$0.id]?.id } + fileIDs,
         topic: selectedTopic,
         isNSFW: isNSFW,
         isPolitical: isPolitical,
@@ -221,11 +262,11 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
     }
   }
 
-  /// The attachments an edited post keeps: files that aren't shown in the text, and every
-  /// photo still in it. A photo removed from the text is dropped from the post.
-  static func attachmentIDs(keptBy document: TiptapDocument, from post: AraPost) -> [Int] {
+  /// The attachments an edited post keeps: the files still listed (`files`), and every photo
+  /// still in the text. A photo removed from the text, or a file removed from the list, is dropped.
+  static func attachmentIDs(keptBy document: TiptapDocument, from post: AraPost, files: [Int]) -> [Int] {
     let original = post.attachments ?? []
-    var ids = original.filter { !$0.mimeType.hasPrefix("image/") }.map(\.id)
+    var ids = files
 
     func collect(_ nodes: [TiptapNode]) {
       for node in nodes {

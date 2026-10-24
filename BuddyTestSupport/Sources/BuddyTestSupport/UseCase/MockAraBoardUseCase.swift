@@ -45,6 +45,10 @@ public final class MockAraBoardUseCase: AraBoardUseCaseProtocol, @unchecked Send
     throw TestError.notConfigured
   }
 
+  public func uploadFile(data: Data, fileName: String, mimeType: String) async throws -> AraAttachment {
+    throw TestError.notConfigured
+  }
+
   public func writePost(request: AraCreatePost) async throws {
     throw TestError.notConfigured
   }

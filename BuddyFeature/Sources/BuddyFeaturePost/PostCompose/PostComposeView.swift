@@ -28,6 +28,7 @@ struct PostComposeView: View {
 
   @State private var isShowingCancelDialog = false
   @State private var showPhotosPicker: Bool = false
+  @State private var showFileImporter = false
   @State private var pickedPhotos: [PhotosPickerItem] = []
   @Namespace private var composeBarGlass
 
@@ -111,6 +112,12 @@ struct PostComposeView: View {
           }
           .padding(.horizontal)
           .disabled(isUploading)
+
+          if !viewModel.files.isEmpty {
+            ComposeFileList(files: viewModel.files) { viewModel.removeFile($0) }
+              .padding(.horizontal)
+              .disabled(isUploading)
+          }
 
           termsOfUseButton
             .padding(.horizontal)
@@ -196,6 +203,19 @@ struct PostComposeView: View {
         matching: .images,
         photoLibrary: .shared()
       )
+      .fileImporter(
+        isPresented: $showFileImporter,
+        allowedContentTypes: ComposeFile.allowedTypes,
+        allowsMultipleSelection: true
+      ) { result in
+        do {
+          try withAnimation(.snappy) { try viewModel.addFiles(try result.get()) }
+        } catch {
+          logger.error("Failed to attach file: \(error.localizedDescription, privacy: .public)")
+          errorMessage = error.localizedDescription
+          showErrorAlert = true
+        }
+      }
       .onChange(of: pickedPhotos) { _, items in
         guard !items.isEmpty else { return }
         Task {
@@ -242,6 +262,9 @@ struct PostComposeView: View {
         HStack(spacing: 0) {
           barButton(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
             showPhotosPicker = true
+          }
+          barButton(String(localized: "Attach File", bundle: .module), systemImage: "paperclip") {
+            showFileImporter = true
           }
           optionsMenu
         }

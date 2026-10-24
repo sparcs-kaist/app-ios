@@ -73,6 +73,11 @@ public final class AraBoardRepository: AraBoardRepositoryProtocol, @unchecked Se
     return attachment
   }
 
+  public func uploadFile(data: Data, fileName: String, mimeType: String) async throws -> AraAttachment {
+    let response = try await provider.request(.uploadFile(data: data, fileName: fileName, mimeType: mimeType))
+    return try response.map(AraAttachmentDTO.self).toModel()
+  }
+
   public func writePost(request: AraCreatePost) async throws {
     _ = try await provider.request(.writePost(AraPostRequestDTO.fromModel(request)))
   }
