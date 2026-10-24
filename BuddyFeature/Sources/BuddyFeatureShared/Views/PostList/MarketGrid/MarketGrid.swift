@@ -137,7 +137,7 @@ struct MarketGridCell: View {
               .frame(width: 7, height: 7)
               .accessibilityLabel(Text("Updated", bundle: .module))
           }
-          Text(post.listTitle)
+          Text(title)
             .font(.subheadline)
             .foregroundStyle(post.isHidden || isRead ? .secondary : .primary)
             .lineLimit(2)
@@ -160,6 +160,17 @@ struct MarketGridCell: View {
     .frame(maxHeight: .infinity, alignment: .top)
     .contentShape(.rect)
     .accessibilityElement(children: .combine)
+  }
+
+  /// The title, after its topic in the accent colour as in the list rows: "[Sell] Desk lamp".
+  private var title: AttributedString {
+    var title = AttributedString(post.listTitle)
+    if let topic = post.topic, !post.isHidden {
+      var prefix = AttributedString("[\(topic.name.localized())] ")
+      prefix.foregroundColor = Color.accentColor.opacity(isRead ? 0.5 : 1)
+      title = prefix + title
+    }
+    return title
   }
 
   private var thumbnail: some View {
