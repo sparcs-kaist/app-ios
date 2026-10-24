@@ -5,8 +5,15 @@
 //  Created by Codex on 13/02/2026.
 //
 
+import Testing
 import BuddyTestSupport
 import Factory
+
+/// Every Post suite nests in here: they register mocks on the shared container (and some use
+/// `UserDefaults`), so they run one at a time rather than racing each other.
+@Suite(.serialized)
+@MainActor
+struct PostFeatureTests { }
 
 /// Registers all required dependencies for Post tests.
 @MainActor

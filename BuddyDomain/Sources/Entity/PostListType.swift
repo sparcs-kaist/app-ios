@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum PostListType: Sendable {
+public enum PostListType: Sendable, Equatable {
   case all
   /// A board's posts, or only those under one of its topics.
   case board(boardID: Int, topicID: Int? = nil)
