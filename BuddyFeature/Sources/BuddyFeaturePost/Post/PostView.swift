@@ -74,6 +74,7 @@ public struct PostView: View {
           PostContent(
             summarisedContent: summarisedContent,
             content: displayedContent,
+            attachedImages: viewModel.post.attachedImageURLs,
             contentID: viewModel.translationState.target?.minimalIdentifier ?? "original",
             isTranslating: isTranslating,
             onLinkTapped: { tappedURL = $0 },
