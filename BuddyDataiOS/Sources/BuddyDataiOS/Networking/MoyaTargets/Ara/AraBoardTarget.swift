@@ -85,8 +85,11 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       switch type {
       case .all:
         break // pass
-      case .board(let boardID):
+      case .board(let boardID, let topicID):
         parameters["parent_board"] = boardID
+        if let topicID {
+          parameters["parent_topic"] = topicID
+        }
       case .user(let userID):
         parameters["created_by"] = userID
       }

@@ -84,6 +84,13 @@ struct PostListView: View {
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+    .safeAreaBar(edge: .top) {
+      if let topics = viewModel.board.topics, !topics.isEmpty {
+        TopicFilterBar(topics: topics, selection: $viewModel.selectedTopic)
+      }
+    }
+    // Content blurs softly behind the chips rather than under a hard edge.
+    .scrollEdgeEffectStyle(.soft, for: .top)
     .disabled(viewModel.state == .loading)
     .navigationTitle(viewModel.board.name.localized())
     .navigationSubtitle(viewModel.board.group.name.localized())
