@@ -35,6 +35,16 @@ struct AraNameTypeTests {
     #expect(AraPostNicknameType(code: 0) == nil)
     #expect(AraPostNicknameType(code: 3) == nil)
   }
+
+  /// Board flags as the API sends them: Market 1, Talk 3, With School 4.
+  @Test(arguments: [
+    (1, [AraPostNicknameType.regular]),
+    (3, [.regular, .anonymous]),
+    (4, [.realName]),
+  ])
+  func readsBoardFlags(flags: Int, expected: [AraPostNicknameType]) {
+    #expect(AraPostNicknameType.allowed(byFlags: flags) == expected)
+  }
 }
 
 @Suite("Ara market metadata")

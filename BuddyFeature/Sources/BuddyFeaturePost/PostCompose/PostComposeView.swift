@@ -272,8 +272,8 @@ struct PostComposeView: View {
   private var optionsMenu: some View {
     // Not `ellipsis`: in a vertical bar that reads as the system's own overflow menu.
     Menu {
-      // Ara keeps the name a post was written under.
-      if !isEditingPost {
+      // Ara keeps the name a post was written under, and some boards allow only one.
+      if !isEditingPost && viewModel.canChooseAnonymity {
         Toggle(isOn: $viewModel.writeAsAnonymous) {
           Text("Anonymous", bundle: .module)
         }

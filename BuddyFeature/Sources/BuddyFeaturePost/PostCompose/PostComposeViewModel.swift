@@ -27,6 +27,7 @@ protocol PostComposeViewModelProtocol: Observable {
   var editor: TiptapEditorController { get }
 
   var writeAsAnonymous: Bool { get set }
+  var canChooseAnonymity: Bool { get }
   var isNSFW: Bool { get set }
   var isPolitical: Bool { get set }
 
@@ -77,6 +78,21 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
   init(board: AraBoard) {
     self.board = board
     self.editingPost = nil
+    // Anonymous by default where the board allows it; Market, for one, doesn't.
+    self.writeAsAnonymous = board.allows(.anonymous)
+  }
+
+  /// Whether the writer can choose between anonymity and a name.
+  var canChooseAnonymity: Bool {
+    board.allows(.anonymous) && (board.allows(.regular) || board.allows(.realName))
+  }
+
+  /// The name the post is written under: one the board allows, so it isn't rejected.
+  private var nicknameType: AraPostNicknameType {
+    if writeAsAnonymous && board.allows(.anonymous) { return .anonymous }
+    if board.allows(.regular) { return .regular }
+    if board.allows(.realName) { return .realName }
+    return .anonymous
   }
 
   /// Edits `post`, which must belong to a board.
@@ -196,7 +212,7 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
         topic: selectedTopic,
         isNSFW: isNSFW,
         isPolitical: isPolitical,
-        nicknameType: writeAsAnonymous ? .anonymous : .regular,
+        nicknameType: nicknameType,
         board: board,
         marketListing: marketListing
       )
