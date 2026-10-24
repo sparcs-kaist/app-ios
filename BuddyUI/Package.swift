@@ -33,6 +33,10 @@ let package = Package(
 			name: "TiptapKit",
 			targets: ["TiptapKit"]
 		),
+		.library(
+			name: "TiptapUI",
+			targets: ["TiptapUI"]
+		),
 	],
 	dependencies: [
 		.package(path: "../BuddyDomain"),
@@ -72,13 +76,19 @@ let package = Package(
 				"BuddyDomain",
 			]
 		),
-		// Tiptap (ProseMirror) JSON: a Foundation-only model and parser.
+		// Tiptap (ProseMirror) JSON: a Foundation-only model and parser, and its SwiftUI renderer.
 		.target(
 			name: "TiptapKit"
 		),
+		.target(
+			name: "TiptapUI",
+			dependencies: [
+				"TiptapKit",
+			]
+		),
 		.testTarget(
 			name: "BuddyUITests",
-			dependencies: ["TimetableUI", "BuddyDomain", "BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI", "TiptapKit"]
+			dependencies: ["TimetableUI", "BuddyDomain", "BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI", "TiptapKit", "TiptapUI"]
 		),
   ]
 )
