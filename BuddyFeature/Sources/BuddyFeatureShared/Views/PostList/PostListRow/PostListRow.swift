@@ -91,18 +91,6 @@ public struct PostListRow: View {
   }
 
   var title: String {
-    if post.isHidden {
-      if post.isNSFW {
-        return String(localized: "This post contains NSFW content", bundle: .module)
-      }
-
-      if post.isPolitical {
-        return String(localized: "This post contains political content", bundle: .module)
-      }
-
-      return String(localized: "This post is hidden", bundle: .module)
-    }
-
-    return post.title ?? String(localized: "Untitled", bundle: .module)
+    post.listTitle
   }
 }

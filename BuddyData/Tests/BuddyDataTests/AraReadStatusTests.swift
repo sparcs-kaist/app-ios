@@ -1,4 +1,5 @@
 import Testing
+import Foundation
 import BuddyDomain
 @testable import BuddyDataCore
 
@@ -33,5 +34,43 @@ struct AraNameTypeTests {
   @Test func ignoresUnknownCodes() {
     #expect(AraPostNicknameType(code: 0) == nil)
     #expect(AraPostNicknameType(code: 3) == nil)
+  }
+}
+
+@Suite("Ara market metadata")
+struct AraMarketMetadataTests {
+  private func decode(_ json: String) throws -> AraMarketListing? {
+    try JSONDecoder().decode(AraMarketMetadataDTO.self, from: Data(json.utf8)).toModel()
+  }
+
+  @Test func decodesAListing() throws {
+    let listing = try decode(#"{"price": 20000, "state": "soldout", "price_currency": "KRW"}"#)
+    #expect(listing == AraMarketListing(price: 20000, currency: "KRW", state: .soldOut))
+  }
+
+  @Test func toleratesMissingAndOddPrices() throws {
+    #expect(try decode(#"{"state": "onsale", "price_currency": "KRW"}"#)?.price == nil)
+    #expect(try decode(#"{"price": "12,000"}"#)?.price == 12000)
+    #expect(try decode(#"{"price": 9900.0}"#)?.price == 9900)
+  }
+
+  @Test func ignoresMetadataOfOtherBoards() throws {
+    #expect(try decode(#"{"expire_at": "2026-11-01"}"#) == nil)
+  }
+
+  @Test func encodesWhatTheWebWrites() throws {
+    let dto = AraMarketMetadataDTO.fromModel(AraMarketListing(price: 5000))
+    let json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(dto)) as? [String: Any]
+    #expect(json?["price"] as? Int == 5000)
+    #expect(json?["price_currency"] as? String == "KRW")
+    #expect(json?["state"] as? String == "onsale")
+  }
+
+  @Test func leavesMetadataOutOfAnUpdateWithoutAListing() throws {
+    let request = AraPostUpdateRequestDTO.fromModel(
+      AraUpdatePost(title: "t", content: "{}", attachmentIDs: [], isNSFW: false, isPolitical: false)
+    )
+    let json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(request)) as? [String: Any]
+    #expect(json?.keys.contains("metadata") == false)
   }
 }

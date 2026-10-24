@@ -22,6 +22,7 @@ struct PostComposeView: View {
   @Environment(\.openURL) private var openURL
 
   @FocusState private var isTitleFocused
+  @FocusState private var isPriceFocused
 
   @State private var isShowingCancelDialog = false
   @State private var showPhotosPicker: Bool = false
@@ -68,11 +69,24 @@ struct PostComposeView: View {
             .focused($isTitleFocused)
             .submitLabel(.next)
             .onSubmit {
-              viewModel.editor.focus()
+              if viewModel.board.isMarket {
+                isPriceFocused = true
+              } else {
+                viewModel.editor.focus()
+              }
             }
             .writingToolsBehavior(.disabled)
             .padding(.horizontal)
             .disabled(isUploading)
+
+          if viewModel.board.isMarket {
+            Divider()
+              .padding(.horizontal)
+
+            priceField
+              .padding(.horizontal)
+              .disabled(isUploading)
+          }
 
           Divider()
             .padding(.horizontal)
@@ -270,6 +284,18 @@ struct PostComposeView: View {
       Toggle(isOn: $viewModel.isPolitical) {
         Text("Political", bundle: .module)
       }
+
+      // A listing is marked reserved or sold by editing it.
+      if isEditingPost && viewModel.board.isMarket {
+        Picker(selection: $viewModel.saleState) {
+          Text("On Sale", bundle: .module).tag(AraMarketListing.State.onSale)
+          Text("Reserved", bundle: .module).tag(AraMarketListing.State.reserved)
+          Text("Sold", bundle: .module).tag(AraMarketListing.State.soldOut)
+        } label: {
+          Text("Status", bundle: .module)
+        }
+        .pickerStyle(.inline)
+      }
     } label: {
       Label(String(localized: "More", bundle: .module), systemImage: "slider.horizontal.3")
         .labelStyle(.iconOnly)
@@ -278,6 +304,23 @@ struct PostComposeView: View {
         .contentShape(.rect)
     }
     .buttonStyle(.plain)
+  }
+
+  /// The asking price, in won: "₩ 20,000" once typed.
+  private var priceField: some View {
+    HStack(spacing: 6) {
+      Text(verbatim: "₩")
+        .foregroundStyle(viewModel.price == nil ? .tertiary : .primary)
+      TextField(
+        String(localized: "Price", bundle: .module),
+        value: $viewModel.price,
+        format: .number
+      )
+      .keyboardType(.numberPad)
+      .focused($isPriceFocused)
+    }
+    .font(.title3)
+    .accessibilityElement(children: .combine)
   }
 
   private var termsOfUseButton: some View {

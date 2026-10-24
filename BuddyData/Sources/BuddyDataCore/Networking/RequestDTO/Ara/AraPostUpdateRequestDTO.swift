@@ -14,6 +14,8 @@ public struct AraPostUpdateRequestDTO: Codable {
   let attachments: [Int]
   let isNSFW: Bool
   let isPolitical: Bool
+  /// Left out when `nil` (synthesised encoding skips it): an explicit null deletes the metadata.
+  let metadata: AraMarketMetadataDTO?
 
   enum CodingKeys: String, CodingKey {
     case title
@@ -21,6 +23,7 @@ public struct AraPostUpdateRequestDTO: Codable {
     case attachments
     case isNSFW = "is_content_sexual"
     case isPolitical = "is_content_social"
+    case metadata
   }
 }
 
@@ -31,7 +34,8 @@ public extension AraPostUpdateRequestDTO {
       content: model.content,
       attachments: model.attachmentIDs,
       isNSFW: model.isNSFW,
-      isPolitical: model.isPolitical
+      isPolitical: model.isPolitical,
+      metadata: model.marketListing.map(AraMarketMetadataDTO.fromModel)
     )
   }
 }

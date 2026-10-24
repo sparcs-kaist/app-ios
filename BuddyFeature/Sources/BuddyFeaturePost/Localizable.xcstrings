@@ -106,6 +106,61 @@
         }
       }
     },
+    "On Sale" : {
+      "comment" : "A Market listing that is still for sale.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판매 중"
+          }
+        }
+      }
+    },
+    "Price" : {
+      "comment" : "The asking price field when writing a Market post.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가격"
+          }
+        }
+      }
+    },
+    "Reserved" : {
+      "comment" : "A Market listing someone has reserved.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예약 중"
+          }
+        }
+      }
+    },
+    "Sold" : {
+      "comment" : "A Market listing that has sold.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판매 완료"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "comment" : "The sale status of a Market listing.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판매 상태"
+          }
+        }
+      }
+    },
     "bookmark" : {
       "localizations" : {
         "en" : {
