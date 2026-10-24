@@ -22,6 +22,10 @@ public class BoardListViewModel: BoardListViewModelProtocol {
   var boards: [AraBoard] = []
   var groups: [AraBoardGroup] = []
   public private(set) var boardsWithNewPosts: Set<Int> = []
+  public private(set) var trendingPosts: [AraPost] = []
+
+  /// How many trending posts the Boards list shows, as on Ara's main page.
+  static let trendingCount = 3
 
   public init() { }
 
@@ -36,6 +40,11 @@ public class BoardListViewModel: BoardListViewModelProtocol {
   public func fetchBoards() async {
     guard let araBoardUseCase else { return }
 
+    // Alongside the boards; the list shows without it if it fails.
+    async let trending = try? araBoardUseCase.fetchPosts(
+      type: .trending, page: 1, pageSize: Self.trendingCount, searchKeyword: nil
+    )
+
     do {
       let boards = try await araBoardUseCase.fetchBoards()
 
@@ -44,6 +53,7 @@ public class BoardListViewModel: BoardListViewModelProtocol {
 
       self.boards = sortedBoards
       self.groups = uniqueGroups
+      trendingPosts = await trending?.results ?? trendingPosts
       state = .loaded(boards: sortedBoards, groups: uniqueGroups)
       analyticsService?.logEvent(BoardListViewEvent.boardsLoaded)
       await checkForNewPosts(in: sortedBoards, using: araBoardUseCase)

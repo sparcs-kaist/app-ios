@@ -15,6 +15,7 @@ import FirebaseAnalytics
 public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @Binding var deepLinkedPost: AraPost?
+  @State private var selectedTrendingPost: AraPost?
 
   public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel(), deepLinkedPost: Binding<AraPost?> = .constant(nil)) {
     _viewModel = State(initialValue: viewModel)
@@ -50,6 +51,12 @@ public struct BoardListView: View {
       PostListView(board: board)
         .id(board.id)
     }
+    // By item rather than value: PostListView declares its own AraPost destination further up the stack.
+    .navigationDestination(item: $selectedTrendingPost) { post in
+      PostView(post: post)
+        .addKeyboardVisibilityToEnvironment()
+        .toolbar(.hidden, for: .tabBar)
+    }
     .navigationDestination(item: $deepLinkedPost) { post in
       PostView(post: post)
         .toolbar(.hidden, for: .tabBar)
@@ -63,6 +70,9 @@ public struct BoardListView: View {
   @ViewBuilder
   func loadedView(boards: [AraBoard], groups: [AraBoardGroup]) -> some View {
     let boardsByGroup = Dictionary(grouping: boards, by: { $0.group.id })
+    if !viewModel.trendingPosts.isEmpty {
+      TrendingSection(posts: viewModel.trendingPosts) { selectedTrendingPost = $0 }
+    }
     ForEach(groups) { group in
       ListGlassSection(
         header: Label(group.name.localized(), systemImage: symbol(for: group.slug))

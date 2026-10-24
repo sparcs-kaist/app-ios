@@ -14,6 +14,7 @@ import Observation
 public final class PreviewBoardListViewModel: BoardListViewModelProtocol {
   public var state: BoardListViewState
   public var boardsWithNewPosts: Set<Int> = []
+  public var trendingPosts: [AraPost] = Array(AraPost.mockList.prefix(3))
 
   public init(state: BoardListViewState) {
     self.state = state

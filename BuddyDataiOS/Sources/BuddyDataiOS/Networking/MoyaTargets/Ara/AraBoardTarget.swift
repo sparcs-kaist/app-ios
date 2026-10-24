@@ -37,6 +37,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards:
       "/boards/"
+    case .fetchPosts(.trending, _, _, _):
+      "/articles/top/"
     case .fetchPosts, .writePost:
       "/articles/"
     case .fetchPost(_, let postID), .updatePost(let postID, _):
@@ -93,6 +95,8 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
         }
       case .user(let userID):
         parameters["created_by"] = userID
+      case .trending:
+        break // the path chooses them
       }
 
       if let searchKeyword {
