@@ -1,5 +1,6 @@
 #if os(iOS)
 import UIKit
+import TiptapKit
 
 /// A photo placed in the text. It keeps the original for upload and draws a rounded copy
 /// sized to the text width, like a photo in Notes.
@@ -8,13 +9,17 @@ public final class TiptapImageAttachment: NSTextAttachment {
   public let id = UUID()
   /// The photo as picked, uploaded when the post is sent.
   public let originalImage: UIImage
+  /// The node this photo was loaded from when editing a post. It's already uploaded, so it is
+  /// written back as it was instead of being uploaded again.
+  public let existingNode: TiptapNode?
 
   private static let cornerRadius: CGFloat = 10
   /// Photos are drawn at most this tall, so a tall screenshot doesn't fill several screens.
   private static let maximumHeight: CGFloat = 480
 
-  public init(image: UIImage) {
+  public init(image: UIImage, existingNode: TiptapNode? = nil) {
     self.originalImage = image
+    self.existingNode = existingNode
     super.init(data: nil, ofType: nil)
     self.image = Self.rounded(image)
   }
