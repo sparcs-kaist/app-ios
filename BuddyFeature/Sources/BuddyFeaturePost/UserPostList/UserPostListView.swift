@@ -46,7 +46,10 @@ struct UserPostListView: View {
             },
             onLoadMore: {
               Task { await viewModel.loadNextPage() }
-            }
+            },
+            // This list is itself pushed with `navigationDestination(item:)` (from a post's
+            // author), so its posts are pushed the same way to land on top of it.
+            onSelect: { selectedPost = $0 }
           )
           .contentWidth()
         case .error(let message):
@@ -54,7 +57,7 @@ struct UserPostListView: View {
         }
       }
     }
-    .navigationDestination(for: AraPost.self) { post in
+    .navigationDestination(item: $selectedPost) { post in
       PostView(post: post)
         .addKeyboardVisibilityToEnvironment()
         .onAppear {
