@@ -24,6 +24,12 @@ class SearchViewModel {
   }
   var courses: [CourseSummary] = []
   var posts: [AraPost] = []
+
+  /// Greys the post out in the results as soon as it is opened.
+  func markRead(postID: Int) {
+    guard let idx = posts.firstIndex(where: { $0.id == postID }), posts[idx].readStatus != .read else { return }
+    posts[idx].readStatus = .read
+  }
   var taxiRooms: [TaxiRoom] = []
 
   var state: ViewState = .loaded

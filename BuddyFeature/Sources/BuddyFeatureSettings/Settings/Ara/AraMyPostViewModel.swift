@@ -27,6 +27,7 @@ protocol AraMyPostViewModelProtocol: Observable {
   func fetchInitialPosts() async
   func loadNextPage() async
   func refreshItem(postID: Int)
+  func markRead(postID: Int)
 }
 
 @Observable
@@ -153,6 +154,14 @@ class AraMyPostViewModel: AraMyPostViewModelProtocol {
     }
   }
   
+  /// Greys the post out in the list as soon as it is opened, ahead of the next fetch.
+  func markRead(postID: Int) {
+    guard let idx = self.posts.firstIndex(where: { $0.id == postID }),
+          self.posts[idx].readStatus != .read else { return }
+    self.posts[idx].readStatus = .read
+    self.state = .loaded(posts: self.posts)
+  }
+
   func refreshItem(postID: Int) {
     guard let araBoardUseCase else { return }
     

@@ -97,6 +97,9 @@ struct AraMyPostView: View {
     .navigationDestination(for: AraPost.self) { post in
       PostView(post: post)
         .addKeyboardVisibilityToEnvironment()
+        .onAppear {
+          vm.markRead(postID: post.id)
+        }
         .onDisappear {
           vm.refreshItem(postID: post.id)
         }
