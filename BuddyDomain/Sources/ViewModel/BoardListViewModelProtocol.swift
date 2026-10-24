@@ -15,6 +15,8 @@ public protocol BoardListViewModelProtocol: Observable {
   var boardsWithNewPosts: Set<Int> { get }
   /// The week's most viewed posts across boards, top first; empty until loaded.
   var trendingPosts: [AraPost] { get }
+  /// The newest posts across boards, Portal Notice aside; empty until loaded.
+  var latestPosts: [AraPost] { get }
 
   func fetchBoards() async
 }

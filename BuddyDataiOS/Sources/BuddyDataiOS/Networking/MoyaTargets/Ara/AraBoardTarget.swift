@@ -97,6 +97,9 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
         parameters["created_by"] = userID
       case .trending:
         break // the path chooses them
+      case .latest(let boardIDs):
+        parameters["parent_board__in"] = boardIDs.map(String.init).joined(separator: ",")
+        parameters["ordering"] = "-created_at"
       }
 
       if let searchKeyword {

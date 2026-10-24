@@ -1,5 +1,5 @@
 //
-//  TrendingSection.swift
+//  HighlightSection.swift
 //  BuddyFeature
 //
 //  Created by Soongyu Kwon on 24/10/2026.
@@ -9,10 +9,11 @@ import SwiftUI
 import BuddyDomain
 import BuddyFeatureShared
 
-/// The week's most viewed posts at the top of the Boards list, ranked as on Ara's main page.
-/// Laid out like a chart in the App Store or Apple News: "See All" in the header, rows
-/// separated by hairlines under the text, and no chevrons.
-struct TrendingSection: View {
+/// A short list of posts above the boards, as on Ara's main page: the week's most viewed
+/// (ranked), or the newest. Laid out like a chart in the App Store or Apple News: "See All" in
+/// the header, rows separated by hairlines under the text, and no chevrons.
+struct HighlightSection: View {
+  let highlight: BoardHighlight
   let posts: [AraPost]
   let onSelect: (AraPost) -> Void
 
@@ -21,12 +22,12 @@ struct TrendingSection: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack(alignment: .firstTextBaseline) {
-        Label(String(localized: "Trending", bundle: .module), systemImage: "flame.fill")
+        Label(highlight.title, systemImage: highlight.symbol)
           .font(.title2)
           .fontWeight(.bold)
         Spacer()
         NavigationLink {
-          TrendingPostListView()
+          HighlightPostListView(highlight: highlight)
         } label: {
           Text("See All", bundle: .module)
             .font(.body)
@@ -38,7 +39,7 @@ struct TrendingSection: View {
           Button {
             onSelect(post)
           } label: {
-            TrendingRow(rank: index + 1, post: post)
+            HighlightRow(rank: highlight.isRanked ? index + 1 : nil, post: post)
           }
           .buttonStyle(.plain)
           .disabled(post.isHidden)
@@ -46,7 +47,7 @@ struct TrendingSection: View {
           if index < posts.count - 1 {
             Divider()
               // Starts under the title, past the rank.
-              .padding(.leading, TrendingRow.rankWidth + TrendingRow.rankSpacing)
+              .padding(.leading, highlight.isRanked ? HighlightRow.rankWidth + HighlightRow.rankSpacing : 0)
           }
         }
       }
@@ -61,9 +62,9 @@ struct TrendingSection: View {
   }
 }
 
-/// A ranked post: its place beside its title, and where and when it was posted.
-struct TrendingRow: View {
-  let rank: Int
+/// A post, ranked or not: its place beside its title, and where and when it was posted.
+struct HighlightRow: View {
+  let rank: Int?
   let post: AraPost
 
   /// Wide enough for a single digit; the list never shows more than nine.
@@ -74,11 +75,13 @@ struct TrendingRow: View {
     // Centred against the title and details, as in an App Store chart; on the title's baseline,
     // the larger digit rises above it.
     HStack(alignment: .center, spacing: Self.rankSpacing) {
-      Text(rank, format: .number)
-        .font(.title3.weight(.bold).monospacedDigit())
-        .fontDesign(.rounded)
-        .foregroundStyle(Color.accentColor)
-        .frame(width: Self.rankWidth)
+      if let rank {
+        Text(rank, format: .number)
+          .font(.title3.weight(.bold).monospacedDigit())
+          .fontDesign(.rounded)
+          .foregroundStyle(Color.accentColor)
+          .frame(width: Self.rankWidth)
+      }
 
       VStack(alignment: .leading, spacing: 2) {
         Text(post.listTitle)
@@ -109,5 +112,36 @@ struct TrendingRow: View {
       parts.append(String(localized: "\(post.commentCount) comments", bundle: .module))
     }
     return parts.joined(separator: " · ")
+  }
+}
+
+/// What a highlight section shows, and how to load it.
+enum BoardHighlight: Hashable {
+  case trending
+  /// The newest posts across these boards (all but Portal Notice, whose crawled notices would
+  /// bury everyone else's, as on Ara's main page).
+  case latest(boardIDs: [Int])
+
+  var title: String {
+    switch self {
+    case .trending: String(localized: "Trending", bundle: .module)
+    case .latest: String(localized: "Latest", bundle: .module)
+    }
+  }
+
+  var symbol: String {
+    switch self {
+    case .trending: "flame.fill"
+    case .latest: "sparkles"
+    }
+  }
+
+  var isRanked: Bool { self == .trending }
+
+  var listType: PostListType {
+    switch self {
+    case .trending: .trending
+    case .latest(let boardIDs): .latest(boardIDs: boardIDs)
+    }
   }
 }
