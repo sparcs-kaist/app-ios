@@ -22,7 +22,9 @@ struct PostComposeView: View {
   @Environment(\.openURL) private var openURL
 
   @FocusState private var isTitleFocused
-  @FocusState private var isPriceFocused
+  /// Plain state, not `@FocusState`: the price field is UIKit, and SwiftUI resets focus state that
+  /// no `.focused` view claims, which would dismiss the keyboard after every keystroke.
+  @State private var isPriceFocused = false
 
   @State private var isShowingCancelDialog = false
   @State private var showPhotosPicker: Bool = false
@@ -311,13 +313,11 @@ struct PostComposeView: View {
     HStack(spacing: 6) {
       Text(verbatim: "₩")
         .foregroundStyle(viewModel.price == nil ? .tertiary : .primary)
-      TextField(
-        String(localized: "Price", bundle: .module),
+      PriceTextField(
+        placeholder: String(localized: "Price", bundle: .module),
         value: $viewModel.price,
-        format: .number
+        isFocused: $isPriceFocused
       )
-      .keyboardType(.numberPad)
-      .focused($isPriceFocused)
     }
     .font(.title3)
     .accessibilityElement(children: .combine)
