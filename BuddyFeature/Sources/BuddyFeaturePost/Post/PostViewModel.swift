@@ -31,7 +31,6 @@ protocol PostViewModelProtocol: Observable {
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
 
-  func makePostRequest() -> URLRequest?
   func prepareContentBody() async
   func fetchPost() async
   func upvote() async
@@ -112,23 +111,14 @@ class PostViewModel: PostViewModelProtocol {
     }
   }
 
-  func makePostRequest() -> URLRequest? {
-    guard let url = Constants.araPostFrameURL(postID: post.id),
-          let token = araBoardUseCase?.getAccessToken() else {
-      return nil
-    }
-    var request = URLRequest(url: url)
-    request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-    return request
-  }
-
   /// Parses `post.content` off the main actor. The previous body stays on screen until the new
   /// one is ready, so a refresh doesn't flash a spinner.
   func prepareContentBody() async {
     // A post opened from a list has no content until `fetchPost` returns.
     guard let content = post.content else { return }
+    let boardSlug = post.board?.slug
     let body = await Task.detached(priority: .userInitiated) {
-      PostBody.make(from: content)
+      PostBody.make(from: content, boardSlug: boardSlug)
     }.value
     guard !Task.isCancelled else { return }
     contentBody = body
