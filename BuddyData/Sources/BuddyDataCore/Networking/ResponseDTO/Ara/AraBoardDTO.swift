@@ -18,6 +18,8 @@ public struct AraBoardDTO: Codable {
   public let topics: [AraBoardTopicDTO]?
   public let userReadable: Bool?
   public let userWritable: Bool?
+  /// Flags for the names posts may use: regular 1, anonymous 2, real name 4.
+  public let nameType: Int?
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -29,6 +31,7 @@ public struct AraBoardDTO: Codable {
     case topics
     case userReadable = "user_readable"
     case userWritable = "user_writable"
+    case nameType = "name_type"
   }
 }
 
@@ -48,7 +51,8 @@ public extension AraBoardDTO {
       topics: topics?.compactMap { $0.toModel() },
       isReadOnly: isReadOnly,
       userReadable: userReadable,
-      userWritable: userWritable
+      userWritable: userWritable,
+      nicknameTypes: nameType.map(AraPostNicknameType.allowed(byFlags:)) ?? []
     )
   }
 }

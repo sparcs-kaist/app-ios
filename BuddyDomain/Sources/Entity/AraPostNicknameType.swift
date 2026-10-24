@@ -21,4 +21,10 @@ public enum AraPostNicknameType: String, Sendable {
     default: return nil
     }
   }
+
+  /// The types set in a board's `name_type` flags.
+  public static func allowed(byFlags flags: Int) -> [AraPostNicknameType] {
+    let flagged: [(flag: Int, type: AraPostNicknameType)] = [(1, .regular), (2, .anonymous), (4, .realName)]
+    return flagged.filter { flags & $0.flag != 0 }.map(\.type)
+  }
 }
