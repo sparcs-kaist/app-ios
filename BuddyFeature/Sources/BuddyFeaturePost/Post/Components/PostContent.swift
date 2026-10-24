@@ -10,10 +10,13 @@ import NukeUI
 import TiptapUI
 import BuddyFeatureShared
 
-/// The optional AI summary plus the post's body: Tiptap rendered natively, HTML in a web view.
+/// The optional AI summary plus the post's body: Tiptap rendered natively, HTML in a web view,
+/// then any photos attached without being placed in the body.
 struct PostContent: View {
   let summarisedContent: String?
   let content: PostBody?
+  /// Attached photos the body doesn't show itself.
+  var attachedImages: [URL] = []
   /// Identifies what the body shows (the original, or a translation), so swapping one for the
   /// other transitions rather than reflowing in place.
   var contentID: String = "original"
@@ -50,6 +53,42 @@ struct PostContent: View {
           withAnimation(.easeOut(duration: 0.2)) { isPulsing = false }
         }
       }
+      .fullScreenCover(item: $gallery) { gallery in
+        FullScreenImageViewer(
+          gallery: gallery,
+          transitionNamespace: imageTransition,
+          onPageChange: onScrollToImage
+        )
+      }
+
+    if !attachedImages.isEmpty {
+      VStack(spacing: 12) {
+        ForEach(attachedImages, id: \.self) { url in
+          image(url)
+        }
+      }
+    }
+  }
+
+  /// Every image in the post, inline ones first, for paging through full screen.
+  private var galleryURLs: [URL] {
+    var urls: [URL] = []
+    if case .tiptap(let layout, _) = content {
+      urls = layout.images.map(\.url)
+    }
+    return urls + attachedImages.filter { !urls.contains($0) }
+  }
+
+  /// An image that opens the post's images full screen, at itself.
+  private func image(_ url: URL) -> some View {
+    PostContentImage(url: url)
+      .matchedTransitionSource(id: url, in: imageTransition)
+      .id(url)
+      .contentShape(.rect)
+      .onTapGesture {
+        gallery = ImageGallery(urls: galleryURLs, selected: url)
+      }
+      .accessibilityAddTraits(.isButton)
   }
 
   @ViewBuilder
@@ -58,22 +97,7 @@ struct PostContent: View {
     case .tiptap(let layout, _):
       TiptapView(layout)
         .tiptapImage { image in
-          // Opens the post's images full screen, at the one tapped.
-          PostContentImage(image: image)
-            .matchedTransitionSource(id: image.url, in: imageTransition)
-            .id(image.url)
-            .contentShape(.rect)
-            .onTapGesture {
-              gallery = ImageGallery(urls: layout.images.map(\.url), selected: image.url)
-            }
-            .accessibilityAddTraits(.isButton)
-        }
-        .fullScreenCover(item: $gallery) { gallery in
-          FullScreenImageViewer(
-            gallery: gallery,
-            transitionNamespace: imageTransition,
-            onPageChange: onScrollToImage
-          )
+          self.image(image.url)
         }
         .environment(\.openURL, OpenURLAction { url in
           // The in-app Safari sheet only takes web URLs; mailto: and tel: go to the system.
@@ -91,12 +115,12 @@ struct PostContent: View {
   }
 }
 
-/// An image block loaded through Nuke, so it shares the app's image cache.
+/// An image loaded through Nuke, so it shares the app's image cache.
 private struct PostContentImage: View {
-  let image: TiptapImage
+  let url: URL
 
   var body: some View {
-    LazyImage(url: image.url) { state in
+    LazyImage(url: url) { state in
       if let loaded = state.image {
         loaded
           .resizable()

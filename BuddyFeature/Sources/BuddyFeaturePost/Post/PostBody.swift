@@ -47,3 +47,16 @@ extension AraPost {
     return content.convertFromHTML()
   }
 }
+
+extension AraPost {
+  /// Photos uploaded as attachments without being placed in the content (common on Real
+  /// Estate), shown after it. An attachment counts as inline when the content refers to its file.
+  var attachedImageURLs: [URL] {
+    let content = content ?? ""
+    return (attachments ?? []).compactMap { attachment in
+      guard attachment.mimeType.hasPrefix("image/"), let url = attachment.file else { return nil }
+      let names = [url.lastPathComponent, url.path(percentEncoded: true).split(separator: "/").last.map(String.init)]
+      return names.contains { $0.map { !$0.isEmpty && content.contains($0) } ?? false } ? nil : url
+    }
+  }
+}
