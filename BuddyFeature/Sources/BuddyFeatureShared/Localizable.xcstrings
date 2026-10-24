@@ -1,6 +1,17 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Updated" : {
+      "comment" : "Marks a post with new comments or edits since it was read.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 소식 있음"
+          }
+        }
+      }
+    },
     "[%@]" : {
       "shouldTranslate" : false
     },
