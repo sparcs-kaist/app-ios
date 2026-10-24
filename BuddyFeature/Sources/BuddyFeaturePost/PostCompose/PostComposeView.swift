@@ -10,6 +10,7 @@ import SwiftUI
 import PhotosUI
 import BuddyDomain
 import FirebaseAnalytics
+import TiptapEditor
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostComposeView")
@@ -21,10 +22,11 @@ struct PostComposeView: View {
   @Environment(\.openURL) private var openURL
 
   @FocusState private var isTitleFocused
-  @FocusState private var isDescriptionFocused
 
   @State private var isShowingCancelDialog = false
   @State private var showPhotosPicker: Bool = false
+  @State private var pickedPhotos: [PhotosPickerItem] = []
+  @Namespace private var composeBarGlass
 
   @State private var showErrorAlert: Bool = false
   @State private var errorMessage: String = ""
@@ -51,7 +53,7 @@ struct PostComposeView: View {
             .focused($isTitleFocused)
             .submitLabel(.next)
             .onSubmit {
-              isDescriptionFocused = true
+              viewModel.editor.focus()
             }
             .writingToolsBehavior(.disabled)
             .padding(.horizontal)
@@ -60,27 +62,18 @@ struct PostComposeView: View {
           Divider()
             .padding(.horizontal)
 
-          TextField(String(localized: "What's happening?", bundle: .module), text: $viewModel.content, axis: .vertical)
-            .focused($isDescriptionFocused)
-            .submitLabel(.return)
-            .writingToolsBehavior(.complete)
-            .padding(.horizontal)
-            .disabled(isUploading)
-
-          if !viewModel.selectedImages.isEmpty {
-            ScrollView(.horizontal, showsIndicators: false) {
-              HStack {
-                ForEach(viewModel.selectedImages) { selected in
-                  Image(uiImage: selected.image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 120, height: 120)
-                    .clipShape(.rect(cornerRadius: 8))
-                }
-              }
-              .padding()
+          TiptapEditor(controller: viewModel.editor)
+          .overlay(alignment: .topLeading) {
+            if viewModel.editor.isEmpty {
+              Text("What's happening?", bundle: .module)
+                .foregroundStyle(.tertiary)
+                // Matches the text view's top inset, so it sits where typing starts.
+                .padding(.top, 8)
+                .allowsHitTesting(false)
             }
           }
+          .padding(.horizontal)
+          .disabled(isUploading)
 
           termsOfUseButton
             .padding(.horizontal)
@@ -124,7 +117,7 @@ struct PostComposeView: View {
                   dismiss()
                 } catch {
                   logger.error("Failed to write post: \(error.localizedDescription, privacy: .public)")
-                  errorMessage = "Failed to write post. Please try again later."
+                  errorMessage = error.localizedDescription
                   showErrorAlert = true
                 }
               }
@@ -138,59 +131,34 @@ struct PostComposeView: View {
             }
           )
           .disabled(viewModel.title.isEmpty)
-          .disabled(viewModel.content.isEmpty)
+          .disabled(viewModel.editor.isEmpty)
           .disabled(isUploading)
         }
       }
-      .toolbar {
-        // Bottom tool bar
-        ToolbarSpacer(.flexible, placement: .bottomBar)
-
-        ToolbarItem(placement: .bottomBar) {
-          Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
-            showPhotosPicker = true
-          }
-          .disabled(isUploading)
-        }
-
-        ToolbarItem(placement: .bottomBar) {
-          // Not `ellipsis`: in a vertical bar that reads as the system's own overflow menu.
-          Menu(String(localized: "More", bundle: .module), systemImage: "slider.horizontal.3") {
-            Button(action: {
-              viewModel.writeAsAnonymous.toggle()
-            }, label: {
-              if viewModel.writeAsAnonymous {
-                Image(systemName: "checkmark")
-              }
-              Text("Anonymous", bundle: .module)
-            })
-            Button(action: {
-              viewModel.isNSFW.toggle()
-            }, label: {
-              if viewModel.isNSFW {
-                Image(systemName: "checkmark")
-              }
-              Text("NSFW", bundle: .module)
-            })
-            Button(action: {
-              viewModel.isPolitical.toggle()
-            }, label: {
-              if viewModel.isPolitical {
-                Image(systemName: "checkmark")
-              }
-              Text("Political", bundle: .module)
-            })
-          }
-          .disabled(isUploading)
-        }
+      .safeAreaBar(edge: .bottom) {
+        composeBar
       }
       .photosPicker(
         isPresented: $showPhotosPicker,
-        selection: $viewModel.selectedItems,
+        selection: $pickedPhotos,
         maxSelectionCount: 10,
         matching: .images,
         photoLibrary: .shared()
       )
+      .onChange(of: pickedPhotos) { _, items in
+        guard !items.isEmpty else { return }
+        Task {
+          var images: [UIImage] = []
+          for item in items {
+            if let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) {
+              images.append(image)
+            }
+          }
+          // Placed at the cursor, like a photo added in Notes.
+          viewModel.editor.insertImages(images)
+          pickedPhotos = []
+        }
+      }
       .alert(String(localized: "Error", bundle: .module), isPresented: $showErrorAlert, actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       }, message: {
@@ -198,6 +166,86 @@ struct PostComposeView: View {
       })
     }
     .analyticsScreen(name: "Ara Post Compose", class: String(describing: Self.self))
+  }
+
+  /// The one bar for the whole composer, floating above the keyboard. Each group is its own
+  /// glass shape in one container, so the controls that only make sense in the text (formatting
+  /// and lists, hiding the keyboard) grow out of the main capsule while writing and merge back.
+  private var composeBar: some View {
+    GlassEffectContainer(spacing: 8) {
+      HStack(spacing: 8) {
+        if viewModel.editor.isEditing {
+          HStack(spacing: 0) {
+            barButton(String(localized: "Format", bundle: .module), systemImage: "textformat") {
+              viewModel.editor.showFormatting()
+            }
+            barButton(String(localized: "Bulleted List", bundle: .module), systemImage: "list.bullet") {
+              viewModel.editor.toggleBulletList()
+            }
+          }
+          .padding(.horizontal, 4)
+          .glassEffect(.regular.interactive(), in: .capsule)
+          .glassEffectID(ComposeBarGlass.text, in: composeBarGlass)
+        }
+
+        HStack(spacing: 0) {
+          barButton(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
+            showPhotosPicker = true
+          }
+          optionsMenu
+        }
+        .padding(.horizontal, 4)
+        .glassEffect(.regular.interactive(), in: .capsule)
+        .glassEffectID(ComposeBarGlass.main, in: composeBarGlass)
+
+        if viewModel.editor.isEditing {
+          barButton(String(localized: "Hide Keyboard", bundle: .module), systemImage: "keyboard.chevron.compact.down") {
+            viewModel.editor.dismissKeyboard()
+          }
+          .glassEffect(.regular.interactive(), in: .circle)
+          .glassEffectID(ComposeBarGlass.keyboard, in: composeBarGlass)
+        }
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .trailing)
+    .padding(.horizontal)
+    // Floats clear of the keyboard rather than sitting on it.
+    .padding(.bottom, 8)
+    .animation(.snappy, value: viewModel.editor.isEditing)
+    .disabled(isUploading)
+  }
+
+  private func barButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+    Button(action: action) {
+      Label(title, systemImage: systemImage)
+        .labelStyle(.iconOnly)
+        .font(.title3)
+        .frame(width: 44, height: 44)
+        .contentShape(.rect)
+    }
+    .buttonStyle(.plain)
+  }
+
+  private var optionsMenu: some View {
+    // Not `ellipsis`: in a vertical bar that reads as the system's own overflow menu.
+    Menu {
+      Toggle(isOn: $viewModel.writeAsAnonymous) {
+        Text("Anonymous", bundle: .module)
+      }
+      Toggle(isOn: $viewModel.isNSFW) {
+        Text("NSFW", bundle: .module)
+      }
+      Toggle(isOn: $viewModel.isPolitical) {
+        Text("Political", bundle: .module)
+      }
+    } label: {
+      Label(String(localized: "More", bundle: .module), systemImage: "slider.horizontal.3")
+        .labelStyle(.iconOnly)
+        .font(.title3)
+        .frame(width: 44, height: 44)
+        .contentShape(.rect)
+    }
+    .buttonStyle(.plain)
   }
 
   private var termsOfUseButton: some View {
@@ -233,4 +281,7 @@ struct PostComposeView: View {
   PostComposeView(board: AraBoard.mockList[1])
 }
 
-
+/// The glass shapes of the compose bar, so they morph into one another as they appear.
+private enum ComposeBarGlass: Hashable, Sendable {
+  case text, main, keyboard
+}

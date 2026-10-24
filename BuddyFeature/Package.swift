@@ -102,6 +102,7 @@ let package = Package(
             "BuddyPreviewSupport",
             .product(name: "TiptapKit", package: "BuddyUI"),
             .product(name: "TiptapUI", package: "BuddyUI"),
+            .product(name: "TiptapEditor", package: "BuddyUI"),
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
             .product(

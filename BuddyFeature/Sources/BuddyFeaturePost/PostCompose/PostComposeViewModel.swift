@@ -8,15 +8,9 @@
 import SwiftUI
 import Observation
 import Factory
-import PhotosUI
 import BuddyDomain
-
-/// A selected image paired with a stable identity, so `ForEach` can track each
-/// row across body evaluations without using the `UIImage` itself as the id.
-struct PostComposeImage: Identifiable, Hashable {
-  let id: String
-  let image: UIImage
-}
+import TiptapKit
+import TiptapEditor
 
 @MainActor
 protocol PostComposeViewModelProtocol: Observable {
@@ -24,9 +18,8 @@ protocol PostComposeViewModelProtocol: Observable {
 
   var selectedTopic: AraBoardTopic? { get set }
   var title: String { get set }
-  var content: String { get set }
-  var selectedItems: [PhotosPickerItem] { get set }
-  var selectedImages: [PostComposeImage] { get }
+  /// The body, written in a Notes-like editor with photos placed in the text.
+  var editor: TiptapEditorController { get }
 
   var writeAsAnonymous: Bool { get set }
   var isNSFW: Bool { get set }
@@ -42,15 +35,7 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
 
   var selectedTopic: AraBoardTopic? = nil
   var title: String = ""
-  var content: String = ""
-  var selectedItems: [PhotosPickerItem] = [] {
-    didSet {
-      Task {
-        await loadSelectedImages()
-      }
-    }
-  }
-  var selectedImages: [PostComposeImage] = []
+  let editor = TiptapEditorController()
 
   var writeAsAnonymous: Bool = true
   var isNSFW: Bool = false
@@ -71,12 +56,28 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
   func writePost() async throws {
     guard let araBoardUseCase else { return }
 
+    // Upload every photo first, then write each one where it sits in the text.
+    var uploads: [UUID: AraAttachment] = [:]
     var attachments: [AraAttachment] = []
-    for selected in selectedImages {
-      let attachment: AraAttachment = try await araBoardUseCase.uploadImage(image: selected.image)
-
+    for image in editor.imageAttachments {
+      let attachment: AraAttachment = try await araBoardUseCase.uploadImage(image: image.originalImage)
+      uploads[image.id] = attachment
       attachments.append(attachment)
     }
+
+    let uploaded = uploads
+    let converter = TiptapAttributedStringConverter { attachment in
+      guard let image = attachment as? TiptapImageAttachment,
+            let upload = uploaded[image.id],
+            let file = upload.file else { return nil }
+      // The same attributes the Ara web editor writes; 500 is its default ("mid") width.
+      return TiptapNode(type: .attachmentImage, attrs: [
+        "src": .string(file.absoluteString),
+        "width": .number(500),
+        "data-attachment": .string(String(upload.id)),
+      ])
+    }
+    let content = converter.document(from: editor.attributedText).jsonString()
 
     let request = AraCreatePost(
       title: title,
@@ -91,18 +92,5 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
 
     try await araBoardUseCase.writePost(request: request)
     analyticsService?.logEvent(PostComposeViewEvent.postSubmitted)
-  }
-
-  private func loadSelectedImages() async {
-    var images: [PostComposeImage] = []
-
-    for item in selectedItems {
-      if let data = try? await item.loadTransferable(type: Data.self),
-         let image = UIImage(data: data) {
-        images.append(PostComposeImage(id: UUID().uuidString, image: image))
-      }
-    }
-
-    selectedImages = images
   }
 }

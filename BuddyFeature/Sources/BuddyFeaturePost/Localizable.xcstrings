@@ -106,6 +106,39 @@
         }
       }
     },
+    "Bulleted List" : {
+      "comment" : "A button that turns paragraphs into a bulleted list.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글머리 기호 목록"
+          }
+        }
+      }
+    },
+    "Format" : {
+      "comment" : "A button that opens text formatting options.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "포맷"
+          }
+        }
+      }
+    },
+    "Hide Keyboard" : {
+      "comment" : "A button that hides the keyboard.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드 가리기"
+          }
+        }
+      }
+    },
     "bookmark" : {
       "localizations" : {
         "en" : {

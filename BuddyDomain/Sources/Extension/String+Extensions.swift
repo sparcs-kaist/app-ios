@@ -8,15 +8,6 @@
 import Foundation
 
 public extension String {
-  func toHTMLParagraphs() -> String {
-    self
-      .components(separatedBy: "\n") // split by newlines
-      .map { "<p>\($0)</p>" }        // wrap each in <p>
-      .joined()                      // join them back
-  }
-}
-
-public extension String {
   func toDate() -> Date? {
     let formatter = ISO8601DateFormatter()
 

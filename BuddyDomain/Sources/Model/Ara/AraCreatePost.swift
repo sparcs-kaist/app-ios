@@ -9,6 +9,7 @@ import Foundation
 
 public struct AraCreatePost: Sendable {
   public let title: String
+  /// The body as Ara stores it: a Tiptap document serialised as JSON.
   public let content: String
   public let attachments: [AraAttachment]
   public let topic: AraBoardTopic?
