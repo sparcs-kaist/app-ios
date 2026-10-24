@@ -16,6 +16,11 @@ public struct PostListRow: View {
     self.post = post
   }
 
+  /// Read posts are greyed out; one with new comments or edits since (`.updated`) stays prominent.
+  private var isRead: Bool {
+    post.readStatus == .read
+  }
+
   public var body: some View {
     VStack(alignment: .leading, spacing: 4) {
       HStack(spacing: 4) {
@@ -24,14 +29,14 @@ public struct PostListRow: View {
             .font(.subheadline)
             .fontWeight(.medium)
             .lineLimit(1)
-            .foregroundStyle(Color.accentColor)
+            .foregroundStyle(Color.accentColor.opacity(isRead ? 0.5 : 1))
         }
 
         Text(title)
           .font(.subheadline)
           .fontWeight(.semibold)
           .lineLimit(1)
-          .foregroundStyle(post.isHidden ? .secondary : .primary)
+          .foregroundStyle(post.isHidden || isRead ? .secondary : .primary)
 
         if post.attachmentType == .image || post.attachmentType == .both {
           Image(systemName: "photo")
