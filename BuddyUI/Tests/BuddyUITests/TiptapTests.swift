@@ -107,6 +107,17 @@ struct TiptapLayoutTests {
     #expect(String(after.characters) == "after")
   }
 
+  @Test func collectsImagesInReadingOrderIncludingNested() throws {
+    let layout = try layout("""
+    {"type":"doc","content":[
+      {"type":"paragraph","content":[{"type":"attachmentImage","attrs":{"src":"https://x.org/1.png"}}]},
+      {"type":"blockquote","content":[{"type":"paragraph","content":[{"type":"attachmentImage","attrs":{"src":"https://x.org/2.png"}}]}]},
+      {"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"attachmentImage","attrs":{"src":"https://x.org/3.png"}}]}]}]}
+    ]}
+    """)
+    #expect(layout.images.map(\.url.lastPathComponent) == ["1.png", "2.png", "3.png"])
+  }
+
   @Test func trimsOuterBlankParagraphsButKeepsInnerOnes() throws {
     let layout = try layout("""
     {"type":"doc","content":[{"type":"paragraph"},{"type":"paragraph","content":[{"type":"text","text":"a"}]},{"type":"paragraph"},{"type":"paragraph","content":[{"type":"text","text":"b"}]},{"type":"paragraph"}]}
