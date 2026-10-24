@@ -12,5 +12,7 @@ public enum PostListType: Sendable {
   /// A board's posts, or only those under one of its topics.
   case board(boardID: Int, topicID: Int? = nil)
   case user(userID: Int)
+  /// The most viewed posts of the past week, across boards.
+  case trending
 }
 

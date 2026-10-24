@@ -1,6 +1,57 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "%lld comments" : {
+      "comment" : "How many comments a trending post has.",
+      "localizations" : {
+        "en-GB" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld comment"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld comments"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글 %lld개"
+          }
+        }
+      }
+    },
+    "Trending" : {
+      "comment" : "Posts most viewed this week, across boards.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인기 게시물"
+          }
+        }
+      }
+    },
+    "See All" : {
+      "comment" : "Opens the full list of trending posts.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모두 보기"
+          }
+        }
+      }
+    },
     "New Posts" : {
       "comment" : "Marks a board with posts since its list was last opened.",
       "localizations" : {
