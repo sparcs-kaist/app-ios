@@ -76,6 +76,97 @@ struct TiptapParserTests {
   }
 }
 
+struct TiptapTextBlockTests {
+  private let document = try! TiptapParser().parse("""
+  {"type":"doc","content":[
+    {"type":"heading","attrs":{"level":2},"content":[{"type":"text","marks":[{"type":"bold"}],"text":"안녕"}]},
+    {"type":"paragraph","content":[{"type":"text","text":"첫 줄"},{"type":"hardBreak"},{"type":"text","marks":[{"type":"italic"}],"text":"둘째 줄"}]},
+    {"type":"codeBlock","content":[{"type":"text","text":"let a = 1"}]},
+    {"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"항목"}]}]}]},
+    {"type":"paragraph","content":[{"type":"attachmentImage","attrs":{"src":"https://x.org/a.png"}}]}
+  ]}
+  """)
+
+  @Test func listsTextBlocksInReadingOrderSkippingCode() {
+    #expect(document.textBlocks == ["안녕", "첫 줄\n둘째 줄", "항목", ""])
+  }
+
+  /// Simulates a translator that keeps attribute runs: each run's text changes, its attributes don't.
+  @Test func attributedBlocksKeepMarksPerRun() {
+    let document = try! TiptapParser().parse("""
+    {"type":"doc","content":[{"type":"paragraph","content":[
+      {"type":"text","text":"설문 참여를 원하시면 "},
+      {"type":"text","marks":[{"type":"link","attrs":{"href":"https://forms.gle/x"}},{"type":"underline"}],"text":"링크"},
+      {"type":"text","text":"를 눌러 주세요"}
+    ]}]}
+    """)
+    let source = document.attributedTextBlocks
+    var translated = AttributedString()
+    for (run, english) in zip(source.blocks[0].runs, ["To take part, tap ", "the link", " please"]) {
+      var piece = AttributedString(english)
+      piece.setAttributes(run.attributes)
+      translated.append(piece)
+    }
+    let result = document.replacingTextBlocks(with: [translated], source: source)
+    let inline = result.content[0].content
+    #expect(inline.map(\.text) == ["To take part, tap ", "the link", " please"])
+    #expect(inline[1].marks.map(\.type) == [.link, .underline])
+    #expect(inline[1].marks[0][attribute: "href"]?.stringValue == "https://forms.gle/x")
+  }
+
+  /// A translator that returns plain text: each phrase's formatting is found again by its own
+  /// translation, or by its original text (a URL), and phrases that can't be found stay plain.
+  @Test func restoresMarksOntoPlainTranslations() {
+    let document = try! TiptapParser().parse("""
+    {"type":"doc","content":[{"type":"paragraph","content":[
+      {"type":"text","marks":[{"type":"bold"}],"text":"설문"},
+      {"type":"text","text":" 참여는 "},
+      {"type":"text","marks":[{"type":"link","attrs":{"href":"https://forms.gle/x"}}],"text":"링크"},
+      {"type":"text","text":" 또는 "},
+      {"type":"text","marks":[{"type":"link","attrs":{"href":"https://sparcs.org"}}],"text":"https://sparcs.org"},
+      {"type":"text","text":" "},
+      {"type":"text","marks":[{"type":"italic"}],"text":"사라짐"}
+    ]}]}
+    """)
+    let source = document.attributedTextBlocks
+    let runs = source.markedRuns(inBlock: 0)
+    #expect(runs.map(\.text) == ["설문", "링크", "https://sparcs.org", "사라짐"])
+
+    let restored = TiptapAttributedTextBlocks.restoringMarks(
+      zip(runs, ["Survey", "Link", "https://sparcs.org", "Vanished"]).map { (run: $0, translation: $1) },
+      onto: "For the survey, use the link or https://sparcs.org."
+    )
+    let inline = document.replacingTextBlocks(with: [restored], source: source).content[0].content
+    let marked = inline.filter { !$0.marks.isEmpty }
+    #expect(marked.map(\.text) == ["survey", "link", "https://sparcs.org"])
+    #expect(marked.map { $0.marks.first?.type } == [.bold, .link, .link])
+    #expect(marked[1].marks.first?[attribute: "href"]?.stringValue == "https://forms.gle/x")
+  }
+
+  /// If only standard attributes survive, links and bold still come back.
+  @Test func standardAttributesAreAFallback() {
+    let document = try! TiptapParser().parse("""
+    {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","marks":[{"type":"bold"}],"text":"굵게"}]}]}
+    """)
+    var translated = AttributedString("Bold")
+    translated.inlinePresentationIntent = .stronglyEmphasized
+    let result = document.replacingTextBlocks(with: [translated], source: document.attributedTextBlocks)
+    #expect(result.content[0].content.first?.marks.map(\.type) == [.bold])
+  }
+
+  @Test func replacesTextKeepingStructureAndUniformMarks() {
+    let replaced = document.replacingTextBlocks(with: ["Hello", "First line\nSecond line", "Item", ""])
+    #expect(replaced.textBlocks == ["Hello", "First line\nSecond line", "Item", ""])
+    #expect(replaced.content.map(\.type) == [.heading, .paragraph, .codeBlock, .bulletList, .paragraph])
+    // The heading was all bold, so it stays bold; the paragraph's marks varied, so they go.
+    #expect(replaced.content[0].content.first?.marks.map(\.type) == [.bold])
+    #expect(replaced.content[1].content.map(\.type) == [.text, .hardBreak, .text])
+    #expect(replaced.content[1].content.allSatisfy { $0.marks.isEmpty })
+    #expect(replaced.content[2] == document.content[2])
+    #expect(replaced.content[4] == document.content[4])
+  }
+}
+
 struct TiptapLayoutTests {
   private func layout(_ json: String, baseURL: URL? = nil) throws -> TiptapLayout {
     TiptapLayout(document: try TiptapParser().parse(json), baseURL: baseURL)
