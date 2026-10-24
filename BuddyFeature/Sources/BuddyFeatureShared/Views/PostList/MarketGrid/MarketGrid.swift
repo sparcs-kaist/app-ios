@@ -63,6 +63,8 @@ public struct MarketGrid: View {
             .redacted(reason: .placeholder)
           }
         }
+        // Exactly as wide as its columns: given more, the grid centres them and the inset is off.
+        .frame(width: layout.contentWidth)
         .padding(.leading, layout.leadingInset)
         .padding(.top, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -243,6 +245,11 @@ nonisolated struct MarketGridLayout: Equatable, Sendable {
     zip(columnWidths, gaps).map { width, gap in
       GridItem(.fixed(width), spacing: gap, alignment: .top)
     }
+  }
+
+  /// The columns and the gaps between them, without the last column's trailing gap.
+  var contentWidth: CGFloat {
+    columnWidths.reduce(0, +) + gaps.dropLast().reduce(0, +)
   }
 
   init(width: CGFloat, hinge: CGRect?, hasHinge: Bool) {
