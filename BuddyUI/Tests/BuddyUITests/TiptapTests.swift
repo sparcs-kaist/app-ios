@@ -1,6 +1,8 @@
 import Foundation
+import SwiftUI
 import Testing
 import TiptapKit
+@testable import TiptapUI
 
 struct TiptapParserTests {
   private let parser = TiptapParser()
@@ -71,5 +73,110 @@ struct TiptapParserTests {
     #expect(document.content[0].type == "callout")
     #expect(document.content[0][attribute: "level"]?.intValue == 3)
     #expect(document.plainText == "inside")
+  }
+}
+
+struct TiptapLayoutTests {
+  private func layout(_ json: String, baseURL: URL? = nil) throws -> TiptapLayout {
+    TiptapLayout(document: try TiptapParser().parse(json), baseURL: baseURL)
+  }
+
+  @Test func liftsInlineMediaOutOfParagraphs() throws {
+    let layout = try layout("""
+    {"type":"doc","content":[{"type":"paragraph","content":[
+      {"type":"text","text":"before"},
+      {"type":"attachmentImage","attrs":{"src":"/media/a.png","width":250}},
+      {"type":"hardBreak"},
+      {"type":"linkBookmark","attrs":{"href":"https://news.kaist.ac.kr/x","title":"https://news.kaist.ac.kr/x"}},
+      {"type":"text","text":"after"}
+    ]}]}
+    """, baseURL: URL(string: "https://newara.sparcs.org"))
+
+    #expect(layout.blocks.count == 4)
+    guard case .paragraph(let before) = layout.blocks[0].kind,
+          case .image(let image) = layout.blocks[1].kind,
+          case .bookmark(let bookmark) = layout.blocks[2].kind,
+          case .paragraph(let after) = layout.blocks[3].kind else {
+      Issue.record("Unexpected blocks: \(layout.blocks.map(\.kind))")
+      return
+    }
+    #expect(String(before.characters) == "before")
+    #expect(image.url.absoluteString == "https://newara.sparcs.org/media/a.png")
+    #expect(image.width == 250)
+    #expect(bookmark.displayTitle == "KAIST")
+    #expect(String(after.characters) == "after")
+  }
+
+  @Test func trimsOuterBlankParagraphsButKeepsInnerOnes() throws {
+    let layout = try layout("""
+    {"type":"doc","content":[{"type":"paragraph"},{"type":"paragraph","content":[{"type":"text","text":"a"}]},{"type":"paragraph"},{"type":"paragraph","content":[{"type":"text","text":"b"}]},{"type":"paragraph"}]}
+    """)
+    #expect(layout.blocks.map(\.isEmptyParagraph) == [false, true, false])
+  }
+
+  @Test func appliesMarks() throws {
+    let layout = try layout("""
+    {"type":"doc","content":[{"type":"paragraph","content":[
+      {"type":"text","marks":[{"type":"bold"},{"type":"italic"},{"type":"link","attrs":{"href":"https://sparcs.org"}}],"text":"x"},
+      {"type":"text","marks":[{"type":"link","attrs":{"href":"javascript:alert(1)"}}],"text":"y"}
+    ]}]}
+    """)
+    guard case .paragraph(let text) = try #require(layout.blocks.first).kind else {
+      Issue.record("Expected a paragraph")
+      return
+    }
+    let runs = Array(text.runs)
+    #expect(runs[0].inlinePresentationIntent == [.stronglyEmphasized, .emphasized])
+    #expect(runs[0].link == URL(string: "https://sparcs.org"))
+    #expect(runs[1].link == nil)
+  }
+
+  @Test func numbersOrderedListsFromStart() throws {
+    let layout = try layout("""
+    {"type":"doc","content":[{"type":"orderedList","attrs":{"start":3},"content":[
+      {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"a"}]}]},
+      {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"b"}]},
+        {"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"c"}]}]}]}]}
+    ]}]}
+    """)
+    guard case .list(let list) = try #require(layout.blocks.first).kind,
+          case .list(let nested) = try #require(list.items.last?.blocks.last).kind else {
+      Issue.record("Expected nested lists")
+      return
+    }
+    #expect(list.items.map(\.marker) == ["3.", "4."])
+    #expect(nested.items.map(\.marker) == ["◦"])
+  }
+
+  @Test func blockIDsAreUnique() throws {
+    let layout = try layout("""
+    {"type":"doc","content":[{"type":"blockquote","content":[{"type":"paragraph","content":[{"type":"text","text":"q"}]}]},
+      {"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"a"}]}]}]},
+      {"type":"codeBlock","content":[{"type":"text","text":"let x = 1"}]},{"type":"horizontalRule"}]}
+    """)
+    var ids: [Int] = []
+    func collect(_ blocks: [TiptapBlock]) {
+      for block in blocks {
+        ids.append(block.id)
+        switch block.kind {
+        case .blockquote(let children): collect(children)
+        case .list(let list):
+          for item in list.items {
+            ids.append(item.id)
+            collect(item.blocks)
+          }
+        default: break
+        }
+      }
+    }
+    collect(layout.blocks)
+    #expect(Set(ids).count == ids.count)
+  }
+
+  @Test(arguments: [
+    ("#e03131", true), ("#000000", false), ("#fff", false), ("rgb(34, 139, 230)", true), ("red", false),
+  ])
+  func parsesOnlyReadableColours(css: String, isApplied: Bool) {
+    #expect((TiptapColor.parse(css) != nil) == isApplied)
   }
 }
