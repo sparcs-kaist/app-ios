@@ -15,6 +15,11 @@ struct PostContent: View {
   let summarisedContent: String?
   let content: PostBody?
   let onLinkTapped: (URL) -> Void
+  /// Scrolls the post to the image with this id while it's shown full screen.
+  var onScrollToImage: (URL) -> Void = { _ in }
+
+  @State private var gallery: ImageGallery?
+  @Namespace private var imageTransition
 
   var body: some View {
     if let summarisedContent {
@@ -29,7 +34,24 @@ struct PostContent: View {
     switch content {
     case .tiptap(let layout, _):
       TiptapView(layout)
-        .tiptapImage { PostContentImage(image: $0) }
+        .tiptapImage { image in
+          // Opens the post's images full screen, at the one tapped.
+          PostContentImage(image: image)
+            .matchedTransitionSource(id: image.url, in: imageTransition)
+            .id(image.url)
+            .contentShape(.rect)
+            .onTapGesture {
+              gallery = ImageGallery(urls: layout.images.map(\.url), selected: image.url)
+            }
+            .accessibilityAddTraits(.isButton)
+        }
+        .fullScreenCover(item: $gallery) { gallery in
+          FullScreenImageViewer(
+            gallery: gallery,
+            transitionNamespace: imageTransition,
+            onPageChange: onScrollToImage
+          )
+        }
         .environment(\.openURL, OpenURLAction { url in
           // The in-app Safari sheet only takes web URLs; mailto: and tel: go to the system.
           guard ["http", "https"].contains(url.scheme?.lowercased()) else { return .systemAction }

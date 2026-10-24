@@ -67,7 +67,8 @@ public struct PostView: View {
           PostContent(
             summarisedContent: summarisedContent,
             content: viewModel.contentBody,
-            onLinkTapped: { tappedURL = $0 }
+            onLinkTapped: { tappedURL = $0 },
+            onScrollToImage: { proxy.scrollTo($0, anchor: .center) }
           )
 
           PostFooter(

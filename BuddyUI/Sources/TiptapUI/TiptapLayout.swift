@@ -20,6 +20,23 @@ public struct TiptapLayout: Sendable, Equatable {
     blocks.isEmpty
   }
 
+  /// Every image in reading order, including those inside quotes and lists.
+  public var images: [TiptapImage] {
+    var images: [TiptapImage] = []
+    func collect(_ blocks: [TiptapBlock]) {
+      for block in blocks {
+        switch block.kind {
+        case .image(let image): images.append(image)
+        case .blockquote(let children): collect(children)
+        case .list(let list): list.items.forEach { collect($0.blocks) }
+        default: break
+        }
+      }
+    }
+    collect(blocks)
+    return images
+  }
+
   /// Editors leave blank paragraphs around a document; only the inner ones are intentional spacing.
   private static func trimmingEmptyParagraphs(_ blocks: [TiptapBlock]) -> [TiptapBlock] {
     let isContent = { (block: TiptapBlock) in !block.isEmptyParagraph }
