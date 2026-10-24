@@ -80,6 +80,8 @@ public struct PostView: View {
       }
       .contentMargins(.bottom, 64)
       .navigationTitle(viewModel.post.board?.name.localized() ?? "")
+      // Its own, rather than whatever the screen it was opened from uses (the Boards list's is large).
+      .navigationBarTitleDisplayMode(.inline)
       .safeAreaBar(edge: .bottom) {
         // Side by side, it belongs to the comments pane.
         if !usesPanes {
