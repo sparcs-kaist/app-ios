@@ -15,7 +15,6 @@ import FirebaseAnalytics
 public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @Binding var deepLinkedPost: AraPost?
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel(), deepLinkedPost: Binding<AraPost?> = .constant(nil)) {
     _viewModel = State(initialValue: viewModel)
@@ -47,7 +46,6 @@ public struct BoardListView: View {
     .disabled(viewModel.state == .loading)
     .navigationTitle(String(localized: "Boards", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
-    .toolbar(horizontalSizeClass == .compact ? .automatic : .visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
     .navigationDestination(for: AraBoard.self) { board in
       PostListView(board: board)
         .id(board.id)
