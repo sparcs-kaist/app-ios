@@ -21,6 +21,20 @@ extension Container: @retroactive AutoRegistering {
     self { UserStorage() }.singleton
   }
 
+  /// Ara authenticates API calls with the Bearer token, but its Django backend tries session
+  /// authentication first: a stray `sessionid` cookie makes it treat requests as a browser
+  /// session, and every POST then fails its CSRF check with 403. Ara requests carry no cookies.
+  private var araSession: Factory<Session> {
+    self {
+      let configuration = URLSessionConfiguration.default
+      configuration.headers = .default
+      configuration.httpShouldSetCookies = false
+      configuration.httpCookieAcceptPolicy = .never
+      configuration.httpCookieStorage = nil
+      return Session(configuration: configuration, startRequestsImmediately: false)
+    }.singleton
+  }
+
   private var authPlugin: Factory<AccessTokenPlugin> {
     self {
       let tokenStorage = self.tokenStorage.resolve()
@@ -83,6 +97,7 @@ extension Container: @retroactive AutoRegistering {
     self {
       AraBoardRepository(
         provider: MoyaProvider<AraBoardTarget>(
+          session: self.araSession.resolve(),
           plugins: [
             self.authPlugin.resolve()
           ]
@@ -93,7 +108,7 @@ extension Container: @retroactive AutoRegistering {
 
   private var araCommentRepository: Factory<AraCommentRepositoryProtocol> {
     self {
-      AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(plugins: [
+      AraCommentRepository(provider: MoyaProvider<AraCommentTarget>(session: self.araSession.resolve(), plugins: [
         self.authPlugin.resolve()
       ]))
     }
@@ -178,7 +193,7 @@ extension Container: @retroactive AutoRegistering {
 
     // MARK: Ara
     araUserRepository.register {
-      AraUserRepository(provider: MoyaProvider<AraUserTarget>(plugins: [self.authPlugin.resolve()]))
+      AraUserRepository(provider: MoyaProvider<AraUserTarget>(session: self.araSession.resolve(), plugins: [self.authPlugin.resolve()]))
     }
 
     // MARK: Feed
