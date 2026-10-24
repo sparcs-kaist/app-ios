@@ -61,7 +61,7 @@ struct PostTranslationView: View {
 
           Group {
             if isTranslating {
-              Text(content.isEmpty ? post.content ?? "" : content)
+              Text(content.isEmpty ? post.contentPlainText : content)
                 .redacted(reason: isTranslating ? [.placeholder] : [])
             } else {
               Text(content)
@@ -75,7 +75,7 @@ struct PostTranslationView: View {
       }
       .task {
         availableLanguages = await languageAvailability.supportedLanguages
-        if let langCode = detectDominantLanguage(of: post.content?.convertFromHTML() ?? "") {
+        if let langCode = detectDominantLanguage(of: post.contentPlainText) {
           availableLanguages = availableLanguages.filter { $0.languageCode?.identifier != langCode }
           if let targetLanguage = availableLanguages.first(where: { $0.languageCode?.identifier == (langCode == "ko" ? "en" : "ko") }) {
             selectedTarget = targetLanguage
@@ -102,9 +102,7 @@ struct PostTranslationView: View {
 
         do {
           async let translatedTitleTask = try await session.translate(post.title ?? "")
-          async let translatedContentTask = try await session.translate(
-            post.content?.convertFromHTML() ?? ""
-          )
+          async let translatedContentTask = try await session.translate(post.contentPlainText)
 
           let (translatedTitle, translatedContent) = try await (translatedTitleTask, translatedContentTask)
 

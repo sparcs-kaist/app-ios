@@ -100,6 +100,8 @@ let package = Package(
             "BuddyDomain",
             "BuddyFeatureShared",
             "BuddyPreviewSupport",
+            .product(name: "TiptapKit", package: "BuddyUI"),
+            .product(name: "TiptapUI", package: "BuddyUI"),
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
             .product(

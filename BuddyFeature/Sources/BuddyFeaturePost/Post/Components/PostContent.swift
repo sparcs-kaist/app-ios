@@ -6,18 +6,16 @@
 //
 
 import SwiftUI
+import NukeUI
+import TiptapUI
 import BuddyFeatureShared
 
-/// The optional AI summary plus the post's HTML body (with loading and error states).
+/// The optional AI summary plus the post's body: Tiptap rendered natively, HTML in a web view.
 struct PostContent: View {
   let summarisedContent: String?
+  let content: PostBody?
   let requestProvider: () -> URLRequest?
   let onLinkTapped: (URL) -> Void
-
-  @State private var htmlHeight: CGFloat = .zero
-  @State private var isWebViewLoading: Bool = false
-  @State private var webViewLoadError: DynamicHeightWebView.LoadError?
-  @State private var webViewReloadToken: Int = 0
 
   var body: some View {
     if let summarisedContent {
@@ -29,6 +27,66 @@ struct PostContent: View {
         ))
     }
 
+    switch content {
+    case .tiptap(let layout, _):
+      TiptapView(layout)
+        .tiptapImage { PostContentImage(image: $0) }
+        .environment(\.openURL, OpenURLAction { url in
+          // The in-app Safari sheet only takes web URLs; mailto: and tel: go to the system.
+          guard ["http", "https"].contains(url.scheme?.lowercased()) else { return .systemAction }
+          onLinkTapped(url)
+          return .handled
+        })
+    case .html:
+      PostHTMLContent(requestProvider: requestProvider, onLinkTapped: onLinkTapped)
+    case nil:
+      ProgressView()
+        .frame(maxWidth: .infinity)
+        .padding()
+    }
+  }
+}
+
+/// An image block loaded through Nuke, so it shares the app's image cache.
+private struct PostContentImage: View {
+  let image: TiptapImage
+
+  var body: some View {
+    LazyImage(url: image.url) { state in
+      if let loaded = state.image {
+        loaded
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+      } else {
+        RoundedRectangle(cornerRadius: 8)
+          .fill(.fill.tertiary)
+          .aspectRatio(4 / 3, contentMode: .fit)
+          .overlay {
+            if state.error != nil {
+              Image(systemName: "photo.badge.exclamationmark")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+            } else {
+              ProgressView()
+            }
+          }
+      }
+    }
+    .clipShape(.rect(cornerRadius: 8))
+  }
+}
+
+/// HTML content (Portal Notice and older posts), rendered by the Ara web frame.
+private struct PostHTMLContent: View {
+  let requestProvider: () -> URLRequest?
+  let onLinkTapped: (URL) -> Void
+
+  @State private var htmlHeight: CGFloat = .zero
+  @State private var isWebViewLoading: Bool = false
+  @State private var webViewLoadError: DynamicHeightWebView.LoadError?
+  @State private var webViewReloadToken: Int = 0
+
+  var body: some View {
     ZStack {
       DynamicHeightWebView(
         htmlString: "",

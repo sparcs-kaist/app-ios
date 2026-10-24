@@ -23,9 +23,10 @@ struct PostToolsTip: Tip {
   }
   var options: [any TipOption] { [Tips.MaxDisplayCount(3)] }
 
-  /// Whether a post's HTML is long, or in a language other than the app's, so the menu would help.
-  static func isWorthShowing(forHTML html: String) -> Bool {
-    let text = html.replacing(/<[^>]+>/, with: " ")
+  /// Whether a post's text (HTML or plain) is long, or in a language other than the app's, so the
+  /// menu would help.
+  static func isWorthShowing(for content: String) -> Bool {
+    let text = content.replacing(/<[^>]+>/, with: " ")
     if text.count >= 500 { return true }
     let recognizer = NLLanguageRecognizer()
     recognizer.processString(text)
