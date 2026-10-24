@@ -96,7 +96,13 @@ struct PostComposeView: View {
           TiptapEditor(controller: viewModel.editor)
           .overlay(alignment: .topLeading) {
             if viewModel.editor.isEmpty {
-              Text("What's happening?", bundle: .module)
+              Group {
+                if viewModel.board.isMarket {
+                  Text("Describe the item: its condition, and how to reach you.", bundle: .module)
+                } else {
+                  Text("What's happening?", bundle: .module)
+                }
+              }
                 .foregroundStyle(.tertiary)
                 // Matches the text view's top inset, so it sits where typing starts.
                 .padding(.top, 8)

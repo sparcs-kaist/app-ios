@@ -1,6 +1,17 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Describe the item: its condition, and how to reach you." : {
+      "comment" : "Placeholder for the body of a Market listing.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "물건의 상태와 연락 방법 등을 적어 주세요."
+          }
+        }
+      }
+    },
     "Open" : {
       "comment" : "Opens a downloaded attachment.",
       "localizations" : {
