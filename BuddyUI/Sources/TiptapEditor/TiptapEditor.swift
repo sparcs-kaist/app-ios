@@ -14,7 +14,17 @@ public final class TiptapEditorController {
   /// Bumped on every edit, so the editor's height is re-measured.
   private(set) var revision = 0
 
-  @ObservationIgnored weak var textView: TiptapTextView?
+  @ObservationIgnored weak var textView: TiptapTextView? {
+    didSet {
+      if let textView, let pendingText {
+        textView.attributedText = pendingText
+        self.pendingText = nil
+        textDidChange()
+      }
+    }
+  }
+  /// Text set before the editor appeared, applied once it does.
+  @ObservationIgnored private var pendingText: NSAttributedString?
 
   public init() {}
 
@@ -33,6 +43,17 @@ public final class TiptapEditorController {
       }
     }
     return attachments
+  }
+
+  /// Replaces the content, e.g. with an existing post to edit.
+  public func setAttributedText(_ text: NSAttributedString) {
+    if let textView {
+      textView.attributedText = text
+      textDidChange()
+    } else {
+      pendingText = text
+      isEmpty = text.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
   }
 
   public func insertImages(_ images: [UIImage]) {

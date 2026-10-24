@@ -50,6 +50,11 @@ public struct TiptapParser: Sendable {
     self.options = options
   }
 
+  /// Decodes `&amp;`, `&lt;`, `&#54620;` and the like, as an HTML sanitiser leaves them.
+  public static func decodingHTMLEntities(_ string: String) -> String {
+    HTMLEntities.decode(string)
+  }
+
   /// Whether `string` should be treated as Tiptap JSON rather than HTML — the same
   /// check the Ara server and web client make.
   public static func isTiptapJSON(_ string: String) -> Bool {

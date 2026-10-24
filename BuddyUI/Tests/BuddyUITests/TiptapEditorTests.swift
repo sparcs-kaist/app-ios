@@ -193,3 +193,55 @@ struct TiptapTextViewTests {
     #expect(TiptapBlockStyle.of(last) == .body)
   }
 }
+
+@MainActor
+struct TiptapImportTests {
+  private let converter = TiptapAttributedStringConverter { attachment in
+    (attachment as? TiptapImageAttachment)?.existingNode
+  }
+
+  private func roundTrip(_ json: String) throws -> TiptapDocument {
+    let document = try TiptapParser().parse(json)
+    let text = TiptapAttributedStringConverter.attributedString(from: document) { node in
+      TiptapImageAttachment(image: UIImage(systemName: "star")!, existingNode: node)
+    }
+    return converter.document(from: text)
+  }
+
+  /// Everything the editor can express comes back exactly as it went in.
+  @Test func roundTripsWhatTheEditorSupports() throws {
+    let json = """
+    {"type":"doc","content":[
+      {"type":"heading","attrs":{"level":2},"content":[{"type":"text","text":"Camping"}]},
+      {"type":"paragraph","content":[
+        {"type":"text","text":"Plain "},
+        {"type":"text","marks":[{"type":"bold"}],"text":"bold"},
+        {"type":"text","marks":[{"type":"italic"}],"text":" italic"},
+        {"type":"hardBreak"},
+        {"type":"text","marks":[{"type":"underline"},{"type":"link","attrs":{"href":"https://sparcs.org"}}],"text":"link"}
+      ]},
+      {"type":"paragraph"},
+      {"type":"bulletList","content":[
+        {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"one"}]},
+          {"type":"orderedList","attrs":{"start":3},"content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"nested"}]}]}]}]},
+        {"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"two"}]}]}
+      ]},
+      {"type":"codeBlock","content":[{"type":"text","text":"let a = 1\\nlet b = 2"}]},
+      {"type":"paragraph","content":[{"type":"attachmentImage","attrs":{"src":"https://x.org/a.png","width":250,"data-attachment":"7"}}]}
+    ]}
+    """
+    #expect(try roundTrip(json) == TiptapParser().parse(json))
+  }
+
+  @Test func keepsTheContentOfBlocksTheEditorCannotShow() throws {
+    let document = try roundTrip("""
+    {"type":"doc","content":[
+      {"type":"blockquote","content":[{"type":"paragraph","content":[{"type":"text","text":"quoted"}]}]},
+      {"type":"horizontalRule"},
+      {"type":"paragraph","content":[{"type":"linkBookmark","attrs":{"href":"https://sparcs.org","title":"SPARCS"}}]}
+    ]}
+    """)
+    #expect(document.plainText == "quoted\nSPARCS")
+    #expect(document.content.last?.content.first?.marks.first?[attribute: "href"]?.stringValue == "https://sparcs.org")
+  }
+}
