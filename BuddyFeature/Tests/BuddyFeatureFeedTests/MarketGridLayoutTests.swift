@@ -44,4 +44,10 @@ struct MarketGridLayoutTests {
     // The rows reach the bottom of the screen even when every title is one line.
     #expect(CGFloat(rows) * (layout.columnWidths[0] + 60 + 20) >= height)
   }
+
+  @Test func phoneMarginsAreEven() {
+    let layout = MarketGridLayout(width: 402, hinge: nil, hasHinge: false)
+    #expect(layout.leadingInset == 16)
+    #expect(abs(402 - layout.leadingInset - layout.contentWidth - 16) < 0.5)
+  }
 }
