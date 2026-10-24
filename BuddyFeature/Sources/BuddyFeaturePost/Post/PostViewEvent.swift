@@ -16,6 +16,7 @@ enum PostViewEvent: Event {
   case postReported(type: String)
   case postDeleted
   case summariseRequested
+  case translationRequested(target: String)
 
   var source: String { "PostView" }
 
@@ -35,6 +36,8 @@ enum PostViewEvent: Event {
       "post_deleted"
     case .summariseRequested:
       "summarise_requested"
+    case .translationRequested:
+      "translation_requested"
     }
   }
 
@@ -44,6 +47,8 @@ enum PostViewEvent: Event {
       ["source": source, "isBookmarked": "\(isBookmarked)"]
     case .postReported(let type):
       ["source": source, "type": type]
+    case .translationRequested(let target):
+      ["source": source, "target": target]
     default:
       ["source": source]
     }

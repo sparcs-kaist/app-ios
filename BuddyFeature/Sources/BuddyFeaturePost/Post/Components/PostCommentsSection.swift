@@ -25,7 +25,7 @@ struct PostCommentsSection: View {
       if comments.isEmpty {
         Divider()
         ContentUnavailableView(
-          "No one has commented yet.",
+          String(localized: "No one has commented yet.", bundle: .module),
           systemImage: "text.bubble",
           description: Text("Be the first one to share your thoughts.", bundle: .module)
         )

@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+@preconcurrency import Translation
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostViewModel")
@@ -28,10 +29,21 @@ protocol PostViewModelProtocol: Observable {
   /// `nil` until `prepareContentBody()` has parsed the fetched content.
   var contentBody: PostBody? { get }
   var isFoundationModelsAvailable: Bool { get }
+  /// Whether the post is shown as written, being translated, or translated in place.
+  var translationState: PostTranslationState { get }
+  /// Languages the post can be translated into, once loaded.
+  var translationLanguages: [Locale.Language] { get }
+  /// The language the post is detected to be written in.
+  var sourceLanguage: Locale.Language? { get }
   var alertState: AlertState? { get set }
   var isAlertPresented: Bool { get set }
 
   func prepareContentBody() async
+  func loadTranslationLanguages() async
+  /// Starts translating into `target`; the view runs the session and calls `translate(using:)`.
+  func requestTranslation(to target: Locale.Language) -> TranslationSession.Configuration
+  func translate(using session: TranslationSession) async
+  func showOriginal()
   func fetchPost() async
   func upvote() async
   func downvote() async
@@ -59,7 +71,12 @@ class PostViewModel: PostViewModelProtocol {
   /// content, board, topic) and for round-tripping (translation). Reassigned
   /// only on `fetchPost`; hot fields below are mutated in isolation instead.
   var post: AraPost {
-    didSet { syncHotState() }
+    didSet {
+      syncHotState()
+      if post.content != oldValue.content || post.title != oldValue.title {
+        translationState = .original
+      }
+    }
   }
   private(set) var upvotes: Int = 0
   private(set) var downvotes: Int = 0
@@ -68,6 +85,9 @@ class PostViewModel: PostViewModelProtocol {
   var commentCount: Int = 0
   var comments: [AraPostComment] = []
   private(set) var contentBody: PostBody? = nil
+  private(set) var translationState: PostTranslationState = .original
+  private(set) var translationLanguages: [Locale.Language] = []
+  private(set) var sourceLanguage: Locale.Language?
   var isFoundationModelsAvailable: Bool = false
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
@@ -122,6 +142,53 @@ class PostViewModel: PostViewModelProtocol {
     }.value
     guard !Task.isCancelled else { return }
     contentBody = body
+  }
+
+  // MARK: - Translation
+
+  func loadTranslationLanguages() async {
+    // The language is detected from the content, which a post opened from a list doesn't have yet.
+    guard translationLanguages.isEmpty, post.content != nil else { return }
+    sourceLanguage = PostTranslator.dominantLanguage(of: "\(post.title ?? "")\n\(post.contentPlainText)")
+    let supported = await LanguageAvailability().supportedLanguages
+    translationLanguages = PostTranslator.targetLanguages(from: supported, excluding: sourceLanguage)
+  }
+
+  func requestTranslation(to target: Locale.Language) -> TranslationSession.Configuration {
+    translationState = .translating(to: target)
+    analyticsService?.logEvent(PostViewEvent.translationRequested(target: target.minimalIdentifier))
+    // A known source spares the system from asking which language the post is in.
+    return TranslationSession.Configuration(source: sourceLanguage, target: target)
+  }
+
+  func translate(using session: TranslationSession) async {
+    guard case .translating(let target) = translationState else { return }
+    do {
+      let translation = try await PostTranslator.translate(
+        post: post,
+        document: PostTranslator.document(for: post),
+        using: session,
+        source: sourceLanguage,
+        target: target
+      )
+      // The reader may have picked another language, or the original, in the meantime.
+      guard translationState == .translating(to: target) else { return }
+      translationState = .translated(translation)
+    } catch {
+      guard translationState == .translating(to: target) else { return }
+      translationState = .original
+      // Closing the system's language download sheet cancels; that needs no alert.
+      if error is CancellationError || Task.isCancelled { return }
+      logger.error("Failed to translate post: \(error.localizedDescription, privacy: .public)")
+      presentAlert(
+        title: String(localized: "Unable to translate post.", bundle: .module),
+        message: error.localizedDescription
+      )
+    }
+  }
+
+  func showOriginal() {
+    translationState = .original
   }
 
   private func refreshFoundationModelsAvailability() async {

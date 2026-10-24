@@ -14,11 +14,17 @@ import BuddyFeatureShared
 struct PostContent: View {
   let summarisedContent: String?
   let content: PostBody?
+  /// Identifies what the body shows (the original, or a translation), so swapping one for the
+  /// other transitions rather than reflowing in place.
+  var contentID: String = "original"
+  /// Shows the body as a pulsing placeholder while it's being translated.
+  var isTranslating: Bool = false
   let onLinkTapped: (URL) -> Void
   /// Scrolls the post to the image with this id while it's shown full screen.
   var onScrollToImage: (URL) -> Void = { _ in }
 
   @State private var gallery: ImageGallery?
+  @State private var isPulsing = false
   @Namespace private var imageTransition
 
   var body: some View {
@@ -31,6 +37,23 @@ struct PostContent: View {
         ))
     }
 
+    contentView
+      .id(contentID)
+      .transition(.blurReplace)
+      .redacted(reason: isTranslating ? .placeholder : [])
+      .opacity(isPulsing ? 0.4 : 1)
+      .allowsHitTesting(!isTranslating)
+      .onChange(of: isTranslating, initial: true) { _, isTranslating in
+        if isTranslating {
+          withAnimation(.easeInOut(duration: 0.8).repeatForever()) { isPulsing = true }
+        } else {
+          withAnimation(.easeOut(duration: 0.2)) { isPulsing = false }
+        }
+      }
+  }
+
+  @ViewBuilder
+  private var contentView: some View {
     switch content {
     case .tiptap(let layout, _):
       TiptapView(layout)

@@ -12,6 +12,7 @@ import Haptica
 import FirebaseAnalytics
 import BuddyFeatureShared
 import TipKit
+@preconcurrency import Translation
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostView")
@@ -33,7 +34,7 @@ public struct PostView: View {
 
   @State private var selectedAuthor: AraPostAuthor? = nil
 
-  @State private var showTranslationView: Bool = false
+  @State private var translationConfiguration: TranslationSession.Configuration?
   @State private var showDeleteConfirmation: Bool = false
   @State private var showEditView: Bool = false
 
@@ -65,9 +66,15 @@ public struct PostView: View {
             TipView(PostToolsTip())
           }
 
+          PostTranslationBanner(state: viewModel.translationState) {
+            viewModel.showOriginal()
+          }
+
           PostContent(
             summarisedContent: summarisedContent,
-            content: viewModel.contentBody,
+            content: displayedContent,
+            contentID: viewModel.translationState.target?.minimalIdentifier ?? "original",
+            isTranslating: isTranslating,
             onLinkTapped: { tappedURL = $0 },
             onScrollToImage: { proxy.scrollTo($0, anchor: .center) }
           )
@@ -124,6 +131,8 @@ public struct PostView: View {
         .padding()
         .contentWidth()
         .animation(.spring(), value: summarisedContent)
+        // The title and body settle into their translation, or back to the original.
+        .animation(.spring(duration: 0.5, bounce: 0.15), value: viewModel.translationState)
       }
       .scrollDismissesKeyboard(.interactively)
       .onKeyboardDismiss {
@@ -181,8 +190,8 @@ public struct PostView: View {
           }
         }
       }
-      .sheet(isPresented: $showTranslationView) {
-        PostTranslationView(post: viewModel.post)
+      .translationTask(translationConfiguration) { session in
+        await viewModel.translate(using: session)
       }
       .navigationDestination(item: $selectedAuthor) { author in
         UserPostListView(user: author)
@@ -195,6 +204,7 @@ public struct PostView: View {
       }
       .task(id: viewModel.post.content) {
         await viewModel.prepareContentBody()
+        await viewModel.loadTranslationLanguages()
         let content = if case .tiptap(_, let plainText) = viewModel.contentBody {
           plainText
         } else {
@@ -236,10 +246,7 @@ public struct PostView: View {
 
       if viewModel.post.isMine == false { Divider () }
 
-      Button(String(localized: "Translate", bundle: .module), systemImage: "translate") {
-        PostToolsTip().invalidate(reason: .actionPerformed)
-        showTranslationView = true
-      }
+      translateMenu
 
       if viewModel.isFoundationModelsAvailable {
         Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
@@ -398,6 +405,61 @@ public struct PostView: View {
     return String(localized: "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")", bundle: .module)
   }
 
+  // MARK: - Translation
+
+  private var isTranslating: Bool {
+    if case .translating = viewModel.translationState { true } else { false }
+  }
+
+  private var translatedTitle: String? {
+    if case .translated(let translation) = viewModel.translationState { translation.title } else { nil }
+  }
+
+  /// The body as written, or translated in place with its structure kept.
+  private var displayedContent: PostBody? {
+    if case .translated(let translation) = viewModel.translationState {
+      return .tiptap(translation.layout, plainText: "")
+    }
+    return viewModel.contentBody
+  }
+
+  private var translateMenu: some View {
+    Menu(String(localized: "Translate", bundle: .module), systemImage: "translate") {
+      if viewModel.translationState != .original {
+        Button(String(localized: "Show Original", bundle: .module), systemImage: "arrow.uturn.backward") {
+          viewModel.showOriginal()
+        }
+      }
+
+      Picker(selection: Binding(
+        get: { viewModel.translationState.target },
+        set: { target in
+          if let target { translate(to: target) }
+        }
+      )) {
+        ForEach(viewModel.translationLanguages, id: \.minimalIdentifier) { language in
+          Text(PostTranslator.displayName(for: language))
+            .tag(Optional(language))
+        }
+      } label: {
+        Text("Translate to", bundle: .module)
+      }
+      .pickerStyle(.inline)
+    }
+    .disabled(viewModel.translationLanguages.isEmpty)
+  }
+
+  private func translate(to target: Locale.Language) {
+    PostToolsTip().invalidate(reason: .actionPerformed)
+    let configuration = viewModel.requestTranslation(to: target)
+    // An unchanged configuration doesn't re-run the task; invalidating it does.
+    if translationConfiguration == configuration {
+      translationConfiguration?.invalidate()
+    } else {
+      translationConfiguration = configuration
+    }
+  }
+
   var title: AttributedString {
     var result = AttributedString()
 
@@ -408,7 +470,7 @@ public struct PostView: View {
       result.append(topicAttr)
     }
 
-    var titleAttr = AttributedString(viewModel.post.title ?? String(localized: "Untitled", bundle: .module))
+    var titleAttr = AttributedString(translatedTitle ?? viewModel.post.title ?? String(localized: "Untitled", bundle: .module))
     titleAttr.font = .headline
     titleAttr.foregroundColor = .primary
     result.append(titleAttr)
