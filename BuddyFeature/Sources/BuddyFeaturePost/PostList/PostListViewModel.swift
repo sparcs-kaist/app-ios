@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import BuddyFeatureShared
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostListViewModel")
@@ -91,6 +92,10 @@ class PostListViewModel: PostListViewModelProtocol {
       self.totalPages = page.pages
       self.currentPage = page.currentPage
       self.posts = page.results
+      // The whole board's newest post is now in view, so it no longer counts as new.
+      if selectedTopic == nil && searchKeyword.isEmpty, let newest = page.results.map(\.id).max() {
+        BoardSeenPosts.markSeen(newest, inBoard: board.id)
+      }
       self.hasMorePages = currentPage < totalPages
       self.state = .loaded(posts: self.posts)
       analyticsService?.logEvent(PostListViewEvent.postsRefreshed)
