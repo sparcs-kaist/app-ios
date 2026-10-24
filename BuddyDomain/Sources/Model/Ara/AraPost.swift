@@ -45,6 +45,8 @@ public struct AraPost: Identifiable, Hashable, Sendable {
   public let author: AraPostAuthor
   /// How the author is named: their nickname, anonymous, or their real name.
   public let nameType: AraPostNicknameType?
+  /// The price and sale state of a Market post; `nil` elsewhere.
+  public let marketListing: AraMarketListing?
   /// Sent with list responses only; `nil` elsewhere.
   public var readStatus: ReadStatus?
   public let attachmentType: AttachmentType
@@ -53,6 +55,11 @@ public struct AraPost: Identifiable, Hashable, Sendable {
   public let isNSFW: Bool
   public let isPolitical: Bool
   public let views: Int
+
+  /// The first image attached to the post, for a thumbnail.
+  public var thumbnailURL: URL? {
+    attachments?.first { $0.mimeType.hasPrefix("image/") }?.file
+  }
   public var commentCount: Int
   public var upvotes: Int
   public var downvotes: Int
@@ -77,6 +84,7 @@ public struct AraPost: Identifiable, Hashable, Sendable {
     title: String?,
     author: AraPostAuthor,
     nameType: AraPostNicknameType? = nil,
+    marketListing: AraMarketListing? = nil,
     readStatus: ReadStatus? = nil,
     attachmentType: AttachmentType,
     communicationArticleStatus: CommunicationArticleStatus?,
@@ -105,6 +113,7 @@ public struct AraPost: Identifiable, Hashable, Sendable {
     self.title = title
     self.author = author
     self.nameType = nameType
+    self.marketListing = marketListing
     self.readStatus = readStatus
     self.attachmentType = attachmentType
     self.communicationArticleStatus = communicationArticleStatus

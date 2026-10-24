@@ -1,6 +1,67 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "₩%@" : {
+      "comment" : "A price in Korean won.",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "₩%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@원"
+          }
+        }
+      }
+    },
+    "Free" : {
+      "comment" : "The price of a Market listing given away for nothing.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무료 나눔"
+          }
+        }
+      }
+    },
+    "No Price" : {
+      "comment" : "Shown for a Market listing without a price.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가격 미정"
+          }
+        }
+      }
+    },
+    "Reserved" : {
+      "comment" : "A Market listing someone has reserved.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예약 중"
+          }
+        }
+      }
+    },
+    "Sold" : {
+      "comment" : "A Market listing that has sold.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판매 완료"
+          }
+        }
+      }
+    },
     "Allow Buddy to add photos in Settings, then try again." : {
       "comment" : "Shown when saving a photo is not allowed.",
       "localizations" : {

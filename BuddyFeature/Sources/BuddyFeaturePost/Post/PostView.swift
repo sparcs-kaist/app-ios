@@ -59,6 +59,7 @@ public struct PostView: View {
             authorProfileURL: viewModel.post.author.profile.profilePictureURL,
             authorNickname: viewModel.post.author.profile.nickname,
             isAnonymous: viewModel.post.isAnonymous,
+            marketListing: viewModel.post.board?.isMarket == true ? viewModel.post.marketListing : nil,
             onAuthorTapped: { selectedAuthor = viewModel.post.author }
           )
 

@@ -30,6 +30,11 @@ protocol PostComposeViewModelProtocol: Observable {
   var isNSFW: Bool { get set }
   var isPolitical: Bool { get set }
 
+  /// The asking price on the Market board; `nil` for none.
+  var price: Int? { get set }
+  /// Whether a Market listing is still for sale. Only offered when editing.
+  var saleState: AraMarketListing.State { get set }
+
   /// Loads the edited post's body, photos included, into the editor.
   func loadContentForEditing() async
   /// Writes the new post, or saves the edited one.
@@ -50,6 +55,16 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
   var writeAsAnonymous: Bool = true
   var isNSFW: Bool = false
   var isPolitical: Bool = false
+
+  var price: Int? = nil {
+    didSet {
+      // No negative prices, and nothing near overflowing.
+      if let price, !(0...999_999_999_999).contains(price) {
+        self.price = min(max(price, 0), 999_999_999_999)
+      }
+    }
+  }
+  var saleState: AraMarketListing.State = .onSale
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -72,7 +87,11 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
     self.title = post.title ?? ""
     self.isNSFW = post.isNSFW
     self.isPolitical = post.isPolitical
-    self.writeAsAnonymous = post.author.username == "anonymous"
+    if let listing = post.marketListing {
+      self.price = listing.price
+      self.saleState = listing.state
+    }
+    self.writeAsAnonymous = post.isAnonymous
   }
 
   // MARK: - Loading
@@ -123,6 +142,16 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
 
   // MARK: - Submitting
 
+  /// The price and state to send for a Market post; `nil` on other boards.
+  private var marketListing: AraMarketListing? {
+    guard board.isMarket else { return nil }
+    return AraMarketListing(
+      price: price,
+      currency: editingPost?.marketListing?.currency ?? "KRW",
+      state: saleState
+    )
+  }
+
   func submit() async throws {
     guard let araBoardUseCase else { return }
 
@@ -154,7 +183,8 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
         content: document.jsonString(),
         attachmentIDs: Self.attachmentIDs(keptBy: document, from: post),
         isNSFW: isNSFW,
-        isPolitical: isPolitical
+        isPolitical: isPolitical,
+        marketListing: marketListing
       )
       try await araBoardUseCase.updatePost(postID: post.id, request: request)
       analyticsService?.logEvent(PostComposeViewEvent.postEdited)
@@ -167,7 +197,8 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
         isNSFW: isNSFW,
         isPolitical: isPolitical,
         nicknameType: writeAsAnonymous ? .anonymous : .regular,
-        board: board
+        board: board,
+        marketListing: marketListing
       )
       try await araBoardUseCase.writePost(request: request)
       analyticsService?.logEvent(PostComposeViewEvent.postSubmitted)

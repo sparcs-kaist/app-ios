@@ -17,6 +17,8 @@ public struct AraCreatePost: Sendable {
   public let isPolitical: Bool
   public let nicknameType: AraPostNicknameType
   public let board: AraBoard
+  /// The price of a Market post.
+  public let marketListing: AraMarketListing?
 
   public init(
     title: String,
@@ -26,7 +28,8 @@ public struct AraCreatePost: Sendable {
     isNSFW: Bool,
     isPolitical: Bool,
     nicknameType: AraPostNicknameType,
-    board: AraBoard
+    board: AraBoard,
+    marketListing: AraMarketListing? = nil
   ) {
     self.title = title
     self.content = content
@@ -36,5 +39,6 @@ public struct AraCreatePost: Sendable {
     self.isPolitical = isPolitical
     self.nicknameType = nicknameType
     self.board = board
+    self.marketListing = marketListing
   }
 }

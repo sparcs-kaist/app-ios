@@ -17,6 +17,7 @@ public struct AraPostRequestDTO: Codable {
   let isPolitical: Bool
   let nicknameType: String
   let board: Int
+  let metadata: AraMarketMetadataDTO?
 
   enum CodingKeys: String, CodingKey {
     case title
@@ -27,6 +28,7 @@ public struct AraPostRequestDTO: Codable {
     case isPolitical = "is_content_social"
     case nicknameType = "name_type"
     case board = "parent_board"
+    case metadata
   }
 }
 
@@ -40,7 +42,8 @@ public extension AraPostRequestDTO {
       isNSFW: model.isNSFW,
       isPolitical: model.isPolitical,
       nicknameType: model.nicknameType.rawValue,
-      board: model.board.id
+      board: model.board.id,
+      metadata: model.marketListing.map(AraMarketMetadataDTO.fromModel)
     )
   }
 }

@@ -18,6 +18,7 @@ public struct AraPostDTO: Codable {
   let title: String?
   let author: AraPostAuthorDTO
   let nameType: Int?
+  let metadata: AraMarketMetadataDTO?
   let readStatus: String?
   let attachmentType: String?
   let communicationArticleStatus: Int?
@@ -48,6 +49,7 @@ public struct AraPostDTO: Codable {
     case title
     case author = "created_by"
     case nameType = "name_type"
+    case metadata
     case readStatus = "read_status"
     case attachmentType = "attachment_type"
     case communicationArticleStatus = "communication_article_status"
@@ -94,6 +96,7 @@ public extension AraPostDTO {
       title: title,
       author: author.toModel(),
       nameType: nameType.flatMap(AraPostNicknameType.init(code:)),
+      marketListing: metadata?.toModel(),
       readStatus: readStatus.flatMap(AraPost.ReadStatus.init(rawValue:)),
       attachmentType: AraPost.AttachmentType(rawValue: attachmentType ?? "") ?? .none,
       communicationArticleStatus: communicationArticleStatus != nil ? AraPost

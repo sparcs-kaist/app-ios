@@ -16,12 +16,22 @@ public struct AraUpdatePost: Sendable {
   public let attachmentIDs: [Int]
   public let isNSFW: Bool
   public let isPolitical: Bool
+  /// The price of a Market post; `nil` leaves it as it was.
+  public let marketListing: AraMarketListing?
 
-  public init(title: String, content: String, attachmentIDs: [Int], isNSFW: Bool, isPolitical: Bool) {
+  public init(
+    title: String,
+    content: String,
+    attachmentIDs: [Int],
+    isNSFW: Bool,
+    isPolitical: Bool,
+    marketListing: AraMarketListing? = nil
+  ) {
     self.title = title
     self.content = content
     self.attachmentIDs = attachmentIDs
     self.isNSFW = isNSFW
     self.isPolitical = isPolitical
+    self.marketListing = marketListing
   }
 }
