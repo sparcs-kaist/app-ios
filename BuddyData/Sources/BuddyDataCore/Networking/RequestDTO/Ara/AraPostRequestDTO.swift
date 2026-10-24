@@ -32,16 +32,9 @@ public struct AraPostRequestDTO: Codable {
 
 public extension AraPostRequestDTO {
   static func fromModel(_ model: AraCreatePost) -> AraPostRequestDTO {
-    let attachmentsInHTML = model.attachments.compactMap { attachment in
-      guard let fileURL = attachment.file else { return "" }
-      return """
-          <p><img src="\(fileURL)" width="500" data-attachment="\(attachment.id)"></p>
-          """
-    }.joined()
-
-    return AraPostRequestDTO(
+    AraPostRequestDTO(
       title: model.title,
-      content: model.content.toHTMLParagraphs() + attachmentsInHTML,
+      content: model.content,
       attachments: model.attachments.compactMap { $0.id },
       topic: model.topic?.id,
       isNSFW: model.isNSFW,
