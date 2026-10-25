@@ -64,6 +64,12 @@ struct AraMarketMetadataTests {
     #expect(try decode(#"{"price": 9900.0}"#)?.price == 9900)
   }
 
+  /// Decoded for every post in a list, so a price no `Int` can hold mustn't crash the board.
+  @Test(arguments: ["1e300", "-1e300", "9.3e18"])
+  func dropsPricesTooLargeToHold(value: String) throws {
+    #expect(try decode(#"{"price": \#(value), "state": "onsale"}"#)?.price == nil)
+  }
+
   @Test func ignoresMetadataOfOtherBoards() throws {
     #expect(try decode(#"{"expire_at": "2026-11-01"}"#) == nil)
   }

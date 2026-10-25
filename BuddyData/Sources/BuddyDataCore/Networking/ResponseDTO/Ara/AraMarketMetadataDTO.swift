@@ -32,8 +32,9 @@ struct AraMarketMetadataDTO: Codable {
     // Prices have been sent as numbers; tolerate a numeric string or a fraction too.
     if let price = try? container.decodeIfPresent(Int.self, forKey: .price) {
       self.price = price
-    } else if let price = try? container.decodeIfPresent(Double.self, forKey: .price), price.isFinite {
-      self.price = Int(price)
+    } else if let price = try? container.decodeIfPresent(Double.self, forKey: .price) {
+      // `Int(_:)` traps on a value it can't hold, such as 1e300; anything that big is no price.
+      self.price = Int(exactly: price.rounded(.towardZero))
     } else if let text = try? container.decodeIfPresent(String.self, forKey: .price) {
       self.price = Int(text.filter(\.isNumber))
     } else {
