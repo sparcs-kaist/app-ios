@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import BuddyFeaturePost
 import FirebaseAnalytics
 import ChannelIOFront
 import os
@@ -33,15 +34,23 @@ public struct SettingsView: View {
           appSettings
         }
         
-        Section(header: Text("Services", bundle: .module)) {
+        // One section per service, each holding everything that service lets you set.
+        Section(header: Text("Buddy", bundle: .module)) {
           NavigationLink(String(localized: "Feed", bundle: .module)) { FeedSettingsView() }
-          NavigationLink(String(localized: "Ara", bundle: .module)) { AraSettingsView() }
-          NavigationLink(String(localized: "Taxi", bundle: .module)) { TaxiSettingsView() }
-          NavigationLink(String(localized: "Timetable", bundle: .module)) { TimetableSettingsView() }
         }
 
-        Section(header: Text("Appearance", bundle: .module)) {
+        Section(header: Text("OTL", bundle: .module)) {
+          NavigationLink(String(localized: "Settings", bundle: .module)) { TimetableSettingsView() }
           NavigationLink(String(localized: "Timetable Theme", bundle: .module)) { TimetableThemeSettingsView() }
+        }
+
+        Section(header: Text("Ara", bundle: .module)) {
+          NavigationLink(String(localized: "Profile", bundle: .module)) { AraSettingsView() }
+          NavigationLink(String(localized: "Board Sections", bundle: .module)) { BoardSectionsSettingsView() }
+        }
+
+        Section(header: Text("Taxi", bundle: .module)) {
+          NavigationLink(String(localized: "Profile", bundle: .module)) { TaxiSettingsView() }
         }
 				
 				Section {
