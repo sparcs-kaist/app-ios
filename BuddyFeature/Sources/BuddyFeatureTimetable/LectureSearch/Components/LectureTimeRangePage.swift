@@ -71,11 +71,7 @@ struct LectureTimeRangePage: View {
     let times = LectureTimeFilter.selectableTimes
     let range = time.begin == nil && time.end == nil
       ? nil
-      : "\(clockTime(time.begin ?? times.first!))–\(clockTime(time.end ?? times.last!))"
+      : Date.formattedTimeRange(minutesPastMidnight: time.begin ?? times.first!, to: time.end ?? times.last!)
     return [time.day?.description, range].compactMap { $0 }.joined(separator: " ")
-  }
-
-  private func clockTime(_ minutes: Int) -> String {
-    String(format: "%02d:%02d", minutes / 60, minutes % 60)
   }
 }

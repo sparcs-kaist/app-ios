@@ -54,13 +54,11 @@ public struct TimetableTimeSelection: Equatable, Sendable {
   }
 
   public var formattedTimeRange: String {
-    "\(Self.formattedTime(begin)) – \(Self.formattedTime(end))"
+    Date.formattedTimeRange(minutesPastMidnight: begin, to: end)
   }
 
   public static func formattedTime(_ minutes: Int) -> String {
-    let calendar = Calendar.current
-    let date = calendar.date(byAdding: .minute, value: minutes, to: calendar.startOfDay(for: .now)) ?? .now
-    return date.formatted(.dateTime.hour().minute())
+    Date.formattedTime(minutesPastMidnight: minutes)
   }
 
   private static func snap(_ minutes: Int) -> Int {

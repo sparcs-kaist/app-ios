@@ -187,13 +187,24 @@ public struct TimetableGrid: View {
     .padding(.leading, layout.leadingInset)
   }
 
+  /// The hour as a bare number in the user's 12- or 24-hour setting: "1" or "13".
+  /// Digits only, so the axis keeps its width in either.
+  private static func hourLabel(_ hour: Int) -> String {
+    switch Locale.current.hourCycle {
+    case .oneToTwelve: String(hour % 12 == 0 ? 12 : hour % 12)
+    case .zeroToEleven: String(hour % 12)
+    case .zeroToTwentyThree, .oneToTwentyFour: String(hour)
+    @unknown default: String(hour)
+    }
+  }
+
   private func timesRowHeader(layout: TimetableLayout, height: CGFloat) -> some View {
     let skipAlternate = placement == .widget && layout.hours.count > 8
 
     return ZStack(alignment: .topLeading) {
       ForEach(layout.hours, id: \.self) { hour in
         if !skipAlternate || (hour - layout.hours.lowerBound).isMultiple(of: 2) {
-          Text(String(hour))
+          Text(Self.hourLabel(hour))
             .font(placement == .widget ? .system(size: 10) : .caption)
             .foregroundStyle(theme.gridLabelColor ?? .primary)
             .frame(width: layout.timeLabelWidth, height: placement == .widget ? 12 : nil)

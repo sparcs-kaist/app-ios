@@ -74,6 +74,26 @@ public extension Date {
     return formatter.string(from: self)
   }
 
+  /// Minutes past midnight as a time of day, in the user's 12- or 24-hour setting,
+  /// e.g. "1:30 PM" or "13:30".
+  static func formattedTime(minutesPastMidnight minutes: Int) -> String {
+    today(atMinute: minutes).formatted(.dateTime.hour().minute())
+  }
+
+  /// A range of minutes past midnight, in the user's 12- or 24-hour setting. A shared
+  /// AM/PM is written once, e.g. "9:00 – 10:30 AM" or "09:00–10:30".
+  static func formattedTimeRange(minutesPastMidnight begin: Int, to end: Int) -> String {
+    guard begin <= end else {
+      return "\(formattedTime(minutesPastMidnight: begin))–\(formattedTime(minutesPastMidnight: end))"
+    }
+    return (today(atMinute: begin)..<today(atMinute: end)).formatted(.interval.hour().minute())
+  }
+
+  private static func today(atMinute minutes: Int) -> Date {
+    let calendar = Calendar.current
+    return calendar.date(byAdding: .minute, value: minutes, to: calendar.startOfDay(for: .now)) ?? .now
+  }
+
   var formattedDate: String {
     let formatter = DateFormatter()
     formatter.locale = Locale.current

@@ -172,7 +172,7 @@ public struct TimetableRangeSelector: View {
   }
 
   private func rangeText(begin: Int, end: Int) -> String {
-    "\(Self.clockTime(begin))–\(Self.clockTime(end))"
+    Date.formattedTimeRange(minutesPastMidnight: begin, to: end)
   }
 
   private var accessibilityValue: String {
@@ -180,10 +180,6 @@ public struct TimetableRangeSelector: View {
     guard !filter.isEmpty else { return String(localized: "Any Time", bundle: .module) }
     let range = rangeText(begin: filter.begin ?? bounds.lowerBound, end: filter.end ?? bounds.upperBound)
     return [filter.day?.description, range].compactMap { $0 }.joined(separator: ", ")
-  }
-
-  private static func clockTime(_ minutes: Int) -> String {
-    String(format: "%02d:%02d", minutes / 60, minutes % 60)
   }
 
   /// A range as VoiceOver adjusts it: always on a day and with both times, within the bounds.

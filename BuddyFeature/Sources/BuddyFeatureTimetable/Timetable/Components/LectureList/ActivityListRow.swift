@@ -41,7 +41,7 @@ struct ActivityListRow: View {
 	/// Every time range, e.g. "Mon 10:00 – 11:00, Fri 14:00 – 15:00".
 	private var timesDescription: String {
 		activity.times
-			.map { "\($0.day.stringValue) \(TimetableTimeSelection.formattedTime($0.begin)) – \(TimetableTimeSelection.formattedTime($0.end))" }
+			.map { "\($0.day.stringValue) \(Date.formattedTimeRange(minutesPastMidnight: $0.begin, to: $0.end))" }
 			.formatted(.list(type: .and, width: .narrow))
 	}
 

@@ -18,7 +18,7 @@ public struct LectureEntry: TimelineEntry {
   public var location: String? { activity?.location ?? lectureClass?.location }
   public var timeDescription: String? {
     if let slot = activitySlot {
-      return String(format: "%02d:%02d–%02d:%02d", slot.begin / 60, slot.begin % 60, slot.end / 60, slot.end % 60)
+      return Date.formattedTimeRange(minutesPastMidnight: slot.begin, to: slot.end)
     }
     return lectureClass?.description
   }

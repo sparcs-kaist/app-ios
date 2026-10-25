@@ -20,12 +20,7 @@ public struct LectureClass: Hashable, Sendable, Codable {
   }
 
   public var description: String {
-    func formatTime(_ minutes: Int) -> String {
-      let hours = minutes / 60
-      let mins = minutes % 60
-      return String(format: "%02d:%02d", hours, mins)
-    }
-    return "\(formatTime(begin))-\(formatTime(end))"
+    Date.formattedTimeRange(minutesPastMidnight: begin, to: end)
   }
 	
 	public var location: String {
