@@ -78,7 +78,12 @@ public struct FullScreenImageViewer: View {
           .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { safeAreaFrame = $0 }
         TabView(selection: $selection) {
           ForEach(Array(gallery.urls.enumerated()), id: \.offset) { index, url in
-            ZoomableImage(url: url, screen: screen, isZoomed: index == selection ? $isZoomed : .constant(false)) { image in
+            ZoomableImage(
+              url: url,
+              screen: screen,
+              isCurrent: index == selection,
+              isZoomed: index == selection ? $isZoomed : .constant(false)
+            ) { image in
               loadedImages[url] = image
             }
             .contextMenu {
@@ -97,6 +102,8 @@ public struct FullScreenImageViewer: View {
           if dismissDrag == .zero { screenFrame = frame }
         }
         .tabViewStyle(.page(indexDisplayMode: gallery.urls.count > 1 && dismissDrag == .zero ? .automatic : .never))
+        // A drag on a zoomed image pans it; paging along with it makes the image lag the finger.
+        .scrollDisabled(isZoomed)
         // Follows the finger and shrinks a little on the way down, as in Photos.
         .scaleEffect(1 - min(max(dismissDrag.height, 0) / 1500, 0.25))
         .offset(dismissDrag)
@@ -292,37 +299,33 @@ private enum ImageActionToast: Equatable {
 ///
 /// It fills the whole screen, safe area included. Pinching it smaller settles it inside the
 /// safe area instead, clear of the bars (on iPhone Duo, the one down the side).
+///
+/// Zooming and panning are a `UIScrollView`'s, as in Photos: it tracks the finger directly and
+/// decelerates and bounces, where SwiftUI gestures updating state lag behind on a large image.
 private struct ZoomableImage: View {
   let url: URL
   let screen: ScreenGeometry
+  /// Whether this is the page showing; leaving it shows the image whole again.
+  let isCurrent: Bool
   @Binding var isZoomed: Bool
   /// Reports the image once it has loaded.
   var onLoad: (UIImage) -> Void = { _ in }
 
-  @State private var scale: CGFloat = 1.0
-  @State private var lastScale: CGFloat = 1.0
-  @State private var offset: CGSize = .zero
-  @State private var lastOffset: CGSize = .zero
-  @State private var imageSize: CGSize?
   /// Where this page is on screen, to centre the image on the screen rather than the page.
+  /// Its horizontal position is left at zero: it changes on every frame of a page swipe, and
+  /// the image doesn't need it.
   @State private var pageFrame: CGRect = .zero
-
-  private let maxScale: CGFloat = 5.0
 
   var body: some View {
     LazyImage(url: url) { state in
-      if let image = state.image {
-        image
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: screenSize.width, height: screenSize.height)
-          .scaleEffect(scale)
-          .offset(offset)
-          .gesture(magnifyGesture)
-          // Panning only takes over while zoomed; otherwise the drag pages to the next image.
-          .gesture(panGesture, including: isZoomed ? .all : .subviews)
-          .onTapGesture(count: 2) { handleDoubleTap() }
-          .onAppear { imageSize = state.imageContainer?.image.size }
+      if let image = state.imageContainer?.image {
+        ZoomingImageView(
+          image: image,
+          safeArea: screen.bounds.isEmpty ? CGRect(origin: .zero, size: pageFrame.size) : screen.safeArea,
+          isCurrent: isCurrent,
+          isZoomed: $isZoomed
+        )
+        .frame(width: screenSize.width, height: screenSize.height)
       } else if let error = state.error {
         ContentUnavailableView(error.localizedDescription, systemImage: "exclamationmark.triangle")
           .foregroundStyle(.white)
@@ -333,7 +336,6 @@ private struct ZoomableImage: View {
     }
     .onCompletion { result in
       if case .success(let response) = result {
-        imageSize = response.image.size
         onLoad(response.image)
       }
     }
@@ -347,86 +349,170 @@ private struct ZoomableImage: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .contentShape(.rect)
     .onGeometryChange(for: CGRect.self) {
-      $0.frame(in: .named(ScreenGeometry.space))
+      let frame = $0.frame(in: .named(ScreenGeometry.space))
+      return CGRect(x: 0, y: frame.minY, width: frame.width, height: frame.height)
     } action: { pageFrame = $0 }
-    // Swiping back to this page shows it whole again.
-    .onDisappear(perform: resetZoom)
-    .onChange(of: scale) { _, scale in
-      isZoomed = scale > 1
-    }
   }
 
   private var screenSize: CGSize {
     screen.bounds.isEmpty ? pageFrame.size : screen.bounds.size
   }
+}
 
-  /// The scale and offset that fit the image inside the safe area rather than the whole screen.
-  private var safeAreaFit: (scale: CGFloat, offset: CGSize) {
-    let full = screen.bounds, safe = screen.safeArea
-    guard let imageSize, imageSize.width > 0, imageSize.height > 0,
-          !full.isEmpty, !safe.isEmpty else { return (1, .zero) }
-    let screenFit = min(full.width / imageSize.width, full.height / imageSize.height)
-    let safeFit = min(safe.width / imageSize.width, safe.height / imageSize.height)
-    return (
-      min(safeFit / screenFit, 1),
-      // Centred in the safe area, which is off-centre when only one side has a bar.
-      CGSize(width: safe.midX - full.midX, height: safe.midY - full.midY)
-    )
+/// The image in a zooming scroll view the size of the screen.
+private struct ZoomingImageView: UIViewRepresentable {
+  let image: UIImage
+  /// The safe area, in the view's own coordinates.
+  let safeArea: CGRect
+  let isCurrent: Bool
+  @Binding var isZoomed: Bool
+
+  func makeUIView(context: Context) -> ZoomingScrollView {
+    ZoomingScrollView()
   }
 
-  private var magnifyGesture: some Gesture {
-    MagnifyGesture()
-      .onChanged { value in
-        scale = min(max(lastScale * value.magnification, safeAreaFit.scale * 0.8), maxScale)
-      }
-      .onEnded { _ in
-        if scale <= 1 {
-          // Smaller than the screen settles inside the safe area; growing from there, back to full.
-          let isShrinking = scale < lastScale
-          withAnimation(.spring) { isShrinking ? fitToSafeArea() : resetZoom() }
-        } else {
-          lastScale = scale
-        }
-      }
+  func updateUIView(_ view: ZoomingScrollView, context: Context) {
+    view.image = image
+    view.safeArea = safeArea
+    view.onZoomChange = { isZoomed in
+      // Reported from UIKit, possibly mid-update; the binding is set afterwards.
+      Task { @MainActor in self.isZoomed = isZoomed }
+    }
+    if !isCurrent {
+      view.showWhole()
+    }
   }
+}
 
-  private var panGesture: some Gesture {
-    DragGesture()
-      .onChanged { value in
-        offset = CGSize(
-          width: lastOffset.width + value.translation.width,
-          height: lastOffset.height + value.translation.height
-        )
-      }
-      .onEnded { _ in
-        lastOffset = offset
-      }
-  }
-
-  private func handleDoubleTap() {
-    withAnimation(.spring) {
-      if scale != 1 {
-        resetZoom()
-      } else {
-        scale = 2.0
-        lastScale = 2.0
-      }
+private final class ZoomingScrollView: UIScrollView, UIScrollViewDelegate {
+  var image: UIImage? {
+    didSet {
+      guard image !== oldValue else { return }
+      imageView.image = image
+      fittedSize = .zero
+      setNeedsLayout()
     }
   }
 
-  private func resetZoom() {
-    scale = 1
-    lastScale = 1
-    offset = .zero
-    lastOffset = .zero
+  var safeArea: CGRect = .zero {
+    didSet {
+      guard safeArea != oldValue else { return }
+      fittedSize = .zero
+      setNeedsLayout()
+    }
   }
 
-  private func fitToSafeArea() {
-    let fit = safeAreaFit
-    scale = fit.scale
-    lastScale = fit.scale
-    offset = fit.offset
-    lastOffset = fit.offset
+  var onZoomChange: (Bool) -> Void = { _ in }
+
+  private let imageView = UIImageView()
+  /// The bounds the image was last fitted to.
+  private var fittedSize: CGSize = .zero
+  private var zoomScaleAtStart: CGFloat = 1
+  private var reportedZoomed = false
+
+  init() {
+    super.init(frame: .zero)
+    delegate = self
+    contentInsetAdjustmentBehavior = .never
+    showsHorizontalScrollIndicator = false
+    showsVerticalScrollIndicator = false
+    decelerationRate = .fast
+    maximumZoomScale = 5
+    addSubview(imageView)
+
+    let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped(_:)))
+    doubleTap.numberOfTapsRequired = 2
+    addGestureRecognizer(doubleTap)
+  }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    if bounds.size != fittedSize {
+      fit()
+    }
+  }
+
+  /// Sizes the image to fill the screen at a zoom scale of 1.
+  private func fit() {
+    guard let image, image.size.width > 0, image.size.height > 0,
+          bounds.width > 0, bounds.height > 0 else { return }
+    fittedSize = bounds.size
+    zoomScale = 1
+    let screenFit = min(bounds.width / image.size.width, bounds.height / image.size.height)
+    imageView.frame = CGRect(x: 0, y: 0, width: image.size.width * screenFit, height: image.size.height * screenFit)
+    contentSize = imageView.frame.size
+    // As small as fits the safe area, and no smaller once let go.
+    let safe = safeArea.isEmpty ? bounds : safeArea
+    let safeFit = min(safe.width / image.size.width, safe.height / image.size.height)
+    minimumZoomScale = min(safeFit / screenFit, 1)
+    centre()
+  }
+
+  /// Back to the whole image filling the screen.
+  func showWhole() {
+    guard zoomScale != 1 else { return }
+    setZoomScale(1, animated: false)
+  }
+
+  /// Centres an image smaller than the screen: on the screen at full size, moving to the centre
+  /// of the safe area (off-centre when only one side has a bar) as it shrinks to fit inside it.
+  private func centre() {
+    let size = imageView.frame.size
+    let safe = safeArea.isEmpty ? bounds : safeArea
+    let shrinkRange = 1 - minimumZoomScale
+    let progress = shrinkRange > 0 ? min(max((1 - zoomScale) / shrinkRange, 0), 1) : 0
+    let midX = bounds.width / 2 + (safe.midX - bounds.width / 2) * progress
+    let midY = bounds.height / 2 + (safe.midY - bounds.height / 2) * progress
+
+    func inset(_ length: CGFloat, in available: CGFloat, around mid: CGFloat) -> (CGFloat, CGFloat) {
+      guard length < available else { return (0, 0) }
+      let leading = min(max(mid - length / 2, 0), available - length)
+      return (leading, available - length - leading)
+    }
+    let (left, right) = inset(size.width, in: bounds.width, around: midX)
+    let (top, bottom) = inset(size.height, in: bounds.height, around: midY)
+    contentInset = UIEdgeInsets(top: top, left: left, bottom: bottom, right: right)
+  }
+
+  @objc private func doubleTapped(_ recognizer: UITapGestureRecognizer) {
+    if zoomScale != 1 {
+      setZoomScale(1, animated: true)
+    } else {
+      // Twice the size, centred on where was tapped.
+      let point = recognizer.location(in: imageView)
+      let size = CGSize(width: bounds.width / 2, height: bounds.height / 2)
+      zoom(to: CGRect(x: point.x - size.width / 2, y: point.y - size.height / 2,
+                      width: size.width, height: size.height), animated: true)
+    }
+  }
+
+  // MARK: - UIScrollViewDelegate
+
+  func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+    imageView
+  }
+
+  func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
+    zoomScaleAtStart = zoomScale
+  }
+
+  func scrollViewDidZoom(_ scrollView: UIScrollView) {
+    centre()
+    let isZoomed = zoomScale > 1.01
+    if isZoomed != reportedZoomed {
+      reportedZoomed = isZoomed
+      onZoomChange(isZoomed)
+    }
+  }
+
+  func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+    // Smaller than the screen settles inside the safe area; growing from there, back to full.
+    guard scale < 1, scale > minimumZoomScale else { return }
+    setZoomScale(scale < zoomScaleAtStart ? minimumZoomScale : 1, animated: true)
   }
 }
 
