@@ -68,9 +68,10 @@ public final class TiptapEditorController {
     textView?.resignFirstResponder()
   }
 
-  /// Shows Notes' formatting panel for the selection.
-  public func showFormatting() {
-    textView?.showFormatting()
+  /// Shows Notes' formatting panel for the selection. On a wide screen it's a popover pointing
+  /// at `anchor` (the button that opened it, in global coordinates), as on iPad Notes.
+  public func showFormatting(from anchor: CGRect? = nil) {
+    textView?.showFormatting(from: anchor)
   }
 
   /// Turns the selected paragraphs into a bulleted list, or back into paragraphs.

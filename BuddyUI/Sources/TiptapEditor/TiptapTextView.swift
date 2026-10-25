@@ -31,13 +31,34 @@ final class TiptapTextView: UITextView {
 
   private weak var formattingController: UITextFormattingViewController?
 
-  /// Shows Notes' formatting panel for the selection, as a half-height sheet that leaves the
-  /// text visible above it.
-  func showFormatting() {
+  /// Shows Notes' formatting panel for the selection. With room for it, a popover from the
+  /// button that opened it, its controls in compact rows, while the keyboard stays up; otherwise
+  /// a half-height sheet that leaves the text visible above it.
+  func showFormatting(from anchor: CGRect?) {
     guard formattingController == nil, let presenter = presentingViewController else { return }
     let controller = UITextFormattingViewController(configuration: .tiptap)
     controller.delegate = self
     controller.formattingDescriptor = currentFormattingDescriptor
+    // The window's width, not this view's: the composer is a sheet, which reads as compact.
+    if let anchor, let window, window.traitCollection.horizontalSizeClass == .regular {
+      controller.modalPresentationStyle = .popover
+      if let popover = controller.popoverPresentationController {
+        // SwiftUI's global space is the window's.
+        popover.sourceView = window
+        popover.sourceRect = anchor
+        popover.permittedArrowDirections = [.up, .down]
+      }
+      formattingController = controller
+      let selection = selectedRange
+      presenter.present(controller, animated: true) { [weak self] in
+        // Stays where it was being written, with the keyboard up beneath the popover.
+        if self?.isFirstResponder == false {
+          self?.becomeFirstResponder()
+        }
+        self?.selectedRange = selection
+      }
+      return
+    }
     if let sheet = controller.sheetPresentationController {
       sheet.detents = [.medium()]
       sheet.largestUndimmedDetentIdentifier = .medium

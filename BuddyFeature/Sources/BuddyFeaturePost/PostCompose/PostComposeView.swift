@@ -30,6 +30,7 @@ struct PostComposeView: View {
   @State private var showPhotosPicker: Bool = false
   @State private var showFileImporter = false
   @State private var pickedPhotos: [PhotosPickerItem] = []
+  @State private var formatButtonFrame: CGRect?
   @Namespace private var composeBarGlass
 
   @State private var showErrorAlert: Bool = false
@@ -248,8 +249,10 @@ struct PostComposeView: View {
         if viewModel.editor.isEditing {
           HStack(spacing: 0) {
             barButton(String(localized: "Format", bundle: .module), systemImage: "textformat") {
-              viewModel.editor.showFormatting()
+              viewModel.editor.showFormatting(from: formatButtonFrame)
             }
+            // Where the panel points from when it opens as a popover.
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { formatButtonFrame = $0 }
             barButton(String(localized: "Bulleted List", bundle: .module), systemImage: "list.bullet") {
               viewModel.editor.toggleBulletList()
             }
