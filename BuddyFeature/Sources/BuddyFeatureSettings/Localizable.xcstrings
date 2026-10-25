@@ -3216,9 +3216,6 @@
         }
       }
     },
-    "Buddy" : {
-      "comment" : "Settings header for Buddy's own features. A name; not translated."
-    },
     "OTL" : {
       "comment" : "Settings header for the timetable, which comes from OTL. A name; not translated."
     },

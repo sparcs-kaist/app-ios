@@ -35,8 +35,8 @@ public struct SettingsView: View {
         }
         
         // One section per service, each holding everything that service lets you set.
-        Section(header: Text("Buddy", bundle: .module)) {
-          NavigationLink(String(localized: "Feed", bundle: .module)) { FeedSettingsView() }
+        Section(header: Text("Feed", bundle: .module)) {
+          NavigationLink(String(localized: "Profile", bundle: .module)) { FeedSettingsView() }
         }
 
         Section(header: Text("OTL", bundle: .module)) {
