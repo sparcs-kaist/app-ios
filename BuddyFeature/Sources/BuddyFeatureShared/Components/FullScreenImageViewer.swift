@@ -122,21 +122,22 @@ public struct FullScreenImageViewer: View {
       }
       .navigationTitle(title)
       .navigationBarTitleDisplayMode(.inline)
-      .toolbarBackground(.hidden, for: .navigationBar)
-      .toolbar(dismissDrag == .zero ? .automatic : .hidden, for: .navigationBar)
+      .toolbarBackground(.hidden, for: .navigationBar, .bottomBar)
+      .toolbar(dismissDrag == .zero ? .automatic : .hidden, for: .navigationBar, .bottomBar)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
+          Button(role: .close) {
+            dismiss()
+          }
+        }
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+        ToolbarItem(placement: .bottomBar) {
           Menu(String(localized: "More", bundle: .module), systemImage: "ellipsis") {
             if let image = currentImage {
               imageActions(for: image)
             }
           }
           .disabled(currentImage == nil)
-        }
-        ToolbarItem(placement: .topBarTrailing) {
-          Button(role: .close) {
-            dismiss()
-          }
         }
       }
       .overlay(alignment: .bottom) {
