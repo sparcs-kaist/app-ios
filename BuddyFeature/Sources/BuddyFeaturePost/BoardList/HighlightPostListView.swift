@@ -96,15 +96,22 @@ final class HighlightPostListViewModel: HighlightPostListViewModelProtocol {
     \.araBoardUseCase
   ) private var araBoardUseCase: AraBoardUseCaseProtocol?
 
+  /// Bumped by each refresh, so a next page requested before it isn't appended after it.
+  @ObservationIgnored private var fetchGeneration = 0
+
   func fetchInitialPosts() async {
     guard let araBoardUseCase else { return }
+    fetchGeneration += 1
+    let generation = fetchGeneration
     do {
       let page = try await araBoardUseCase.fetchPosts(type: listType, page: 1, pageSize: pageSize, searchKeyword: nil)
+      guard generation == fetchGeneration else { return }
       currentPage = page.currentPage
       totalPages = page.pages
       posts = page.results
       errorMessage = nil
     } catch {
+      guard generation == fetchGeneration else { return }
       logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
       errorMessage = error.localizedDescription
     }
@@ -114,12 +121,16 @@ final class HighlightPostListViewModel: HighlightPostListViewModelProtocol {
     guard !isLoadingMore, currentPage < totalPages, let araBoardUseCase else { return }
     isLoadingMore = true
     let nextPage = currentPage + 1
+    let generation = fetchGeneration
     Task {
       defer { isLoadingMore = false }
       do {
         let page = try await araBoardUseCase.fetchPosts(type: listType, page: nextPage, pageSize: pageSize, searchKeyword: nil)
+        guard generation == fetchGeneration else { return }
         currentPage = page.currentPage
-        posts = (posts ?? []) + page.results
+        // Trending and the newest posts move between pages as they're read; skip any already shown.
+        let shown = Set((posts ?? []).map(\.id))
+        posts = (posts ?? []) + page.results.filter { !shown.contains($0.id) }
       } catch {
         logger.error("Failed to load more posts: \(error.localizedDescription, privacy: .public)")
       }

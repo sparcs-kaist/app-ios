@@ -27,6 +27,9 @@ class PostListViewModel: PostListViewModelProtocol {
   }
   @ObservationIgnored private var searchTask: Task<Void, Never>?
   @ObservationIgnored private var lastSearchKeyword: String?
+  /// Bumped by each fresh load, so a page that arrives for an earlier topic, search or
+  /// refresh is dropped rather than shown or appended to the new list.
+  @ObservationIgnored private var fetchGeneration = 0
 
   var selectedTopic: AraBoardTopic? {
     didSet {
@@ -81,6 +84,8 @@ class PostListViewModel: PostListViewModelProtocol {
 
   func fetchInitialPosts() async {
     guard let araBoardUseCase else { return }
+    fetchGeneration += 1
+    let generation = fetchGeneration
 
     do {
       let page = try await araBoardUseCase.fetchPosts(
@@ -89,6 +94,7 @@ class PostListViewModel: PostListViewModelProtocol {
         pageSize: pageSize,
         searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
       )
+      guard generation == fetchGeneration else { return }
       self.totalPages = page.pages
       self.currentPage = page.currentPage
       self.posts = page.results
@@ -100,6 +106,7 @@ class PostListViewModel: PostListViewModelProtocol {
       self.state = .loaded(posts: self.posts)
       analyticsService?.logEvent(PostListViewEvent.postsRefreshed)
     } catch {
+      guard generation == fetchGeneration else { return }
       logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
@@ -116,6 +123,7 @@ class PostListViewModel: PostListViewModelProtocol {
     let topicID = selectedTopic?.id
     let ps = pageSize
     let sk = searchKeyword.isEmpty ? nil : searchKeyword
+    let generation = fetchGeneration
 
     Task.detached {
       do {
@@ -127,12 +135,13 @@ class PostListViewModel: PostListViewModelProtocol {
         )
 
         await MainActor.run { [page] in
+          self.isLoadingMore = false
+          guard generation == self.fetchGeneration else { return }
           self.currentPage = page.currentPage
           self.posts.append(contentsOf: page.results)
           self.hasMorePages = self.currentPage < self.totalPages
           self.state = .loaded(posts: self.posts)
           self.analyticsService?.logEvent(PostListViewEvent.nextPageLoaded)
-          self.isLoadingMore = false
         }
       } catch {
         logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
