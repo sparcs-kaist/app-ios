@@ -12,6 +12,9 @@ import BuddyDomain
 struct TopicFilterBar: View {
   let topics: [AraBoardTopic]
   @Binding var selection: AraBoardTopic?
+  /// Whether the posts below are a capped column, which the chips then start in line with. The
+  /// Market grid uses the whole width, and its chips start at the edge as its photos do.
+  var isAboveColumn = true
 
   var body: some View {
     ScrollView(.horizontal) {
@@ -29,6 +32,8 @@ struct TopicFilterBar: View {
       .padding(.vertical, 6)
     }
     .scrollIndicators(.hidden)
+    // The chips start where the posts below do, and still scroll out to the screen's edges.
+    .scrollContentWidth(isEnabled: isAboveColumn)
     .sensoryFeedback(.selection, trigger: selection)
   }
 

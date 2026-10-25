@@ -42,7 +42,7 @@ struct HighlightPostListView: View {
           // Pushed by item, like the Boards list's own highlighted posts.
           onSelect: { selectedPost = $0 }
         )
-        .contentWidth()
+        .scrollContentWidth()
       }
     }
     .navigationDestination(item: $selectedPost) { post in

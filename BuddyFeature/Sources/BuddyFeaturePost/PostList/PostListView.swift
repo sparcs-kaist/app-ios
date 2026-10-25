@@ -49,7 +49,7 @@ struct PostListView: View {
         onRefresh: posts == nil ? nil : { await viewModel.fetchInitialPosts() },
         onLoadMore: posts == nil ? nil : { viewModel.loadNextPage() }
       )
-      .contentWidth()
+      .scrollContentWidth()
     }
   }
 
@@ -86,7 +86,7 @@ struct PostListView: View {
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .safeAreaBar(edge: .top) {
       if let topics = viewModel.board.topics, !topics.isEmpty {
-        TopicFilterBar(topics: topics, selection: $viewModel.selectedTopic)
+        TopicFilterBar(topics: topics, selection: $viewModel.selectedTopic, isAboveColumn: !viewModel.board.isMarket)
       }
     }
     // Content blurs softly behind the chips rather than under a hard edge.

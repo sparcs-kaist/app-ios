@@ -36,7 +36,7 @@ struct UserPostListView: View {
         switch viewModel.state {
         case .loading:
           PostList(posts: nil)
-            .contentWidth()
+            .scrollContentWidth()
         case .loaded(let posts):
           PostList(
             posts: posts,
@@ -51,7 +51,7 @@ struct UserPostListView: View {
             // author), so its posts are pushed the same way to land on top of it.
             onSelect: { selectedPost = $0 }
           )
-          .contentWidth()
+          .scrollContentWidth()
         case .error(let message):
           ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
