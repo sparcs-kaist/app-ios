@@ -37,6 +37,20 @@ extension PostFeatureTests {
       #expect(post.attachedImageURLs.isEmpty)
     }
 
+    /// Posts written here escape `.` and `/` in their JSON (`\u002E`), which a raw search misses.
+    @Test func matchesPhotosInPostsWrittenByTheApp() {
+      let post = AraFixtures.post(
+        id: 1,
+        content: #"{"type":"doc","content":[{"type":"image","attrs":{"src":"https:\u002F\u002Fsparcs-newara\u002Es3\u002Eamazonaws\u002Ecom\u002Ffiles\u002Fdesk\u002Ejpg"}}]}"#,
+        attachments: [
+          AraFixtures.attachment(id: 1, fileName: "desk.jpg", mimeType: "image/jpeg"),
+          AraFixtures.attachment(id: 2, fileName: "chair.jpg", mimeType: "image/jpeg"),
+        ]
+      )
+
+      #expect(post.attachedImageURLs.map(\.lastPathComponent) == ["chair.jpg"])
+    }
+
     @Test(arguments: [
       ("report.pdf", "report.pdf"),
       ("%EB%B3%B4%EA%B3%A0%EC%84%9C.pdf", "보고서.pdf"),

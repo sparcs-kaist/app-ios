@@ -52,11 +52,24 @@ extension AraPost {
   /// Photos uploaded as attachments without being placed in the content (common on Real
   /// Estate), shown after it. An attachment counts as inline when the content refers to its file.
   var attachedImageURLs: [URL] {
+    let images = (attachments ?? []).filter { $0.mimeType.hasPrefix("image/") && $0.file != nil }
+    guard !images.isEmpty else { return [] }
     let content = content ?? ""
-    return (attachments ?? []).compactMap { attachment in
-      guard attachment.mimeType.hasPrefix("image/"), let url = attachment.file else { return nil }
+    // A Tiptap post names its photos in `src` attributes, and its JSON may escape `.` and `/`
+    // (as this app writes them), so look in the parsed attributes rather than the raw string.
+    let references = (try? TiptapParser().parse(content))
+      .map { $0.content.flatMap(\.attributeStrings).joined(separator: "\n") } ?? content
+    return images.compactMap { attachment in
+      guard let url = attachment.file else { return nil }
       let names = [url.lastPathComponent, url.path(percentEncoded: true).split(separator: "/").last.map(String.init)]
-      return names.contains { $0.map { !$0.isEmpty && content.contains($0) } ?? false } ? nil : url
+      return names.contains { $0.map { !$0.isEmpty && references.contains($0) } ?? false } ? nil : url
     }
+  }
+}
+
+private extension TiptapNode {
+  /// Every string attribute in this node and below, such as image `src`s.
+  var attributeStrings: [String] {
+    attrs.values.compactMap(\.stringValue) + content.flatMap(\.attributeStrings)
   }
 }
