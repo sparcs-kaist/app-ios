@@ -1140,6 +1140,17 @@
           }
         }
       }
+    },
+    "Try Again" : {
+      "comment" : "Asks for a post's summary again after it failed.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

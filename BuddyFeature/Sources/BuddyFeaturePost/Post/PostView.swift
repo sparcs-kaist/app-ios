@@ -41,7 +41,6 @@ public struct PostView: View {
   @State private var showDeleteConfirmation: Bool = false
   @State private var showEditView: Bool = false
 
-  @State private var summarisedContent: String? = nil
   @State private var showsToolsTip = false
 
   let onPostDeleted: ((Int) -> Void)?
@@ -167,6 +166,14 @@ public struct PostView: View {
 
   // MARK: - Layout
 
+  /// A summary written or being written; after a failure, the post's own Try Again asks again.
+  private var isSummaryShown: Bool {
+    switch viewModel.summaryPhase {
+    case .summarising, .finished: true
+    case .failed, nil: false
+    }
+  }
+
   /// Post on the left, comments on the right, when there's room for both side by side: iPad and
   /// the inner display of iPhone Duo, wider than tall. Max iPhones in landscape are regular width
   /// but compact height, and keep the single column.
@@ -178,7 +185,7 @@ public struct PostView: View {
   }
 
   private func column(@ViewBuilder content: () -> some View) -> some View {
-    PostColumn(summarisedContent: summarisedContent, translationState: viewModel.translationState, content: content)
+    PostColumn(summaryPhase: viewModel.summaryPhase, translationState: viewModel.translationState, content: content)
   }
 
   private func postSection(proxy: ScrollViewProxy) -> some View {
@@ -186,7 +193,6 @@ public struct PostView: View {
       viewModel: viewModel,
       title: title,
       content: displayedContent,
-      summarisedContent: summarisedContent,
       isTranslating: isTranslating,
       showsToolsTip: showsToolsTip,
       onAuthorTapped: { selectedAuthor = viewModel.post.author },
@@ -248,17 +254,13 @@ public struct PostView: View {
 
       translateMenu
 
-      if viewModel.isFoundationModelsAvailable {
+      if viewModel.canSummarise {
         Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
           PostToolsTip().invalidate(reason: .actionPerformed)
-          summarisedContent = ""
-          Task {
-            Haptic.start.generate()
-            summarisedContent = await viewModel.summarisedContent()
-            Haptic.success.generate()
-          }
+          Haptic.start.generate()
+          viewModel.summarise()
         }
-        .disabled(summarisedContent != nil)
+        .disabled(isSummaryShown)
       }
 
       if viewModel.post.isMine == true { Divider () }

@@ -33,6 +33,26 @@ enum PostBody: Equatable, Sendable {
       plainText: document.plainText
     )
   }
+
+  /// About how many characters of text the post has, leaving out markup and whitespace.
+  var textLength: Int {
+    switch self {
+    case .tiptap(_, let plainText):
+      return plainText.count { !$0.isWhitespace }
+    case .html(let html, _):
+      // Counts what's outside tags; entities count a few characters each, near enough.
+      var count = 0
+      var isInTag = false
+      for character in html {
+        switch character {
+        case "<": isInTag = true
+        case ">": isInTag = false
+        default: if !isInTag && !character.isWhitespace { count += 1 }
+        }
+      }
+      return count
+    }
+  }
 }
 
 extension AraPost {

@@ -12,7 +12,7 @@ import BuddyFeatureShared
 
 /// A scrolling column: the whole post on a phone, or one pane beside the other.
 struct PostColumn<Content: View>: View {
-  let summarisedContent: String?
+  let summaryPhase: PostSummaryPhase?
   let translationState: PostTranslationState
   @ViewBuilder let content: Content
 
@@ -23,7 +23,7 @@ struct PostColumn<Content: View>: View {
       }
       .padding()
       .contentWidth()
-      .animation(.spring(), value: summarisedContent)
+      .animation(.spring(), value: summaryPhase)
       // The title and body settle into their translation, or back to the original.
       .animation(.spring(duration: 0.5, bounce: 0.15), value: translationState)
     }
@@ -79,7 +79,6 @@ struct PostSection: View {
   let viewModel: any PostViewModelProtocol
   let title: AttributedString
   let content: PostBody?
-  let summarisedContent: String?
   let isTranslating: Bool
   let showsToolsTip: Bool
   let onAuthorTapped: () -> Void
@@ -108,7 +107,8 @@ struct PostSection: View {
     }
 
     PostContent(
-      summarisedContent: summarisedContent,
+      summaryPhase: viewModel.summaryPhase,
+      onRetrySummary: viewModel.summarise,
       content: content,
       attachedImages: viewModel.post.attachedImageURLs,
       contentID: viewModel.translationState.target?.minimalIdentifier ?? "original",

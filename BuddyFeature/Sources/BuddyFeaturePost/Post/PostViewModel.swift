@@ -14,6 +14,15 @@ import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostViewModel")
 
+/// A post's on-device summary. Kept by the view model, so it outlives the views showing it,
+/// such as the post column being rebuilt when the device rotates into side-by-side panes.
+enum PostSummaryPhase: Equatable {
+  /// The summary written so far; empty until the first words arrive.
+  case summarising(String)
+  case finished(String)
+  case failed(message: String)
+}
+
 @MainActor
 protocol PostViewModelProtocol: Observable {
   var post: AraPost { get set }
@@ -51,7 +60,13 @@ protocol PostViewModelProtocol: Observable {
   func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment
   func editComment(commentID: Int, content: String) async throws -> AraPostComment
   func report(type: AraContentReportType) async throws
-  func summarisedContent() async -> String
+  /// `nil` until a summary is asked for.
+  var summaryPhase: PostSummaryPhase? { get }
+  /// Whether the post is long enough to be worth summarising on this device.
+  var canSummarise: Bool { get }
+  /// Summarises the post, or tries again after a failure. A summary already written or being
+  /// written is left alone.
+  func summarise()
   func deletePost() async throws
   func toggleBookmark() async
 
@@ -89,6 +104,7 @@ class PostViewModel: PostViewModelProtocol {
   private(set) var translationLanguages: [Locale.Language] = []
   private(set) var sourceLanguage: Locale.Language?
   var isFoundationModelsAvailable: Bool = false
+  private(set) var summaryPhase: PostSummaryPhase?
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
 
@@ -347,20 +363,42 @@ class PostViewModel: PostViewModelProtocol {
     analyticsService?.logEvent(PostViewEvent.postReported(type: "\(type)"))
   }
 
-  func summarisedContent() async -> String {
-    guard let foundationModelsUseCase else { return "" }
+  /// Shorter posts are quicker to read than a summary of them, as with reviews.
+  static let minimumSummaryLength = 200
 
-    analyticsService?.logEvent(PostViewEvent.summariseRequested)
+  var canSummarise: Bool {
+    guard isFoundationModelsAvailable, let contentBody else { return false }
+    return contentBody.textLength >= Self.minimumSummaryLength
+  }
+
+  func summarise() {
+    guard let foundationModelsUseCase, canSummarise else { return }
+    switch summaryPhase {
+    case .summarising, .finished: return
+    case .failed, nil: break
+    }
+
+    summaryPhase = .summarising("")
+    analyticsService?.logEvent(PostViewEvent.summaryRequested)
     let text = post.contentPlainText
-    do {
+
+    Task {
       var summary = ""
-      for try await snapshot in await foundationModelsUseCase.streamSummary(of: text, as: .post) {
-        summary = snapshot
+      do {
+        // Shown as it's written, as review summaries are.
+        for try await snapshot in await foundationModelsUseCase.streamSummary(of: text, as: .post) {
+          summary = snapshot
+          summaryPhase = .summarising(snapshot)
+        }
+        summary = summary.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !summary.isEmpty else { throw SummarisationError.failed }
+        summaryPhase = .finished(summary)
+        analyticsService?.logEvent(PostViewEvent.summaryFinished)
+      } catch {
+        let reason = error as? SummarisationError ?? .failed
+        summaryPhase = .failed(message: reason.localizedDescription)
+        analyticsService?.logEvent(PostViewEvent.summaryFailed(reason: reason))
       }
-      summary = summary.trimmingCharacters(in: .whitespacesAndNewlines)
-      return summary.isEmpty ? SummarisationError.failed.localizedDescription : summary
-    } catch {
-      return error.localizedDescription
     }
   }
 

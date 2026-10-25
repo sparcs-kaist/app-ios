@@ -13,7 +13,8 @@ import BuddyFeatureShared
 /// The optional AI summary plus the post's body: Tiptap rendered natively, HTML in a web view,
 /// then any photos attached without being placed in the body.
 struct PostContent: View {
-  let summarisedContent: String?
+  let summaryPhase: PostSummaryPhase?
+  var onRetrySummary: () -> Void = {}
   let content: PostBody?
   /// Attached photos the body doesn't show itself.
   var attachedImages: [URL] = []
@@ -31,8 +32,8 @@ struct PostContent: View {
   @Namespace private var imageTransition
 
   var body: some View {
-    if let summarisedContent {
-      SummarisationView(text: summarisedContent)
+    if let summaryPhase {
+      PostSummary(phase: summaryPhase, onRetry: onRetrySummary)
         .padding(.bottom)
         .transition(.asymmetric(
           insertion: .offset(y: -10).combined(with: .opacity),
@@ -164,6 +165,40 @@ private struct PostHTMLContent: View {
       if height == .zero {
         ProgressView()
           .padding()
+      }
+    }
+  }
+}
+
+/// The summary as it's written, then the finished summary, or why it failed with a way to try
+/// again, as review summaries show.
+private struct PostSummary: View {
+  let phase: PostSummaryPhase
+  let onRetry: () -> Void
+
+  var body: some View {
+    Group {
+      switch phase {
+      case let .summarising(text):
+        SummarisationView(text: text, isSummarising: true)
+      case let .finished(text):
+        SummarisationView(text: text)
+      case let .failed(message):
+        VStack(alignment: .leading, spacing: 8) {
+          Label(message, systemImage: "exclamationmark.triangle")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Button(String(localized: "Try Again", bundle: .module), systemImage: "arrow.clockwise", action: onRetry)
+            .font(.footnote)
+            .buttonStyle(.glass)
+        }
+      }
+    }
+    .sensoryFeedback(trigger: phase) { _, phase in
+      switch phase {
+      case .finished: .success
+      case .failed: .error
+      default: nil
       }
     }
   }
