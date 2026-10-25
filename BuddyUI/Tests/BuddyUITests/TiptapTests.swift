@@ -7,6 +7,15 @@ import TiptapKit
 struct TiptapParserTests {
   private let parser = TiptapParser()
 
+  /// Attributes come from whoever wrote the post; a number too big for `Int` mustn't trap.
+  @Test func readsHugeNumbersWithoutTrapping() {
+    let value = TiptapValue.number(1e300)
+    #expect(value.intValue == nil)
+    #expect(value.stringValue == String(1e300))
+    #expect(TiptapValue.number(3).stringValue == "3")
+    #expect(TiptapValue.number(2.5).intValue == 2)
+  }
+
   @Test func parsesStarterKitDocument() throws {
     let json = """
     {"type":"doc","content":[

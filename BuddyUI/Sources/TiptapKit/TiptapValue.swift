@@ -12,7 +12,8 @@ public enum TiptapValue: Sendable, Hashable {
   public var stringValue: String? {
     switch self {
     case .string(let value): value
-    case .number(let value): value.rounded() == value ? String(Int(value)) : String(value)
+    // `Int(exactly:)`: a whole number too big for `Int`, such as 1e300, would trap `Int(_:)`.
+    case .number(let value): Int(exactly: value).map(String.init) ?? String(value)
     case .bool(let value): String(value)
     default: nil
     }
@@ -28,7 +29,7 @@ public enum TiptapValue: Sendable, Hashable {
   }
 
   public var intValue: Int? {
-    doubleValue.flatMap { $0.isFinite ? Int($0) : nil }
+    doubleValue.flatMap { Int(exactly: $0.rounded(.towardZero)) }
   }
 
   public var boolValue: Bool? {
