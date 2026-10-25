@@ -49,6 +49,7 @@ struct DynamicHeightWebView: UIViewRepresentable {
     context.coordinator.parent = self
     guard context.coordinator.loadedHTML != html else { return }
     context.coordinator.loadedHTML = html
+    context.coordinator.isLoadingContent = true
     webView.loadHTMLString(Self.document(wrapping: html), baseURL: baseURL)
   }
 
@@ -64,6 +65,8 @@ struct DynamicHeightWebView: UIViewRepresentable {
   final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     var parent: DynamicHeightWebView
     var loadedHTML: String?
+    /// Set just before the post's own HTML is loaded: the one main-frame navigation allowed.
+    var isLoadingContent = false
 
     init(_ parent: DynamicHeightWebView) {
       self.parent = parent
@@ -75,21 +78,37 @@ struct DynamicHeightWebView: UIViewRepresentable {
       parent.height = height
     }
 
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+      // However the load went, nothing after it may replace the post.
+      isLoadingContent = false
+    }
+
     func webView(
       _ webView: WKWebView,
       decidePolicyFor navigationAction: WKNavigationAction,
       decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void
     ) {
-      guard navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url else {
-        // The initial `loadHTMLString` and embedded frames.
-        decisionHandler(.allow)
+      let isMainFrame = navigationAction.targetFrame?.isMainFrame ?? true
+      let scheme = navigationAction.request.url?.scheme?.lowercased()
+
+      if navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url {
+        decisionHandler(.cancel)
+        if ["http", "https"].contains(scheme) {
+          parent.onLinkTapped(url)
+        } else if ["mailto", "tel"].contains(scheme) {
+          // As Tiptap posts allow; any other scheme could drive another app (sms:, shortcuts:).
+          UIApplication.shared.open(url)
+        }
         return
       }
-      decisionHandler(.cancel)
-      if ["http", "https"].contains(url.scheme?.lowercased()) {
-        parent.onLinkTapped(url)
+      if isMainFrame {
+        // Only the post itself. A post can't replace itself with another page through a
+        // redirect, meta refresh or form, which could pass for part of the post.
+        decisionHandler(isLoadingContent ? .allow : .cancel)
+        isLoadingContent = false
       } else {
-        UIApplication.shared.open(url)
+        // Embedded frames, such as videos, stay inside their box; only over https.
+        decisionHandler(scheme == "https" ? .allow : .cancel)
       }
     }
   }
