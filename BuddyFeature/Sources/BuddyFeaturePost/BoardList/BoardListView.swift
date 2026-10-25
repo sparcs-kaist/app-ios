@@ -16,6 +16,8 @@ public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @Binding var deepLinkedPost: AraPost?
   @State private var selectedHighlightPost: AraPost?
+  /// The sections as saved in Settings, watched so the list follows a change made there.
+  @AppStorage(BoardListSectionStore.key) private var savedSections: Data?
 
   public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel(), deepLinkedPost: Binding<AraPost?> = .constant(nil)) {
     _viewModel = State(initialValue: viewModel)
@@ -47,6 +49,9 @@ public struct BoardListView: View {
     .disabled(viewModel.state == .loading)
     .navigationTitle(String(localized: "Boards", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
+    .onChange(of: savedSections) {
+      viewModel.reloadSections()
+    }
     .navigationDestination(for: AraBoard.self) { board in
       PostListView(board: board)
         .id(board.id)
@@ -70,14 +75,12 @@ public struct BoardListView: View {
   @ViewBuilder
   func loadedView(boards: [AraBoard], groups: [AraBoardGroup]) -> some View {
     let boardsByGroup = Dictionary(grouping: boards, by: { $0.group.id })
-    highlight(.trending, posts: viewModel.trendingPosts)
-    highlight(.latest(boardIDs: BoardListViewModel.latestBoardIDs(in: boards)), posts: viewModel.latestPosts)
-    if let market = boards.first(where: \.isMarket) {
-      marketShelf(market, posts: viewModel.marketPosts)
+    ForEach(viewModel.sections) { section in
+      self.section(section, boards: boards)
     }
     ForEach(groups) { group in
       ListGlassSection(
-        header: Label(group.name.localized(), systemImage: symbol(for: group.slug))
+        header: Label(group.name.localized(), systemImage: group.symbolName)
       ) {
         ForEach(boardsByGroup[group.id] ?? []) { board in
           NavigationLink(value: board) {
@@ -102,6 +105,27 @@ public struct BoardListView: View {
       .id(group.id)
     }
     .animation(.snappy, value: viewModel.boardsWithNewPosts)
+  }
+
+  /// One of the reader's sections. A board's posts preview as a list, Market's as a shelf; a
+  /// board that's gone or can't be read is left out.
+  @ViewBuilder
+  private func section(_ section: BoardListSection, boards: [AraBoard]) -> some View {
+    let posts = viewModel.posts(for: section)
+    switch section {
+    case .trending:
+      highlight(.trending, posts: posts)
+    case .latest:
+      highlight(.latest(boardIDs: BoardListViewModel.latestBoardIDs(in: boards)), posts: posts)
+    case .board(let slug):
+      if let board = boards.first(where: { $0.slug == slug && $0.userReadable != false }) {
+        if board.isMarket {
+          marketShelf(board, posts: posts)
+        } else {
+          highlight(.board(board), posts: posts)
+        }
+      }
+    }
   }
 
   /// A highlight section, as a placeholder while its posts load and hidden if there are none.
@@ -139,9 +163,14 @@ public struct BoardListView: View {
 
   @ViewBuilder
   var loadingView: some View {
-    highlight(.trending, posts: nil)
-    highlight(.latest(boardIDs: []), posts: nil)
-    marketShelf(.mock, posts: nil)
+    ForEach(viewModel.sections) { section in
+      switch section {
+      case .trending: highlight(.trending, posts: nil)
+      case .latest: highlight(.latest(boardIDs: []), posts: nil)
+      case .board(AraBoard.marketSlug): marketShelf(.mock, posts: nil)
+      case .board: highlight(.board(.mock), posts: nil)
+      }
+    }
     ForEach(0..<5) { _ in
       ListGlassSection(header: Label(String(localized: "Notice", bundle: .module), systemImage: "bell.badge.fill")) {
         ForEach(0..<3) { _ in
@@ -157,23 +186,6 @@ public struct BoardListView: View {
           .tint(.primary)
         }
       }
-    }
-  }
-
-  func symbol(for slug: String) -> String {
-    switch slug {
-    case "notice":
-      "bell.badge.fill"
-    case "talk":
-      "text.bubble.fill"
-    case "club":
-      "person.2.fill"
-    case "trade":
-      "tag.fill"
-    case "communication":
-      "envelope.open.fill"
-    default:
-      "list.clipboard"
     }
   }
 }

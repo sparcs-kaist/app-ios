@@ -1151,6 +1151,72 @@
           }
         }
       }
+    },
+    "Shown" : {
+      "comment" : "Header for the sections shown above the boards.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "표시 중"
+          }
+        }
+      }
+    },
+    "Highlights" : {
+      "comment" : "Header for Trending and Latest when they can be added back.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하이라이트"
+          }
+        }
+      }
+    },
+    "Reset to Default" : {
+      "comment" : "Puts back Trending, Latest and Market as the sections.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기본값으로 재설정"
+          }
+        }
+      }
+    },
+    "Add %@" : {
+      "comment" : "Accessibility label for adding a section, e.g. 'Add Talk'.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 추가"
+          }
+        }
+      }
+    },
+    "Board Sections" : {
+      "comment" : "Settings page choosing the sections above the boards.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시판 섹션"
+          }
+        }
+      }
+    },
+    "Shown above the boards in the Boards tab, in this order." : {
+      "comment" : "Footer under the chosen board sections.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시판 탭에서 게시판 목록 위에 이 순서대로 표시됩니다."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

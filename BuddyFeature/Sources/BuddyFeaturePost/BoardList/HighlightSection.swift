@@ -26,12 +26,8 @@ struct HighlightSection: View {
           .font(.title2)
           .fontWeight(.bold)
         Spacer()
-        NavigationLink {
-          HighlightPostListView(highlight: highlight)
-        } label: {
-          Text("See All", bundle: .module)
-            .font(.body)
-        }
+        seeAll
+          .font(.body)
       }
 
       VStack(alignment: .leading, spacing: 0) {
@@ -39,7 +35,7 @@ struct HighlightSection: View {
           Button {
             onSelect(post)
           } label: {
-            HighlightRow(rank: highlight.isRanked ? index + 1 : nil, post: post)
+            HighlightRow(rank: highlight.isRanked ? index + 1 : nil, post: post, showsBoard: highlight.board == nil)
           }
           .buttonStyle(.plain)
           .disabled(post.isHidden)
@@ -60,12 +56,30 @@ struct HighlightSection: View {
       .background(colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear, in: .rect(cornerRadius: 28))
     }
   }
+
+  /// A board's section opens the board itself; the others, the whole list they preview.
+  @ViewBuilder
+  private var seeAll: some View {
+    if let board = highlight.board {
+      NavigationLink(value: board) {
+        Text("See All", bundle: .module)
+      }
+    } else {
+      NavigationLink {
+        HighlightPostListView(highlight: highlight)
+      } label: {
+        Text("See All", bundle: .module)
+      }
+    }
+  }
 }
 
 /// A post, ranked or not: its place beside its title, and where and when it was posted.
 struct HighlightRow: View {
   let rank: Int?
   let post: AraPost
+  /// Off in a board's own section, where every post is from that board.
+  var showsBoard = true
 
   /// Wide enough for a single digit; the list never shows more than nine.
   static let rankWidth: CGFloat = 14
@@ -104,7 +118,7 @@ struct HighlightRow: View {
   /// "Wanted · 4 days ago · 12 comments", leaving out what's missing.
   private var details: String {
     var parts = [String]()
-    if let board = post.board {
+    if showsBoard, let board = post.board {
       parts.append(board.name.localized())
     }
     parts.append(post.createdAt.timeAgoDisplay)
@@ -121,11 +135,14 @@ enum BoardHighlight: Hashable {
   /// The newest posts across these boards (all but Portal Notice, whose crawled notices would
   /// bury everyone else's, as on Ara's main page).
   case latest(boardIDs: [Int])
+  /// The newest posts of one board, a section the reader added.
+  case board(AraBoard)
 
   var title: String {
     switch self {
     case .trending: String(localized: "Trending", bundle: .module)
     case .latest: String(localized: "Latest", bundle: .module)
+    case .board(let board): board.name.localized()
     }
   }
 
@@ -133,15 +150,35 @@ enum BoardHighlight: Hashable {
     switch self {
     case .trending: "flame.fill"
     case .latest: "sparkles"
+    case .board(let board): board.group.symbolName
     }
   }
 
   var isRanked: Bool { self == .trending }
 
+  var board: AraBoard? {
+    if case .board(let board) = self { board } else { nil }
+  }
+
   var listType: PostListType {
     switch self {
     case .trending: .trending
     case .latest(let boardIDs): .latest(boardIDs: boardIDs)
+    case .board(let board): .board(boardID: board.id)
+    }
+  }
+}
+
+extension AraBoardGroup {
+  /// The group's symbol, for its header in the Boards list and its boards' sections.
+  var symbolName: String {
+    switch slug {
+    case "notice": "bell.badge.fill"
+    case "talk": "text.bubble.fill"
+    case "club": "person.2.fill"
+    case "trade": "tag.fill"
+    case "communication": "envelope.open.fill"
+    default: "list.clipboard"
     }
   }
 }

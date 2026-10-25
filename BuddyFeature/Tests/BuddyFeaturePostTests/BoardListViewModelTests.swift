@@ -20,13 +20,17 @@ extension PostFeatureTests {
     private let club = AraFixtures.board(id: 5, slug: "club")
 
     private var boards: [AraBoard] { [AraFixtures.portalNotice, talk, club, AraFixtures.market] }
+    /// Sections saved in a throwaway suite, so neither the tests nor the simulator's own choices
+    /// affect the other.
+    private let sectionStore = BoardListSectionStore(defaults: UserDefaults(suiteName: "BoardListViewModelTests.\(UUID())")!)
 
     /// A use case serving `boards`, and each board's newest post from `newest`.
     private func useCase(
       newest: [Int: AraPost] = [:],
       trending: [AraPost] = [],
       latest: [AraPost] = [],
-      market: [AraPost] = []
+      market: [AraPost] = [],
+      talkPosts: [AraPost] = []
     ) -> MockAraBoardUseCase {
       let useCase = MockAraBoardUseCase()
       useCase.fetchBoardsResult = .success(boards)
@@ -35,6 +39,7 @@ extension PostFeatureTests {
         case .trending: AraFixtures.page(trending)
         case .latest: AraFixtures.page(latest)
         case .boardSlug("market"): AraFixtures.page(market)
+        case .boardSlug("talk"): AraFixtures.page(talkPosts)
         case .board(let boardID, nil): AraFixtures.page(newest[boardID].map { [$0] } ?? [])
         default: AraFixtures.page([])
         }
@@ -44,7 +49,7 @@ extension PostFeatureTests {
 
     private func load(_ useCase: MockAraBoardUseCase) async -> BoardListViewModel {
       setupPostTestDependencies(araBoardUseCase: useCase)
-      let viewModel = BoardListViewModel()
+      let viewModel = BoardListViewModel(sectionStore: sectionStore)
       await viewModel.fetchBoards()
       return viewModel
     }
@@ -63,9 +68,9 @@ extension PostFeatureTests {
       let viewModel = await load(useCase)
 
       #expect(viewModel.state == .loaded(boards: boards.sorted { $0.id < $1.id }, groups: [AraFixtures.group]))
-      #expect(viewModel.trendingPosts?.map(\.id) == [1])
-      #expect(viewModel.latestPosts?.map(\.id) == [2])
-      #expect(viewModel.marketPosts?.map(\.id) == [3])
+      #expect(viewModel.posts(for: .trending)?.map(\.id) == [1])
+      #expect(viewModel.posts(for: .latest)?.map(\.id) == [2])
+      #expect(viewModel.posts(for: .board(slug: "market"))?.map(\.id) == [3])
     }
 
     @Test func asksForMarketBySlugAndLatestWithoutPortalNotice() async {
@@ -88,16 +93,16 @@ extension PostFeatureTests {
       let useCase = useCase()
       useCase.fetchPostsHandler = { _ in throw TestError.testFailure }
       setupPostTestDependencies(araBoardUseCase: useCase)
-      let viewModel = BoardListViewModel()
+      let viewModel = BoardListViewModel(sectionStore: sectionStore)
       // `nil` is what shows the placeholder.
-      #expect(viewModel.trendingPosts == nil)
-      #expect(viewModel.latestPosts == nil)
-      #expect(viewModel.marketPosts == nil)
+      #expect(viewModel.posts(for: .trending) == nil)
+      #expect(viewModel.posts(for: .latest) == nil)
+      #expect(viewModel.posts(for: .board(slug: "market")) == nil)
 
       await viewModel.fetchBoards()
-      #expect(viewModel.trendingPosts == [])
-      #expect(viewModel.latestPosts == [])
-      #expect(viewModel.marketPosts == [])
+      #expect(viewModel.posts(for: .trending) == [])
+      #expect(viewModel.posts(for: .latest) == [])
+      #expect(viewModel.posts(for: .board(slug: "market")) == [])
     }
 
     @Test func aFailedRefreshKeepsWhatWasShown() async {
@@ -109,7 +114,7 @@ extension PostFeatureTests {
       useCase.fetchPostsHandler = { _ in throw TestError.testFailure }
       await viewModel.fetchBoards()
 
-      #expect(viewModel.trendingPosts?.map(\.id) == [1])
+      #expect(viewModel.posts(for: .trending)?.map(\.id) == [1])
     }
 
     @Test func showsAnErrorWhenTheBoardsFail() async {
@@ -129,6 +134,47 @@ extension PostFeatureTests {
       let hidden = AraFixtures.board(id: 9, slug: "hidden", readable: false)
       let ids = BoardListViewModel.latestBoardIDs(in: [AraFixtures.portalNotice, talk, hidden, AraFixtures.market])
       #expect(ids == [2, 7])
+    }
+
+    // MARK: - Choosing sections
+
+    @Test func startsWithTheDefaultSections() {
+      defer { tearDownPostTestDependencies() }
+      setupPostTestDependencies()
+      #expect(BoardListViewModel(sectionStore: sectionStore).sections == [.trending, .latest, .board(slug: "market")])
+    }
+
+    @Test func loadsOnlyTheChosenSectionsInTheirOrder() async {
+      BoardSeenPosts.reset()
+      defer { tearDownPostTestDependencies(); BoardSeenPosts.reset() }
+
+      sectionStore.save([.board(slug: "talk"), .trending])
+      let useCase = useCase(trending: [AraFixtures.post(id: 1)], talkPosts: [AraFixtures.post(id: 9)])
+      let viewModel = await load(useCase)
+
+      #expect(viewModel.sections == [.board(slug: "talk"), .trending])
+      #expect(viewModel.posts(for: .board(slug: "talk"))?.map(\.id) == [9])
+      #expect(viewModel.posts(for: .trending)?.map(\.id) == [1])
+      let types = useCase.fetchPostsCalls.map(\.type)
+      #expect(!types.contains(.boardSlug("market")))
+      #expect(!types.contains { if case .latest = $0 { true } else { false } })
+    }
+
+    @Test func followsSectionsSavedInSettings() async throws {
+      BoardSeenPosts.reset()
+      defer { tearDownPostTestDependencies(); BoardSeenPosts.reset() }
+
+      let viewModel = await load(useCase(talkPosts: [AraFixtures.post(id: 9)]))
+      // As Settings does, through its own model.
+      let settings = BoardSectionsSettingsModel(store: sectionStore)
+      settings.sections = [.board(slug: "talk"), .latest]
+      viewModel.reloadSections()
+
+      #expect(viewModel.sections == [.board(slug: "talk"), .latest])
+      for _ in 0..<100 where viewModel.posts(for: .board(slug: "talk")) == nil {
+        try await Task.sleep(for: .milliseconds(10))
+      }
+      #expect(viewModel.posts(for: .board(slug: "talk"))?.map(\.id) == [9])
     }
 
     // MARK: - New post dots

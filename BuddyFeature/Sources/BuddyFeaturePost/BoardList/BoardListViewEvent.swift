@@ -11,6 +11,7 @@ import Foundation
 enum BoardListViewEvent: Event {
   case boardsLoaded
   case boardSelected(boardName: String)
+  case sectionsEdited(count: Int)
 
   var source: String { "BoardListView" }
 
@@ -20,6 +21,8 @@ enum BoardListViewEvent: Event {
       "boards_loaded"
     case .boardSelected:
       "board_selected"
+    case .sectionsEdited:
+      "board_sections_edited"
     }
   }
 
@@ -27,6 +30,8 @@ enum BoardListViewEvent: Event {
     switch self {
     case .boardSelected(let boardName):
       ["source": source, "boardName": boardName]
+    case .sectionsEdited(let count):
+      ["source": source, "count": count]
     default:
       ["source": source]
     }
