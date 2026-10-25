@@ -178,7 +178,7 @@ extension FoundationModelsUseCase {
   }
 
   /// Counts exactly where the system can, and guesses high where it cannot.
-  @Sendable private static func tokenCount(_ text: String) async -> Int {
+  @Sendable static func tokenCount(_ text: String) async -> Int {
     if #available(iOS 26.4, *),
        let count = try? await SystemLanguageModel.default.tokenCount(for: text) {
       return count
