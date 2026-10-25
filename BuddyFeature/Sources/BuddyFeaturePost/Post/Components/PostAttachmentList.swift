@@ -84,9 +84,13 @@ struct PostAttachmentList: View {
   /// Where an attachment is kept once downloaded, named after the file.
   private func localURL(for attachment: AraPostAttachment) -> URL? {
     guard attachment.file != nil else { return nil }
-    return FileManager.default.temporaryDirectory
+    let directory = FileManager.default.temporaryDirectory
       .appending(path: "Attachments/\(attachment.id)", directoryHint: .isDirectory)
-      .appending(path: attachment.displayName)
+    let local = directory.appending(path: attachment.localFileName, directoryHint: .notDirectory)
+    // The name comes from whoever uploaded it; never let it point anywhere but this folder.
+    guard Array(local.standardizedFileURL.pathComponents.dropLast())
+      == directory.standardizedFileURL.pathComponents else { return nil }
+    return local
   }
 
   /// The attachment as a local file named after it, downloaded once and then reused.
@@ -172,10 +176,20 @@ private struct PostAttachmentRow: View {
   }
 }
 
-private extension AraPostAttachment {
+extension AraPostAttachment {
   /// The file name without the percent-encoding it has in the URL.
   var displayName: String {
     filename.removingPercentEncoding ?? filename
+  }
+
+  /// `displayName` made safe to save under: a single path component, so a name such as
+  /// `../../Documents` (or its percent-encoded form) can't reach outside the download folder.
+  var localFileName: String {
+    let name = displayName
+      .map { "/\\:\0".contains($0) ? "_" : String($0) }
+      .joined()
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    return name.isEmpty || name.allSatisfy({ $0 == "." }) ? "attachment" : name
   }
 
   var symbolName: String {

@@ -38,6 +38,20 @@ extension PostFeatureTests {
     }
 
     @Test(arguments: [
+      ("report.pdf", "report.pdf"),
+      ("%EB%B3%B4%EA%B3%A0%EC%84%9C.pdf", "보고서.pdf"),
+      ("..%2F..%2F..%2FDocuments", ".._.._.._Documents"),
+      ("../../Library/Preferences", ".._.._Library_Preferences"),
+      ("..", "attachment"),
+      ("%2F", "_"),
+      ("   ", "attachment"),
+    ])
+    func savesAttachmentsUnderASingleName(fileName: String, expected: String) {
+      let attachment = AraFixtures.attachment(id: 1, fileName: fileName, mimeType: "application/pdf")
+      #expect(attachment.localFileName == expected)
+    }
+
+    @Test(arguments: [
       (BoardHighlight.trending, true, PostListType.trending),
       (.latest(boardIDs: [2, 3]), false, .latest(boardIDs: [2, 3])),
     ])
