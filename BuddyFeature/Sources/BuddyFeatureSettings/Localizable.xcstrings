@@ -3229,6 +3229,22 @@
           }
         }
       }
+    },
+    "Blocked Users" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocked Users"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단한 사용자"
+          }
+        }
+      }
     }
   },
   "version" : "1.3"

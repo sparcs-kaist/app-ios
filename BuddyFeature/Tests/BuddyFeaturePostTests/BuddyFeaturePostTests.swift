@@ -20,12 +20,14 @@ struct PostFeatureTests { }
 public func setupPostTestDependencies(
   araBoardUseCase: MockAraBoardUseCase? = nil,
   araCommentUseCase: MockAraCommentUseCase? = nil,
-  foundationModelsUseCase: MockFoundationModelsUseCase? = nil
+  foundationModelsUseCase: MockFoundationModelsUseCase? = nil,
+  araUserRepository: MockAraUserRepository? = nil
 ) {
   Container.shared.analyticsService.register { MockAnalyticsService() }
   Container.shared.araBoardUseCase.register { araBoardUseCase ?? MockAraBoardUseCase() }
   Container.shared.araCommentUseCase.register { araCommentUseCase ?? MockAraCommentUseCase() }
   Container.shared.foundationModelsUseCase.register { foundationModelsUseCase ?? MockFoundationModelsUseCase() }
+  Container.shared.araUserRepository.register { araUserRepository ?? MockAraUserRepository() }
 }
 
 @MainActor
@@ -33,5 +35,6 @@ public func tearDownPostTestDependencies() {
   Container.shared.araBoardUseCase.reset()
   Container.shared.araCommentUseCase.reset()
   Container.shared.foundationModelsUseCase.reset()
+  Container.shared.araUserRepository.reset()
   Container.shared.analyticsService.reset()
 }

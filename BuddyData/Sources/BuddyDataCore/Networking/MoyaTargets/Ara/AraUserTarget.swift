@@ -13,6 +13,9 @@ public enum AraUserTarget {
   case agreeTOS(userID: Int)
   case fetchMe
   case updateUser(userID: Int, params: [String: Any])
+  case block(userID: Int)
+  case unblock(userID: Int)
+  case fetchBlocks(page: Int, pageSize: Int)
 }
 
 extension AraUserTarget: TargetType, AccessTokenAuthorizable {
@@ -30,16 +33,20 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
       "/me"
     case .updateUser(let userID, _):
       "/user_profiles/\(userID)/"
+    case .block, .fetchBlocks:
+      "/blocks/"
+    case .unblock:
+      "/blocks/without_id/"
     }
   }
 
   public var method: Moya.Method {
     switch self {
-    case .register:
+    case .register, .block, .unblock:
       .post
     case .agreeTOS, .updateUser:
         .patch
-    case .fetchMe:
+    case .fetchMe, .fetchBlocks:
       .get
     }
   }
@@ -52,6 +59,12 @@ extension AraUserTarget: TargetType, AccessTokenAuthorizable {
         .requestPlain
     case .updateUser(_, let params):
         .requestParameters(parameters: params, encoding: JSONEncoding.default)
+    case .block(let userID):
+        .requestParameters(parameters: ["user": userID], encoding: JSONEncoding.default)
+    case .unblock(let userID):
+        .requestParameters(parameters: ["blocked": userID], encoding: JSONEncoding.default)
+    case .fetchBlocks(let page, let pageSize):
+        .requestParameters(parameters: ["page": page, "page_size": pageSize], encoding: URLEncoding.queryString)
     }
   }
 

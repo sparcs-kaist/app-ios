@@ -19,6 +19,7 @@ enum PostViewEvent: Event {
   case summaryFinished
   case summaryFailed(reason: SummarisationError)
   case translationRequested(target: String)
+  case authorBlockToggled(isBlocked: Bool)
 
   var source: String { "PostView" }
 
@@ -44,6 +45,8 @@ enum PostViewEvent: Event {
       "post_summary_failed"
     case .translationRequested:
       "translation_requested"
+    case .authorBlockToggled:
+      "author_block_toggled"
     }
   }
 
@@ -51,6 +54,8 @@ enum PostViewEvent: Event {
     switch self {
     case .bookmarkToggled(let isBookmarked):
       ["source": source, "isBookmarked": "\(isBookmarked)"]
+    case .authorBlockToggled(let isBlocked):
+      ["source": source, "isBlocked": "\(isBlocked)"]
     case .postReported(let type):
       ["source": source, "type": type]
     case .translationRequested(let target):

@@ -24,14 +24,18 @@ struct PostCommentCell: View {
   let onDownvote: () async -> Void
   let onReport: (AraContentReportType) async throws -> Void
   let onDeleteComment: () async -> Void
+  /// `nil` when the author can't be blocked.
+  let onSetAuthorBlocked: ((Bool) async -> Void)?
 
   @State private var alertState: AlertState? = nil
   @State private var isAlertPresented: Bool = false
   @State private var showTranslateSheet: Bool = false
+  @State private var showBlockConfirmation: Bool = false
 
   var body: some View {
-    // is this comment deleted?
-    let isDeleted: Bool = comment.content == nil
+    // Ara sends no content for a deleted comment, nor for one by an author the user blocked.
+    let isHiddenForBlock = comment.isHiddenForBlockedAuthor
+    let isDeleted: Bool = comment.content == nil && !isHiddenForBlock
 
     HStack(alignment: .top, spacing: 8) {
       if isThreaded {
@@ -47,23 +51,35 @@ struct PostCommentCell: View {
           timeText: comment.createdAt.timeAgoDisplay,
           isDeleted: isDeleted,
           isMine: comment.isMine,
-          onReply: isThreaded ? nil : onComment,
+          onReply: isThreaded || isHiddenForBlock ? nil : onComment,
           onEdit: onEdit,
+          isAuthorBlocked: comment.author.isBlocked == true,
+          onSetAuthorBlocked: onSetAuthorBlocked.map { setBlocked in
+            { blocked in
+              if blocked {
+                showBlockConfirmation = true
+              } else {
+                Task { await setBlocked(false) }
+              }
+            }
+          },
           onTranslate: { showTranslateSheet = true },
           onReport: { type in await report(type: type) },
           onDelete: { Task { onDelete?(); await onDeleteComment() } }
         )
         .animation(.spring, value: isDeleted)
 
-        Text(comment.content ?? String(localized: "This comment has been deleted.", bundle: .module))
-          .foregroundStyle(isDeleted ? .secondary : .primary)
+        Text(comment.content ?? (isHiddenForBlock
+          ? String(localized: "This comment is from someone you blocked.", bundle: .module)
+          : String(localized: "This comment has been deleted.", bundle: .module)))
+          .foregroundStyle(comment.content == nil ? .secondary : .primary)
           .font(.callout)
           .contentTransition(.numericText())
           .animation(.spring, value: comment.content)
 
         PostCommentCellFooter(
           isThreaded: isThreaded,
-          isDeleted: isDeleted,
+          isDeleted: comment.content == nil,
           replyCount: comment.comments.count,
           myVote: comment.myVote,
           votes: comment.upvotes - comment.downvotes,
@@ -81,6 +97,18 @@ struct PostCommentCell: View {
       Text(alertState?.message ?? String(localized: "Unexpected Error", bundle: .module))
     })
     .translationPresentation(isPresented: $showTranslateSheet, text: comment.content ?? "")
+    .confirmationDialog(
+      String(localized: "Block \(comment.author.profile.nickname)?", bundle: .module),
+      isPresented: $showBlockConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button(String(localized: "Block", bundle: .module), role: .destructive) {
+        Task { await onSetAuthorBlocked?(true) }
+      }
+      Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
+    } message: {
+      Text("You won't see their posts or comments on Ara. You can unblock them from the same menu.", bundle: .module)
+    }
   }
 
   private func report(type: AraContentReportType) async {
@@ -110,7 +138,8 @@ struct PostCommentCell: View {
     onUpvote: {},
     onDownvote: {},
     onReport: { _ in },
-    onDeleteComment: {}
+    onDeleteComment: {},
+    onSetAuthorBlocked: nil
   )
   .padding()
   PostCommentCell(
@@ -122,7 +151,8 @@ struct PostCommentCell: View {
     onUpvote: {},
     onDownvote: {},
     onReport: { _ in },
-    onDeleteComment: {}
+    onDeleteComment: {},
+    onSetAuthorBlocked: nil
   )
   .padding()
 }

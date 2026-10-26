@@ -986,6 +986,22 @@
           }
         }
       }
+    },
+    "This post is from someone you blocked." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This post is from someone you blocked."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단한 사용자의 게시물입니다."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

@@ -12,6 +12,9 @@ extension AraPost {
   /// The title to show in a list, or why the post is hidden.
   public var listTitle: String {
     if isHidden {
+      if isHiddenForBlockedAuthor {
+        return String(localized: "This post is from someone you blocked.", bundle: .module)
+      }
       if isNSFW {
         return String(localized: "This post contains NSFW content", bundle: .module)
       }

@@ -106,16 +106,23 @@ struct PostSection: View {
       viewModel.showOriginal()
     }
 
-    PostContent(
-      summaryPhase: viewModel.summaryPhase,
-      onRetrySummary: viewModel.summarise,
-      content: content,
-      attachedImages: viewModel.post.attachedImageURLs,
-      contentID: viewModel.translationState.target?.minimalIdentifier ?? "original",
-      isTranslating: isTranslating,
-      onLinkTapped: onLinkTapped,
-      onScrollToImage: onScrollToImage
-    )
+    // Ara sends no content once the author is blocked, which happens with the post open.
+    if viewModel.post.isHiddenForBlockedAuthor {
+      Text("This post is from someone you blocked.", bundle: .module)
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    } else {
+      PostContent(
+        summaryPhase: viewModel.summaryPhase,
+        onRetrySummary: viewModel.summarise,
+        content: content,
+        attachedImages: viewModel.post.attachedImageURLs,
+        contentID: viewModel.translationState.target?.minimalIdentifier ?? "original",
+        isTranslating: isTranslating,
+        onLinkTapped: onLinkTapped,
+        onScrollToImage: onScrollToImage
+      )
+    }
 
     let files = viewModel.post.attachments?.filter { !$0.mimeType.hasPrefix("image/") } ?? []
     if !files.isEmpty {
@@ -163,6 +170,9 @@ struct PostComments: View {
       },
       onDeleteComment: { target in
         await viewModel.deleteComment(comment: target)
+      },
+      onSetAuthorBlocked: { author, blocked in
+        await viewModel.setAuthorBlocked(author, blocked: blocked)
       },
       showsTopDivider: showsTopDivider
     )

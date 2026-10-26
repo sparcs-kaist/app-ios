@@ -44,6 +44,7 @@ public struct PostView: View {
 
   @State private var translationConfiguration: TranslationSession.Configuration?
   @State private var showDeleteConfirmation: Bool = false
+  @State private var showBlockConfirmation: Bool = false
   @State private var showEditView: Bool = false
 
   @State private var showsToolsTip = false
@@ -124,6 +125,18 @@ public struct PostView: View {
               Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
             } message: {
               Text("Are you sure you want to delete this post?", bundle: .module)
+            }
+            .confirmationDialog(
+              String(localized: "Block \(viewModel.post.author.profile.nickname)?", bundle: .module),
+              isPresented: $showBlockConfirmation,
+              titleVisibility: .visible
+            ) {
+              Button(String(localized: "Block", bundle: .module), role: .destructive) {
+                Task { await viewModel.setAuthorBlocked(viewModel.post.author, blocked: true) }
+              }
+              Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
+            } message: {
+              Text("You won't see their posts or comments on Ara. You can unblock them from the same menu.", bundle: .module)
             }
         }
       }
@@ -274,6 +287,19 @@ public struct PostView: View {
                 await report(type: type)
               }
             }
+          }
+        }
+      }
+
+      // Only authors named by their nickname can be blocked.
+      if viewModel.post.isMine == false, viewModel.post.author.blockableUserID != nil {
+        if viewModel.post.author.isBlocked == true {
+          Button(String(localized: "Unblock Author", bundle: .module), systemImage: "person.crop.circle.badge.checkmark") {
+            Task { await viewModel.setAuthorBlocked(viewModel.post.author, blocked: false) }
+          }
+        } else {
+          Button(String(localized: "Block Author", bundle: .module), systemImage: "person.crop.circle.badge.xmark", role: .destructive) {
+            showBlockConfirmation = true
           }
         }
       }
@@ -513,7 +539,11 @@ public struct PostView: View {
       result.append(topicAttr)
     }
 
-    var titleAttr = AttributedString(translatedTitle ?? viewModel.post.title ?? String(localized: "Untitled", bundle: .module))
+    // A hidden post has no title, so say why it's hidden instead.
+    let plainTitle = viewModel.post.isHidden
+      ? viewModel.post.listTitle
+      : translatedTitle ?? viewModel.post.title ?? String(localized: "Untitled", bundle: .module)
+    var titleAttr = AttributedString(plainTitle)
     titleAttr.font = .headline
     titleAttr.foregroundColor = .primary
     result.append(titleAttr)

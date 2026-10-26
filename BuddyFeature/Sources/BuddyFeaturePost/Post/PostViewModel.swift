@@ -60,6 +60,8 @@ protocol PostViewModelProtocol: Observable {
   func writeThreadedComment(commentID: Int, content: String) async throws -> AraPostComment
   func editComment(commentID: Int, content: String) async throws -> AraPostComment
   func report(type: AraContentReportType) async throws
+  /// Blocks or unblocks `author`, then reloads the post so Ara hides or shows what they wrote.
+  func setAuthorBlocked(_ author: AraPostAuthor, blocked: Bool) async
   /// `nil` until a summary is asked for.
   var summaryPhase: PostSummaryPhase? { get }
   /// Whether the post is long enough to be worth summarising on this device.
@@ -126,6 +128,9 @@ class PostViewModel: PostViewModelProtocol {
   @ObservationIgnored @Injected(
     \.araCommentUseCase
   ) private var araCommentUseCase: AraCommentUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.araUserRepository
+  ) private var araUserRepository: AraUserRepositoryProtocol?
   @ObservationIgnored @Injected(
     \.foundationModelsUseCase
   ) private var foundationModelsUseCase: FoundationModelsUseCaseProtocol?
@@ -361,6 +366,34 @@ class PostViewModel: PostViewModelProtocol {
 
     try await araBoardUseCase.reportPost(postID: post.id, type: type)
     analyticsService?.logEvent(PostViewEvent.postReported(type: "\(type)"))
+  }
+
+  func setAuthorBlocked(_ author: AraPostAuthor, blocked: Bool) async {
+    guard let araUserRepository, let userID = author.blockableUserID else { return }
+
+    do {
+      if blocked {
+        try await araUserRepository.blockUser(userID: userID)
+      } else {
+        try await araUserRepository.unblockUser(userID: userID)
+      }
+      analyticsService?.logEvent(PostViewEvent.authorBlockToggled(isBlocked: blocked))
+    } catch {
+      logger.error("Failed to \(blocked ? "block" : "unblock", privacy: .public) author: \(error.localizedDescription, privacy: .public)")
+      let title = blocked
+        ? String(localized: "Unable to block author.", bundle: .module)
+        : String(localized: "Unable to unblock author.", bundle: .module)
+      // Ara answers an eleventh block in a day with 403, and only says why in a body the error drops.
+      let message = if blocked, case NetworkError.serverError(statusCode: 403) = error {
+        String(localized: "You can block up to 10 people a day.", bundle: .module)
+      } else {
+        error.localizedDescription
+      }
+      presentAlert(title: title, message: message)
+      return
+    }
+
+    await fetchPost()
   }
 
   /// Shorter posts are quicker to read than a summary of them, as with reviews.

@@ -47,6 +47,7 @@ public struct SettingsView: View {
         Section(header: Text("Ara", bundle: .module)) {
           NavigationLink(String(localized: "Profile", bundle: .module)) { AraSettingsView() }
           NavigationLink(String(localized: "Board Sections", bundle: .module)) { BoardSectionsSettingsView() }
+          NavigationLink(String(localized: "Blocked Users", bundle: .module)) { BlockedUsersView() }
         }
 
         Section(header: Text("Taxi", bundle: .module)) {
