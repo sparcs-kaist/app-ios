@@ -43,7 +43,7 @@ struct MainView: View {
     TabView(selection: $selectedTab) {
       Tab("Feed", systemImage: "text.rectangle.page", value: .feed) {
         NavigationStack(path: $feedPath) {
-          FeedView(feedViewModel)
+          FeedView(feedViewModel, path: $feedPath)
         }
       }
 
