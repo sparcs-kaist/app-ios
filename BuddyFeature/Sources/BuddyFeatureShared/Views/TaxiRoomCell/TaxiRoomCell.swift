@@ -34,8 +34,7 @@ public struct TaxiRoomCell: View {
         .padding(.vertical, 2)
 
       VStack(alignment: .leading, spacing: 10) {
-        TaxiRouteView(source: room.source.title.localized(), destination: room.destination.title.localized())
-          .fontWeight(.medium)
+        TaxiRouteStops(source: room.source.title.localized(), destination: room.destination.title.localized())
 
         HStack {
           Text(room.title)
@@ -94,45 +93,6 @@ public struct TaxiRoomCell: View {
           .foregroundStyle(.secondary)
       }
     }
-  }
-}
-
-/// Origin over destination, each marker pinned to its name's first line so long names can wrap.
-private struct TaxiRouteView: View {
-  let source: String
-  let destination: String
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      HStack(alignment: .top, spacing: 10) {
-        VStack(spacing: 0) {
-          Circle()
-            .strokeBorder(.secondary, lineWidth: 2)
-            .frame(width: 9, height: 9)
-          // Runs on past this row so it meets the destination marker.
-          Rectangle()
-            .fill(.tertiary)
-            .frame(width: 2)
-            .frame(maxHeight: .infinity)
-            .padding(.vertical, 2)
-            .padding(.bottom, -6)
-        }
-        .padding(.top, 6)
-
-        Text(source)
-          .padding(.bottom, 6)
-      }
-
-      HStack(alignment: .top, spacing: 10) {
-        Circle()
-          .fill(.primary)
-          .frame(width: 9, height: 9)
-          .padding(.top, 6)
-
-        Text(destination)
-      }
-    }
-    .fixedSize(horizontal: false, vertical: true)
   }
 }
 

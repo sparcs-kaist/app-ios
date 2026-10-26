@@ -104,9 +104,12 @@ public struct TaxiPreviewView: View {
 
       TaxiRouteStops(
         source: room.source.title.localized(),
-        destination: room.destination.title.localized()
+        destination: room.destination.title.localized(),
+        textStyle: .title3,
+        weight: .semibold,
+        markerSize: 14,
+        rowSpacing: 8
       )
-      .font(.title3.weight(.semibold))
 
       if let route {
         TaxiRideStats(departAt: room.departAt, route: route)
