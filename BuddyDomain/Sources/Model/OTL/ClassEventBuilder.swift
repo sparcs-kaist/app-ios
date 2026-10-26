@@ -125,13 +125,13 @@ public enum ClassEventBuilder {
     return calendar.date(byAdding: .minute, value: minute, to: dayStart)
   }
 
-  /// A lecture's weekly meetings on one line, e.g. "Mon/Wed 09:00–10:30 · E11 304".
+  /// A lecture's weekly meetings on one line, e.g. "Mon/Wed 09:00–10:30 · E11 304",
+  /// with times in the user's 12- or 24-hour setting.
   /// Meetings at different times or rooms are listed separately, joined by "; ".
   public static func weeklySchedule(of lecture: Lecture) -> String {
-    func time(_ minutes: Int) -> String { String(format: "%02d:%02d", minutes / 60, minutes % 60) }
     var groups: [(key: String, days: [DayType])] = []
     for lectureClass in lecture.classes.sorted(by: { ($0.day, $0.begin) < ($1.day, $1.begin) }) {
-      let key = "\(time(lectureClass.begin))–\(time(lectureClass.end)) · \(lectureClass.location)"
+      let key = "\(lectureClass.description) · \(lectureClass.location)"
       if let index = groups.firstIndex(where: { $0.key == key }) {
         groups[index].days.append(lectureClass.day)
       } else {

@@ -211,9 +211,10 @@ struct ClassEventBuilderTests {
 
   @Test func weeklyScheduleGroupsMatchingMeetings() {
     let sameSlot = lecture(id: 1, name: "OS", classes: [lectureClass(.wed, 540, 630), lectureClass(.mon, 540, 630)])
-    #expect(ClassEventBuilder.weeklySchedule(of: sameSlot) == "\(DayType.mon.stringValue)/\(DayType.wed.stringValue) 09:00–10:30 · E3-1 1501")
+    #expect(ClassEventBuilder.weeklySchedule(of: sameSlot) == "\(DayType.mon.stringValue)/\(DayType.wed.stringValue) \(Date.formattedTimeRange(minutesPastMidnight: 540, to: 630)) · E3-1 1501")
     #expect(ClassEventBuilder.weeklySchedule(of: systemProgramming)
-            == "\(DayType.mon.stringValue) 09:00–10:30 · E3-1 1501; \(DayType.tue.stringValue) 13:00–14:30 · E3-1 1501")
+            == "\(DayType.mon.stringValue) \(Date.formattedTimeRange(minutesPastMidnight: 540, to: 630)) · E3-1 1501; "
+            + "\(DayType.tue.stringValue) \(Date.formattedTimeRange(minutesPastMidnight: 780, to: 870)) · E3-1 1501")
     #expect(ClassEventBuilder.weeklySchedule(of: lecture(id: 2, name: "Seminar", classes: [])) == "")
   }
 

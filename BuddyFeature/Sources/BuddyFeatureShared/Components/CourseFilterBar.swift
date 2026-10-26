@@ -217,7 +217,7 @@ public struct CourseFilterBar: View {
   private func timeSummary(_ time: LectureTimeFilter) -> String? {
     guard !time.isEmpty else { return nil }
     let range: String? = switch (time.begin, time.end) {
-    case let (begin?, end?): "\(clockTime(begin))–\(clockTime(end))"
+    case let (begin?, end?): Date.formattedTimeRange(minutesPastMidnight: begin, to: end)
     case let (begin?, nil): String(localized: "From \(clockTime(begin))", bundle: .module)
     case let (nil, end?): String(localized: "Until \(clockTime(end))", bundle: .module)
     case (nil, nil): nil
@@ -226,7 +226,7 @@ public struct CourseFilterBar: View {
   }
 
   private func clockTime(_ minutes: Int) -> String {
-    String(format: "%02d:%02d", minutes / 60, minutes % 60)
+    Date.formattedTime(minutesPastMidnight: minutes)
   }
 
   /// Codes keep the chip compact however long the department names are.
