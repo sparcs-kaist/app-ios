@@ -137,7 +137,7 @@ public struct TaxiListView: View {
           }
         }
         .presentationDragIndicator(.visible)
-        .presentationDetents([.height(400), .height(500)])
+        .presentationDetents([.height(560), .large])
         .leadingPresentationPlacement()
     }
     .task {

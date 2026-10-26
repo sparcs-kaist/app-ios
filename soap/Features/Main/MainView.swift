@@ -105,7 +105,7 @@ struct MainView: View {
         .presentationDragIndicator(.visible)
         // `.large` lets the preview grow to fit on a short screen, such as the outer display of
         // iPhone Duo in landscape; the sheet still opens at the smallest detent.
-        .presentationDetents([.height(400), .height(500), .large])
+        .presentationDetents([.height(560), .large])
     }
     .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented) {
       Button(String(localized: "Okay"), role: .cancel) { }
