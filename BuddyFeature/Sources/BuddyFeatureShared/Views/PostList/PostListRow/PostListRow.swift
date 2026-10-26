@@ -22,6 +22,34 @@ public struct PostListRow: View {
   }
 
   public var body: some View {
+    if post.isHidden {
+      hiddenBody
+    } else {
+      postBody
+    }
+  }
+
+  /// One quiet line: why the post is hidden, and when it was posted. The author is left out so
+  /// a blocked person's name doesn't appear either.
+  private var hiddenBody: some View {
+    HStack(spacing: 8) {
+      Image(systemName: post.hiddenSymbol)
+        .font(.subheadline)
+        .foregroundStyle(.tertiary)
+        .frame(width: 20)
+      Text(title)
+        .font(.subheadline)
+        .lineLimit(1)
+      Spacer()
+      Text(post.createdAt.timeAgoDisplay)
+        .font(.caption)
+    }
+    .foregroundStyle(.secondary)
+    .padding(.vertical, 2)
+    .accessibilityElement(children: .combine)
+  }
+
+  private var postBody: some View {
     VStack(alignment: .leading, spacing: 4) {
       HStack(spacing: 4) {
         // Read before, but commented on or edited since.
@@ -44,7 +72,7 @@ public struct PostListRow: View {
           .font(.subheadline)
           .fontWeight(.semibold)
           .lineLimit(1)
-          .foregroundStyle(post.isHidden || isRead ? .secondary : .primary)
+          .foregroundStyle(isRead ? .secondary : .primary)
 
         if post.attachmentType == .image || post.attachmentType == .both {
           Image(systemName: "photo")
@@ -80,7 +108,6 @@ public struct PostListRow: View {
           Text(post.createdAt.timeAgoDisplay)
 
           Image(systemName: "chevron.right")
-            .opacity(post.isHidden ? 0 : 1)
         }
       }
       .font(.caption)

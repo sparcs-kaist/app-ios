@@ -25,6 +25,14 @@ extension AraPost {
     }
     return title ?? String(localized: "Untitled", bundle: .module)
   }
+
+  /// A symbol for why the post is hidden, matching `listTitle`.
+  public var hiddenSymbol: String {
+    if isHiddenForBlockedAuthor { return "person.crop.circle.badge.xmark" }
+    if isNSFW { return "eye.trianglebadge.exclamationmark" }
+    if isPolitical { return "megaphone" }
+    return "eye.slash"
+  }
 }
 
 extension AraMarketListing {
