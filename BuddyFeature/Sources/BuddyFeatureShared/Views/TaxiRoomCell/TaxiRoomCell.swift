@@ -22,12 +22,28 @@ public struct TaxiRoomCell: View {
   @Environment(\.colorScheme) private var colorScheme
 
   public var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      VStack(alignment: .leading, spacing: 4) {
-        HStack(alignment: .top) {
-          Label(room.source.title.localized(), systemImage: "location.fill")
+    HStack(spacing: 16) {
+      // A fixed width keeps the dividers lined up down the list, whatever the locale's time and
+      // date formats; longer ones ("12:40 PM", "10월 29일 (목)") shrink to fit instead.
+      departure
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .frame(width: 88, alignment: .leading)
 
-          Spacer()
+      Divider()
+        .padding(.vertical, 2)
+
+      VStack(alignment: .leading, spacing: 10) {
+        TaxiRouteView(source: room.source.title.localized(), destination: room.destination.title.localized())
+          .fontWeight(.medium)
+
+        HStack {
+          Text(room.title)
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+
+          Spacer(minLength: 8)
 
           if room.isDeparted,
              let taxiUser = taxiUser {
@@ -37,23 +53,15 @@ public struct TaxiRoomCell: View {
               participantsCount: room.participants.count
             )
           } else {
-            TaxiParticipantsIndicator(participants: room.participants.count, capacity: room.capacity)
+            TaxiSeatDots(taken: room.participants.count, capacity: room.capacity)
           }
         }
-        Label(room.destination.title.localized(), systemImage: "flag.pattern.checkered")
       }
-      .fontWeight(.medium)
-
-      HStack {
-        Text(room.departAt.relativeTimeString)
-        Divider()
-        Text(room.title)
-      }
-      .fixedSize(horizontal: false, vertical: true)
-      .font(.footnote)
-      .foregroundStyle(.secondary)
     }
-    .padding()
+    .fixedSize(horizontal: false, vertical: true)
+    .padding(16)
+    .padding(.horizontal, 4)
+    .accessibilityElement(children: .combine)
     .contentShape(.rect(cornerRadius: 28))
     .background(
       colorScheme == .light ? Color.secondarySystemGroupedBackground : .clear,
@@ -64,6 +72,96 @@ public struct TaxiRoomCell: View {
       colorScheme == .light || withOutBackground ? .identity : .regular.interactive(),
       in: .rect(cornerRadius: 28)
     )
+  }
+
+  /// Departure time, with a countdown underneath when the ride is close and the date otherwise —
+  /// the cell also appears outside the day-grouped list (My Rides, Search), where the date is
+  /// the only clue to which day the time belongs to.
+  private var departure: some View {
+    VStack(alignment: .leading, spacing: 2) {
+      Text(room.departAt.formatted(date: .omitted, time: .shortened))
+        .font(.title2.weight(.semibold))
+        .monospacedDigit()
+
+      let untilDeparture = room.departAt.timeIntervalSinceNow
+      if !room.isDeparted, untilDeparture > 0, untilDeparture < 12 * 60 * 60 {
+        Text(room.departAt, format: .relative(presentation: .named, unitsStyle: .abbreviated))
+          .font(.caption.weight(.medium))
+          .foregroundStyle(untilDeparture < 60 * 60 ? .orange : .secondary)
+      } else {
+        Text(room.departAt, format: .dateTime.month(.abbreviated).day().weekday(.abbreviated))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+    }
+  }
+}
+
+/// Origin over destination, each marker pinned to its name's first line so long names can wrap.
+private struct TaxiRouteView: View {
+  let source: String
+  let destination: String
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      HStack(alignment: .top, spacing: 10) {
+        VStack(spacing: 0) {
+          Circle()
+            .strokeBorder(.secondary, lineWidth: 2)
+            .frame(width: 9, height: 9)
+          // Runs on past this row so it meets the destination marker.
+          Rectangle()
+            .fill(.tertiary)
+            .frame(width: 2)
+            .frame(maxHeight: .infinity)
+            .padding(.vertical, 2)
+            .padding(.bottom, -6)
+        }
+        .padding(.top, 6)
+
+        Text(source)
+          .padding(.bottom, 6)
+      }
+
+      HStack(alignment: .top, spacing: 10) {
+        Circle()
+          .fill(.primary)
+          .frame(width: 9, height: 9)
+          .padding(.top, 6)
+
+        Text(destination)
+      }
+    }
+    .fixedSize(horizontal: false, vertical: true)
+  }
+}
+
+/// One dot per seat, filled for each rider and tinted by how many seats are left.
+private struct TaxiSeatDots: View {
+  let taken: Int
+  let capacity: Int
+
+  var body: some View {
+    HStack(spacing: 4) {
+      ForEach(0..<capacity, id: \.self) { index in
+        Circle()
+          .fill(index < taken ? accentColor : Color.secondary.opacity(0.25))
+          .frame(width: 7, height: 7)
+      }
+    }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Text("\(taken)/\(capacity)", bundle: .module))
+  }
+
+  private var accentColor: Color {
+    switch capacity - taken {
+    case ...0:
+      .red
+    case 1:
+      .orange
+    default:
+      .green
+    }
   }
 }
 
