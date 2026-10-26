@@ -15,6 +15,8 @@ struct PostCommentCellHeader: View {
   let timeText: String
   let isDeleted: Bool
   let isMine: Bool?
+  /// `nil` for replies, which can't be replied to.
+  let onReply: (() -> Void)?
   let onEdit: (() -> Void)?
   let onTranslate: () -> Void
   let onReport: (AraContentReportType) async -> Void
@@ -42,6 +44,12 @@ struct PostCommentCellHeader: View {
 
   private var actionsMenu: some View {
     Menu {
+      if let onReply {
+        Button(String(localized: "Reply", bundle: .module), systemImage: "arrowshape.turn.up.left") {
+          onReply()
+        }
+      }
+
       if isMine == false {
         // show report menu
         Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {

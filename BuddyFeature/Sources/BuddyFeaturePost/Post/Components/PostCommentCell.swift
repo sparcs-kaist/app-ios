@@ -47,6 +47,7 @@ struct PostCommentCell: View {
           timeText: comment.createdAt.timeAgoDisplay,
           isDeleted: isDeleted,
           isMine: comment.isMine,
+          onReply: isThreaded ? nil : onComment,
           onEdit: onEdit,
           onTranslate: { showTranslateSheet = true },
           onReport: { type in await report(type: type) },

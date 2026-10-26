@@ -163,7 +163,7 @@ struct FeedPostView: View {
       // comment textfield
       VStack(alignment: .leading) {
         if let targetComment {
-          FeedCommentReplyPreview(
+          CommentReplyPreview(
             authorName: targetComment.authorName,
             content: targetComment.content,
             isDeleted: targetComment.isDeleted,

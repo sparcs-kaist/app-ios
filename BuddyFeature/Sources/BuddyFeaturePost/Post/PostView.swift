@@ -35,6 +35,11 @@ public struct PostView: View {
   @State private var commentOnEdit: AraPostComment? = nil
   @State private var isUploadingComment: Bool = false
 
+  /// The comment to pin to the top while a reply to it is being written.
+  private var replyScrollTargetID: Int? {
+    isWritingCommentFocusState ? targetComment?.id : nil
+  }
+
   @State private var selectedAuthor: AraPostAuthor? = nil
 
   @State private var translationConfiguration: TranslationSession.Configuration?
@@ -70,6 +75,15 @@ public struct PostView: View {
         }
       }
       .onGeometryChange(for: CGSize.self) { $0.size } action: { viewport = $0 }
+      .onChange(of: replyScrollTargetID) { _, id in
+        guard let id else { return }
+        // Wait a turn so the bottom spacer is laid out before scrolling.
+        Task { @MainActor in
+          withAnimation(.spring) {
+            proxy.scrollTo(id, anchor: .top)
+          }
+        }
+      }
       .modifier(PinnedNavigationBar(isPinned: usesPanes))
       .scrollDismissesKeyboard(.immediately)
       .onKeyboardDismiss {
@@ -205,12 +219,18 @@ public struct PostView: View {
     )
   }
 
+  @ViewBuilder
   private var commentsSection: some View {
     PostComments(
       viewModel: viewModel,
       comments: $viewModel.comments,
       showsTopDivider: !usesPanes,
       onReply: { selectedComment in
+        // A reply replaces an edit in progress rather than sending as one.
+        if commentOnEdit != nil {
+          comment = ""
+          commentOnEdit = nil
+        }
         targetComment = selectedComment
         isWritingCommentFocusState = true
       },
@@ -226,6 +246,14 @@ public struct PostView: View {
         viewModel.commentCount -= 1
       }
     )
+
+    // Comments near the end of the list have too little content below them to reach the top,
+    // so pad the bottom by a screen's height while replying. Sized in layout, so no state
+    // updates during the keyboard animation.
+    if replyScrollTargetID != nil {
+      Color.clear
+        .containerRelativeFrame(.vertical)
+    }
   }
 
   /// Whether the app can load this post into its editor: Tiptap posts, and the simple HTML
@@ -283,6 +311,18 @@ public struct PostView: View {
     HStack(alignment: .bottom) {
       // comment textfield
       VStack(alignment: .leading) {
+        if let targetComment {
+          CommentReplyPreview(
+            authorName: targetComment.author.profile.nickname,
+            content: targetComment.content ?? "",
+            isDeleted: targetComment.content == nil,
+            onCancel: { self.targetComment = nil }
+          )
+          // The bar's own tint is primary, for the cursor; this matches Ara's red background.
+          .tint(.red)
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+
         if commentOnEdit != nil {
           HStack {
             Text("Editing", bundle: .module)
@@ -381,6 +421,7 @@ public struct PostView: View {
     // The capped bar is centred, so half-folded on iPhone Duo it would straddle the hinge.
     .avoidingFold()
     .animation(.spring, value: keyboardShowing)
+    .animation(.spring, value: targetComment?.id)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
       value: comment.isEmpty
