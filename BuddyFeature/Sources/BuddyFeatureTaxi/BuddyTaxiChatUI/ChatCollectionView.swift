@@ -97,8 +97,9 @@ struct ChatCollectionView: UIViewRepresentable {
 
     context.coordinator.previousBottomInset = newBottomInset
 
+    let oldItems = context.coordinator.items
     let shouldReload =
-      context.coordinator.items != items ||
+      oldItems != items ||
       context.coordinator.room != room ||
       context.coordinator.user != user ||
       context.coordinator.isCommitPaymentAvailable != isCommitPaymentAvailable
@@ -114,7 +115,29 @@ struct ChatCollectionView: UIViewRepresentable {
       // changes the content size, so we can preserve that position afterwards.
       let wasAtBottom = isAtBottom(collectionView)
 
-      collectionView.reloadData()
+      // Once the chat is on screen, rows are updated in place and new ones inserted rather than
+      // every cell rebuilt, so what a row holds open, such as a rider's card, survives a message
+      // arriving. A list that shrank or changed earlier on is reloaded whole.
+      if context.coordinator.hasInitialScroll, items.count >= oldItems.count {
+        let changed = oldItems.indices
+          .filter { oldItems[$0] != items[$0] }
+          .map { IndexPath(item: $0, section: 0) }
+        let inserted = (oldItems.count..<items.count).map { IndexPath(item: $0, section: 0) }
+        UIView.performWithoutAnimation {
+          if !inserted.isEmpty {
+            collectionView.insertItems(at: inserted)
+          }
+          // The rows that changed, and those on screen, which may draw from the room, the user or
+          // the payment state.
+          let visible = collectionView.indexPathsForVisibleItems.filter { $0.item < oldItems.count }
+          let reconfigured = Set(changed + visible)
+          if !reconfigured.isEmpty {
+            collectionView.reconfigureItems(at: Array(reconfigured))
+          }
+        }
+      } else {
+        collectionView.reloadData()
+      }
 
       if !context.coordinator.hasInitialScroll {
         context.coordinator.hasInitialScroll = true

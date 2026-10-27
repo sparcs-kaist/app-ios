@@ -1,7 +1,7 @@
 import Foundation
 
-/// The places and routes you starred in the Taxi tab, kept on this device: the Taxi service has
-/// nowhere to keep them. Places are stored by their IDs, so a place the service renames keeps its
+/// The places and routes you starred in the Taxi tab, kept on this device until you sign out: the
+/// Taxi service has nowhere to keep them. Places are stored by their IDs, so a place the service renames keeps its
 /// star, and one it removes simply drops out.
 public struct TaxiFavoritesStore {
   /// A route from one place to another. The two directions are separate routes.
@@ -39,5 +39,12 @@ public struct TaxiFavoritesStore {
   public func save(routes: [Route]) {
     guard let data = try? JSONEncoder().encode(routes) else { return }
     defaults.set(data, forKey: Self.routesKey)
+  }
+
+  /// Forgets every favourite, when the account signs out, so the next account on this device
+  /// doesn't see where the last one travels.
+  public func clear() {
+    defaults.removeObject(forKey: Self.placesKey)
+    defaults.removeObject(forKey: Self.routesKey)
   }
 }

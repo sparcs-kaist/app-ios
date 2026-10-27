@@ -12,17 +12,21 @@ struct TaxiDepartureChips: View {
   let date: Date
 
   var body: some View {
-    ViewThatFits(in: .horizontal) {
-      HStack(spacing: 8) {
-        dayChip
-        timeChip
-        countdownChip
-      }
-      VStack(spacing: 8) {
-        dayChip
+    // Redrawn every half minute, so the countdown turns orange inside the hour and goes once the
+    // ride has left while the info stays open; its text counts down by itself.
+    TimelineView(.periodic(from: .now, by: 30)) { context in
+      ViewThatFits(in: .horizontal) {
         HStack(spacing: 8) {
+          dayChip
           timeChip
-          countdownChip
+          countdownChip(now: context.date)
+        }
+        VStack(spacing: 8) {
+          dayChip
+          HStack(spacing: 8) {
+            timeChip
+            countdownChip(now: context.date)
+          }
         }
       }
     }
@@ -43,8 +47,8 @@ struct TaxiDepartureChips: View {
   }
 
   @ViewBuilder
-  private var countdownChip: some View {
-    let untilDeparture = date.timeIntervalSinceNow
+  private func countdownChip(now: Date) -> some View {
+    let untilDeparture = date.timeIntervalSince(now)
     if untilDeparture > 0, untilDeparture < 12 * 60 * 60 {
       chip(systemImage: "timer", tint: untilDeparture < 60 * 60 ? .orange : .indigo) {
         Text(date, format: .relative(presentation: .named, unitsStyle: .abbreviated))

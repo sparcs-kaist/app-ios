@@ -253,6 +253,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
 
   public func signOut() async throws {
     TimetableSelectionStore().clear()
+    TaxiFavoritesStore().clear()
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()
     }

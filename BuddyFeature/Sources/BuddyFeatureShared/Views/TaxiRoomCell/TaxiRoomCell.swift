@@ -25,50 +25,22 @@ public struct TaxiRoomCell: View {
   @Environment(\.taxiUser) private var taxiUser: TaxiUser?
   @Environment(\.colorScheme) private var colorScheme
 
-  /// Narrower than this — a list column beside a chat on a wide display — the time goes above
-  /// the route rather than beside it, so the route and the status keep a usable width.
-  private static let stackedWidth: CGFloat = 320
-  @State private var isStacked = false
+  /// Narrower than this inside the card's padding — a list column beside a chat on a wide
+  /// display — the time goes above the route rather than beside it, so the route and the status
+  /// keep a usable width.
+  private static let sideBySideWidth: CGFloat = 280
 
   public var body: some View {
-    Group {
-      if isStacked {
-        VStack(alignment: .leading, spacing: 12) {
-          stackedDeparture
-
-          details
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-      } else {
-        HStack(spacing: 16) {
-          // A fixed width keeps the dividers lined up down the list, whatever the locale's time and
-          // date formats; longer ones ("12:40 PM", "10월 29일 (목)") shrink to fit instead.
-          VStack(alignment: .leading, spacing: 2) {
-            departureTime
-            departureDetail
-            // At the foot of the column, level with the title row beside it and as tall as the
-            // riders' photos there.
-            if let status {
-              Spacer(minLength: 8)
-              status
-            }
-          }
-          .lineLimit(1)
-          .minimumScaleFactor(0.7)
-          .frame(width: 88, alignment: .leading)
-          .frame(maxHeight: .infinity, alignment: status == nil ? .center : .top)
-
-          Divider()
-            .padding(.vertical, 2)
-
-          details
-        }
-      }
+    // Chosen from the width offered, in the same pass that lays the card out, so a narrow card
+    // never draws side by side first and then jumps to stacked.
+    ViewThatFits(in: .horizontal) {
+      sideBySide
+        .frame(idealWidth: Self.sideBySideWidth)
+      stacked
     }
     .fixedSize(horizontal: false, vertical: true)
     .padding(16)
     .padding(.horizontal, 4)
-    .onGeometryChange(for: Bool.self) { $0.size.width < Self.stackedWidth } action: { isStacked = $0 }
     .accessibilityElement(children: .combine)
     .contentShape(.rect(cornerRadius: 28))
     .background(
@@ -80,6 +52,41 @@ public struct TaxiRoomCell: View {
       colorScheme == .light || withOutBackground ? .identity : .regular.interactive(),
       in: .rect(cornerRadius: 28)
     )
+  }
+
+  private var stacked: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      stackedDeparture
+
+      details
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  private var sideBySide: some View {
+    HStack(spacing: 16) {
+      // A fixed width keeps the dividers lined up down the list, whatever the locale's time and
+      // date formats; longer ones ("12:40 PM", "10월 29일 (목)") shrink to fit instead.
+      VStack(alignment: .leading, spacing: 2) {
+        departureTime
+        departureDetail
+        // At the foot of the column, level with the title row beside it and as tall as the
+        // riders' photos there.
+        if let status {
+          Spacer(minLength: 8)
+          status
+        }
+      }
+      .lineLimit(1)
+      .minimumScaleFactor(0.7)
+      .frame(width: 88, alignment: .leading)
+      .frame(maxHeight: .infinity, alignment: status == nil ? .center : .top)
+
+      Divider()
+        .padding(.vertical, 2)
+
+      details
+    }
   }
 
   private var details: some View {
