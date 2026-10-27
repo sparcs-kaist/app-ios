@@ -20,16 +20,23 @@ struct TaxiChatView: View {
 
   @Environment(\.openURL) private var openURL
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   @State private var text: String = ""
 
-  @State private var showCallTaxiAlert: Bool = false
   @State private var showPayMoneyAlert: Bool = false
   @State private var showSettlementAmountSheet: Bool = false
-  @State private var showReportSheet: Bool = false
-  @State private var reportSheetDetent: PresentationDetent = .height(450)
 
   @State private var tappedImageID: String? = nil
+  /// The ride info, in a popover from the photos on a regular width and a sheet on a compact one.
+  @State private var showRideInfo: Bool = false
+  /// Horizontal centres on screen of where the bar puts the photos and of the title below them.
+  /// The bar centres its items across its own width, which stops short of iPhone Duo's vertical
+  /// bar, while the title is centred over the whole conversation, which runs on under it; the
+  /// photos are moved by the difference so the two stay one above the other.
+  @State private var ridePhotosMidX: CGFloat = 0
+  @State private var rideTitleMidX: CGFloat = 0
 
   @Namespace private var namespace
 
@@ -59,7 +66,8 @@ struct TaxiChatView: View {
           isCommitPaymentAvailable: false,
           onCommitPayment: {},
           safeAreaInsets: reader.safeAreaInsets,
-          scrollToBottomTrigger: 0
+          scrollToBottomTrigger: 0,
+          runsUnderVerticalBar: runsUnderVerticalBar
         )
         .redacted(reason: .placeholder)
         .disabled(true)
@@ -76,7 +84,8 @@ struct TaxiChatView: View {
             viewModel.commitPayment()
           },
           safeAreaInsets: reader.safeAreaInsets,
-          scrollToBottomTrigger: viewModel.scrollToBottomTrigger
+          scrollToBottomTrigger: viewModel.scrollToBottomTrigger,
+          runsUnderVerticalBar: runsUnderVerticalBar
         )
         // Expand only by this column's measured side insets. Ignoring the
         // horizontal safe area here can extend under the neighboring column.
@@ -90,10 +99,10 @@ struct TaxiChatView: View {
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
     .navigationTitle(Text(chatTitle))
-    .navigationSubtitle(Text("\(viewModel.room.source.title.localized()) → \(viewModel.room.destination.title.localized())"))
     .navigationBarTitleDisplayMode(.inline)
     .staticNavigationBar()
     .toolbar { toolbarContent }
+    .safeAreaBar(edge: .top) { rideTitle }
     .safeAreaBar(edge: .bottom) {
       TaxiChatInputBar(
         text: $text,
@@ -101,9 +110,6 @@ struct TaxiChatView: View {
         isUploading: viewModel.isUploading,
         isCommitPaymentAvailable: viewModel.isCommitPaymentAvailable,
         isCommitSettlementAvailable: viewModel.isCommitSettlementAvailable,
-        isArrivalToggleEnabled: viewModel.isArrivalToggleEnabled,
-        isArrived: $viewModel.isArrived,
-        hasCarrier: $viewModel.hasCarrier,
         onSendText: { message in
           viewModel.sendChat(message, type: .text)
         },
@@ -116,12 +122,6 @@ struct TaxiChatView: View {
         onShowPayMoneyAlert: {
           showPayMoneyAlert = true
         },
-        onUpdateArrival: { isArrived in
-          viewModel.updateArrival(isArrived: isArrived)
-        },
-        onUpdateCarrier: { hasCarrier in
-          viewModel.updateCarrier(hasCarrier: hasCarrier)
-        },
         onError: { message in
           viewModel.alertState = AlertState(title: String(localized: "Error", bundle: .module), message: message)
           viewModel.isAlertPresented = true
@@ -132,34 +132,13 @@ struct TaxiChatView: View {
       // iPhone Duo rather than across the crease.
       .contentWidth()
       .avoidingFold()
+      .ignoringVerticalBar(runsUnderVerticalBar)
     }
     .toolbar(.hidden, for: .tabBar)
     .navigationDestination(item: $tappedImageID) { id in
       FullscreenImageView(url: Constants.taxiChatImageURL.appending(path: id))
         .navigationTransition(.zoom(sourceID: id, in: namespace))
     }
-    .alert(
-      String(localized: "Call Taxi", bundle: .module),
-      isPresented: $showCallTaxiAlert,
-      actions: {
-        Button(String(localized: "Open Kakao T", bundle: .module), role: .confirm) {
-          if let url = TaxiDeepLinkHelper.kakaoTURL(source: viewModel.room.source, destination: viewModel.room.destination) {
-            openURL(url)
-          }
-        }
-        Button(String(localized: "Open Uber", bundle: .module), role: .confirm) {
-          if let url = TaxiDeepLinkHelper.uberURL(source: viewModel.room.source, destination: viewModel.room.destination) {
-            openURL(url)
-          }
-        }
-        Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
-      },
-      message: {
-        Text(
-          String(localized: "You can launch the taxi app with the departure and destination already set. Once everyone has gathered at the departure point, press the button to call a taxi from \(viewModel.room.source.title.localized()) to \(viewModel.room.destination.title.localized()).", bundle: .module)
-        )
-      }
-    )
     .alert(
       String(localized: "Send Payment", bundle: .module),
       isPresented: $showPayMoneyAlert,
@@ -195,13 +174,6 @@ struct TaxiChatView: View {
         Text(viewModel.alertState?.message ?? "")
       }
     )
-    .sheet(isPresented: $showReportSheet) {
-      TaxiReportView(room: viewModel.room)
-        .presentationDragIndicator(.visible)
-        // `.large` as well for when the participant list outgrows 450
-        // points; the selection keeps 450 as the opening height.
-        .presentationDetents([.height(450), .large], selection: $reportSheetDetent)
-    }
     .sheet(isPresented: $showSettlementAmountSheet) {
       TaxiSettlementAmountSheet(participantCount: viewModel.room.participants.count) { amount in
         viewModel.commitSettlement(settlementAmount: amount)
@@ -216,60 +188,115 @@ struct TaxiChatView: View {
 
   @ToolbarContentBuilder
   private var toolbarContent: some ToolbarContent {
-    ToolbarItem(placement: .topBarTrailing) {
-      // Not `ellipsis`: that is the system's overflow menu, which shares a
-      // vertical bar with this item on iPhone Duo.
-      Menu(String(localized: "More", bundle: .module), systemImage: "info.circle") {
-        ControlGroup {
-          ShareLink(item: URL(string: "https://taxi.dev.sparcs.org/invite/" + viewModel.room.id)!, message: Text("🚕 Looking for someone to ride with on \(viewModel.room.departAt.formattedString) from \(viewModel.room.source.title) to \(viewModel.room.destination.title)! 🚕", bundle: .module)) {
-            Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
-          }
-          Button(String(localized: "Call Taxi", bundle: .module), systemImage: "car.fill") {
-            showCallTaxiAlert = true
-          }
-          Button(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
-            reportSheetDetent = .height(450)
-            showReportSheet = true
-          }
-          .disabled(viewModel.room.participants.count <= 1)
+    ToolbarItem(placement: .principal) {
+      Button(action: openRideInfo) {
+        // Sized to fit inside the bar, which is shorter in landscape, so the photos stay clear
+        // of the Dynamic Island and all of them can be tapped.
+        TaxiRiderCluster(riders: viewModel.riders, size: verticalSizeClass == .compact ? 28 : 38)
+          .matchedTransitionSource(id: Self.rideInfoTransitionID, in: namespace)
+      }
+      .buttonStyle(.plain)
+      // From the photos, so on a wide display it points at whose ride it is; on a narrow one it
+      // becomes a sheet that zooms out of them. Opening it from the title below lands here too.
+      .popover(isPresented: $showRideInfo, arrowEdge: .top) {
+        rideInfoPresentation
+      }
+      // The title below says the same to VoiceOver.
+      .accessibilityHidden(true)
+      .offset(x: ridePhotosOffset)
+      .animation(.smooth, value: ridePhotosOffset)
+      // Outside the offset, so this is where the bar put them, not where they were moved to.
+      .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).midX } action: { ridePhotosMidX = $0 }
+    }
+
+  }
+
+  private var rideTitle: some View {
+    TaxiRideTitle(title: chatTitle, room: viewModel.room, action: openRideInfo)
+      .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).midX } action: { rideTitleMidX = $0 }
+      .padding(.bottom, 4)
+      .frame(maxWidth: .infinity)
+      // Centred across the whole conversation, which can run on under iPhone Duo's vertical bar.
+      .ignoringVerticalBar(runsUnderVerticalBar)
+      .background(alignment: .top) { topEdgeEffect }
+  }
+
+  /// The conversation blurring and fading out under the navigation bar and the title, in place of
+  /// the collection view's own edge effect, which stops at the bar.
+  private var topEdgeEffect: some View {
+    Rectangle()
+      .fill(.ultraThinMaterial)
+      .overlay(Color.systemBackground.opacity(0.5))
+      .mask {
+        LinearGradient(
+          stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.6), .init(color: .clear, location: 1)],
+          startPoint: .top,
+          endPoint: .bottom
+        )
+      }
+      .padding(.bottom, -20)
+      .ignoresSafeArea(edges: .top)
+      .ignoringVerticalBar()
+      .allowsHitTesting(false)
+  }
+
+  private var ridePhotosOffset: CGFloat {
+    guard ridePhotosMidX > 0, rideTitleMidX > 0 else { return 0 }
+    return rideTitleMidX - ridePhotosMidX
+  }
+
+  /// Whether the conversation runs on under iPhone Duo's vertical bar. Only when the chat is a
+  /// column beside the room list on a wide display does the bar hold nothing of its but the
+  /// status; pushed, the bar holds its Back button, which the messages would pass under.
+  private var runsUnderVerticalBar: Bool {
+    onLeave != nil && horizontalSizeClass == .regular
+  }
+
+  private func openRideInfo() {
+    showRideInfo = true
+  }
+
+  private static let rideInfoTransitionID = "TaxiRideInfo"
+
+  /// The ride info presents errors itself while it is open, since the chat beneath it cannot.
+  private var rideInfoPresentation: some View {
+    NavigationStack {
+      TaxiRideInfoView(
+        title: chatTitle,
+        viewModel: viewModel,
+        isErrorPresented: $viewModel.isAlertPresented,
+        onLeave: {
+          leaveRoom()
         }
-
-        Divider()
-
-        Label(viewModel.room.departAt.formattedString, systemImage: "calendar.badge.clock")
-
-        Menu(
-          String(localized: "Participants \(viewModel.room.participants.count)/\(viewModel.room.capacity)", bundle: .module),
-          systemImage: "person.3"
-        ) {
-          ForEach(viewModel.room.participants) { participant in
-            if participant.hasCarrier {
-              Label(participant.nickname, systemImage: "suitcase.rolling.and.suitcase.fill")
-            } else {
-              Text(participant.nickname)
-            }
+      )
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button(role: .close) {
+            showRideInfo = false
           }
         }
+      }
+    }
+    // The size the popover takes; a sheet ignores it.
+    .frame(idealWidth: 400, idealHeight: 720)
+    .presentationCompactAdaptation(.sheet)
+    .navigationTransition(.zoom(sourceID: Self.rideInfoTransitionID, in: namespace))
+  }
 
-        Divider()
-
-        Button(String(localized: "Leave", bundle: .module), systemImage: "rectangle.portrait.and.arrow.right", role: .destructive) {
-          Task {
-            do {
-              try await viewModel.leaveRoom()
-              if let onLeave {
-                onLeave()
-              } else {
-                dismiss()
-              }
-            } catch {
-              logger.error("Failed to leave room: \(error.localizedDescription, privacy: .public)")
-              viewModel.alertState = AlertState(title: String(localized: "Error", bundle: .module), message: error.localizedDescription)
-              viewModel.isAlertPresented = true
-            }
-          }
+  private func leaveRoom() {
+    Task {
+      do {
+        try await viewModel.leaveRoom()
+        showRideInfo = false
+        if let onLeave {
+          onLeave()
+        } else {
+          dismiss()
         }
-        .disabled(!viewModel.isLeaveRoomAvailable)
+      } catch {
+        logger.error("Failed to leave room: \(error.localizedDescription, privacy: .public)")
+        viewModel.alertState = AlertState(title: String(localized: "Error", bundle: .module), message: error.localizedDescription)
+        viewModel.isAlertPresented = true
       }
     }
   }
@@ -311,9 +338,20 @@ struct TaxiChatView: View {
 }
 
 private extension View {
+  /// Lets this run on under iPhone Duo's vertical bar, while keeping every other inset, such as
+  /// an iPhone's notch in landscape.
+  @ViewBuilder
+  func ignoringVerticalBar(_ isEnabled: Bool = true) -> some View {
+    if #available(iOS 27.1, *), isEnabled {
+      modifier(IgnoringVerticalBar())
+    } else {
+      self
+    }
+  }
+
   /// Stops the navigation bar minimising as the transcript scrolls. The title
-  /// and subtitle identify the room, and should stay put and legible while
-  /// reading back through messages.
+  /// identifies the room and who is riding, and should stay put and legible
+  /// while reading back through messages.
   ///
   /// `toolbarMinimizationBehavior` is iOS 27.0; on 26 the bar already holds
   /// still unless the view is searchable, which this one is not.
@@ -323,6 +361,19 @@ private extension View {
       toolbarMinimizationBehavior(.never, for: .navigationBar)
     } else {
       self
+    }
+  }
+}
+
+@available(iOS 27.1, *)
+private struct IgnoringVerticalBar: ViewModifier {
+  @Environment(\.toolbarVerticalEdge) private var verticalBarEdge
+
+  func body(content: Content) -> some View {
+    switch verticalBarEdge {
+    case .leading: content.ignoresSafeArea(.container, edges: .leading)
+    case .trailing: content.ignoresSafeArea(.container, edges: .trailing)
+    case nil: content
     }
   }
 }

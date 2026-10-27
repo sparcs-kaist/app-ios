@@ -29,10 +29,14 @@ struct MessageView<Content: View>: View {
   let position: ChatBubblePosition
   let readCount: Int
   let metadata: MetadataVisibility
+  /// The sender as a rider of the room, to show who they are from their photo. Nil for the taxi
+  /// bot and for anyone who has left.
+  var rider: TaxiParticipant? = nil
 
   @ViewBuilder let content: () -> Content
 
   @State private var showPopover: Bool = false
+  @State private var showRiderCard: Bool = false
 
   var body: some View {
     HStack(alignment: .bottom, spacing: 4) {
@@ -45,7 +49,7 @@ struct MessageView<Content: View>: View {
           alignment: .trailing
         )
       } else {
-        ChatAvatarImage(sender: sender)
+        avatar
           .opacity(metadata.showAvatar ? 1 : 0)
       }
 
@@ -90,6 +94,26 @@ struct MessageView<Content: View>: View {
     // its sender's side.
     .frame(maxWidth: ChatBubbleMetrics.maxRowWidth, alignment: sender.isMine ? .trailing : .leading)
     .frame(maxWidth: .infinity, alignment: sender.isMine ? .trailing : .leading)
+  }
+
+  /// The sender's photo, which shows who they are when they are still riding.
+  @ViewBuilder
+  private var avatar: some View {
+    if let rider, metadata.showAvatar {
+      Button {
+        showRiderCard = true
+      } label: {
+        ChatAvatarImage(sender: sender)
+      }
+      .buttonStyle(.plain)
+      .accessibilityLabel(rider.nickname)
+      .popover(isPresented: $showRiderCard) {
+        TaxiRiderCard(participant: rider)
+          .presentationCompactAdaptation(.popover)
+      }
+    } else {
+      ChatAvatarImage(sender: sender)
+    }
   }
 
   private var authorNameplace: some View {

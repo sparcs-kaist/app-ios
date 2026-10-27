@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import NukeUI
 import BuddyDomain
 
 struct ChatAvatarImage: View {
@@ -24,26 +23,8 @@ struct ChatAvatarImage: View {
   }
 
   private var userAvatarImage: some View {
-    Group {
-      if let url = sender.avatarURL {
-        LazyImage(url: url) { state in
-          if let image = state.image {
-            image
-              .resizable()
-              .aspectRatio(contentMode: .fill)
-          } else {
-            Circle()
-              .fill(Color.secondarySystemBackground)
-          }
-        }
-        .frame(width: 36, height: 36)
-        .clipShape(.circle)
-      } else {
-        Circle()
-          .fill(Color.secondarySystemBackground)
-          .frame(width: 36, height: 36)
-      }
-    }
+    TaxiProfilePhoto(url: sender.avatarURL)
+      .frame(width: 36, height: 36)
   }
 
   private var botAvatarImage: some View {
