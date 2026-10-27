@@ -11,9 +11,15 @@ struct TaxiRideStats: View {
   let departAt: Date
   let route: MKRoute
 
+  /// How long the taxi takes to reach the riders once it is called, which the route's driving time
+  /// leaves out: the middle of the usual two to five minutes.
+  private static let pickupWait: TimeInterval = 3.5 * 60
+
   var body: some View {
-    let arrival = departAt
-      .addingTimeInterval(route.expectedTravelTime)
+    // Rounded to the nearest minute, since the time is shown without seconds and would otherwise
+    // always round down.
+    let arrivesAt = departAt.addingTimeInterval(route.expectedTravelTime + Self.pickupWait)
+    let arrival = Date(timeIntervalSinceReferenceDate: (arrivesAt.timeIntervalSinceReferenceDate / 60).rounded() * 60)
       .formatted(date: .omitted, time: .shortened)
 
     HStack(spacing: 18) {
