@@ -436,7 +436,8 @@ public struct PostView: View {
         })
         .fontWeight(.medium)
         .padding(12)
-        .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .circle)
+        // Red, like the reply preview and Ara's background.
+        .glassEffect(.regular.tint(.red).interactive(), in: .circle)
         .disabled(comment.isEmpty)
         .transition(.move(edge: .trailing).combined(with: .opacity))
         .disabled(isUploadingComment)
