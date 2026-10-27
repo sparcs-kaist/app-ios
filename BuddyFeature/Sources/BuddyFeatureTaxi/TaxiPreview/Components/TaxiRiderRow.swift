@@ -5,6 +5,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 /// Who is riding — a photo per rider, badged when they bring luggage, and a dashed circle per open
 /// seat — with how many seats remain. Tapping a photo shows who that rider is.
