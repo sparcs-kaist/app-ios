@@ -28,10 +28,7 @@ struct ChatCollectionView: UIViewRepresentable {
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout(coordinator: context.coordinator))
     collectionView.backgroundColor = .clear
     collectionView.keyboardDismissMode = .interactive
-    // Hidden: the chat draws its own, reaching under its title as well as the navigation bar.
-    // This one knows only the bar, so the conversation would be sharp under the title and cut
-    // off along a line above it.
-    collectionView.topEdgeEffect.isHidden = true
+    collectionView.topEdgeEffect.style = .soft
     collectionView.dataSource = context.coordinator
     collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
     return collectionView
@@ -40,6 +37,11 @@ struct ChatCollectionView: UIViewRepresentable {
   func updateUIView(_ collectionView: UICollectionView, context: Context) {
     let newBottomInset = self.safeAreaInsets.bottom + 8
     let oldBottomInset = context.coordinator.previousBottomInset
+    // Read before the inset changes: shrinking it, as when the keyboard hides,
+    // has the scroll view pull the offset back within the new range at once,
+    // and shifting that offset by the change again would scroll the latest
+    // messages down under the input bar.
+    let offsetBeforeInsetChange = collectionView.contentOffset.y
 
     collectionView.contentInset.top = self.safeAreaInsets.top
     collectionView.contentInset.bottom = newBottomInset
@@ -81,7 +83,7 @@ struct ChatCollectionView: UIViewRepresentable {
         minOffsetY,
         collectionView.contentSize.height - collectionView.bounds.height + newBottomInset
       )
-      let targetOffsetY = min(max(collectionView.contentOffset.y + insetDelta, minOffsetY), maxOffsetY)
+      let targetOffsetY = min(max(offsetBeforeInsetChange + insetDelta, minOffsetY), maxOffsetY)
 
       UIView.animate(
         withDuration: 0.25,

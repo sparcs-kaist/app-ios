@@ -102,7 +102,14 @@ struct TaxiChatView: View {
     .navigationBarTitleDisplayMode(.inline)
     .staticNavigationBar()
     .toolbar { toolbarContent }
-    .safeAreaBar(edge: .top) { rideTitle }
+    .safeAreaBar(edge: .top) {
+      // Left out on a short screen, an iPhone in landscape, where with the keyboard up it would
+      // leave room for a single line of the conversation; the photos in the bar still open the
+      // ride's info.
+      if verticalSizeClass != .compact {
+        rideTitle
+      }
+    }
     .safeAreaBar(edge: .bottom) {
       TaxiChatInputBar(
         text: $text,
@@ -218,26 +225,6 @@ struct TaxiChatView: View {
       .frame(maxWidth: .infinity)
       // Centred across the whole conversation, which can run on under iPhone Duo's vertical bar.
       .ignoringVerticalBar(runsUnderVerticalBar)
-      .background(alignment: .top) { topEdgeEffect }
-  }
-
-  /// The conversation blurring and fading out under the navigation bar and the title, in place of
-  /// the collection view's own edge effect, which stops at the bar.
-  private var topEdgeEffect: some View {
-    Rectangle()
-      .fill(.ultraThinMaterial)
-      .overlay(Color.systemBackground.opacity(0.5))
-      .mask {
-        LinearGradient(
-          stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.6), .init(color: .clear, location: 1)],
-          startPoint: .top,
-          endPoint: .bottom
-        )
-      }
-      .padding(.bottom, -20)
-      .ignoresSafeArea(edges: .top)
-      .ignoringVerticalBar()
-      .allowsHitTesting(false)
   }
 
   private var ridePhotosOffset: CGFloat {
