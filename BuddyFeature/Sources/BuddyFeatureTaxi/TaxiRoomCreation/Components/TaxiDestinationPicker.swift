@@ -68,6 +68,8 @@ struct TaxiDestinationPicker: View {
       .disabled(source == nil && destination == nil)
     }
     .padding(.horizontal, 4)
+    // The picker is on screen wherever favourites are, so it refreshes them for this account.
+    .onAppear { TaxiFavorites.shared.reload() }
   }
 
   private func swapLocations() {

@@ -770,6 +770,22 @@
         }
       }
     },
+    "Leave this room?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave this room?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 방을 떠날까요?"
+          }
+        }
+      }
+    },
     "Looks like there are no groups scheduled for this week. Be the first to create one!" : {
       "localizations" : {
         "en" : {
@@ -1994,6 +2010,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "출발 시간 전까지만 도착을 표시할 수 있어요."
+          }
+        }
+      }
+    },
+    "You'll give up your seat in this ride." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You'll give up your seat in this ride."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 탑승의 자리를 잃게 돼요."
           }
         }
       }

@@ -37,6 +37,9 @@ struct TaxiChatView: View {
   /// photos are moved by the difference so the two stay one above the other.
   @State private var ridePhotosMidX: CGFloat = 0
   @State private var rideTitleMidX: CGFloat = 0
+  /// Set once you have left the room from the ride info, to finish leaving only after the ride
+  /// info has finished closing; dismissing the chat while it is still on its way out can fail.
+  @State private var hasLeftRoom: Bool = false
 
   @Namespace private var namespace
 
@@ -173,7 +176,7 @@ struct TaxiChatView: View {
     )
     .alert(
       viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
-      isPresented: $viewModel.isAlertPresented,
+      isPresented: chatAlertPresented,
       actions: {
         Button(String(localized: "Okay", bundle: .module), role: .close) { }
       },
@@ -221,10 +224,32 @@ struct TaxiChatView: View {
   private var rideTitle: some View {
     TaxiRideTitle(title: chatTitle, room: viewModel.room, action: openRideInfo)
       .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).midX } action: { rideTitleMidX = $0 }
+      // Forgotten when it leaves the screen, as in landscape, so the photos aren't lined up with
+      // where it last was.
+      .onDisappear { rideTitleMidX = 0 }
       .padding(.bottom, 4)
       .frame(maxWidth: .infinity)
       // Centred across the whole conversation, which can run on under iPhone Duo's vertical bar.
       .ignoringVerticalBar(runsUnderVerticalBar)
+  }
+
+  private func finishLeaving() {
+    hasLeftRoom = false
+    if let onLeave {
+      onLeave()
+    } else {
+      dismiss()
+    }
+  }
+
+  /// The chat's own error alert, held back while the ride info is open: that presents the same
+  /// error itself, and on a wide display the chat beside it would present it a second time.
+  private var chatAlertPresented: Binding<Bool> {
+    Binding {
+      viewModel.isAlertPresented && !showRideInfo
+    } set: { isPresented in
+      viewModel.isAlertPresented = isPresented
+    }
   }
 
   private var ridePhotosOffset: CGFloat {
@@ -264,6 +289,9 @@ struct TaxiChatView: View {
         }
       }
     }
+    .onDisappear {
+      if hasLeftRoom { finishLeaving() }
+    }
     // The size the popover takes; a sheet ignores it.
     .frame(idealWidth: 400, idealHeight: 720)
     .presentationCompactAdaptation(.sheet)
@@ -274,11 +302,11 @@ struct TaxiChatView: View {
     Task {
       do {
         try await viewModel.leaveRoom()
-        showRideInfo = false
-        if let onLeave {
-          onLeave()
+        if showRideInfo {
+          hasLeftRoom = true
+          showRideInfo = false
         } else {
-          dismiss()
+          finishLeaving()
         }
       } catch {
         logger.error("Failed to leave room: \(error.localizedDescription, privacy: .public)")

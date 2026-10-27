@@ -22,6 +22,14 @@ struct TaxiRideInfoView: View {
   @State private var showCallTaxiAlert: Bool = false
   @State private var showReportSheet: Bool = false
   @State private var reportSheetDetent: PresentationDetent = .height(450)
+  @State private var showLeaveConfirmation: Bool = false
+  /// Set when the departure time passes while this is open, so the arrival tile is disabled then
+  /// rather than at the next unrelated redraw.
+  @State private var hasPassedDeparture: Bool = false
+
+  private var canMarkArrival: Bool {
+    viewModel.isArrivalToggleEnabled && !hasPassedDeparture
+  }
 
   private var room: TaxiRoom { viewModel.room }
 
@@ -45,7 +53,7 @@ struct TaxiRideInfoView: View {
           ) {
             viewModel.updateArrival(isArrived: !viewModel.isArrived)
           }
-          .disabled(!viewModel.isArrivalToggleEnabled)
+          .disabled(!canMarkArrival)
 
           statusTile(
             isOn: viewModel.hasCarrier,
@@ -61,7 +69,7 @@ struct TaxiRideInfoView: View {
       } header: {
         Text("My Status", bundle: .module)
       } footer: {
-        if !viewModel.isArrivalToggleEnabled {
+        if !canMarkArrival {
           Text("You can mark your arrival only before the ride departs.", bundle: .module)
         }
       }
@@ -69,11 +77,34 @@ struct TaxiRideInfoView: View {
       ridersSection
 
       Section {
-        Button(role: .destructive, action: onLeave) {
+        // Confirmed first: a stray tap at the foot of the list would otherwise give up your seat.
+        Button(role: .destructive) {
+          showLeaveConfirmation = true
+        } label: {
           Label(String(localized: "Leave", bundle: .module), systemImage: "rectangle.portrait.and.arrow.right")
             .foregroundStyle(.red)
         }
         .disabled(!viewModel.isLeaveRoomAvailable)
+        .confirmationDialog(
+          String(localized: "Leave this room?", bundle: .module),
+          isPresented: $showLeaveConfirmation,
+          titleVisibility: .visible
+        ) {
+          Button(String(localized: "Leave", bundle: .module), role: .destructive, action: onLeave)
+          Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
+        } message: {
+          Text("You'll give up your seat in this ride.", bundle: .module)
+        }
+      }
+    }
+    .task(id: room.departAt) {
+      let wait = room.departAt.timeIntervalSinceNow
+      guard wait > 0 else { return }
+      do {
+        try await Task.sleep(for: .seconds(wait))
+        hasPassedDeparture = true
+      } catch {
+        // Closed before departure.
       }
     }
     .animation(.snappy, value: viewModel.isArrived)
@@ -144,7 +175,8 @@ struct TaxiRideInfoView: View {
   private var actions: some View {
     HStack(spacing: 10) {
       ShareLink(
-        item: URL(string: "https://taxi.dev.sparcs.org/invite/" + room.id)!,
+        // The production or development service's invite link, whichever this build talks to.
+        item: Constants.taxiInviteURL.appending(path: room.id),
         message: Text("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module)
       ) {
         actionLabel(Text("Share", bundle: .module), systemImage: "square.and.arrow.up")
