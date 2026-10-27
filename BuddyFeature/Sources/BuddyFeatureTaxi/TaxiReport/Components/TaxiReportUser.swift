@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 struct TaxiReportUser: View {
   var user: TaxiParticipant

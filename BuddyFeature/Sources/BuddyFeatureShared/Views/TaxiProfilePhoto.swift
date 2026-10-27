@@ -10,10 +10,14 @@ import BuddyDomain
 /// A rider's photo in a circle, sized by the caller, over a grey circle that stands in for it
 /// while it loads, when there is none, when it fails to load, and behind one that comes back
 /// empty or transparent.
-struct TaxiProfilePhoto: View {
+public struct TaxiProfilePhoto: View {
   let url: URL?
 
-  var body: some View {
+  public init(url: URL?) {
+    self.url = url
+  }
+
+  public var body: some View {
     Circle()
       .fill(Color.systemGray4)
       .overlay {

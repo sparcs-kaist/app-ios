@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 struct ChatAvatarImage: View {
   let sender: SenderInfo

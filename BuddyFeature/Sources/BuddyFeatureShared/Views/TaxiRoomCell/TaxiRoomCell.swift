@@ -12,10 +12,14 @@ import BuddyDomain
 public struct TaxiRoomCell: View {
   let room: TaxiRoom
   let withOutBackground: Bool
+  /// Whether to show the riders' photos rather than one dot per seat, for rooms you are in, such
+  /// as in Chats, where who you share the chat with matters more than whether seats are left.
+  let showsRiders: Bool
 
-  public init(room: TaxiRoom, withOutBackground: Bool) {
+  public init(room: TaxiRoom, withOutBackground: Bool, showsRiders: Bool = false) {
     self.room = room
     self.withOutBackground = withOutBackground
+    self.showsRiders = showsRiders
   }
 
   @Environment(\.taxiUser) private var taxiUser: TaxiUser?
@@ -30,11 +34,7 @@ public struct TaxiRoomCell: View {
     Group {
       if isStacked {
         VStack(alignment: .leading, spacing: 12) {
-          HStack(alignment: .firstTextBaseline, spacing: 8) {
-            departureTime
-            departureDetail
-          }
-          .lineLimit(1)
+          stackedDeparture
 
           details
         }
@@ -46,10 +46,17 @@ public struct TaxiRoomCell: View {
           VStack(alignment: .leading, spacing: 2) {
             departureTime
             departureDetail
+            // At the foot of the column, level with the title row beside it and as tall as the
+            // riders' photos there.
+            if let status {
+              Spacer(minLength: 8)
+              status
+            }
           }
           .lineLimit(1)
           .minimumScaleFactor(0.7)
           .frame(width: 88, alignment: .leading)
+          .frame(maxHeight: .infinity, alignment: status == nil ? .center : .top)
 
           Divider()
             .padding(.vertical, 2)
@@ -87,20 +94,65 @@ public struct TaxiRoomCell: View {
 
         Spacer(minLength: 8)
 
-        if room.isDeparted,
-           let taxiUser = taxiUser {
-          TaxiRoomStatusIndicator(
-            settlementType: room.participants.first(where: { $0.id == taxiUser.oid })?.isSettlement ?? .notDeparted,
-            settlementCount: room.settlementTotal ?? 0,
-            participantsCount: room.participants.count
-          )
-          // The room's title gives way first; the status is the one thing worth reading here.
-          .fixedSize()
-        } else {
+        if showsRiders {
+          // Once the ride has left, how many seats were taken no longer matters.
+          TaxiRiderStack(participants: room.participants, capacity: room.capacity, showsCount: status == nil)
+            .fixedSize()
+        } else if status == nil {
           TaxiSeatDots(taken: room.participants.count, capacity: room.capacity)
         }
       }
     }
+  }
+
+  /// The time line of a stacked cell. The time and date never give way: when the status does
+  /// not fit beside them the date goes under the time, and only when even that is too wide does
+  /// the status go on a line of its own.
+  @ViewBuilder
+  private var stackedDeparture: some View {
+    let time = HStack(alignment: .firstTextBaseline, spacing: 8) {
+      departureTime
+      departureDetail
+    }
+    .lineLimit(1)
+    .fixedSize()
+
+    if let status {
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: 8) {
+          time
+          Spacer(minLength: 0)
+          status.fixedSize()
+        }
+        HStack(spacing: 8) {
+          VStack(alignment: .leading, spacing: 2) {
+            departureTime
+            departureDetail
+          }
+          .lineLimit(1)
+          .fixedSize()
+          Spacer(minLength: 0)
+          status.fixedSize()
+        }
+        VStack(alignment: .leading, spacing: 8) {
+          time
+          status.fixedSize()
+        }
+      }
+    } else {
+      time
+    }
+  }
+
+  /// Where your settlement stands, once the ride has left.
+  private var status: TaxiRoomStatusIndicator? {
+    guard room.isDeparted, let taxiUser else { return nil }
+    return TaxiRoomStatusIndicator(
+      settlementType: room.participants.first(where: { $0.id == taxiUser.oid })?.isSettlement ?? .notDeparted,
+      settlementCount: room.settlementTotal ?? 0,
+      participantsCount: room.participants.count,
+      height: TaxiRiderStack.height
+    )
   }
 
   private var departureTime: some View {
@@ -124,6 +176,42 @@ public struct TaxiRoomCell: View {
         .font(.caption)
         .foregroundStyle(.secondary)
     }
+  }
+}
+
+/// Who is riding: up to four photos, overlapping, with how many are riding of how many seats.
+private struct TaxiRiderStack: View {
+  let participants: [TaxiParticipant]
+  let capacity: Int
+  var showsCount: Bool = true
+
+  private static let photoSize: CGFloat = 22
+  private static let ringWidth: CGFloat = 1.5
+  /// The photos' height with their rings, which the settlement status matches.
+  static let height = photoSize + ringWidth * 2
+  private var photoSize: CGFloat { Self.photoSize }
+
+  var body: some View {
+    HStack(spacing: 6) {
+      HStack(spacing: -photoSize * 0.3) {
+        ForEach(participants.prefix(4)) { participant in
+          TaxiProfilePhoto(url: participant.profileImageURL)
+            .frame(width: photoSize, height: photoSize)
+            // A ring of the cell's own colour keeps each photo apart from the one it overlaps.
+            .padding(Self.ringWidth)
+            .background(Color.secondarySystemGroupedBackground, in: .circle)
+        }
+      }
+
+      if showsCount {
+        Text("\(participants.count)/\(capacity)", bundle: .module)
+          .font(.footnote.weight(.medium))
+          .monospacedDigit()
+          .foregroundStyle(.secondary)
+      }
+    }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(Text("\(participants.count)/\(capacity)", bundle: .module))
   }
 }
 

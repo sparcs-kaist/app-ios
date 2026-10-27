@@ -5,6 +5,7 @@
 
 import SwiftUI
 import BuddyDomain
+import BuddyFeatureShared
 
 /// The riders' photos packed into one circle, the way Messages shows a group. Riders are grey until
 /// they arrive, and arrived riders take the larger places, so the cluster grows as people turn up.
