@@ -14,7 +14,7 @@ struct TaxiDepartureHeader: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      Text(dayString)
+      Text(date.taxiDayString)
         .font(.subheadline.weight(.semibold))
         .foregroundStyle(.secondary)
 
@@ -31,27 +31,15 @@ struct TaxiDepartureHeader: View {
     .accessibilityElement(children: .combine)
   }
 
-  /// "Today · Mon, Oct 26" for today and tomorrow, otherwise just the date.
-  private var dayString: String {
-    let monthDay = date.formatted(.dateTime.month(.abbreviated).day().weekday(.abbreviated))
-    let relative = DateFormatter()
-    relative.dateStyle = .short
-    relative.doesRelativeDateFormatting = true
-    let plain = DateFormatter()
-    plain.dateStyle = .short
-    let word = relative.string(from: date)
-    return word == plain.string(from: date) ? monthDay : "\(word) · \(monthDay)"
-  }
-
   @ViewBuilder
   private var countdown: some View {
     let untilDeparture = date.timeIntervalSinceNow
     if untilDeparture > 0, untilDeparture < 12 * 60 * 60 {
       let tint: Color = untilDeparture < 60 * 60 ? .orange : .indigo
-      Label {
-        Text(date, format: .relative(presentation: .named, unitsStyle: .abbreviated))
-      } icon: {
+      // Not a `Label`: in a list row, as in the ride info, it shows only its icon.
+      HStack(spacing: 4) {
         Image(systemName: "clock.fill")
+        Text(date, format: .relative(presentation: .named, unitsStyle: .abbreviated))
       }
       .font(.footnote.weight(.semibold))
       .foregroundStyle(tint)
@@ -60,6 +48,20 @@ struct TaxiDepartureHeader: View {
       .background(tint.opacity(0.18), in: .capsule)
       .fixedSize()
     }
+  }
+}
+
+extension Date {
+  /// "Today · Mon, Oct 26" for today and tomorrow, otherwise just the date.
+  var taxiDayString: String {
+    let monthDay = formatted(.dateTime.month(.abbreviated).day().weekday(.abbreviated))
+    let relative = DateFormatter()
+    relative.dateStyle = .short
+    relative.doesRelativeDateFormatting = true
+    let plain = DateFormatter()
+    plain.dateStyle = .short
+    let word = relative.string(from: self)
+    return word == plain.string(from: self) ? monthDay : "\(word) · \(monthDay)"
   }
 }
 

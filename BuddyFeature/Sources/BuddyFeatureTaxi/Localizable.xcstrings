@@ -239,6 +239,22 @@
         }
       }
     },
+    "Arrived %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrived %lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착함 %lld"
+          }
+        }
+      }
+    },
     "Arrives around %@" : {
       "localizations" : {
         "en" : {
@@ -641,6 +657,22 @@
         }
       }
     },
+    "I'm Here" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I'm Here"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도착했어요"
+          }
+        }
+      }
+    },
     "Invalid Invitation" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -722,6 +754,22 @@
         }
       }
     },
+    "Me" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Me"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나"
+          }
+        }
+      }
+    },
     "meeting point" : {
       "localizations" : {
         "en" : {
@@ -766,6 +814,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "더보기"
+          }
+        }
+      }
+    },
+    "My Status" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Status"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 상태"
           }
         }
       }
@@ -979,6 +1043,22 @@
         }
       }
     },
+    "On the Way %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the Way %lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오는 중 %lld"
+          }
+        }
+      }
+    },
     "Open Kakao Pay" : {
       "localizations" : {
         "en" : {
@@ -1076,6 +1156,7 @@
       }
     },
     "Participants %lld/%lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1296,6 +1377,22 @@
         }
       }
     },
+    "Ride Info" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ride Info"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탑승 정보"
+          }
+        }
+      }
+    },
     "Room Identifier" : {
       "localizations" : {
         "en" : {
@@ -1468,6 +1565,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지금 공유하고 즐거운 택시 동승 경험을 만들어 보세요!"
+          }
+        }
+      }
+    },
+    "Shows the ride's details" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the ride's details"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탑승 정보를 보여줍니다"
           }
         }
       }
@@ -1801,6 +1914,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "출발지와 도착지가 이미 설정된 상태로 택시 호출 앱을 실행할 수 있습니다. 동승 인원과 출발지에서 모였다면, 버튼을 눌러 %1$@에서 %2$@로 가는 택시를 호출하세요."
+          }
+        }
+      }
+    },
+    "You can mark your arrival only before the ride departs." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can mark your arrival only before the ride departs."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출발 시간 전까지만 도착을 표시할 수 있어요."
           }
         }
       }

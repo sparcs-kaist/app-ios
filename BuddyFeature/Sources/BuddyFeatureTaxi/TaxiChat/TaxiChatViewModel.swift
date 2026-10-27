@@ -212,13 +212,18 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     return me.isSettlement == .paymentRequired
   }
 
+  /// Shows the change straight away, and puts it back if the server refuses it, so the switch
+  /// never claims a state the other riders cannot see.
   func updateArrival(isArrived: Bool) {
     guard let taxiRoomRepository else { return }
 
+    let previous = self.isArrived
+    self.isArrived = isArrived
     Task {
       do {
         room = try await taxiRoomRepository.updateArrival(id: room.id, isArrived: isArrived)
       } catch {
+        self.isArrived = previous
         logger.error("Failed to update arrival: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
@@ -226,13 +231,17 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     }
   }
 
+  /// Shows the change straight away, and puts it back if the server refuses it.
   func updateCarrier(hasCarrier: Bool) {
     guard let taxiRoomRepository else { return }
 
+    let previous = self.hasCarrier
+    self.hasCarrier = hasCarrier
     Task {
       do {
         room = try await taxiRoomRepository.updateCarrier(id: room.id, hasCarrier: hasCarrier)
       } catch {
+        self.hasCarrier = previous
         logger.error("Failed to update carrier: \(error.localizedDescription, privacy: .public)")
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true

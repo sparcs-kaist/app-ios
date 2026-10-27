@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import NukeUI
 import BuddyDomain
 
 /// Who is riding — a photo per rider, badged when they bring luggage, and a dashed circle per open
@@ -70,40 +69,32 @@ struct TaxiRiderRow: View {
   }
 }
 
-/// A rider's photo, badged with a suitcase when they bring luggage.
-private struct TaxiRiderAvatar: View {
+/// A rider's photo, badged with a suitcase when they bring luggage unless the caller shows that
+/// another way.
+struct TaxiRiderAvatar: View {
   let participant: TaxiParticipant
   let size: CGFloat
+  var showsLuggage: Bool = true
 
   var body: some View {
-    LazyImage(url: participant.profileImageURL) { state in
-      if let image = state.image {
-        image
-          .resizable()
-          .aspectRatio(contentMode: .fill)
-      } else {
-        Circle()
-          .fill(Color.secondarySystemFill)
+    TaxiProfilePhoto(url: participant.profileImageURL)
+      .frame(width: size, height: size)
+      .overlay(alignment: .bottomTrailing) {
+        if showsLuggage, participant.hasCarrier {
+          Image(systemName: "suitcase.rolling.fill")
+            .font(.system(size: size * 0.3))
+            .foregroundStyle(.white)
+            .padding(size * 0.1)
+            .background(.indigo, in: .circle)
+            .offset(x: size * 0.1, y: size * 0.1)
+        }
       }
-    }
-    .frame(width: size, height: size)
-    .clipShape(.circle)
-    .overlay(alignment: .bottomTrailing) {
-      if participant.hasCarrier {
-        Image(systemName: "suitcase.rolling.fill")
-          .font(.system(size: size * 0.3))
-          .foregroundStyle(.white)
-          .padding(size * 0.1)
-          .background(.indigo, in: .circle)
-          .offset(x: size * 0.1, y: size * 0.1)
-      }
-    }
   }
 }
 
 /// Who a rider is: their name, whether they verified a phone number, and whether they bring
-/// luggage.
-private struct TaxiRiderCard: View {
+/// luggage. Shown from a rider's photo on the ride's preview and in its chat.
+struct TaxiRiderCard: View {
   let participant: TaxiParticipant
 
   var body: some View {
