@@ -156,6 +156,8 @@ public struct TaxiListView: View {
       LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
         destinationPicker
 
+        favoriteRoutes
+
         Section {
           roomsContent
         } header: {
@@ -179,6 +181,8 @@ public struct TaxiListView: View {
       ScrollView {
         VStack(spacing: 16) {
           destinationPicker
+
+          favoriteRoutes
 
           weekDaySelector(scrollViewProxy: scrollViewProxy)
 
@@ -222,6 +226,15 @@ public struct TaxiListView: View {
     .glassEffect(colorScheme == .light ? .identity : .regular, in: .rect(cornerRadius: 28))
     .padding(.horizontal)
     .redacted(reason: isInteractable ? [] : .placeholder)
+    .disabled(!isInteractable)
+  }
+
+  private var favoriteRoutes: some View {
+    TaxiFavoriteRoutes(
+      source: $viewModel.source,
+      destination: $viewModel.destination,
+      locations: viewModel.locations
+    )
     .disabled(!isInteractable)
   }
 
