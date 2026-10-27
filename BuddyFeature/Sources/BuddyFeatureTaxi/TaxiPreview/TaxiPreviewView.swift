@@ -24,6 +24,8 @@ public struct TaxiPreviewView: View {
   @Environment(\.verticalSizeClass) private var verticalSizeClass
   @Environment(\.colorScheme) private var colorScheme
   @State private var route: MKRoute?
+  /// Whether no route could be found, so the placeholder held for its figures can go.
+  @State private var routeFailed = false
   @State private var mapCamPos: MapCameraPosition = .automatic
   /// Height of the details panel, so the map frames the route in the part left above it.
   @State private var detailsHeight: CGFloat = 0
@@ -70,6 +72,7 @@ public struct TaxiPreviewView: View {
         source: room.source.coordinate,
         destination: room.destination.coordinate
       )
+      routeFailed = route == nil
       mapCamPos = .rect(framingRect(for: route))
     }
     .analyticsScreen(name: "Taxi Preview", class: String(describing: Self.self))
@@ -111,7 +114,8 @@ public struct TaxiPreviewView: View {
         rowSpacing: 8
       )
 
-      if let route {
+      // Held from the start, so the rows below don't move when the route arrives.
+      if !routeFailed {
         TaxiRideStats(departAt: room.departAt, route: route)
       }
 
