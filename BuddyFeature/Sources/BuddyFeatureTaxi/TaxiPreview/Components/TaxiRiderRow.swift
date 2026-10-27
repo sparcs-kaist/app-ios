@@ -76,6 +76,12 @@ struct TaxiRiderAvatar: View {
   let size: CGFloat
   var showsLuggage: Bool = true
 
+  /// Indigo as it is in light mode, in either appearance. Dark mode's lighter indigo left the white
+  /// suitcase so faint on it that the badge looked see-through.
+  private static let badgeColor = Color(
+    UIColor.systemIndigo.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
+  )
+
   var body: some View {
     TaxiProfilePhoto(url: participant.profileImageURL)
       .frame(width: size, height: size)
@@ -85,7 +91,7 @@ struct TaxiRiderAvatar: View {
             .font(.system(size: size * 0.3))
             .foregroundStyle(.white)
             .padding(size * 0.1)
-            .background(.indigo, in: .circle)
+            .background(Self.badgeColor, in: .circle)
             .offset(x: size * 0.1, y: size * 0.1)
         }
       }
