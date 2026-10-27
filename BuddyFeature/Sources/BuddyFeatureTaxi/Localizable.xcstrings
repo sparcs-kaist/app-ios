@@ -1139,6 +1139,22 @@
         }
       }
     },
+    "Open Ride Info" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Ride Info"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탑승 정보 열기"
+          }
+        }
+      }
+    },
     "Open Toss" : {
       "localizations" : {
         "en" : {
@@ -1681,6 +1697,22 @@
         }
       }
     },
+    "Tap the title to mark your arrival and luggage, call a taxi, or see who's riding." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the title to mark your arrival and luggage, call a taxi, or see who's riding."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목을 눌러 도착과 캐리어를 표시하고, 택시를 부르고, 함께 타는 사람을 확인해 보세요."
+          }
+        }
+      }
+    },
     "Taxi" : {
       "localizations" : {
         "en" : {
@@ -2026,6 +2058,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 탑승의 자리를 잃게 돼요."
+          }
+        }
+      }
+    },
+    "Your Ride at a Glance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Ride at a Glance"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탑승 정보를 한눈에"
           }
         }
       }

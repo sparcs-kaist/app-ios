@@ -12,6 +12,7 @@ import BuddyFeatureShared
 import FirebaseAnalytics
 import BuddyPreviewSupport
 import os
+import TipKit
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatView")
 
@@ -223,6 +224,11 @@ struct TaxiChatView: View {
 
   private var rideTitle: some View {
     TaxiRideTitle(title: chatTitle, room: viewModel.room, action: openRideInfo)
+      .popoverTip(rideInfoTip, arrowEdge: .top) { action in
+        if action.id == RideInfoTip.openActionID {
+          openRideInfo()
+        }
+      }
       .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).midX } action: { rideTitleMidX = $0 }
       // Forgotten when it leaves the screen, as in landscape, so the photos aren't lined up with
       // where it last was.
@@ -264,7 +270,11 @@ struct TaxiChatView: View {
     onLeave != nil && horizontalSizeClass == .regular
   }
 
+  private let rideInfoTip = RideInfoTip()
+
   private func openRideInfo() {
+    // Found, however it was opened, so the tip doesn't come back.
+    rideInfoTip.invalidate(reason: .actionPerformed)
     showRideInfo = true
   }
 
