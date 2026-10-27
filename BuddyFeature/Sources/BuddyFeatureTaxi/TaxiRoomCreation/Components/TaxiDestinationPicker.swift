@@ -87,16 +87,46 @@ fileprivate struct LocationRow: View {
   let locations: [TaxiLocation]
   let markerSize: CGFloat
 
+  private var favorites: TaxiFavorites { .shared }
+
   var body: some View {
+    let favoritePlaces = locations.filter(favorites.isFavorite)
+
     HStack(spacing: 8) {
       Menu {
+        // Your favourite places first, starred, then every other place, each list ticking the
+        // one chosen. A menu shows no heading over an inline picker, so the stars set them apart.
+        if !favoritePlaces.isEmpty {
+          Picker(selection: $selection, label: EmptyView()) {
+            ForEach(favoritePlaces) { location in
+              Label(location.title.localized(), systemImage: "star.fill")
+                .tag(location as TaxiLocation?)
+            }
+          }
+          .pickerStyle(.inline)
+        }
+
         Picker(selection: $selection, label: EmptyView()) {
-          ForEach(locations) { location in
+          ForEach(locations.filter { !favorites.isFavorite($0) }) { location in
             Text(location.title.localized())
               .tag(location as TaxiLocation?)
           }
         }
         .pickerStyle(.inline)
+
+        if let selection {
+          Section {
+            if favorites.isFavorite(selection) {
+              Button(String(localized: "Remove from Favourites", bundle: .module), systemImage: "star.slash") {
+                favorites.toggleFavorite(selection)
+              }
+            } else {
+              Button(String(localized: "Add to Favourites", bundle: .module), systemImage: "star") {
+                favorites.toggleFavorite(selection)
+              }
+            }
+          }
+        }
       } label: {
         HStack(spacing: 12) {
           marker
@@ -106,6 +136,13 @@ fileprivate struct LocationRow: View {
             .font(.body.weight(selection == nil ? .regular : .semibold))
             .foregroundStyle(selection == nil ? .secondary : .primary)
             .lineLimit(1)
+
+          if let selection, favorites.isFavorite(selection) {
+            Image(systemName: "star.fill")
+              .font(.caption2)
+              .foregroundStyle(.yellow)
+              .accessibilityLabel(Text("Favourite Places", bundle: .module))
+          }
 
           Spacer(minLength: 0)
 

@@ -175,6 +175,22 @@
         }
       }
     },
+    "Add to Favourites" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to Favourites"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기에 추가"
+          }
+        }
+      }
+    },
     "Already Departed" : {
       "localizations" : {
         "en" : {
@@ -605,6 +621,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "계좌 번호를 불러오는 데 실패했습니다."
+          }
+        }
+      }
+    },
+    "Favourite Places" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favourite Places"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾는 장소"
           }
         }
       }
@@ -1313,6 +1345,22 @@
         }
       }
     },
+    "Remove from Favourites" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove from Favourites"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기에서 삭제"
+          }
+        }
+      }
+    },
     "Report" : {
       "localizations" : {
         "en" : {
@@ -1437,6 +1485,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기존 방 정산 미완료"
+          }
+        }
+      }
+    },
+    "Save Route" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Route"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 경로 저장"
           }
         }
       }
