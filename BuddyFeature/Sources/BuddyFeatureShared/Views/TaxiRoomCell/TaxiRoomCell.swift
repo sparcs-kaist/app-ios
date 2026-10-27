@@ -21,45 +21,47 @@ public struct TaxiRoomCell: View {
   @Environment(\.taxiUser) private var taxiUser: TaxiUser?
   @Environment(\.colorScheme) private var colorScheme
 
+  /// Narrower than this — a list column beside a chat on a wide display — the time goes above
+  /// the route rather than beside it, so the route and the status keep a usable width.
+  private static let stackedWidth: CGFloat = 320
+  @State private var isStacked = false
+
   public var body: some View {
-    HStack(spacing: 16) {
-      // A fixed width keeps the dividers lined up down the list, whatever the locale's time and
-      // date formats; longer ones ("12:40 PM", "10월 29일 (목)") shrink to fit instead.
-      departure
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
-        .frame(width: 88, alignment: .leading)
-
-      Divider()
-        .padding(.vertical, 2)
-
-      VStack(alignment: .leading, spacing: 10) {
-        TaxiRouteStops(source: room.source.title.localized(), destination: room.destination.title.localized())
-
-        HStack {
-          Text(room.title)
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-
-          Spacer(minLength: 8)
-
-          if room.isDeparted,
-             let taxiUser = taxiUser {
-            TaxiRoomStatusIndicator(
-              settlementType: room.participants.first(where: { $0.id == taxiUser.oid })?.isSettlement ?? .notDeparted,
-              settlementCount: room.settlementTotal ?? 0,
-              participantsCount: room.participants.count
-            )
-          } else {
-            TaxiSeatDots(taken: room.participants.count, capacity: room.capacity)
+    Group {
+      if isStacked {
+        VStack(alignment: .leading, spacing: 12) {
+          HStack(alignment: .firstTextBaseline, spacing: 8) {
+            departureTime
+            departureDetail
           }
+          .lineLimit(1)
+
+          details
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      } else {
+        HStack(spacing: 16) {
+          // A fixed width keeps the dividers lined up down the list, whatever the locale's time and
+          // date formats; longer ones ("12:40 PM", "10월 29일 (목)") shrink to fit instead.
+          VStack(alignment: .leading, spacing: 2) {
+            departureTime
+            departureDetail
+          }
+          .lineLimit(1)
+          .minimumScaleFactor(0.7)
+          .frame(width: 88, alignment: .leading)
+
+          Divider()
+            .padding(.vertical, 2)
+
+          details
         }
       }
     }
     .fixedSize(horizontal: false, vertical: true)
     .padding(16)
     .padding(.horizontal, 4)
+    .onGeometryChange(for: Bool.self) { $0.size.width < Self.stackedWidth } action: { isStacked = $0 }
     .accessibilityElement(children: .combine)
     .contentShape(.rect(cornerRadius: 28))
     .background(
@@ -73,25 +75,54 @@ public struct TaxiRoomCell: View {
     )
   }
 
-  /// Departure time, with a countdown underneath when the ride is close and the date otherwise —
+  private var details: some View {
+    VStack(alignment: .leading, spacing: 10) {
+      TaxiRouteStops(source: room.source.title.localized(), destination: room.destination.title.localized())
+
+      HStack {
+        Text(room.title)
+          .font(.footnote)
+          .foregroundStyle(.secondary)
+          .lineLimit(1)
+
+        Spacer(minLength: 8)
+
+        if room.isDeparted,
+           let taxiUser = taxiUser {
+          TaxiRoomStatusIndicator(
+            settlementType: room.participants.first(where: { $0.id == taxiUser.oid })?.isSettlement ?? .notDeparted,
+            settlementCount: room.settlementTotal ?? 0,
+            participantsCount: room.participants.count
+          )
+          // The room's title gives way first; the status is the one thing worth reading here.
+          .fixedSize()
+        } else {
+          TaxiSeatDots(taken: room.participants.count, capacity: room.capacity)
+        }
+      }
+    }
+  }
+
+  private var departureTime: some View {
+    Text(room.departAt.formatted(date: .omitted, time: .shortened))
+      .font(.title2.weight(.semibold))
+      .monospacedDigit()
+  }
+
+  /// Next to the departure time, a countdown when the ride is close and the date otherwise —
   /// the cell also appears outside the day-grouped list (My Rides, Search), where the date is
   /// the only clue to which day the time belongs to.
-  private var departure: some View {
-    VStack(alignment: .leading, spacing: 2) {
-      Text(room.departAt.formatted(date: .omitted, time: .shortened))
-        .font(.title2.weight(.semibold))
-        .monospacedDigit()
-
-      let untilDeparture = room.departAt.timeIntervalSinceNow
-      if !room.isDeparted, untilDeparture > 0, untilDeparture < 12 * 60 * 60 {
-        Text(room.departAt, format: .relative(presentation: .named, unitsStyle: .abbreviated))
-          .font(.caption.weight(.medium))
-          .foregroundStyle(untilDeparture < 60 * 60 ? .orange : .secondary)
-      } else {
-        Text(room.departAt, format: .dateTime.month(.abbreviated).day().weekday(.abbreviated))
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
+  @ViewBuilder
+  private var departureDetail: some View {
+    let untilDeparture = room.departAt.timeIntervalSinceNow
+    if !room.isDeparted, untilDeparture > 0, untilDeparture < 12 * 60 * 60 {
+      Text(room.departAt, format: .relative(presentation: .named, unitsStyle: .abbreviated))
+        .font(.caption.weight(.medium))
+        .foregroundStyle(untilDeparture < 60 * 60 ? .orange : .secondary)
+    } else {
+      Text(room.departAt, format: .dateTime.month(.abbreviated).day().weekday(.abbreviated))
+        .font(.caption)
+        .foregroundStyle(.secondary)
     }
   }
 }
