@@ -18,6 +18,7 @@ public struct TaxiRouteStops: View {
   let rowSpacing: CGFloat
 
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  @Environment(\.colorScheme) private var colorScheme
 
   public init(
     source: String,
@@ -47,8 +48,10 @@ public struct TaxiRouteStops: View {
         if let origin = markers[false], let end = markers[true] {
           let from = proxy[origin]
           let to = proxy[end]
+          // Solid colours rather than the hierarchical styles: on a dark card's glass those turn
+          // translucent, leaving the dot and line grey beside the solid location symbol.
           Rectangle()
-            .fill(.tertiary)
+            .fill(colorScheme == .dark ? Color.white : Color(uiColor: .tertiaryLabel))
             .frame(width: 2, height: max(to.minY - from.maxY - 4, 0))
             .position(x: from.midX, y: (from.maxY + to.minY) / 2)
         }
@@ -77,7 +80,7 @@ public struct TaxiRouteStops: View {
       // A filled circle as large as the symbol's reads heavier, so it is drawn smaller and
       // centred in the same space.
       Circle()
-        .fill(.primary)
+        .fill(colorScheme == .dark ? Color.white : Color.black)
         .frame(width: markerSize * 0.7, height: markerSize * 0.7)
         .frame(width: markerSize, height: markerSize)
     } else {
