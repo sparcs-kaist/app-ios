@@ -96,18 +96,33 @@ fileprivate struct LocationRow: View {
 
     HStack(spacing: 8) {
       Menu {
-        // Your favourite places first, starred, then every other place, each list ticking the
-        // one chosen. A menu shows no heading over an inline picker, so the stars set them apart.
-        if !favoritePlaces.isEmpty {
-          Picker(selection: $selection, label: EmptyView()) {
+        // First, one section of your favourites: adding or removing the chosen place, in reach
+        // without scrolling a long list, then your favourite places, starred. They are toggles
+        // rather than an inline picker, which a menu always sets apart in a section of its own;
+        // a toggle still shows the tick on the one chosen.
+        if selection != nil || !favoritePlaces.isEmpty {
+          Section {
+            if let selection {
+              if favorites.isFavorite(selection) {
+                Button(String(localized: "Remove from Favourites", bundle: .module), systemImage: "star.slash") {
+                  favorites.toggleFavorite(selection)
+                }
+              } else {
+                Button(String(localized: "Add to Favourites", bundle: .module), systemImage: "star") {
+                  favorites.toggleFavorite(selection)
+                }
+              }
+            }
+
             ForEach(favoritePlaces) { location in
-              Label(location.title.localized(), systemImage: "star.fill")
-                .tag(location as TaxiLocation?)
+              Toggle(isOn: isChosen(location)) {
+                Label(location.title.localized(), systemImage: "star.fill")
+              }
             }
           }
-          .pickerStyle(.inline)
         }
 
+        // Then every other place, ticking the one chosen.
         Picker(selection: $selection, label: EmptyView()) {
           ForEach(locations.filter { !favorites.isFavorite($0) }) { location in
             Text(location.title.localized())
@@ -116,19 +131,6 @@ fileprivate struct LocationRow: View {
         }
         .pickerStyle(.inline)
 
-        if let selection {
-          Section {
-            if favorites.isFavorite(selection) {
-              Button(String(localized: "Remove from Favourites", bundle: .module), systemImage: "star.slash") {
-                favorites.toggleFavorite(selection)
-              }
-            } else {
-              Button(String(localized: "Add to Favourites", bundle: .module), systemImage: "star") {
-                favorites.toggleFavorite(selection)
-              }
-            }
-          }
-        }
       } label: {
         HStack(spacing: 12) {
           marker
@@ -175,6 +177,16 @@ fileprivate struct LocationRow: View {
         .buttonStyle(.plain)
         .transition(.opacity)
       }
+    }
+  }
+
+  /// Whether `location` is the chosen place, as a toggle: turning it on chooses it, and turning
+  /// the chosen one off leaves it chosen, as picking it again from a list would.
+  private func isChosen(_ location: TaxiLocation) -> Binding<Bool> {
+    Binding {
+      selection == location
+    } set: { isOn in
+      if isOn { selection = location }
     }
   }
 
