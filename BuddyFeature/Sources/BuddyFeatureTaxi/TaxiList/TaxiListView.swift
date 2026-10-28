@@ -27,6 +27,8 @@ public struct TaxiListView: View {
   @State private var showRoomCreationSheet: Bool = false
   @State private var selectedRoom: TaxiRoom? = nil
   @State private var selectedChatRoom: TaxiRoom? = nil
+  /// A room just joined from its preview, whose chat opens once the preview has closed.
+  @State private var joinedRoom: TaxiRoom? = nil
 
   /// Non-nil only while an active fold runs vertically through the wide
   /// layout; see `FoldSplit`.
@@ -34,8 +36,16 @@ public struct TaxiListView: View {
 
   @Environment(\.colorScheme) private var colorScheme
 
-  public init(viewModel: TaxiListViewModelProtocol = TaxiListViewModel()) {
+  /// A room to preview from outside the list, such as one an invite link opened, shown as if
+  /// it had been tapped and then cleared.
+  @Binding private var roomToPreview: TaxiRoom?
+
+  public init(
+    viewModel: TaxiListViewModelProtocol = TaxiListViewModel(),
+    roomToPreview: Binding<TaxiRoom?> = .constant(nil)
+  ) {
     _viewModel = State(initialValue: viewModel)
+    _roomToPreview = roomToPreview
   }
 
   init(
@@ -44,6 +54,7 @@ public struct TaxiListView: View {
   ) {
     _viewModel = State(initialValue: viewModel)
     _chatListViewModel = State(initialValue: chatListViewModel)
+    _roomToPreview = .constant(nil)
   }
 
   private var isInteractable: Bool {
@@ -129,8 +140,8 @@ public struct TaxiListView: View {
         .presentationDragIndicator(.visible)
         .leadingPresentationPlacement()
     }
-    .sheet(item: $selectedRoom) { room in
-      TaxiPreviewView(room: room)
+    .sheet(item: $selectedRoom, onDismiss: openJoinedRoom) { room in
+      TaxiPreviewView(room: room) { joinedRoom = $0 }
         .onDisappear {
           Task {
             await viewModel.fetchData()
@@ -142,6 +153,13 @@ public struct TaxiListView: View {
     }
     .task {
       await viewModel.fetchData()
+    }
+    // Handed on once the Taxi tab is showing, so the preview is this list's own sheet, placed and
+    // sized like one opened from a card, with its chat opening here once you join.
+    .onChange(of: roomToPreview, initial: true) { _, room in
+      guard let room else { return }
+      roomToPreview = nil
+      selectedRoom = room
     }
     .refreshable {
       await viewModel.fetchData()
@@ -227,6 +245,14 @@ public struct TaxiListView: View {
     .padding(.horizontal)
     .redacted(reason: isInteractable ? [] : .placeholder)
     .disabled(!isInteractable)
+  }
+
+  /// Opens the chat of the room just joined: pushed rather than presented over the preview, which
+  /// has to finish closing first.
+  private func openJoinedRoom() {
+    guard let joinedRoom else { return }
+    self.joinedRoom = nil
+    selectedChatRoom = joinedRoom
   }
 
   private var favoriteRoutes: some View {

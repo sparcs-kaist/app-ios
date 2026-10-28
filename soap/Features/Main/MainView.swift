@@ -66,7 +66,7 @@ struct MainView: View {
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
         NavigationStack(path: $taxiPath) {
-          TaxiListView()
+          TaxiListView(roomToPreview: $viewModel.invitedRoom)
         }
       }
 
@@ -100,13 +100,6 @@ struct MainView: View {
       // Raised by an App Intent before this view existed, e.g. on a cold launch.
       if let deepLink = PendingDeepLink.take() { handle(deepLink: deepLink) }
     }
-    .sheet(item: $viewModel.invitedRoom) { room in
-      TaxiPreviewView(room: room)
-        .presentationDragIndicator(.visible)
-        // `.large` lets the preview grow to fit on a short screen, such as the outer display of
-        // iPhone Duo in landscape; the sheet still opens at the smallest detent.
-        .presentationDetents([.height(560), .large])
-    }
     .alert(viewModel.alertState?.title ?? "Error", isPresented: $viewModel.isAlertPresented) {
       Button(String(localized: "Okay"), role: .cancel) { }
     } message: {
@@ -122,7 +115,9 @@ struct MainView: View {
   private func handle(deepLink: DeepLink) {
     switch deepLink {
     case .taxiInvite(let code):
+      // The Taxi tab presents the preview once the room arrives, as if it had been tapped there.
       selectedTab = .taxi
+      taxiPath = NavigationPath()
       Task {
         await viewModel.resolveInvite(code: code)
       }

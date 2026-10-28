@@ -16,7 +16,7 @@ import TipKit
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatView")
 
-struct TaxiChatView: View {
+public struct TaxiChatView: View {
   @State private var viewModel: TaxiChatViewModelProtocol
 
   @Environment(\.openURL) private var openURL
@@ -49,7 +49,7 @@ struct TaxiChatView: View {
   /// since `dismiss()` there would close the container's own presentation.
   private let onLeave: (() -> Void)?
 
-  init(room: TaxiRoom, onLeave: (() -> Void)? = nil) {
+  public init(room: TaxiRoom, onLeave: (() -> Void)? = nil) {
     _viewModel = State(initialValue: TaxiChatViewModel(room: room))
     self.onLeave = onLeave
   }
@@ -59,7 +59,7 @@ struct TaxiChatView: View {
     self.onLeave = onLeave
   }
 
-  var body: some View {
+  public var body: some View {
     GeometryReader { reader in
       switch viewModel.state {
       case .loading:

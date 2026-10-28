@@ -33,8 +33,13 @@ public struct TaxiPreviewView: View {
   @State private var showErrorAlert: Bool = false
   @State private var errorMessage: String = ""
 
-  public init(room: TaxiRoom) {
+  /// Called with the room once you have joined it, so whoever showed the preview can open its
+  /// chat; the preview closes itself first.
+  private let onJoin: ((TaxiRoom) -> Void)?
+
+  public init(room: TaxiRoom, onJoin: ((TaxiRoom) -> Void)? = nil) {
     self.room = room
+    self.onJoin = onJoin
   }
 
   public var body: some View {
@@ -199,8 +204,9 @@ public struct TaxiPreviewView: View {
       Button(action: {
         Task {
           do {
-            try await viewModel.joinRoom(id: room.id)
+            let joinedRoom = try await viewModel.joinRoom(id: room.id)
             dismiss()
+            onJoin?(joinedRoom ?? room)
           } catch {
             logger.error("Failed to join room: \(error.localizedDescription, privacy: .public)")
             errorMessage = error.localizedDescription
