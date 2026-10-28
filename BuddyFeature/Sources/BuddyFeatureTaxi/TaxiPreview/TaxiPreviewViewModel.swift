@@ -53,9 +53,10 @@ class TaxiPreviewViewModel {
     return route
   }
 
-  func joinRoom(id: String) async throws {
-    guard let taxiRoomRepository else { return }
-    let _ = try await taxiRoomRepository.joinRoom(id: id)
+  /// Joins the room and returns it as the server has it now, with you among its riders.
+  func joinRoom(id: String) async throws -> TaxiRoom? {
+    guard let taxiRoomRepository else { return nil }
+    return try await taxiRoomRepository.joinRoom(id: id)
   }
 
   private func fetchTaxiUser() async {
