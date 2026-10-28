@@ -15,6 +15,7 @@ struct WeekDaySelector: View {
   var select: ((Date) -> Void)?
 
   @Namespace private var selectionNamespace // 1. Create a Namespace
+  @Environment(\.colorScheme) private var colorScheme
 
   private let calendar = Calendar.current
 
@@ -36,24 +37,31 @@ struct WeekDaySelector: View {
           }
         }()
 
+        // Solid colours for the selected day rather than `.primary`: on the selector's glass
+        // that turns translucent and the pill shows grey. A weekday's pill is black, or white in
+        // dark mode with dark text on it; weekends keep their red and blue.
+        let isWeekend = weekday == 1 || weekday == 7
+        let selectionColor: Color = isWeekend ? textColor : (colorScheme == .dark ? .white : .black)
+        let selectedTextColor: Color = !isWeekend && colorScheme == .dark ? .black : .white
+
         VStack(spacing: 4) {
           Text("\(calendar.component(.day, from: day))")
             .font(.title3)
             .fontWeight(.semibold)
             .fontDesign(.rounded)
-            .foregroundStyle(isSelected ? .white : .primary)
+            .foregroundStyle(isSelected ? selectedTextColor : .primary)
 
           Text(symbol)
             .font(.caption2)
             .fontWeight(.medium)
-            .foregroundStyle(isSelected ? .white : textColor)
+            .foregroundStyle(isSelected ? selectedTextColor : textColor)
         }
         .frame(maxWidth: .infinity, minHeight: 60)
         .background {
           if isSelected {
             // 2. Apply matchedGeometryEffect to the selected background
             RoundedRectangle(cornerRadius: 24)
-              .foregroundStyle(textColor)
+              .fill(selectionColor)
               .matchedGeometryEffect(id: "selectedDay", in: selectionNamespace)
           }
         }
