@@ -23,13 +23,6 @@ public final class FCMUseCase: FCMUseCaseProtocol, @unchecked Sendable {
   }
   
   public func register(fcmToken: String) async throws {
-    let deviceUUID = keychain.get(FCMUseCase.fcmDeviceIDKey) ?? {
-      let deviceUUID = UUID().uuidString
-      keychain.set(deviceUUID, forKey: FCMUseCase.fcmDeviceIDKey)
-      
-      return deviceUUID
-    }()
-    
     try await fcmRepository.register(
       deviceUUID: deviceUUID,
       fcmToken: fcmToken,
@@ -47,7 +40,22 @@ public final class FCMUseCase: FCMUseCaseProtocol, @unchecked Sendable {
     return Locale(identifier: localization).language.languageCode?.identifier ?? "ko"
   }
 
-  public func manage(service: FeatureType, isActive: Bool) async throws {
-    try await fcmRepository.manage(service: service, isActive: isActive)
+  public func notificationPreferences() async throws -> [NotificationCategory: Bool] {
+    try await fcmRepository.fetchNotificationPreferences(deviceUUID: deviceUUID)
+  }
+
+  public func setNotifications(_ category: NotificationCategory, enabled: Bool) async throws {
+    try await fcmRepository.setNotificationPreference(category, isEnabled: enabled, deviceUUID: deviceUUID)
+  }
+
+  /// This device as Buddy's backend knows it, kept in the keychain so it survives reinstalling.
+  /// Notification preferences are per device, like the registration they belong to.
+  private var deviceUUID: String {
+    keychain.get(FCMUseCase.fcmDeviceIDKey) ?? {
+      let deviceUUID = UUID().uuidString
+      keychain.set(deviceUUID, forKey: FCMUseCase.fcmDeviceIDKey)
+
+      return deviceUUID
+    }()
   }
 }

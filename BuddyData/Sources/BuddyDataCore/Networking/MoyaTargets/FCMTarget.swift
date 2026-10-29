@@ -10,7 +10,8 @@ import Moya
 
 public enum FCMTarget {
   case register(deviceUUID: String, fcmToken: String, deviceName: String, language: String)
-  case manage(service: Int, isActive: Bool)
+  case notificationPreferences(deviceUUID: String)
+  case setNotificationPreference(category: String, deviceUUID: String, isEnabled: Bool)
 }
 
 extension FCMTarget: TargetType, AccessTokenAuthorizable {
@@ -22,21 +23,32 @@ extension FCMTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .register:
       "/notification/device_info"
-    case .manage:
-      "/notification/manage_alert"
+    case .notificationPreferences:
+      "/notification/preferences"
+    case .setNotificationPreference(let category, _, _):
+      "/notification/preferences/\(category)"
     }
   }
   
   public var method: Moya.Method {
-    .post
+    switch self {
+    case .register:
+      .post
+    case .notificationPreferences:
+      .get
+    case .setNotificationPreference:
+      .put
+    }
   }
   
   public var task: Moya.Task {
     switch self {
     case .register(let deviceUUID, let fcmToken, let deviceName, let language):
         .requestParameters(parameters: ["device_uuid": deviceUUID, "fcm_token": fcmToken, "device_name": deviceName, "app_language": language], encoding: JSONEncoding.default)
-    case .manage(let service, let isActive):
-        .requestParameters(parameters: ["service": service, "is_active": isActive], encoding: JSONEncoding.default)
+    case .notificationPreferences(let deviceUUID):
+        .requestParameters(parameters: ["device_uuid": deviceUUID], encoding: URLEncoding.queryString)
+    case .setNotificationPreference(_, let deviceUUID, let isEnabled):
+        .requestParameters(parameters: ["device_uuid": deviceUUID, "is_enabled": isEnabled], encoding: JSONEncoding.default)
     }
   }
   
