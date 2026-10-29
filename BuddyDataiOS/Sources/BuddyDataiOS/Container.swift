@@ -266,6 +266,10 @@ extension Container: @retroactive AutoRegistering {
     .scope(.singleton)
 
     userUseCase.register {
+    taxiQuickReplyUseCase.register {
+      TaxiQuickReplyUseCase(taxiChatRepository: self.taxiChatRepository.resolve())
+    }
+
       UserUseCase(
         taxiUserRepository: self.taxiUserRepository.resolve(),
         feedUserRepository: self.feedUserRepository.resolve(),

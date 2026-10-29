@@ -40,16 +40,21 @@ public struct TaxiListView: View {
   /// A room to preview from outside the list, such as one an invite link opened, shown as if
   /// it had been tapped and then cleared.
   @Binding private var roomToPreview: TaxiRoom?
+  /// A room whose chat to open from outside the list, such as one a chat notification opened,
+  /// pushed as if it had been chosen from Chats and then cleared.
+  @Binding private var roomToOpen: TaxiRoom?
 
   /// Unread chats, for the Chats button's badge.
   @State private var unreadStore = Container.shared.taxiUnreadStore()
 
   public init(
     viewModel: TaxiListViewModelProtocol = TaxiListViewModel(),
-    roomToPreview: Binding<TaxiRoom?> = .constant(nil)
+    roomToPreview: Binding<TaxiRoom?> = .constant(nil),
+    roomToOpen: Binding<TaxiRoom?> = .constant(nil)
   ) {
     _viewModel = State(initialValue: viewModel)
     _roomToPreview = roomToPreview
+    _roomToOpen = roomToOpen
   }
 
   init(
@@ -59,6 +64,7 @@ public struct TaxiListView: View {
     _viewModel = State(initialValue: viewModel)
     _chatListViewModel = State(initialValue: chatListViewModel)
     _roomToPreview = .constant(nil)
+    _roomToOpen = .constant(nil)
   }
 
   private var isInteractable: Bool {
@@ -143,6 +149,14 @@ public struct TaxiListView: View {
       guard let room else { return }
       roomToPreview = nil
       selectedRoom = room
+    }
+    // The chat is pushed on this stack, so Chats, which covers it, closes first.
+    .onChange(of: roomToOpen, initial: true) { _, room in
+      guard let room else { return }
+      roomToOpen = nil
+      showChatList = false
+      selectedRoom = nil
+      selectedChatRoom = room
     }
     .refreshable {
       await viewModel.fetchData()

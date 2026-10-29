@@ -32,6 +32,8 @@ public enum PendingDeepLink {
 
 public enum DeepLink {
   case taxiInvite(code: String)
+  /// The chat of a Taxi room you are in, such as from a chat notification.
+  case taxiChat(roomID: String)
   case araPost(id: Int)
   case timetable
 
