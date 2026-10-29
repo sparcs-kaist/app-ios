@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Factory
 import BuddyDomain
 import BuddyFeatureShared
 import Haptica
@@ -39,6 +40,9 @@ public struct TaxiListView: View {
   /// A room to preview from outside the list, such as one an invite link opened, shown as if
   /// it had been tapped and then cleared.
   @Binding private var roomToPreview: TaxiRoom?
+
+  /// Unread chats, for the Chats button's badge.
+  @State private var unreadStore = Container.shared.taxiUnreadStore()
 
   public init(
     viewModel: TaxiListViewModelProtocol = TaxiListViewModel(),
@@ -96,28 +100,7 @@ public struct TaxiListView: View {
         }
       }
     }
-    .toolbar {
-      ToolbarItem(placement: .topBarTrailing) {
-        Button(String(localized: "Create", bundle: .module), systemImage: "plus") {
-          showRoomCreationSheet = true
-        }
-      }
-      .matchedTransitionSource(id: "RoomCreationView", in: namespace)
-      // Create is this screen's main action: when a vertical bar runs out of
-      // room, as on iPhone Duo's outer display, it should be the last item
-      // to collapse into the overflow menu.
-      .prefersStayingVisible()
-
-      ToolbarSpacer(.flexible, placement: .topBarTrailing)
-
-      ToolbarItem(placement: .topBarTrailing) {
-        Button {
-          showChatList = true
-        } label: {
-          Label(String(localized: "Chats", bundle: .module), systemImage: "bubble.left.and.text.bubble.right")
-        }
-      }
-    }
+    .toolbar { toolbarContent }
     .navigationTitle(String(localized: "Taxi", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
     .background {
@@ -165,6 +148,31 @@ public struct TaxiListView: View {
       await viewModel.fetchData()
     }
     .analyticsScreen(name: "Taxi List", class: String(describing: Self.self))
+  }
+
+  @ToolbarContentBuilder
+  private var toolbarContent: some ToolbarContent {
+    ToolbarItem(placement: .topBarTrailing) {
+      Button(String(localized: "Create", bundle: .module), systemImage: "plus") {
+        showRoomCreationSheet = true
+      }
+    }
+    .matchedTransitionSource(id: "RoomCreationView", in: namespace)
+    // Create is this screen's main action: when a vertical bar runs out of
+    // room, as on iPhone Duo's outer display, it should be the last item
+    // to collapse into the overflow menu.
+    .prefersStayingVisible()
+
+    ToolbarSpacer(.flexible, placement: .topBarTrailing)
+
+    ToolbarItem(placement: .topBarTrailing) {
+      Button {
+        showChatList = true
+      } label: {
+        Label(String(localized: "Chats", bundle: .module), systemImage: "bubble.left.and.text.bubble.right")
+      }
+      .badge(unreadStore?.totalCount ?? 0)
+    }
   }
 
   /// Single-column layout: everything scrolls together, with the weekday

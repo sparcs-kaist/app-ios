@@ -97,6 +97,28 @@
         }
       }
     },
+    "%lld unread" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld unread"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld unread"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "읽지 않음 %lld개"
+          }
+        }
+      }
+    },
     "%lld/%lld" : {
       "localizations" : {
         "en-GB" : {

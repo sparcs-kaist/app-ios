@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Factory
 import BuddyDomain
 import BuddyFeatureShared
 import FirebaseAnalytics
@@ -43,6 +44,8 @@ public struct TaxiChatView: View {
   @State private var hasLeftRoom: Bool = false
 
   @Namespace private var namespace
+
+  @State private var unreadStore = Container.shared.taxiUnreadStore()
 
   /// Called after leaving the room, in place of `dismiss()`. A container that
   /// shows this view as a column root rather than a pushed screen passes it,
@@ -193,6 +196,14 @@ public struct TaxiChatView: View {
     .task {
       await viewModel.setup()
       await viewModel.fetchInitialChats()
+    }
+    // While the chat is on screen its chats are read as they arrive, so they neither count as
+    // unread nor show as notifications.
+    .onAppear {
+      unreadStore?.enterRoom(viewModel.room.id)
+    }
+    .onDisappear {
+      unreadStore?.leaveRoom(viewModel.room.id)
     }
     .analyticsScreen(name: "Taxi Chat", class: String(describing: Self.self))
   }
