@@ -176,7 +176,40 @@ enum TaxiChatNotification {
     }
     let format = appStrings.localizedString(forKey: key, value: content.body, table: nil)
     let arguments = (alert["loc-args"] as? [String]) ?? []
-    return arguments.isEmpty ? format : String(format: format, arguments: arguments)
+    return substitute(arguments, into: format)
+  }
+
+  /// Puts `arguments` into the `%@` and `%1$@` placeholders of `format`.
+  ///
+  /// Unlike `String(format:)`, a placeholder without an argument, or of another kind such as `%d`,
+  /// is left as it is rather than read from memory that isn't there, since the arguments come from
+  /// the push.
+  static func substitute(_ arguments: [String], into format: String) -> String {
+    var result = ""
+    var nextArgument = 0
+    var rest = Substring(format)
+    while let percent = rest.firstIndex(of: "%") {
+      result += rest[..<percent]
+      let afterPercent = rest[rest.index(after: percent)...]
+      if afterPercent.first == "%" {
+        result += "%"
+        rest = afterPercent.dropFirst()
+      } else if afterPercent.first == "@" {
+        result += nextArgument < arguments.count ? arguments[nextArgument] : "%@"
+        nextArgument += 1
+        rest = afterPercent.dropFirst()
+      } else if let dollar = afterPercent.firstIndex(of: "$"),
+                let position = Int(afterPercent[..<dollar]),
+                afterPercent[afterPercent.index(after: dollar)...].first == "@" {
+        let placeholder = rest[percent...afterPercent.index(after: dollar)]
+        result += arguments.indices.contains(position - 1) ? arguments[position - 1] : String(placeholder)
+        rest = afterPercent[afterPercent.index(dollar, offsetBy: 2)...]
+      } else {
+        result += "%"
+        rest = afterPercent
+      }
+    }
+    return result + rest
   }
 
   /// The app's strings in the language it last ran in, which the app records in the shared app
