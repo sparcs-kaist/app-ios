@@ -160,6 +160,9 @@ public final class TaxiUnreadStore: TaxiUnreadStoreProtocol {
     }
   }
 
+  /// The app icon's badge is Taxi's unread chats alone: no other notification sets it, and Taxi's
+  /// pushes carry the same total from the server. Anything else that wants a badge must be added
+  /// to this count here and on the server, or the two will keep replacing each other.
   private func updateAppBadge() {
     let total = totalCount
     UNUserNotificationCenter.current().setBadgeCount(total) { error in
