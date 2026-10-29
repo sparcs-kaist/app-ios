@@ -22,6 +22,11 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
   private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>()
   private let connectionBroadcaster = AsyncBroadcaster<Bool>(replaysLatest: true)
   private let roomUpdateBroadcaster = AsyncBroadcaster<String>()
+  private let liveChatBroadcaster = AsyncBroadcaster<TaxiChat>()
+
+  /// Minigame chats, which the app does not support. Their DTOs decode as text, so they are
+  /// told apart by their raw type.
+  private static let minigameChatTypes: Set<String> = ["wordChain", "racing", "raceLog"]
 
   public func chatStream() async -> AsyncStream<[TaxiChat]> {
     await chatBroadcaster.subscribe()
@@ -33,6 +38,10 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
 
   public func roomUpdateStream() async -> AsyncStream<String> {
     await roomUpdateBroadcaster.subscribe()
+  }
+
+  public func liveChatStream() async -> AsyncStream<TaxiChat> {
+    await liveChatBroadcaster.subscribe()
   }
 
   private var chatsStorage: [TaxiChat] = []
@@ -187,3 +196,14 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
     }
   }
 }
+
+      // Only a chat just sent carries its room ID; loading newer chats for a room does not.
+      if dataDict["roomId"] != nil {
+        let liveChats = self.handleChats(chatArray.filter {
+          !Self.minigameChatTypes.contains($0["type"] as? String ?? "")
+        })
+        let broadcaster = self.liveChatBroadcaster
+        Task {
+          for chat in liveChats { await broadcaster.yield(chat) }
+        }
+      }
