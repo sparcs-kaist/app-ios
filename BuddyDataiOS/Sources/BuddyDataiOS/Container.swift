@@ -267,10 +267,11 @@ extension Container: @retroactive AutoRegistering {
       }
       // NOTE: We intentionally do NOT reconnect the taxi socket on token refresh.
       // The socket authenticates once at its handshake and the server keeps that
-      // session valid; re-handshaking a live socket makes the server stop pushing
-      // chats to it (chats would hang on the loading spinner). Genuine drops are
-      // recovered by TaxiChatService's `.disconnect` auto-reconnect, which reads a
-      // fresh token from storage.
+      // session valid, so new chats keep arriving. Only a room's chats asked for by
+      // the chat screen need the socket on the current token, as Taxi sends them to
+      // the socket of the requesting token: TaxiChatUseCase reconnects it then, with
+      // a new manager, since rejoining on the old one reuses the old token's headers
+      // (which once left chats hanging on the loading spinner).
       return useCase
     }
     .scope(.singleton)
@@ -280,11 +281,11 @@ extension Container: @retroactive AutoRegistering {
     }
     .scope(.singleton)
 
-    userUseCase.register {
     taxiQuickReplyUseCase.register {
       TaxiQuickReplyUseCase(taxiChatRepository: self.taxiChatRepository.resolve())
     }
 
+    userUseCase.register {
       UserUseCase(
         taxiUserRepository: self.taxiUserRepository.resolve(),
         feedUserRepository: self.feedUserRepository.resolve(),
@@ -301,6 +302,7 @@ extension Container: @retroactive AutoRegistering {
         userUseCase: self.userUseCase.resolve(),
         taxiChatRepository: self.taxiChatRepository.resolve(),
         taxiRoomRepository: self.taxiRoomRepository.resolve(),
+        authUseCase: self.authUseCase.resolve()
       )
     }
 
