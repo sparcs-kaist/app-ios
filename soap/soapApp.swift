@@ -194,8 +194,9 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
       failure.threadIdentifier = roomID
       failure.categoryIdentifier = TaxiNotification.categoryIdentifier
       failure.userInfo = ["category": "taxi_chat", "room_id": roomID, "room_name": roomName]
+      // One per room, so failing again replaces it rather than adding another.
       try? await UNUserNotificationCenter.current().add(
-        UNNotificationRequest(identifier: UUID().uuidString, content: failure, trigger: nil)
+        UNNotificationRequest(identifier: "taxi_reply_failed.\(roomID)", content: failure, trigger: nil)
       )
     }
   }
