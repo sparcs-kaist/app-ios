@@ -221,18 +221,21 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
         return
       }
 
-      // Chats fetched after reconnecting may already have arrived live.
+      // Chats fetched after reconnecting may already have arrived live, and one may arrive twice.
+      // Minigame chats decode as text, so they are told apart by their raw type.
       let recentChats = self.chats.suffix(50)
-      let chats: [TaxiChat] = self.handleChats(chatArray).filter { chat in
-        !recentChats.contains { $0.isSameChat(as: chat) }
+      let newChats = chatArray.compactMap { json -> (chat: TaxiChat, isMinigame: Bool)? in
+        guard let chat = self.handleChats([json]).first else { return nil }
+        return (chat, Self.minigameChatTypes.contains(json["type"] as? String ?? ""))
+      }.filter { new in
+        !recentChats.contains { $0.isSameChat(as: new.chat) }
       }
-      self.chats.append(contentsOf: chats)
+      self.chats.append(contentsOf: newChats.map(\.chat))
 
-      // Only a chat just sent carries its room ID; loading newer chats for a room does not.
+      // Only a chat just sent carries its room ID; loading newer chats for a room does not. Only
+      // ones new here count, so a chat sent again isn't counted as unread twice.
       if dataDict["roomId"] != nil {
-        let liveChats = self.handleChats(chatArray.filter {
-          !Self.minigameChatTypes.contains($0["type"] as? String ?? "")
-        })
+        let liveChats = newChats.filter { !$0.isMinigame }.map(\.chat)
         let broadcaster = self.liveChatBroadcaster
         Task {
           for chat in liveChats { await broadcaster.yield(chat) }
