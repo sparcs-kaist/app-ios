@@ -76,6 +76,10 @@ extension Container {
     promised()
   }
 
+  public var taxiUnreadStore: Factory<TaxiUnreadStoreProtocol?> {
+    promised()
+  }
+
   public var analyticsService: Factory<AnalyticsServiceProtocol?> {
     promised()
   }
