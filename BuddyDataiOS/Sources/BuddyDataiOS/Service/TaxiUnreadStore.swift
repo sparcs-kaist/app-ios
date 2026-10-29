@@ -35,6 +35,9 @@ public final class TaxiUnreadStore: TaxiUnreadStoreProtocol {
   @ObservationIgnored private let authUseCase: AuthUseCaseProtocol?
 
   @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
+  @ObservationIgnored private var taxiChatService: TaxiChatServiceProtocol?
+  /// Whether the chat socket is connected for the account signed in now.
+  @ObservationIgnored private var isSocketSignedIn = false
 
   // Registered from the container, which is not on the main actor.
   public nonisolated init(
@@ -87,18 +90,16 @@ public final class TaxiUnreadStore: TaxiUnreadStoreProtocol {
   // MARK: - Private
 
   private func observe() {
-    // Counts a chat from someone else in a room you are not looking at.
-    observationTasks.append(Task { [weak self, makeTaxiChatService, userUseCase, authUseCase] in
-      // The socket signs in once, with the access token it connects with. Made with an expired
-      // one, as at launch, it's turned away and the chat screen then waits for chats forever.
-      await Self.waitForValidAccessToken(authUseCase)
-      guard let taxiChatService = makeTaxiChatService() else { return }
-      for await chat in await taxiChatService.liveChatStream() {
+    // Follows signing in and out: the chat socket belongs to the account signed in.
+    observationTasks.append(Task { [weak self, authUseCase] in
+      guard let authUseCase else { return }
+      for await isAuthenticated in authUseCase.isAuthenticatedPublisher.values {
         guard let self else { return }
-        let myID = await userUseCase?.taxiUser?.oid
-        guard chat.isValid, chat.authorID == nil || chat.authorID != myID else { continue }
-        guard chat.roomID != self.activeRoomID else { continue }
-        self.counts[chat.roomID, default: 0] += 1
+        if isAuthenticated {
+          await self.connectSocketIfNeeded()
+        } else {
+          self.signedOut()
+        }
       }
     })
 
@@ -115,12 +116,47 @@ public final class TaxiUnreadStore: TaxiUnreadStoreProtocol {
     })
   }
 
-  /// Returns once you're signed in with a valid access token, refreshing it if needed. Signing in
-  /// and every token refresh publish again, so a failed refresh waits for the next one.
-  private static func waitForValidAccessToken(_ authUseCase: AuthUseCaseProtocol?) async {
-    guard let authUseCase else { return }
-    for await isAuthenticated in authUseCase.isAuthenticatedPublisher.values where isAuthenticated {
-      if (try? await authUseCase.getValidAccessToken()) != nil { return }
+  /// Connects the chat socket for the account just signed in, once its access token is valid. The
+  /// socket signs in once, with the token it connects with: made with an expired one, as at launch,
+  /// it's turned away and the chat screen then waits for chats forever. Signing in and every token
+  /// refresh publish again, so a failed refresh tries again on the next one.
+  private func connectSocketIfNeeded() async {
+    guard !isSocketSignedIn, (try? await authUseCase?.getValidAccessToken()) != nil else { return }
+    isSocketSignedIn = true
+    if let taxiChatService {
+      await taxiChatService.connectWithCurrentAccessToken()
+    } else if let service = makeTaxiChatService() {
+      taxiChatService = service
+      observeLiveChats(service)
+    }
+    await refresh()
+  }
+
+  /// Counts a chat from someone else in a room you are not looking at.
+  private func observeLiveChats(_ taxiChatService: TaxiChatServiceProtocol) {
+    observationTasks.append(Task { [weak self, userUseCase] in
+      for await chat in await taxiChatService.liveChatStream() {
+        guard let self else { return }
+        let myID = await userUseCase?.taxiUser?.oid
+        guard chat.isValid, chat.authorID == nil || chat.authorID != myID else { continue }
+        guard chat.roomID != self.activeRoomID else { continue }
+        self.counts[chat.roomID, default: 0] += 1
+      }
+    })
+  }
+
+  /// The next person to sign in mustn't get the previous account's chats, badges or notifications.
+  private func signedOut() {
+    isSocketSignedIn = false
+    taxiChatService?.disconnect()
+    activeRoomID = nil
+    counts = [:]
+    UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+      let identifiers = notifications
+        .filter { ($0.request.content.userInfo["category"] as? String)?.hasPrefix("taxi_") == true }
+        .map(\.request.identifier)
+      guard !identifiers.isEmpty else { return }
+      UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: identifiers)
     }
   }
 

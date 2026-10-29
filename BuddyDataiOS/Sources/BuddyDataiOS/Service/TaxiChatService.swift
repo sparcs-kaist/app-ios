@@ -94,6 +94,8 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
   }
 
   public func disconnect() {
+    // Not to be reconnected by the `.disconnect` handler, such as after signing out.
+    hasAttemptedReconnect = true
     socket.disconnect()
   }
 
@@ -121,7 +123,9 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
 
   public func connectWithCurrentAccessToken() async {
     let isCurrent = await MainActor.run {
-      guard tokenStorage.getAccessToken() == connectedToken else {
+      // A socket on another token, or disconnected on purpose, such as after signing out.
+      guard tokenStorage.getAccessToken() == connectedToken,
+            socket.status == .connected || socket.status == .connecting else {
         reconnect()
         return false
       }
