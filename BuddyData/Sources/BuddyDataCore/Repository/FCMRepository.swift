@@ -20,6 +20,10 @@ public final class FCMRepository: FCMRepositoryProtocol, @unchecked Sendable {
     let _ = try await provider.request(.register(deviceUUID: deviceUUID, fcmToken: fcmToken, deviceName: deviceName, language: language))
   }
   
+  public func unregister(deviceUUID: String) async throws {
+    let _ = try await provider.request(.unregister(deviceUUID: deviceUUID))
+  }
+
   public func fetchNotificationPreferences(deviceUUID: String) async throws -> [NotificationCategory: Bool] {
     let response = try await provider.request(.notificationPreferences(deviceUUID: deviceUUID))
     return try response.map(NotificationPreferencesDTO.self).toModel()
