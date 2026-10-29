@@ -136,13 +136,13 @@ public final class TaxiUnreadStore: TaxiUnreadStoreProtocol {
   /// Taxi notifications are grouped by room, so the room's notifications are the ones whose thread
   /// is the room ID.
   private func removeDeliveredNotifications(roomID: String) {
-    let center = UNUserNotificationCenter.current()
-    center.getDeliveredNotifications { notifications in
+    UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
       let identifiers = notifications
         .filter { $0.request.content.threadIdentifier == roomID }
         .map(\.request.identifier)
       guard !identifiers.isEmpty else { return }
-      center.removeDeliveredNotifications(withIdentifiers: identifiers)
+      // Looked up again rather than captured, as the center isn't Sendable.
+      UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: identifiers)
     }
   }
 }
