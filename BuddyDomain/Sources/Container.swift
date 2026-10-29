@@ -93,6 +93,10 @@ extension Container {
     promised()
   }
 
+  public var taxiQuickReplyUseCase: Factory<TaxiQuickReplyUseCaseProtocol?> {
+    promised()
+  }
+
   public var userUseCase: Factory<UserUseCaseProtocol?> {
     promised()
   }

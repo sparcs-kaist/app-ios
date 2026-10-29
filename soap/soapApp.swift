@@ -10,6 +10,7 @@ import os
 import FirebaseCore
 import FirebaseMessaging
 import UserNotifications
+import Intents
 import Factory
 import BuddyDomain
 import BuddyDataCore
@@ -35,12 +36,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   ) -> Bool {
     FirebaseApp.configure()
 
-    // Firebase Crashlytics
     // Taxi notifications are localized by the notification service extension, which cannot see
     // the language chosen for Buddy alone in Settings, so it is shared through the app group.
     UserDefaults(suiteName: "group.org.sparcs.soap")?
       .set(Bundle.main.preferredLocalizations.first, forKey: "appLanguage")
 
+    // Firebase Crashlytics
     Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
 
     Analytics.setAnalyticsCollectionEnabled(true)
@@ -48,6 +49,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // Ask permission
     let center = UNUserNotificationCenter.current()
     center.delegate = pushDelegate
+    center.setNotificationCategories([TaxiNotification.category])
     center.requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
       logger.info("Notification permission granted: \(granted)")
     }
@@ -100,22 +102,90 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingDelegate {
   @Injected(\.fcmUseCase) private var fcmUseCase: FCMUseCaseProtocol?
   
-  // Foreground presentation
-  func userNotificationCenter(_ center: UNUserNotificationCenter,
-                              willPresent notification: UNNotification,
-                              withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-    completionHandler([.banner, .badge, .sound])
+  @Injected(\.taxiQuickReplyUseCase) private var taxiQuickReplyUseCase: TaxiQuickReplyUseCaseProtocol?
+
+  // Foreground presentation. The system calls these delegate methods on the main thread, and
+  // UIKit expects their completion handlers to be called there too: an async variant runs off it
+  // and crashes the app when the notification is handled.
+  func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
+    guard let roomID = TaxiNotification.roomID(of: notification.request.content) else {
+      completionHandler([.banner, .badge, .sound])
+      return
+    }
+    // The open chat already shows the message, and while the app is open the unread store keeps
+    // the app badge, so a Taxi push changes neither.
+    let activeRoomID = MainActor.assumeIsolated { Container.shared.taxiUnreadStore()?.activeRoomID }
+    completionHandler(activeRoomID == roomID ? [] : [.banner, .list, .sound])
   }
 
-  // Taps on notifications (optional)
-  func userNotificationCenter(_ center: UNUserNotificationCenter,
-                              didReceive response: UNNotificationResponse,
-                              withCompletionHandler completionHandler: @escaping () -> Void) {
-    // If you need UI work, hop to main:
-    Task { @MainActor in
-      // navigate / update state
+  // Taps and actions on notifications
+  func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    let content = response.notification.request.content
+    guard let roomID = TaxiNotification.roomID(of: content) else {
+      completionHandler()
+      return
     }
-    completionHandler()
+
+    switch response.actionIdentifier {
+    case TaxiNotification.replyActionIdentifier:
+      guard let text = (response as? UNTextInputNotificationResponse)?.userText else {
+        completionHandler()
+        return
+      }
+      let roomName = content.userInfo["room_name"] as? String ?? content.title
+      let useCase = taxiQuickReplyUseCase
+      // Called here on the main thread and in the task on the main actor, so never concurrently.
+      nonisolated(unsafe) let completionHandler = completionHandler
+      MainActor.assumeIsolated {
+        Task { @MainActor in
+          await Self.reply(text, roomID: roomID, roomName: roomName, using: useCase)
+          completionHandler()
+        }
+      }
+    case UNNotificationDefaultActionIdentifier:
+      MainActor.assumeIsolated {
+        PendingDeepLink.post(.taxiChat(roomID: roomID))
+      }
+      completionHandler()
+    default:
+      completionHandler()
+    }
+  }
+
+  /// Sends a reply typed into a Taxi notification. The system keeps the app running until the
+  /// completion handler is called, even when the reply launched it in the background.
+  @MainActor
+  private static func reply(
+    _ text: String,
+    roomID: String,
+    roomName: String,
+    using useCase: TaxiQuickReplyUseCaseProtocol?
+  ) async {
+    do {
+      try await useCase?.reply(text, roomID: roomID)
+      Container.shared.taxiUnreadStore()?.markRead(roomID)
+    } catch {
+      logger.error("Failed to send a quick reply: \(error.localizedDescription, privacy: .public)")
+      // Without this the reply would vanish silently; the notification keeps the reply action, so
+      // it can be sent again.
+      let failure = UNMutableNotificationContent()
+      failure.title = roomName
+      failure.body = String(localized: "Your reply couldn’t be sent. Tap Reply to try again.")
+      failure.threadIdentifier = roomID
+      failure.categoryIdentifier = TaxiNotification.categoryIdentifier
+      failure.userInfo = ["category": "taxi_chat", "room_id": roomID, "room_name": roomName]
+      try? await UNUserNotificationCenter.current().add(
+        UNNotificationRequest(identifier: UUID().uuidString, content: failure, trigger: nil)
+      )
+    }
   }
 
   // FCM token updates
@@ -164,3 +234,39 @@ struct soapApp: App {
   }
 }
 
+
+// MARK: - Taxi notifications
+/// Taxi chat and room notifications, which the Taxi server sends through Buddy's backend with the
+/// room in their data and `TAXI_CHAT` as their category.
+enum TaxiNotification {
+  static let categoryIdentifier = "TAXI_CHAT"
+  static let replyActionIdentifier = "TAXI_REPLY"
+
+  /// Lets you reply to a ride's chat from its notification. Unlocking is required, since sending
+  /// needs your sign-in, which is only readable while the device is unlocked.
+  static var category: UNNotificationCategory {
+    let reply = UNTextInputNotificationAction(
+      identifier: replyActionIdentifier,
+      title: String(localized: "Reply"),
+      options: [.authenticationRequired],
+      icon: UNNotificationActionIcon(systemImageName: "arrowshape.turn.up.left"),
+      textInputButtonTitle: String(localized: "Send"),
+      textInputPlaceholder: String(localized: "Message")
+    )
+    return UNNotificationCategory(
+      identifier: categoryIdentifier,
+      actions: [reply],
+      intentIdentifiers: [INSendMessageIntentIdentifier],
+      options: []
+    )
+  }
+
+  /// The room a Taxi notification is about, or `nil` for any other notification.
+  static func roomID(of content: UNNotificationContent) -> String? {
+    guard let category = content.userInfo["category"] as? String,
+          category.hasPrefix("taxi_") else {
+      return nil
+    }
+    return content.userInfo["room_id"] as? String
+  }
+}
