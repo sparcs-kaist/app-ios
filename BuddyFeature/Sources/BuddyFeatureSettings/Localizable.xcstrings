@@ -76,18 +76,34 @@
         }
       }
     },
-    "Notifications are turned off for Buddy in Settings, so none of these arrive." : {
+    "None of these arrive until you allow notifications for Buddy." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notifications are turned off for Buddy in Settings, so none of these arrive."
+            "value" : "None of these arrive until you allow notifications for Buddy."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "설정에서 Buddy 알림이 꺼져 있어 아래 알림을 받을 수 없습니다."
+            "value" : "Buddy 알림을 허용하기 전까지는 아래 알림을 받을 수 없습니다."
+          }
+        }
+      }
+    },
+    "Notifications Are Off" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications Are Off"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림이 꺼져 있음"
           }
         }
       }
