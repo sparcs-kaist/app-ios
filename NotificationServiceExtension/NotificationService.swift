@@ -13,6 +13,7 @@ class NotificationService: UNNotificationServiceExtension {
 
   var contentHandler: ((UNNotificationContent) -> Void)?
   var bestAttemptContent: UNMutableNotificationContent?
+  private var delivery: Delivery?
 
   override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
     self.contentHandler = contentHandler
@@ -38,17 +39,47 @@ class NotificationService: UNNotificationServiceExtension {
       return
     }
 
+    // The conversation is built on a copy, so the best attempt delivered if time runs out isn't
+    // being changed at the same time; whichever comes first is delivered, and only once.
+    bestAttemptContent.body = TaxiChatNotification.localizedBody(of: bestAttemptContent)
+    guard let conversation = bestAttemptContent.mutableCopy() as? UNMutableNotificationContent else {
+      contentHandler(bestAttemptContent)
+      return
+    }
+    let delivery = Delivery(contentHandler)
+    self.delivery = delivery
     Task {
-      contentHandler(await TaxiChatNotification.conversation(from: bestAttemptContent))
+      delivery.deliver(await TaxiChatNotification.conversation(from: conversation))
     }
   }
 
   override func serviceExtensionTimeWillExpire() {
     // Called just before the extension will be terminated by the system.
     // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
-    if let contentHandler = contentHandler, let bestAttemptContent = bestAttemptContent {
-        contentHandler(bestAttemptContent)
+    if let delivery, let bestAttemptContent {
+      delivery.deliver(bestAttemptContent)
+    } else if let contentHandler = contentHandler, let bestAttemptContent = bestAttemptContent {
+      contentHandler(bestAttemptContent)
     }
+  }
+}
+
+/// Hands content to the system once, from whichever of the conversation and the time running out
+/// gets there first.
+private final class Delivery: @unchecked Sendable {
+  private let lock = NSLock()
+  private var contentHandler: ((UNNotificationContent) -> Void)?
+
+  init(_ contentHandler: @escaping (UNNotificationContent) -> Void) {
+    self.contentHandler = contentHandler
+  }
+
+  func deliver(_ content: UNNotificationContent) {
+    let handler = lock.withLock {
+      defer { contentHandler = nil }
+      return contentHandler
+    }
+    handler?(content)
   }
 }
 
