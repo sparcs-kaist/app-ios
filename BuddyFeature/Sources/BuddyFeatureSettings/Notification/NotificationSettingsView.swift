@@ -106,6 +106,11 @@ struct NotificationSettingsView: View {
         Task { await viewModel.setNotifications(category, enabled: enabled) }
       }
     ))
+    // None of these arrive while Settings turns notifications off for Buddy, which is changed
+    // there, through the button above. A disabled toggle only fades its switch, so the label is
+    // greyed too, as in Settings.
+    .disabled(!viewModel.isAllowedBySystem)
+    .foregroundStyle(viewModel.isAllowedBySystem ? .primary : .secondary)
   }
 }
 
