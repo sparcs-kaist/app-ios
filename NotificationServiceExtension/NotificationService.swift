@@ -224,12 +224,38 @@ enum TaxiChatNotification {
     return bundle
   }
 
+  /// The largest image downloaded for a notification. The extension has little memory to spare.
+  private static let maxImageBytes = 5 * 1024 * 1024
+
+  /// Gives up on a download, however slowly it is still arriving, well before the extension's time
+  /// runs out.
+  private static let session: URLSession = {
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.timeoutIntervalForRequest = 10
+    configuration.timeoutIntervalForResource = 15
+    return URLSession(configuration: configuration)
+  }()
+
+  /// Downloads an image from the push, if it is one and isn't too big.
   private static func download(_ urlString: String?) async -> Data? {
-    guard let urlString, let url = URL(string: urlString) else { return nil }
-    var request = URLRequest(url: url)
-    request.timeoutInterval = 10
-    guard let (data, response) = try? await URLSession.shared.data(for: request),
-          (response as? HTTPURLResponse)?.statusCode == 200 else {
+    guard let urlString, let url = URL(string: urlString),
+          let scheme = url.scheme?.lowercased(), scheme == "https" || scheme == "http" else {
+      return nil
+    }
+    guard let (bytes, response) = try? await session.bytes(from: url),
+          let response = response as? HTTPURLResponse,
+          response.statusCode == 200,
+          response.mimeType?.hasPrefix("image/") == true,
+          response.expectedContentLength <= maxImageBytes else {
+      return nil
+    }
+    var data = Data()
+    do {
+      for try await byte in bytes {
+        data.append(byte)
+        if data.count > maxImageBytes { return nil }
+      }
+    } catch {
       return nil
     }
     return data
