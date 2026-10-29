@@ -34,10 +34,19 @@ public final class FCMUseCase: FCMUseCaseProtocol, @unchecked Sendable {
       deviceUUID: deviceUUID,
       fcmToken: fcmToken,
       deviceName: UIDevice.current.name,
-      language: Bundle.main.preferredLocalizations.first ?? "ko" // fallback to Korean
+      language: Self.appLanguage
     )
   }
   
+  /// The app's language as the backend expects it: a bare language code such as "en", since a
+  /// localisation such as "en-GB" is rejected and the device is never registered.
+  private static var appLanguage: String {
+    guard let localization = Bundle.main.preferredLocalizations.first else {
+      return "ko" // fallback to Korean
+    }
+    return Locale(identifier: localization).language.languageCode?.identifier ?? "ko"
+  }
+
   public func manage(service: FeatureType, isActive: Bool) async throws {
     try await fcmRepository.manage(service: service, isActive: isActive)
   }
