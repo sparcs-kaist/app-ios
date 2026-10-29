@@ -25,6 +25,10 @@ class NotificationService: UNNotificationServiceExtension {
     // A ride event only needs its text in the app's language; see `localizedBody(of:)`.
     if TaxiChatNotification.isTaxiEvent(bestAttemptContent) {
       bestAttemptContent.body = TaxiChatNotification.localizedBody(of: bestAttemptContent)
+      // Missing it means missing the ride, so it isn't held back by a Focus or the summary.
+      if TaxiChatNotification.isDepartureReminder(bestAttemptContent) {
+        bestAttemptContent.interruptionLevel = .timeSensitive
+      }
       contentHandler(bestAttemptContent)
       return
     }
@@ -60,6 +64,11 @@ enum TaxiChatNotification {
 
   static func isTaxiEvent(_ content: UNNotificationContent) -> Bool {
     content.userInfo["category"] as? String == "taxi_event"
+  }
+
+  /// The reminder that the taxi leaves soon, sent shortly before departure.
+  static func isDepartureReminder(_ content: UNNotificationContent) -> Bool {
+    isTaxiEvent(content) && content.userInfo["type"] as? String == "departure"
   }
 
   static func conversation(from content: UNMutableNotificationContent) async -> UNNotificationContent {
