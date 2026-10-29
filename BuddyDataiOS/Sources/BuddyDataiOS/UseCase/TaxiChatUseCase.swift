@@ -31,6 +31,8 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
   private var isSocketConnected: Bool = false
   private var hasInitialChatsBeenFetched: Bool = false
   private var flatChats: [TaxiChat] = []
+  /// When this room's latest chat was sent, as of the last time it was marked read.
+  private var lastReadChatTime: Date?
 
   private var observationTasks: [Task<Void, Never>] = []
 
@@ -176,7 +178,13 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
   }
 
   private func handleServiceChats(_ chats: [TaxiChat], roomID: String) async {
-    try? await taxiChatRepository?.readChats(roomID: roomID)
+    // The socket's chats are shared by every room you are in, so a chat in another room must
+    // not mark this one read: only read when this room's latest chat changes.
+    let latestChat = chats.last { $0.roomID == roomID }
+    if let latestChat, latestChat.time != lastReadChatTime {
+      lastReadChatTime = latestChat.time
+      try? await taxiChatRepository?.readChats(roomID: roomID)
+    }
     flatChats = chats
     await chatBroadcaster.yield(chats)
   }
