@@ -36,7 +36,7 @@ final class NotificationSettingsViewModel: NotificationSettingsViewModelProtocol
 
   // MARK: - Functions
   func load() async {
-    isAllowedBySystem = await Self.isAllowedBySystem()
+    await refreshSystemPermission()
     guard let fcmUseCase else { return }
 
     // Coming back from the system's Settings should not flash a spinner over switches already shown.
@@ -86,6 +86,10 @@ final class NotificationSettingsViewModel: NotificationSettingsViewModelProtocol
       )
       isAlertPresented = true
     }
+  }
+
+  func refreshSystemPermission() async {
+    isAllowedBySystem = await Self.isAllowedBySystem()
   }
 
   private nonisolated static func isAllowedBySystem() async -> Bool {

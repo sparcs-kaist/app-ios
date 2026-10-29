@@ -19,5 +19,7 @@ public protocol NotificationSettingsViewModelProtocol: Observable {
   var isAlertPresented: Bool { get set }
 
   func load() async
+  /// Checks again whether the system allows notifications, such as after coming back from Settings.
+  func refreshSystemPermission() async
   func setNotifications(_ category: NotificationCategory, enabled: Bool) async
 }

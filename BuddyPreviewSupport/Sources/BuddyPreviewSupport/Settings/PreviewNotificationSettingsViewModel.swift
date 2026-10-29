@@ -20,6 +20,8 @@ public final class PreviewNotificationSettingsViewModel: NotificationSettingsVie
 
   public func load() async { }
 
+  public func refreshSystemPermission() async { }
+
   public func setNotifications(_ category: NotificationCategory, enabled: Bool) async {
     preferences[category] = enabled
   }
