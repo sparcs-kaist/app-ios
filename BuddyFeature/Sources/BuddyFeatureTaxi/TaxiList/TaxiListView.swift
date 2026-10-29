@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import Factory
 import BuddyDomain
 import BuddyFeatureShared
 import Haptica
@@ -45,7 +44,6 @@ public struct TaxiListView: View {
   @Binding private var roomToOpen: TaxiRoom?
 
   /// Unread chats, for the Chats button's badge.
-  @State private var unreadStore = Container.shared.taxiUnreadStore()
 
   public init(
     viewModel: TaxiListViewModelProtocol = TaxiListViewModel(),
@@ -184,7 +182,7 @@ public struct TaxiListView: View {
       } label: {
         Label(String(localized: "Chats", bundle: .module), systemImage: "bubble.left.and.text.bubble.right")
       }
-      .badge(unreadStore?.totalCount ?? 0)
+      .badge(chatListViewModel.totalUnreadCount)
     }
   }
 
@@ -318,6 +316,7 @@ public struct TaxiListView: View {
           rooms: onGoing,
           selectedRoom: selectedChatRoom,
           taxiUser: chatListViewModel.taxiUser,
+          unreadCounts: chatListViewModel.unreadCounts,
           onSelect: { room in
             Haptic.selection.generate()
             selectedChatRoom = room

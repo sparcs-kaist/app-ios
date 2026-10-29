@@ -13,6 +13,8 @@ import BuddyDomain
 public class PreviewTaxiChatListViewModel: TaxiChatListViewModelProtocol {
   public var state: TaxiChatListViewState
   public var taxiUser: TaxiUser? = .mock
+  public var unreadCounts: [String: Int] = [:]
+  public var totalUnreadCount: Int = 0
   
   public init(state: TaxiChatListViewState) {
     self.state = state
