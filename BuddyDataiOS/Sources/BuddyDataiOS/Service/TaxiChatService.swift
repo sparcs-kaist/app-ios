@@ -67,29 +67,22 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
   // MARK: - State
   private var hasAttemptedReconnect: Bool = false
 
+  /// The access token the socket connected with, which Taxi knows it by.
+  private var connectedToken: String?
+
   // MARK: - Dependency
   private let tokenStorage: TokenStorageProtocol
-  private let manager: SocketManager
-  private let socket: SocketIOClient
+  private var manager: SocketManager
+  private var socket: SocketIOClient
 
   // MARK: - Initialiser
   public init(tokenStorage: TokenStorageProtocol) {
     self.tokenStorage = tokenStorage
 
-    self.manager = SocketManager(
-      socketURL: BackendURL.taxiSocketURL,
-      config: [
-        .log(false),
-        .compress,
-        .forceWebsockets(true),
-        .extraHeaders([
-          "Origin": "taxi.sparcs.org",
-          "Authorization": "Bearer \(self.tokenStorage.getAccessToken() ?? "")"
-        ])
-      ]
-    )
-
-    self.socket = self.manager.defaultSocket
+    let token = tokenStorage.getAccessToken()
+    self.manager = Self.makeManager(token: token)
+    self.socket = manager.defaultSocket
+    self.connectedToken = token
 
     setupSocketEvents()
 
@@ -109,17 +102,55 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
     // does not fire its own auto-reconnect for the disconnect we trigger here —
     // otherwise two competing connections race.
     hasAttemptedReconnect = true
+
+    // A manager sends the headers it first connected with for as long as it lives, even when its
+    // socket leaves and rejoins, so connecting with the current token takes a new one.
+    socket.removeAllHandlers()
     socket.disconnect()
-    manager.config = [
-      .log(false),
-      .compress,
-      .forceWebsockets(true),
-      .extraHeaders([
-        "Origin": "taxi.sparcs.org",
-        "Authorization": "Bearer \(tokenStorage.getAccessToken() ?? "")"
-      ])
-    ]
+    manager.disconnect()
+
+    let token = tokenStorage.getAccessToken()
+    manager = Self.makeManager(token: token)
+    socket = manager.defaultSocket
+    connectedToken = token
+    isConnected = false
+
+    setupSocketEvents()
     socket.connect()
+  }
+
+  public func connectWithCurrentAccessToken() async {
+    let isCurrent = await MainActor.run {
+      guard tokenStorage.getAccessToken() == connectedToken else {
+        reconnect()
+        return false
+      }
+      return socket.status == .connected
+    }
+    guard !isCurrent else { return }
+
+    // The socket joins the token's room as it connects, so a room's chats asked for before then
+    // would go nowhere. Give up after a few seconds rather than never loading them.
+    for _ in 0..<50 {
+      if await MainActor.run(body: { socket.status == .connected }) { return }
+      try? await Task.sleep(for: .milliseconds(100))
+    }
+    logger.error("Socket didn't connect with the current access token in time")
+  }
+
+  private static func makeManager(token: String?) -> SocketManager {
+    SocketManager(
+      socketURL: BackendURL.taxiSocketURL,
+      config: [
+        .log(false),
+        .compress,
+        .forceWebsockets(true),
+        .extraHeaders([
+          "Origin": "taxi.sparcs.org",
+          "Authorization": "Bearer \(token ?? "")"
+        ])
+      ]
+    )
   }
 
   private func setupSocketEvents() {
@@ -170,6 +201,17 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
 
       let chats: [TaxiChat] = self.handleChats(chatArray)
       self.chats.append(contentsOf: chats)
+
+      // Only a chat just sent carries its room ID; loading newer chats for a room does not.
+      if dataDict["roomId"] != nil {
+        let liveChats = self.handleChats(chatArray.filter {
+          !Self.minigameChatTypes.contains($0["type"] as? String ?? "")
+        })
+        let broadcaster = self.liveChatBroadcaster
+        Task {
+          for chat in liveChats { await broadcaster.yield(chat) }
+        }
+      }
     }
 
     socket.on("chat_update") { data, _ in
@@ -196,14 +238,3 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
     }
   }
 }
-
-      // Only a chat just sent carries its room ID; loading newer chats for a room does not.
-      if dataDict["roomId"] != nil {
-        let liveChats = self.handleChats(chatArray.filter {
-          !Self.minigameChatTypes.contains($0["type"] as? String ?? "")
-        })
-        let broadcaster = self.liveChatBroadcaster
-        Task {
-          for chat in liveChats { await broadcaster.yield(chat) }
-        }
-      }

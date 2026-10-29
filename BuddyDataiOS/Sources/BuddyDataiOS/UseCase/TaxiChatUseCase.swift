@@ -41,17 +41,20 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
   private let userUseCase: UserUseCaseProtocol?
   private let taxiChatRepository: TaxiChatRepositoryProtocol?
   private let taxiRoomRepository: TaxiRoomRepositoryProtocol?
+  private let authUseCase: AuthUseCaseProtocol?
 
   public init(
     taxiChatService: TaxiChatServiceProtocol?,
     userUseCase: UserUseCaseProtocol?,
     taxiChatRepository: TaxiChatRepositoryProtocol?,
-    taxiRoomRepository: TaxiRoomRepositoryProtocol?
+    taxiRoomRepository: TaxiRoomRepositoryProtocol?,
+    authUseCase: AuthUseCaseProtocol?
   ) {
     self.taxiChatService = taxiChatService
     self.userUseCase = userUseCase
     self.taxiChatRepository = taxiChatRepository
     self.taxiRoomRepository = taxiRoomRepository
+    self.authUseCase = authUseCase
   }
 
   public func setRoom(_ room: TaxiRoom) {
@@ -69,6 +72,7 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
     hasInitialChatsBeenFetched = true
 
     await bind()
+    await prepareSocketForChats()
 
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id)
@@ -79,6 +83,8 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
 
   public func fetchChats(before date: Date) async {
     guard let taxiChatRepository, let room else { return }
+
+    await prepareSocketForChats()
 
     do {
       try await taxiChatRepository.fetchChats(roomID: room.id, before: date)
@@ -171,6 +177,13 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
         await self.handleRoomUpdate(roomID: updatedRoomID)
       }
     })
+  }
+
+  /// Taxi sends the chats asked for to the socket that connected with the same access token as the
+  /// request, so the token is refreshed first if it's due, then the socket made to use it.
+  private func prepareSocketForChats() async {
+    _ = try? await authUseCase?.getValidAccessToken()
+    await taxiChatService?.connectWithCurrentAccessToken()
   }
 
   private func setSocketConnected(_ isConnected: Bool) {
