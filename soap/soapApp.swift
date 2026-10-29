@@ -36,6 +36,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     FirebaseApp.configure()
 
     // Firebase Crashlytics
+    // Taxi notifications are localized by the notification service extension, which cannot see
+    // the language chosen for Buddy alone in Settings, so it is shared through the app group.
+    UserDefaults(suiteName: "group.org.sparcs.soap")?
+      .set(Bundle.main.preferredLocalizations.first, forKey: "appLanguage")
+
     Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
 
     Analytics.setAnalyticsCollectionEnabled(true)
