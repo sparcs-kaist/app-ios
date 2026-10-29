@@ -13,10 +13,10 @@ import BuddyDataCore
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatSocket")
 
-// @unchecked Sendable: this type bridges SocketIO's callback-based API. Its
-// scalar state is only mutated inside socket event handlers (delivered serially
-// on the manager's handle queue), and its downstream streams are backed by
-// `AsyncBroadcaster` actors, so it is safe to share across isolation domains.
+// @unchecked Sendable: this type bridges SocketIO's callback-based API. Its state, and the socket
+// and manager themselves, are only touched on the main thread: socket events are delivered on the
+// main queue (`handleQueue`), and the methods others call move onto it first. Its downstream
+// streams are backed by `AsyncBroadcaster` actors.
 public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable {
   // MARK: - Broadcasters
   private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>()
@@ -94,12 +94,28 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
   }
 
   public func disconnect() {
-    // Not to be reconnected by the `.disconnect` handler, such as after signing out.
-    hasAttemptedReconnect = true
-    socket.disconnect()
+    onMain {
+      // Not to be reconnected by the `.disconnect` handler, such as after signing out.
+      self.hasAttemptedReconnect = true
+      self.socket.disconnect()
+    }
   }
 
   public func reconnect() {
+    onMain { self.reconnectOnMain() }
+  }
+
+  /// Runs `work` on the main thread, where the socket and this type's state are touched: now if
+  /// already there, or else as soon as it can.
+  private func onMain(_ work: @escaping @Sendable () -> Void) {
+    if Thread.isMainThread {
+      work()
+    } else {
+      DispatchQueue.main.async(execute: work)
+    }
+  }
+
+  private func reconnectOnMain() {
     // Mark this as an intentional reconnect so the `.disconnect` handler below
     // does not fire its own auto-reconnect for the disconnect we trigger here —
     // otherwise two competing connections race.
@@ -126,7 +142,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
       // A socket on another token, or disconnected on purpose, such as after signing out.
       guard tokenStorage.getAccessToken() == connectedToken,
             socket.status == .connected || socket.status == .connecting else {
-        reconnect()
+        reconnectOnMain()
         return false
       }
       return socket.status == .connected
@@ -149,6 +165,8 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
         .log(false),
         .compress,
         .forceWebsockets(true),
+        // Every use of the socket and this service's state is on the main thread.
+        .handleQueue(.main),
         .extraHeaders([
           "Origin": "taxi.sparcs.org",
           "Authorization": "Bearer \(token ?? "")"
@@ -168,7 +186,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
 
       if !self.hasAttemptedReconnect {
         self.hasAttemptedReconnect = true
-        self.reconnect()
+        self.reconnectOnMain()
       }
     }
 
