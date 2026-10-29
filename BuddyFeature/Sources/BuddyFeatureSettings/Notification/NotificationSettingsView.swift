@@ -75,10 +75,12 @@ struct NotificationSettingsView: View {
     .task {
       await viewModel.load()
     }
-    // Notifications may have been allowed in Settings while Buddy was in the background.
+    // Notifications may have been allowed in Settings while Buddy was in the background. Only that
+    // is checked again: loading the preferences again would replace a change still being saved
+    // with the server's earlier value.
     .onChange(of: scenePhase) { _, phase in
       if phase == .active {
-        Task { await viewModel.load() }
+        Task { await viewModel.refreshSystemPermission() }
       }
     }
     .alert(
