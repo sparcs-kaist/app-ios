@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Factory
 import BuddyDomain
 import BuddyFeatureShared
 
@@ -17,6 +18,8 @@ struct TaxiRoomGroupSection: View {
   let selectedRoom: TaxiRoom?
   let taxiUser: TaxiUser?
   let onSelect: (TaxiRoom) -> Void
+
+  @State private var unreadStore = Container.shared.taxiUnreadStore()
 
   var body: some View {
     LazyVStack(spacing: 12) {
@@ -42,7 +45,30 @@ struct TaxiRoomGroupSection: View {
               .fill(Color.secondary.opacity(selectedRoom == room ? 0.3 : 0))
               .allowsHitTesting(false)
           }
+          .overlay(alignment: .topTrailing) {
+            UnreadBadge(count: unreadStore?.counts[room.id] ?? 0)
+              .offset(x: 4, y: -4)
+          }
       }
+    }
+  }
+}
+
+/// The number of a room's unread chats on its card, or nothing when it has none.
+struct UnreadBadge: View {
+  let count: Int
+
+  var body: some View {
+    if count > 0 {
+      Text(count > 99 ? "99+" : "\(count)")
+        .font(.caption.weight(.semibold))
+        .monospacedDigit()
+        .foregroundStyle(.white)
+        .padding(.horizontal, 7)
+        .frame(minWidth: 22, minHeight: 22)
+        .background(.red, in: .capsule)
+        .accessibilityLabel(Text("\(count) unread", bundle: .module))
+        .transition(.scale.combined(with: .opacity))
     }
   }
 }
