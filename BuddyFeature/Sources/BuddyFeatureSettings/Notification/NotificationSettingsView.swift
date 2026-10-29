@@ -24,13 +24,7 @@ struct NotificationSettingsView: View {
     List {
       if !viewModel.isAllowedBySystem {
         Section {
-          Button(String(localized: "Turn On in Settings", bundle: .module), systemImage: "gear") {
-            if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
-              openURL(url)
-            }
-          }
-        } footer: {
-          Text("Notifications are turned off for Buddy in Settings, so none of these arrive.", bundle: .module)
+          blockedNotice
         }
       }
 
@@ -97,6 +91,31 @@ struct NotificationSettingsView: View {
       }
     )
     .analyticsScreen(name: "Notification Settings", class: String(describing: Self.self))
+  }
+
+  /// Says why the switches below are off, with a button to where notifications can be turned on.
+  private var blockedNotice: some View {
+    VStack(spacing: 8) {
+      Image(systemName: "bell.slash.fill")
+        .font(.largeTitle)
+        .foregroundStyle(.secondary)
+        .padding(.bottom, 4)
+      Text("Notifications Are Off", bundle: .module)
+        .font(.headline)
+      Text("None of these arrive until you allow notifications for Buddy.", bundle: .module)
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+      Button(String(localized: "Turn On in Settings", bundle: .module)) {
+        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+          openURL(url)
+        }
+      }
+      .buttonStyle(.borderedProminent)
+      .padding(.top, 8)
+    }
+    .multilineTextAlignment(.center)
+    .frame(maxWidth: .infinity)
+    .padding(.vertical, 12)
   }
 
   private func toggle(_ title: String, for category: NotificationCategory) -> some View {
