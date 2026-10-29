@@ -32,7 +32,6 @@ struct MainView: View {
   @Namespace private var namespace
 
   /// Unread Taxi chats, for the Taxi tab's badge.
-  @State private var taxiUnreadStore = Container.shared.taxiUnreadStore()
 
   private var feedViewModel: FeedViewModelProtocol
   private var boardListViewModel: BoardListViewModelProtocol
@@ -72,7 +71,7 @@ struct MainView: View {
           TaxiListView(roomToPreview: $viewModel.invitedRoom, roomToOpen: $viewModel.openedChatRoom)
         }
       }
-      .badge(taxiUnreadStore?.totalCount ?? 0)
+      .badge(viewModel.taxiUnreadCount)
 
       Tab(value: .search, role: .search) {
         NavigationStack(path: $searchPath) {
@@ -112,9 +111,6 @@ struct MainView: View {
     .task {
 //      await todayLecturesAccessoryViewModel.setup()
       await timetableViewModel.setup()
-    }
-    .task {
-      await taxiUnreadStore?.refresh()
     }
     .tabViewStyle(.tabBarOnly)
   }

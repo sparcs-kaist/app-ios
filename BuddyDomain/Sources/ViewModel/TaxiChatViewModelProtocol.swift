@@ -32,6 +32,10 @@ public protocol TaxiChatViewModelProtocol: Observable {
   var topChatID: String? { get }
 
   func setup() async
+  /// Marks this ride's chat as on screen, whose chats are read as they arrive.
+  func enterChat()
+  /// Marks this ride's chat as no longer on screen.
+  func exitChat()
 
   func loadMoreChats() async
   func fetchInitialChats() async

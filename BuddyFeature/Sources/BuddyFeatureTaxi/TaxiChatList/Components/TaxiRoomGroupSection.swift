@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Factory
 import BuddyDomain
 import BuddyFeatureShared
 
@@ -17,9 +16,9 @@ struct TaxiRoomGroupSection: View {
   let rooms: [TaxiRoom]
   let selectedRoom: TaxiRoom?
   let taxiUser: TaxiUser?
+  /// Unread chats by room ID.
+  var unreadCounts: [String: Int] = [:]
   let onSelect: (TaxiRoom) -> Void
-
-  @State private var unreadStore = Container.shared.taxiUnreadStore()
 
   var body: some View {
     LazyVStack(spacing: 12) {
@@ -46,7 +45,7 @@ struct TaxiRoomGroupSection: View {
               .allowsHitTesting(false)
           }
           .overlay(alignment: .topTrailing) {
-            UnreadBadge(count: unreadStore?.counts[room.id] ?? 0)
+            UnreadBadge(count: unreadCounts[room.id] ?? 0)
               .offset(x: 4, y: -4)
           }
       }

@@ -26,6 +26,12 @@ final class MainViewModel {
   @ObservationIgnored @Injected(
     \.araBoardUseCase
   ) private var araBoardUseCase: AraBoardUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.taxiUnreadStore
+  ) private var taxiUnreadStore: TaxiUnreadStoreProtocol?
+
+  /// Unread Taxi chats, for the Taxi tab's badge.
+  var taxiUnreadCount: Int { taxiUnreadStore?.totalCount ?? 0 }
 
   func resolveInvite(code: String) async {
     guard let taxiRoomRepository else { return }
