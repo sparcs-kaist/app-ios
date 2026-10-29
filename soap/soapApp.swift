@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import os
 import FirebaseCore
 import FirebaseMessaging
@@ -27,6 +28,7 @@ let logger = Logger(subsystem: "org.sparcs.soap", category: "App")
 class AppDelegate: NSObject, UIApplicationDelegate {
   // Keep a strong reference so it doesn't deallocate
   private let pushDelegate = PushDelegate()
+  private var signInObservation: AnyCancellable?
   @Injected(\.authUseCase) private var authUseCase: AuthUseCaseProtocol?
   @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
 
@@ -58,6 +60,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     // FCM
     Messaging.messaging().delegate = pushDelegate
+    // Signing out unregisters this device, and no new token arrives on signing back in, so the
+    // current one is registered then. At launch the delegate above registers it.
+    // Received on main first, as the closures below are main-actor isolated and the value is sent
+    // from the auth actor.
+    signInObservation = authUseCase?.isAuthenticatedPublisher
+      .receive(on: DispatchQueue.main)
+      .removeDuplicates()
+      .dropFirst()
+      .filter { $0 }
+      .sink { [pushDelegate] _ in pushDelegate.registerCurrentToken() }
 
     // Refresh token and fetch users
     Task {
@@ -185,6 +197,19 @@ final class PushDelegate: NSObject, UNUserNotificationCenterDelegate, MessagingD
       try? await UNUserNotificationCenter.current().add(
         UNNotificationRequest(identifier: UUID().uuidString, content: failure, trigger: nil)
       )
+    }
+  }
+
+  /// Registers this device's current token, such as after signing in, when no new token arrives.
+  @MainActor
+  func registerCurrentToken() {
+    Task { @MainActor [fcmUseCase] in
+      do {
+        let fcmToken = try await Messaging.messaging().token()
+        try await fcmUseCase?.register(fcmToken: fcmToken)
+      } catch {
+        logger.error("Failed to register fcm token after signing in: \(error.localizedDescription, privacy: .public)")
+      }
     }
   }
 

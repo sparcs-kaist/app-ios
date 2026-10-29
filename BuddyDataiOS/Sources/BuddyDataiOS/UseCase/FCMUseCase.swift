@@ -40,6 +40,10 @@ public final class FCMUseCase: FCMUseCaseProtocol, @unchecked Sendable {
     return Locale(identifier: localization).language.languageCode?.identifier ?? "ko"
   }
 
+  public func unregister() async throws {
+    try await fcmRepository.unregister(deviceUUID: deviceUUID)
+  }
+
   public func notificationPreferences() async throws -> [NotificationCategory: Bool] {
     try await fcmRepository.fetchNotificationPreferences(deviceUUID: deviceUUID)
   }

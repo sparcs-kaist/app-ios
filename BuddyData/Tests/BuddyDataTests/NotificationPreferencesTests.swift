@@ -48,6 +48,22 @@ struct NotificationPreferencesTests {
     #expect(payload["is_enabled"] as? Bool == false)
   }
 
+  @Test func signingOutUnregistersThisDevice() async throws {
+    let stub = FCMAPIStub { _ in (204, "") }
+
+    try await stub.repository.unregister(deviceUUID: "device-1")
+
+    let request = try #require(stub.targets.first)
+    #expect(request.path == "/notification/device_info")
+    #expect(request.method == .delete)
+    guard case .requestParameters(let parameters, let encoding) = request.task else {
+      Issue.record("Expected the device in the query")
+      return
+    }
+    #expect(encoding is URLEncoding)
+    #expect(parameters as? [String: String] == ["device_uuid": "device-1"])
+  }
+
   @Test func failedChangeThrows() async {
     let stub = FCMAPIStub { _ in (500, "") }
 
