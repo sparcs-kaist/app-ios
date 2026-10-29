@@ -203,7 +203,11 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
         return
       }
 
-      let chats: [TaxiChat] = self.handleChats(chatArray)
+      // Chats fetched after reconnecting may already have arrived live.
+      let recentChats = self.chats.suffix(50)
+      let chats: [TaxiChat] = self.handleChats(chatArray).filter { chat in
+        !recentChats.contains { $0.isSameChat(as: chat) }
+      }
       self.chats.append(contentsOf: chats)
 
       // Only a chat just sent carries its room ID; loading newer chats for a room does not.
@@ -240,5 +244,14 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
     } catch {
       return []
     }
+  }
+}
+
+private extension TaxiChat {
+  /// Whether this is the same chat as `other`, which has an `id` of its own from being decoded
+  /// separately.
+  func isSameChat(as other: TaxiChat) -> Bool {
+    roomID == other.roomID && time == other.time && authorID == other.authorID
+      && type == other.type && content == other.content
   }
 }
