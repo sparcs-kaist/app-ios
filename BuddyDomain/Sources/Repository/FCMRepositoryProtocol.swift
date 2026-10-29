@@ -9,5 +9,6 @@ import Foundation
 
 public protocol FCMRepositoryProtocol: Sendable {
   func register(deviceUUID: String, fcmToken: String, deviceName: String, language: String) async throws
-  func manage(service: FeatureType, isActive: Bool) async throws
+  func fetchNotificationPreferences(deviceUUID: String) async throws -> [NotificationCategory: Bool]
+  func setNotificationPreference(_ category: NotificationCategory, isEnabled: Bool, deviceUUID: String) async throws
 }
