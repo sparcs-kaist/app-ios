@@ -29,6 +29,9 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
   // MARK: - State
   private var room: TaxiRoom?
   private var isSocketConnected: Bool = false
+  /// Whether the socket has connected since this room's chats were first asked for, so that
+  /// connecting again means it was dropped for a while.
+  private var hasSocketConnected: Bool = false
   private var hasInitialChatsBeenFetched: Bool = false
   private var flatChats: [TaxiChat] = []
   /// When this room's latest chat was sent, as of the last time it was marked read.
@@ -186,8 +189,25 @@ public actor TaxiChatUseCase: TaxiChatUseCaseProtocol {
     await taxiChatService?.connectWithCurrentAccessToken()
   }
 
-  private func setSocketConnected(_ isConnected: Bool) {
+  private func setSocketConnected(_ isConnected: Bool) async {
+    let isReconnecting = isConnected && !isSocketConnected && hasSocketConnected
     isSocketConnected = isConnected
+    if isConnected { hasSocketConnected = true }
+    if isReconnecting { await fetchChatsMissedWhileDisconnected() }
+  }
+
+  /// Chats sent while the socket was down never reached it, so after it reconnects the ones
+  /// newer than the latest this room has are asked for.
+  private func fetchChatsMissedWhileDisconnected() async {
+    guard let taxiChatRepository, let room,
+          let latestChat = flatChats.last(where: { $0.roomID == room.id }) else {
+      return
+    }
+    do {
+      try await taxiChatRepository.fetchChats(roomID: room.id, after: latestChat.time)
+    } catch {
+      logger.error("Failed to fetch chats missed while disconnected: \(error.localizedDescription, privacy: .public)")
+    }
   }
 
   private func handleServiceChats(_ chats: [TaxiChat], roomID: String) async {
