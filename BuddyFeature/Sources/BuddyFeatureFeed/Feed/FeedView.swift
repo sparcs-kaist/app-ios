@@ -21,6 +21,8 @@ public struct FeedView: View {
   @State private var showComposeView: Bool = false
 
   @State private var spoilerContents = SpoilerContents()
+  @State private var imageAspects = FeedImageAspects()
+  @State private var columnWidth: CGFloat = 0
 
   public init(_ viewModel: FeedViewModelProtocol = FeedViewModel()) {
     self._viewModel = State(initialValue: viewModel)
@@ -39,6 +41,9 @@ public struct FeedView: View {
         }
       }
       .animation(.spring, value: viewModel.posts.map(\.id))
+      .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { columnWidth = $0 }
+      .environment(\.feedColumnWidth, columnWidth)
+      .environment(imageAspects)
       .contentWidth()
     }
     .disabled(viewModel.state == .loading)
@@ -50,7 +55,11 @@ public struct FeedView: View {
           await viewModel.deletePost(postID: postID)
         })
         .environment(spoilerContents)
+        .environment(imageAspects)
       }
+    }
+    .onChange(of: viewModel.posts.map(\.id), initial: true) {
+      imageAspects.prefetch(viewModel.posts)
     }
     .task {
       guard viewModel.state == .loading else { return }

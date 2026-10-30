@@ -16,9 +16,17 @@ struct FeedLazyImage: View {
   let onTap: () -> Void
 
   @Environment(SpoilerContents.self) private var spoilerContents
+  @Environment(FeedImageAspects.self) private var imageAspects: FeedImageAspects?
 
   private let minWidth: CGFloat = 100
   private let placeholderAspect: CGFloat = 4.0 / 3.0
+
+  /// `LazyImage` only starts loading in `onAppear`, so even a cached image is
+  /// first laid out as its placeholder. Giving the placeholder the image's real
+  /// shape, once known, means the row doesn't resize when the image appears.
+  private var expectedAspect: CGFloat {
+    imageAspects?.aspect(for: item) ?? placeholderAspect
+  }
 
   var body: some View {
     LazyImage(url: item.url) { state in
@@ -26,7 +34,7 @@ struct FeedLazyImage: View {
         if let swiftUIImage = state.image {
           // Try to get the real pixel size to decide fit vs fill
           let pixelSize = state.imageContainer?.image.size ?? .zero
-          let aspect = pixelSize.height > 0 ? pixelSize.width / pixelSize.height : placeholderAspect
+          let aspect = pixelSize.height > 0 ? pixelSize.width / pixelSize.height : expectedAspect
           let cell = fitSize(aspect: aspect)
           let imageWidth = min(cell.width, cell.height * aspect)
 
@@ -41,7 +49,7 @@ struct FeedLazyImage: View {
           let size = fitSize(aspect: placeholderAspect)
           Placeholder(width: size.width, height: size.height, systemImage: "exclamationmark.triangle")
         } else {
-          let size = fitSize(aspect: placeholderAspect)
+          let size = fitSize(aspect: expectedAspect)
           Placeholder(width: size.width, height: size.height)
             .redacted(reason: .placeholder)
         }
@@ -65,6 +73,10 @@ struct FeedLazyImage: View {
           }
         }
       )
+    }
+    .onCompletion { result in
+      guard case .success(let response) = result else { return }
+      imageAspects?.record(response.image.size, for: item)
     }
   }
 
