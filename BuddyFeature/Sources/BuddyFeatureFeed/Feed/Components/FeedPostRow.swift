@@ -56,6 +56,7 @@ struct FeedPostRow: View {
 
       if post.downvotes < 15 || isHiddenPostExpanded || showFullContent {
         FeedPostContent(
+          postID: post.id,
           content: post.content,
           images: post.images,
           showFullContent: $showFullContent,

@@ -13,6 +13,7 @@ struct PostImagesStrip: View {
   private let hPadding: CGFloat = 16 // match your .padding(.horizontal, 16)
 
   @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @Environment(\.feedColumnWidth) private var feedColumnWidth
 
   @State private var parentWidth: CGFloat = 0
   @State private var selectedImage: FeedImage?
@@ -24,9 +25,12 @@ struct PostImagesStrip: View {
   }
 
   var body: some View {
-    // Zero until measured, which happens in the same layout pass, so images are
-    // only ever sized to the column they are actually in.
-    let contentWidth = max(0, parentWidth - hPadding * 2)
+    // Until the strip has measured itself, size to the column the feed reports.
+    // The feed's lazy stack rebuilds rows as they scroll back in, and a strip
+    // that started at zero and grew a frame later shifted the rows below it,
+    // making the feed jump while scrolling up.
+    let columnWidth = parentWidth > 0 ? parentWidth : feedColumnWidth
+    let contentWidth = max(0, columnWidth - hPadding * 2)
     
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 12) {
@@ -52,4 +56,10 @@ struct PostImagesStrip: View {
       FullScreenImageViewer(url: item.url)
     }
   }
+}
+
+extension EnvironmentValues {
+  /// Width of the feed's content column, measured once by the feed so rows
+  /// rebuilt by its lazy stack can size their images on their first layout.
+  @Entry var feedColumnWidth: CGFloat = 0
 }

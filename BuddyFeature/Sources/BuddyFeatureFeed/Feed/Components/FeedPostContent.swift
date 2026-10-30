@@ -11,12 +11,22 @@ import BuddyFeatureShared
 
 /// Post body text (with expand affordance) and any attached images.
 struct FeedPostContent: View {
+  let postID: String
   let content: String
   let images: [FeedImage]
   @Binding var showFullContent: Bool
   let onOpenURL: (URL) -> OpenURLAction.Result
 
   @State private var canBeExpanded: Bool = false
+
+  /// Posts already found to run past five lines. The feed's lazy stack rebuilds
+  /// rows as they scroll back in, and without this the "more" button would
+  /// appear a frame late and shift everything below it.
+  private static var expandablePostIDs: Set<String> = []
+
+  private var showsMoreButton: Bool {
+    canBeExpanded || Self.expandablePostIDs.contains(postID)
+  }
 
   var body: some View {
     Text(content.toDetectedAttributedString())
@@ -29,11 +39,12 @@ struct FeedPostContent: View {
             .hidden()
           Color.clear.onAppear {
             canBeExpanded = true
+            Self.expandablePostIDs.insert(postID)
           }
         }
       }
       .environment(\.openURL, OpenURLAction(handler: onOpenURL))
-    if canBeExpanded && !showFullContent {
+    if showsMoreButton && !showFullContent {
       Button(String(localized: "more", bundle: .module)) {
         withAnimation {
           showFullContent = true
