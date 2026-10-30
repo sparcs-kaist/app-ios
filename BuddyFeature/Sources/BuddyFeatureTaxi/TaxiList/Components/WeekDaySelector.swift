@@ -7,89 +7,83 @@
 
 import Foundation
 import SwiftUI
-import Haptica
 
 struct WeekDaySelector: View {
   @Binding var selectedDate: Date
   let week: [Date]
   var select: ((Date) -> Void)?
 
-  @Namespace private var selectionNamespace // 1. Create a Namespace
   @Environment(\.colorScheme) private var colorScheme
 
   private let calendar = Calendar.current
 
   var body: some View {
-    HStack(spacing: 0) {
-      ForEach(week, id: \.self) { day in
-        let isSelected = calendar.isDate(selectedDate, inSameDayAs: day)
-        let symbol = weekdaySymbol(for: day)
-        let weekday = calendar.component(.weekday, from: day)
-
-        let textColor: Color = {
-          switch weekday {
-          case 1:
-            return .red
-          case 7:
-            return .blue
-          default:
-            return .primary
-          }
-        }()
-
-        // Solid colours for the selected day rather than `.primary`: on the selector's glass
-        // that turns translucent and the pill shows grey. A weekday's pill is black, or white in
-        // dark mode with dark text on it; weekends keep their red and blue.
-        let isWeekend = weekday == 1 || weekday == 7
-        let selectionColor: Color = isWeekend ? textColor : (colorScheme == .dark ? .white : .black)
-        let selectedTextColor: Color = !isWeekend && colorScheme == .dark ? .black : .white
-
-        VStack(spacing: 4) {
-          Text("\(calendar.component(.day, from: day))")
-            .font(.title3)
-            .fontWeight(.semibold)
-            .fontDesign(.rounded)
-            .foregroundStyle(isSelected ? selectedTextColor : .primary)
-
-          Text(symbol)
-            .font(.caption2)
-            .fontWeight(.medium)
-            .foregroundStyle(isSelected ? selectedTextColor : textColor)
-        }
-        .frame(maxWidth: .infinity, minHeight: 60)
-        .background {
-          if isSelected {
-            // 2. Apply matchedGeometryEffect to the selected background
-            RoundedRectangle(cornerRadius: 24)
-              .fill(selectionColor)
-              .matchedGeometryEffect(id: "selectedDay", in: selectionNamespace)
-          }
-        }
-        .contentShape(.rect(cornerRadius: 24))
-        .onTapGesture {
-          Haptic.selection.generate()
-          withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) { // 3. Animate selection change
-            selectedDate = day
-            select?(day)
-          }
+    // Tap a day, or swipe along the week to drag the glass lens to one.
+    LiquidLensSegments(
+      count: week.count,
+      selectedIndex: week.firstIndex { calendar.isDate(selectedDate, inSameDayAs: $0) } ?? 0,
+      selectionColors: week.map(selectionColor),
+      cornerRadius: 24,
+      onSelect: { index in
+        withAnimation(.spring(duration: 0.35, bounce: 0.2, blendDuration: 0.15)) {
+          selectedDate = week[index]
+          select?(week[index])
         }
       }
+    ) { index, isSelected in
+      dayLabel(for: week[index], isSelected: isSelected)
     }
     .padding(4)
     .contentShape(.rect(cornerRadius: 28))
     .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 28))
   }
 
+  private func dayLabel(for day: Date, isSelected: Bool) -> some View {
+    VStack(spacing: 4) {
+      Text("\(calendar.component(.day, from: day))")
+        .font(.title3)
+        .fontWeight(.semibold)
+        .fontDesign(.rounded)
+        .foregroundStyle(isSelected ? selectedTextColor(for: day) : .primary)
+
+      Text(weekdaySymbol(for: day))
+        .font(.caption2)
+        .fontWeight(.medium)
+        .foregroundStyle(isSelected ? selectedTextColor(for: day) : textColor(for: day))
+    }
+    .frame(minHeight: 60)
+  }
+
+  private func textColor(for day: Date) -> Color {
+    switch calendar.component(.weekday, from: day) {
+    case 1:
+      return .red
+    case 7:
+      return .blue
+    default:
+      return .primary
+    }
+  }
+
+  private func isWeekend(_ day: Date) -> Bool {
+    let weekday = calendar.component(.weekday, from: day)
+    return weekday == 1 || weekday == 7
+  }
+
+  // Solid colours for the selected day rather than `.primary`: on the selector's glass that turns
+  // translucent and the pill shows grey. A weekday's pill is black, or white in dark mode with dark
+  // text on it; weekends keep their red and blue.
+  private func selectionColor(for day: Date) -> Color {
+    isWeekend(day) ? textColor(for: day) : (colorScheme == .dark ? .white : .black)
+  }
+
+  private func selectedTextColor(for day: Date) -> Color {
+    !isWeekend(day) && colorScheme == .dark ? .black : .white
+  }
+
   private func weekdaySymbol(for date: Date) -> String {
     let weekdayIndex = calendar.component(.weekday, from: date) - 1
     return calendar.shortWeekdaySymbols[weekdayIndex].prefix(3).uppercased()
-  }
-
-  private func weekTitle(for date: Date) -> String {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "MMMM d"
-
-    return formatter.string(from: date)
   }
 }
 
