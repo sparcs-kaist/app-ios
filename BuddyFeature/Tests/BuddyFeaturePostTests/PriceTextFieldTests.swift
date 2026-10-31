@@ -98,5 +98,21 @@ extension PostFeatureTests {
       #expect(field.text == "1,295,000")
       #expect(cursor == 4)
     }
+
+    @Test func deletingASeparatorTakesTheDigitBeforeIt() {
+      type("1250")
+      edit(NSRange(location: 1, length: 1), with: "")
+      #expect(field.text == "250")
+      #expect(box.value == 250)
+      #expect(cursor == 0)
+    }
+
+    @Test func deletingASeparatorMidNumberKeepsTheCursorInPlace() {
+      type("1250000")
+      edit(NSRange(location: 5, length: 1), with: "")
+      #expect(field.text == "125,000")
+      #expect(box.value == 125_000)
+      #expect(cursor == 4)
+    }
   }
 }

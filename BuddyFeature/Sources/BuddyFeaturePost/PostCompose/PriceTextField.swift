@@ -75,7 +75,12 @@ struct PriceTextField: UIViewRepresentable {
       replacementString string: String
     ) -> Bool {
       let current = textField.text ?? ""
-      guard let swiftRange = Range(range, in: current) else { return false }
+      guard var swiftRange = Range(range, in: current) else { return false }
+      if string.isEmpty,
+         !current[swiftRange].contains(where: \.isWholeNumber),
+         let digit = current[..<swiftRange.lowerBound].lastIndex(where: \.isWholeNumber) {
+        swiftRange = digit..<swiftRange.upperBound
+      }
       let edited = current.replacingCharacters(in: swiftRange, with: string)
       // Digits after the cursor, so it can be put back in the same place among them.
       let digitsAfter = current[swiftRange.upperBound...].filter(\.isWholeNumber).count
