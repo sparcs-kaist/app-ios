@@ -1,7 +1,9 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Get classes ${day}" : {
 
+    }
   },
   "version" : "1.1"
 }
