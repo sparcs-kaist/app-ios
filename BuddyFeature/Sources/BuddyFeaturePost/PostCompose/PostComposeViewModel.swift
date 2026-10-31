@@ -143,7 +143,7 @@ class PostComposeViewModel: PostComposeViewModelProtocol {
       case .existing(let id):
         ids.append(id)
       case .local(let url):
-        let data = try Data(contentsOf: url)
+        let data = try await Task.detached { try Data(contentsOf: url) }.value
         ids.append(try await useCase.uploadFile(data: data, fileName: file.name, mimeType: file.mimeType).id)
       }
     }
