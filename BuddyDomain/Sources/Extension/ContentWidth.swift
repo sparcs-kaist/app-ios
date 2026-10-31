@@ -25,4 +25,27 @@ public extension View {
       .frame(maxWidth: ContentLayout.maxContentWidth)
       .frame(maxWidth: .infinity)
   }
+
+  /// `contentWidth()` for a scroll view or list. The scroll view keeps its full width, so its
+  /// indicator sits at the screen's edge and a swipe anywhere scrolls it, while its content is
+  /// inset to the same centred column.
+  func scrollContentWidth(isEnabled: Bool = true) -> some View {
+    modifier(ScrollContentWidth(isEnabled: isEnabled))
+  }
+}
+
+private struct ScrollContentWidth: ViewModifier {
+  let isEnabled: Bool
+  @State private var width: CGFloat = 0
+
+  private var margin: CGFloat {
+    isEnabled ? max(0, (width - ContentLayout.maxContentWidth) / 2) : 0
+  }
+
+  func body(content: Content) -> some View {
+    content
+      .safeAreaPadding(.horizontal, margin)
+      .contentMargins(.trailing, -margin, for: .scrollIndicators)
+      .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+  }
 }

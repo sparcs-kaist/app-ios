@@ -9,13 +9,15 @@ import Foundation
 import UIKit
 
 public protocol AraBoardUseCaseProtocol: Sendable {
-  func getAccessToken() -> String?
   func fetchBoards() async throws -> [AraBoard]
   func fetchPosts(type: PostListType, page: Int, pageSize: Int, searchKeyword: String?) async throws -> AraPostPage
   func fetchPost(origin: PostOrigin?, postID: Int) async throws -> AraPost
   func fetchBookmarks(page: Int, pageSize: Int) async throws -> AraPostPage
   func uploadImage(image: UIImage) async throws -> AraAttachment
+  /// Uploads a document (PDF, slides, a zip…) to attach to a post, kept under `fileName`.
+  func uploadFile(data: Data, fileName: String, mimeType: String) async throws -> AraAttachment
   func writePost(request: AraCreatePost) async throws
+  func updatePost(postID: Int, request: AraUpdatePost) async throws
   func upvotePost(postID: Int) async throws
   func downvotePost(postID: Int) async throws
   func cancelVote(postID: Int) async throws

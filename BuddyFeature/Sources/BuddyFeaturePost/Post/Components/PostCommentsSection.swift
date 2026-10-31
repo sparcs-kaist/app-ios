@@ -19,13 +19,18 @@ struct PostCommentsSection: View {
   let onDownvote: (Binding<AraPostComment>) async -> Void
   let onReport: (Int, AraContentReportType) async throws -> Void
   let onDeleteComment: (Binding<AraPostComment>) async -> Void
+  let onSetAuthorBlocked: (AraPostAuthor, Bool) async -> Void
+  /// Separates an empty section from the post above it; off when the comments have a pane of their own.
+  var showsTopDivider = true
 
   var body: some View {
     VStack(spacing: 16) {
       if comments.isEmpty {
-        Divider()
+        if showsTopDivider {
+          Divider()
+        }
         ContentUnavailableView(
-          "No one has commented yet.",
+          String(localized: "No one has commented yet.", bundle: .module),
           systemImage: "text.bubble",
           description: Text("Be the first one to share your thoughts.", bundle: .module)
         )
@@ -70,7 +75,11 @@ struct PostCommentsSection: View {
       },
       onDeleteComment: {
         await onDeleteComment(comment)
-      }
+      },
+      // Not for one's own comments, nor authors Ara doesn't let be blocked.
+      onSetAuthorBlocked: comment.wrappedValue.isMine == true || comment.wrappedValue.author.blockableUserID == nil
+        ? nil
+        : { blocked in await onSetAuthorBlocked(comment.wrappedValue.author, blocked) }
     )
   }
 }

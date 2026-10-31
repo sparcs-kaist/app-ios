@@ -12,6 +12,7 @@ import Haptica
 import FirebaseAnalytics
 import BuddyFeatureShared
 import TipKit
+@preconcurrency import Translation
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostView")
@@ -21,13 +22,11 @@ public struct PostView: View {
   @Environment(\.dismiss) private var dismiss
 
   @Environment(\.keyboardShowing) var keyboardShowing
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @State private var viewport: CGSize = .zero
 
-  @State private var htmlHeight: CGFloat = .zero
   @State private var tappedURL: URL?
-
-  @State private var isWebViewLoading: Bool = false
-  @State private var webViewLoadError: DynamicHeightWebView.LoadError?
-  @State private var webViewReloadToken: Int = 0
 
   @State private var comment: String = ""
   @FocusState private var isWritingCommentFocusState: Bool
@@ -36,12 +35,18 @@ public struct PostView: View {
   @State private var commentOnEdit: AraPostComment? = nil
   @State private var isUploadingComment: Bool = false
 
+  /// The comment to pin to the top while a reply to it is being written.
+  private var replyScrollTargetID: Int? {
+    isWritingCommentFocusState ? targetComment?.id : nil
+  }
+
   @State private var selectedAuthor: AraPostAuthor? = nil
 
-  @State private var showTranslationView: Bool = false
+  @State private var translationConfiguration: TranslationSession.Configuration?
   @State private var showDeleteConfirmation: Bool = false
+  @State private var showBlockConfirmation: Bool = false
+  @State private var showEditView: Bool = false
 
-  @State private var summarisedContent: String? = nil
   @State private var showsToolsTip = false
 
   let onPostDeleted: ((Int) -> Void)?
@@ -53,82 +58,35 @@ public struct PostView: View {
 
   public var body: some View {
     ScrollViewReader { proxy in
-      ScrollView {
-        Group {
-          PostHeader(
-            title: title,
-            createdAtText: viewModel.post.createdAt.formattedString,
-            views: viewModel.post.views,
-            authorProfileURL: viewModel.post.author.profile.profilePictureURL,
-            authorNickname: viewModel.post.author.profile.nickname,
-            isAnonymous: viewModel.post.author.username == "anonymous",
-            onAuthorTapped: { selectedAuthor = viewModel.post.author }
-          )
-
-          if showsToolsTip {
-            TipView(PostToolsTip())
-          }
-
-          PostContent(
-            summarisedContent: summarisedContent,
-            requestProvider: { viewModel.makePostRequest() },
-            onLinkTapped: { tappedURL = $0 }
-          )
-
-          PostFooter(
-            myVote: viewModel.myVote,
-            votes: viewModel.upvotes - viewModel.downvotes,
-            isMine: viewModel.post.isMine,
-            commentCount: viewModel.commentCount,
-            isBookmarked: viewModel.myScrap,
-            shareURL: Constants.araPostURL.appending(path: String(viewModel.post.id)),
-            onUpvote: { await viewModel.upvote() },
-            onDownvote: { await viewModel.downvote() },
-            onToggleBookmark: { await viewModel.toggleBookmark() },
-            onCommentTapped: {
-              targetComment = nil
-              isWritingCommentFocusState = true
-            }
-          )
-
-          PostCommentsSection(
-            comments: $viewModel.comments,
-            onReply: { selectedComment in
-              targetComment = selectedComment
-              isWritingCommentFocusState = true
-            },
-            onCommentDeleted: {
-              viewModel.commentCount -= 1
-            },
-            onEdit: { selectedComment in
-              withAnimation(.spring) {
-                comment = selectedComment.content ?? ""
-                targetComment = nil
-                commentOnEdit = selectedComment
+      Group {
+        if usesPanes {
+          PostPanes {
+            column { postSection(proxy: proxy) }
+          } comments: {
+            column { commentsSection }
+              .safeAreaBar(edge: .bottom) {
+                inputBar(proxy: proxy)
               }
-              isWritingCommentFocusState = true
-            },
-            onUpvote: { target in
-              await viewModel.upvoteComment(comment: target)
-            },
-            onDownvote: { target in
-              await viewModel.downvoteComment(comment: target)
-            },
-            onReport: { commentID, type in
-              try await viewModel.reportComment(commentID: commentID, type: type)
-            },
-            onDeleteComment: { target in
-              await viewModel.deleteComment(comment: target)
-            }
-          )
-          .padding(.top, 4)
-          .animation(.spring, value: viewModel.comments.map(\.id))
+          }
+        } else {
+          column {
+            postSection(proxy: proxy)
+            commentsSection
+          }
         }
-        .padding()
-        .contentWidth()
-        .animation(.spring(), value: summarisedContent)
       }
-      .scrollDismissesKeyboard(.interactively)
+      .onGeometryChange(for: CGSize.self) { $0.size } action: { viewport = $0 }
+      .onChange(of: replyScrollTargetID) { _, id in
+        guard let id else { return }
+        // Wait a turn so the bottom spacer is laid out before scrolling.
+        Task { @MainActor in
+          withAnimation(.spring) {
+            proxy.scrollTo(id, anchor: .top)
+          }
+        }
+      }
+      .modifier(PinnedNavigationBar(isPinned: usesPanes))
+      .scrollDismissesKeyboard(.immediately)
       .onKeyboardDismiss {
         if comment.isEmpty {
           targetComment = nil
@@ -136,8 +94,13 @@ public struct PostView: View {
       }
       .contentMargins(.bottom, 64)
       .navigationTitle(viewModel.post.board?.name.localized() ?? "")
+      // Its own, rather than whatever the screen it was opened from uses (the Boards list's is large).
+      .navigationBarTitleDisplayMode(.inline)
       .safeAreaBar(edge: .bottom) {
-        inputBar(proxy: proxy)
+        // Side by side, it belongs to the comments pane.
+        if !usesPanes {
+          inputBar(proxy: proxy)
+        }
       }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
@@ -163,6 +126,18 @@ public struct PostView: View {
             } message: {
               Text("Are you sure you want to delete this post?", bundle: .module)
             }
+            .confirmationDialog(
+              String(localized: "Block \(viewModel.post.author.profile.nickname)?", bundle: .module),
+              isPresented: $showBlockConfirmation,
+              titleVisibility: .visible
+            ) {
+              Button(String(localized: "Block", bundle: .module), role: .destructive) {
+                Task { await viewModel.setAuthorBlocked(viewModel.post.author, blocked: true) }
+              }
+              Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
+            } message: {
+              Text("You won't see their posts or comments on Ara. You can unblock them from the same menu.", bundle: .module)
+            }
         }
       }
       .background {
@@ -177,8 +152,15 @@ public struct PostView: View {
       .sheet(item: $tappedURL) { url in
         SafariViewWrapper(url: url)
       }
-      .sheet(isPresented: $showTranslationView) {
-        PostTranslationView(post: viewModel.post)
+      .sheet(isPresented: $showEditView) {
+        if let board = viewModel.post.board {
+          PostComposeView(editing: viewModel.post, board: board) {
+            Task { await viewModel.fetchPost() }
+          }
+        }
+      }
+      .translationTask(translationConfiguration) { session in
+        await viewModel.translate(using: session)
       }
       .navigationDestination(item: $selectedAuthor) { author in
         UserPostListView(user: author)
@@ -190,8 +172,14 @@ public struct PostView: View {
         await PostToolsTip.postOpened.donate()
       }
       .task(id: viewModel.post.content) {
-        let content = viewModel.post.content ?? ""
-        showsToolsTip = await Task.detached { PostToolsTip.isWorthShowing(forHTML: content) }.value
+        await viewModel.prepareContentBody()
+        await viewModel.loadTranslationLanguages()
+        let content = if case .tiptap(_, let plainText) = viewModel.contentBody {
+          plainText
+        } else {
+          viewModel.post.content ?? ""
+        }
+        showsToolsTip = await Task.detached { PostToolsTip.isWorthShowing(for: content) }.value
       }
       .refreshable {
         await viewModel.fetchPost()
@@ -201,6 +189,91 @@ public struct PostView: View {
       "is_author": viewModel.post.isMine ?? false,
       "has_comments": viewModel.commentCount > 0
     ])
+  }
+
+  // MARK: - Layout
+
+  /// A summary written or being written; after a failure, the post's own Try Again asks again.
+  private var isSummaryShown: Bool {
+    switch viewModel.summaryPhase {
+    case .summarising, .finished: true
+    case .failed, nil: false
+    }
+  }
+
+  /// Post on the left, comments on the right, when there's room for both side by side: iPad and
+  /// the inner display of iPhone Duo, wider than tall. Max iPhones in landscape are regular width
+  /// but compact height, and keep the single column.
+  private var usesPanes: Bool {
+    horizontalSizeClass == .regular
+      && verticalSizeClass == .regular
+      && viewport.width > viewport.height
+      && viewport.width >= PostPaneWidth.post + PostPaneWidth.comments
+  }
+
+  private func column(@ViewBuilder content: () -> some View) -> some View {
+    PostColumn(summaryPhase: viewModel.summaryPhase, translationState: viewModel.translationState, content: content)
+  }
+
+  private func postSection(proxy: ScrollViewProxy) -> some View {
+    PostSection(
+      viewModel: viewModel,
+      title: title,
+      content: displayedContent,
+      isTranslating: isTranslating,
+      showsToolsTip: showsToolsTip,
+      onAuthorTapped: { selectedAuthor = viewModel.post.author },
+      onLinkTapped: { tappedURL = $0 },
+      onScrollToImage: { proxy.scrollTo($0, anchor: .center) },
+      onCommentTapped: {
+        targetComment = nil
+        isWritingCommentFocusState = true
+      }
+    )
+  }
+
+  @ViewBuilder
+  private var commentsSection: some View {
+    PostComments(
+      viewModel: viewModel,
+      comments: $viewModel.comments,
+      showsTopDivider: !usesPanes,
+      onReply: { selectedComment in
+        // A reply replaces an edit in progress rather than sending as one.
+        if commentOnEdit != nil {
+          comment = ""
+          commentOnEdit = nil
+        }
+        targetComment = selectedComment
+        isWritingCommentFocusState = true
+      },
+      onEdit: { selectedComment in
+        withAnimation(.spring) {
+          comment = selectedComment.content ?? ""
+          targetComment = nil
+          commentOnEdit = selectedComment
+        }
+        isWritingCommentFocusState = true
+      },
+      onCommentDeleted: {
+        viewModel.commentCount -= 1
+      }
+    )
+
+    // Comments near the end of the list have too little content below them to reach the top,
+    // so pad the bottom by a screen's height while replying. Sized in layout, so no state
+    // updates during the keyboard animation.
+    if replyScrollTargetID != nil {
+      Color.clear
+        .containerRelativeFrame(.vertical)
+    }
+  }
+
+  /// Whether the app can load this post into its editor: Tiptap posts, and the simple HTML
+  /// earlier versions of the app wrote. A post that hasn't loaded its content can't be edited.
+  private var canEdit: Bool {
+    guard viewModel.post.board != nil, let content = viewModel.post.content else { return false }
+    return PostEditableContent.document(from: content) != nil
   }
 
   private var actionsMenu: some View {
@@ -218,27 +291,39 @@ public struct PostView: View {
         }
       }
 
-      if viewModel.post.isMine == false { Divider () }
-
-      Button(String(localized: "Translate", bundle: .module), systemImage: "translate") {
-        PostToolsTip().invalidate(reason: .actionPerformed)
-        showTranslationView = true
-      }
-
-      if viewModel.isFoundationModelsAvailable {
-        Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
-          PostToolsTip().invalidate(reason: .actionPerformed)
-          summarisedContent = ""
-          Task {
-            Haptic.start.generate()
-            summarisedContent = await viewModel.summarisedContent()
-            Haptic.success.generate()
+      // Only authors named by their nickname can be blocked.
+      if viewModel.post.isMine == false, viewModel.post.author.blockableUserID != nil {
+        if viewModel.post.author.isBlocked == true {
+          Button(String(localized: "Unblock Author", bundle: .module), systemImage: "person.crop.circle.badge.checkmark") {
+            Task { await viewModel.setAuthorBlocked(viewModel.post.author, blocked: false) }
+          }
+        } else {
+          Button(String(localized: "Block Author", bundle: .module), systemImage: "person.crop.circle.badge.xmark", role: .destructive) {
+            showBlockConfirmation = true
           }
         }
-        .disabled(summarisedContent != nil)
+      }
+
+      if viewModel.post.isMine == false { Divider () }
+
+      translateMenu
+
+      if viewModel.canSummarise {
+        Button(String(localized: "Summarise", bundle: .module), systemImage: "text.append") {
+          PostToolsTip().invalidate(reason: .actionPerformed)
+          Haptic.start.generate()
+          viewModel.summarise()
+        }
+        .disabled(isSummaryShown)
       }
 
       if viewModel.post.isMine == true { Divider () }
+
+      if viewModel.post.isMine == true, canEdit {
+        Button(String(localized: "Edit", bundle: .module), systemImage: "pencil") {
+          showEditView = true
+        }
+      }
 
       if viewModel.post.isMine == true {
         Button(String(localized: "Delete", bundle: .module), systemImage: "trash", role: .destructive) {
@@ -252,6 +337,18 @@ public struct PostView: View {
     HStack(alignment: .bottom) {
       // comment textfield
       VStack(alignment: .leading) {
+        if let targetComment {
+          CommentReplyPreview(
+            authorName: targetComment.author.profile.nickname,
+            content: targetComment.content ?? "",
+            isDeleted: targetComment.content == nil,
+            onCancel: { self.targetComment = nil }
+          )
+          // The bar's own tint is primary, for the cursor; this matches Ara's red background.
+          .tint(.red)
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+
         if commentOnEdit != nil {
           HStack {
             Text("Editing", bundle: .module)
@@ -339,7 +436,8 @@ public struct PostView: View {
         })
         .fontWeight(.medium)
         .padding(12)
-        .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .circle)
+        // Red, like the reply preview and Ara's background.
+        .glassEffect(.regular.tint(.red).interactive(), in: .circle)
         .disabled(comment.isEmpty)
         .transition(.move(edge: .trailing).combined(with: .opacity))
         .disabled(isUploadingComment)
@@ -350,6 +448,7 @@ public struct PostView: View {
     // The capped bar is centred, so half-folded on iPhone Duo it would straddle the hinge.
     .avoidingFold()
     .animation(.spring, value: keyboardShowing)
+    .animation(.spring, value: targetComment?.id)
     .animation(
       .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
       value: comment.isEmpty
@@ -376,6 +475,61 @@ public struct PostView: View {
     return String(localized: "reply as \(viewModel.post.myCommentProfile?.profile.nickname ?? "anonymous")", bundle: .module)
   }
 
+  // MARK: - Translation
+
+  private var isTranslating: Bool {
+    if case .translating = viewModel.translationState { true } else { false }
+  }
+
+  private var translatedTitle: String? {
+    if case .translated(let translation) = viewModel.translationState { translation.title } else { nil }
+  }
+
+  /// The body as written, or translated in place with its structure kept.
+  private var displayedContent: PostBody? {
+    if case .translated(let translation) = viewModel.translationState {
+      return .tiptap(translation.layout, plainText: "")
+    }
+    return viewModel.contentBody
+  }
+
+  private var translateMenu: some View {
+    Menu(String(localized: "Translate", bundle: .module), systemImage: "translate") {
+      if viewModel.translationState != .original {
+        Button(String(localized: "Show Original", bundle: .module), systemImage: "arrow.uturn.backward") {
+          viewModel.showOriginal()
+        }
+      }
+
+      Picker(selection: Binding(
+        get: { viewModel.translationState.target },
+        set: { target in
+          if let target { translate(to: target) }
+        }
+      )) {
+        ForEach(viewModel.translationLanguages, id: \.minimalIdentifier) { language in
+          Text(PostTranslator.displayName(for: language))
+            .tag(Optional(language))
+        }
+      } label: {
+        Text("Translate to", bundle: .module)
+      }
+      .pickerStyle(.inline)
+    }
+    .disabled(viewModel.translationLanguages.isEmpty)
+  }
+
+  private func translate(to target: Locale.Language) {
+    PostToolsTip().invalidate(reason: .actionPerformed)
+    let configuration = viewModel.requestTranslation(to: target)
+    // An unchanged configuration doesn't re-run the task; invalidating it does.
+    if translationConfiguration == configuration {
+      translationConfiguration?.invalidate()
+    } else {
+      translationConfiguration = configuration
+    }
+  }
+
   var title: AttributedString {
     var result = AttributedString()
 
@@ -386,7 +540,11 @@ public struct PostView: View {
       result.append(topicAttr)
     }
 
-    var titleAttr = AttributedString(viewModel.post.title ?? String(localized: "Untitled", bundle: .module))
+    // A hidden post has no title, so say why it's hidden instead.
+    let plainTitle = viewModel.post.isHidden
+      ? viewModel.post.listTitle
+      : translatedTitle ?? viewModel.post.title ?? String(localized: "Untitled", bundle: .module)
+    var titleAttr = AttributedString(plainTitle)
     titleAttr.font = .headline
     titleAttr.foregroundColor = .primary
     result.append(titleAttr)
@@ -430,4 +588,3 @@ public struct PostView: View {
     PostView(post: .mockWithoutComments, onPostDeleted: nil)
   }
 }
-

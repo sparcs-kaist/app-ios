@@ -16,7 +16,9 @@ public enum AraBoardTarget {
   case fetchPost(origin: PostOrigin?, postID: Int)
   case fetchBookmarks(page: Int, pageSize: Int)
   case uploadImage(imageData: Data)
+  case uploadFile(data: Data, fileName: String, mimeType: String)
   case writePost(_ request: AraPostRequestDTO)
+  case updatePost(postID: Int, _ request: AraPostUpdateRequestDTO)
   case upvote(postID: Int)
   case downvote(postID: Int)
   case cancelVote(postID: Int)
@@ -35,9 +37,11 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards:
       "/boards/"
+    case .fetchPosts(.trending, _, _, _):
+      "/articles/top/"
     case .fetchPosts, .writePost:
       "/articles/"
-    case .fetchPost(_, let postID):
+    case .fetchPost(_, let postID), .updatePost(let postID, _):
       "/articles/\(postID)/"
     case .fetchBookmarks, .addBookmark:
       "/scraps/"
@@ -49,7 +53,7 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       "/articles/\(postID)/vote_cancel/"
     case .report:
       "/reports/"
-    case .uploadImage:
+    case .uploadImage, .uploadFile:
       "/attachments/"
     case .delete(let postID):
       "/articles/\(postID)/"
@@ -62,10 +66,12 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchBoards, .fetchPosts, .fetchPost, .fetchBookmarks:
       .get
-    case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage, .addBookmark:
+    case .writePost, .upvote, .downvote, .cancelVote, .report, .uploadImage, .uploadFile, .addBookmark:
       .post
     case .delete, .removeBookmark:
       .delete
+    case .updatePost:
+      .patch
     }
   }
 
@@ -82,10 +88,20 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
       switch type {
       case .all:
         break // pass
-      case .board(let boardID):
+      case .board(let boardID, let topicID):
         parameters["parent_board"] = boardID
+        if let topicID {
+          parameters["parent_topic"] = topicID
+        }
       case .user(let userID):
         parameters["created_by"] = userID
+      case .boardSlug(let slug):
+        parameters["board"] = slug
+      case .trending:
+        break // the path chooses them
+      case .latest(let boardIDs):
+        parameters["parent_board__in"] = boardIDs.map(String.init).joined(separator: ",")
+        parameters["ordering"] = "-created_at"
       }
 
       if let searchKeyword {
@@ -123,7 +139,14 @@ extension AraBoardTarget: TargetType, AccessTokenAuthorizable {
         mimeType: "image/png"
       )
       return .uploadMultipart([imageMultipart])
+    case .uploadFile(let data, let fileName, let mimeType):
+      // Ara names the attachment after the uploaded file, which is what readers see.
+      return .uploadMultipart([
+        MultipartFormData(provider: .data(data), name: "file", fileName: fileName, mimeType: mimeType)
+      ])
     case .writePost(let request):
+      return .requestJSONEncodable(request)
+    case .updatePost(_, let request):
       return .requestJSONEncodable(request)
     case .report(let postID, let type):
       return .requestParameters(parameters: [

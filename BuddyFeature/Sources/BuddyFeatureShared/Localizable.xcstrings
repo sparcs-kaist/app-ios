@@ -1,6 +1,188 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "₩%@" : {
+      "comment" : "A price in Korean won.",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "₩%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@원"
+          }
+        }
+      }
+    },
+    "Free" : {
+      "comment" : "The price of a Market listing given away for nothing.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무료 나눔"
+          }
+        }
+      }
+    },
+    "No Price" : {
+      "comment" : "Shown for a Market listing without a price.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가격 미정"
+          }
+        }
+      }
+    },
+    "Reserved" : {
+      "comment" : "A Market listing someone has reserved.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예약 중"
+          }
+        }
+      }
+    },
+    "Sold" : {
+      "comment" : "A Market listing that has sold.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판매 완료"
+          }
+        }
+      }
+    },
+    "Allow Buddy to add photos in Settings, then try again." : {
+      "comment" : "Shown when saving a photo is not allowed.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정에서 Buddy가 사진을 추가할 수 있도록 허용한 다음 다시 시도하세요."
+          }
+        }
+      }
+    },
+    "Copied" : {
+      "comment" : "Confirms an image was copied.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복사됨"
+          }
+        }
+      }
+    },
+    "Copy" : {
+      "comment" : "Copies an image.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복사"
+          }
+        }
+      }
+    },
+    "More" : {
+      "comment" : "A menu of actions for the image shown full screen.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 보기"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "comment" : "Dismisses an alert.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
+    "Photo" : {
+      "comment" : "The title of a shared photo.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진"
+          }
+        }
+      }
+    },
+    "Save to Photos" : {
+      "comment" : "Saves an image to the photo library.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진에 저장"
+          }
+        }
+      }
+    },
+    "Saved to Photos" : {
+      "comment" : "Confirms an image was saved to the photo library.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진에 저장됨"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "comment" : "Shares an image.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유"
+          }
+        }
+      }
+    },
+    "Unable to Save Photo" : {
+      "comment" : "The title of an alert when saving a photo fails.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진을 저장할 수 없음"
+          }
+        }
+      }
+    },
+    "Updated" : {
+      "comment" : "Marks a post with new comments or edits since it was read.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 소식 있음"
+          }
+        }
+      }
+    },
     "[%@]" : {
       "shouldTranslate" : false
     },
@@ -22,6 +204,23 @@
     },
     "%lld" : {
       "shouldTranslate" : false
+    },
+    "%lld of %lld" : {
+      "comment" : "The position of the image shown full screen, as in 2 of 5.",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld개 중 %1$lld"
+          }
+        }
+      }
     },
     "%lld views" : {
       "localizations" : {
@@ -736,6 +935,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "학과명 또는 코드"
+          }
+        }
+      }
+    },
+    "Replying to %@" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replying to %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@님에게 답글 작성 중"
+          }
+        }
+      }
+    },
+    "This comment has been deleted." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This comment has been deleted."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제된 댓글입니다."
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소"
+          }
+        }
+      }
+    },
+    "This post is from someone you blocked." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This post is from someone you blocked."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단한 사용자의 게시물입니다."
           }
         }
       }

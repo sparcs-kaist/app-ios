@@ -14,17 +14,23 @@ public struct PostList: View {
   var isLoadingMore: Bool = false
   var onRefresh: (() async -> Void)? = nil
   var onLoadMore: (() -> Void)? = nil
+  /// Called when a post is tapped, in place of pushing it as a navigation value. Use it where
+  /// the list itself was pushed with `navigationDestination(item:)`: value-based pushes go
+  /// beneath item-based ones in the stack, so the post would open behind the list.
+  var onSelect: ((AraPost) -> Void)? = nil
 
   public init(
     posts: [AraPost]?,
     isLoadingMore: Bool = false,
     onRefresh: (() async -> Void)? = nil,
-    onLoadMore: (() -> Void)? = nil
+    onLoadMore: (() -> Void)? = nil,
+    onSelect: ((AraPost) -> Void)? = nil
   ) {
     self.posts = posts
     self.isLoadingMore = isLoadingMore
     self.onRefresh = onRefresh
     self.onLoadMore = onLoadMore
+    self.onSelect = onSelect
   }
 
   public var body: some View {
@@ -69,10 +75,18 @@ public struct PostList: View {
         }
         .background {
           if !post.isHidden {
-            NavigationLink(value: post) {
-              EmptyView()
+            if let onSelect {
+              Button {
+                onSelect(post)
+              } label: {
+                Color.clear
+              }
+            } else {
+              NavigationLink(value: post) {
+                EmptyView()
+              }
+              .opacity(0)
             }
-            .opacity(0)
           }
         }
     }

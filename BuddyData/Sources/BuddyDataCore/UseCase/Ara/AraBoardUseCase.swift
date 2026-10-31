@@ -12,21 +12,14 @@ import BuddyDomain
 public final class AraBoardUseCase: AraBoardUseCaseProtocol {
   private let feature: String = "AraBoard"
   private let araBoardRepository: AraBoardRepositoryProtocol
-  private let tokenStorage: TokenStorageProtocol
   private let crashlyticsService: CrashlyticsServiceProtocol?
 
   public init(
     araBoardRepository: AraBoardRepositoryProtocol,
-    tokenStorage: TokenStorageProtocol,
     crashlyticsService: CrashlyticsServiceProtocol?
   ) {
     self.araBoardRepository = araBoardRepository
-    self.tokenStorage = tokenStorage
     self.crashlyticsService = crashlyticsService
-  }
-
-  public func getAccessToken() -> String? {
-    tokenStorage.getAccessToken()
   }
 
   public func fetchBoards() async throws -> [AraBoard] {
@@ -90,6 +83,16 @@ public final class AraBoardUseCase: AraBoardUseCaseProtocol {
     }
   }
 
+  public func uploadFile(data: Data, fileName: String, mimeType: String) async throws -> AraAttachment {
+    let context = CrashContext(
+      feature: feature,
+      metadata: ["mimeType": mimeType, "size": String(data.count)]
+    )
+    return try await execute(context: context) {
+      try await araBoardRepository.uploadFile(data: data, fileName: fileName, mimeType: mimeType)
+    }
+  }
+
   public func writePost(request: AraCreatePost) async throws {
     let context = CrashContext(
       feature: feature,
@@ -100,6 +103,16 @@ public final class AraBoardUseCase: AraBoardUseCaseProtocol {
     )
     try await execute(context: context) {
       try await araBoardRepository.writePost(request: request)
+    }
+  }
+
+  public func updatePost(postID: Int, request: AraUpdatePost) async throws {
+    let context = CrashContext(
+      feature: feature,
+      metadata: ["postID": "\(postID)"]
+    )
+    try await execute(context: context) {
+      try await araBoardRepository.updatePost(postID: postID, request: request)
     }
   }
 

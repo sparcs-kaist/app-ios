@@ -17,6 +17,7 @@ public struct AraPostRequestDTO: Codable {
   let isPolitical: Bool
   let nicknameType: String
   let board: Int
+  let metadata: AraMarketMetadataDTO?
 
   enum CodingKeys: String, CodingKey {
     case title
@@ -27,27 +28,22 @@ public struct AraPostRequestDTO: Codable {
     case isPolitical = "is_content_social"
     case nicknameType = "name_type"
     case board = "parent_board"
+    case metadata
   }
 }
 
 public extension AraPostRequestDTO {
   static func fromModel(_ model: AraCreatePost) -> AraPostRequestDTO {
-    let attachmentsInHTML = model.attachments.compactMap { attachment in
-      guard let fileURL = attachment.file else { return "" }
-      return """
-          <p><img src="\(fileURL)" width="500" data-attachment="\(attachment.id)"></p>
-          """
-    }.joined()
-
-    return AraPostRequestDTO(
+    AraPostRequestDTO(
       title: model.title,
-      content: model.content.toHTMLParagraphs() + attachmentsInHTML,
-      attachments: model.attachments.compactMap { $0.id },
+      content: model.content,
+      attachments: model.attachmentIDs,
       topic: model.topic?.id,
       isNSFW: model.isNSFW,
       isPolitical: model.isPolitical,
       nicknameType: model.nicknameType.rawValue,
-      board: model.board.id
+      board: model.board.id,
+      metadata: model.marketListing.map(AraMarketMetadataDTO.fromModel)
     )
   }
 }

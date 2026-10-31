@@ -17,6 +17,8 @@ public struct AraPostDTO: Codable {
   let board: AraBoardDTO?
   let title: String?
   let author: AraPostAuthorDTO
+  let nameType: Int?
+  let metadata: AraMarketMetadataDTO?
   let readStatus: String?
   let attachmentType: String?
   let communicationArticleStatus: Int?
@@ -46,6 +48,8 @@ public struct AraPostDTO: Codable {
     case board = "parent_board"
     case title
     case author = "created_by"
+    case nameType = "name_type"
+    case metadata
     case readStatus = "read_status"
     case attachmentType = "attachment_type"
     case communicationArticleStatus = "communication_article_status"
@@ -68,6 +72,18 @@ public struct AraPostDTO: Codable {
 }
 
 
+extension AraPost.ReadStatus {
+  /// Ara's `read_status`: `N` unread, `-` read, `U` updated since read.
+  init?(rawValue: String) {
+    switch rawValue {
+    case "N": self = .unread
+    case "-": self = .read
+    case "U": self = .updated
+    default: return nil
+    }
+  }
+}
+
 public extension AraPostDTO {
   func toModel() -> AraPost {
     AraPost(
@@ -79,6 +95,9 @@ public extension AraPostDTO {
       board: board?.toModel(),
       title: title,
       author: author.toModel(),
+      nameType: nameType.flatMap(AraPostNicknameType.init(code:)),
+      marketListing: metadata?.toModel(),
+      readStatus: readStatus.flatMap(AraPost.ReadStatus.init(rawValue:)),
       attachmentType: AraPost.AttachmentType(rawValue: attachmentType ?? "") ?? .none,
       communicationArticleStatus: communicationArticleStatus != nil ? AraPost
         .CommunicationArticleStatus(rawValue: communicationArticleStatus!) : nil,

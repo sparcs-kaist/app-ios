@@ -1,0 +1,61 @@
+{
+  "sourceLanguage" : "en-GB",
+  "strings" : {
+    "Body" : {
+      "comment" : "The paragraph style for ordinary text in a post.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "본문"
+          }
+        }
+      }
+    },
+    "Heading" : {
+      "comment" : "A paragraph style for a section heading in a post.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "머리말"
+          }
+        }
+      }
+    },
+    "Monospaced" : {
+      "comment" : "A paragraph style for code, in a fixed-width font.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "고정폭"
+          }
+        }
+      }
+    },
+    "Subheading" : {
+      "comment" : "A paragraph style for a smaller heading in a post.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "부머리말"
+          }
+        }
+      }
+    },
+    "Title" : {
+      "comment" : "A paragraph style for the largest heading in a post.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -100,6 +100,9 @@ let package = Package(
             "BuddyDomain",
             "BuddyFeatureShared",
             "BuddyPreviewSupport",
+            .product(name: "TiptapKit", package: "BuddyUI"),
+            .product(name: "TiptapUI", package: "BuddyUI"),
+            .product(name: "TiptapEditor", package: "BuddyUI"),
             .product(name: "Nuke", package: "Nuke"),
             .product(name: "NukeUI", package: "Nuke"),
             .product(
@@ -142,6 +145,7 @@ let package = Package(
           dependencies: [
             "Haptica",
             "BuddyDomain",
+            .product(name: "NukeUI", package: "Nuke"),
             .product(
               name: "FirebaseAnalytics",
               package: "firebase-ios-sdk"

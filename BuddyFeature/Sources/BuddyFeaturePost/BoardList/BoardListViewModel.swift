@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import BuddyFeatureShared
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "BoardListViewModel")
@@ -20,8 +21,29 @@ public class BoardListViewModel: BoardListViewModelProtocol {
   public var state: BoardListViewState = .loading
   var boards: [AraBoard] = []
   var groups: [AraBoardGroup] = []
+  public private(set) var boardsWithNewPosts: Set<Int> = []
+  public private(set) var sections: [BoardListSection]
+  /// Each section's posts once loaded. Kept for a section the reader removes, so adding it back
+  /// shows it straight away.
+  private var sectionPosts: [BoardListSection: [AraPost]] = [:]
 
-  public init() { }
+  /// How many listings the Market shelf shows before See All.
+  static let marketShelfCount = 10
+
+  /// How many posts each list section shows, as on Ara's main page.
+  static let highlightCount = 3
+
+  @ObservationIgnored private let sectionStore: BoardListSectionStore
+
+  public init() {
+    self.sectionStore = BoardListSectionStore()
+    self.sections = sectionStore.load()
+  }
+
+  init(sectionStore: BoardListSectionStore) {
+    self.sectionStore = sectionStore
+    self.sections = sectionStore.load()
+  }
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(
@@ -31,11 +53,58 @@ public class BoardListViewModel: BoardListViewModelProtocol {
     \.analyticsService
   ) private var analyticsService: AnalyticsServiceProtocol?
 
+  public func posts(for section: BoardListSection) -> [AraPost]? {
+    sectionPosts[section]
+  }
+
+  public func reloadSections() {
+    let newSections = sectionStore.load()
+    guard newSections != sections else { return }
+    sections = newSections
+
+    guard let araBoardUseCase else { return }
+    for section in newSections where sectionPosts[section] == nil {
+      Task { await load(section, using: araBoardUseCase) }
+    }
+  }
+
+  /// Loads the boards and every section at once. Latest waits only for the boards, which it
+  /// needs to leave Portal Notice out; a section that fails is hidden on a first load and left
+  /// as it was on a refresh.
   public func fetchBoards() async {
     guard let araBoardUseCase else { return }
+    let sections = sections
+    await withDiscardingTaskGroup { group in
+      for section in sections where section != .latest {
+        group.addTask { await self.load(section, using: araBoardUseCase) }
+      }
+      group.addTask { await self.loadBoardsAndLatest(includingLatest: sections.contains(.latest), using: araBoardUseCase) }
+    }
+  }
 
+  /// Loads one section's posts. Latest needs the boards first, so it waits for a refresh until
+  /// they're in.
+  private func load(_ section: BoardListSection, using useCase: AraBoardUseCaseProtocol) async {
+    let type: PostListType
+    var pageSize = Self.highlightCount
+    switch section {
+    case .trending:
+      type = .trending
+    case .latest:
+      guard !boards.isEmpty else { return }
+      type = .latest(boardIDs: Self.latestBoardIDs(in: boards))
+    case .board(let slug):
+      // By slug, so it needn't wait for the boards.
+      type = .boardSlug(slug)
+      if slug == AraBoard.marketSlug { pageSize = Self.marketShelfCount }
+    }
+    let page = try? await useCase.fetchPosts(type: type, page: 1, pageSize: pageSize, searchKeyword: nil)
+    sectionPosts[section] = page?.results ?? sectionPosts[section] ?? []
+  }
+
+  private func loadBoardsAndLatest(includingLatest: Bool, using useCase: AraBoardUseCaseProtocol) async {
     do {
-      let boards = try await araBoardUseCase.fetchBoards()
+      let boards = try await useCase.fetchBoards()
 
       let sortedBoards = boards.sorted { $0.id < $1.id }
       let uniqueGroups = Array(Set(sortedBoards.map(\.group))).sorted { $0.id < $1.id }
@@ -45,9 +114,47 @@ public class BoardListViewModel: BoardListViewModelProtocol {
       state = .loaded(boards: sortedBoards, groups: uniqueGroups)
       analyticsService?.logEvent(BoardListViewEvent.boardsLoaded)
 
+      async let newPosts: Void = checkForNewPosts(in: sortedBoards, using: useCase)
+      if includingLatest {
+        await load(.latest, using: useCase)
+      }
+      await newPosts
     } catch {
       logger.error("Failed to load boards: \(error.localizedDescription, privacy: .public)")
       state = .error(message: String(localized: "Failed to load boards.", bundle: .module))
     }
+  }
+
+  static func latestBoardIDs(in boards: [AraBoard]) -> [Int] {
+    boards.filter { $0.slug != "portal-notice" && $0.userReadable != false }.map(\.id)
+  }
+
+  /// Boards with nothing among this many of the newest posts across boards get no dot.
+  static let newPostsPageSize = 50
+
+  private func checkForNewPosts(in boards: [AraBoard], using useCase: AraBoardUseCaseProtocol) async {
+    let boardIDs = boards.filter { $0.userReadable != false }.map(\.id)
+    guard !boardIDs.isEmpty,
+          let page = try? await useCase.fetchPosts(
+            type: .latest(boardIDs: boardIDs), page: 1, pageSize: Self.newPostsPageSize, searchKeyword: nil
+          )
+    else { return }
+
+    var newest: [Int: AraPost] = [:]
+    for post in page.results {
+      guard let boardID = post.board?.id, post.id > newest[boardID]?.id ?? .min else { continue }
+      newest[boardID] = post
+    }
+
+    var withNewPosts: Set<Int> = []
+    for (boardID, post) in newest {
+      // A board whose list hasn't been opened here yet counts every post as new. Either way,
+      // a post already opened elsewhere (the web, another device) isn't news.
+      let seen = BoardSeenPosts.newestSeen(inBoard: boardID) ?? .min
+      if post.id > seen && post.readStatus != .read {
+        withNewPosts.insert(boardID)
+      }
+    }
+    boardsWithNewPosts = withNewPosts
   }
 }

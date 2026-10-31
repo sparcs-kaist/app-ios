@@ -26,6 +26,13 @@ public actor MockFoundationModelsUseCase: FoundationModelsUseCaseProtocol {
 
   public init() { }
 
+  /// Sets whether the model is available and what `streamSummary(of:as:)` gives back.
+  public func stubSummary(isAvailable: Bool = true, summary: String = "", error: (any Error)? = nil) {
+    isAvailableValue = isAvailable
+    summariseResult = summary
+    summaryError = error
+  }
+
   public func isAvailable() async -> Bool {
     isAvailableValue
   }

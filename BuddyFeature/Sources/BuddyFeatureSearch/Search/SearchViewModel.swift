@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import BuddyFeatureShared
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "SearchViewModel")
@@ -24,6 +25,11 @@ class SearchViewModel {
   }
   var courses: [CourseSummary] = []
   var posts: [AraPost] = []
+
+  /// Greys the post out in the results as soon as it is opened.
+  func markRead(postID: Int) {
+    posts.markRead(postID: postID)
+  }
   var taxiRooms: [TaxiRoom] = []
 
   var state: ViewState = .loaded

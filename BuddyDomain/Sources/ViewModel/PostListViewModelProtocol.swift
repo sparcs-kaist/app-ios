@@ -13,6 +13,8 @@ public protocol PostListViewModelProtocol: Observable {
   var board: AraBoard { get }
   var posts: [AraPost] { get }
   var searchKeyword: String { get set }
+  /// Shows only posts under this topic; `nil` for the whole board.
+  var selectedTopic: AraBoardTopic? { get set }
 
   var isLoadingMore: Bool { get }
   var hasMorePages: Bool { get }
@@ -20,6 +22,8 @@ public protocol PostListViewModelProtocol: Observable {
   func fetchInitialPosts() async
   func loadNextPage()
   func refreshItem(postID: Int)
+  /// Greys the post out in the list as soon as it is opened, ahead of the next fetch.
+  func markRead(postID: Int)
   func removePost(postID: Int)
   func bind()
 }

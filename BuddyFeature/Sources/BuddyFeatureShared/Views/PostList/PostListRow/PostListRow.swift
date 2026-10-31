@@ -16,22 +16,63 @@ public struct PostListRow: View {
     self.post = post
   }
 
+  /// Read posts are greyed out; one with new comments or edits since (`.updated`) stays prominent.
+  private var isRead: Bool {
+    post.readStatus == .read
+  }
+
   public var body: some View {
+    if post.isHidden {
+      hiddenBody
+    } else {
+      postBody
+    }
+  }
+
+  /// One quiet line: why the post is hidden, and when it was posted. The author is left out so
+  /// a blocked person's name doesn't appear either.
+  private var hiddenBody: some View {
+    HStack(spacing: 8) {
+      Image(systemName: post.hiddenSymbol)
+        .font(.subheadline)
+        .foregroundStyle(.tertiary)
+        .frame(width: 20)
+      Text(title)
+        .font(.subheadline)
+        .lineLimit(1)
+      Spacer()
+      Text(post.createdAt.timeAgoDisplay)
+        .font(.caption)
+    }
+    .foregroundStyle(.secondary)
+    .padding(.vertical, 2)
+    .accessibilityElement(children: .combine)
+  }
+
+  private var postBody: some View {
     VStack(alignment: .leading, spacing: 4) {
       HStack(spacing: 4) {
+        // Read before, but commented on or edited since.
+        if post.readStatus == .updated {
+          Circle()
+            .fill(Color.accentColor)
+            .frame(width: 7, height: 7)
+            .accessibilityLabel(Text("Updated", bundle: .module))
+        }
+
         if let topic = post.topic {
           Text("[\(topic.name.localized())]")
             .font(.subheadline)
             .fontWeight(.medium)
             .lineLimit(1)
-            .foregroundStyle(Color.accentColor)
+            .foregroundStyle(Color.accentColor.opacity(isRead ? 0.5 : 1))
         }
 
         Text(title)
           .font(.subheadline)
           .fontWeight(.semibold)
           .lineLimit(1)
-          .foregroundStyle(post.isHidden ? .secondary : .primary)
+          .foregroundStyle(isRead ? .secondary : .primary)
 
         if post.attachmentType == .image || post.attachmentType == .both {
           Image(systemName: "photo")
@@ -67,7 +108,6 @@ public struct PostListRow: View {
           Text(post.createdAt.timeAgoDisplay)
 
           Image(systemName: "chevron.right")
-            .opacity(post.isHidden ? 0 : 1)
         }
       }
       .font(.caption)
@@ -78,18 +118,6 @@ public struct PostListRow: View {
   }
 
   var title: String {
-    if post.isHidden {
-      if post.isNSFW {
-        return String(localized: "This post contains NSFW content", bundle: .module)
-      }
-
-      if post.isPolitical {
-        return String(localized: "This post contains political content", bundle: .module)
-      }
-
-      return String(localized: "This post is hidden", bundle: .module)
-    }
-
-    return post.title ?? String(localized: "Untitled", bundle: .module)
+    post.listTitle
   }
 }

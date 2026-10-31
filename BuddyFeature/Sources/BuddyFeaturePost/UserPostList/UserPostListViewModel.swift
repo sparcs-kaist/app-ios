@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import BuddyFeatureShared
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "UserPostListViewModel")
@@ -134,6 +135,11 @@ class UserPostListViewModel: UserPostListViewModelProtocol {
         self.state = .loaded(posts: self.posts)
       }
     }
+  }
+
+  func markRead(postID: Int) {
+    guard posts.markRead(postID: postID) else { return }
+    state = .loaded(posts: posts)
   }
 
   func removePost(postID: Int) {

@@ -8,305 +8,165 @@
 import SwiftUI
 import WebKit
 
+/// Renders a post's HTML body locally, sized to fit its content.
+///
+/// Theming is plain CSS (`prefers-color-scheme`), so it follows the system without a reload.
+/// The page's own scripts are disabled; height reporting runs in the app's own content world.
 struct DynamicHeightWebView: UIViewRepresentable {
-  enum LoadError: Error, LocalizedError {
-    case notReady
-    case underlying(Error)
+  let html: String
+  /// Resolves relative image and link URLs in the HTML.
+  let baseURL: URL?
+  /// `nil` until measured.
+  @Binding var height: CGFloat?
+  var onLinkTapped: (URL) -> Void
 
-    var errorDescription: String? {
-      switch self {
-      case .notReady:
-        return String(localized: "Unable to prepare the request.", bundle: .module)
-      case .underlying(let error):
-        return error.localizedDescription
-      }
-    }
-  }
-
-  // The HTML content to display. Used only when `requestProvider` is nil.
-  let htmlString: String
-
-  // A binding to communicate the calculated height of the web content back to the parent view.
-  @Binding var dynamicHeight: CGFloat
-
-  // Called each time the webview needs to (re)load, so callers can supply
-  // up-to-date auth headers. Returning nil surfaces `LoadError.notReady`.
-  var requestProvider: (() -> URLRequest?)? = nil
-
-  @Binding var isLoading: Bool
-  @Binding var loadError: LoadError?
-
-  // Bump to force a reload (e.g. retry after failure).
-  var reloadToken: Int = 0
-
-  var onLinkTapped: ((URL) -> Void)?
-
-  @Environment(\.colorScheme) private var colorScheme
+  private static let heightChannel = "height"
 
   func makeUIView(context: Context) -> WKWebView {
     let configuration = WKWebViewConfiguration()
-    configuration.userContentController.add(context.coordinator, name: "HeightChannel")
+    configuration.defaultWebpagePreferences.allowsContentJavaScript = false
+    configuration.dataDetectorTypes = []
+
+    let contentController = configuration.userContentController
+    contentController.add(context.coordinator, contentWorld: .defaultClient, name: Self.heightChannel)
+    contentController.addUserScript(WKUserScript(
+      source: Self.heightReportingScript,
+      injectionTime: .atDocumentEnd,
+      forMainFrameOnly: true,
+      in: .defaultClient
+    ))
 
     let webView = WKWebView(frame: .zero, configuration: configuration)
     webView.scrollView.isScrollEnabled = false
     webView.navigationDelegate = context.coordinator
     webView.isOpaque = false
-    webView.backgroundColor = UIColor.clear
-    webView.scrollView.backgroundColor = UIColor.clear
-    webView.underPageBackgroundColor = UIColor.clear
-
+    webView.backgroundColor = .clear
+    webView.scrollView.backgroundColor = .clear
+    webView.underPageBackgroundColor = .clear
     return webView
   }
 
-  func updateUIView(_ uiView: WKWebView, context: Context) {
-    // Re-apply theme whenever the system color scheme changes.
-    context.coordinator.applyTheme(webView: uiView, isDark: colorScheme == .dark)
+  func updateUIView(_ webView: WKWebView, context: Context) {
+    context.coordinator.parent = self
+    guard context.coordinator.loadedHTML != html else { return }
+    context.coordinator.loadedHTML = html
+    context.coordinator.isLoadingContent = true
+    webView.loadHTMLString(Self.document(wrapping: html), baseURL: baseURL)
+  }
 
-    let shouldLoad = !context.coordinator.hasLoaded
-      || context.coordinator.lastReloadToken != reloadToken
-    guard shouldLoad else { return }
-    context.coordinator.lastReloadToken = reloadToken
-
-    if let requestProvider {
-      if let request = requestProvider() {
-        context.coordinator.beginLoad()
-        uiView.load(request)
-      } else {
-        context.coordinator.reportNotReady()
-      }
-    } else {
-      // Local HTML fallback — no remote loading state to track.
-      context.coordinator.hasLoaded = true
-      let textColor = colorScheme == .dark ? "#e0e0e0" : "#000000"
-      let fullHTML = """
-          <html>
-          <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-            <style>
-              html, body {
-                margin: 0; padding: 0; width: 100%;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background: transparent; color: \(textColor);
-              }
-              img { max-width: 100%; height: auto; display: block; }
-              p { margin: 0 0 1em; }
-            </style>
-          </head>
-          <body>\(htmlString)</body>
-          </html>
-          """
-      uiView.loadHTMLString(fullHTML, baseURL: nil)
-    }
+  static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
+    webView.configuration.userContentController.removeAllScriptMessageHandlers()
   }
 
   func makeCoordinator() -> Coordinator {
     Coordinator(self)
   }
 
-  class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+  @MainActor
+  final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     var parent: DynamicHeightWebView
-    var hasLoaded = false
-    var lastReloadToken: Int = -1
-
-    // Once fitted from onPageFinished, further updates come only via HeightChannel.
-    private var isFitted = false
-    private var currentHeight: CGFloat = 0
-    private var heightReportCount = 0
-    private let maxHeightReports = 30
+    var loadedHTML: String?
+    /// Set just before the post's own HTML is loaded: the one main-frame navigation allowed.
+    var isLoadingContent = false
 
     init(_ parent: DynamicHeightWebView) {
       self.parent = parent
     }
 
-    // MARK: - Load lifecycle helpers
-
-    func beginLoad() {
-      hasLoaded = true
-      isFitted = false
-      heightReportCount = 0
-      Task { @MainActor in
-        parent.isLoading = true
-        parent.loadError = nil
-      }
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+      guard let height = (message.body as? NSNumber).map({ CGFloat(truncating: $0) }),
+            height >= 0, height != parent.height else { return }
+      parent.height = height
     }
-
-    func reportNotReady() {
-      hasLoaded = true
-      Task { @MainActor in
-        parent.isLoading = false
-        parent.loadError = .notReady
-      }
-    }
-
-    private func reportFailure(_ error: Error) {
-      // Allow the next updateUIView to retry by clearing hasLoaded.
-      hasLoaded = false
-      Task { @MainActor in
-        parent.isLoading = false
-        parent.loadError = .underlying(error)
-      }
-    }
-
-    // MARK: - Theme injection
-
-    /// Imperatively injects CSS overrides after the page has loaded.
-    /// Called from updateUIView so it re-runs whenever colorScheme changes.
-    func applyTheme(webView: WKWebView, isDark: Bool) {
-      // Only inject once the page has actually finished loading.
-      guard isFitted else { return }
-
-      let textColor = isDark ? "#e0e0e0" : "#1a1a1a"
-      let linkColor = isDark ? "#80bfff" : "#0066cc"
-
-      let js = """
-        (function() {
-          var id = '__ara_theme_style__';
-          var existing = document.getElementById(id);
-          if (existing) existing.remove();
-          var s = document.createElement('style');
-          s.id = id;
-          s.textContent = `
-            html, body, body * {
-              background: transparent !important;
-              background-color: transparent !important;
-            }
-            body, body * {
-              color: \(textColor) !important;
-            }
-            a, a * { color: \(linkColor) !important; }
-            img { max-width: 100% !important; height: auto !important; }
-          `;
-          document.head.appendChild(s);
-        })();
-        """
-      webView.evaluateJavaScript(js, completionHandler: nil)
-    }
-
-    // MARK: - WKNavigationDelegate
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-      guard !isFitted else { return }
-
-      // Mark as fitted before applyTheme so it proceeds.
-      isFitted = true
-      Task { @MainActor in
-        parent.isLoading = false
-      }
-
-      // Apply theme immediately after page load.
-      applyTheme(webView: webView, isDark: parent.colorScheme == .dark)
-
-      // Initial height measurement.
-      updatePageHeight(webView: webView)
-
-      // For remote URLs, inject the ResizeObserver + MutationObserver + polling
-      // script — exactly mirroring the Flutter _injectResizeObserver approach.
-      if parent.requestProvider != nil {
-        injectResizeObserver(webView: webView)
-      }
+      // However the load went, nothing after it may replace the post.
+      isLoadingContent = false
     }
 
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-      reportFailure(error)
-    }
+    func webView(
+      _ webView: WKWebView,
+      decidePolicyFor navigationAction: WKNavigationAction,
+      decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void
+    ) {
+      let isMainFrame = navigationAction.targetFrame?.isMainFrame ?? true
+      let scheme = navigationAction.request.url?.scheme?.lowercased()
 
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-      reportFailure(error)
-    }
-
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void) {
-      if navigationAction.navigationType == .linkActivated,
-         let url = navigationAction.request.url {
-        parent.onLinkTapped?(url)
+      if navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url {
         decisionHandler(.cancel)
+        if ["http", "https"].contains(scheme) {
+          parent.onLinkTapped(url)
+        } else if ["mailto", "tel"].contains(scheme) {
+          // As Tiptap posts allow; any other scheme could drive another app (sms:, shortcuts:).
+          UIApplication.shared.open(url)
+        }
         return
       }
-      decisionHandler(.allow)
-    }
-
-    // MARK: - WKScriptMessageHandler
-
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-      guard heightReportCount < maxHeightReports else { return }
-
-      let newHeight: CGFloat
-      if let str = message.body as? String, let d = Double(str) {
-        newHeight = CGFloat(d)
-      } else if let d = message.body as? Double {
-        newHeight = CGFloat(d)
+      if isMainFrame {
+        // Only the post itself. A post can't replace itself with another page through a
+        // redirect, meta refresh or form, which could pass for part of the post.
+        decisionHandler(isLoadingContent ? .allow : .cancel)
+        isLoadingContent = false
       } else {
-        return
-      }
-
-      guard newHeight > 0, abs(newHeight - currentHeight) > 10 else { return }
-      heightReportCount += 1
-      currentHeight = newHeight
-      DispatchQueue.main.async {
-        self.parent.dynamicHeight = newHeight
+        // Embedded frames, such as videos, stay inside their box; only over https.
+        decisionHandler(scheme == "https" ? .allow : .cancel)
       }
     }
+  }
 
-    // MARK: - Private helpers
+  // MARK: - Document
 
-    private func updatePageHeight(webView: WKWebView) {
-      webView.evaluateJavaScript("""
-        Math.max(
-          document.body.scrollHeight || 0,
-          document.documentElement.scrollHeight || 0,
-          document.body.offsetHeight || 0,
-          document.documentElement.offsetHeight || 0,
-          document.body.clientHeight || 0,
-          document.documentElement.clientHeight || 0
-        )
-        """) { [weak self] result, _ in
-        guard let self else { return }
-        let h: CGFloat
-        if let d = result as? Double { h = CGFloat(d) }
-        else if let i = result as? Int { h = CGFloat(i) }
-        else { return }
-        guard h > 0, abs(h - self.currentHeight) > 10 else { return }
-        self.currentHeight = h
-        DispatchQueue.main.async { self.parent.dynamicHeight = h }
+  /// Measures the content wrapper rather than the document, which never reports less than
+  /// the current frame and so couldn't shrink after rotation.
+  private static let heightReportingScript = """
+    (function() {
+      var content = document.getElementById('content');
+      if (!content) return;
+      var last = -1;
+      function report() {
+        var height = Math.ceil(content.getBoundingClientRect().height);
+        if (height !== last) {
+          last = height;
+          window.webkit.messageHandlers.\(heightChannel).postMessage(height);
+        }
       }
-    }
+      new ResizeObserver(report).observe(content);
+      report();
+    })();
+    """
 
-    /// Injects ResizeObserver + MutationObserver + setInterval polling into the
-    /// page — exactly mirrors Flutter's _injectResizeObserver. All height
-    /// updates are pushed via HeightChannel.postMessage so the native cap
-    /// (maxHeightReports) applies uniformly.
-    private func injectResizeObserver(webView: WKWebView) {
-      webView.evaluateJavaScript("""
-        (function() {
-          if (window._araResizeObserverInstalled) return;
-          window._araResizeObserverInstalled = true;
-          var lastHeight = 0;
-          function reportHeight() {
-            var h = Math.max(
-              document.body.scrollHeight || 0,
-              document.documentElement.scrollHeight || 0,
-              document.body.offsetHeight || 0,
-              document.documentElement.offsetHeight || 0
-            );
-            if (h !== lastHeight && h > 0) {
-              lastHeight = h;
-              window.webkit.messageHandlers.HeightChannel.postMessage(h.toString());
-            }
-          }
-          if (typeof ResizeObserver !== 'undefined') {
-            new ResizeObserver(function() { reportHeight(); }).observe(document.body);
-          }
-          new MutationObserver(function() { reportHeight(); }).observe(
-            document.body, { childList: true, subtree: true, attributes: true }
-          );
-          var pollCount = 0;
-          var pollInterval = setInterval(function() {
-            reportHeight();
-            pollCount++;
-            if (pollCount > 20) clearInterval(pollInterval);
-          }, 500);
-          reportHeight();
-        })();
-        """, completionHandler: nil)
-    }
+  private static func document(wrapping html: String) -> String {
+    """
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <style>
+        :root { color-scheme: light dark; --text: #1a1a1a; --link: #0066cc; --rule: rgba(0, 0, 0, 0.15); }
+        @media (prefers-color-scheme: dark) {
+          :root { --text: #e0e0e0; --link: #80bfff; --rule: rgba(255, 255, 255, 0.2); }
+        }
+        html, body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        body { font: -apple-system-body; line-height: 1.45; overflow-wrap: anywhere; }
+        /* Portal notices carry inline colours and backgrounds picked for a white page. */
+        html, body, body * { background: transparent !important; background-color: transparent !important; }
+        body, body * { color: var(--text) !important; }
+        a, a * { color: var(--link) !important; }
+        #content > :first-child { margin-top: 0; }
+        #content > :last-child { margin-bottom: 0; }
+        p { margin: 0 0 0.8em; }
+        img, video, iframe { max-width: 100% !important; height: auto !important; }
+        img { border-radius: 8px; }
+        pre { white-space: pre-wrap; font: -apple-system-footnote; font-family: ui-monospace, monospace; }
+        blockquote { margin: 0 0 0.8em; padding-left: 12px; border-left: 3px solid var(--rule); }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        td, th { border: 1px solid var(--rule); padding: 4px 6px; }
+        hr { border: none; border-top: 1px solid var(--rule); }
+      </style>
+    </head>
+    <body><div id="content">\(html)</div></body>
+    </html>
+    """
   }
 }

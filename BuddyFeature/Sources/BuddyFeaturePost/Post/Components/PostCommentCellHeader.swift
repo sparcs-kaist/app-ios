@@ -15,7 +15,14 @@ struct PostCommentCellHeader: View {
   let timeText: String
   let isDeleted: Bool
   let isMine: Bool?
+  /// `nil` for replies, which can't be replied to.
+  let onReply: (() -> Void)?
   let onEdit: (() -> Void)?
+  /// Whether the signed-in user has blocked the author.
+  let isAuthorBlocked: Bool
+  /// `nil` for authors who can't be blocked: the signed-in user, and anyone anonymous or under
+  /// their real name.
+  let onSetAuthorBlocked: ((Bool) -> Void)?
   let onTranslate: () -> Void
   let onReport: (AraContentReportType) async -> Void
   let onDelete: () -> Void
@@ -42,6 +49,12 @@ struct PostCommentCellHeader: View {
 
   private var actionsMenu: some View {
     Menu {
+      if let onReply {
+        Button(String(localized: "Reply", bundle: .module), systemImage: "arrowshape.turn.up.left") {
+          onReply()
+        }
+      }
+
       if isMine == false {
         // show report menu
         Menu(String(localized: "Report", bundle: .module), systemImage: "exclamationmark.triangle.fill") {
@@ -50,6 +63,18 @@ struct PostCommentCellHeader: View {
               Task {
                 await onReport(type)
               }
+            }
+          }
+        }
+
+        if let onSetAuthorBlocked {
+          if isAuthorBlocked {
+            Button(String(localized: "Unblock Author", bundle: .module), systemImage: "person.crop.circle.badge.checkmark") {
+              onSetAuthorBlocked(false)
+            }
+          } else {
+            Button(String(localized: "Block Author", bundle: .module), systemImage: "person.crop.circle.badge.xmark", role: .destructive) {
+              onSetAuthorBlocked(true)
             }
           }
         }

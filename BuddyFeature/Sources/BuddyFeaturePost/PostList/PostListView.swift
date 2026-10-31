@@ -18,6 +18,7 @@ struct PostListView: View {
 
   @State private var showsComposeView: Bool = false
   @Namespace private var namespace
+  @Namespace private var postTransition
 
   @State private var loadedInitialPost: Bool = false
 
@@ -29,32 +30,39 @@ struct PostListView: View {
     _viewModel = State(initialValue: viewModel)
   }
 
+  /// The Market board shows its listings as a grid with prices; other boards as a list.
+  @ViewBuilder
+  private func posts(_ posts: [AraPost]?) -> some View {
+    if viewModel.board.isMarket {
+      // A grid uses every point, unlike a list's reading-width column.
+      MarketGrid(
+        posts: posts,
+        isLoadingMore: viewModel.isLoadingMore,
+        onRefresh: { await viewModel.fetchInitialPosts() },
+        onLoadMore: { viewModel.loadNextPage() },
+        transitionNamespace: postTransition
+      )
+    } else {
+      PostList(
+        posts: posts,
+        isLoadingMore: viewModel.isLoadingMore,
+        onRefresh: posts == nil ? nil : { await viewModel.fetchInitialPosts() },
+        onLoadMore: posts == nil ? nil : { viewModel.loadNextPage() }
+      )
+      .scrollContentWidth()
+    }
+  }
+
   var body: some View {
     Group {
       switch viewModel.state {
       case .loading:
-        PostList(
-          posts: nil,
-          isLoadingMore: false,
-          onRefresh: nil,
-          onLoadMore: nil
-        )
-        .contentWidth()
+        posts(nil)
       case .loaded(let posts):
         if viewModel.posts.isEmpty && !viewModel.searchKeyword.isEmpty {
           ContentUnavailableView.search(text: viewModel.searchKeyword)
         } else {
-          PostList(
-            posts: posts,
-            isLoadingMore: viewModel.isLoadingMore,
-            onRefresh: {
-              await viewModel.fetchInitialPosts()
-            },
-            onLoadMore: {
-              viewModel.loadNextPage()
-            }
-          )
-          .contentWidth()
+          self.posts(posts)
         }
       case .error(let message):
         ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
@@ -64,13 +72,25 @@ struct PostListView: View {
       PostView(post: post, onPostDeleted: { postID in
         viewModel.removePost(postID: postID)
       })
+      // Market posts zoom out of their photo in the grid.
+      .modifier(MarketZoomTransition(isEnabled: viewModel.board.isMarket, postID: post.id, namespace: postTransition))
       .id(post.id)
       .addKeyboardVisibilityToEnvironment()
+      .onAppear {
+        viewModel.markRead(postID: post.id)
+      }
       .onDisappear {
         viewModel.refreshItem(postID: post.id)
       }
     }
     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+    .safeAreaBar(edge: .top) {
+      if let topics = viewModel.board.topics, !topics.isEmpty {
+        TopicFilterBar(topics: topics, selection: $viewModel.selectedTopic, isAboveColumn: !viewModel.board.isMarket)
+      }
+    }
+    // Content blurs softly behind the chips rather than under a hard edge.
+    .scrollEdgeEffectStyle(.soft, for: .top)
     .disabled(viewModel.state == .loading)
     .navigationTitle(viewModel.board.name.localized())
     .navigationSubtitle(viewModel.board.group.name.localized())
@@ -151,4 +171,17 @@ struct PostListView: View {
   }
 }
 
+/// Zooms a Market post out of its photo in the grid; other boards push as usual.
+private struct MarketZoomTransition: ViewModifier {
+  let isEnabled: Bool
+  let postID: Int
+  let namespace: Namespace.ID
 
+  func body(content: Content) -> some View {
+    if isEnabled {
+      content.navigationTransition(.zoom(sourceID: postID, in: namespace))
+    } else {
+      content
+    }
+  }
+}

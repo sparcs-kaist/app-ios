@@ -36,7 +36,7 @@ struct UserPostListView: View {
         switch viewModel.state {
         case .loading:
           PostList(posts: nil)
-            .contentWidth()
+            .scrollContentWidth()
         case .loaded(let posts):
           PostList(
             posts: posts,
@@ -46,17 +46,23 @@ struct UserPostListView: View {
             },
             onLoadMore: {
               Task { await viewModel.loadNextPage() }
-            }
+            },
+            // This list is itself pushed with `navigationDestination(item:)` (from a post's
+            // author), so its posts are pushed the same way to land on top of it.
+            onSelect: { selectedPost = $0 }
           )
-          .contentWidth()
+          .scrollContentWidth()
         case .error(let message):
           ContentUnavailableView(String(localized: "Error", bundle: .module), systemImage: "wifi.exclamationmark", description: Text(message))
         }
       }
     }
-    .navigationDestination(for: AraPost.self) { post in
+    .navigationDestination(item: $selectedPost) { post in
       PostView(post: post)
         .addKeyboardVisibilityToEnvironment()
+        .onAppear {
+          viewModel.markRead(postID: post.id)
+        }
         .onDisappear {
           viewModel.refreshItem(postID: post.id)
         }

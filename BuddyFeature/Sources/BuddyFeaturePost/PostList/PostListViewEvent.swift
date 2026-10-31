@@ -12,6 +12,7 @@ enum PostListViewEvent: Event {
   case postsRefreshed
   case nextPageLoaded
   case searchPerformed(keyword: String)
+  case topicSelected(topic: String?)
 
   var source: String { "PostListView" }
 
@@ -23,6 +24,8 @@ enum PostListViewEvent: Event {
       "next_page_loaded"
     case .searchPerformed:
       "search_performed"
+    case .topicSelected:
+      "topic_selected"
     }
   }
 
@@ -30,6 +33,8 @@ enum PostListViewEvent: Event {
     switch self {
     case .searchPerformed(let keyword):
       ["source": source, "keyword": keyword]
+    case .topicSelected(let topic):
+      ["source": source, "topic": topic ?? "all"]
     default:
       ["source": source]
     }

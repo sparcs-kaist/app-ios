@@ -15,6 +15,7 @@ public final class PreviewPostListViewModel: PostListViewModelProtocol {
   public var board: AraBoard
   public var posts: [AraPost]
   public var searchKeyword: String
+  public var selectedTopic: AraBoardTopic? = nil
   public var isLoadingMore: Bool
   public var hasMorePages: Bool
 
@@ -39,6 +40,8 @@ public final class PreviewPostListViewModel: PostListViewModelProtocol {
   public func loadNextPage() { }
 
   public func refreshItem(postID: Int) { }
+
+  public func markRead(postID: Int) { }
 
   public func removePost(postID: Int) { }
 

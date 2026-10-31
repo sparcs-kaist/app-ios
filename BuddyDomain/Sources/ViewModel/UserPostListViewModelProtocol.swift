@@ -20,6 +20,8 @@ public protocol UserPostListViewModelProtocol: Observable {
   func fetchInitialPosts() async
   func loadNextPage() async
   func refreshItem(postID: Int)
+  /// Greys the post out in the list as soon as it is opened, ahead of the next fetch.
+  func markRead(postID: Int)
   func removePost(postID: Int)
   func bind()
 }

@@ -43,4 +43,28 @@ public final class AraUserRepository: AraUserRepositoryProtocol, Sendable {
     let response = try await provider.request(.updateUser(userID: id, params: params))
     _ = try response.filterSuccessfulStatusCodes()
   }
+
+  public func blockUser(userID: Int) async throws {
+    let response = try await provider.request(.block(userID: userID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  public func unblockUser(userID: Int) async throws {
+    let response = try await provider.request(.unblock(userID: userID))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
+  public func fetchBlockedUsers() async throws -> [AraBlockedUser] {
+    // Ara pages the list; with 10 blocks a day allowed, a long list is rare, so pages are large.
+    var users: [AraBlockedUser] = []
+    var page = 1
+    while true {
+      let response = try await provider.request(.fetchBlocks(page: page, pageSize: 100))
+      _ = try response.filterSuccessfulStatusCodes()
+      let blocks = try response.map(AraBlockPageDTO.self)
+      users += blocks.results.compactMap { $0.toModel() }
+      guard blocks.current < blocks.numPages else { return users }
+      page += 1
+    }
+  }
 }

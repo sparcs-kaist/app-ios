@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import BuddyFeatureShared
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "PostListViewModel")
@@ -26,6 +27,19 @@ class PostListViewModel: PostListViewModelProtocol {
   }
   @ObservationIgnored private var searchTask: Task<Void, Never>?
   @ObservationIgnored private var lastSearchKeyword: String?
+  /// Bumped by each fresh load, so a page that arrives for an earlier topic, search or
+  /// refresh is dropped rather than shown or appended to the new list.
+  @ObservationIgnored private var fetchGeneration = 0
+
+  var selectedTopic: AraBoardTopic? {
+    didSet {
+      guard selectedTopic != oldValue else { return }
+      analyticsService?.logEvent(PostListViewEvent.topicSelected(topic: selectedTopic?.slug))
+      posts = []
+      state = .loading
+      Task { await fetchInitialPosts() }
+    }
+  }
 
   // Infinite Scroll Properties
   var isLoadingMore: Bool = false
@@ -70,21 +84,29 @@ class PostListViewModel: PostListViewModelProtocol {
 
   func fetchInitialPosts() async {
     guard let araBoardUseCase else { return }
+    fetchGeneration += 1
+    let generation = fetchGeneration
 
     do {
       let page = try await araBoardUseCase.fetchPosts(
-        type: .board(boardID: board.id),
+        type: .board(boardID: board.id, topicID: selectedTopic?.id),
         page: 1,
         pageSize: pageSize,
         searchKeyword: searchKeyword.isEmpty ? nil : searchKeyword
       )
+      guard generation == fetchGeneration else { return }
       self.totalPages = page.pages
       self.currentPage = page.currentPage
       self.posts = page.results
+      // The whole board's newest post is now in view, so it no longer counts as new.
+      if selectedTopic == nil && searchKeyword.isEmpty, let newest = page.results.map(\.id).max() {
+        BoardSeenPosts.markSeen(newest, inBoard: board.id)
+      }
       self.hasMorePages = currentPage < totalPages
       self.state = .loaded(posts: self.posts)
       analyticsService?.logEvent(PostListViewEvent.postsRefreshed)
     } catch {
+      guard generation == fetchGeneration else { return }
       logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
       state = .error(message: error.localizedDescription)
     }
@@ -98,25 +120,28 @@ class PostListViewModel: PostListViewModelProtocol {
 
     let nextPage = currentPage + 1
     let boardID = board.id
+    let topicID = selectedTopic?.id
     let ps = pageSize
     let sk = searchKeyword.isEmpty ? nil : searchKeyword
+    let generation = fetchGeneration
 
     Task.detached {
       do {
         let page = try await araBoardUseCase.fetchPosts(
-          type: .board(boardID: boardID),
+          type: .board(boardID: boardID, topicID: topicID),
           page: nextPage,
           pageSize: ps,
           searchKeyword: sk
         )
 
         await MainActor.run { [page] in
+          self.isLoadingMore = false
+          guard generation == self.fetchGeneration else { return }
           self.currentPage = page.currentPage
           self.posts.append(contentsOf: page.results)
           self.hasMorePages = self.currentPage < self.totalPages
           self.state = .loaded(posts: self.posts)
           self.analyticsService?.logEvent(PostListViewEvent.nextPageLoaded)
-          self.isLoadingMore = false
         }
       } catch {
         logger.error("Failed to load posts: \(error.localizedDescription, privacy: .public)")
@@ -142,6 +167,11 @@ class PostListViewModel: PostListViewModelProtocol {
         self.state = .loaded(posts: self.posts)
       }
     }
+  }
+
+  func markRead(postID: Int) {
+    guard posts.markRead(postID: postID) else { return }
+    state = .loaded(posts: posts)
   }
 
   func removePost(postID: Int) {

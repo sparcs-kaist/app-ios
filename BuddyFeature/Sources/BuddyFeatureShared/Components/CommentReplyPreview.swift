@@ -1,5 +1,5 @@
 //
-//  FeedCommentReplyPreview.swift
+//  CommentReplyPreview.swift
 //  BuddyFeature
 //
 //  Created by Soongyu Kwon on 27/09/2026.
@@ -9,13 +9,20 @@ import SwiftUI
 
 /// A compact quote of the comment being replied to, shown above the comment
 /// input so the user knows where their reply will go.
-struct FeedCommentReplyPreview: View {
+public struct CommentReplyPreview: View {
   let authorName: String
   let content: String
   let isDeleted: Bool
   let onCancel: () -> Void
 
-  var body: some View {
+  public init(authorName: String, content: String, isDeleted: Bool, onCancel: @escaping () -> Void) {
+    self.authorName = authorName
+    self.content = content
+    self.isDeleted = isDeleted
+    self.onCancel = onCancel
+  }
+
+  public var body: some View {
     HStack(alignment: .top, spacing: 8) {
       Capsule()
         .fill(.tint)
@@ -52,7 +59,7 @@ struct FeedCommentReplyPreview: View {
 }
 
 #Preview {
-  FeedCommentReplyPreview(
+  CommentReplyPreview(
     authorName: "Buddy",
     content: "This is a long comment that should be truncated after two lines so the input bar stays compact while replying to it.",
     isDeleted: false,

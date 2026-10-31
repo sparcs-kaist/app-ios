@@ -105,6 +105,9 @@ public struct SearchView: View {
     .navigationDestination(for: AraPost.self) { post in
       PostView(post: post)
         .toolbar(.hidden, for: .tabBar)
+        .onAppear {
+          viewModel.markRead(postID: post.id)
+        }
     }
     // A sheet rather than a push: the search tab only shows a search field for its root view,
     // and the department list needs its own.

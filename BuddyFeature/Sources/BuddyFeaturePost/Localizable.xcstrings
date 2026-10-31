@@ -1,6 +1,178 @@
 {
   "sourceLanguage" : "en-GB",
   "strings" : {
+    "Latest" : {
+      "comment" : "The newest posts across boards.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최신 게시물"
+          }
+        }
+      }
+    },
+    "%lld comments" : {
+      "comment" : "How many comments a trending post has.",
+      "localizations" : {
+        "en-GB" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld comment"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld comments"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "댓글 %lld개"
+          }
+        }
+      }
+    },
+    "Trending" : {
+      "comment" : "Posts most viewed this week, across boards.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인기 게시물"
+          }
+        }
+      }
+    },
+    "See All" : {
+      "comment" : "Opens the full list of trending posts.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모두 보기"
+          }
+        }
+      }
+    },
+    "New Posts" : {
+      "comment" : "Marks a board with posts since its list was last opened.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 게시물"
+          }
+        }
+      }
+    },
+    "Attach File" : {
+      "comment" : "Attaches a document to the post being written.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일 첨부"
+          }
+        }
+      }
+    },
+    "Remove" : {
+      "comment" : "Removes a file from the post being written.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제"
+          }
+        }
+      }
+    },
+    "All" : {
+      "comment" : "Shows a board's posts under every topic.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체"
+          }
+        }
+      }
+    },
+    "Describe the item: its condition, and how to reach you." : {
+      "comment" : "Placeholder for the body of a Market listing.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "물건의 상태와 연락 방법 등을 적어 주세요."
+          }
+        }
+      }
+    },
+    "Open" : {
+      "comment" : "Opens a downloaded attachment.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "열기"
+          }
+        }
+      }
+    },
+    "Attachments" : {
+      "comment" : "Heading over the files attached to a post.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "첨부파일"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "comment" : "Dismisses an error.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "확인"
+          }
+        }
+      }
+    },
+    "Save to Files" : {
+      "comment" : "Saves an attached file to the Files app.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일에 저장"
+          }
+        }
+      }
+    },
+    "Unable to Open File" : {
+      "comment" : "Shown when an attached file can't be downloaded.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파일을 열 수 없음"
+          }
+        }
+      }
+    },
     "" : {
       "shouldTranslate" : false
     },
@@ -106,6 +278,61 @@
         }
       }
     },
+    "On Sale" : {
+      "comment" : "A Market listing that is still for sale.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판매 중"
+          }
+        }
+      }
+    },
+    "Price" : {
+      "comment" : "The asking price field when writing a Market post.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가격"
+          }
+        }
+      }
+    },
+    "Reserved" : {
+      "comment" : "A Market listing someone has reserved.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예약 중"
+          }
+        }
+      }
+    },
+    "Sold" : {
+      "comment" : "A Market listing that has sold.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판매 완료"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "comment" : "The sale status of a Market listing.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "판매 상태"
+          }
+        }
+      }
+    },
     "bookmark" : {
       "localizations" : {
         "en" : {
@@ -118,6 +345,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "북마크"
+          }
+        }
+      }
+    },
+    "Bulleted List" : {
+      "comment" : "A button that turns paragraphs into a bulleted list.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글머리 기호 목록"
           }
         }
       }
@@ -170,6 +408,18 @@
         }
       }
     },
+    "Discard Changes" : {
+      "comment" : "The title of a button that discards changes made to a post.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항 폐기"
+          }
+        }
+      }
+    },
     "Discard Post" : {
       "localizations" : {
         "en" : {
@@ -187,6 +437,7 @@
       }
     },
     "Dismiss" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -230,6 +481,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "수정"
+          }
+        }
+      }
+    },
+    "Edit Post" : {
+      "comment" : "The title of a screen that allows users to edit a post.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글 수정"
           }
         }
       }
@@ -278,6 +541,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "게시판 불러오기에 실패했습니다."
+          }
+        }
+      }
+    },
+    "Format" : {
+      "comment" : "A button that opens text formatting options.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "포맷"
+          }
+        }
+      }
+    },
+    "Hide Keyboard" : {
+      "comment" : "A button that hides the keyboard.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드 가리기"
           }
         }
       }
@@ -506,24 +791,6 @@
         }
       }
     },
-    "Retry" : {
-      "comment" : "A button to retry loading a post.",
-      "isCommentAutoGenerated" : true,
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retry"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "재시도"
-          }
-        }
-      }
-    },
     "Send" : {
       "localizations" : {
         "en" : {
@@ -552,6 +819,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "공유"
+          }
+        }
+      }
+    },
+    "Show Original" : {
+      "comment" : "A button that shows the original post.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "원문 보기"
           }
         }
       }
@@ -652,6 +931,60 @@
         }
       }
     },
+    "Translate to" : {
+      "comment" : "A label for a picker that lets the user choose a language to translate a post to.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "번역할 언어"
+          }
+        }
+      }
+    },
+    "Translated from %@ to %@" : {
+      "comment" : "A description of a translation, showing the source and target languages.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Translated from %1$@ to %2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@에서 %2$@(으)로 번역됨"
+          }
+        }
+      }
+    },
+    "Translated to %@" : {
+      "comment" : "A description of a translation, showing the target language.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@(으)로 번역됨"
+          }
+        }
+      }
+    },
+    "Translating to %@…" : {
+      "comment" : "A progress indicator showing that a post is being translated into a target language. The argument is the target language.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@(으)로 번역 중…"
+          }
+        }
+      }
+    },
     "Unable to delete post." : {
       "localizations" : {
         "en" : {
@@ -684,42 +1017,6 @@
         }
       }
     },
-    "Unable to load post." : {
-      "comment" : "A description of an error that occurs when loading a post.",
-      "isCommentAutoGenerated" : true,
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to load post."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "게시글을 불러올 수 없습니다."
-          }
-        }
-      }
-    },
-    "Unable to prepare the request." : {
-      "comment" : "Error message displayed when the web view fails to prepare the request.",
-      "isCommentAutoGenerated" : true,
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to prepare the request."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "게시글 요청에 실패했습니다."
-          }
-        }
-      }
-    },
     "Unable to submit report." : {
       "localizations" : {
         "en" : {
@@ -732,6 +1029,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "신고할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Unable to translate post." : {
+      "comment" : "Title of an alert when a translation fails.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글을 번역할 수 없습니다."
           }
         }
       }
@@ -828,6 +1137,356 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "신고가 성공적으로 접수되었습니다."
+          }
+        }
+      }
+    },
+    "Try Again" : {
+      "comment" : "Asks for a post's summary again after it failed.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
+          }
+        }
+      }
+    },
+    "Shown" : {
+      "comment" : "Header for the sections shown above the boards.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "표시 중"
+          }
+        }
+      }
+    },
+    "Highlights" : {
+      "comment" : "Header for Trending and Latest when they can be added back.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하이라이트"
+          }
+        }
+      }
+    },
+    "Reset to Default" : {
+      "comment" : "Puts back Trending, Latest and Market as the sections.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기본값으로 재설정"
+          }
+        }
+      }
+    },
+    "Add %@" : {
+      "comment" : "Accessibility label for adding a section, e.g. 'Add Talk'.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 추가"
+          }
+        }
+      }
+    },
+    "Board Sections" : {
+      "comment" : "Settings page choosing the sections above the boards.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시판 섹션"
+          }
+        }
+      }
+    },
+    "Shown above the boards in the Boards tab, in this order." : {
+      "comment" : "Footer under the chosen board sections.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시판 탭에서 게시판 목록 위에 이 순서대로 표시됩니다."
+          }
+        }
+      }
+    },
+    "Reply" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reply"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답글 달기"
+          }
+        }
+      }
+    },
+    "Block Author" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block Author"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작성자 차단"
+          }
+        }
+      }
+    },
+    "Unblock Author" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unblock Author"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작성자 차단 해제"
+          }
+        }
+      }
+    },
+    "Block %@?" : {
+      "comment" : "Asks before blocking the named author.",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block %@?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@님을 차단할까요?"
+          }
+        }
+      }
+    },
+    "Block" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단"
+          }
+        }
+      }
+    },
+    "You won't see their posts or comments on Ara. You can unblock them from the same menu." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You won’t see their posts or comments on Ara. You can unblock them from the same menu."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ara에서 이 사용자의 글과 댓글이 보이지 않게 됩니다. 같은 메뉴에서 차단을 해제할 수 있습니다."
+          }
+        }
+      }
+    },
+    "Unable to block author." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to block author."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작성자를 차단할 수 없습니다."
+          }
+        }
+      }
+    },
+    "Unable to unblock author." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to unblock author."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "작성자 차단을 해제할 수 없습니다."
+          }
+        }
+      }
+    },
+    "You can block up to 10 people a day." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can block up to 10 people a day."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하루에 최대 10명까지 차단할 수 있습니다."
+          }
+        }
+      }
+    },
+    "This comment is from someone you blocked." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This comment is from someone you blocked."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단한 사용자의 댓글입니다."
+          }
+        }
+      }
+    },
+    "This post is from someone you blocked." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This post is from someone you blocked."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단한 사용자의 게시물입니다."
+          }
+        }
+      }
+    },
+    "Blocked Users" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocked Users"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단한 사용자"
+          }
+        }
+      }
+    },
+    "No Blocked Users" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Blocked Users"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단한 사용자 없음"
+          }
+        }
+      }
+    },
+    "People you block from a post or comment appear here." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "People you block from a post or comment appear here."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게시물이나 댓글에서 차단한 사용자가 여기에 표시됩니다."
+          }
+        }
+      }
+    },
+    "You don't see their posts or comments on Ara." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You don’t see their posts or comments on Ara."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ara에서 이 사용자들의 글과 댓글이 보이지 않습니다."
+          }
+        }
+      }
+    },
+    "Unblock" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unblock"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단 해제"
+          }
+        }
+      }
+    },
+    "Failed to load blocked users." : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load blocked users."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "차단한 사용자를 불러오지 못했습니다."
           }
         }
       }

@@ -29,6 +29,18 @@ let package = Package(
 			name: "BuddySharedUI",
 			targets: ["BuddySharedUI"]
 		),
+		.library(
+			name: "TiptapKit",
+			targets: ["TiptapKit"]
+		),
+		.library(
+			name: "TiptapUI",
+			targets: ["TiptapUI"]
+		),
+		.library(
+			name: "TiptapEditor",
+			targets: ["TiptapEditor"]
+		),
 	],
 	dependencies: [
 		.package(path: "../BuddyDomain"),
@@ -68,9 +80,26 @@ let package = Package(
 				"BuddyDomain",
 			]
 		),
+		// Tiptap (ProseMirror) JSON: a Foundation-only model and parser, and its SwiftUI renderer.
+		.target(
+			name: "TiptapKit"
+		),
+		.target(
+			name: "TiptapUI",
+			dependencies: [
+				"TiptapKit",
+			]
+		),
+		// A Notes-like rich text editor producing Tiptap documents. iOS only.
+		.target(
+			name: "TiptapEditor",
+			dependencies: [
+				"TiptapKit",
+			]
+		),
 		.testTarget(
 			name: "BuddyUITests",
-			dependencies: ["TimetableUI", "BuddyDomain", "BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI"]
+			dependencies: ["TimetableUI", "BuddyDomain", "BuddyUpcomingClassWidgetUI", "BuddyTimetableWidgetUI", "TiptapKit", "TiptapUI", "TiptapEditor"]
 		),
   ]
 )

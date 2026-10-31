@@ -15,7 +15,9 @@ import FirebaseAnalytics
 public struct BoardListView: View {
   @State private var viewModel: BoardListViewModelProtocol = BoardListViewModel()
   @Binding var deepLinkedPost: AraPost?
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @State private var selectedHighlightPost: AraPost?
+  /// The sections as saved in Settings, watched so the list follows a change made there.
+  @AppStorage(BoardListSectionStore.key) private var savedSections: Data?
 
   public init(_ viewModel: BoardListViewModelProtocol = BoardListViewModel(), deepLinkedPost: Binding<AraPost?> = .constant(nil)) {
     _viewModel = State(initialValue: viewModel)
@@ -47,10 +49,18 @@ public struct BoardListView: View {
     .disabled(viewModel.state == .loading)
     .navigationTitle(String(localized: "Boards", bundle: .module))
     .toolbarTitleDisplayMode(.inlineLarge)
-    .toolbar(horizontalSizeClass == .compact ? .automatic : .visible, for: .tabBar) // workaround for tabBar disappering inside NavigationSplitView
+    .onChange(of: savedSections) {
+      viewModel.reloadSections()
+    }
     .navigationDestination(for: AraBoard.self) { board in
       PostListView(board: board)
         .id(board.id)
+    }
+    // By item rather than value: PostListView declares its own AraPost destination further up the stack.
+    .navigationDestination(item: $selectedHighlightPost) { post in
+      PostView(post: post)
+        .addKeyboardVisibilityToEnvironment()
+        .toolbar(.hidden, for: .tabBar)
     }
     .navigationDestination(item: $deepLinkedPost) { post in
       PostView(post: post)
@@ -65,9 +75,12 @@ public struct BoardListView: View {
   @ViewBuilder
   func loadedView(boards: [AraBoard], groups: [AraBoardGroup]) -> some View {
     let boardsByGroup = Dictionary(grouping: boards, by: { $0.group.id })
+    ForEach(viewModel.sections) { section in
+      self.section(section, boards: boards)
+    }
     ForEach(groups) { group in
       ListGlassSection(
-        header: Label(group.name.localized(), systemImage: symbol(for: group.slug))
+        header: Label(group.name.localized(), systemImage: group.symbolName)
       ) {
         ForEach(boardsByGroup[group.id] ?? []) { board in
           NavigationLink(value: board) {
@@ -75,6 +88,13 @@ public struct BoardListView: View {
               Text(board.name.localized())
                 .multilineTextAlignment(.leading)
               Spacer()
+              if viewModel.boardsWithNewPosts.contains(board.id) {
+                Circle()
+                  .fill(Color.accentColor)
+                  .frame(width: 8, height: 8)
+                  .accessibilityLabel(Text("New Posts", bundle: .module))
+                  .transition(.scale.combined(with: .opacity))
+              }
               Image(systemName: "chevron.right")
                 .opacity(0.3)
             }
@@ -84,10 +104,73 @@ public struct BoardListView: View {
       }
       .id(group.id)
     }
+    .animation(.snappy, value: viewModel.boardsWithNewPosts)
+  }
+
+  /// One of the reader's sections. A board's posts preview as a list, Market's as a shelf; a
+  /// board that's gone or can't be read is left out.
+  @ViewBuilder
+  private func section(_ section: BoardListSection, boards: [AraBoard]) -> some View {
+    let posts = viewModel.posts(for: section)
+    switch section {
+    case .trending:
+      highlight(.trending, posts: posts)
+    case .latest:
+      highlight(.latest(boardIDs: BoardListViewModel.latestBoardIDs(in: boards)), posts: posts)
+    case .board(let slug):
+      if let board = boards.first(where: { $0.slug == slug && $0.userReadable != false }) {
+        if board.isMarket {
+          marketShelf(board, posts: posts)
+        } else {
+          highlight(.board(board), posts: posts)
+        }
+      }
+    }
+  }
+
+  /// A highlight section, as a placeholder while its posts load and hidden if there are none.
+  @ViewBuilder
+  private func highlight(_ highlight: BoardHighlight, posts: [AraPost]?) -> some View {
+    if let posts {
+      if !posts.isEmpty {
+        HighlightSection(highlight: highlight, posts: posts) { selectedHighlightPost = $0 }
+      }
+    } else {
+      HighlightSection(highlight: highlight, posts: Self.placeholderPosts(count: 3)) { _ in }
+        .redacted(reason: .placeholder)
+        .disabled(true)
+    }
+  }
+
+  @ViewBuilder
+  private func marketShelf(_ board: AraBoard, posts: [AraPost]?) -> some View {
+    if let posts {
+      if !posts.isEmpty {
+        MarketShelf(board: board, posts: posts) { selectedHighlightPost = $0 }
+      }
+    } else {
+      MarketShelf(board: board, posts: Self.placeholderPosts(count: 4)) { _ in }
+        .redacted(reason: .placeholder)
+        .disabled(true)
+    }
+  }
+
+  /// Stand-ins shaped like real posts (the mocks have distinct ids).
+  private static func placeholderPosts(count: Int) -> [AraPost] {
+    let mocks = AraPost.mockList
+    return (0..<count).map { mocks[$0 % mocks.count] }
   }
 
   @ViewBuilder
   var loadingView: some View {
+    ForEach(viewModel.sections) { section in
+      switch section {
+      case .trending: highlight(.trending, posts: nil)
+      case .latest: highlight(.latest(boardIDs: []), posts: nil)
+      case .board(AraBoard.marketSlug): marketShelf(.mock, posts: nil)
+      case .board: highlight(.board(.mock), posts: nil)
+      }
+    }
     ForEach(0..<5) { _ in
       ListGlassSection(header: Label(String(localized: "Notice", bundle: .module), systemImage: "bell.badge.fill")) {
         ForEach(0..<3) { _ in
@@ -103,23 +186,6 @@ public struct BoardListView: View {
           .tint(.primary)
         }
       }
-    }
-  }
-
-  func symbol(for slug: String) -> String {
-    switch slug {
-    case "notice":
-      "bell.badge.fill"
-    case "talk":
-      "text.bubble.fill"
-    case "club":
-      "person.2.fill"
-    case "trade":
-      "tag.fill"
-    case "communication":
-      "envelope.open.fill"
-    default:
-      "list.clipboard"
     }
   }
 }

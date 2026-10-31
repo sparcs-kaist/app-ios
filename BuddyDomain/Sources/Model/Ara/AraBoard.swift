@@ -16,6 +16,8 @@ public struct AraBoard: Identifiable, Hashable, Sendable {
   public let isReadOnly: Bool
   public let userReadable: Bool?
   public let userWritable: Bool?
+  /// The names a post may be written under on this board; empty when unknown.
+  public let nicknameTypes: [AraPostNicknameType]
 
   public init(
     id: Int,
@@ -25,7 +27,8 @@ public struct AraBoard: Identifiable, Hashable, Sendable {
     topics: [AraBoardTopic]?,
     isReadOnly: Bool,
     userReadable: Bool?,
-    userWritable: Bool?
+    userWritable: Bool?,
+    nicknameTypes: [AraPostNicknameType] = []
   ) {
     self.id = id
     self.slug = slug
@@ -35,5 +38,11 @@ public struct AraBoard: Identifiable, Hashable, Sendable {
     self.isReadOnly = isReadOnly
     self.userReadable = userReadable
     self.userWritable = userWritable
+    self.nicknameTypes = nicknameTypes
+  }
+
+  /// Whether a post here can be written under `type`. Unknown boards allow a nickname or anonymity.
+  public func allows(_ type: AraPostNicknameType) -> Bool {
+    nicknameTypes.isEmpty ? type != .realName : nicknameTypes.contains(type)
   }
 }
