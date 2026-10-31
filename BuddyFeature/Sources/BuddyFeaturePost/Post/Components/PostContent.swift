@@ -151,7 +151,7 @@ private struct PostHTMLContent: View {
   let baseURL: URL
   let onLinkTapped: (URL) -> Void
 
-  @State private var height: CGFloat = .zero
+  @State private var height: CGFloat?
 
   var body: some View {
     DynamicHeightWebView(
@@ -160,9 +160,9 @@ private struct PostHTMLContent: View {
       height: $height,
       onLinkTapped: onLinkTapped
     )
-    .frame(height: max(1, height))
+    .frame(height: max(1, height ?? 0))
     .overlay {
-      if height == .zero {
+      if height == nil {
         ProgressView()
           .padding()
       }

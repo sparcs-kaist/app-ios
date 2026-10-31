@@ -16,7 +16,8 @@ struct DynamicHeightWebView: UIViewRepresentable {
   let html: String
   /// Resolves relative image and link URLs in the HTML.
   let baseURL: URL?
-  @Binding var height: CGFloat
+  /// `nil` until measured.
+  @Binding var height: CGFloat?
   var onLinkTapped: (URL) -> Void
 
   private static let heightChannel = "height"
@@ -74,7 +75,7 @@ struct DynamicHeightWebView: UIViewRepresentable {
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
       guard let height = (message.body as? NSNumber).map({ CGFloat(truncating: $0) }),
-            height > 0, height != parent.height else { return }
+            height >= 0, height != parent.height else { return }
       parent.height = height
     }
 
@@ -121,7 +122,7 @@ struct DynamicHeightWebView: UIViewRepresentable {
     (function() {
       var content = document.getElementById('content');
       if (!content) return;
-      var last = 0;
+      var last = -1;
       function report() {
         var height = Math.ceil(content.getBoundingClientRect().height);
         if (height !== last) {
