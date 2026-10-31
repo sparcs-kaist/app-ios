@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 import Factory
 import BuddyDomain
+import BuddyFeatureShared
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "SearchViewModel")
@@ -27,8 +28,7 @@ class SearchViewModel {
 
   /// Greys the post out in the results as soon as it is opened.
   func markRead(postID: Int) {
-    guard let idx = posts.firstIndex(where: { $0.id == postID }), posts[idx].readStatus != .read else { return }
-    posts[idx].readStatus = .read
+    posts.markRead(postID: postID)
   }
   var taxiRooms: [TaxiRoom] = []
 

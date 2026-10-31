@@ -57,3 +57,13 @@ extension AraMarketListing {
     }
   }
 }
+
+extension Array where Element == AraPost {
+  /// Returns whether the post was found unread.
+  @discardableResult
+  public mutating func markRead(postID: Int) -> Bool {
+    guard let index = firstIndex(where: { $0.id == postID }), self[index].readStatus != .read else { return false }
+    self[index].readStatus = .read
+    return true
+  }
+}
