@@ -282,6 +282,7 @@ final class TiptapTextView: UITextView {
       attributes[.paragraphStyle] = typingAttributes[.paragraphStyle]
       typingAttributes = attributes
     }
+    adoptPlainImageAttachments()
     alignIndentWithLists()
     onChange?()
   }
@@ -356,17 +357,15 @@ final class TiptapTextView: UITextView {
     if pasteboard.hasImages, !pasteboard.hasStrings, let images = pasteboard.images {
       insertImages(images)
     } else {
-      let start = selectedRange.location
       super.paste(sender)
-      adoptPastedImages(in: NSRange(location: start, length: max(selectedRange.location - start, 0)))
     }
   }
 
-  /// Pasted rich text can carry photos as plain attachments, which the converter would drop.
-  private func adoptPastedImages(in range: NSRange) {
-    let range = NSIntersectionRange(range, NSRange(location: 0, length: textStorage.length))
+  /// Pasted or dropped rich text can carry photos as plain attachments, which the converter
+  /// would drop. Done after the change lands, since UIKit pastes asynchronously.
+  private func adoptPlainImageAttachments() {
     var replacements: [(NSRange, TiptapImageAttachment)] = []
-    textStorage.enumerateAttribute(.attachment, in: range) { value, subrange, _ in
+    textStorage.enumerateAttribute(.attachment, in: NSRange(location: 0, length: textStorage.length)) { value, subrange, _ in
       guard let attachment = value as? NSTextAttachment, !(attachment is TiptapImageAttachment),
             let image = attachment.image
               ?? attachment.contents.flatMap(UIImage.init(data:))
@@ -375,12 +374,9 @@ final class TiptapTextView: UITextView {
       replacements.append((subrange, TiptapImageAttachment(image: image)))
     }
     guard !replacements.isEmpty else { return }
-    let selection = selectedRange
     textStorage.beginEditing()
     replacements.forEach { textStorage.addAttribute(.attachment, value: $1, range: $0) }
     textStorage.endEditing()
-    selectedRange = selection
-    textDidChange()
   }
 
   override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
