@@ -51,7 +51,11 @@ struct PriceTextField: UIViewRepresentable {
   }
 
   static func text(for value: Int?) -> String {
-    value?.formatted(.number) ?? ""
+    value?.formatted(.number.locale(Locale(identifier: "en_US"))) ?? ""
+  }
+
+  static func isDigit(_ character: Character) -> Bool {
+    character.isASCII && character.isWholeNumber
   }
 
   final class Coordinator: NSObject, UITextFieldDelegate {
@@ -76,16 +80,26 @@ struct PriceTextField: UIViewRepresentable {
     ) -> Bool {
       let current = textField.text ?? ""
       guard var swiftRange = Range(range, in: current) else { return false }
-      if string.isEmpty,
-         !current[swiftRange].contains(where: \.isWholeNumber),
-         let digit = current[..<swiftRange.lowerBound].lastIndex(where: \.isWholeNumber) {
-        swiftRange = digit..<swiftRange.upperBound
+      // A delete key press that takes only a separator would regroup to the same text and leave
+      // the cursor where it was, so it takes the neighbouring digit too: the one before it for
+      // backspace, the one after it for forward delete. A selection is deleted as selected.
+      if string.isEmpty, range.length == 1,
+         !current[swiftRange].contains(where: PriceTextField.isDigit),
+         let selection = textField.selectedTextRange, selection.isEmpty {
+        let cursor = textField.offset(from: textField.beginningOfDocument, to: selection.start)
+        if cursor == range.location + 1,
+           let digit = current[..<swiftRange.lowerBound].lastIndex(where: PriceTextField.isDigit) {
+          swiftRange = digit..<swiftRange.upperBound
+        } else if cursor == range.location,
+                  let digit = current[swiftRange.upperBound...].firstIndex(where: PriceTextField.isDigit) {
+          swiftRange = swiftRange.lowerBound..<current.index(after: digit)
+        }
       }
       let edited = current.replacingCharacters(in: swiftRange, with: string)
       // Digits after the cursor, so it can be put back in the same place among them.
-      let digitsAfter = current[swiftRange.upperBound...].filter(\.isWholeNumber).count
+      let digitsAfter = current[swiftRange.upperBound...].filter(PriceTextField.isDigit).count
 
-      let digits = String(edited.filter { $0.isASCII && $0.isWholeNumber }.prefix(parent.maxDigits))
+      let digits = String(edited.filter(PriceTextField.isDigit).prefix(parent.maxDigits))
       let value = Int(digits)
       let text = PriceTextField.text(for: value)
       textField.text = text
@@ -96,7 +110,7 @@ struct PriceTextField: UIViewRepresentable {
       var remaining = digitsAfter
       while remaining > 0, position > text.startIndex {
         position = text.index(before: position)
-        if text[position].isWholeNumber { remaining -= 1 }
+        if PriceTextField.isDigit(text[position]) { remaining -= 1 }
       }
       let offset = text.distance(from: text.startIndex, to: position)
       if let cursor = textField.position(from: textField.beginningOfDocument, offset: offset) {

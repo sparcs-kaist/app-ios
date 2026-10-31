@@ -53,6 +53,12 @@ extension PostFeatureTests {
       edit(NSRange(location: length - 1, length: 1), with: "")
     }
 
+    private func select(_ offset: Int, length: Int = 0) {
+      guard let start = field.position(from: field.beginningOfDocument, offset: offset),
+            let end = field.position(from: start, offset: length) else { return }
+      field.selectedTextRange = field.textRange(from: start, to: end)
+    }
+
     private var cursor: Int? {
       field.selectedTextRange.map { field.offset(from: field.beginningOfDocument, to: $0.start) }
     }
@@ -99,20 +105,54 @@ extension PostFeatureTests {
       #expect(cursor == 4)
     }
 
-    @Test func deletingASeparatorTakesTheDigitBeforeIt() {
+    @Test func backspacingOverASeparatorTakesTheDigitBeforeIt() {
       type("1250")
+      // "1,250" with the cursor after the comma.
+      select(2)
       edit(NSRange(location: 1, length: 1), with: "")
       #expect(field.text == "250")
       #expect(box.value == 250)
       #expect(cursor == 0)
     }
 
-    @Test func deletingASeparatorMidNumberKeepsTheCursorInPlace() {
+    @Test func backspacingOverASeparatorMidNumberKeepsTheCursorInPlace() {
       type("1250000")
+      // "1,250,000" with the cursor after the second comma.
+      select(6)
       edit(NSRange(location: 5, length: 1), with: "")
       #expect(field.text == "125,000")
       #expect(box.value == 125_000)
       #expect(cursor == 4)
+    }
+
+    @Test func forwardDeletingOverASeparatorTakesTheDigitAfterIt() {
+      type("1250")
+      // "1,250" with the cursor before the comma, as fn-Delete on a hardware keyboard sends it.
+      select(1)
+      edit(NSRange(location: 1, length: 1), with: "")
+      #expect(field.text == "150")
+      #expect(box.value == 150)
+      #expect(cursor == 1)
+    }
+
+    @Test func deletingASelectedSeparatorKeepsEveryDigit() {
+      type("1250000")
+      select(5, length: 1)
+      edit(NSRange(location: 5, length: 1), with: "")
+      #expect(field.text == "1,250,000")
+      #expect(box.value == 1_250_000)
+    }
+
+    @Test func anEmptyEditChangesNothing() {
+      type("1250")
+      select(2)
+      edit(NSRange(location: 2, length: 0), with: "")
+      #expect(field.text == "1,250")
+      #expect(box.value == 1250)
+    }
+
+    @Test func groupsTheSameWayInEveryRegion() {
+      #expect(PriceTextField.text(for: 1_250_000) == "1,250,000")
     }
   }
 }
