@@ -17,6 +17,10 @@ import FirebaseAnalytics
 public struct SearchView: View {
   @State private var viewModel = SearchViewModel()
   @State private var selectedRoom: TaxiRoom? = nil
+  /// A room just joined from its preview, held until the preview has closed and then the chat
+  /// that opens for it.
+  @State private var joinedRoom: TaxiRoom? = nil
+  @State private var chatRoom: TaxiRoom? = nil
 //  @State private var selectedCourse: Course? = nil
   @State private var courseSheetDetent: PresentationDetent = .height(200)
   @State private var showDepartmentPicker: Bool = false
@@ -101,6 +105,9 @@ public struct SearchView: View {
       // The course page puts its professor picker in the bottom bar.
       CourseView(course: course)
         .toolbar(.hidden, for: .tabBar)
+    }
+    .navigationDestination(item: $chatRoom) { room in
+      TaxiChatView(room: room)
     }
     .navigationDestination(for: AraPost.self) { post in
       PostView(post: post)
@@ -189,10 +196,14 @@ public struct SearchView: View {
       Task {
         await viewModel.scopedFetch()
       }
+      if let joinedRoom {
+        self.joinedRoom = nil
+        chatRoom = joinedRoom
+      }
     } content: {
-      TaxiPreviewView(room: $0)
+      TaxiPreviewView(room: $0) { joinedRoom = $0 }
         .presentationDragIndicator(.visible)
-        .presentationDetents([.height(400), .height(500)])
+        .presentationDetents([.height(560), .large])
     }
   }
   

@@ -22,14 +22,24 @@ public struct TaxiPreviewView: View {
 
   @Environment(\.dismiss) private var dismiss
   @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @Environment(\.colorScheme) private var colorScheme
   @State private var route: MKRoute?
+  /// Whether no route could be found, so the placeholder held for its figures can go.
+  @State private var routeFailed = false
   @State private var mapCamPos: MapCameraPosition = .automatic
+  /// Height of the details panel, so the map frames the route in the part left above it.
+  @State private var detailsHeight: CGFloat = 0
 
   @State private var showErrorAlert: Bool = false
   @State private var errorMessage: String = ""
 
-  public init(room: TaxiRoom) {
+  /// Called with the room once you have joined it, so whoever showed the preview can open its
+  /// chat; the preview closes itself first.
+  private let onJoin: ((TaxiRoom) -> Void)?
+
+  public init(room: TaxiRoom, onJoin: ((TaxiRoom) -> Void)? = nil) {
     self.room = room
+    self.onJoin = onJoin
   }
 
   public var body: some View {
@@ -58,128 +68,180 @@ public struct TaxiPreviewView: View {
     // the controls stay clear of a side bar — and of the front camera beside
     // it on iPhone Duo's outer display.
     .ignoresSafeArea(edges: .vertical)
+    // Plain white or black rather than the default sheet material, so the map fades into a
+    // solid panel; the map itself follows the appearance, light or dark.
+    .presentationBackground(sheetColor)
+    .task {
+      mapCamPos = .rect(framingRect(for: nil))
+      route = try? await viewModel.calculateRoute(
+        source: room.source.coordinate,
+        destination: room.destination.coordinate
+      )
+      routeFailed = route == nil
+      mapCamPos = .rect(framingRect(for: route))
+    }
     .analyticsScreen(name: "Taxi Preview", class: String(describing: Self.self))
-  }
-
-  private var mapHeight: CGFloat {
-    verticalSizeClass == .compact ? 120 : 200
   }
 
   private var content: some View {
     VStack(spacing: 0) {
-      Map(position: $mapCamPos) {
-        Marker(
-          room.source.title.localized(),
-          systemImage: "location.fill",
-          coordinate: room.source.coordinate
-        )
-        .tint(.indigo)
+      // Room for the map to show above the details.
+      Spacer(minLength: verticalSizeClass == .compact ? 100 : 160)
 
-        Marker(room.destination.title.localized(), coordinate: room.destination.coordinate)
-
-        if let route {
-          let strokeStyle = StrokeStyle(
-            lineWidth: 5,
-            lineCap: .round,
-            lineJoin: .round
-          )
-
-          MapPolyline(route.polyline)
-            .stroke(.indigo, style: strokeStyle)
-        }
-      }
-      .disabled(true)
-      .frame(height: mapHeight)
-      // The map is backdrop, so it may run under a side bar; the controls
-      // below may not.
-      .ignoresSafeArea(edges: .horizontal)
-      .task {
-        let calculatedRoute = try? await viewModel.calculateRoute(
-          source: room.source.coordinate,
-          destination: room.destination.coordinate
-        )
-        route = calculatedRoute
-      }
-
-      VStack(alignment: .leading, spacing: 12) {
-        HStack {
-          Text(room.title)
-            .font(.callout)
-            .fontWeight(.medium)
-            .fontDesign(.rounded)
-            .foregroundStyle(.secondary)
-
-          Spacer()
-
-          TaxiParticipantsIndicator(participants: room.participants.count, capacity: room.capacity)
-        }
-
-        RouteHeaderView(
-          source: room.source.title.localized(),
-          destination: room.destination.title.localized()
-        )
-
-        TaxiInfoSection(items: [
-          .plain(
-            label: String(localized: "Depart at", bundle: .module),
-            value: room.departAt.formattedString
-          ),
-        ])
-
-        Spacer()
-
-        HStack {
-          ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module)) {
-            Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
-              .labelStyle(.iconOnly)
-              .frame(width: 44, height: 44)
-          }
-          .buttonStyle(.glass)
-          .buttonBorderShape(.circle)
-
-          Button(action: {
-            Task {
-              do {
-                try await viewModel.joinRoom(id: room.id)
-                dismiss()
-              } catch {
-                logger.error("Failed to join room: \(error.localizedDescription, privacy: .public)")
-                errorMessage = error.localizedDescription
-                showErrorAlert = true
-              }
-            }
-          }) {
-            Group {
-              if viewModel
-                .isJoined(participants: room.participants) {
-                Label(String(localized: "Joined", bundle: .module), systemImage: "car.2.fill")
-              } else if room.participants.count >= room.capacity || viewModel.isJoined(participants: room.participants) {
-                Label(String(localized: "This group is full", bundle: .module), systemImage: "car.2.fill")
-              }
-              else if room.isDeparted {
-                Label(String(localized: "Already Departed", bundle: .module), systemImage: "car.2.fill")
-              }
-              else if viewModel.blockStatus == .tooManyRooms {
-                Label(String(localized: "Room Limit Reached", bundle: .module), systemImage: "car.2.fill")
-              }
-              else if viewModel.blockStatus == .notPaid {
-                Label(String(localized: "Room Settlement Required", bundle: .module), systemImage: "car.2.fill")
-              }
-              else {
-                Label(String(localized: "Join", bundle: .module), systemImage: "car.2.fill")
-              }
-            }
-            .frame(maxWidth: .infinity, maxHeight: 44)
-          }
-          .buttonStyle(.glassProminent)
-          .buttonBorderShape(.roundedRectangle(radius: 36))
-          .disabled(isJoinButtonDisabled)
-        }
-      }
-      .padding()
+      details
+    }
+    .background {
+      routeMap
+        // Room above for the marker balloons, which rise above their coordinates.
+        .safeAreaPadding(.top, 50)
+        // Clear of the details and the fade above them, so neither end of the route nor the
+        // Maps logo is dimmed.
+        .safeAreaPadding(.bottom, detailsHeight + fadeHeight)
+        // The map is backdrop, so it may run under a side bar; the controls
+        // below may not.
+        .ignoresSafeArea()
     }
   }
-  
+
+  /// Kept short: the map frames the route above it, and every point taken here shrinks the route.
+  private let fadeHeight: CGFloat = 64
+
+  private var details: some View {
+    VStack(alignment: .leading, spacing: 16) {
+      TaxiDepartureHeader(date: room.departAt)
+
+      TaxiRouteStops(
+        source: room.source.title.localized(),
+        destination: room.destination.title.localized(),
+        textStyle: .title3,
+        weight: .semibold,
+        markerSize: 14,
+        rowSpacing: 8
+      )
+
+      // Held from the start, so the rows below don't move when the route arrives.
+      if !routeFailed {
+        TaxiRideStats(departAt: room.departAt, route: route)
+      }
+
+      TaxiRiderRow(participants: room.participants, capacity: room.capacity)
+
+      actions
+    }
+    .padding(.horizontal, 20)
+    .padding(.bottom, 24)
+    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { detailsHeight = $0 }
+    // Both run under any side bar, as the map does, so it never shows past the panel's edges.
+    .background {
+      sheetColor
+        .ignoresSafeArea(edges: .horizontal)
+    }
+    .background(alignment: .top) {
+      LinearGradient(colors: [sheetColor.opacity(0), sheetColor], startPoint: .top, endPoint: .bottom)
+        .frame(height: fadeHeight)
+        .offset(y: -fadeHeight)
+        .ignoresSafeArea(edges: .horizontal)
+        .allowsHitTesting(false)
+    }
+  }
+
+  /// Both ends of the ride and, once known, the route between them, with a small margin.
+  /// `.automatic` pads far more generously, which leaves the route tiny in the strip of map
+  /// visible above the details.
+  private func framingRect(for route: MKRoute?) -> MKMapRect {
+    let ends = [room.source.coordinate, room.destination.coordinate].map {
+      MKMapRect(origin: MKMapPoint($0), size: MKMapSize(width: 0, height: 0))
+    }
+    var rect = ends[0].union(ends[1])
+    if let route {
+      rect = rect.union(route.polyline.boundingMapRect)
+    }
+    // At least about a kilometre across, so ends that coincide or sit side by side still show
+    // the streets around them rather than zooming in as far as the map allows.
+    let minimumSide = 1_000 * MKMapPointsPerMeterAtLatitude(room.source.coordinate.latitude)
+    let margin = max(rect.width, rect.height) * 0.12
+    rect = rect.insetBy(dx: -margin, dy: -margin)
+    return rect.insetBy(
+      dx: -max(minimumSide - rect.width, 0) / 2,
+      dy: -max(minimumSide - rect.height, 0) / 2
+    )
+  }
+
+  private var sheetColor: Color {
+    colorScheme == .dark ? .black : .white
+  }
+
+  private var routeMap: some View {
+    Map(position: $mapCamPos) {
+      Marker(
+        room.source.title.localized(),
+        systemImage: "location.fill",
+        coordinate: room.source.coordinate
+      )
+      .tint(.indigo)
+
+      Marker(room.destination.title.localized(), coordinate: room.destination.coordinate)
+
+      if let route {
+        MapPolyline(route.polyline)
+          .stroke(.indigo, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+      }
+    }
+    .mapStyle(.standard(elevation: .realistic, emphasis: .muted, pointsOfInterest: .excludingAll))
+    .disabled(true)
+  }
+
+  private var actions: some View {
+    HStack {
+      ShareLink(item: Constants.taxiInviteURL.appending(path: room.id), message: Text("🚕 Looking for someone to ride with on \(room.departAt.formattedString) from \(room.source.title) to \(room.destination.title)! 🚕", bundle: .module)) {
+        Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
+          .labelStyle(.iconOnly)
+          .frame(width: 44, height: 44)
+      }
+      .buttonStyle(.glass)
+      .buttonBorderShape(.circle)
+
+      Button(action: {
+        Task {
+          do {
+            let joinedRoom = try await viewModel.joinRoom(id: room.id)
+            dismiss()
+            onJoin?(joinedRoom ?? room)
+          } catch {
+            logger.error("Failed to join room: \(error.localizedDescription, privacy: .public)")
+            errorMessage = error.localizedDescription
+            showErrorAlert = true
+          }
+        }
+      }) {
+        Group {
+          if viewModel
+            .isJoined(participants: room.participants) {
+            Label(String(localized: "Joined", bundle: .module), systemImage: "car.2.fill")
+          } else if room.participants.count >= room.capacity || viewModel.isJoined(participants: room.participants) {
+            Label(String(localized: "This group is full", bundle: .module), systemImage: "car.2.fill")
+          }
+          else if room.isDeparted {
+            Label(String(localized: "Already Departed", bundle: .module), systemImage: "car.2.fill")
+          }
+          else if viewModel.blockStatus == .tooManyRooms {
+            Label(String(localized: "Room Limit Reached", bundle: .module), systemImage: "car.2.fill")
+          }
+          else if viewModel.blockStatus == .notPaid {
+            Label(String(localized: "Room Settlement Required", bundle: .module), systemImage: "car.2.fill")
+          }
+          else {
+            Label(String(localized: "Join", bundle: .module), systemImage: "car.2.fill")
+          }
+        }
+        .frame(maxWidth: .infinity, maxHeight: 44)
+      }
+      .buttonStyle(.glassProminent)
+      .buttonBorderShape(.roundedRectangle(radius: 36))
+      .disabled(isJoinButtonDisabled)
+    }
+  }
+
   private var isJoinButtonDisabled: Bool {
     room.participants.count >= room.capacity
     || viewModel.isJoined(participants: room.participants)
@@ -201,6 +263,6 @@ public struct TaxiPreviewView: View {
   .sheet(isPresented: $showSheet) {
     TaxiPreviewView(room: TaxiRoom.mockList[6])
       .presentationDragIndicator(.visible)
-      .presentationDetents([.height(400), .height(500)])
+      .presentationDetents([.height(560), .large])
   }
 }

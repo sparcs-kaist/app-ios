@@ -142,6 +142,7 @@ let package = Package(
           dependencies: [
             "Haptica",
             "BuddyDomain",
+            .product(name: "NukeUI", package: "Nuke"),
             .product(
               name: "FirebaseAnalytics",
               package: "firebase-ios-sdk"

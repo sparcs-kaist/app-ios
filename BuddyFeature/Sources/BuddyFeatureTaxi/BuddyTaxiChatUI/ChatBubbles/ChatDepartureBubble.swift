@@ -40,8 +40,13 @@ struct ChatDepartureBubble: View {
       Button(action: {
         showAlert = true
       }, label: {
-        Label(String(localized: "Call Taxi", bundle: .module), systemImage: "car.fill")
-          .frame(maxWidth: .infinity)
+        // Icon and title side by side, centred together: a `Label` stretched to the full width
+        // pins its icon to the far edge and leaves the title off-centre.
+        HStack(spacing: 6) {
+          Image(systemName: "car.fill")
+          Text("Call Taxi", bundle: .module)
+        }
+        .frame(maxWidth: .infinity)
       })
       .fontWeight(.medium)
       .buttonStyle(.glassProminent)

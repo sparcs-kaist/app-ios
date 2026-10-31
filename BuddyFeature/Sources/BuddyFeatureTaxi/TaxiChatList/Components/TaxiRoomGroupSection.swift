@@ -29,7 +29,8 @@ struct TaxiRoomGroupSection: View {
       }
 
       ForEach(rooms) { room in
-        TaxiRoomCell(room: room, withOutBackground: false)
+        // Rooms you are in: who you share the chat with, rather than the seats left.
+        TaxiRoomCell(room: room, withOutBackground: false, showsRiders: true)
           .environment(\.taxiUser, taxiUser)
           .onTapGesture {
             onSelect(room)
