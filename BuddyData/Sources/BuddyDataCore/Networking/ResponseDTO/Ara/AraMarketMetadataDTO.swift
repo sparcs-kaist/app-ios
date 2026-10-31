@@ -28,20 +28,31 @@ struct AraMarketMetadataDTO: Codable {
   }
 
   init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
+    guard let container = try? decoder.container(keyedBy: CodingKeys.self) else {
+      price = nil
+      priceCurrency = nil
+      state = nil
+      return
+    }
     // Prices have been sent as numbers; tolerate a numeric string or a fraction too.
     if let price = try? container.decodeIfPresent(Int.self, forKey: .price) {
-      self.price = price
+      self.price = price >= 0 ? price : nil
     } else if let price = try? container.decodeIfPresent(Double.self, forKey: .price) {
-      // `Int(_:)` traps on a value it can't hold, such as 1e300; anything that big is no price.
-      self.price = Int(exactly: price.rounded(.towardZero))
+      self.price = Self.price(from: price)
     } else if let text = try? container.decodeIfPresent(String.self, forKey: .price) {
-      self.price = Int(text.filter(\.isNumber))
+      self.price = Double(text.filter { ($0.isASCII && $0.isNumber) || $0 == "." || $0 == "-" })
+        .flatMap(Self.price(from:))
     } else {
       self.price = nil
     }
     priceCurrency = try? container.decodeIfPresent(String.self, forKey: .priceCurrency)
     state = try? container.decodeIfPresent(String.self, forKey: .state)
+  }
+
+  /// `Int(_:)` traps on a value it can't hold, such as 1e300.
+  private static func price(from value: Double) -> Int? {
+    guard value >= 0 else { return nil }
+    return Int(exactly: value.rounded(.towardZero))
   }
 
   func encode(to encoder: any Encoder) throws {

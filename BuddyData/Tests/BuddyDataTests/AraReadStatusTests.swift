@@ -64,6 +64,27 @@ struct AraMarketMetadataTests {
     #expect(try decode(#"{"price": 9900.0}"#)?.price == 9900)
   }
 
+  @Test func readsAFractionWrittenAsTextAsWholeWon() throws {
+    #expect(try decode(#"{"price": "12000.50"}"#)?.price == 12000)
+    #expect(try decode(#"{"price": "₩12,000"}"#)?.price == 12000)
+  }
+
+  @Test(arguments: [#"-5000"#, #""-5000""#])
+  func dropsNegativePrices(value: String) throws {
+    #expect(try decode(#"{"price": \#(value), "state": "onsale"}"#)?.price == nil)
+  }
+
+  @Test(arguments: ["[]", #""note""#, "3"])
+  func ignoresMetadataThatIsntAnObject(json: String) throws {
+    #expect(try decode(json) == nil)
+  }
+
+  @Test func decodesAPostWhoseMetadataIsntAnObject() throws {
+    struct Post: Decodable { let metadata: AraMarketMetadataDTO? }
+    let post = try JSONDecoder().decode(Post.self, from: Data(#"{"metadata": []}"#.utf8))
+    #expect(post.metadata?.toModel() == nil)
+  }
+
   /// Decoded for every post in a list, so a price no `Int` can hold mustn't crash the board.
   @Test(arguments: ["1e300", "-1e300", "9.3e18"])
   func dropsPricesTooLargeToHold(value: String) throws {
