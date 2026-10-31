@@ -129,22 +129,21 @@ public class BoardListViewModel: BoardListViewModelProtocol {
     boards.filter { $0.slug != "portal-notice" && $0.userReadable != false }.map(\.id)
   }
 
-  /// Looks at each board's newest post, all at once, after the list is on screen.
+  /// Boards with nothing among this many of the newest posts across boards get no dot.
+  static let newPostsPageSize = 50
+
   private func checkForNewPosts(in boards: [AraBoard], using useCase: AraBoardUseCaseProtocol) async {
-    let newest = await withTaskGroup(of: (Int, AraPost?).self) { group in
-      for board in boards where board.userReadable != false {
-        group.addTask {
+    let boardIDs = boards.filter { $0.userReadable != false }.map(\.id)
+    guard !boardIDs.isEmpty,
           let page = try? await useCase.fetchPosts(
-            type: .board(boardID: board.id), page: 1, pageSize: 1, searchKeyword: nil
+            type: .latest(boardIDs: boardIDs), page: 1, pageSize: Self.newPostsPageSize, searchKeyword: nil
           )
-          return (board.id, page?.results.first)
-        }
-      }
-      var newest: [Int: AraPost] = [:]
-      for await (boardID, post) in group {
-        newest[boardID] = post
-      }
-      return newest
+    else { return }
+
+    var newest: [Int: AraPost] = [:]
+    for post in page.results {
+      guard let boardID = post.board?.id, post.id > newest[boardID]?.id ?? .min else { continue }
+      newest[boardID] = post
     }
 
     var withNewPosts: Set<Int> = []

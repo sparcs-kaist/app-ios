@@ -26,7 +26,7 @@ extension PostFeatureTests {
 
     /// A use case serving `boards`, and each board's newest post from `newest`.
     private func useCase(
-      newest: [Int: AraPost] = [:],
+      newest: [AraPost] = [],
       trending: [AraPost] = [],
       latest: [AraPost] = [],
       market: [AraPost] = [],
@@ -37,10 +37,9 @@ extension PostFeatureTests {
       useCase.fetchPostsHandler = { call in
         switch call.type {
         case .trending: AraFixtures.page(trending)
-        case .latest: AraFixtures.page(latest)
+        case .latest: AraFixtures.page(latest + newest)
         case .boardSlug("market"): AraFixtures.page(market)
         case .boardSlug("talk"): AraFixtures.page(talkPosts)
-        case .board(let boardID, nil): AraFixtures.page(newest[boardID].map { [$0] } ?? [])
         default: AraFixtures.page([])
         }
       }
@@ -184,8 +183,8 @@ extension PostFeatureTests {
       defer { tearDownPostTestDependencies(); BoardSeenPosts.reset() }
 
       let viewModel = await load(useCase(newest: [
-        2: AraFixtures.post(id: 100, readStatus: .unread),
-        5: AraFixtures.post(id: 200, readStatus: .read),
+        AraFixtures.post(id: 200, board: AraFixtures.board(id: 5), readStatus: .read),
+        AraFixtures.post(id: 100, board: AraFixtures.board(id: 2), readStatus: .unread),
       ]))
 
       #expect(viewModel.boardsWithNewPosts == [2])
@@ -198,12 +197,35 @@ extension PostFeatureTests {
       BoardSeenPosts.markSeen(100, inBoard: 2)
       BoardSeenPosts.markSeen(199, inBoard: 5)
       let viewModel = await load(useCase(newest: [
+        AraFixtures.post(id: 200, board: AraFixtures.board(id: 5), readStatus: .unread),
         // Seen in the list, though never opened.
-        2: AraFixtures.post(id: 100, readStatus: .unread),
-        5: AraFixtures.post(id: 200, readStatus: .unread),
+        AraFixtures.post(id: 100, board: AraFixtures.board(id: 2), readStatus: .unread),
       ]))
 
       #expect(viewModel.boardsWithNewPosts == [5])
+    }
+
+    @Test func judgesABoardByItsNewestPost() async {
+      BoardSeenPosts.reset()
+      defer { tearDownPostTestDependencies(); BoardSeenPosts.reset() }
+
+      BoardSeenPosts.markSeen(150, inBoard: 2)
+      let viewModel = await load(useCase(newest: [
+        AraFixtures.post(id: 200, board: AraFixtures.board(id: 2), readStatus: .unread),
+        AraFixtures.post(id: 100, board: AraFixtures.board(id: 2), readStatus: .unread),
+      ]))
+
+      #expect(viewModel.boardsWithNewPosts == [2])
+    }
+
+    @Test func checksForNewPostsInOneRequest() async {
+      BoardSeenPosts.reset()
+      defer { tearDownPostTestDependencies(); BoardSeenPosts.reset() }
+
+      let useCase = useCase()
+      _ = await load(useCase)
+
+      #expect(!useCase.fetchPostsCalls.contains { if case .board = $0.type { true } else { false } })
     }
 
     @Test func seenPostsOnlyMoveForward() {
