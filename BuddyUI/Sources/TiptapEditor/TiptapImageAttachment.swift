@@ -24,8 +24,22 @@ public final class TiptapImageAttachment: NSTextAttachment {
     self.image = Self.rounded(image)
   }
 
+  private static let originalImageKey = "originalImage"
+
+  public override class var supportsSecureCoding: Bool { true }
+
+  /// Copied photos are archived to the pasteboard; a pasted copy is uploaded as a new photo.
   required init?(coder: NSCoder) {
-    fatalError("TiptapImageAttachment is not archived")
+    guard let image = coder.decodeObject(of: UIImage.self, forKey: Self.originalImageKey) else { return nil }
+    originalImage = image
+    existingNode = nil
+    super.init(coder: coder)
+    self.image = Self.rounded(image)
+  }
+
+  public override func encode(with coder: NSCoder) {
+    super.encode(with: coder)
+    coder.encode(originalImage, forKey: Self.originalImageKey)
   }
 
   public override func attachmentBounds(
