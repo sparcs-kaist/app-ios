@@ -154,9 +154,12 @@ extension PostFeatureTests {
       #expect(viewModel.sections == [.board(slug: "talk"), .trending])
       #expect(viewModel.posts(for: .board(slug: "talk"))?.map(\.id) == [9])
       #expect(viewModel.posts(for: .trending)?.map(\.id) == [1])
-      let types = useCase.fetchPostsCalls.map(\.type)
-      #expect(!types.contains(.boardSlug("market")))
-      #expect(!types.contains { if case .latest = $0 { true } else { false } })
+      let calls = useCase.fetchPostsCalls
+      #expect(!calls.contains { $0.type == .boardSlug("market") })
+      // The new-post check also asks for the latest posts, but not as the section does.
+      #expect(!calls.contains {
+        if case .latest = $0.type { $0.pageSize == BoardListViewModel.highlightCount } else { false }
+      })
     }
 
     @Test func followsSectionsSavedInSettings() async throws {
