@@ -76,6 +76,10 @@ extension Container {
     promised()
   }
 
+  public var taxiUnreadStore: Factory<TaxiUnreadStoreProtocol?> {
+    promised()
+  }
+
   public var analyticsService: Factory<AnalyticsServiceProtocol?> {
     promised()
   }
@@ -86,6 +90,10 @@ extension Container {
   }
   
   public var fcmUseCase: Factory<FCMUseCaseProtocol?> {
+    promised()
+  }
+
+  public var taxiQuickReplyUseCase: Factory<TaxiQuickReplyUseCaseProtocol?> {
     promised()
   }
 

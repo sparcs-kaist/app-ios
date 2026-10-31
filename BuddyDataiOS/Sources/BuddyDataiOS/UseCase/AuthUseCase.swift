@@ -21,6 +21,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   private let araUserRepository: AraUserRepositoryProtocol?
   private let feedUserRepository: FeedUserRepositoryProtocol?
   private let otlUserRepository: OTLUserRepositoryProtocol?
+  private let fcmUseCase: FCMUseCaseProtocol?
 
   // `CurrentValueSubject` is internally thread-safe, so it is marked
   // `nonisolated(unsafe)` to let the auth-state publisher be read and observed
@@ -56,8 +57,10 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     tokenStorage: TokenStorageProtocol,
     araUserRepository: AraUserRepositoryProtocol?,
     feedUserRepository: FeedUserRepositoryProtocol?,
-    otlUserRepository: OTLUserRepositoryProtocol?
+    otlUserRepository: OTLUserRepositoryProtocol?,
+    fcmUseCase: FCMUseCaseProtocol? = nil
   ) {
+    self.fcmUseCase = fcmUseCase
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
     self.araUserRepository = araUserRepository
@@ -252,6 +255,17 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func signOut() async throws {
+    // While still signed in, so the backend knows whose device to forget. Briefly, as signing out
+    // must work offline too: the next account to register this device takes it over anyway.
+    if let fcmUseCase {
+      await Self.waitAtMost(seconds: 5) {
+        do {
+          try await fcmUseCase.unregister()
+        } catch {
+          logger.error("Failed to unregister from notifications: \(error.localizedDescription, privacy: .public)")
+        }
+      }
+    }
     TimetableSelectionStore().clear()
     TaxiFavoritesStore().clear()
     if let container = TimetableCacheContainer.shared {
@@ -271,6 +285,29 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     clearCreditSummary()
     WidgetCenter.shared.reloadAllTimelines()
     logger.info("Signed out.")
+  }
+
+  /// Waits for `operation` for at most `seconds`, leaving it to finish on its own if it takes longer,
+  /// since network requests here can't be cancelled.
+  private static func waitAtMost(seconds: Double, for operation: @escaping @Sendable () async -> Void) async {
+    await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+      let isResumed = OSAllocatedUnfairLock(initialState: false)
+      let resumeOnce: @Sendable () -> Void = {
+        let isFirst = isResumed.withLock { isResumed in
+          defer { isResumed = true }
+          return !isResumed
+        }
+        if isFirst { continuation.resume() }
+      }
+      Task {
+        await operation()
+        resumeOnce()
+      }
+      Task {
+        try? await Task.sleep(for: .seconds(seconds))
+        resumeOnce()
+      }
+    }
   }
 
   /// Removes the stored GPA snapshot, and the watch's copy, once the session ends.

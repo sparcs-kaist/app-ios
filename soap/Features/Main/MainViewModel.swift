@@ -14,6 +14,8 @@ import BuddyDomain
 @Observable
 final class MainViewModel {
   var invitedRoom: TaxiRoom? = nil
+  /// A Taxi room whose chat to open, such as from a chat notification.
+  var openedChatRoom: TaxiRoom? = nil
   var deepLinkedPost: AraPost? = nil
   var alertState: AlertState? = nil
   var isAlertPresented: Bool = false
@@ -24,6 +26,12 @@ final class MainViewModel {
   @ObservationIgnored @Injected(
     \.araBoardUseCase
   ) private var araBoardUseCase: AraBoardUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.taxiUnreadStore
+  ) private var taxiUnreadStore: TaxiUnreadStoreProtocol?
+
+  /// Unread Taxi chats, for the Taxi tab's badge.
+  var taxiUnreadCount: Int { taxiUnreadStore?.totalCount ?? 0 }
 
   func resolveInvite(code: String) async {
     guard let taxiRoomRepository else { return }
@@ -39,7 +47,21 @@ final class MainViewModel {
     }
   }
 
-  func resolvePost(id: Int) async {
+  func resolveTaxiChat(roomID: String) async {
+    guard let taxiRoomRepository else { return }
+
+    do {
+      openedChatRoom = try await taxiRoomRepository.getRoom(id: roomID)
+    } catch {
+      alertState = .init(
+        title: String(localized: "Chat Not Found"),
+        message: String(localized: "This ride's chat could not be opened. You may have left the ride.")
+      )
+      isAlertPresented = true
+    }
+  }
+
+    func resolvePost(id: Int) async {
     guard let araBoardUseCase else { return }
 
     do {

@@ -44,6 +44,7 @@ public struct TaxiChatView: View {
 
   @Namespace private var namespace
 
+
   /// Called after leaving the room, in place of `dismiss()`. A container that
   /// shows this view as a column root rather than a pushed screen passes it,
   /// since `dismiss()` there would close the container's own presentation.
@@ -193,6 +194,12 @@ public struct TaxiChatView: View {
     .task {
       await viewModel.setup()
       await viewModel.fetchInitialChats()
+    }
+    .onAppear {
+      viewModel.enterChat()
+    }
+    .onDisappear {
+      viewModel.exitChat()
     }
     .analyticsScreen(name: "Taxi Chat", class: String(describing: Self.self))
   }

@@ -103,7 +103,11 @@ public struct SettingsView: View {
   
   private var appSettings: some View {
     Group {
-//      NavigationLink(String(localized: "Notifications", bundle: .module)) { NotificationSettingsView() }
+      NavigationLink {
+        NotificationSettingsView()
+      } label: {
+        Label(String(localized: "Notifications", bundle: .module), systemImage: "bell.badge")
+      }
 
       Button(String(localized: "Change Language", bundle: .module), systemImage: "globe") {
         if let url = URL(string: UIApplication.openSettingsURLString) {

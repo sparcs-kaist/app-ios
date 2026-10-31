@@ -58,10 +58,26 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   ) private var taxiChatUseCase: TaxiChatUseCaseProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
   @ObservationIgnored @Injected(\.taxiRoomRepository) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
+  @ObservationIgnored @Injected(\.taxiUnreadStore) private var taxiUnreadStore: TaxiUnreadStoreProtocol?
+  /// The ride last entered, which is left even if the ride shown changes meanwhile.
+  @ObservationIgnored private var enteredRoomID: String?
 
   // MARK: - Initialiser
   init(room: TaxiRoom) {
     self.room = room
+  }
+
+  // While the chat is on screen its chats are read as they arrive, so they neither count as
+  // unread nor show as notifications.
+  func enterChat() {
+    enteredRoomID = room.id
+    taxiUnreadStore?.enterRoom(room.id)
+  }
+
+  func exitChat() {
+    guard let enteredRoomID else { return }
+    taxiUnreadStore?.leaveRoom(enteredRoomID)
+    self.enteredRoomID = nil
   }
 
   func setup() async {

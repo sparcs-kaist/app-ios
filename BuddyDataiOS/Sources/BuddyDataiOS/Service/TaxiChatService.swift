@@ -13,15 +13,20 @@ import BuddyDataCore
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "TaxiChatSocket")
 
-// @unchecked Sendable: this type bridges SocketIO's callback-based API. Its
-// scalar state is only mutated inside socket event handlers (delivered serially
-// on the manager's handle queue), and its downstream streams are backed by
-// `AsyncBroadcaster` actors, so it is safe to share across isolation domains.
+// @unchecked Sendable: this type bridges SocketIO's callback-based API. Its state, and the socket
+// and manager themselves, are only touched on the main thread: socket events are delivered on the
+// main queue (`handleQueue`), and the methods others call move onto it first. Its downstream
+// streams are backed by `AsyncBroadcaster` actors.
 public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable {
   // MARK: - Broadcasters
   private let chatBroadcaster = AsyncBroadcaster<[TaxiChat]>()
   private let connectionBroadcaster = AsyncBroadcaster<Bool>(replaysLatest: true)
   private let roomUpdateBroadcaster = AsyncBroadcaster<String>()
+  private let liveChatBroadcaster = AsyncBroadcaster<TaxiChat>()
+
+  /// Minigame chats, which the app does not support. Their DTOs decode as text, so they are
+  /// told apart by their raw type.
+  private static let minigameChatTypes: Set<String> = ["wordChain", "racing", "raceLog"]
 
   public func chatStream() async -> AsyncStream<[TaxiChat]> {
     await chatBroadcaster.subscribe()
@@ -33,6 +38,10 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
 
   public func roomUpdateStream() async -> AsyncStream<String> {
     await roomUpdateBroadcaster.subscribe()
+  }
+
+  public func liveChatStream() async -> AsyncStream<TaxiChat> {
+    await liveChatBroadcaster.subscribe()
   }
 
   private var chatsStorage: [TaxiChat] = []
@@ -58,29 +67,22 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
   // MARK: - State
   private var hasAttemptedReconnect: Bool = false
 
+  /// The access token the socket connected with, which Taxi knows it by.
+  private var connectedToken: String?
+
   // MARK: - Dependency
   private let tokenStorage: TokenStorageProtocol
-  private let manager: SocketManager
-  private let socket: SocketIOClient
+  private var manager: SocketManager
+  private var socket: SocketIOClient
 
   // MARK: - Initialiser
   public init(tokenStorage: TokenStorageProtocol) {
     self.tokenStorage = tokenStorage
 
-    self.manager = SocketManager(
-      socketURL: BackendURL.taxiSocketURL,
-      config: [
-        .log(false),
-        .compress,
-        .forceWebsockets(true),
-        .extraHeaders([
-          "Origin": "taxi.sparcs.org",
-          "Authorization": "Bearer \(self.tokenStorage.getAccessToken() ?? "")"
-        ])
-      ]
-    )
-
-    self.socket = self.manager.defaultSocket
+    let token = tokenStorage.getAccessToken()
+    self.manager = Self.makeManager(token: token)
+    self.socket = manager.defaultSocket
+    self.connectedToken = token
 
     setupSocketEvents()
 
@@ -92,25 +94,85 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
   }
 
   public func disconnect() {
-    socket.disconnect()
+    onMain {
+      // Not to be reconnected by the `.disconnect` handler, such as after signing out.
+      self.hasAttemptedReconnect = true
+      self.socket.disconnect()
+    }
   }
 
   public func reconnect() {
+    onMain { self.reconnectOnMain() }
+  }
+
+  /// Runs `work` on the main thread, where the socket and this type's state are touched: now if
+  /// already there, or else as soon as it can.
+  private func onMain(_ work: @escaping @Sendable () -> Void) {
+    if Thread.isMainThread {
+      work()
+    } else {
+      DispatchQueue.main.async(execute: work)
+    }
+  }
+
+  private func reconnectOnMain() {
     // Mark this as an intentional reconnect so the `.disconnect` handler below
     // does not fire its own auto-reconnect for the disconnect we trigger here —
     // otherwise two competing connections race.
     hasAttemptedReconnect = true
+
+    // A manager sends the headers it first connected with for as long as it lives, even when its
+    // socket leaves and rejoins, so connecting with the current token takes a new one.
+    socket.removeAllHandlers()
     socket.disconnect()
-    manager.config = [
-      .log(false),
-      .compress,
-      .forceWebsockets(true),
-      .extraHeaders([
-        "Origin": "taxi.sparcs.org",
-        "Authorization": "Bearer \(tokenStorage.getAccessToken() ?? "")"
-      ])
-    ]
+    manager.disconnect()
+
+    let token = tokenStorage.getAccessToken()
+    manager = Self.makeManager(token: token)
+    socket = manager.defaultSocket
+    connectedToken = token
+    isConnected = false
+
+    setupSocketEvents()
     socket.connect()
+  }
+
+  public func connectWithCurrentAccessToken() async {
+    let isCurrent = await MainActor.run {
+      // A socket on another token, or disconnected on purpose, such as after signing out.
+      guard tokenStorage.getAccessToken() == connectedToken,
+            socket.status == .connected || socket.status == .connecting else {
+        reconnectOnMain()
+        return false
+      }
+      return socket.status == .connected
+    }
+    guard !isCurrent else { return }
+
+    // The socket joins the token's room as it connects, so a room's chats asked for before then
+    // would go nowhere. Give up after a few seconds rather than never loading them.
+    for _ in 0..<50 {
+      if await MainActor.run(body: { socket.status == .connected }) { return }
+      try? await Task.sleep(for: .milliseconds(100))
+    }
+    logger.error("Socket didn't connect with the current access token in time")
+  }
+
+  private static func makeManager(token: String?) -> SocketManager {
+    SocketManager(
+      socketURL: BackendURL.taxiSocketURL,
+      config: [
+        .log(false),
+        .compress,
+        .forceWebsockets(true),
+        // Every use of the socket and this service's state is on the main thread.
+        .handleQueue(.main),
+        .extraHeaders([
+          "Origin": "taxi.sparcs.org",
+          "Authorization": "Bearer \(token ?? "")"
+        ])
+      ]
+    )
   }
 
   private func setupSocketEvents() {
@@ -124,7 +186,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
 
       if !self.hasAttemptedReconnect {
         self.hasAttemptedReconnect = true
-        self.reconnect()
+        self.reconnectOnMain()
       }
     }
 
@@ -159,8 +221,26 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
         return
       }
 
-      let chats: [TaxiChat] = self.handleChats(chatArray)
-      self.chats.append(contentsOf: chats)
+      // Chats fetched after reconnecting may already have arrived live, and one may arrive twice.
+      // Minigame chats decode as text, so they are told apart by their raw type.
+      let recentChats = self.chats.suffix(50)
+      let newChats = chatArray.compactMap { json -> (chat: TaxiChat, isMinigame: Bool)? in
+        guard let chat = self.handleChats([json]).first else { return nil }
+        return (chat, Self.minigameChatTypes.contains(json["type"] as? String ?? ""))
+      }.filter { new in
+        !recentChats.contains { $0.isSameChat(as: new.chat) }
+      }
+      self.chats.append(contentsOf: newChats.map(\.chat))
+
+      // Only a chat just sent carries its room ID; loading newer chats for a room does not. Only
+      // ones new here count, so a chat sent again isn't counted as unread twice.
+      if dataDict["roomId"] != nil {
+        let liveChats = newChats.filter { !$0.isMinigame }.map(\.chat)
+        let broadcaster = self.liveChatBroadcaster
+        Task {
+          for chat in liveChats { await broadcaster.yield(chat) }
+        }
+      }
     }
 
     socket.on("chat_update") { data, _ in
@@ -185,5 +265,14 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
     } catch {
       return []
     }
+  }
+}
+
+private extension TaxiChat {
+  /// Whether this is the same chat as `other`, which has an `id` of its own from being decoded
+  /// separately.
+  func isSameChat(as other: TaxiChat) -> Bool {
+    roomID == other.roomID && time == other.time && authorID == other.authorID
+      && type == other.type && content == other.content
   }
 }
