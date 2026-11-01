@@ -11,10 +11,6 @@ public enum Constants {
   // MARK: Infinite Scroll Constants
   public static let loadMoreThreshold = 0.6
 
-  // MARK: Feed Layout
-  public static let feedCommentsPanelMinimumWidth: CGFloat = 320
-  public static let feedCommentsPanelMaximumWidth: CGFloat = 400
-
   // MARK: Fold Layout
   /// Minimum usable width for either column beside a fold.
   public static let foldSplitMinimumColumnWidth: CGFloat = 240

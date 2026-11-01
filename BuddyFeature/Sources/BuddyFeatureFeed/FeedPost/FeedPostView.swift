@@ -22,6 +22,9 @@ struct FeedPostView: View {
   let onDelete: (() async throws -> Void)?
 
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @State private var viewport: CGSize = .zero
 
   @State private var showDeleteConfirmation: Bool = false
 
@@ -48,34 +51,25 @@ struct FeedPostView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
-      ScrollView {
-        VStack(alignment: .leading, spacing: 16) {
-          FeedPostRow(post: $post, onPostDeleted: nil, onComment: {
-            viewModel.targetComment = nil
-            isWritingCommentFocusState = true
-          }, showFullContent: true)
-
-          FeedCommentsSection(
-            state: viewModel.state,
-            comments: $viewModel.comments,
-            commentCount: post.commentCount,
-            onReply: { comment in
-              viewModel.targetComment = comment
-              isWritingCommentFocusState = true
-            }
-          )
-
-          // Comments near the end of the list have too little content below
-          // them to reach the top, so pad the bottom by a screen's height while
-          // replying. Sized in layout, so no state updates during the keyboard
-          // animation.
-          if replyScrollTargetID != nil {
-            Color.clear
-              .containerRelativeFrame(.vertical)
+      Group {
+        if usesPanes {
+          FeedPostPanes {
+            column { postSection }
+          } comments: {
+            column { commentsSection }
+              .safeAreaBar(edge: .bottom) {
+                inputBar(proxy: proxy)
+              }
+          }
+        } else {
+          column {
+            postSection
+            commentsSection
           }
         }
-        .contentWidth()
       }
+      .onGeometryChange(for: CGSize.self) { $0.size } action: { viewport = $0 }
+      .modifier(FeedPostNavigationBar(isPinned: usesPanes))
       .onChange(of: replyScrollTargetID) { _, id in
         guard let id else { return }
         // Wait a turn so the bottom spacer is laid out before scrolling.
@@ -103,7 +97,9 @@ struct FeedPostView: View {
       .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
       .scrollDismissesKeyboard(.interactively)
       .safeAreaBar(edge: .bottom) {
-        inputBar(proxy: proxy)
+        if !usesPanes {
+          inputBar(proxy: proxy)
+        }
       }
       .alert(
         viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
@@ -123,6 +119,50 @@ struct FeedPostView: View {
         "has_comments": post.commentCount > 0
       ]
     )
+  }
+
+  /// Match Ara's post layout: wide regular-size displays get two panes;
+  /// phones in landscape retain one scrolling column.
+  private var usesPanes: Bool {
+    horizontalSizeClass == .regular
+      && verticalSizeClass == .regular
+      && viewport.width > viewport.height
+      && viewport.width >= FeedPostPaneWidth.post + FeedPostPaneWidth.comments
+  }
+
+  private func column(@ViewBuilder content: () -> some View) -> some View {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 16, content: content)
+        .contentWidth()
+    }
+  }
+
+  private var postSection: some View {
+    FeedPostRow(post: $post, onPostDeleted: nil, onComment: {
+      viewModel.targetComment = nil
+      isWritingCommentFocusState = true
+    }, showFullContent: true)
+  }
+
+  @ViewBuilder
+  private var commentsSection: some View {
+    FeedCommentsSection(
+      state: viewModel.state,
+      comments: $viewModel.comments,
+      commentCount: post.commentCount,
+      showsLeadingDivider: !usesPanes,
+      onReply: { comment in
+        viewModel.targetComment = comment
+        isWritingCommentFocusState = true
+      }
+    )
+
+    // Give the last comment enough space below it to scroll to the top
+    // while replying, including when comments occupy their own pane.
+    if replyScrollTargetID != nil {
+      Color.clear
+        .containerRelativeFrame(.vertical)
+    }
   }
 
   private var moreMenu: some View {
@@ -215,6 +255,17 @@ struct FeedPostView: View {
     FeedPostView(post: .constant(FeedPost.mockList[6]), onDelete: nil)
       .environment(spoilerContents)
   }
+}
+
+#Preview("Wide Post Detail", traits: .fixedLayout(width: 1024, height: 700)) {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  let _ = Container.setupFeedPreview()
+  NavigationStack {
+    FeedPostView(post: .constant(FeedPost.mockList[6]), onDelete: nil)
+      .environment(spoilerContents)
+  }
+  .environment(\.horizontalSizeClass, .regular)
+  .environment(\.verticalSizeClass, .regular)
 }
 
 #Preview("Author Post") {
