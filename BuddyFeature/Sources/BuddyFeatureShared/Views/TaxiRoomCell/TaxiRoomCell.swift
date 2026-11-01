@@ -173,15 +173,61 @@ public struct TaxiRoomCell: View {
   /// the only clue to which day the time belongs to.
   @ViewBuilder
   private var departureDetail: some View {
-    let untilDeparture = room.departAt.timeIntervalSinceNow
-    if !room.isDeparted, untilDeparture > 0, untilDeparture < 12 * 60 * 60 {
-      Text(room.departAt, format: .relative(presentation: .named, unitsStyle: .abbreviated))
-        .font(.caption.weight(.medium))
-        .foregroundStyle(untilDeparture < 60 * 60 ? .orange : .secondary)
+    if room.isDeparted {
+      departureDate
     } else {
-      Text(room.departAt, format: .dateTime.month(.abbreviated).day().weekday(.abbreviated))
-        .font(.caption)
-        .foregroundStyle(.secondary)
+      // Keep scheduled updates inside the label, away from the route, riders and card.
+      TimelineView(TaxiDepartureDetailSchedule(departure: room.departAt)) { context in
+        let untilDeparture = room.departAt.timeIntervalSince(context.date)
+        if untilDeparture > 0, untilDeparture <= 12 * 60 * 60 {
+          let countdown = Self.countdownFormatter.localizedString(
+            for: room.departAt,
+            relativeTo: context.date
+          )
+          Text(countdown)
+            .font(.caption.weight(.medium))
+            .foregroundStyle(untilDeparture < 60 * 60 ? .orange : .secondary)
+            .contentTransition(.numericText(countsDown: true))
+            .animation(.default, value: countdown)
+        } else {
+          departureDate
+        }
+      }
+    }
+  }
+
+  private var departureDate: some View {
+    Text(room.departAt, format: .dateTime.month(.abbreviated).day().weekday(.abbreviated))
+      .font(.caption)
+      .foregroundStyle(.secondary)
+  }
+
+  private static let countdownFormatter: RelativeDateTimeFormatter = {
+    let formatter = RelativeDateTimeFormatter()
+    formatter.dateTimeStyle = .named
+    formatter.unitsStyle = .abbreviated
+    return formatter
+  }()
+}
+
+/// Wait until the countdown is needed, update by minute, then by second in the final minute.
+/// Include the departure itself to restore the date label, then stop scheduling updates.
+private struct TaxiDepartureDetailSchedule: TimelineSchedule {
+  let departure: Date
+
+  func entries(from startDate: Date, mode: Mode) -> some Sequence<Date> {
+    sequence(first: startDate) { previous in
+      let remaining = departure.timeIntervalSince(previous)
+      if remaining > 12 * 60 * 60 {
+        return departure.addingTimeInterval(-12 * 60 * 60)
+      }
+      if remaining > 60 {
+        return min(previous.addingTimeInterval(60), departure.addingTimeInterval(-60))
+      }
+      if remaining > 0 {
+        return min(previous.addingTimeInterval(mode == .lowFrequency ? 60 : 1), departure)
+      }
+      return nil
     }
   }
 }
