@@ -33,22 +33,38 @@ struct TaxiDepartureHeader: View {
 
   @ViewBuilder
   private var countdown: some View {
-    let untilDeparture = date.timeIntervalSinceNow
-    if untilDeparture > 0, untilDeparture < 12 * 60 * 60 {
-      let tint: Color = untilDeparture < 60 * 60 ? .orange : .indigo
-      // Not a `Label`: in a list row, as in the ride info, it shows only its icon.
-      HStack(spacing: 4) {
-        Image(systemName: "clock.fill")
-        Text(date, format: .relative(presentation: .named, unitsStyle: .abbreviated))
-      }
-      .font(.footnote.weight(.semibold))
-      .foregroundStyle(tint)
-      .padding(.vertical, 5)
-      .padding(.horizontal, 10)
-      .background(tint.opacity(0.18), in: .capsule)
-      .fixedSize()
-    }
+		TimelineView(.periodic(from: .now, by: 1.0)) { context in
+			let untilDeparture = date.timeIntervalSince(context.date)
+			if untilDeparture > 0, untilDeparture < 12 * 60 * 60 {
+				let tint: Color = untilDeparture < 60 * 60 ? .orange : .indigo
+				// Not a `Label`: in a list row, as in the ride info, it shows only its icon.
+				HStack(spacing: 4) {
+					Image(systemName: "clock.fill")
+					Text(
+						Self.countdownFormatter.localizedString(
+							for: date,
+							relativeTo: context.date
+						)
+					)
+					.contentTransition(.numericText(countsDown: true))
+				}
+				.font(.footnote.weight(.semibold))
+				.foregroundStyle(tint)
+				.padding(4)
+				.padding(.trailing, 2)
+				.background(tint.opacity(0.18), in: .capsule)
+				.fixedSize()
+				.animation(.spring, value: context.date)
+			}
+		}
   }
+	
+	private static let countdownFormatter: RelativeDateTimeFormatter = {
+		let formatter = RelativeDateTimeFormatter()
+		formatter.dateTimeStyle = .named
+		formatter.unitsStyle = .abbreviated
+		return formatter
+	}()
 }
 
 extension Date {
