@@ -28,6 +28,10 @@ public struct TimetableGridCell: View {
   @Environment(\.widgetRenderingMode) var renderingMode
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.timetableTheme) private var theme
+  // One line of `.caption` and of `.caption2`. Korean sets a fifth of a point taller, which the
+  // padding beneath absorbs.
+  @ScaledMetric(relativeTo: .caption) private var captionLineHeight: CGFloat = 16
+  @ScaledMetric(relativeTo: .caption2) private var caption2LineHeight: CGFloat = 13
 
   public var body: some View {
     GeometryReader { geometry in
@@ -43,42 +47,54 @@ public struct TimetableGridCell: View {
         }
         
         let isPacked = isPackedCell(geometry.size)
-        VStack(alignment: .leading, spacing: placement == .widget || isPacked ? 2 : 4) {
+        let spacing: CGFloat = placement == .widget || isPacked ? 2 : 4
+        let verticalPadding: CGFloat = isPacked ? 4 : 6
+        let lines = TimetableCellLines(
+          height: geometry.size.height - verticalPadding * 2,
+          titleLineHeight: isPacked ? caption2LineHeight : captionLineHeight,
+          detailLineHeight: caption2LineHeight,
+          spacing: spacing,
+          maxRoomLines: isPacked ? 1 : 2,
+          maxSubtitleLines: lectureItem.lecture.subtitleTopic == nil ? 0 : geometry.size.height > 90 ? 3 : 1
+        )
+        VStack(alignment: .leading, spacing: lines.spacing) {
           Text(lectureItem.lecture.name)
-            // Only widgets shrink their text to fit. Elsewhere every cell keeps one size, so a
-            // grid doesn't mix sizes cell by cell; a long name ends in an ellipsis instead.
-            .minimumScaleFactor(placement == .widget ? 0.8 : 1)
+            // Only roomy widget cells shrink their text to fit. Elsewhere every cell keeps one
+            // size, so a grid doesn't mix sizes cell by cell, nor the title with the lines beneath
+            // it; a long name ends in an ellipsis instead.
+            .minimumScaleFactor(placement == .widget && !isPacked ? 0.8 : 1)
             // Packed, a size down and set apart from the room by weight instead.
             .font(isPacked ? .caption2.weight(.medium) : .caption)
+            // Takes what the subtitle and room leave, so it's the one cut short.
             .lineLimit(isPacked && geometry.size.height < 60 ? 2 : 3)
-            .layoutPriority(1)
-          
-          if geometry.size.height > 40 {
+
+          if lines.room > 0 {
             // Ahead of the room: it tells apart sections of one course, such as
             // the Leadership ones, which the room and professor don't.
-            if let subtitle = lectureItem.lecture.subtitleTopic {
-              // Not scaled down to fit, so it matches the room beneath it. One line
-              // in a short cell, so the room still shows.
+            if let subtitle = lectureItem.lecture.subtitleTopic, lines.subtitle > 0 {
+              // Not scaled down to fit, so it matches the room beneath it.
               Text(subtitle)
-                .lineLimit(geometry.size.height > 90 ? 3 : 1)
+                .lineLimit(lines.subtitle)
                 .font(.caption2)
+                .layoutPriority(1)
             }
 
             descriptionText(isPacked: isPacked)
-              .minimumScaleFactor(placement == .widget ? 0.8 : 1)
-              .lineLimit(isPacked ? 1 : 2)
+              .minimumScaleFactor(placement == .widget && !isPacked ? 0.8 : 1)
+              .lineLimit(lines.room)
               .font(.caption2)
               // Set a touch tighter in every packed cell, with the narrower sides, so a wide room
               // such as "W1-2 1201" fits.
               .tracking(isPacked ? -0.3 : 0)
               .opacity(0.8)
+              .layoutPriority(2)
           }
         }
         // Over the tint, the grid's own label colour reads like the hour labels beside it.
         .foregroundStyle(isCandidate ? theme.gridLabelColor ?? .primary : theme.textColor)
         // Packed, narrower at the sides, for the room beneath the title.
         .padding(.horizontal, isPacked ? 3 : 6)
-        .padding(.vertical, isPacked ? 4 : 6)
+        .padding(.vertical, verticalPadding)
       }
       .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
       .clipped()
@@ -95,10 +111,10 @@ public struct TimetableGridCell: View {
     theme.color(forCourseID: lectureItem.lecture.courseID)
   }
 
-  /// Too small for the usual padding and room name, such as in a full week or the lecture search's
-  /// timetable preview. Widgets size their text their own way.
+  /// Too small for the usual padding and room name, such as in a full week, the lecture search's
+  /// timetable preview or the large widgets.
   private func isPackedCell(_ size: CGSize) -> Bool {
-    placement != .widget && (size.width < 72 || size.height < 60)
+    size.width < 72 || size.height < 60
   }
 
   private func descriptionText(isPacked: Bool) -> Text {
@@ -129,6 +145,47 @@ public struct TimetableGridCell: View {
     }
 
     return color
+  }
+}
+
+/// How many lines the room and subtitle get beneath a cell's title. As soon as a cell has room
+/// for two lines, the second goes to the room rather than to more of the title, closing up the
+/// spacing above it if that's what it takes. Then comes the subtitle, then the room's second
+/// line; the title takes whatever is left.
+struct TimetableCellLines {
+  let room: Int
+  let subtitle: Int
+  /// Between the lines; less than asked for in a cell only just tall enough for the room.
+  let spacing: CGFloat
+
+  init(
+    height: CGFloat,
+    titleLineHeight: CGFloat,
+    detailLineHeight: CGFloat,
+    spacing: CGFloat,
+    maxRoomLines: Int,
+    maxSubtitleLines: Int
+  ) {
+    var spare = height - titleLineHeight
+    guard maxRoomLines > 0, spare >= detailLineHeight else {
+      self.room = 0
+      self.subtitle = 0
+      self.spacing = spacing
+      return
+    }
+
+    let roomSpacing = min(spacing, spare - detailLineHeight)
+    spare -= roomSpacing + detailLineHeight
+    func take(_ maxLines: Int, spaced: Bool) -> Int {
+      let gap = spaced ? roomSpacing : 0
+      let count = max(0, min(maxLines, Int(((spare - gap) / detailLineHeight).rounded(.down))))
+      if count > 0 { spare -= gap + CGFloat(count) * detailLineHeight }
+      return count
+    }
+
+    self.subtitle = take(maxSubtitleLines, spaced: true)
+    self.room = 1 + take(maxRoomLines - 1, spaced: false)
+    self.spacing = roomSpacing
   }
 }
 

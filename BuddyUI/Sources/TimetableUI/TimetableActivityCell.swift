@@ -19,6 +19,8 @@ struct TimetableActivityCell: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.widgetRenderingMode) private var renderingMode
   @Environment(\.timetableTheme) private var theme
+  @ScaledMetric(relativeTo: .caption) private var captionLineHeight: CGFloat = 16
+  @ScaledMetric(relativeTo: .caption2) private var caption2LineHeight: CGFloat = 13
 
   var body: some View {
     GeometryReader { geometry in
@@ -28,24 +30,34 @@ struct TimetableActivityCell: View {
           .widgetAccentable()
           .opacity(renderingMode == .accented ? 0.2 : 1)
         // Packed as lecture cells are; see `TimetableGridCell`.
-        let isPacked = placement != .widget && (geometry.size.width < 72 || geometry.size.height < 60)
-        VStack(alignment: .leading, spacing: placement == .widget || isPacked ? 2 : 4) {
+        let isPacked = geometry.size.width < 72 || geometry.size.height < 60
+        let spacing: CGFloat = placement == .widget || isPacked ? 2 : 4
+        let verticalPadding: CGFloat = isPacked ? 4 : 6
+        let lines = TimetableCellLines(
+          height: geometry.size.height - verticalPadding * 2,
+          titleLineHeight: isPacked ? caption2LineHeight : captionLineHeight,
+          detailLineHeight: caption2LineHeight,
+          spacing: spacing,
+          maxRoomLines: isPacked ? 1 : 2,
+          maxSubtitleLines: 0
+        )
+        VStack(alignment: .leading, spacing: lines.spacing) {
           Text(activity.title)
-						.minimumScaleFactor(placement == .widget ? 0.8 : 1)
+						.minimumScaleFactor(placement == .widget && !isPacked ? 0.8 : 1)
 						.font(isPacked ? .caption2.weight(.medium) : .caption)
 						.lineLimit(isPacked && geometry.size.height < 60 ? 2 : 3)
-						.layoutPriority(1)
 					
-          if geometry.size.height > 40, !activity.location.isEmpty {
+          if lines.room > 0, !activity.location.isEmpty {
             Text(activity.location)
-							.minimumScaleFactor(placement == .widget ? 0.8 : 1)
-							.lineLimit(isPacked ? 1 : 2)
+							.minimumScaleFactor(placement == .widget && !isPacked ? 0.8 : 1)
+							.lineLimit(lines.room)
 							.font(.caption2)
 							.opacity(0.8)
+							.layoutPriority(2)
           }
         }
         .padding(.horizontal, isPacked ? 3 : 6)
-        .padding(.vertical, isPacked ? 4 : 6)
+        .padding(.vertical, verticalPadding)
         .foregroundStyle(theme.textColor)
       }
       .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
