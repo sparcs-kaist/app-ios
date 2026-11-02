@@ -107,12 +107,7 @@ public struct TaxiChatView: View {
     .staticNavigationBar()
     .toolbar { toolbarContent }
     .safeAreaBar(edge: .top) {
-      // Left out on a short screen, an iPhone in landscape, where with the keyboard up it would
-      // leave room for a single line of the conversation; the photos in the bar still open the
-      // ride's info.
-      if verticalSizeClass != .compact {
-        rideTitle
-      }
+      rideTitle
     }
     .safeAreaBar(edge: .bottom) {
       TaxiChatInputBar(
@@ -230,9 +225,6 @@ public struct TaxiChatView: View {
         }
       }
       .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).midX } action: { rideTitleMidX = $0 }
-      // Forgotten when it leaves the screen, as in landscape, so the photos aren't lined up with
-      // where it last was.
-      .onDisappear { rideTitleMidX = 0 }
       .padding(.bottom, 4)
       .frame(maxWidth: .infinity)
       // Centred across the whole conversation, which can run on under iPhone Duo's vertical bar.
