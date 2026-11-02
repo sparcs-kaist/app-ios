@@ -14,14 +14,19 @@ struct FeedCommentsSection: View {
   let state: FeedPostViewModel.ViewState
   @Binding var comments: [FeedComment]
   let commentCount: Int
+  /// Separates the comments from the post above them; off when nothing sits
+  /// above, like in the comments column beside the feed.
+  var showsLeadingDivider: Bool = true
   let onReply: (FeedComment) -> Void
 
   var body: some View {
     switch state {
     case .loading:
       VStack(alignment: .leading, spacing: 16) {
-        Divider()
-          .padding(.horizontal)
+        if showsLeadingDivider {
+          Divider()
+            .padding(.horizontal)
+        }
 
         Text("\(commentCount) comments", bundle: .module)
           .font(.headline)
@@ -38,8 +43,10 @@ struct FeedCommentsSection: View {
       }
     case .loaded where comments.isEmpty:
       VStack(spacing: 16) {
-        Divider()
-          .padding(.horizontal)
+        if showsLeadingDivider {
+          Divider()
+            .padding(.horizontal)
+        }
 
         ContentUnavailableView(
           String(localized: "No one has commented yet.", bundle: .module),
@@ -50,8 +57,10 @@ struct FeedCommentsSection: View {
       }
     case .loaded:
       LazyVStack(alignment: .leading, spacing: 16) {
-        Divider()
-          .padding(.horizontal)
+        if showsLeadingDivider {
+          Divider()
+            .padding(.horizontal)
+        }
 
         Text("\(commentCount) comments", bundle: .module)
           .font(.headline)

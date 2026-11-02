@@ -22,51 +22,54 @@ struct FeedPostView: View {
   let onDelete: (() async throws -> Void)?
 
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @State private var viewport: CGSize = .zero
 
   @State private var showDeleteConfirmation: Bool = false
 
   @FocusState private var isWritingCommentFocusState: Bool
-  @State private var targetComment: FeedComment? = nil
 
   /// The comment to pin to the top while a reply to it is being written.
   private var replyScrollTargetID: String? {
-    isWritingCommentFocusState ? targetComment?.id : nil
+    isWritingCommentFocusState ? viewModel.targetComment?.id : nil
   }
 
   @State private var showTranslateSheet: Bool = false
 
-  @State private var viewModel: FeedPostViewModelProtocol = FeedPostViewModel()
+  @State private var viewModel: FeedPostViewModelProtocol
+
+  init(
+    post: Binding<FeedPost>,
+    viewModel: FeedPostViewModelProtocol = FeedPostViewModel(),
+    onDelete: (() async throws -> Void)?
+  ) {
+    self._post = post
+    self._viewModel = State(initialValue: viewModel)
+    self.onDelete = onDelete
+  }
 
   var body: some View {
     ScrollViewReader { proxy in
-      ScrollView {
-        VStack(alignment: .leading, spacing: 16) {
-          FeedPostRow(post: $post, onPostDeleted: nil, onComment: {
-            targetComment = nil
-            isWritingCommentFocusState = true
-          }, showFullContent: true)
-
-          FeedCommentsSection(
-            state: viewModel.state,
-            comments: $viewModel.comments,
-            commentCount: post.commentCount,
-            onReply: { comment in
-              targetComment = comment
-              isWritingCommentFocusState = true
-            }
-          )
-
-          // Comments near the end of the list have too little content below
-          // them to reach the top, so pad the bottom by a screen's height while
-          // replying. Sized in layout, so no state updates during the keyboard
-          // animation.
-          if replyScrollTargetID != nil {
-            Color.clear
-              .containerRelativeFrame(.vertical)
+      Group {
+        if usesPanes {
+          FeedPostPanes {
+            column { postSection }
+          } comments: {
+            column { commentsSection }
+              .safeAreaBar(edge: .bottom) {
+                inputBar(proxy: proxy)
+              }
+          }
+        } else {
+          column {
+            postSection
+            commentsSection
           }
         }
-        .contentWidth()
       }
+      .onGeometryChange(for: CGSize.self) { $0.size } action: { viewport = $0 }
+      .modifier(FeedPostNavigationBar(isPinned: usesPanes))
       .onChange(of: replyScrollTargetID) { _, id in
         guard let id else { return }
         // Wait a turn so the bottom spacer is laid out before scrolling.
@@ -94,7 +97,9 @@ struct FeedPostView: View {
       .translationPresentation(isPresented: $showTranslateSheet, text: post.content)
       .scrollDismissesKeyboard(.interactively)
       .safeAreaBar(edge: .bottom) {
-        inputBar(proxy: proxy)
+        if !usesPanes {
+          inputBar(proxy: proxy)
+        }
       }
       .alert(
         viewModel.alertState?.title ?? String(localized: "Error", bundle: .module),
@@ -114,6 +119,50 @@ struct FeedPostView: View {
         "has_comments": post.commentCount > 0
       ]
     )
+  }
+
+  /// Match Ara's post layout: wide regular-size displays get two panes;
+  /// phones in landscape retain one scrolling column.
+  private var usesPanes: Bool {
+    horizontalSizeClass == .regular
+      && verticalSizeClass == .regular
+      && viewport.width > viewport.height
+      && viewport.width >= FeedPostPaneWidth.post + FeedPostPaneWidth.comments
+  }
+
+  private func column(@ViewBuilder content: () -> some View) -> some View {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 16, content: content)
+        .contentWidth()
+    }
+  }
+
+  private var postSection: some View {
+    FeedPostRow(post: $post, onPostDeleted: nil, onComment: {
+      viewModel.targetComment = nil
+      isWritingCommentFocusState = true
+    }, showFullContent: true)
+  }
+
+  @ViewBuilder
+  private var commentsSection: some View {
+    FeedCommentsSection(
+      state: viewModel.state,
+      comments: $viewModel.comments,
+      commentCount: post.commentCount,
+      showsLeadingDivider: !usesPanes,
+      onReply: { comment in
+        viewModel.targetComment = comment
+        isWritingCommentFocusState = true
+      }
+    )
+
+    // Give the last comment enough space below it to scroll to the top
+    // while replying, including when comments occupy their own pane.
+    if replyScrollTargetID != nil {
+      Color.clear
+        .containerRelativeFrame(.vertical)
+    }
   }
 
   private var moreMenu: some View {
@@ -159,95 +208,29 @@ struct FeedPostView: View {
   }
 
   private func inputBar(proxy: ScrollViewProxy) -> some View {
-    HStack(alignment: .bottom) {
-      // comment textfield
-      VStack(alignment: .leading) {
-        if let targetComment {
-          CommentReplyPreview(
-            authorName: targetComment.authorName,
-            content: targetComment.content,
-            isDeleted: targetComment.isDeleted,
-            onCancel: { self.targetComment = nil }
-          )
-          .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
+    FeedCommentInputBar(
+      text: $viewModel.text,
+      isAnonymous: $viewModel.isAnonymous,
+      targetComment: $viewModel.targetComment,
+      isFocused: $isWritingCommentFocusState,
+      isSubmitting: viewModel.isSubmittingComment,
+      onSubmit: {
+        Task {
+          if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: viewModel.targetComment) {
+            post.commentCount += 1
+            viewModel.targetComment = nil
+            isWritingCommentFocusState = false
 
-        // maybe some images and anonymous selector
-        TextField(
-          text: $viewModel.text,
-          prompt: Text(
-            targetComment != nil
-              ? String(localized: "Write a reply to \(targetComment?.authorName ?? String(localized: "unknown", bundle: .module))", bundle: .module)
-              : String(localized: "Write a comment", bundle: .module)
-          ),
-          axis: .vertical,
-          label: {
-          }
-        )
-        // Grows with the comment, but stops short of pushing the post off a
-        // short screen; longer text scrolls within the field.
-        .lineLimit(1...5)
-        .focused($isWritingCommentFocusState)
-
-        if isWritingCommentFocusState {
-          Toggle(String(localized: "Write Anonymously", bundle: .module), isOn: $viewModel.isAnonymous)
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .fontDesign(.rounded)
-            .font(.callout)
-            .fontWeight(.medium)
-        }
-      }
-      .padding(12)
-      .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24))
-
-      // write comment button
-      if !viewModel.text.isEmpty {
-        Button(action: {
-          guard !viewModel.text.isEmpty else { return }
-
-          Task {
-            if let uploadedComment = await viewModel.submitComment(postID: post.id, replyingTo: targetComment) {
-              post.commentCount += 1
-              targetComment = nil
-              isWritingCommentFocusState = false
-
-              withAnimation(.spring) {
-                proxy.scrollTo(uploadedComment.id, anchor: .center)
-              }
+            withAnimation(.spring) {
+              proxy.scrollTo(uploadedComment.id, anchor: .center)
             }
           }
-        }, label: {
-          Group {
-            if viewModel.isSubmittingComment {
-              ProgressView()
-                .tint(.white)
-            } else {
-              Label(String(localized: "Send", bundle: .module), systemImage: "paperplane")
-                .labelStyle(.iconOnly)
-                .tint(.white)
-            }
-          }
-          .padding(12)
-          .contentShape(.circle)
-        })
-        .fontWeight(.medium)
-        .glassEffect(.regular.tint(Color.accentColor).interactive(), in: .circle)
-        .disabled(viewModel.text.isEmpty || viewModel.isSubmittingComment)
-        .transition(.move(edge: .trailing).combined(with: .opacity))
+        }
       }
-    }
-    .padding(isWritingCommentFocusState ? [.horizontal, .vertical] : [.horizontal])
-    .contentWidth()
+    )
     // The centred column crosses the hinge when half folded, splitting the
     // comment field across it.
     .avoidingFold()
-    .animation(.spring, value: isWritingCommentFocusState)
-    .animation(.spring, value: targetComment?.id)
-    .animation(
-      .spring(duration: 0.35, bounce: 0.4, blendDuration: 0.15),
-      value: viewModel.text.isEmpty
-    )
   }
 
 }
@@ -272,6 +255,17 @@ struct FeedPostView: View {
     FeedPostView(post: .constant(FeedPost.mockList[6]), onDelete: nil)
       .environment(spoilerContents)
   }
+}
+
+#Preview("Wide Post Detail", traits: .fixedLayout(width: 1024, height: 700)) {
+  @Previewable @State var spoilerContents = SpoilerContents()
+  let _ = Container.setupFeedPreview()
+  NavigationStack {
+    FeedPostView(post: .constant(FeedPost.mockList[6]), onDelete: nil)
+      .environment(spoilerContents)
+  }
+  .environment(\.horizontalSizeClass, .regular)
+  .environment(\.verticalSizeClass, .regular)
 }
 
 #Preview("Author Post") {
