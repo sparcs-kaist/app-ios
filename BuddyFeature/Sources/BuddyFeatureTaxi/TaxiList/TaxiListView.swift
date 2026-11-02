@@ -147,8 +147,7 @@ public struct TaxiListView: View {
             await viewModel.fetchData()
           }
         }
-        .presentationDragIndicator(.visible)
-        .presentationDetents([.height(560), .large])
+        .taxiPreviewPresentation()
         .leadingPresentationPlacement()
     }
     .task {

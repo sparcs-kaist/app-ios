@@ -205,8 +205,7 @@ public struct SearchView: View {
       }
     } content: {
       TaxiPreviewView(room: $0) { joinedRoom = $0 }
-        .presentationDragIndicator(.visible)
-        .presentationDetents([.height(560), .large])
+        .taxiPreviewPresentation()
     }
   }
   
