@@ -180,7 +180,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
       cancelRefreshTimer()
-      clearCreditSummary()
+      clearSessionData()
       WidgetCenter.shared.reloadAllTimelines()
       throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
     }
@@ -213,8 +213,9 @@ public actor AuthUseCase: AuthUseCaseProtocol {
         tokenStorage.clearTokens()
         _isAuthenticatedSubject.value = false
         cancelRefreshTimer()
-        // The session is gone, so the Credits widgets mustn't keep showing the GPA.
-        clearCreditSummary()
+        // The session is gone, so the Credits widgets mustn't keep showing the GPA, nor the
+        // Taxi tab where this account travels.
+        clearSessionData()
         WidgetCenter.shared.reloadAllTimelines()
       }
       throw AuthUseCaseError.refreshFailed(error)
@@ -253,7 +254,6 @@ public actor AuthUseCase: AuthUseCaseProtocol {
 
   public func signOut() async throws {
     TimetableSelectionStore().clear()
-    TaxiFavoritesStore().clear()
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()
     }
@@ -268,13 +268,16 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     cancelRefreshTimer()
     // Cleared before the reload, so the Credits widgets can't show this user's GPA,
     // on the watch too.
-    clearCreditSummary()
+    clearSessionData()
     WidgetCenter.shared.reloadAllTimelines()
     logger.info("Signed out.")
   }
 
-  /// Removes the stored GPA snapshot, and the watch's copy, once the session ends.
-  private func clearCreditSummary() {
+  /// Removes what this account left on the device once the session ends, however it ends: the
+  /// stored GPA snapshot and the watch's copy, and the favourite Taxi places. Favourite routes
+  /// are kept by the Taxi service with the account, so they need no clearing.
+  private func clearSessionData() {
+    TaxiFavoritesStore().clear()
     CreditSummarySnapshotStore().clear()
     Container.shared.sessionBridgeService()?.updateCreditSummary(nil)
   }

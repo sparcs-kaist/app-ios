@@ -22,16 +22,16 @@ struct TaxiFavoriteRoutes: View {
   private var favorites: TaxiFavorites { .shared }
 
   private struct ResolvedRoute: Identifiable {
-    let route: TaxiFavoritesStore.Route
+    let route: TaxiFavorites.Route
     let source: TaxiLocation
     let destination: TaxiLocation
-    var id: TaxiFavoritesStore.Route { route }
+    var id: TaxiFavorites.Route { route }
   }
 
   /// Saved routes whose places still exist.
   private var routes: [ResolvedRoute] {
     let byID = Dictionary(locations.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
-    return favorites.routes.compactMap { route in
+    return favorites.shownRoutes.compactMap { route in
       guard let source = byID[route.sourceID], let destination = byID[route.destinationID] else { return nil }
       return ResolvedRoute(route: route, source: source, destination: destination)
     }

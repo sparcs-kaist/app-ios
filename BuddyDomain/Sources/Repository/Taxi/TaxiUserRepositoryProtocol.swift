@@ -15,4 +15,10 @@ public protocol TaxiUserRepositoryProtocol: Sendable {
   func editNickname(nickname: String) async throws
   func registerResidence(residence: String) async throws
   func deleteResidence() async throws
+  /// Your favourite routes, as the Taxi service keeps them for your account. Routes to or from a
+  /// place that no longer exists are left out.
+  func fetchFavoriteRoutes() async throws -> [TaxiFavoriteRoute]
+  /// Saves a favourite route. Fails if the route is already saved.
+  func createFavoriteRoute(sourceID: String, destinationID: String) async throws -> TaxiFavoriteRoute
+  func deleteFavoriteRoute(id: String) async throws
 }
