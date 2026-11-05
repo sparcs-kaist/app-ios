@@ -23,6 +23,8 @@ struct ChatCollectionView: UIViewRepresentable {
   /// Whether the rows run on under iPhone Duo's vertical bar, for when the bar holds nothing of
   /// the chat's, rather than stopping beside it.
   var runsUnderVerticalBar: Bool = false
+  /// Called with a photo's id when its bubble is tapped.
+  var onImageTap: (String) -> Void = { _ in }
 
   func makeUIView(context: Context) -> UICollectionView {
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout(coordinator: context.coordinator))
@@ -109,6 +111,7 @@ struct ChatCollectionView: UIViewRepresentable {
     context.coordinator.user = user
     context.coordinator.isCommitPaymentAvailable = isCommitPaymentAvailable
     context.coordinator.onCommitPayment = onCommitPayment
+    context.coordinator.onImageTap = onImageTap
 
     if shouldReload {
       // Capture whether the user is pinned to the bottom *before* the reload
@@ -169,7 +172,8 @@ struct ChatCollectionView: UIViewRepresentable {
       room: room,
       user: user,
       isCommitPaymentAvailable: isCommitPaymentAvailable,
-      onCommitPayment: onCommitPayment
+      onCommitPayment: onCommitPayment,
+      onImageTap: onImageTap
     )
   }
 
@@ -238,6 +242,7 @@ struct ChatCollectionView: UIViewRepresentable {
     var user: TaxiUser?
     var isCommitPaymentAvailable: Bool
     var onCommitPayment: () -> Void
+    var onImageTap: (String) -> Void
     var leadingInset: CGFloat = 0
     var trailingInset: CGFloat = 0
     var previousBottomInset: CGFloat = 0
@@ -251,13 +256,15 @@ struct ChatCollectionView: UIViewRepresentable {
       room: TaxiRoom,
       user: TaxiUser?,
       isCommitPaymentAvailable: Bool,
-      onCommitPayment: @escaping () -> Void
+      onCommitPayment: @escaping () -> Void,
+      onImageTap: @escaping (String) -> Void
     ) {
       self.items = items
       self.room = room
       self.user = user
       self.isCommitPaymentAvailable = isCommitPaymentAvailable
       self.onCommitPayment = onCommitPayment
+      self.onImageTap = onImageTap
       badgeByAuthorID = Dictionary(uniqueKeysWithValues: room.participants.map {
         ($0.id, $0.badge)
       })
@@ -307,6 +314,10 @@ struct ChatCollectionView: UIViewRepresentable {
             ChatBubble(chat: chat, position: position, isMine: sender.isMine)
           case .s3img:
             ChatImageBubble(id: chat.content)
+              .contentShape(.rect(cornerRadius: 24))
+              // Read when tapped rather than captured, so a reused cell calls the current one.
+              .onTapGesture { self.onImageTap(chat.content) }
+              .accessibilityAddTraits(.isButton)
           case .departure:
             ChatDepartureBubble(room: self.room)
           case .arrival:

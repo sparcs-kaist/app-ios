@@ -29,7 +29,8 @@ public struct TaxiChatView: View {
   @State private var showPayMoneyAlert: Bool = false
   @State private var showSettlementAmountSheet: Bool = false
 
-  @State private var tappedImageID: String? = nil
+  /// The chat's photos, shown full screen from the one tapped.
+  @State private var gallery: ImageGallery?
   /// The ride info, in a popover from the photos on a regular width and a sheet on a compact one.
   @State private var showRideInfo: Bool = false
   /// Horizontal centres on screen of where the bar puts the photos and of the title below them.
@@ -89,7 +90,8 @@ public struct TaxiChatView: View {
           },
           safeAreaInsets: reader.safeAreaInsets,
           scrollToBottomTrigger: viewModel.scrollToBottomTrigger,
-          runsUnderVerticalBar: runsUnderVerticalBar
+          runsUnderVerticalBar: runsUnderVerticalBar,
+          onImageTap: openGallery
         )
         // Expand only by this column's measured side insets. Ignoring the
         // horizontal safe area here can extend under the neighboring column.
@@ -141,9 +143,8 @@ public struct TaxiChatView: View {
       .ignoringVerticalBar(runsUnderVerticalBar)
     }
     .toolbar(.hidden, for: .tabBar)
-    .navigationDestination(item: $tappedImageID) { id in
-      FullscreenImageView(url: Constants.taxiChatImageURL.appending(path: id))
-        .navigationTransition(.zoom(sourceID: id, in: namespace))
+    .fullScreenCover(item: $gallery) { gallery in
+      FullScreenImageViewer(gallery: gallery)
     }
     .alert(
       String(localized: "Send Payment", bundle: .module),
@@ -190,6 +191,15 @@ public struct TaxiChatView: View {
       await viewModel.fetchInitialChats()
     }
     .analyticsScreen(name: "Taxi Chat", class: String(describing: Self.self))
+  }
+
+  /// Every photo sent in the chat, oldest first, opened at the one with this id.
+  private func openGallery(at id: String) {
+    let urls = viewModel.renderItems.compactMap { item -> URL? in
+      guard case .message(_, let chat, .s3img, _, _, _) = item else { return nil }
+      return Constants.taxiChatImageURL.appending(path: chat.content)
+    }
+    gallery = ImageGallery(urls: urls, selected: Constants.taxiChatImageURL.appending(path: id))
   }
 
   @ToolbarContentBuilder
