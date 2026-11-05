@@ -39,7 +39,10 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   // replacing the previous `Mutex`.
   private var refreshTask: Task<Void, Error>?
   private var lastFailure: Date?
-  private let refreshCooldown: TimeInterval = 10
+  private let refreshCooldown: TimeInterval
+  // The refresh token the server last rejected. It ends the session only if the
+  // server rejects it a second time.
+  private var rejectedRefreshToken: String?
 
   // A `Timer` needs a run loop, so it is confined to the MainActor.
   @MainActor private var refreshTimer: Timer?
@@ -56,8 +59,10 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     tokenStorage: TokenStorageProtocol,
     araUserRepository: AraUserRepositoryProtocol?,
     feedUserRepository: FeedUserRepositoryProtocol?,
-    otlUserRepository: OTLUserRepositoryProtocol?
+    otlUserRepository: OTLUserRepositoryProtocol?,
+    refreshCooldown: TimeInterval = 10
   ) {
+    self.refreshCooldown = refreshCooldown
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
     self.araUserRepository = araUserRepository
@@ -177,13 +182,15 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     // Read errors (including a locked keychain) preserve the session. Only a
     // successful read confirming that the token is absent can clear it.
     guard let currentRefreshToken = try tokenStorage.readRefreshToken() else {
-      tokenStorage.clearTokens()
-      _isAuthenticatedSubject.value = false
-      cancelRefreshTimer()
-      clearCreditSummary()
-      WidgetCenter.shared.reloadAllTimelines()
+      endSession()
       throw AuthUseCaseError.refreshFailed(NSError(domain: "AuthUseCase", code: 401, userInfo: [NSLocalizedDescriptionKey: "No refresh token available"]))
     }
+
+    // The server consumes a refresh token on use and hands back its successor.
+    // Suspended between the two, the app would keep only the consumed token,
+    // which every later refresh is rejected for.
+    let activity = BackgroundActivity(reason: "Refresh access token")
+    defer { activity.end() }
 
     do {
       // Mark the in-flight refresh on the task-local
@@ -196,29 +203,68 @@ public actor AuthUseCase: AuthUseCaseProtocol {
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
       _isAuthenticatedSubject.value = true
       lastFailure = nil
+      rejectedRefreshToken = nil
       logger.info("Successfully refreshed access token.")
       scheduleRefreshTimer() // set timer on success
       onTokenRefresh?()
     } catch {
       logger.error("Token refresh failed: \(error.localizedDescription, privacy: .public)")
       lastFailure = Date()
-      // Only clear tokens on auth error (401), not on network/decoding errors
-      let isAuthError: Bool
-      if let networkError = error as? NetworkError, case .unauthorized = networkError {
-        isAuthError = true
-      } else {
-        isAuthError = false
+      // Network, decoding and 5xx errors are transient and keep the session.
+      guard Self.isRefreshTokenRejected(error) else {
+        throw AuthUseCaseError.refreshFailed(error)
       }
-      if isAuthError {
-        tokenStorage.clearTokens()
-        _isAuthenticatedSubject.value = false
-        cancelRefreshTimer()
-        // The session is gone, so the Credits widgets mustn't keep showing the GPA.
-        clearCreditSummary()
-        WidgetCenter.shared.reloadAllTimelines()
+      // A widget refreshing with the same token at the same time wins the
+      // rotation and leaves this request rejected, though the session is fine.
+      if refreshTokenWasRotatedElsewhere(from: currentRefreshToken) {
+        logger.info("Refresh token was rotated by another process; using its tokens.")
+        _isAuthenticatedSubject.value = true
+        lastFailure = nil
+        rejectedRefreshToken = nil
+        scheduleRefreshTimer()
+        onTokenRefresh?()
+        return
       }
+      // The widget that won may not have saved its tokens yet, so the first
+      // rejection keeps the session. The next refresh reads the keychain again
+      // and picks up the widget's token if it arrived in the meantime.
+      guard rejectedRefreshToken == currentRefreshToken else {
+        logger.info("Refresh token rejected; signing out if it is rejected again.")
+        rejectedRefreshToken = currentRefreshToken
+        throw AuthUseCaseError.refreshFailed(error)
+      }
+      // Kept, a rejected token would never refresh again: every request would
+      // go out with the expired access token, relaunch included, until sign-out.
+      rejectedRefreshToken = nil
+      endSession()
       throw AuthUseCaseError.refreshFailed(error)
     }
+  }
+
+  /// The refresh endpoint answers 400 for a malformed token and 403 for one
+  /// that was already used, has expired, or belongs to a withdrawn user.
+  private static func isRefreshTokenRejected(_ error: Error) -> Bool {
+    switch error as? NetworkError {
+    case .unauthorized: true
+    case .serverError(let statusCode): statusCode == 400 || statusCode == 403
+    default: false
+    }
+  }
+
+  /// Whether the keychain now holds a different refresh token from the one that
+  /// was rejected, saved by the winner of a cross-process race.
+  private func refreshTokenWasRotatedElsewhere(from rejectedToken: String) -> Bool {
+    guard let stored = try? tokenStorage.readRefreshToken() else { return false }
+    return stored != rejectedToken
+  }
+
+  private func endSession() {
+    tokenStorage.clearTokens()
+    _isAuthenticatedSubject.value = false
+    cancelRefreshTimer()
+    // The session is gone, so the Credits widgets mustn't keep showing the GPA.
+    clearCreditSummary()
+    WidgetCenter.shared.reloadAllTimelines()
   }
 
   public func signIn() async throws {

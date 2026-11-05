@@ -55,6 +55,12 @@ public class TimetableService: TimetableServiceProtocol {
     if tokenStorage.getAccessToken() != nil, !tokenStorage.isTokenExpired() { return }
     guard let token = try tokenStorage.readRefreshToken() else { return }
 
+    // The server consumes the refresh token on use. Ending between the request
+    // and the save would leave the app, which shares this keychain, with only
+    // the consumed token.
+    let activity = BackgroundActivity(reason: "Refresh access token")
+    defer { activity.end() }
+
     let tokenResponse: TokenResponse = try await AuthRetryConfig.$isRefreshing.withValue(true) {
       try await self.authRepository!.refreshToken(refreshToken: token)
     }

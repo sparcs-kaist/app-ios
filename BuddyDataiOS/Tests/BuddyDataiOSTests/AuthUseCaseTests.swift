@@ -46,15 +46,66 @@ struct AuthUseCaseTests {
     #expect(!isAuthenticated(fixture.auth))
   }
 
-  @Test func rejectedRefreshTokenRequiresSignIn() async throws {
-    let fixture = Fixture()
-    fixture.service.result = .failure(NetworkError.unauthorized)
+  // The refresh endpoint answers 403 for a consumed or expired token, 400 for a malformed one.
+  @Test(arguments: [NetworkError.unauthorized, .serverError(statusCode: 400), .serverError(statusCode: 403)])
+  func rejectedRefreshTokenRequiresSignIn(error: NetworkError) async throws {
+    let fixture = Fixture(refreshCooldown: 0)
+    fixture.service.result = .failure(error)
+
+    // A widget may still be saving the token that replaced this one.
+    await #expect(throws: AuthUseCaseError.self) { try await fixture.auth.refreshAccessToken(force: true) }
+    #expect(fixture.storage.clearCount == 0)
+    #expect(isAuthenticated(fixture.auth))
 
     await #expect(throws: AuthUseCaseError.self) { try await fixture.auth.refreshAccessToken(force: true) }
+    #expect(fixture.service.refreshCount == 2)
     #expect(fixture.storage.getRefreshToken() == nil)
     #expect(fixture.storage.getAccessToken() == nil)
     #expect(fixture.storage.clearCount == 1)
     #expect(!isAuthenticated(fixture.auth))
+  }
+
+  @Test func refreshTokenRotatedByAnotherProcessPreservesSession() async throws {
+    let fixture = Fixture()
+    fixture.service.result = .failure(NetworkError.serverError(statusCode: 403))
+    // A widget refreshed with the same token first and saved its successor.
+    fixture.service.onRefresh = { [storage = fixture.storage] in
+      try? storage.save(accessToken: "access-from-widget", refreshToken: "refresh-from-widget")
+    }
+
+    try await fixture.auth.refreshAccessToken(force: true)
+    #expect(fixture.storage.clearCount == 0)
+    #expect(isAuthenticated(fixture.auth))
+    #expect(try await fixture.auth.getValidAccessToken() == "access-from-widget")
+  }
+
+  @Test func rotationSavedAfterRejectionPreservesSession() async throws {
+    let fixture = Fixture(refreshCooldown: 0)
+    fixture.service.result = .failure(NetworkError.serverError(statusCode: 403))
+    await #expect(throws: AuthUseCaseError.self) { try await fixture.auth.refreshAccessToken(force: true) }
+
+    // The widget's response arrives after this one was rejected.
+    try fixture.storage.save(accessToken: "access-from-widget", refreshToken: "refresh-from-widget")
+    fixture.storage.expired = true
+    fixture.service.result = .success(.init(accessToken: "access-new", refreshToken: "refresh-new"))
+
+    #expect(try await fixture.auth.getValidAccessToken() == "access-new")
+    #expect(fixture.service.lastRefreshToken == "refresh-from-widget")
+    #expect(fixture.storage.clearCount == 0)
+    #expect(isAuthenticated(fixture.auth))
+  }
+
+  @Test func rejectionOfAReplacementTokenIsAFirstRejection() async throws {
+    let fixture = Fixture(refreshCooldown: 0)
+    fixture.service.result = .failure(NetworkError.serverError(statusCode: 403))
+    await #expect(throws: AuthUseCaseError.self) { try await fixture.auth.refreshAccessToken(force: true) }
+
+    try fixture.storage.save(accessToken: "access-from-widget", refreshToken: "refresh-from-widget")
+    fixture.storage.expired = true
+    await #expect(throws: AuthUseCaseError.self) { try await fixture.auth.refreshAccessToken(force: true) }
+
+    #expect(fixture.storage.clearCount == 0)
+    #expect(isAuthenticated(fixture.auth))
   }
 
   @Test func failedTokenWritePreservesSession() async throws {
@@ -103,13 +154,18 @@ struct AuthUseCaseTests {
 private final class Fixture {
   let storage = TestTokenStorage()
   let service = TestAuthenticationService()
+  let refreshCooldown: TimeInterval
   lazy var auth = makeAuth()
 
-  init() { _ = auth }
+  init(refreshCooldown: TimeInterval = 10) {
+    self.refreshCooldown = refreshCooldown
+    _ = auth
+  }
 
   func makeAuth() -> AuthUseCase {
     AuthUseCase(authenticationService: service, tokenStorage: storage,
-      araUserRepository: nil, feedUserRepository: nil, otlUserRepository: nil)
+      araUserRepository: nil, feedUserRepository: nil, otlUserRepository: nil,
+      refreshCooldown: refreshCooldown)
   }
 }
 
@@ -117,13 +173,17 @@ private final class Fixture {
 private final class TestAuthenticationService: AuthenticationServiceProtocol {
   var result: Result<TokenResponse, Error> = .success(.init(accessToken: "access-new", refreshToken: "refresh-new"))
   var delay: Duration = .zero
+  var onRefresh: (() -> Void)?
   private(set) var refreshCount = 0
+  private(set) var lastRefreshToken: String?
 
   func authenticate() async throws -> SignInResponse { throw AuthenticationServiceError.userCancelled }
 
   func refreshAccessToken(refreshToken: String) async throws -> TokenResponse {
     refreshCount += 1
+    lastRefreshToken = refreshToken
     try await Task.sleep(for: delay)
+    onRefresh?()
     return try result.get()
   }
 
@@ -149,6 +209,10 @@ private final class TestTokenStorage: TokenStorageProtocol, Sendable {
   var readError: (any Error)? {
     get { state.withLock { $0.readError } }
     set { state.withLock { $0.readError = newValue } }
+  }
+  var expired: Bool {
+    get { state.withLock { $0.expired } }
+    set { state.withLock { $0.expired = newValue } }
   }
   var saveError: (any Error)? {
     get { state.withLock { $0.saveError } }
