@@ -37,6 +37,15 @@ struct TaxiRoomCreationView: View {
             destination: $viewModel.destination,
             locations: viewModel.locations
           )
+
+          TaxiFavoriteRoutes(
+            source: $viewModel.source,
+            destination: $viewModel.destination,
+            locations: viewModel.locations,
+            chipBackground: .tertiarySystemFill
+          )
+          .padding(.horizontal, -20)
+          .listRowSeparator(.hidden)
         }
 
         Section(String(localized: "Title", bundle: .module)) {

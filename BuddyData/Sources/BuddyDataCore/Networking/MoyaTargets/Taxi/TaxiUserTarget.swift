@@ -17,6 +17,9 @@ public enum TaxiUserTarget {
   case editNickname(nickname: String)
   case registerResidence(residence: String)
   case deleteResidence
+  case fetchFavoriteRoutes
+  case createFavoriteRoute(sourceID: String, destinationID: String)
+  case deleteFavoriteRoute(id: String)
 }
 
 extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
@@ -42,14 +45,21 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
       "/users/registerResidence"
     case .deleteResidence:
       "/users/deleteResidence"
+    case .fetchFavoriteRoutes:
+      "/users/getFavorite"
+    case .createFavoriteRoute:
+      "/users/createFavorite"
+    case let .deleteFavoriteRoute(id):
+      "/users/deleteFavorite/\(id)"
     }
   }
 
   public var method: Moya.Method {
     switch self {
-    case .fetchUserInfo, .fetchReports:
+    case .fetchUserInfo, .fetchReports, .fetchFavoriteRoutes:
       .get
-    case .editBadge, .editBankAccount, .registerPhoneNumber, .editNickname, .registerResidence, .deleteResidence:
+    case .editBadge, .editBankAccount, .registerPhoneNumber, .editNickname, .registerResidence, .deleteResidence,
+        .createFavoriteRoute, .deleteFavoriteRoute:
       .post
     }
   }
@@ -71,6 +81,12 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
     case let .registerResidence(residence):
       .requestParameters(parameters: ["residence": residence], encoding: JSONEncoding.default)
     case .deleteResidence:
+      .requestPlain
+    case .fetchFavoriteRoutes:
+      .requestPlain
+    case let .createFavoriteRoute(sourceID, destinationID):
+      .requestParameters(parameters: ["from": sourceID, "to": destinationID], encoding: JSONEncoding.default)
+    case .deleteFavoriteRoute:
       .requestPlain
     }
   }

@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
-import NukeUI
 import BuddyDomain
+import BuddyFeatureShared
 
 struct TaxiReportUser: View {
   var user: TaxiParticipant
@@ -38,25 +38,7 @@ struct TaxiReportUser: View {
   }
   
   private var userProfileImage: some View {
-    Group {
-      if let url = user.profileImageURL {
-        LazyImage(url: url) { state in
-          if let image = state.image {
-            image
-              .resizable()
-              .aspectRatio(contentMode: .fill)
-          } else {
-            Circle()
-              .fill(Color.secondarySystemBackground)
-          }
-        }
-        .frame(width: 36, height: 36)
-        .clipShape(.circle)
-      } else {
-        Circle()
-          .fill(Color.secondarySystemBackground)
-          .frame(width: 36, height: 36)
-      }
-    }
+    TaxiProfilePhoto(url: user.profileImageURL)
+      .frame(width: 36, height: 36)
   }
 }

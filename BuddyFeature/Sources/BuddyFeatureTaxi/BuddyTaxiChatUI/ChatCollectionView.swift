@@ -20,6 +20,11 @@ struct ChatCollectionView: UIViewRepresentable {
   let onCommitPayment: () -> Void
   let safeAreaInsets: EdgeInsets
   let scrollToBottomTrigger: Int
+  /// Whether the rows run on under iPhone Duo's vertical bar, for when the bar holds nothing of
+  /// the chat's, rather than stopping beside it.
+  var runsUnderVerticalBar: Bool = false
+  /// Called with a photo's id when its bubble is tapped.
+  var onImageTap: (String) -> Void = { _ in }
 
   func makeUIView(context: Context) -> UICollectionView {
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout(coordinator: context.coordinator))
@@ -34,21 +39,32 @@ struct ChatCollectionView: UIViewRepresentable {
   func updateUIView(_ collectionView: UICollectionView, context: Context) {
     let newBottomInset = self.safeAreaInsets.bottom + 8
     let oldBottomInset = context.coordinator.previousBottomInset
+    // Read before the inset changes: shrinking it, as when the keyboard hides,
+    // has the scroll view pull the offset back within the new range at once,
+    // and shifting that offset by the change again would scroll the latest
+    // messages down under the input bar.
+    let offsetBeforeInsetChange = collectionView.contentOffset.y
 
     collectionView.contentInset.top = self.safeAreaInsets.top
     collectionView.contentInset.bottom = newBottomInset
+    // Insets on the section keep the message rows inside the safe area while
+    // the viewport extends under the side bars. Beside iPhone Duo's vertical
+    // bar the rows either run on under it or come right up to it.
+    let barEdge = Self.verticalBarEdge(of: collectionView)
+
+    // The scroll indicator runs along the edge of the display under the bar,
+    // whether or not the rows do: beside them it would cut through the
+    // bubbles that run on under the bar, and look stranded short of the edge
+    // when they stop beside it.
+    let leadingIndicator = barEdge == .leading ? 0 : safeAreaInsets.leading
+    let trailingIndicator = barEdge == .trailing ? 0 : safeAreaInsets.trailing
     var indicatorInsets = collectionView.contentInset
-    indicatorInsets.left = layoutDirection == .rightToLeft ? safeAreaInsets.trailing : safeAreaInsets.leading
-    indicatorInsets.right = layoutDirection == .rightToLeft ? safeAreaInsets.leading : safeAreaInsets.trailing
+    indicatorInsets.left = layoutDirection == .rightToLeft ? trailingIndicator : leadingIndicator
+    indicatorInsets.right = layoutDirection == .rightToLeft ? leadingIndicator : trailingIndicator
     collectionView.scrollIndicatorInsets = indicatorInsets
 
-    // Insets on the section shrink the message rows while the viewport and
-    // its scroll-edge effect extend under the side bar. Beside iPhone Duo's
-    // vertical bar the rows' own padding is taken back off too, so the
-    // bubbles run right up to the bar.
-    let barEdge = Self.verticalBarEdge(of: collectionView)
-    let leadingInset = Self.inset(safeAreaInsets.leading, besideBar: barEdge == .leading)
-    let trailingInset = Self.inset(safeAreaInsets.trailing, besideBar: barEdge == .trailing)
+    let leadingInset = Self.inset(safeAreaInsets.leading, besideBar: barEdge == .leading, runsUnderBar: runsUnderVerticalBar)
+    let trailingInset = Self.inset(safeAreaInsets.trailing, besideBar: barEdge == .trailing, runsUnderBar: runsUnderVerticalBar)
     if context.coordinator.leadingInset != leadingInset ||
        context.coordinator.trailingInset != trailingInset {
       context.coordinator.leadingInset = leadingInset
@@ -69,7 +85,7 @@ struct ChatCollectionView: UIViewRepresentable {
         minOffsetY,
         collectionView.contentSize.height - collectionView.bounds.height + newBottomInset
       )
-      let targetOffsetY = min(max(collectionView.contentOffset.y + insetDelta, minOffsetY), maxOffsetY)
+      let targetOffsetY = min(max(offsetBeforeInsetChange + insetDelta, minOffsetY), maxOffsetY)
 
       UIView.animate(
         withDuration: 0.25,
@@ -83,8 +99,9 @@ struct ChatCollectionView: UIViewRepresentable {
 
     context.coordinator.previousBottomInset = newBottomInset
 
+    let oldItems = context.coordinator.items
     let shouldReload =
-      context.coordinator.items != items ||
+      oldItems != items ||
       context.coordinator.room != room ||
       context.coordinator.user != user ||
       context.coordinator.isCommitPaymentAvailable != isCommitPaymentAvailable
@@ -94,13 +111,36 @@ struct ChatCollectionView: UIViewRepresentable {
     context.coordinator.user = user
     context.coordinator.isCommitPaymentAvailable = isCommitPaymentAvailable
     context.coordinator.onCommitPayment = onCommitPayment
+    context.coordinator.onImageTap = onImageTap
 
     if shouldReload {
       // Capture whether the user is pinned to the bottom *before* the reload
       // changes the content size, so we can preserve that position afterwards.
       let wasAtBottom = isAtBottom(collectionView)
 
-      collectionView.reloadData()
+      // Once the chat is on screen, rows are updated in place and new ones inserted rather than
+      // every cell rebuilt, so what a row holds open, such as a rider's card, survives a message
+      // arriving. A list that shrank or changed earlier on is reloaded whole.
+      if context.coordinator.hasInitialScroll, items.count >= oldItems.count {
+        let changed = oldItems.indices
+          .filter { oldItems[$0] != items[$0] }
+          .map { IndexPath(item: $0, section: 0) }
+        let inserted = (oldItems.count..<items.count).map { IndexPath(item: $0, section: 0) }
+        UIView.performWithoutAnimation {
+          if !inserted.isEmpty {
+            collectionView.insertItems(at: inserted)
+          }
+          // The rows that changed, and those on screen, which may draw from the room, the user or
+          // the payment state.
+          let visible = collectionView.indexPathsForVisibleItems.filter { $0.item < oldItems.count }
+          let reconfigured = Set(changed + visible)
+          if !reconfigured.isEmpty {
+            collectionView.reconfigureItems(at: Array(reconfigured))
+          }
+        }
+      } else {
+        collectionView.reloadData()
+      }
 
       if !context.coordinator.hasInitialScroll {
         context.coordinator.hasInitialScroll = true
@@ -132,7 +172,8 @@ struct ChatCollectionView: UIViewRepresentable {
       room: room,
       user: user,
       isCommitPaymentAvailable: isCommitPaymentAvailable,
-      onCommitPayment: onCommitPayment
+      onCommitPayment: onCommitPayment,
+      onImageTap: onImageTap
     )
   }
 
@@ -172,11 +213,14 @@ struct ChatCollectionView: UIViewRepresentable {
     }
   }
 
-  /// A side's section inset: its safe area, less the rows' padding beside the vertical bar,
-  /// whose inset is the bar. Other insets, such as an iPhone's notch in landscape, keep the
-  /// padding.
-  private static func inset(_ safeArea: CGFloat, besideBar: Bool) -> CGFloat {
-    besideBar && safeArea >= rowPadding ? safeArea - rowPadding : safeArea
+  /// A side's section inset: its safe area, except beside iPhone Duo's vertical bar. There it is
+  /// none when the rows run on under the bar, to the edge of the display with only their own
+  /// padding, and otherwise the bar less that padding, so the bubbles come right up to it. Other
+  /// insets, such as an iPhone's notch in landscape, keep the padding.
+  private static func inset(_ safeArea: CGFloat, besideBar: Bool, runsUnderBar: Bool) -> CGFloat {
+    guard besideBar else { return safeArea }
+    if runsUnderBar { return 0 }
+    return safeArea >= rowPadding ? safeArea - rowPadding : safeArea
   }
 
   private func layout(coordinator: Coordinator) -> UICollectionViewLayout {
@@ -198,6 +242,7 @@ struct ChatCollectionView: UIViewRepresentable {
     var user: TaxiUser?
     var isCommitPaymentAvailable: Bool
     var onCommitPayment: () -> Void
+    var onImageTap: (String) -> Void
     var leadingInset: CGFloat = 0
     var trailingInset: CGFloat = 0
     var previousBottomInset: CGFloat = 0
@@ -211,13 +256,15 @@ struct ChatCollectionView: UIViewRepresentable {
       room: TaxiRoom,
       user: TaxiUser?,
       isCommitPaymentAvailable: Bool,
-      onCommitPayment: @escaping () -> Void
+      onCommitPayment: @escaping () -> Void,
+      onImageTap: @escaping (String) -> Void
     ) {
       self.items = items
       self.room = room
       self.user = user
       self.isCommitPaymentAvailable = isCommitPaymentAvailable
       self.onCommitPayment = onCommitPayment
+      self.onImageTap = onImageTap
       badgeByAuthorID = Dictionary(uniqueKeysWithValues: room.participants.map {
         ($0.id, $0.badge)
       })
@@ -259,13 +306,18 @@ struct ChatCollectionView: UIViewRepresentable {
           sender: sender,
           position: position,
           readCount: readCount(for: chat),
-          metadata: metadata
+          metadata: metadata,
+          rider: sender.isMine ? nil : room.participants.first { $0.id == sender.id }
         ) {
           switch kind {
           case .text:
             ChatBubble(chat: chat, position: position, isMine: sender.isMine)
           case .s3img:
             ChatImageBubble(id: chat.content)
+              .contentShape(.rect(cornerRadius: 24))
+              // Read when tapped rather than captured, so a reused cell calls the current one.
+              .onTapGesture { self.onImageTap(chat.content) }
+              .accessibilityAddTraits(.isButton)
           case .departure:
             ChatDepartureBubble(room: self.room)
           case .arrival:

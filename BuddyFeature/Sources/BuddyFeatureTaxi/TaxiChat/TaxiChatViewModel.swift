@@ -30,6 +30,17 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   var isArrived: Bool = false
   var hasCarrier: Bool = false
 
+  /// The last change to the room waiting to be sent. Each reply carries the whole room, so changes
+  /// of every kind go one after another: otherwise an older reply arriving last would put back
+  /// what a newer change had already set.
+  @ObservationIgnored private var roomUpdate: Task<Void, Never>?
+  /// Your arrival and luggage changes still on their way; the generation is that of the latest
+  /// change, the only one whose outcome the switch should show.
+  @ObservationIgnored private var arrivalUpdate: Task<Void, Never>?
+  @ObservationIgnored private var arrivalGeneration = 0
+  @ObservationIgnored private var carrierUpdate: Task<Void, Never>?
+  @ObservationIgnored private var carrierGeneration = 0
+
   private(set) var topChatID: String? = nil
   private var fetchedDateSet: Set<Date> = []
   private var accountChats: [TaxiChat] = []
@@ -94,6 +105,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
       for await updatedRoom in roomUpdateStream {
         guard let self else { return }
         self.room = updatedRoom
+        self.syncOwnStatus()
       }
     })
   }
@@ -120,8 +132,7 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   func fetchInitialChats() async {
     guard let taxiChatUseCase else { return }
     
-    isArrived = currentParticipant?.isArrived ?? false
-    hasCarrier = currentParticipant?.hasCarrier ?? false
+    syncOwnStatus()
 
     await taxiChatUseCase.fetchInitialChats()
   }
@@ -164,10 +175,10 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   func commitSettlement(settlementAmount: Int) {
     guard let taxiRoomRepository, let taxiChatUseCase else { return }
 
-    Task {
+    enqueueRoomUpdate { [self] in
       do {
         let room: TaxiRoom = try await taxiRoomRepository.commitSettlement(
-          id: room.id,
+          id: self.room.id,
           settlementAmount: settlementAmount
         )
         self.room = room
@@ -191,9 +202,9 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
   func commitPayment() {
     guard let taxiRoomRepository else { return }
 
-    Task {
+    enqueueRoomUpdate { [self] in
       do {
-        let room: TaxiRoom = try await taxiRoomRepository.commitPayment(id: room.id)
+        let room: TaxiRoom = try await taxiRoomRepository.commitPayment(id: self.room.id)
         self.room = room
       } catch {
         logger.error("Failed to commit payment: \(error.localizedDescription, privacy: .public)")
@@ -212,10 +223,26 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
     return me.isSettlement == .paymentRequired
   }
 
+  /// Your arrival and luggage as the room last came from the server, unless a change of yours is
+  /// still on its way, which the switch already shows.
+  private func syncOwnStatus() {
+    if arrivalUpdate == nil {
+      isArrived = currentParticipant?.isArrived ?? false
+    }
+    if carrierUpdate == nil {
+      hasCarrier = currentParticipant?.hasCarrier ?? false
+    }
+  }
+
+  /// Shows the change straight away, and puts back the server's state if it refuses it, so the
+  /// switch never claims a state the other riders cannot see.
   func updateArrival(isArrived: Bool) {
     guard let taxiRoomRepository else { return }
 
-    Task {
+    self.isArrived = isArrived
+    arrivalGeneration += 1
+    let generation = arrivalGeneration
+    arrivalUpdate = enqueueRoomUpdate { [self] in
       do {
         room = try await taxiRoomRepository.updateArrival(id: room.id, isArrived: isArrived)
       } catch {
@@ -223,13 +250,21 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
+      if generation == arrivalGeneration {
+        arrivalUpdate = nil
+        syncOwnStatus()
+      }
     }
   }
 
+  /// Shows the change straight away, and puts back the server's state if it refuses it.
   func updateCarrier(hasCarrier: Bool) {
     guard let taxiRoomRepository else { return }
 
-    Task {
+    self.hasCarrier = hasCarrier
+    carrierGeneration += 1
+    let generation = carrierGeneration
+    carrierUpdate = enqueueRoomUpdate { [self] in
       do {
         room = try await taxiRoomRepository.updateCarrier(id: room.id, hasCarrier: hasCarrier)
       } catch {
@@ -237,7 +272,23 @@ class TaxiChatViewModel: TaxiChatViewModelProtocol {
         alertState = AlertState(title: "Error", message: error.localizedDescription)
         isAlertPresented = true
       }
+      if generation == carrierGeneration {
+        carrierUpdate = nil
+        syncOwnStatus()
+      }
     }
+  }
+
+  /// Sends a change to the room once every change before it has had its reply.
+  @discardableResult
+  private func enqueueRoomUpdate(_ operation: @escaping @MainActor () async -> Void) -> Task<Void, Never> {
+    let previous = roomUpdate
+    let update = Task {
+      await previous?.value
+      await operation()
+    }
+    roomUpdate = update
+    return update
   }
 
   var account: String? {

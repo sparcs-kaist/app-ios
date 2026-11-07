@@ -18,6 +18,7 @@ public enum TaxiUserErrorCode: Int {
   case editNicknameFailed = 2004
   case registerResidenceFailed = 2005
   case deleteResidenceFailed = 2006
+  case createFavoriteRouteFailed = 2007
 }
 
 public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
@@ -104,5 +105,26 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
         userInfo: [NSLocalizedDescriptionKey : "Failed to delete residence"]
       )
     }
+  }
+
+  public func fetchFavoriteRoutes() async throws -> [TaxiFavoriteRoute] {
+    let response = try await provider.request(.fetchFavoriteRoutes)
+    return try response.map([TaxiFavoriteRouteDTO].self).compactMap { $0.toModel() }
+  }
+
+  public func createFavoriteRoute(sourceID: String, destinationID: String) async throws -> TaxiFavoriteRoute {
+    let response = try await provider.request(.createFavoriteRoute(sourceID: sourceID, destinationID: destinationID))
+    guard let route = try response.map(TaxiFavoriteRouteDTO.self).toModel() else {
+      throw NSError(
+        domain: "TaxiUserRepository",
+        code: TaxiUserErrorCode.createFavoriteRouteFailed.rawValue,
+        userInfo: [NSLocalizedDescriptionKey : "Failed to save favourite route"]
+      )
+    }
+    return route
+  }
+
+  public func deleteFavoriteRoute(id: String) async throws {
+    _ = try await provider.request(.deleteFavoriteRoute(id: id))
   }
 }

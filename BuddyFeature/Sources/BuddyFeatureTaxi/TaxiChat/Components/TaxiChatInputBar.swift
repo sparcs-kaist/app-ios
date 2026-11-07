@@ -18,16 +18,11 @@ struct TaxiChatInputBar: View {
   let isUploading: Bool
   let isCommitPaymentAvailable: Bool
   let isCommitSettlementAvailable: Bool
-  let isArrivalToggleEnabled: Bool
-  @Binding var isArrived: Bool
-  @Binding var hasCarrier: Bool
 
   var onSendText: (String) -> Void
   var onSendImage: (UIImage) async throws -> Void
   var onCommitSettlement: () -> Void
   var onShowPayMoneyAlert: () -> Void
-  var onUpdateArrival: (Bool) -> Void
-  var onUpdateCarrier: (Bool) -> Void
   var onError: (String) -> Void
 
   @State private var showPhotosPicker: Bool = false
@@ -48,21 +43,6 @@ struct TaxiChatInputBar: View {
           onCommitSettlement()
         }
         .disabled(!isCommitSettlementAvailable)
-
-        Toggle(isOn: $isArrived) {
-          Label(String(localized: "Arrived", bundle: .module), systemImage: isArrived ? "checkmark.circle.fill" : "circle")
-        }
-        .disabled(!isArrivalToggleEnabled)
-        .onChange(of: isArrived) {
-          onUpdateArrival(isArrived)
-        }
-
-        Toggle(isOn: $hasCarrier) {
-          Label(String(localized: "With Luggage", bundle: .module), systemImage: hasCarrier ? "suitcase.fill" : "suitcase")
-        }
-        .onChange(of: hasCarrier) {
-          onUpdateCarrier(hasCarrier)
-        }
 
         Button(String(localized: "Photo Library", bundle: .module), systemImage: "photo.on.rectangle") {
           showPhotosPicker = true
