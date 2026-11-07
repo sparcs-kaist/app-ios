@@ -31,6 +31,8 @@ struct MainView: View {
 
   @Namespace private var namespace
 
+  /// Unread Taxi chats, for the Taxi tab's badge.
+
   private var feedViewModel: FeedViewModelProtocol
   private var boardListViewModel: BoardListViewModelProtocol
 
@@ -66,9 +68,10 @@ struct MainView: View {
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
         NavigationStack(path: $taxiPath) {
-          TaxiListView(roomToPreview: $viewModel.invitedRoom)
+          TaxiListView(roomToPreview: $viewModel.invitedRoom, roomToOpen: $viewModel.openedChatRoom)
         }
       }
+      .badge(viewModel.taxiUnreadCount)
 
       Tab(value: .search, role: .search) {
         NavigationStack(path: $searchPath) {
@@ -120,6 +123,13 @@ struct MainView: View {
       taxiPath = NavigationPath()
       Task {
         await viewModel.resolveInvite(code: code)
+      }
+    case .taxiChat(let roomID):
+      // The Taxi tab pushes the chat once the room arrives, as if it had been chosen from Chats.
+      selectedTab = .taxi
+      taxiPath = NavigationPath()
+      Task {
+        await viewModel.resolveTaxiChat(roomID: roomID)
       }
     case .araPost(let id):
       selectedTab = .board

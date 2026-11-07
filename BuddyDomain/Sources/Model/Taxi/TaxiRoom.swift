@@ -20,6 +20,8 @@ public struct TaxiRoom: Identifiable, Hashable, Sendable {
   public let settlementTotal: Int?
   public let isDeparted: Bool
   public let isOver: Bool?
+  /// Chats others sent since you last read the room, when the server reported it.
+  public let unreadCount: Int?
 
   public init(
     id: String,
@@ -33,7 +35,8 @@ public struct TaxiRoom: Identifiable, Hashable, Sendable {
     capacity: Int,
     settlementTotal: Int?,
     isDeparted: Bool,
-    isOver: Bool?
+    isOver: Bool?,
+    unreadCount: Int? = nil
   ) {
     self.id = id
     self.title = title
@@ -47,5 +50,6 @@ public struct TaxiRoom: Identifiable, Hashable, Sendable {
     self.settlementTotal = settlementTotal
     self.isDeparted = isDeparted
     self.isOver = isOver
+    self.unreadCount = unreadCount
   }
 }

@@ -5,71 +5,94 @@
 //  Created by 하정우 on 2/6/26.
 //
 
-import SwiftUI
+import Foundation
 import Factory
 import BuddyDomain
+import UserNotifications
 import os
 
 private let logger = Logger(subsystem: "org.sparcs.soap", category: "NotificationSettingsViewModel")
 
 @MainActor
 @Observable
-public final class NotificationSettingsViewModel {
-  @ObservationIgnored @Injected(\.fcmUseCase) private var fcmUseCase: FCMUseCaseProtocol?
-  
+final class NotificationSettingsViewModel: NotificationSettingsViewModelProtocol {
+  // MARK: - Properties
+  var state: NotificationSettingsViewState = .loading
+  var preferences: [NotificationCategory: Bool] = [:]
+  var isAllowedBySystem: Bool = true
   var alertState: AlertState?
   var isAlertPresented: Bool = false
-  
-  var toggleState: [FeatureType: Bool] = [:]
-  
-  init() {
-    for type in FeatureType.allCases {
-      if let data = UserDefaults.standard.data(forKey: "fcm.\(type.rawValue)"),
-         let status = try? JSONDecoder().decode(Bool.self, from: data) {
-        updateToggleState(for: type, isActive: status)
-      } else {
-        // failed to fetch toggle status; defaulting to true
-        updateToggleState(for: type, isActive: true)
-      }
+
+  /// The values last loaded from or saved to the server, which a failed change goes back to.
+  @ObservationIgnored private var savedPreferences: [NotificationCategory: Bool] = [:]
+  /// The latest change to each kind, so a change that a newer one replaces isn't saved or undone.
+  @ObservationIgnored private var latestChange: [NotificationCategory: Int] = [:]
+  /// Changes are saved one at a time, in order, so the last one is what the server keeps.
+  @ObservationIgnored private var lastSave: Task<Void, Never>?
+
+  // MARK: - Dependencies
+  @ObservationIgnored @Injected(\.fcmUseCase) private var fcmUseCase: FCMUseCaseProtocol?
+  @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
+
+  // MARK: - Functions
+  func load() async {
+    await refreshSystemPermission()
+    guard let fcmUseCase else { return }
+
+    // Coming back from the system's Settings should not flash a spinner over switches already shown.
+    if preferences.isEmpty {
+      state = .loading
+    }
+    do {
+      let loaded = try await fcmUseCase.notificationPreferences()
+      preferences = loaded
+      savedPreferences = loaded
+      state = .loaded
+    } catch {
+      logger.error("Failed to load notification preferences: \(error.localizedDescription, privacy: .public)")
+      crashlyticsService?.recordException(error: error)
+      state = .error(message: error.localizedDescription)
     }
   }
-  
-  func binding(for service: FeatureType) -> Binding<Bool> {
-    Binding<Bool>(
-      get: {
-        self.toggleState[service, default: true]
-      }, set: { isActive in
-        Task {
-          await self.toggle(for: service, isActive: isActive)
-        }
-      }
-    )
+
+  func setNotifications(_ category: NotificationCategory, enabled: Bool) async {
+    // The switch moves at once, and moves back if the change can't be saved.
+    preferences[category] = enabled
+    let change = (latestChange[category] ?? 0) + 1
+    latestChange[category] = change
+
+    let previousSave = lastSave
+    let save = Task {
+      await previousSave?.value
+      await self.save(category, enabled: enabled, change: change)
+    }
+    lastSave = save
+    await save.value
   }
-  
-  private func toggle(for service: FeatureType, isActive: Bool) async {
+
+  private func save(_ category: NotificationCategory, enabled: Bool, change: Int) async {
+    // Flipped again since: the newer change saves its own value.
+    guard let fcmUseCase, latestChange[category] == change else { return }
     do {
-      try await fcmUseCase?.manage(service: service, isActive: isActive)
-      updateToggleState(for: service, isActive: isActive)
+      try await fcmUseCase.setNotifications(category, enabled: enabled)
+      savedPreferences[category] = enabled
     } catch {
-      logger.error("Failed to update toggle status: \(error.localizedDescription, privacy: .public)")
+      logger.error("Failed to change notification preference: \(error.localizedDescription, privacy: .public)")
+      guard latestChange[category] == change else { return }
+      preferences[category] = savedPreferences[category]
       alertState = .init(
-        title: String(localized: "Failed to update toggle status", bundle: .module),
+        title: String(localized: "Couldn’t Change Notifications", bundle: .module),
         message: error.localizedDescription
       )
       isAlertPresented = true
     }
   }
-  
-  private func updateToggleState(for service: FeatureType, isActive: Bool) {
-    if let encoded = try? JSONEncoder().encode(isActive) {
-      UserDefaults.standard.set(encoded, forKey: "fcm.\(service.rawValue)")
-      toggleState[service] = isActive
-    } else {
-      alertState = .init(
-        title: String(localized: "Failed to save toggle status", bundle: .module),
-        message: String(localized: "Failed to encode toggle status", bundle: .module)
-      )
-      isAlertPresented = true
-    }
+
+  func refreshSystemPermission() async {
+    isAllowedBySystem = await Self.isAllowedBySystem()
+  }
+
+  private nonisolated static func isAllowedBySystem() async -> Bool {
+    await UNUserNotificationCenter.current().notificationSettings().authorizationStatus != .denied
   }
 }

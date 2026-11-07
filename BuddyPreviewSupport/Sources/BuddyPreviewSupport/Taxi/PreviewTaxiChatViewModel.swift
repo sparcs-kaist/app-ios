@@ -37,6 +37,8 @@ public final class PreviewTaxiChatViewModel: TaxiChatViewModelProtocol {
   }
   
   public func setup() async { }
+  public func enterChat() { }
+  public func exitChat() { }
   public func loadMoreChats() async { }
   public func fetchInitialChats() async { }
   public func sendChat(_ message: String, type: TaxiChat.ChatType) { }

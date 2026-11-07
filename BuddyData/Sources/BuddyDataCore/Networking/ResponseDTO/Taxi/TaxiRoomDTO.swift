@@ -21,6 +21,7 @@ struct TaxiRoomDTO: Codable {
   let settlementTotal: Int?
   let isDeparted: Bool
   let isOver: Bool?
+  let unreadCount: Int?
 
   enum CodingKeys: String, CodingKey {
     case id = "_id"
@@ -35,6 +36,7 @@ struct TaxiRoomDTO: Codable {
     case settlementTotal
     case isDeparted
     case isOver
+    case unreadCount
   }
 }
 
@@ -53,7 +55,8 @@ extension TaxiRoomDTO {
       capacity: maxParticipants,
       settlementTotal: settlementTotal,
       isDeparted: isDeparted,
-      isOver: isOver
+      isOver: isOver,
+      unreadCount: unreadCount
     )
   }
 }

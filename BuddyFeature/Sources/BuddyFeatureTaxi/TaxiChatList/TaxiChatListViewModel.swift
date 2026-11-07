@@ -26,6 +26,10 @@ class TaxiChatListViewModel: TaxiChatListViewModelProtocol {
     \.taxiRoomRepository
   ) private var taxiRoomRepository: TaxiRoomRepositoryProtocol?
   @ObservationIgnored @Injected(\.userUseCase) private var userUseCase: UserUseCaseProtocol?
+  @ObservationIgnored @Injected(\.taxiUnreadStore) private var taxiUnreadStore: TaxiUnreadStoreProtocol?
+
+  var unreadCounts: [String: Int] { taxiUnreadStore?.counts ?? [:] }
+  var totalUnreadCount: Int { taxiUnreadStore?.totalCount ?? 0 }
 
   // MARK: - Initialiser
   init() {

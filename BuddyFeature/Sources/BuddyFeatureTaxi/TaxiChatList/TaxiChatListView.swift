@@ -170,6 +170,7 @@ struct TaxiChatListView: View {
             rooms: onGoing,
             selectedRoom: highlightedRoom,
             taxiUser: viewModel.taxiUser,
+            unreadCounts: viewModel.unreadCounts,
             onSelect: { select($0) }
           )
         }
@@ -180,6 +181,7 @@ struct TaxiChatListView: View {
             rooms: done,
             selectedRoom: highlightedRoom,
             taxiUser: viewModel.taxiUser,
+            unreadCounts: viewModel.unreadCounts,
             onSelect: { select($0) }
           )
         }

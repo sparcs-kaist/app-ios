@@ -238,6 +238,16 @@ extension Container: @retroactive AutoRegistering {
     }
     .scope(.singleton)
 
+    taxiUnreadStore.register {
+      TaxiUnreadStore(
+        taxiRoomRepository: self.taxiRoomRepository.resolve(),
+        makeTaxiChatService: { self.taxiChatService.resolve() },
+        userUseCase: self.userUseCase.resolve(),
+        authUseCase: self.authUseCase.resolve()
+      )
+    }
+    .scope(.singleton)
+
     analyticsService.register {
       AnalyticsService()
     }
@@ -249,7 +259,8 @@ extension Container: @retroactive AutoRegistering {
         tokenStorage: self.tokenStorage.resolve(),
         araUserRepository: self.araUserRepository.resolve(),
         feedUserRepository: self.feedUserRepository.resolve(),
-        otlUserRepository: self.otlUserRepository.resolve()
+        otlUserRepository: self.otlUserRepository.resolve(),
+        fcmUseCase: self.fcmUseCase.resolve()
       )
       AuthRetryConfig.tokenRefresher = { [weak useCase] in
         guard let useCase else { throw NetworkError.unauthorized }
@@ -257,10 +268,11 @@ extension Container: @retroactive AutoRegistering {
       }
       // NOTE: We intentionally do NOT reconnect the taxi socket on token refresh.
       // The socket authenticates once at its handshake and the server keeps that
-      // session valid; re-handshaking a live socket makes the server stop pushing
-      // chats to it (chats would hang on the loading spinner). Genuine drops are
-      // recovered by TaxiChatService's `.disconnect` auto-reconnect, which reads a
-      // fresh token from storage.
+      // session valid, so new chats keep arriving. Only a room's chats asked for by
+      // the chat screen need the socket on the current token, as Taxi sends them to
+      // the socket of the requesting token: TaxiChatUseCase reconnects it then, with
+      // a new manager, since rejoining on the old one reuses the old token's headers
+      // (which once left chats hanging on the loading spinner).
       return useCase
     }
     .scope(.singleton)
@@ -269,6 +281,10 @@ extension Container: @retroactive AutoRegistering {
       FCMUseCase(fcmRepository: self.fcmRepository.resolve())
     }
     .scope(.singleton)
+
+    taxiQuickReplyUseCase.register {
+      TaxiQuickReplyUseCase(taxiChatRepository: self.taxiChatRepository.resolve())
+    }
 
     userUseCase.register {
       UserUseCase(
@@ -287,6 +303,7 @@ extension Container: @retroactive AutoRegistering {
         userUseCase: self.userUseCase.resolve(),
         taxiChatRepository: self.taxiChatRepository.resolve(),
         taxiRoomRepository: self.taxiRoomRepository.resolve(),
+        authUseCase: self.authUseCase.resolve()
       )
     }
 
