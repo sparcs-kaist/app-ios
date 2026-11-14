@@ -26,9 +26,17 @@ public struct FeedView: View {
   @State private var imageAspects = FeedImageAspects()
   @State private var columnWidth: CGFloat = 0
 
-  public init(_ viewModel: FeedViewModelProtocol = FeedViewModel(), path: Binding<NavigationPath>) {
+  /// Shows a Search button in the toolbar. Set on iPhone, where search is not a tab of its own.
+  private let onSearch: (() -> Void)?
+
+  public init(
+    _ viewModel: FeedViewModelProtocol = FeedViewModel(),
+    path: Binding<NavigationPath>,
+    onSearch: (() -> Void)? = nil
+  ) {
     self._viewModel = State(initialValue: viewModel)
     self._path = path
+    self.onSearch = onSearch
   }
 
   public var body: some View {
@@ -46,6 +54,14 @@ public struct FeedView: View {
         await viewModel.fetchInitialData()
       }
       .toolbar {
+        if let onSearch {
+          ToolbarItem {
+            Button(String(localized: "Search", bundle: .module), systemImage: "magnifyingglass", action: onSearch)
+          }
+
+          ToolbarSpacer(.fixed)
+        }
+
         ToolbarItem {
           Button(String(localized: "Write", bundle: .module), systemImage: "square.and.pencil") {
             viewModel.writeFeedButtonTapped()

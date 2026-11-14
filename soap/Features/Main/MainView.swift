@@ -14,6 +14,7 @@ import BuddyFeatureFeed
 import BuddyFeaturePost
 import BuddyFeatureTaxi
 import BuddyFeatureSearch
+import BuddyFeatureMap
 import MapKit
 
 struct MainView: View {
@@ -28,6 +29,7 @@ struct MainView: View {
   @State private var boardListPath = NavigationPath()
   @State private var taxiPath = NavigationPath()
   @State private var searchPath = NavigationPath()
+  @State private var mapPath = NavigationPath()
 
   @Namespace private var namespace
 
@@ -43,7 +45,14 @@ struct MainView: View {
     TabView(selection: $selectedTab) {
       Tab("Feed", systemImage: "text.rectangle.page", value: .feed) {
         NavigationStack(path: $feedPath) {
-          FeedView(feedViewModel, path: $feedPath)
+          // On iPhone, Search gives its tab to Map and opens from Feed's toolbar instead.
+          FeedView(feedViewModel, path: $feedPath, onSearch: isPhone ? { feedPath.append(FeedRoute.search) } : nil)
+            .navigationDestination(for: FeedRoute.self) { route in
+              switch route {
+              case .search:
+                SearchView(focusesSearchFieldOnAppear: true)
+              }
+            }
         }
       }
 
@@ -60,9 +69,11 @@ struct MainView: View {
         }
 //      }
 
-//      Tab("Map", systemImage: "map", value: .map) {
-//        Map()
-//      }
+      if !showsProminentMapTab {
+        Tab("Map", systemImage: "map", value: .map) {
+          mapStack
+        }
+      }
 
       Tab("Taxi", systemImage: "car", value: .taxi) {
         NavigationStack(path: $taxiPath) {
@@ -70,9 +81,20 @@ struct MainView: View {
         }
       }
 
-      Tab(value: .search, role: .search) {
-        NavigationStack(path: $searchPath) {
-          SearchView()
+      if showsProminentMapTab {
+        if #available(iOS 27.0, *) {
+          Tab("Map", systemImage: "map", value: .map, role: .prominent) {
+            mapStack
+          }
+        }
+      }
+
+      // iPad has room for Search as a tab; iPhone opens it from Feed.
+      if !isPhone {
+        Tab(value: .search, role: .search) {
+          NavigationStack(path: $searchPath) {
+            SearchView()
+          }
         }
       }
     }
@@ -112,6 +134,23 @@ struct MainView: View {
     .tabViewStyle(.tabBarOnly)
   }
 
+  private var mapStack: some View {
+    NavigationStack(path: $mapPath) {
+      CampusMapView()
+    }
+  }
+
+  private var isPhone: Bool {
+    UIDevice.current.userInterfaceIdiom == .phone
+  }
+
+  /// iOS 27 gives iPhone a prominent tab, set apart at the end of the bar where Search used to be.
+  private var showsProminentMapTab: Bool {
+    guard isPhone else { return false }
+    if #available(iOS 27.0, *) { return true }
+    return false
+  }
+
   private func handle(deepLink: DeepLink) {
     switch deepLink {
     case .taxiInvite(let code):
@@ -149,6 +188,10 @@ struct MainView: View {
       return false
     }
   }
+}
+
+private enum FeedRoute: Hashable {
+  case search
 }
 
 //#Preview {

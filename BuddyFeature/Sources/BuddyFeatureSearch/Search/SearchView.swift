@@ -27,7 +27,14 @@ public struct SearchView: View {
   @FocusState private var isFocused
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-  public init() { }
+  /// Focuses the search field on first appearance, for when Search is pushed from a button rather
+  /// than chosen as a tab.
+  private let focusesSearchFieldOnAppear: Bool
+  @State private var hasFocusedSearchField = false
+
+  public init(focusesSearchFieldOnAppear: Bool = false) {
+    self.focusesSearchFieldOnAppear = focusesSearchFieldOnAppear
+  }
 
   public var body: some View {
     Group {
@@ -101,6 +108,11 @@ public struct SearchView: View {
     }
     .searchable(text: $viewModel.searchText, prompt: Text("Search", bundle: .module))
     .searchFocused($isFocused)
+    .onAppear {
+      guard focusesSearchFieldOnAppear, !hasFocusedSearchField else { return }
+      hasFocusedSearchField = true
+      isFocused = true
+    }
     .navigationDestination(for: CourseSummary.self) { course in
       // The course page puts its professor picker in the bottom bar.
       CourseView(course: course)

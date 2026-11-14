@@ -48,6 +48,7 @@
 		8B8368022E9247A900892B70 /* BuddyDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8368012E9247A900892B70 /* BuddyDomain */; };
 		8B89693D2F2CCC8A00955B84 /* BuddyFeatureTaxi in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693C2F2CCC8A00955B84 /* BuddyFeatureTaxi */; };
 		8B89693F2F2CCF8700955B84 /* BuddyFeatureSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */; };
+		8BC0FFEE30A1000100A1B2C3 /* BuddyFeatureMap in Frameworks */ = {isa = PBXBuildFile; productRef = 8BC0FFEE30A1000200A1B2C3 /* BuddyFeatureMap */; };
 		8BAB4E142F9E0E7800328925 /* BuddyDataCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAB4E132F9E0E7800328925 /* BuddyDataCore */; };
 		8BAB4E182F9E0E9600328925 /* BuddyDDayWidgetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAB4E172F9E0E9600328925 /* BuddyDDayWidgetUI */; };
 		8BB1A7E13070000100A1B2C3 /* BuddyIntents in Frameworks */ = {isa = PBXBuildFile; productRef = 8BB1A7E23070000100A1B2C3 /* BuddyIntents */; };
@@ -333,6 +334,7 @@
 				8BE5395B2F2B95A600735E7A /* BuddyFeatureSettings in Frameworks */,
 				8B7C19E32E1DAEEB00DB2D21 /* CombineMoya in Frameworks */,
 				8B89693F2F2CCF8700955B84 /* BuddyFeatureSearch in Frameworks */,
+				8BC0FFEE30A1000100A1B2C3 /* BuddyFeatureMap in Frameworks */,
 				8B89693D2F2CCC8A00955B84 /* BuddyFeatureTaxi in Frameworks */,
 				8BE539532F2B767900735E7A /* BuddyFeatureTimetable in Frameworks */,
 				8B5073E32E851F79007E9C27 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
@@ -564,6 +566,7 @@
 				8BE5395C2F2CA4D300735E7A /* BuddyFeaturePost */,
 				8B89693C2F2CCC8A00955B84 /* BuddyFeatureTaxi */,
 				8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */,
+				8BC0FFEE30A1000200A1B2C3 /* BuddyFeatureMap */,
 				8BCE7E8B2FC1CBAC000368D2 /* ChannelIOSDK */,
 			);
 			productName = soap;
@@ -1726,6 +1729,10 @@
 		8B89693E2F2CCF8700955B84 /* BuddyFeatureSearch */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyFeatureSearch;
+		};
+		8BC0FFEE30A1000200A1B2C3 /* BuddyFeatureMap */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyFeatureMap;
 		};
 		8BAB4E132F9E0E7800328925 /* BuddyDataCore */ = {
 			isa = XCSwiftPackageProductDependency;
