@@ -23,6 +23,7 @@ public final class CampusMapViewModel: CampusMapViewModelProtocol {
 
   @ObservationIgnored private let cafeteriaMenus = CafeteriaMenu.mockList
   @ObservationIgnored private let restaurantMenus = RestaurantMenu.mockList
+  private var reviewsByPlaceID = Dictionary(grouping: PlaceReview.mockList, by: \.placeID)
 
   public init() {}
 
@@ -46,5 +47,39 @@ public final class CampusMapViewModel: CampusMapViewModelProtocol {
 
   public func restaurantMenu(for place: CampusPlace) -> RestaurantMenu? {
     restaurantMenus.first { $0.placeID == place.id }
+  }
+
+  public func reviews(for place: CampusPlace) -> [PlaceReview] {
+    (reviewsByPlaceID[place.id] ?? []).sorted { $0.createdAt > $1.createdAt }
+  }
+
+  public func toggleUpvote(_ review: PlaceReview) {
+    guard let index = reviewsByPlaceID[review.placeID]?.firstIndex(where: { $0.id == review.id }) else { return }
+    let isUpvoted = !review.isUpvoted
+    reviewsByPlaceID[review.placeID]?[index].isUpvoted = isUpvoted
+    reviewsByPlaceID[review.placeID]?[index].upvotes += isUpvoted ? 1 : -1
+  }
+
+  public func writeReview(for place: CampusPlace, rating: Int, text: String) {
+    var reviews = reviewsByPlaceID[place.id] ?? []
+    let existing = reviews.firstIndex(where: \.isMine)
+    let review = PlaceReview(
+      id: existing.map { reviews[$0].id } ?? UUID().uuidString,
+      placeID: place.id,
+      authorName: String(localized: "You", bundle: .module),
+      rating: min(max(rating, 1), 5),
+      text: text.trimmingCharacters(in: .whitespacesAndNewlines),
+      createdAt: .now,
+      photos: existing.map { reviews[$0].photos } ?? [],
+      upvotes: existing.map { reviews[$0].upvotes } ?? 0,
+      isUpvoted: existing.map { reviews[$0].isUpvoted } ?? false,
+      isMine: true
+    )
+    if let existing {
+      reviews[existing] = review
+    } else {
+      reviews.append(review)
+    }
+    reviewsByPlaceID[place.id] = reviews
   }
 }

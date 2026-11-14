@@ -22,6 +22,10 @@ struct PlaceDetailView: View {
 
   @State private var showsAllHours = false
 
+  private var reviews: [PlaceReview] {
+    viewModel.reviews(for: place)
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 20) {
       if showsHeader {
@@ -45,8 +49,6 @@ struct PlaceDetailView: View {
         }
       }
 
-      photos
-
       if let summary = place.summary {
         PlaceCardSection(title: String(localized: "About", bundle: .module)) {
           Text(summary)
@@ -57,6 +59,14 @@ struct PlaceDetailView: View {
 
       facilities
       details
+
+      PlaceReviewsSection(
+        reviews: reviews,
+        placeName: place.displayName,
+        category: place.category,
+        onUpvote: { review in viewModel.toggleUpvote(review) },
+        onWrite: { rating, text in viewModel.writeReview(for: place, rating: rating, text: text) }
+      )
 
       Button {
       } label: {
@@ -129,46 +139,73 @@ struct PlaceDetailView: View {
 
   // MARK: - At a glance
 
-  /// Apple Maps' strip of short facts under the actions, divided by hairlines.
+  /// Apple Maps' strip of short facts under the actions: each centred in an equal share of the
+  /// width, with a hairline between neighbours and none at either end.
   private var glanceStrip: some View {
     HStack(spacing: 0) {
-      if place.category == .olevStop {
-        glanceItem(title: String(localized: "Service", bundle: .module)) {
-          Text("Weekdays", bundle: .module)
-        }
-      } else if let status = place.openingHours?.status(at: .now) {
-        glanceItem(title: String(localized: "Hours", bundle: .module)) {
-          Text(status.title).foregroundStyle(status.tint)
-        }
-      }
-
-      glanceItem(title: String(localized: "Distance", bundle: .module)) {
-        Text(viewModel.distance(to: place).distanceText)
-      }
-
-      if let menu = viewModel.cafeteriaMenu(for: place), let prices = menu.meals.flatMap(\.courses).map(\.price).min() {
-        glanceItem(title: String(localized: "From", bundle: .module)) {
-          Text(prices.wonText)
-        }
-      } else if let menu = viewModel.restaurantMenu(for: place), let price = menu.sections.flatMap(\.items).map(\.price).min() {
-        glanceItem(title: String(localized: "From", bundle: .module)) {
-          Text(price.wonText)
-        }
-      } else if let floor = place.floor {
-        glanceItem(title: String(localized: "Floor", bundle: .module)) {
-          Text(floor)
-        }
-      } else if let code = place.code {
-        glanceItem(title: String(localized: "Code", bundle: .module)) {
-          Text(code)
+      Group(subviews: glanceItems) { items in
+        ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+          if index > 0 {
+            Rectangle().fill(.separator).frame(width: 1)
+          }
+          item
         }
       }
     }
+    .fixedSize(horizontal: false, vertical: true)
     .padding(.vertical, 4)
   }
 
+  @ViewBuilder
+  private var glanceItems: some View {
+    if place.category == .olevStop {
+      glanceItem(title: String(localized: "Service", bundle: .module)) {
+        Text("Weekdays", bundle: .module)
+      }
+    } else if let status = place.openingHours?.status(at: .now) {
+      glanceItem(title: String(localized: "Hours", bundle: .module)) {
+        Text(status.title).foregroundStyle(status.tint)
+      }
+    }
+
+    if let rating = PlaceRatingSummary(reviews: reviews) {
+      glanceItem(title: String(localized: "\(rating.count) Ratings", bundle: .module)) {
+        HStack(spacing: 3) {
+          Text(rating.average, format: .number.precision(.fractionLength(1)))
+          Image(systemName: "star.fill")
+            .font(.caption)
+            .foregroundStyle(.orange)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("\(rating.average, format: .number.precision(.fractionLength(1))) out of 5 stars", bundle: .module))
+      }
+    }
+
+    glanceItem(title: String(localized: "Distance", bundle: .module)) {
+      Text(viewModel.distance(to: place).distanceText)
+    }
+
+    if let menu = viewModel.cafeteriaMenu(for: place), let prices = menu.meals.flatMap(\.courses).map(\.price).min() {
+      glanceItem(title: String(localized: "From", bundle: .module)) {
+        Text(prices.wonText)
+      }
+    } else if let menu = viewModel.restaurantMenu(for: place), let price = menu.sections.flatMap(\.items).map(\.price).min() {
+      glanceItem(title: String(localized: "From", bundle: .module)) {
+        Text(price.wonText)
+      }
+    } else if let floor = place.floor {
+      glanceItem(title: String(localized: "Floor", bundle: .module)) {
+        Text(floor)
+      }
+    } else if let code = place.code {
+      glanceItem(title: String(localized: "Code", bundle: .module)) {
+        Text(code)
+      }
+    }
+  }
+
   private func glanceItem<Value: View>(title: String, @ViewBuilder value: () -> Value) -> some View {
-    VStack(alignment: .leading, spacing: 2) {
+    VStack(spacing: 2) {
       Text(title)
         .font(.caption2.weight(.semibold))
         .foregroundStyle(.secondary)
@@ -177,11 +214,8 @@ struct PlaceDetailView: View {
         .font(.subheadline.weight(.semibold))
         .lineLimit(1)
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.leading, 12)
-    .overlay(alignment: .leading) {
-      Rectangle().fill(.separator).frame(width: 1)
-    }
+    .frame(maxWidth: .infinity)
+    .padding(.horizontal, 6)
   }
 
   // MARK: - Sections
@@ -207,26 +241,6 @@ struct PlaceDetailView: View {
         onSelect: onSelectPlace
       )
       .padding(.vertical, -8)
-    }
-  }
-
-  @ViewBuilder
-  private var photos: some View {
-    if !place.photos.isEmpty {
-      VStack(alignment: .leading, spacing: 8) {
-        MapSectionHeader(title: String(localized: "Photos", bundle: .module))
-        ScrollView(.horizontal) {
-          HStack(spacing: 8) {
-            ForEach(Array(place.photos.enumerated()), id: \.element.id) { index, photo in
-              PlacePhotoView(photo: photo, category: place.category)
-                .frame(width: index == 0 ? 240 : 150, height: 170)
-                .clipShape(.rect(cornerRadius: 16, style: .continuous))
-            }
-          }
-        }
-        .scrollIndicators(.hidden)
-        .scrollClipDisabled()
-      }
     }
   }
 

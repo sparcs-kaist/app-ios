@@ -8,7 +8,7 @@
 import Foundation
 
 // Coordinates, names, categories and the shop hours come from the KAIST POI sheet
-// (sparcsapp-back `scripts/poi_*.csv`); summaries, photos and menus are made up for design work.
+// (sparcsapp-back `scripts/poi_*.csv`); summaries and menus are made up for design work.
 
 extension CampusPlace: Mockable { }
 
@@ -26,28 +26,21 @@ public extension CampusPlace {
   static let mockCurrentLatitude = 36.37225
   static let mockCurrentLongitude = 127.36045
 
-  private static func photos(_ id: String, _ hues: Double...) -> [PlacePhoto] {
-    hues.enumerated().map { PlacePhoto(id: "\(id)-\($0.offset)", hue: $0.element) }
-  }
-
   private static let buildings: [CampusPlace] = [
     CampusPlace(
       id: "E1", code: "E1", name: "Main Gate", nameKo: "정문", category: .gate,
       latitude: 36.365596, longitude: 127.363944, keywords: ["Main Gate", "정문"],
-      summary: "The main entrance on Daehak-ro, with the taxi rank and the OLEV Main Gate stop just inside.",
-      photos: photos("E1", 0.58, 0.32)
+      summary: "The main entrance on Daehak-ro, with the taxi rank and the OLEV Main Gate stop just inside."
     ),
     CampusPlace(
       id: "N0", code: "N0", name: "East Gate", nameKo: "동문", category: .gate,
-      latitude: 36.373608, longitude: 127.366637,
-      photos: photos("N0", 0.55)
+      latitude: 36.373608, longitude: 127.366637
     ),
     CampusPlace(
       id: "E14", code: "E14", name: "Main Administration Building", nameKo: "본관", category: .building,
       latitude: 36.370518, longitude: 127.361264, keywords: ["본관", "Admin"],
       summary: "Home to the President's Office and most central administration offices.",
-      openingHours: .weekdays(.init((9, 0), (18, 0))),
-      photos: photos("E14", 0.6, 0.1, 0.35)
+      openingHours: .weekdays(.init((9, 0), (18, 0)))
     ),
     CampusPlace(
       id: "E11", code: "E11", name: "Creative Learning Building", nameKo: "창의학습관", category: .academicBuilding,
@@ -55,13 +48,11 @@ public extension CampusPlace {
       keywords: ["창학", "창습관", "창의관", "입학처", "Office of Admissions"],
       summary: "Lecture halls used by most first-year courses, plus the Office of Admissions and Student Affairs.",
       openingHours: .everyDay(.init((7, 0), (23, 0))),
-      floor: "B1–5F",
-      photos: photos("E11", 0.62, 0.08, 0.45, 0.3)
+      floor: "B1–5F"
     ),
     CampusPlace(
       id: "E3", code: "E3", name: "Information & Electronics Building", nameKo: "정보전자공학동", category: .building,
-      latitude: 36.368002, longitude: 127.365033, keywords: ["EE", "전자과", "전산"],
-      photos: photos("E3", 0.66, 0.5)
+      latitude: 36.368002, longitude: 127.365033, keywords: ["EE", "전자과", "전산"]
     ),
     CampusPlace(
       id: "E9", code: "E9", name: "Academic Cultural Complex", nameKo: "학술문화관", category: .library,
@@ -70,82 +61,69 @@ public extension CampusPlace {
       summary: "The main library: open stacks, group study rooms you can book online and a 24-hour reading room on 1F.",
       openingHours: .weekdays(.init((9, 0), (22, 0)), saturday: [.init((10, 0), (17, 0))], sunday: [.init((10, 0), (17, 0))]),
       hoursNote: "24-hour reading room open every day",
-      floor: "B1–5F",
-      photos: photos("E9", 0.08, 0.12, 0.6, 0.15)
+      floor: "B1–5F"
     ),
     CampusPlace(
       id: "E15", code: "E15", name: "Auditorium", nameKo: "대강당", category: .theater,
       latitude: 36.372062, longitude: 127.362911,
-      summary: "The campus's largest hall, used for convocation, concerts and the spring festival.",
-      photos: photos("E15", 0.95, 0.7)
+      summary: "The campus's largest hall, used for convocation, concerts and the spring festival."
     ),
     CampusPlace(
       id: "E17", code: "E17", name: "Stadium", nameKo: "운동장", category: .sportsField,
       latitude: 36.369583, longitude: 127.368515,
       summary: "Running track and football pitch, open to everyone outside reserved hours.",
-      openingHours: .everyDay(.init((6, 0), (23, 0))),
-      photos: photos("E17", 0.33, 0.28)
+      openingHours: .everyDay(.init((6, 0), (23, 0)))
     ),
     CampusPlace(
       id: "E21", code: "E21", name: "KAIST Clinic-Papalardo Center", nameKo: "KAIST 클리닉-파팔라도 센터", category: .hospital,
       latitude: 36.369386, longitude: 127.369829, keywords: ["약국", "Pharmacy", "병원"],
       summary: "Primary care, dental and mental health clinics for students and staff, with a pharmacy on 1F.",
       openingHours: .weekdays(.init((9, 0), (12, 0)), .init((13, 0), (18, 0)), saturday: [.init((9, 0), (13, 0))]),
-      hoursNote: "Closed on public holidays",
-      photos: photos("E21", 0.55, 0.0)
+      hoursNote: "Closed on public holidays"
     ),
     CampusPlace(
       id: "N3", code: "N3", name: "RyuGeunChul Sports Complex", nameKo: "류근철 스포츠컴플렉스", category: .sportsField,
       latitude: 36.372511, longitude: 127.361584, keywords: ["헬스장", "Gym", "Swimming pool", "수영장"],
       summary: "Gym, swimming pool and indoor courts. Bring your student ID.",
-      openingHours: .weekdays(.init((6, 0), (22, 0)), saturday: [.init((9, 0), (18, 0))]),
-      photos: photos("N3", 0.52, 0.58, 0.3)
+      openingHours: .weekdays(.init((6, 0), (22, 0)), saturday: [.init((9, 0), (18, 0))])
     ),
     CampusPlace(
       id: "N10", code: "N10", name: "Undergraduate Branch Library", nameKo: "교양분관", category: .library,
       latitude: 36.374206, longitude: 127.360406, keywords: ["교분", "자전거"],
       summary: "Study spaces close to the north dorms; quieter than the main library during exams.",
-      openingHours: .everyDay(.allDay),
-      photos: photos("N10", 0.1, 0.62)
+      openingHours: .everyDay(.allDay)
     ),
     CampusPlace(
       id: "N13", code: "N13", name: "Tae Wul Gwan", nameKo: "태울관", category: .building,
       latitude: 36.373185, longitude: 127.359878, keywords: ["태울", "동아리"],
-      summary: "Student clubs and a row of small restaurants on the ground floor.",
-      photos: photos("N13", 0.05, 0.4)
+      summary: "Student clubs and a row of small restaurants on the ground floor."
     ),
     CampusPlace(
       id: "N14", code: "N14", name: "Sarang Hall", nameKo: "사랑관", category: .dormitory,
-      latitude: 36.373702, longitude: 127.358345,
-      photos: photos("N14", 0.75)
+      latitude: 36.373702, longitude: 127.358345
     ),
     CampusPlace(
       id: "W4-4", code: "W4-4", name: "Heemang Hall", nameKo: "희망관", category: .dormitory,
-      latitude: 36.368471, longitude: 127.356758,
-      photos: photos("W4-4", 0.78)
+      latitude: 36.368471, longitude: 127.356758
     ),
     CampusPlace(
       id: "W6", code: "W6", name: "Mir and Narae Hall", nameKo: "미르/나래관", category: .dormitory,
-      latitude: 36.370568, longitude: 127.3557255, keywords: ["미르관", "나래관"],
-      photos: photos("W6", 0.8)
+      latitude: 36.370568, longitude: 127.3557255, keywords: ["미르관", "나래관"]
     ),
     CampusPlace(
       id: "W2", code: "W2", name: "Student Center - 1", nameKo: "학생회관 - 1", category: .building,
       latitude: 36.367194, longitude: 127.360935,
-      summary: "West-campus student centre with a convenience store, pizza and lunch boxes.",
-      photos: photos("W2", 0.12)
+      summary: "West-campus student centre with a convenience store, pizza and lunch boxes."
     ),
     CampusPlace(
       id: "W9", code: "W9", name: "Outdoor Theater", nameKo: "노천극장", category: .theater,
-      latitude: 36.370744, longitude: 127.357965,
-      photos: photos("W9", 0.3)
+      latitude: 36.370744, longitude: 127.357965
     ),
     CampusPlace(
       id: "W-sports", name: "West Sports Complex", nameKo: "서측 체육관", category: .sportsField,
       latitude: 36.367086, longitude: 127.360688,
       keywords: ["농구", "배구", "라켓볼", "탁구", "Basketball", "Volleyball", "Racquetball", "Table Tennis"],
-      openingHours: .everyDay(.init((6, 0), (24, 0))),
-      photos: photos("W-sports", 0.35)
+      openingHours: .everyDay(.init((6, 0), (24, 0)))
     )
   ]
 
@@ -156,8 +134,7 @@ public extension CampusPlace {
       summary: "Kaimaru — the north-campus food court. The student cafeteria serves three meals a day, surrounded by a dozen independent counters.",
       openingHours: .everyDay(.init((8, 0), (9, 0)), .init((11, 30), (13, 30)), .init((17, 30), (19, 0))),
       hoursNote: "Breakfast is weekdays only",
-      floor: "1F",
-      photos: photos("N11", 0.07, 0.1, 0.04, 0.6)
+      floor: "1F"
     ),
     CampusPlace(
       id: "E-cafeteria", name: "East-Campus Cafeteria", nameKo: "동맛골", category: .cafeteria,
@@ -165,102 +142,88 @@ public extension CampusPlace {
       summary: "Two counters on the east side of campus: a set menu and a rotating special.",
       openingHours: .weekdays(.init((11, 30), (13, 30)), .init((17, 30), (19, 0))),
       hoursNote: "Closed on weekends and public holidays",
-      floor: "B1",
-      photos: photos("E-cafeteria", 0.06, 0.13)
+      floor: "B1"
     ),
     CampusPlace(
       id: "E5", code: "E5", name: "Facility Club", nameKo: "교직원회관", category: .cafeteria,
       latitude: 36.369263, longitude: 127.363563, keywords: ["패컬티클럽"],
       summary: "Staff dining hall that welcomes students. A quieter lunch with a weekly special.",
       openingHours: .weekdays(.init((11, 30), (13, 30))),
-      floor: "2F",
-      photos: photos("E5", 0.09)
+      floor: "2F"
     ),
     CampusPlace(
       id: "N6", code: "N6", name: "Faculty Hall", nameKo: "교수회관", category: .cafeteria,
       latitude: 36.374612, longitude: 127.364759,
       summary: "Buffet-style lunch and a lighter dinner menu.",
-      openingHours: .weekdays(.init((11, 30), (13, 30)), .init((17, 30), (19, 0))),
-      photos: photos("N6", 0.11, 0.5)
+      openingHours: .weekdays(.init((11, 30), (13, 30)), .init((17, 30), (19, 0)))
     ),
     CampusPlace(
       id: "wellchai", name: "Wellchai", nameKo: "웰차이", category: .restaurant,
       latitude: 36.373662, longitude: 127.359400, buildingCode: "N11", keywords: ["Chinese", "중식", "짜장면"],
       summary: "Chinese comfort food. The jjajangmyeon is the late-night favourite.",
       openingHours: .everyDay(.init((10, 30), (21, 0))),
-      floor: "N11 1F",
-      photos: photos("wellchai", 0.0, 0.03, 0.08)
+      floor: "N11 1F"
     ),
     CampusPlace(
       id: "rolling-pasta", name: "Rolling Pasta", nameKo: "롤링파스타", category: .restaurant,
       latitude: 36.373762, longitude: 127.359406, buildingCode: "N11", keywords: ["Pasta", "파스타"],
       openingHours: .everyDay(.init((11, 0), (20, 30))),
-      floor: "N11 1F",
-      photos: photos("rolling-pasta", 0.04, 0.1)
+      floor: "N11 1F"
     ),
     CampusPlace(
       id: "little-hanoi", name: "Little HANOI", nameKo: "리틀하노이", category: .restaurant,
       latitude: 36.373625, longitude: 127.358998, buildingCode: "N11", keywords: ["Vietnamese", "쌀국수", "Pho"],
       openingHours: .weekdays(.init((11, 0), (20, 0)), saturday: [.init((11, 0), (19, 0))]),
-      floor: "N11 1F",
-      photos: photos("little-hanoi", 0.3, 0.12)
+      floor: "N11 1F"
     ),
     CampusPlace(
       id: "bears-taco", name: "BEARS TACO", nameKo: "베어스타코", category: .restaurant,
       latitude: 36.373800, longitude: 127.359406, buildingCode: "N11", keywords: ["Mexican", "타코"],
       openingHours: .weekdays(.init((11, 0), (20, 0))),
-      floor: "N11 1F",
-      photos: photos("bears-taco", 0.09, 0.95)
+      floor: "N11 1F"
     ),
     CampusPlace(
       id: "onigiri", name: "Onigiri & Gyudon", nameKo: "오니기리와 이규동", category: .restaurant,
       latitude: 36.373714, longitude: 127.359400, buildingCode: "N11", keywords: ["Japanese", "규동"],
       openingHours: .weekdays(.init((10, 30), (20, 0))),
-      floor: "N11 1F",
-      photos: photos("onigiri", 0.07)
+      floor: "N11 1F"
     ),
     CampusPlace(
       id: "pulbitmaru", name: "PULBITMARU", nameKo: "풀빛마루", category: .restaurant,
       latitude: 36.374280, longitude: 127.359883, buildingCode: "N12", keywords: ["풀마", "Buffet"],
       summary: "Weighed salad-and-rice buffet; pay by the plate.",
       openingHours: .weekdays(.init((11, 30), (14, 0)), .init((17, 0), (19, 30))),
-      floor: "N12 2F",
-      photos: photos("pulbitmaru", 0.28, 0.33)
+      floor: "N12 2F"
     ),
     CampusPlace(
       id: "insaeng", name: "Insaeng Seolleongtang", nameKo: "인생설렁탕", category: .restaurant,
       latitude: 36.373101, longitude: 127.360036, buildingCode: "N13", keywords: ["설렁탕", "Korean"],
       openingHours: .everyDay(.init((10, 0), (21, 0))),
-      floor: "N13 1F",
-      photos: photos("insaeng", 0.1)
+      floor: "N13 1F"
     ),
     CampusPlace(
       id: "yukjeon", name: "Yukjeon Udon", nameKo: "역전우동", category: .restaurant,
       latitude: 36.372988, longitude: 127.360036, buildingCode: "N13", keywords: ["우동", "Udon"],
       openingHours: .everyDay(.init((10, 0), (24, 0))),
-      floor: "N13 1F",
-      photos: photos("yukjeon", 0.08)
+      floor: "N13 1F"
     ),
     CampusPlace(
       id: "subway", name: "SUBWAY", nameKo: "SUBWAY", category: .restaurant,
       latitude: 36.371271, longitude: 127.362037, buildingCode: "E16", keywords: ["써브웨이", "Sandwich"],
       openingHours: .weekdays(.init((8, 0), (21, 0)), saturday: [.init((10, 0), (19, 0))]),
-      floor: "E16 1F",
-      photos: photos("subway", 0.33, 0.15)
+      floor: "E16 1F"
     ),
     CampusPlace(
       id: "dddn-pizza", name: "DDDN Pizza", nameKo: "대덕동네피자", category: .restaurant,
       latitude: 36.367212, longitude: 127.360828, buildingCode: "W2", keywords: ["피자", "pizza"],
       openingHours: .everyDay(.init((11, 0), (23, 0))),
-      floor: "W2 1F",
-      photos: photos("dddn-pizza", 0.02, 0.07)
+      floor: "W2 1F"
     ),
     CampusPlace(
       id: "big-dosirak", name: "The Big Dosirak", nameKo: "더큰도시락", category: .restaurant,
       latitude: 36.366893, longitude: 127.360467, buildingCode: "W2", keywords: ["도시락"],
       openingHours: .weekdays(.init((10, 0), (20, 0))),
-      floor: "W2 1F",
-      photos: photos("big-dosirak", 0.1)
+      floor: "W2 1F"
     )
   ]
 
@@ -269,50 +232,43 @@ public extension CampusPlace {
       id: "tom-n-toms", name: "Tom and Toms", nameKo: "탐앤탐스", category: .cafe,
       latitude: 36.374096, longitude: 127.365323, buildingCode: "N1", keywords: ["카페", "Cafe"],
       openingHours: .everyDay(.init((8, 0), (24, 0))),
-      floor: "N1 1F",
-      photos: photos("tom-n-toms", 0.07, 0.12)
+      floor: "N1 1F"
     ),
     CampusPlace(
       id: "angelinus", name: "Angel-in-us", nameKo: "엔젤리너스", category: .cafe,
       latitude: 36.372991, longitude: 127.360471, buildingCode: "N13-1", keywords: ["카페", "Cafe"],
       openingHours: .everyDay(.init((8, 0), (22, 0))),
-      floor: "N13-1 1F",
-      photos: photos("angelinus", 0.06)
+      floor: "N13-1 1F"
     ),
     CampusPlace(
       id: "grazie", name: "Grazie", nameKo: "그라지에", category: .cafe,
       latitude: 36.3682, longitude: 127.363571, buildingCode: "E4", keywords: ["카페", "Cafe"],
       openingHours: .weekdays(.init((8, 0), (19, 0))),
-      floor: "E4 1F",
-      photos: photos("grazie", 0.08)
+      floor: "E4 1F"
     ),
     CampusPlace(
       id: "pascucci", name: "Caffè Pascucci", nameKo: "파스쿠찌", category: .cafe,
       latitude: 36.368621, longitude: 127.364585, buildingCode: "E3", keywords: ["카페", "Cafe"],
       openingHours: .weekdays(.init((8, 0), (20, 0)), saturday: [.init((10, 0), (18, 0))]),
-      floor: "E3 1F",
-      photos: photos("pascucci", 0.0, 0.07)
+      floor: "E3 1F"
     ),
     CampusPlace(
       id: "california", name: "California bakery&cafe", nameKo: "캘리포니아 베이커리&카페", category: .cafe,
       latitude: 36.370077, longitude: 127.363687, buildingCode: "E6-5", keywords: ["카페", "Cafe", "빵"],
       openingHours: .weekdays(.init((7, 30), (19, 0))),
-      floor: "E6-5 1F",
-      photos: photos("california", 0.1, 0.13)
+      floor: "E6-5 1F"
     ),
     CampusPlace(
       id: "droptop", name: "Cafe Droptop", nameKo: "카페 드롭탑", category: .cafe,
       latitude: 36.370053, longitude: 127.359902, buildingCode: "W8", keywords: ["Cafe", "카페"],
       openingHours: .weekdays(.init((8, 0), (20, 0))),
-      floor: "W8 1F",
-      photos: photos("droptop", 0.6)
+      floor: "W8 1F"
     ),
     CampusPlace(
       id: "juiceking", name: "JUICEKING", nameKo: "쥬스킹", category: .cafe,
       latitude: 36.373574, longitude: 127.359001, buildingCode: "N11", keywords: ["주스", "Juice"],
       openingHours: .everyDay(.init((9, 0), (21, 0))),
-      floor: "N11 1F",
-      photos: photos("juiceking", 0.2)
+      floor: "N11 1F"
     )
   ]
 
@@ -322,47 +278,41 @@ public extension CampusPlace {
       latitude: 36.374224, longitude: 127.359867, buildingCode: "N12", keywords: ["CVS", "편의점"],
       openingHours: .everyDay(.allDay),
       hoursNote: "Open 24 hours (unmanned overnight)",
-      floor: "N12 1F",
-      photos: photos("cvs-n12", 0.55)
+      floor: "N12 1F"
     ),
     CampusPlace(
       id: "cvs-e5", name: "Convenience Store", nameKo: "매점", category: .store,
       latitude: 36.369205, longitude: 127.36377, buildingCode: "E5", keywords: ["CVS", "편의점"],
       openingHours: .weekdays(.init((9, 0), (19, 0))),
       hoursNote: "Closed on weekends and public holidays",
-      floor: "E5 1F",
-      photos: photos("cvs-e5", 0.5)
+      floor: "E5 1F"
     ),
     CampusPlace(
       id: "general-store", name: "General store", nameKo: "잡화점", category: .store,
       latitude: 36.373286, longitude: 127.360181, buildingCode: "N13", keywords: ["안경점", "CVS", "매점"],
       openingHours: .weekdays(.init((9, 0), (20, 0)), saturday: [.init((10, 0), (17, 0))]),
-      floor: "N13 1F",
-      photos: photos("general-store", 0.15)
+      floor: "N13 1F"
     ),
     CampusPlace(
       id: "brand-shop", name: "KAIST Brand Shop", nameKo: "KAIST 브랜드 샵", category: .store,
       latitude: 36.36974, longitude: 127.362238, buildingCode: "E14", keywords: ["굿즈", "Merch"],
       summary: "Hoodies, notebooks and Nupjuk plushies.",
       openingHours: .weekdays(.init((10, 0), (18, 0)), saturday: [.init((12, 0), (17, 0))], sunday: [.init((12, 0), (17, 0))]),
-      hoursNote: "Closed on public holidays",
-      photos: photos("brand-shop", 0.62, 0.0)
+      hoursNote: "Closed on public holidays"
     ),
     CampusPlace(
       id: "print-e9", name: "Print Shop", nameKo: "오비기획", category: .printShop,
       latitude: 36.369045, longitude: 127.363043, buildingCode: "E9", keywords: ["인쇄", "Print"],
       openingHours: .weekdays(.init((9, 0), (18, 0))),
       hoursNote: "Closed on weekends and public holidays",
-      floor: "E9 B1",
-      photos: photos("print-e9", 0.5)
+      floor: "E9 B1"
     ),
     CampusPlace(
       id: "post-office", name: "KAIST Post Office", nameKo: "한국과학기술원우편취급국", category: .postOffice,
       latitude: 36.373986, longitude: 127.359701, buildingCode: "N11", keywords: ["우체국", "Post"],
       openingHours: .weekdays(.init((9, 0), (18, 0))),
       hoursNote: "Closed on weekends and public holidays",
-      floor: "N11 1F",
-      photos: photos("post-office", 0.0)
+      floor: "N11 1F"
     )
   ]
 

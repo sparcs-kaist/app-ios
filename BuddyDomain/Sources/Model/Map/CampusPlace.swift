@@ -10,7 +10,7 @@ import Foundation
 /// A point of interest on the KAIST campus map: a building, a facility inside one, or an OLEV stop.
 ///
 /// Shaped after `LocationDetailResponse` in sparcsapp-back (`/v1/locations/{id}`), with the
-/// presentation fields the map needs (summary, photos, phone) that the backend keeps in `notes`.
+/// presentation fields the map needs (summary, phone) that the backend keeps in `notes`.
 public struct CampusPlace: Identifiable, Hashable, Sendable {
   public let id: String
   /// Campus map code such as `E11` or `N11`. Facilities inside a building have none.
@@ -28,7 +28,6 @@ public struct CampusPlace: Identifiable, Hashable, Sendable {
   public let hoursNote: String?
   public let phoneNumber: String?
   public let floor: String?
-  public let photos: [PlacePhoto]
 
   public init(
     id: String,
@@ -44,8 +43,7 @@ public struct CampusPlace: Identifiable, Hashable, Sendable {
     openingHours: OpeningHours? = nil,
     hoursNote: String? = nil,
     phoneNumber: String? = nil,
-    floor: String? = nil,
-    photos: [PlacePhoto] = []
+    floor: String? = nil
   ) {
     self.id = id
     self.code = code
@@ -61,7 +59,6 @@ public struct CampusPlace: Identifiable, Hashable, Sendable {
     self.hoursNote = hoursNote
     self.phoneNumber = phoneNumber
     self.floor = floor
-    self.photos = photos
   }
 }
 
@@ -82,20 +79,4 @@ public enum CampusPlaceCategory: String, CaseIterable, Hashable, Sendable {
   case theater
   case postOffice
   case printShop
-}
-
-/// A photo of a place. Mock places carry no URL; the UI draws a placeholder tinted by `hue`.
-public struct PlacePhoto: Identifiable, Hashable, Sendable {
-  public let id: String
-  public let url: URL?
-  public let caption: String?
-  /// 0...1, used to vary placeholders until real photos exist.
-  public let hue: Double
-
-  public init(id: String, url: URL? = nil, caption: String? = nil, hue: Double) {
-    self.id = id
-    self.url = url
-    self.caption = caption
-    self.hue = hue
-  }
 }
