@@ -51,6 +51,7 @@ public struct PlaceReview: Identifiable, Hashable, Sendable {
 }
 
 /// A photo attached to a review. Mock photos carry no URL; the UI draws a placeholder tinted by `hue`.
+/// A photo the user has just attached points at a file on the device until it is uploaded.
 public struct PlacePhoto: Identifiable, Hashable, Sendable {
   public let id: String
   public let url: URL?
@@ -58,7 +59,7 @@ public struct PlacePhoto: Identifiable, Hashable, Sendable {
   /// 0...1, used to vary placeholders until real photos exist.
   public let hue: Double
 
-  public init(id: String, url: URL? = nil, caption: String? = nil, hue: Double) {
+  public init(id: String, url: URL? = nil, caption: String? = nil, hue: Double = 0) {
     self.id = id
     self.url = url
     self.caption = caption

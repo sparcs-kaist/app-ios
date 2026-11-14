@@ -94,10 +94,24 @@ struct PlacePhotoView: View {
 
     LinearGradient(colors: [base, deep], startPoint: .topLeading, endPoint: .bottomTrailing)
       .overlay {
-        Image(systemName: category.symbolName)
-          .font(.system(size: 34, weight: .semibold))
-          .foregroundStyle(.white.opacity(0.55))
+        // The tinted placeholder stays underneath while a real photo loads, or when there is none.
+        if let url = photo.url, url.isFileURL, let image = UIImage(contentsOfFile: url.path) {
+          Image(uiImage: image)
+            .resizable()
+            .scaledToFill()
+        } else if let url = photo.url {
+          AsyncImage(url: url) { image in
+            image.resizable().scaledToFill()
+          } placeholder: {
+            Color.clear
+          }
+        } else {
+          Image(systemName: category.symbolName)
+            .font(.system(size: 34, weight: .semibold))
+            .foregroundStyle(.white.opacity(0.55))
+        }
       }
+      .clipped()
       .overlay(alignment: .bottomLeading) {
         if let caption = photo.caption {
           Text(caption)

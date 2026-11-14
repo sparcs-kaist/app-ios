@@ -101,8 +101,8 @@ struct PlaceReviewsSection: View {
   let placeName: String
   let category: CampusPlaceCategory
   let onUpvote: (PlaceReview) -> Void
-  /// Stars, 1...5, and the text, which may be empty.
-  let onWrite: (Int, String) -> Void
+  /// Stars, 1...5, the text, which may be empty, and any photos.
+  let onWrite: (Int, String, [PlacePhoto]) -> Void
 
   @State private var sort: PlaceReviewSort = .recent
   /// Review IDs in the order shown. Kept apart from the reviews so that upvoting one while sorted
@@ -258,7 +258,7 @@ struct PlaceReviewsView: View {
   let myReview: PlaceReview?
   @Binding var sort: PlaceReviewSort
   let onUpvote: (PlaceReview) -> Void
-  let onWrite: (Int, String) -> Void
+  let onWrite: (Int, String, [PlacePhoto]) -> Void
 
   @Environment(\.dismiss) private var dismiss
 
@@ -315,11 +315,11 @@ struct PlaceReviewsView: View {
 }
 
 /// "Tap to Rate" over five stars, then the button that opens the sheet for writing a review.
-/// Tapping a star rates the place there and then, keeping any words already written.
+/// Tapping a star rates the place there and then, keeping any words and photos already there.
 private struct PlaceRateControls: View {
   let placeName: String
   let myReview: PlaceReview?
-  let onWrite: (Int, String) -> Void
+  let onWrite: (Int, String, [PlacePhoto]) -> Void
 
   @State private var isComposing = false
 
@@ -332,7 +332,7 @@ private struct PlaceRateControls: View {
       StarRatingPicker(
         rating: Binding(
           get: { myReview?.rating ?? 0 },
-          set: { onWrite($0, myReview?.text ?? "") }
+          set: { onWrite($0, myReview?.text ?? "", myReview?.photos ?? []) }
         ),
         size: 26
       )
@@ -342,7 +342,7 @@ private struct PlaceRateControls: View {
         isComposing = true
       } label: {
         Label(
-          myReview?.text.isEmpty == false
+          myReview.map { !$0.text.isEmpty || !$0.photos.isEmpty } == true
             ? String(localized: "Edit Your Review", bundle: .module)
             : String(localized: "Write a Review", bundle: .module),
           systemImage: "square.and.pencil"
@@ -361,6 +361,7 @@ private struct PlaceRateControls: View {
         placeName: placeName,
         rating: myReview?.rating ?? 0,
         text: myReview?.text ?? "",
+        photos: myReview?.photos ?? [],
         onSubmit: onWrite
       )
     }

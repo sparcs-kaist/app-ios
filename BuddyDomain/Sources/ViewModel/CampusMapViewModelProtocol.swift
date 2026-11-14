@@ -25,7 +25,7 @@ public protocol CampusMapViewModelProtocol: Observable {
   func reviews(for place: CampusPlace) -> [PlaceReview]
   /// Adds the user's upvote to a review, or takes it back.
   func toggleUpvote(_ review: PlaceReview)
-  /// Posts the user's own review of a place: 1...5 stars and, optionally, a few words. A user has
-  /// one review of a place, so writing again replaces it.
-  func writeReview(for place: CampusPlace, rating: Int, text: String)
+  /// Posts the user's own review of a place: 1...5 stars and, optionally, a few words and photos.
+  /// A user has one review of a place, so writing again replaces it, photos included.
+  func writeReview(for place: CampusPlace, rating: Int, text: String, photos: [PlacePhoto])
 }

@@ -60,7 +60,7 @@ public final class CampusMapViewModel: CampusMapViewModelProtocol {
     reviewsByPlaceID[review.placeID]?[index].upvotes += isUpvoted ? 1 : -1
   }
 
-  public func writeReview(for place: CampusPlace, rating: Int, text: String) {
+  public func writeReview(for place: CampusPlace, rating: Int, text: String, photos: [PlacePhoto]) {
     var reviews = reviewsByPlaceID[place.id] ?? []
     let existing = reviews.firstIndex(where: \.isMine)
     let review = PlaceReview(
@@ -70,7 +70,7 @@ public final class CampusMapViewModel: CampusMapViewModelProtocol {
       rating: min(max(rating, 1), 5),
       text: text.trimmingCharacters(in: .whitespacesAndNewlines),
       createdAt: .now,
-      photos: existing.map { reviews[$0].photos } ?? [],
+      photos: photos,
       upvotes: existing.map { reviews[$0].upvotes } ?? 0,
       isUpvoted: existing.map { reviews[$0].isUpvoted } ?? false,
       isMine: true
