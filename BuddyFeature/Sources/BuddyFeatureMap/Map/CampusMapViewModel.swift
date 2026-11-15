@@ -82,4 +82,8 @@ public final class CampusMapViewModel: CampusMapViewModelProtocol {
     }
     reviewsByPlaceID[place.id] = reviews
   }
+
+  public func deleteReview(for place: CampusPlace) {
+    reviewsByPlaceID[place.id]?.removeAll(where: \.isMine)
+  }
 }

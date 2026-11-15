@@ -28,4 +28,5 @@ public protocol CampusMapViewModelProtocol: Observable {
   /// Posts the user's own review of a place: 1...5 stars and, optionally, a few words and photos.
   /// A user has one review of a place, so writing again replaces it, photos included.
   func writeReview(for place: CampusPlace, rating: Int, text: String, photos: [PlacePhoto])
+  func deleteReview(for place: CampusPlace)
 }

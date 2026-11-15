@@ -103,6 +103,7 @@ struct PlaceReviewsSection: View {
   let onUpvote: (PlaceReview) -> Void
   /// Stars, 1...5, the text, which may be empty, and any photos.
   let onWrite: (Int, String, [PlacePhoto]) -> Void
+  let onDelete: () -> Void
 
   @State private var sort: PlaceReviewSort = .recent
   /// Review IDs in the order shown. Kept apart from the reviews so that upvoting one while sorted
@@ -194,7 +195,7 @@ struct PlaceReviewsSection: View {
         }
 
         if category.acceptsReviews {
-          PlaceRateControls(placeName: placeName, myReview: myReview, onWrite: onWrite)
+          PlaceRateControls(placeName: placeName, myReview: myReview, onWrite: onWrite, onDelete: onDelete)
             .padding(.top, 4)
         }
 
@@ -214,7 +215,8 @@ struct PlaceReviewsSection: View {
           myReview: myReview,
           sort: $sort,
           onUpvote: onUpvote,
-          onWrite: onWrite
+          onWrite: onWrite,
+          onDelete: onDelete
         )
       }
     }
@@ -259,6 +261,7 @@ struct PlaceReviewsView: View {
   @Binding var sort: PlaceReviewSort
   let onUpvote: (PlaceReview) -> Void
   let onWrite: (Int, String, [PlacePhoto]) -> Void
+  let onDelete: () -> Void
 
   @Environment(\.dismiss) private var dismiss
 
@@ -272,7 +275,7 @@ struct PlaceReviewsView: View {
           }
 
           if category.acceptsReviews {
-            PlaceRateControls(placeName: placeName, myReview: myReview, onWrite: onWrite)
+            PlaceRateControls(placeName: placeName, myReview: myReview, onWrite: onWrite, onDelete: onDelete)
           }
 
           Menu {
@@ -320,6 +323,7 @@ private struct PlaceRateControls: View {
   let placeName: String
   let myReview: PlaceReview?
   let onWrite: (Int, String, [PlacePhoto]) -> Void
+  let onDelete: () -> Void
 
   @State private var isComposing = false
 
@@ -362,6 +366,7 @@ private struct PlaceRateControls: View {
         rating: myReview?.rating ?? 0,
         text: myReview?.text ?? "",
         photos: myReview?.photos ?? [],
+        onDelete: myReview == nil ? nil : onDelete,
         onSubmit: onWrite
       )
     }

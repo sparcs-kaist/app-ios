@@ -18,6 +18,7 @@ struct PlaceReviewComposeView: View {
   let placeName: String
   /// Stars, 1...5, the text, which may be empty, and the photos to attach.
   let onSubmit: (Int, String, [PlacePhoto]) -> Void
+  let onDelete: (() -> Void)?
 
   @Environment(\.dismiss) private var dismiss
   @State private var rating: Int
@@ -28,6 +29,7 @@ struct PlaceReviewComposeView: View {
   @State private var showsLibrary = false
   @State private var showsCamera = false
   @State private var isLoadingPhotos = false
+  @State private var showsDeleteConfirmation = false
 
   private var remainingPhotos: Int {
     Self.photoLimit - photos.count
@@ -40,10 +42,12 @@ struct PlaceReviewComposeView: View {
     rating: Int = 0,
     text: String = "",
     photos: [PlacePhoto] = [],
+    onDelete: (() -> Void)? = nil,
     onSubmit: @escaping (Int, String, [PlacePhoto]) -> Void
   ) {
     self.placeName = placeName
     self.onSubmit = onSubmit
+    self.onDelete = onDelete
     self._rating = State(initialValue: rating)
     self._text = State(initialValue: text)
     self._photos = State(initialValue: photos)
@@ -80,12 +84,37 @@ struct PlaceReviewComposeView: View {
         .contentWidth()
       }
       .scrollDismissesKeyboard(.interactively)
-      .navigationTitle(String(localized: "Write a Review", bundle: .module))
+      .navigationTitle(
+        onDelete == nil
+          ? String(localized: "Write a Review", bundle: .module)
+          : String(localized: "Edit Your Review", bundle: .module)
+      )
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
+        ToolbarItemGroup(placement: .cancellationAction) {
           Button(role: .close) {
             dismiss()
+          }
+          if let onDelete {
+            Button(role: .destructive) {
+              showsDeleteConfirmation = true
+            } label: {
+              Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
+            }
+            .labelStyle(.iconOnly)
+            .confirmationDialog(
+              String(localized: "Delete Review", bundle: .module),
+              isPresented: $showsDeleteConfirmation,
+              titleVisibility: .visible
+            ) {
+              Button(String(localized: "Delete", bundle: .module), role: .destructive) {
+                onDelete()
+                dismiss()
+              }
+              Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
+            } message: {
+              Text("Your rating, review, and attached photos will be removed.", bundle: .module)
+            }
           }
         }
         ToolbarItem(placement: .confirmationAction) {
@@ -93,7 +122,10 @@ struct PlaceReviewComposeView: View {
             onSubmit(rating, text, photos)
             dismiss()
           } label: {
-            Label(String(localized: "Done", bundle: .module), systemImage: "arrow.up")
+            Label(
+              String(localized: "Done", bundle: .module),
+              systemImage: onDelete == nil ? "arrow.up" : "checkmark"
+            )
           }
           .disabled(rating == 0 || isLoadingPhotos)
         }

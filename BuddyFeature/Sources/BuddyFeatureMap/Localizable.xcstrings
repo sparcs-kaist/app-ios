@@ -259,6 +259,16 @@
         }
       }
     },
+    "Cancel" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소"
+          }
+        }
+      }
+    },
     "Choose from Library" : {
       "localizations" : {
         "ko" : {
@@ -335,6 +345,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "건물 코드"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제"
+          }
+        }
+      }
+    },
+    "Delete Review" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "리뷰 삭제"
           }
         }
       }
@@ -1175,6 +1205,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "나"
+          }
+        }
+      }
+    },
+    "Your rating, review, and attached photos will be removed." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "별점, 리뷰 및 첨부한 사진이 삭제됩니다."
           }
         }
       }

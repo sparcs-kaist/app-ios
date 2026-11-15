@@ -64,7 +64,8 @@ struct PlaceDetailView: View {
         onUpvote: { review in viewModel.toggleUpvote(review) },
         onWrite: { rating, text, photos in
           viewModel.writeReview(for: place, rating: rating, text: text, photos: photos)
-        }
+        },
+        onDelete: { viewModel.deleteReview(for: place) }
       )
 
       Button {
