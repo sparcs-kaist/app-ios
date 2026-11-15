@@ -37,6 +37,24 @@
         }
       }
     },
+    "NSCameraUsageDescription" : {
+      "comment" : "Explains why the app requests permission to use the camera.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Take photos to attach to your reviews of campus places."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "장소 리뷰에 첨부할 사진을 촬영합니다."
+          }
+        }
+      }
+    },
     "NSPhotoLibraryAddUsageDescription" : {
       "comment" : "Explains why the app requests permission to add images to Photos.",
       "localizations" : {

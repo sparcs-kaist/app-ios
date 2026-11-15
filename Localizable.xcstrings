@@ -493,6 +493,16 @@
         }
       }
     },
+    "Map" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지도"
+          }
+        }
+      }
+    },
     "My Lectures" : {
       "localizations" : {
         "en" : {
