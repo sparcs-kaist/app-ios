@@ -169,7 +169,7 @@ struct CampusExploreView: View {
     HStack(spacing: 12) {
       PlaceSheetTitle(title: place.displayName, subtitle: place.subtitle, floor: place.displayFloor)
         .padding(.leading, 8)
-        .padding(.top, 4)
+        .padding(.top, 8)
         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         .id(place.id)
 

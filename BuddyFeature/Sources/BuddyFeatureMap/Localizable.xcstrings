@@ -330,7 +330,6 @@
       }
     },
     "Code" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -443,7 +442,6 @@
       }
     },
     "From" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {

@@ -32,6 +32,8 @@ struct PlaceDetailView: View {
 
       if place.category == .olevStop {
         olevSection
+      } else {
+        glanceStrip
       }
       if let menu = viewModel.cafeteriaMenu(for: place) {
         PlaceCardSection(title: String(localized: "Today's Menu", bundle: .module)) {
@@ -139,6 +141,74 @@ struct PlaceDetailView: View {
     let item = MKMapItem(location: CLLocation(latitude: place.latitude, longitude: place.longitude), address: nil)
     item.name = place.displayName
     item.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
+  }
+
+  private var glanceStrip: some View {
+    Group(subviews: glanceItems) { items in
+      if !items.isEmpty {
+        HStack(spacing: 0) {
+          ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+            if index > 0 {
+              Rectangle().fill(.separator).frame(width: 1)
+            }
+            item
+          }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.vertical, 4)
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var glanceItems: some View {
+    if let status = place.openingHours?.status(at: .now) {
+      glanceItem(title: String(localized: "Hours", bundle: .module)) {
+        Text(status.title).foregroundStyle(status.tint)
+      }
+    }
+
+    if let rating = PlaceRatingSummary(reviews: reviews) {
+      glanceItem(title: String(localized: "\(rating.count) Ratings", bundle: .module)) {
+        HStack(spacing: 3) {
+          Text(rating.average, format: .number.precision(.fractionLength(1)))
+          Image(systemName: "star.fill")
+            .font(.caption)
+            .foregroundStyle(.orange)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("\(rating.average, format: .number.precision(.fractionLength(1))) out of 5 stars", bundle: .module))
+      }
+    }
+
+    if let menu = viewModel.cafeteriaMenu(for: place), let prices = menu.meals.flatMap(\.courses).map(\.price).min() {
+      glanceItem(title: String(localized: "From", bundle: .module)) {
+        Text(prices.wonText)
+      }
+    } else if let menu = viewModel.restaurantMenu(for: place), let price = menu.sections.flatMap(\.items).map(\.price).min() {
+      glanceItem(title: String(localized: "From", bundle: .module)) {
+        Text(price.wonText)
+      }
+    } else if let code = place.code {
+      glanceItem(title: String(localized: "Code", bundle: .module)) {
+        Text(code)
+      }
+    }
+  }
+
+  private func glanceItem<Value: View>(title: String, @ViewBuilder value: () -> Value) -> some View {
+    VStack(spacing: 2) {
+      Text(title)
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(.secondary)
+        .textCase(.uppercase)
+      value()
+        .font(.subheadline.weight(.semibold))
+        .lineLimit(1)
+    }
+    .frame(maxWidth: .infinity)
+    .padding(.horizontal, 6)
+    .accessibilityElement(children: .combine)
   }
 
   // MARK: - Sections

@@ -55,7 +55,6 @@ extension MapCameraBounds {
         center: CLLocationCoordinate2D(latitude: 36.3701, longitude: 127.3618),
         span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
       ),
-      minimumDistance: 200,
       maximumDistance: 5000
     )
   }

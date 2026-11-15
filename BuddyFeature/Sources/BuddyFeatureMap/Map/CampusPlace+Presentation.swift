@@ -20,7 +20,10 @@ extension CampusPlace {
 
   /// The name in the user's language: Korean users know places by their Korean names.
   var displayName: String {
-    Self.prefersKorean ? nameKo : name
+    let localizedName = Self.prefersKorean ? nameKo : name
+    let suffix = "정류장"
+    guard category == .olevStop, localizedName.hasSuffix(suffix) else { return localizedName }
+    return String(localizedName.dropLast(suffix.count)).trimmingCharacters(in: .whitespacesAndNewlines)
   }
 
   var displayFloor: String? {
