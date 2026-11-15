@@ -40,6 +40,7 @@ struct PlaceFilterChips: View {
       }
     }
     .scrollIndicators(.hidden)
+    .scrollEdgeEffectHidden(true, for: .top)
   }
 }
 

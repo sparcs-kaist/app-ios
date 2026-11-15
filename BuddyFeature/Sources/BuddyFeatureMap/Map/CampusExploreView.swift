@@ -51,29 +51,30 @@ struct CampusExploreView: View {
       // the leading side on a wide screen, the bottom otherwise. The bars, the chips and the
       // cards it learns from the safe area.
       .safeAreaPadding(sheetInsets(in: proxy))
-      // MapKit draws its own flat band with a hard line under the bars and ignores
-      // `scrollEdgeEffectStyle`, which only reaches scroll views. The bar background is hidden
-      // below and this stands in for the soft edge: a blur that fades out under the chips.
-      .overlay(alignment: .top) {
-        Rectangle()
-          .fill(.ultraThinMaterial)
-          .mask {
-            LinearGradient(
-              stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.45), .init(color: .clear, location: 1)],
-              startPoint: .top,
-              endPoint: .bottom
-            )
-          }
-          // The overlay is laid out inside the safe area; reach up over the bars from there.
-          .padding(.top, -proxy.safeAreaInsets.top)
-          .frame(height: 96)
-          .allowsHitTesting(false)
-      }
       .overlay(alignment: .topTrailing) {
         mapControls
       }
       .safeAreaInset(edge: .top, spacing: 0) {
         PlaceFilterChips(selection: $filter)
+          .background {
+            GeometryReader { filterProxy in
+              Rectangle()
+                .fill(.ultraThinMaterial)
+                .frame(height: proxy.safeAreaInsets.top + filterProxy.size.height + 48)
+                .mask {
+                  VStack(spacing: 0) {
+                    Color.black.frame(height: proxy.safeAreaInsets.top)
+                    LinearGradient(
+                      colors: [.black, .clear],
+                      startPoint: .top,
+                      endPoint: .bottom
+                    )
+                  }
+                }
+                .offset(y: -proxy.safeAreaInsets.top)
+            }
+            .allowsHitTesting(false)
+          }
       }
       .safeAreaInset(edge: .bottom, spacing: 0) {
         if selectedPlace == nil {
