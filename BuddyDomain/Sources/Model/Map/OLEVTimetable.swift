@@ -51,9 +51,18 @@ public struct OLEVTimetable: Hashable, Sendable {
     stops.contains { $0.placeID == placeID }
   }
 
+  public func scheduledArrivals(at placeID: String, on date: Date, calendar: Calendar = .current) -> [Date] {
+    guard serviceDays.contains(calendar.component(.weekday, from: date)),
+          let stop = stops.first(where: { $0.placeID == placeID }) else { return [] }
+    let startOfDay = calendar.startOfDay(for: date)
+    return departures.sorted().compactMap {
+      calendar.date(byAdding: .minute, value: $0 + stop.offset, to: startOfDay)
+    }
+  }
+
   /// The bus that just left `placeID`, the next one and the one after, as the stop sign shows them.
   public func arrivals(at placeID: String, around date: Date, calendar: Calendar = .current) -> OLEVArrivals {
-    guard let stop = stops.first(where: { $0.placeID == placeID }) else {
+    guard contains(placeID: placeID) else {
       return OLEVArrivals(previous: nil, upcoming: [])
     }
 
@@ -61,9 +70,8 @@ public struct OLEVTimetable: Hashable, Sendable {
     let startOfToday = calendar.startOfDay(for: date)
     // Today and the next week, so "no more buses" rolls over to the next service day.
     for dayOffset in 0...7 {
-      guard let day = calendar.date(byAdding: .day, value: dayOffset, to: startOfToday),
-            serviceDays.contains(calendar.component(.weekday, from: day)) else { continue }
-      times += departures.map { day.addingTimeInterval(TimeInterval(($0 + stop.offset) * 60)) }
+      guard let day = calendar.date(byAdding: .day, value: dayOffset, to: startOfToday) else { continue }
+      times += scheduledArrivals(at: placeID, on: day, calendar: calendar)
       if times.filter({ $0 > date }).count >= 2 { break }
     }
 

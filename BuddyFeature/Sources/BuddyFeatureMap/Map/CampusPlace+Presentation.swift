@@ -23,15 +23,21 @@ extension CampusPlace {
     Self.prefersKorean ? nameKo : name
   }
 
-  /// The map pin. OLEV stops carry their sign code (OV1…) in place of a glyph, so riders can match
-  /// the map to the stop sign.
-  @MapContentBuilder
-  var marker: some MapContent {
-    if category == .olevStop, let code {
-      Marker(displayName, monogram: Text(code), coordinate: coordinate)
-    } else {
-      Marker(displayName, systemImage: category.symbolName, coordinate: coordinate)
+  var displayFloor: String? {
+    guard let floor = floor?.trimmingCharacters(in: .whitespacesAndNewlines), !floor.isEmpty else {
+      return nil
     }
+    for code in [buildingCode, code].compactMap({ $0 }) {
+      let prefix = "\(code) "
+      if floor.hasPrefix(prefix) {
+        return String(floor.dropFirst(prefix.count))
+      }
+    }
+    return floor
+  }
+
+  var marker: some MapContent {
+    Marker(displayName, systemImage: category.symbolName, coordinate: coordinate)
   }
 
   /// What the share sheet sends: the name and an Apple Maps link to the spot.

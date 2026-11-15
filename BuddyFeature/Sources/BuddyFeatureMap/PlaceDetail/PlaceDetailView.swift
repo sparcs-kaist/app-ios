@@ -9,10 +9,6 @@ import SwiftUI
 import MapKit
 import BuddyDomain
 
-/// A place card in the style of Apple Maps: header, a row of actions, an at-a-glance strip, then
-/// whatever the place is for — buses, today's menu, the restaurant's dishes — and its details.
-///
-/// It is a plain stack so each host decides how it scrolls (a sheet, a push, the map's panel).
 struct PlaceDetailView: View {
   let place: CampusPlace
   let viewModel: CampusMapViewModelProtocol
@@ -33,7 +29,6 @@ struct PlaceDetailView: View {
       }
 
       actions
-      glanceStrip
 
       if place.category == .olevStop {
         olevSection
@@ -86,25 +81,33 @@ struct PlaceDetailView: View {
   // MARK: - Actions
 
   private var actions: some View {
-    HStack(spacing: 8) {
+    let distance = viewModel.distance(to: place)
+
+    return HStack(spacing: 8) {
       Button(action: openDirections) {
-        VStack(spacing: 2) {
+        HStack(spacing: 10) {
           Image(systemName: "figure.walk")
-            .font(.title3)
-          Text("\(viewModel.distance(to: place).walkingMinutes) min", bundle: .module)
-            .font(.caption.weight(.semibold))
+            .font(.title2)
+          VStack(alignment: .leading, spacing: 2) {
+            Text("Directions", bundle: .module)
+              .font(.headline)
+              .lineLimit(1)
+              .minimumScaleFactor(0.85)
+            Text("\(distance.distanceText) · \(distance.walkingMinutes) min", bundle: .module)
+              .font(.caption.weight(.medium))
+              .foregroundStyle(.white.opacity(0.85))
+              .lineLimit(1)
+              .minimumScaleFactor(0.85)
+          }
+          Spacer(minLength: 4)
+          Image(systemName: "arrow.up.right")
+            .font(.title3.weight(.semibold))
+            .accessibilityHidden(true)
         }
-        .frame(maxWidth: .infinity, minHeight: 44)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .padding(.horizontal, 14)
       }
       .buttonStyle(PlaceActionButtonStyle(isProminent: true))
-
-      actionButton(
-        title: viewModel.isPinned(place) ? String(localized: "Pinned", bundle: .module) : String(localized: "Pin", bundle: .module),
-        systemImage: viewModel.isPinned(place) ? "pin.fill" : "pin"
-      ) {
-        withAnimation(.snappy) { viewModel.togglePin(place) }
-      }
-      .sensoryFeedback(.selection, trigger: viewModel.isPinned(place))
 
       if let phoneNumber = place.phoneNumber,
          let url = URL(string: "tel:\(phoneNumber.filter(\.isNumber))") {
@@ -113,14 +116,12 @@ struct PlaceDetailView: View {
         }
         .buttonStyle(PlaceActionButtonStyle())
       }
-    }
-  }
 
-  private func actionButton(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
-    Button(action: action) {
-      actionLabel(title: title, systemImage: systemImage)
+      ShareLink(item: place.shareText) {
+        actionLabel(title: String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
+      }
+      .buttonStyle(PlaceActionButtonStyle())
     }
-    .buttonStyle(PlaceActionButtonStyle())
   }
 
   private func actionLabel(title: String, systemImage: String) -> some View {
@@ -130,7 +131,8 @@ struct PlaceDetailView: View {
       Text(title)
         .font(.caption.weight(.semibold))
     }
-    .frame(maxWidth: .infinity, minHeight: 44)
+    .frame(minWidth: 48, minHeight: 44)
+    .padding(.horizontal, 6)
   }
 
   private func openDirections() {
@@ -139,94 +141,11 @@ struct PlaceDetailView: View {
     item.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
   }
 
-  // MARK: - At a glance
-
-  /// Apple Maps' strip of short facts under the actions: each centred in an equal share of the
-  /// width, with a hairline between neighbours and none at either end.
-  private var glanceStrip: some View {
-    HStack(spacing: 0) {
-      Group(subviews: glanceItems) { items in
-        ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-          if index > 0 {
-            Rectangle().fill(.separator).frame(width: 1)
-          }
-          item
-        }
-      }
-    }
-    .fixedSize(horizontal: false, vertical: true)
-    .padding(.vertical, 4)
-  }
-
-  @ViewBuilder
-  private var glanceItems: some View {
-    if place.category == .olevStop {
-      glanceItem(title: String(localized: "Service", bundle: .module)) {
-        Text("Weekdays", bundle: .module)
-      }
-    } else if let status = place.openingHours?.status(at: .now) {
-      glanceItem(title: String(localized: "Hours", bundle: .module)) {
-        Text(status.title).foregroundStyle(status.tint)
-      }
-    }
-
-    if let rating = PlaceRatingSummary(reviews: reviews) {
-      glanceItem(title: String(localized: "\(rating.count) Ratings", bundle: .module)) {
-        HStack(spacing: 3) {
-          Text(rating.average, format: .number.precision(.fractionLength(1)))
-          Image(systemName: "star.fill")
-            .font(.caption)
-            .foregroundStyle(.orange)
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("\(rating.average, format: .number.precision(.fractionLength(1))) out of 5 stars", bundle: .module))
-      }
-    }
-
-    glanceItem(title: String(localized: "Distance", bundle: .module)) {
-      Text(viewModel.distance(to: place).distanceText)
-    }
-
-    if let menu = viewModel.cafeteriaMenu(for: place), let prices = menu.meals.flatMap(\.courses).map(\.price).min() {
-      glanceItem(title: String(localized: "From", bundle: .module)) {
-        Text(prices.wonText)
-      }
-    } else if let menu = viewModel.restaurantMenu(for: place), let price = menu.sections.flatMap(\.items).map(\.price).min() {
-      glanceItem(title: String(localized: "From", bundle: .module)) {
-        Text(price.wonText)
-      }
-    } else if let floor = place.floor {
-      glanceItem(title: String(localized: "Floor", bundle: .module)) {
-        Text(floor)
-      }
-    } else if let code = place.code {
-      glanceItem(title: String(localized: "Code", bundle: .module)) {
-        Text(code)
-      }
-    }
-  }
-
-  private func glanceItem<Value: View>(title: String, @ViewBuilder value: () -> Value) -> some View {
-    VStack(spacing: 2) {
-      Text(title)
-        .font(.caption2.weight(.semibold))
-        .foregroundStyle(.secondary)
-        .textCase(.uppercase)
-      value()
-        .font(.subheadline.weight(.semibold))
-        .lineLimit(1)
-    }
-    .frame(maxWidth: .infinity)
-    .padding(.horizontal, 6)
-  }
-
   // MARK: - Sections
 
   @ViewBuilder
   private var olevSection: some View {
-    PlaceCardSection(title: String(localized: "OLEV Departures", bundle: .module)) {
-      OLEVArrivalsView(stop: place, timetable: viewModel.olevTimetable)
-    }
+    OLEVArrivalsView(stop: place, timetable: viewModel.olevTimetable)
 
     PlaceCardSection(
       title: String(localized: "Stops", bundle: .module),
@@ -269,10 +188,9 @@ struct PlaceDetailView: View {
     }
   }
 
-  /// Nothing to list for a place with no hours, building, floor or phone.
   private var hasDetails: Bool {
     place.openingHours != nil || place.hoursNote != nil || viewModel.building(of: place) != nil
-      || place.floor != nil || place.phoneNumber != nil
+      || place.phoneNumber != nil
   }
 
   @ViewBuilder
@@ -328,12 +246,6 @@ struct PlaceDetailView: View {
           }
         }
 
-        if let floor = place.floor {
-          detailRow(title: String(localized: "Floor", bundle: .module)) {
-            Text(floor)
-          }
-        }
-
         if let phoneNumber = place.phoneNumber {
           detailRow(title: String(localized: "Phone", bundle: .module)) {
             Text(phoneNumber)
@@ -368,7 +280,7 @@ struct PlaceDetailHeader: View {
           .font(.title.weight(.bold))
           .lineLimit(2)
           .minimumScaleFactor(0.75)
-        Text(place.subtitle)
+        PlaceSubtitle(subtitle: place.subtitle, floor: place.displayFloor)
           .font(.subheadline)
           .foregroundStyle(.secondary)
       }

@@ -24,6 +24,8 @@ struct CampusExploreView: View {
   @FocusState private var isSearchFocused: Bool
   @State private var filter: CampusPlaceFilter?
   @State private var selectedPlace: CampusPlace?
+  @State private var selectedPlaceDetent: PresentationDetent = .fraction(CampusExploreView.cardFraction)
+  @State private var hasScrolledPlaceDetails = false
   @State private var position: MapCameraPosition = .kaist
   @State private var mapStyle: CampusMapStyle = .standard
 
@@ -120,34 +122,93 @@ struct CampusExploreView: View {
         position = filter.map { .fitting(places(in: $0)) } ?? .kaist
       }
     }
-    .sheet(isPresented: Binding(get: { selectedPlace != nil }, set: { if !$0 { selectedPlace = nil } })) {
+    .onChange(of: selectedPlace?.id) { _, _ in
+      hasScrolledPlaceDetails = false
+    }
+    .sheet(
+      isPresented: Binding(get: { selectedPlace != nil }, set: { if !$0 { selectedPlace = nil } }),
+      onDismiss: {
+        selectedPlaceDetent = .fraction(Self.cardFraction)
+        hasScrolledPlaceDetails = false
+      }
+    ) {
       if let place = selectedPlace {
         NavigationStack {
-          ScrollView {
-            PlaceDetailView(place: place, viewModel: viewModel, onSelectPlace: { show($0) })
-              .padding(.horizontal)
-              .padding(.bottom)
-              .id(place.id)
-          }
-          .toolbarTitleDisplayMode(.inline)
-          .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-              ShareLink(item: place.shareText)
+          GeometryReader { sheetProxy in
+            ScrollView {
+              PlaceDetailView(place: place, viewModel: viewModel, showsHeader: false, onSelectPlace: { show($0) })
+                .padding(.horizontal)
+                .padding(.bottom, sheetProxy.safeAreaInsets.bottom + 16)
             }
-            ToolbarItem(placement: .topBarTrailing) {
-              Button(role: .close) {
-                selectedPlace = nil
-              }
+            .scrollEdgeEffectStyle(.hard, for: .top)
+            .scrollEdgeEffectHidden(selectedPlaceDetent != .large || !hasScrolledPlaceDetails, for: .top)
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+              geometry.contentOffset.y + geometry.contentInsets.top > 1
+            } action: { _, isScrolled in
+              hasScrolledPlaceDetails = isScrolled
             }
+            .safeAreaBar(edge: .top, spacing: 0) {
+              sheetHeader(for: place)
+            }
+            .animation(.easeInOut(duration: 0.25), value: selectedPlaceDetent == .large && hasScrolledPlaceDetails)
+            .ignoresSafeArea(.container, edges: .bottom)
+            .id(place.id)
           }
+          .toolbar(.hidden, for: .navigationBar)
         }
-        .presentationDetents([.fraction(Self.cardFraction), .large])
+        .presentationDetents([.fraction(Self.cardFraction), .large], selection: $selectedPlaceDetent)
         .presentationBackgroundInteraction(.enabled(upThrough: .fraction(Self.cardFraction)))
         .presentationDragIndicator(.visible)
         // On a wide screen the sheet stands on the leading side, beside the map, not across it.
         .leadingPresentationPlacement()
       }
     }
+  }
+
+  private func sheetHeader(for place: CampusPlace) -> some View {
+    HStack(spacing: 12) {
+      PlaceSheetTitle(title: place.displayName, subtitle: place.subtitle, floor: place.displayFloor)
+        .padding(.leading, 8)
+        .padding(.top, 4)
+        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+        .id(place.id)
+
+      GlassEffectContainer(spacing: 8) {
+        HStack(spacing: 8) {
+          Button {
+            withAnimation(.snappy) { viewModel.togglePin(place) }
+          } label: {
+            Image(systemName: viewModel.isPinned(place) ? "pin.fill" : "pin")
+              .font(.system(size: 17, weight: .medium))
+              .foregroundStyle(viewModel.isPinned(place) ? Color.accentColor : Color.primary)
+              .frame(width: 44, height: 44)
+              .glassEffect(.regular.interactive(), in: .circle)
+          }
+          .accessibilityLabel(
+            viewModel.isPinned(place)
+              ? String(localized: "Unpin", bundle: .module)
+              : String(localized: "Pin", bundle: .module)
+          )
+          .sensoryFeedback(.selection, trigger: viewModel.isPinned(place))
+
+          Button(role: .close) {
+            selectedPlace = nil
+          } label: {
+            Image(systemName: "xmark")
+              .font(.system(size: 17, weight: .semibold))
+              .foregroundStyle(.primary)
+              .frame(width: 44, height: 44)
+              .glassEffect(.regular.interactive(), in: .circle)
+          }
+          .accessibilityLabel(Text("Close", bundle: .module))
+        }
+        .buttonStyle(.plain)
+        .fixedSize()
+      }
+    }
+    .padding(.horizontal)
+    .padding(.top, 12)
+    .padding(.bottom, 12)
   }
 
   // MARK: - State

@@ -455,15 +455,14 @@ private struct PlaceReviewCard: View {
 
       Spacer(minLength: 0)
 
-      // The same button as a lecture review's: count, then arrow, on glass at the trailing edge.
       Button(action: onUpvote) {
-        HStack {
+        HStack(spacing: 6) {
+          Image(systemName: review.isUpvoted ? "heart.fill" : "heart")
           Text(review.upvotes, format: .number)
-          Image(systemName: review.isUpvoted ? "arrowshape.up.fill" : "arrowshape.up")
+            .contentTransition(.numericText(countsDown: true))
         }
       }
       .tint(review.isUpvoted ? Color.upvote : .primary)
-      .contentTransition(.numericText(value: Double(review.upvotes)))
       .buttonStyle(.glass)
       .animation(.spring, value: review.isUpvoted)
       .sensoryFeedback(.selection, trigger: review.isUpvoted)

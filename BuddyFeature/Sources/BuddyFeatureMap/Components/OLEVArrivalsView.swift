@@ -8,14 +8,15 @@
 import SwiftUI
 import BuddyDomain
 
-/// The three times a stop sign would show: the bus that just left, the next one and the one after.
 struct OLEVArrivalsView: View {
   let stop: CampusPlace
   let timetable: OLEVTimetable
   var style: Style = .full
 
+  @State private var scrollPosition = ScrollPosition(idType: Date.self)
+  @ScaledMetric(relativeTo: .headline) private var cardWidth: CGFloat = 132
+
   enum Style {
-    /// Three tiles, for the place card.
     case full
     /// One line, for cards and rows.
     case compact
@@ -23,57 +24,120 @@ struct OLEVArrivalsView: View {
 
   var body: some View {
     TimelineView(.periodic(from: .now, by: 15)) { context in
-      let arrivals = timetable.arrivals(at: stop.id, around: context.date)
       switch style {
       case .full:
-        full(arrivals, now: context.date)
+        full(schedule(around: context.date), now: context.date)
       case .compact:
-        compact(arrivals, now: context.date)
+        compact(timetable.arrivals(at: stop.id, around: context.date), now: context.date)
       }
     }
   }
 
-  private func full(_ arrivals: OLEVArrivals, now: Date) -> some View {
-    HStack(spacing: 8) {
-      tile(
-        title: String(localized: "Departed", bundle: .module),
-        value: arrivals.previous?.formatted(date: .omitted, time: .shortened) ?? "—",
-        emphasised: false
-      )
-      tile(
-        title: String(localized: "Next", bundle: .module),
-        value: arrivals.next.map { $0.olevCountdownText(now: now) } ?? "—",
-        emphasised: true
-      )
-      tile(
-        title: String(localized: "After", bundle: .module),
-        value: arrivals.upcoming.dropFirst().first.map { $0.olevCountdownText(now: now) } ?? "—",
-        emphasised: false
-      )
+  private func schedule(around now: Date) -> [Date] {
+    let calendar = Calendar.current
+    for dayOffset in 0...7 {
+      guard let day = calendar.date(byAdding: .day, value: dayOffset, to: now) else { continue }
+      let arrivals = timetable.scheduledArrivals(at: stop.id, on: day, calendar: calendar)
+      if !arrivals.isEmpty { return arrivals }
+    }
+    return []
+  }
+
+  private func full(_ arrivals: [Date], now: Date) -> some View {
+    let next = arrivals.first { $0 > now }
+
+    return VStack(alignment: .leading, spacing: 8) {
+      HStack(alignment: .firstTextBaseline) {
+        Text("OLEV Departures", bundle: .module)
+          .font(.title3.weight(.bold))
+        Spacer(minLength: 8)
+        if let day = arrivals.first {
+          Text(day, format: .dateTime.month(.abbreviated).day().weekday(.abbreviated))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+      }
+
+      if arrivals.isEmpty {
+        Text("No scheduled departures", bundle: .module)
+          .font(.subheadline)
+          .foregroundStyle(.secondary)
+      } else {
+        ScrollView(.horizontal) {
+          LazyHStack(spacing: 8) {
+            ForEach(arrivals, id: \.self) { arrival in
+              departureCard(at: arrival, now: now, isNext: arrival == next)
+            }
+          }
+          .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByFew))
+        .scrollPosition($scrollPosition)
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled()
+        .onChange(of: arrivals, initial: true) { _, arrivals in
+          if let target = arrivals.first(where: { $0 > now }) ?? arrivals.last {
+            scrollPosition.scrollTo(id: target, anchor: .leading)
+          }
+        }
+      }
     }
   }
 
-  private func tile(title: String, value: String, emphasised: Bool) -> some View {
-    VStack(spacing: 2) {
-      Text(title)
-        .font(.caption.weight(.medium))
-        .foregroundStyle(emphasised ? .white.opacity(0.85) : .secondary)
-      Text(value)
-        .font(.headline.monospacedDigit())
-        .foregroundStyle(emphasised ? .white : .primary)
+  private func departureCard(at date: Date, now: Date, isNext: Bool) -> some View {
+    let isPast = date <= now
+
+    return VStack(alignment: .leading, spacing: 6) {
+      Group {
+        if isPast {
+          Text("Departed", bundle: .module)
+        } else if isNext {
+          Text("Next", bundle: .module)
+        } else {
+          Text("Scheduled", bundle: .module)
+        }
+      }
+      .font(.caption.weight(.semibold))
+      .foregroundStyle(isNext ? Color.white.opacity(0.85) : Color.secondary)
+
+      Text(date, format: .dateTime.hour().minute())
+        .font(.title3.weight(.semibold).monospacedDigit())
+        .foregroundStyle(isNext ? Color.white : isPast ? Color.secondary : Color.primary)
         .lineLimit(1)
-        .minimumScaleFactor(0.7)
-        .contentTransition(.numericText())
+        .minimumScaleFactor(0.8)
+
+      Group {
+        if isPast && now.timeIntervalSince(date) < 60 {
+          Text("Just departed", bundle: .module)
+        } else if !isPast && date.timeIntervalSince(now) < 60 {
+          Text("Departing soon", bundle: .module)
+        } else {
+          Text(now, format: Date.AnchoredRelativeFormatStyle(
+            anchor: date,
+            allowedFields: [.day, .hour, .minute],
+            presentation: .numeric,
+            unitsStyle: .abbreviated
+          ))
+        }
+      }
+      .font(.caption.weight(.medium))
+      .foregroundStyle(isNext ? Color.white.opacity(0.85) : Color.secondary)
+      .lineLimit(1)
+      .minimumScaleFactor(0.8)
     }
-    .frame(maxWidth: .infinity)
-    .padding(.vertical, 10)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(14)
+    .frame(width: cardWidth)
     .background {
-      if emphasised {
+      if isNext {
         RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.blue.gradient)
+      } else if isPast {
+        RoundedRectangle(cornerRadius: 14, style: .continuous).fill(.fill.quaternary)
       } else {
         RoundedRectangle(cornerRadius: 14, style: .continuous).fill(.fill.tertiary)
       }
     }
+    .accessibilityElement(children: .combine)
   }
 
   @ViewBuilder

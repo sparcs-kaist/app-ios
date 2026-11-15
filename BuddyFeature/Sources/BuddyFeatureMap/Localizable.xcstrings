@@ -46,6 +46,22 @@
         }
       }
     },
+    "%@ · %lld min" : {
+      "localizations" : {
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$lld min"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$lld분"
+          }
+        }
+      }
+    },
     "%@ (%@)" : {
       "localizations" : {
         "en-GB" : {
@@ -153,6 +169,7 @@
       }
     },
     "After" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -313,6 +330,7 @@
       }
     },
     "Code" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -328,6 +346,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "출발한 버스"
+          }
+        }
+      }
+    },
+    "Departing soon" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "곧 출발"
           }
         }
       }
@@ -362,7 +390,18 @@
         }
       }
     },
+    "Directions" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "길찾기"
+          }
+        }
+      }
+    },
     "Distance" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -393,6 +432,7 @@
       }
     },
     "Floor" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -403,6 +443,7 @@
       }
     },
     "From" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
@@ -478,6 +519,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "내부 시설"
+          }
+        }
+      }
+    },
+    "Just departed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "방금 출발"
           }
         }
       }
@@ -638,6 +689,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아직 평가가 없습니다. 첫 번째 평가를 남겨 보세요."
+          }
+        }
+      }
+    },
+    "No scheduled departures" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예정된 출발 시간이 없습니다"
           }
         }
       }
@@ -888,6 +949,16 @@
         }
       }
     },
+    "Scheduled" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출발 예정"
+          }
+        }
+      }
+    },
     "Search" : {
       "localizations" : {
         "ko" : {
@@ -909,11 +980,22 @@
       }
     },
     "Service" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "운행일"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유"
           }
         }
       }
@@ -1069,6 +1151,7 @@
       }
     },
     "Weekdays" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ko" : {
           "stringUnit" : {
