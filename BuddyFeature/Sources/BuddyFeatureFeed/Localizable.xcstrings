@@ -419,6 +419,16 @@
         }
       }
     },
+    "Search" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색"
+          }
+        }
+      }
+    },
     "Send" : {
       "localizations" : {
         "en" : {
