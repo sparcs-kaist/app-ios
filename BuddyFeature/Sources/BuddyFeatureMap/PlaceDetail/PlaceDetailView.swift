@@ -13,6 +13,7 @@ struct PlaceDetailView: View {
   let place: CampusPlace
   let viewModel: CampusMapViewModelProtocol
   var showsHeader: Bool = true
+  var showsDepartureEdgePeeks = false
   var onSelectPlace: ((CampusPlace) -> Void)?
   var onClose: (() -> Void)?
 
@@ -216,7 +217,11 @@ struct PlaceDetailView: View {
 
   @ViewBuilder
   private var olevSection: some View {
-    OLEVArrivalsView(stop: place, timetable: viewModel.olevTimetable)
+    OLEVArrivalsView(
+      stop: place,
+      timetable: viewModel.olevTimetable,
+      showsEdgePeeks: showsDepartureEdgePeeks
+    )
 
     PlaceCardSection(
       title: String(localized: "Stops", bundle: .module),

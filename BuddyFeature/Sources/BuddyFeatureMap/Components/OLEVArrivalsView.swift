@@ -12,9 +12,11 @@ struct OLEVArrivalsView: View {
   let stop: CampusPlace
   let timetable: OLEVTimetable
   var style: Style = .full
+  var showsEdgePeeks = false
 
   @State private var scrollPosition = ScrollPosition(idType: Date.self)
-  @ScaledMetric(relativeTo: .headline) private var cardWidth: CGFloat = 132
+
+  private static let cardSpacing: CGFloat = 8
 
   enum Style {
     case full
@@ -64,7 +66,7 @@ struct OLEVArrivalsView: View {
           .foregroundStyle(.secondary)
       } else {
         ScrollView(.horizontal) {
-          LazyHStack(spacing: 8) {
+          HStack(spacing: Self.cardSpacing) {
             ForEach(arrivals, id: \.self) { arrival in
               departureCard(at: arrival, now: now, isNext: arrival == next)
             }
@@ -72,11 +74,14 @@ struct OLEVArrivalsView: View {
           .scrollTargetLayout()
         }
         .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByFew))
-        .scrollPosition($scrollPosition)
+        .scrollPosition($scrollPosition, anchor: .leading)
         .scrollIndicators(.hidden)
         .scrollClipDisabled()
+        .animation(.smooth(duration: 0.25)) { content in
+          content.clipShape(DepartureCarouselClip(horizontalOverflow: showsEdgePeeks ? 16 : 0))
+        }
         .onChange(of: arrivals, initial: true) { _, arrivals in
-          if let target = arrivals.first(where: { $0 > now }) ?? arrivals.last {
+          if let target = arrivals.last(where: { $0 <= now }) ?? arrivals.first {
             scrollPosition.scrollTo(id: target, anchor: .leading)
           }
         }
@@ -87,7 +92,7 @@ struct OLEVArrivalsView: View {
   private func departureCard(at date: Date, now: Date, isNext: Bool) -> some View {
     let isPast = date <= now
 
-    return VStack(alignment: .leading, spacing: 6) {
+    return VStack(alignment: .leading, spacing: 4) {
       Group {
         if isPast {
           Text("Departed", bundle: .module)
@@ -99,9 +104,11 @@ struct OLEVArrivalsView: View {
       }
       .font(.caption.weight(.semibold))
       .foregroundStyle(isNext ? Color.white.opacity(0.85) : Color.secondary)
+      .lineLimit(1)
+      .minimumScaleFactor(0.8)
 
       Text(date, format: .dateTime.hour().minute())
-        .font(.title3.weight(.semibold).monospacedDigit())
+        .font(.headline.weight(.semibold).monospacedDigit())
         .foregroundStyle(isNext ? Color.white : isPast ? Color.secondary : Color.primary)
         .lineLimit(1)
         .minimumScaleFactor(0.8)
@@ -127,7 +134,7 @@ struct OLEVArrivalsView: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(14)
-    .frame(width: cardWidth)
+    .containerRelativeFrame(.horizontal, count: 3, spacing: Self.cardSpacing)
     .background {
       if isNext {
         RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.blue.gradient)
@@ -158,6 +165,20 @@ struct OLEVArrivalsView: View {
     }
   }
 
+}
+
+private struct DepartureCarouselClip: Shape {
+  var horizontalOverflow: CGFloat
+
+  var animatableData: CGFloat {
+    get { horizontalOverflow }
+    set { horizontalOverflow = newValue }
+  }
+
+  func path(in rect: CGRect) -> Path {
+    RoundedRectangle(cornerRadius: max(14 - horizontalOverflow, 0), style: .continuous)
+      .path(in: rect.insetBy(dx: -horizontalOverflow, dy: 0))
+  }
 }
 
 extension Date {
