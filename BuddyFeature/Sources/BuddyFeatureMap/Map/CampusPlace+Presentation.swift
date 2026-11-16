@@ -48,6 +48,31 @@ extension CampusPlace {
     "\(displayName) — https://maps.apple.com/?ll=\(latitude),\(longitude)&q=\(name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
   }
 
+  var phoneURL: URL? {
+    guard let phoneNumber else { return nil }
+    let number = phoneNumber.filter { $0.isNumber || $0 == "+" }
+    guard !number.isEmpty else { return nil }
+    return URL(string: "tel:\(number)")
+  }
+
+  @MainActor
+  var mapItem: MKMapItem {
+    let item = MKMapItem(location: CLLocation(latitude: latitude, longitude: longitude), address: nil)
+    item.name = displayName
+    return item
+  }
+
+  var issueReportURL: URL? {
+    var components = URLComponents()
+    components.scheme = "mailto"
+    components.path = "buddy@sparcs.org"
+    components.queryItems = [
+      URLQueryItem(name: "subject", value: String(localized: "Map issue: \(displayName)", bundle: .module)),
+      URLQueryItem(name: "body", value: "\(shareText)\n\n")
+    ]
+    return components.url
+  }
+
   /// "Cafeteria · N11" — the category, then where it is.
   var subtitle: String {
     [category.title, code ?? buildingCode].compactMap { $0 }.joined(separator: " · ")

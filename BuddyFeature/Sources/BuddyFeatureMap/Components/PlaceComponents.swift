@@ -124,26 +124,24 @@ struct PlacePhotoView: View {
   }
 }
 
-/// The grouped, rounded container the place card's sections sit in.
-struct PlaceCardSection<Content: View>: View {
+struct PlaceDetailSection<Content: View>: View {
   var title: String?
   var trailing: AnyView?
   @ViewBuilder var content: Content
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: 12) {
       if let title {
         HStack {
           Text(title)
             .font(.title3.weight(.bold))
+            .accessibilityAddTraits(.isHeader)
           Spacer()
           trailing
         }
       }
       content
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(.fill.quaternary, in: .rect(cornerRadius: 20, style: .continuous))
     }
   }
 }

@@ -349,6 +349,26 @@
         }
       }
     },
+    "Collapsed" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "접힘"
+          }
+        }
+      }
+    },
+    "Copy Location" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위치 복사"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "ko" : {
@@ -456,6 +476,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "내 리뷰 수정"
+          }
+        }
+      }
+    },
+    "Expanded" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "펼쳐짐"
           }
         }
       }
@@ -591,6 +621,16 @@
         }
       }
     },
+    "Map issue: %@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지도 문제 신고: %@"
+          }
+        }
+      }
+    },
     "Map Style" : {
       "localizations" : {
         "ko" : {
@@ -627,6 +667,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "메뉴"
+          }
+        }
+      }
+    },
+    "More" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 보기"
           }
         }
       }
@@ -787,6 +838,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "24시간 운영"
+          }
+        }
+      }
+    },
+    "Open in Maps" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지도 앱에서 열기"
           }
         }
       }

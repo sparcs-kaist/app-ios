@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import UIKit
 import BuddyDomain
 
 struct PlaceDetailView: View {
@@ -24,7 +25,7 @@ struct PlaceDetailView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 20) {
+    VStack(alignment: .leading, spacing: 24) {
       if showsHeader {
         PlaceDetailHeader(place: place, onClose: onClose)
       }
@@ -37,18 +38,18 @@ struct PlaceDetailView: View {
         glanceStrip
       }
       if let menu = viewModel.cafeteriaMenu(for: place) {
-        PlaceCardSection(title: String(localized: "Today's Menu", bundle: .module)) {
+        PlaceDetailSection(title: String(localized: "Today's Menu", bundle: .module)) {
           CafeteriaMenuView(menu: menu)
         }
       }
       if let menu = viewModel.restaurantMenu(for: place) {
-        PlaceCardSection(title: String(localized: "Menu", bundle: .module)) {
+        PlaceDetailSection(title: String(localized: "Menu", bundle: .module)) {
           RestaurantMenuView(menu: menu)
         }
       }
 
       if let summary = place.summary {
-        PlaceCardSection(title: String(localized: "About", bundle: .module)) {
+        PlaceDetailSection(title: String(localized: "About", bundle: .module)) {
           Text(summary)
             .font(.subheadline)
             .fixedSize(horizontal: false, vertical: true)
@@ -56,6 +57,7 @@ struct PlaceDetailView: View {
       }
 
       facilities
+      hoursSection
       details
 
       PlaceReviewsSection(
@@ -69,16 +71,7 @@ struct PlaceDetailView: View {
         onDelete: { viewModel.deleteReview(for: place) }
       )
 
-      Button {
-      } label: {
-        Label(String(localized: "Report an Issue", bundle: .module), systemImage: "exclamationmark.bubble")
-          .font(.subheadline.weight(.medium))
-          .frame(maxWidth: .infinity)
-          .padding(.vertical, 6)
-      }
-      .buttonStyle(.bordered)
-      .buttonBorderShape(.roundedRectangle(radius: 14))
-      .tint(.secondary)
+      secondaryActions
     }
   }
 
@@ -113,18 +106,25 @@ struct PlaceDetailView: View {
       }
       .buttonStyle(PlaceActionButtonStyle(isProminent: true))
 
-      if let phoneNumber = place.phoneNumber,
-         let url = URL(string: "tel:\(phoneNumber.filter(\.isNumber))") {
+      if let url = place.phoneURL {
         Link(destination: url) {
           actionLabel(title: String(localized: "Call", bundle: .module), systemImage: "phone.fill")
         }
         .buttonStyle(PlaceActionButtonStyle())
       }
 
-      ShareLink(item: place.shareText) {
-        actionLabel(title: String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
+      Button {
+        withAnimation(.snappy) { viewModel.togglePin(place) }
+      } label: {
+        actionLabel(
+          title: viewModel.isPinned(place)
+            ? String(localized: "Unpin", bundle: .module)
+            : String(localized: "Pin", bundle: .module),
+          systemImage: viewModel.isPinned(place) ? "pin.fill" : "pin"
+        )
       }
       .buttonStyle(PlaceActionButtonStyle())
+      .sensoryFeedback(.selection, trigger: viewModel.isPinned(place))
     }
   }
 
@@ -140,9 +140,42 @@ struct PlaceDetailView: View {
   }
 
   private func openDirections() {
-    let item = MKMapItem(location: CLLocation(latitude: place.latitude, longitude: place.longitude), address: nil)
-    item.name = place.displayName
-    item.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
+    place.mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
+  }
+
+  private var secondaryActions: some View {
+    VStack(spacing: 10) {
+      Button {
+        place.mapItem.openInMaps()
+      } label: {
+        secondaryActionLabel(title: String(localized: "Open in Maps", bundle: .module), systemImage: "map")
+      }
+
+      Button {
+        UIPasteboard.general.string = place.shareText
+      } label: {
+        secondaryActionLabel(title: String(localized: "Copy Location", bundle: .module), systemImage: "doc.on.doc")
+      }
+
+      if let url = place.issueReportURL {
+        Link(destination: url) {
+          secondaryActionLabel(
+            title: String(localized: "Report an Issue", bundle: .module),
+            systemImage: "exclamationmark.bubble"
+          )
+        }
+      }
+    }
+    .buttonStyle(.bordered)
+    .buttonBorderShape(.roundedRectangle(radius: 14))
+    .tint(.secondary)
+  }
+
+  private func secondaryActionLabel(title: String, systemImage: String) -> some View {
+    Label(title, systemImage: systemImage)
+      .font(.subheadline.weight(.medium))
+      .frame(maxWidth: .infinity)
+      .padding(.vertical, 6)
   }
 
   private var glanceStrip: some View {
@@ -223,7 +256,7 @@ struct PlaceDetailView: View {
       showsEdgePeeks: showsDepartureEdgePeeks
     )
 
-    PlaceCardSection(
+    PlaceDetailSection(
       title: String(localized: "Stops", bundle: .module),
       trailing: AnyView(
         Text("\(viewModel.olevStops.count) stops", bundle: .module)
@@ -237,7 +270,6 @@ struct PlaceDetailView: View {
         currentStopID: place.id,
         onSelect: onSelectPlace
       )
-      .padding(.vertical, -8)
     }
   }
 
@@ -245,7 +277,7 @@ struct PlaceDetailView: View {
   private var facilities: some View {
     let inside = viewModel.facilities(in: place)
     if !inside.isEmpty {
-      PlaceCardSection(title: String(localized: "Inside", bundle: .module)) {
+      PlaceDetailSection(title: String(localized: "Inside", bundle: .module)) {
         VStack(spacing: 10) {
           ForEach(inside) { facility in
             Button {
@@ -264,23 +296,12 @@ struct PlaceDetailView: View {
     }
   }
 
-  private var hasDetails: Bool {
-    place.openingHours != nil || place.hoursNote != nil || viewModel.building(of: place) != nil
-      || place.phoneNumber != nil
-  }
-
   @ViewBuilder
-  private var details: some View {
-    if hasDetails {
-      detailRows
-    }
-  }
-
-  private var detailRows: some View {
-    PlaceCardSection(title: String(localized: "Details", bundle: .module)) {
-      DividedRows {
-        if let hours = place.openingHours {
-          detailRow(title: String(localized: "Hours", bundle: .module)) {
+  private var hoursSection: some View {
+    if place.openingHours != nil || place.hoursNote != nil {
+      PlaceDetailSection(title: String(localized: "Hours", bundle: .module)) {
+        VStack(alignment: .leading, spacing: 12) {
+          if let hours = place.openingHours {
             Button {
               withAnimation(.snappy) { showsAllHours.toggle() }
             } label: {
@@ -291,41 +312,55 @@ struct PlaceDetailView: View {
                   .rotationEffect(.degrees(showsAllHours ? 180 : 0))
                   .foregroundStyle(.secondary)
               }
+              .frame(minHeight: 44)
               .contentShape(.rect)
             }
             .buttonStyle(.plain)
+            .accessibilityValue(
+              showsAllHours ? Text("Expanded", bundle: .module) : Text("Collapsed", bundle: .module)
+            )
 
             if showsAllHours {
+              Divider()
               WeeklyHoursView(hours: hours)
-                .padding(.top, 4)
-            }
-            if let note = place.hoursNote {
-              Text(note)
-                .font(.caption)
-                .foregroundStyle(.secondary)
             }
           }
-        } else if let note = place.hoursNote {
-          detailRow(title: String(localized: "Hours", bundle: .module)) {
+          if let note = place.hoursNote {
             Text(note)
+              .font(.footnote)
+              .foregroundStyle(.secondary)
           }
         }
+        .font(.subheadline)
+      }
+    }
+  }
 
-        if let building = viewModel.building(of: place) {
-          detailRow(title: String(localized: "Located In", bundle: .module)) {
-            Button {
-              onSelectPlace?(building)
-            } label: {
-              Text("\(building.displayName) (\(building.code ?? ""))", bundle: .module)
+  @ViewBuilder
+  private var details: some View {
+    let building = viewModel.building(of: place)
+    if building != nil || place.phoneNumber != nil {
+      PlaceDetailSection(title: String(localized: "Details", bundle: .module)) {
+        DividedRows {
+          if let building {
+            detailRow(title: String(localized: "Located In", bundle: .module)) {
+              Button {
+                onSelectPlace?(building)
+              } label: {
+                Text("\(building.displayName) (\(building.code ?? ""))", bundle: .module)
+              }
+              .disabled(onSelectPlace == nil)
             }
-            .disabled(onSelectPlace == nil)
           }
-        }
 
-        if let phoneNumber = place.phoneNumber {
-          detailRow(title: String(localized: "Phone", bundle: .module)) {
-            Text(phoneNumber)
-              .foregroundStyle(.tint)
+          if let phoneNumber = place.phoneNumber {
+            detailRow(title: String(localized: "Phone", bundle: .module)) {
+              if let url = place.phoneURL {
+                Link(phoneNumber, destination: url)
+              } else {
+                Text(phoneNumber)
+              }
+            }
           }
         }
       }
@@ -333,13 +368,14 @@ struct PlaceDetailView: View {
   }
 
   private func detailRow<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-    VStack(alignment: .leading, spacing: 2) {
-      Text(title)
-        .font(.footnote)
-        .foregroundStyle(.secondary)
+    LabeledContent {
       content()
-        .font(.subheadline)
+        .multilineTextAlignment(.trailing)
+    } label: {
+      Text(title)
+        .foregroundStyle(.secondary)
     }
+    .font(.subheadline)
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 }
@@ -361,6 +397,16 @@ struct PlaceDetailHeader: View {
           .foregroundStyle(.secondary)
       }
       Spacer(minLength: 0)
+      ShareLink(item: place.shareText) {
+        Image(systemName: "square.and.arrow.up")
+          .font(.system(size: 14, weight: .medium))
+          .foregroundStyle(.secondary)
+          .frame(width: 34, height: 34)
+          .background(.fill.tertiary, in: .circle)
+          .contentShape(.circle)
+      }
+      .buttonStyle(.plain)
+      .accessibilityLabel(Text("Share", bundle: .module))
       if let onClose {
         CloseButton(action: onClose)
       }
@@ -409,10 +455,11 @@ private struct DividedRows<Content: View>: View {
   @ViewBuilder var content: Content
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: 0) {
       Group(subviews: content) { subviews in
         ForEach(subviews) { subview in
           subview
+            .padding(.vertical, 12)
           if subview.id != subviews.last?.id {
             Divider()
           }

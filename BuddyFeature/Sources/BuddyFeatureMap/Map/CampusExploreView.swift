@@ -392,21 +392,14 @@ private struct CampusPlaceSheet: View {
 
       GlassEffectContainer(spacing: 8) {
         HStack(spacing: 8) {
-          Button {
-            withAnimation(.snappy) { viewModel.togglePin(place) }
-          } label: {
-            Image(systemName: viewModel.isPinned(place) ? "pin.fill" : "pin")
+          ShareLink(item: place.shareText) {
+            Image(systemName: "square.and.arrow.up")
               .font(.system(size: 17, weight: .medium))
-              .foregroundStyle(viewModel.isPinned(place) ? Color.accentColor : Color.primary)
+              .foregroundStyle(.primary)
               .frame(width: 44, height: 44)
               .glassEffect(.regular.interactive(), in: .circle)
           }
-          .accessibilityLabel(
-            viewModel.isPinned(place)
-              ? String(localized: "Unpin", bundle: .module)
-              : String(localized: "Pin", bundle: .module)
-          )
-          .sensoryFeedback(.selection, trigger: viewModel.isPinned(place))
+          .accessibilityLabel(Text("Share", bundle: .module))
 
           Button(role: .close, action: onClose) {
             Image(systemName: "xmark")
@@ -425,6 +418,7 @@ private struct CampusPlaceSheet: View {
     .padding(.top, 12)
     .padding(.bottom, 12)
   }
+
 }
 
 private extension View {
