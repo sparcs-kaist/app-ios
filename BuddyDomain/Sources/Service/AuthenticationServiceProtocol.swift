@@ -11,4 +11,5 @@ import Foundation
 public protocol AuthenticationServiceProtocol: Sendable {
   func authenticate() async throws -> SignInResponse
   func refreshAccessToken(refreshToken: String) async throws -> TokenResponse
+  func logout(refreshToken: String) async throws
 }

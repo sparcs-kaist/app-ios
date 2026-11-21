@@ -8,6 +8,7 @@
 import Foundation
 
 public protocol AuthRepositoryProtocol: Sendable {
-  func requestToken(authorisationCode: String, codeVerifier: String) async throws -> SignInResponse
+  func requestToken(session: String, codeVerifier: String) async throws -> SignInResponse
   func refreshToken(refreshToken: String) async throws -> TokenResponse
+  func logout(refreshToken: String) async throws
 }

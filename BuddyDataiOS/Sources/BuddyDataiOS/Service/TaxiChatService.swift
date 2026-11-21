@@ -75,6 +75,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
         .forceWebsockets(true),
         .extraHeaders([
           "Origin": "taxi.sparcs.org",
+          "X-Application-Name": BackendURL.applicationName,
           "Authorization": "Bearer \(self.tokenStorage.getAccessToken() ?? "")"
         ])
       ]
@@ -107,6 +108,7 @@ public final class TaxiChatService: TaxiChatServiceProtocol, @unchecked Sendable
       .forceWebsockets(true),
       .extraHeaders([
         "Origin": "taxi.sparcs.org",
+        "X-Application-Name": BackendURL.applicationName,
         "Authorization": "Bearer \(tokenStorage.getAccessToken() ?? "")"
       ])
     ]

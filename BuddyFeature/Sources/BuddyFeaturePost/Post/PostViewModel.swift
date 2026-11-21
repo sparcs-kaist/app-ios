@@ -535,4 +535,3 @@ class PostViewModel: PostViewModelProtocol {
     isAlertPresented = true
   }
 }
-

@@ -6,7 +6,7 @@ import BuddyDomain
 import BuddyDataCore
 @testable import BuddyDataiOS
 
-@Suite("Session preservation")
+@Suite("Session preservation", .serialized)
 @MainActor
 struct AuthUseCaseTests {
   @Test(arguments: [NetworkError.noConnection, .timeout, .serverError(statusCode: 503),
@@ -91,6 +91,45 @@ struct AuthUseCaseTests {
     #expect(fixture.service.refreshCount == 1)
   }
 
+  @Test func appAndWidgetCallersShareOneRefreshAndPersistRotation() async throws {
+    let fixture = Fixture()
+    fixture.service.delay = .milliseconds(100)
+    let secondAuth = fixture.makeAuth()
+
+    async let first = fixture.auth.refreshAccessToken(force: true)
+    async let second = secondAuth.refreshAccessToken(force: true)
+    _ = try await (first, second)
+
+    #expect(fixture.service.refreshCount == 1)
+    #expect(fixture.storage.getAccessToken() == "access-new")
+    #expect(fixture.storage.getRefreshToken() == "refresh-new")
+  }
+
+  @Test func signOutWaitsForRotationAndRevokesLatestToken() async throws {
+    let fixture = Fixture()
+    fixture.service.delay = .milliseconds(100)
+    let refresh = Task { try await fixture.auth.refreshAccessToken(force: true) }
+    while fixture.service.refreshCount == 0 { await Task.yield() }
+
+    try await fixture.auth.signOut()
+    try await refresh.value
+
+    #expect(fixture.service.logoutToken == "refresh-new")
+    #expect(fixture.storage.getRefreshToken() == nil)
+    #expect(!isAuthenticated(fixture.auth))
+  }
+
+  @Test func remoteSignOutFailureStillClearsLocalSession() async throws {
+    let fixture = Fixture()
+    fixture.service.logoutError = NetworkError.noConnection
+
+    try await fixture.auth.signOut()
+
+    #expect(fixture.storage.getAccessToken() == nil)
+    #expect(fixture.storage.getRefreshToken() == nil)
+    #expect(!isAuthenticated(fixture.auth))
+  }
+
   private func isAuthenticated(_ auth: AuthUseCase) -> Bool {
     var value = false
     let subscription = auth.isAuthenticatedPublisher.sink { value = $0 }
@@ -109,7 +148,7 @@ private final class Fixture {
 
   func makeAuth() -> AuthUseCase {
     AuthUseCase(authenticationService: service, tokenStorage: storage,
-      araUserRepository: nil, feedUserRepository: nil, otlUserRepository: nil)
+      araUserRepository: nil, otlUserRepository: nil)
   }
 }
 
@@ -118,6 +157,8 @@ private final class TestAuthenticationService: AuthenticationServiceProtocol {
   var result: Result<TokenResponse, Error> = .success(.init(accessToken: "access-new", refreshToken: "refresh-new"))
   var delay: Duration = .zero
   private(set) var refreshCount = 0
+  private(set) var logoutToken: String?
+  var logoutError: (any Error)?
 
   func authenticate() async throws -> SignInResponse { throw AuthenticationServiceError.userCancelled }
 
@@ -125,6 +166,11 @@ private final class TestAuthenticationService: AuthenticationServiceProtocol {
     refreshCount += 1
     try await Task.sleep(for: delay)
     return try result.get()
+  }
+
+  func logout(refreshToken: String) async throws {
+    logoutToken = refreshToken
+    if let logoutError { throw logoutError }
   }
 
 }
