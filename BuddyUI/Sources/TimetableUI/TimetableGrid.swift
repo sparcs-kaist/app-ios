@@ -14,6 +14,8 @@ import UIKit
 public struct TimetableGrid: View {
   let selectedTimetable: Timetable?
   let candidateLecture: Lecture?
+  /// Lectures the user takes too, marked on a friend's timetable.
+  let sharedLectureIDs: Set<Int>
   let visibleDays: [DayType]?
   let showsDayHeader: Bool
   let beginTime: Int?
@@ -39,6 +41,7 @@ public struct TimetableGrid: View {
   public init(
     selectedTimetable: Timetable?,
     candidateLecture: Lecture? = nil,
+    sharedLectureIDs: Set<Int> = [],
     visibleDays: [DayType]? = nil,
     showsDayHeader: Bool = true,
     beginTime: Int? = nil,
@@ -51,6 +54,7 @@ public struct TimetableGrid: View {
   ) {
     self.selectedTimetable = selectedTimetable
     self.candidateLecture = candidateLecture
+    self.sharedLectureIDs = sharedLectureIDs
     self.visibleDays = visibleDays.flatMap { $0.isEmpty ? nil : Array(Set($0)).sorted() }
     self.showsDayHeader = showsDayHeader
     self.beginTime = beginTime
@@ -105,6 +109,7 @@ public struct TimetableGrid: View {
           TimetableGridCell(
             lectureItem: cell.item,
             isCandidate: cell.item.lecture.id == candidateLecture?.id,
+            isShared: sharedLectureIDs.contains(cell.item.lecture.id),
             placement: placement
           )
           .frame(

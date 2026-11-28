@@ -4265,6 +4265,28 @@
           }
         }
       }
+    },
+    "Shared" : {
+      "comment" : "Tag on a lecture of a friend’s timetable that the user takes too.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같이 듣는 수업"
+          }
+        }
+      }
+    },
+    "%lld Shared" : {
+      "comment" : "How many lectures of a friend’s timetable the user takes too.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같이 듣는 수업 %lld개"
+          }
+        }
+      }
     }
   },
   "version" : "1.3"

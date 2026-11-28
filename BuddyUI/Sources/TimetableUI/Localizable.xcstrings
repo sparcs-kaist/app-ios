@@ -311,6 +311,17 @@
           }
         }
       }
+    },
+    "Shared" : {
+      "comment" : "Spoken for a lecture on a friend’s timetable that the user takes too.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "같이 듣는 수업"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

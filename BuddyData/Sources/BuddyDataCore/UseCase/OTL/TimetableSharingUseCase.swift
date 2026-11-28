@@ -32,6 +32,12 @@ public final class TimetableSharingUseCase: TimetableSharingUseCaseProtocol {
     }
   }
 
+  public func fetchSharedTimetable(term: FriendTimetableTerm) async throws -> Timetable {
+    try await execute(operation: "fetchSharedTimetable") {
+      try await otlTimetableRepository.getSharedTimetable(year: term.year, semester: term.semester)
+    }
+  }
+
   public func share(timetableID: Int?, semester: Semester) async throws {
     try await execute(operation: "share") {
       try await otlTimetableRepository.setSharedTimetable(

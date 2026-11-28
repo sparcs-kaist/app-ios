@@ -79,11 +79,24 @@ struct FriendTimetableView: View {
     case .loaded(let friendTimetable):
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          sourceLabel(friendTimetable)
+          HStack {
+            sourceLabel(friendTimetable)
+            Spacer()
+            if !viewModel.sharedLectureIDs.isEmpty {
+              Label {
+                Text("\(viewModel.sharedLectureIDs.count) Shared", bundle: .module)
+              } icon: {
+                Image(systemName: "person.2.fill")
+              }
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+            }
+          }
 
           ThemedGridCard {
             TimetableGrid(
               selectedTimetable: friendTimetable.timetable,
+              sharedLectureIDs: viewModel.sharedLectureIDs,
               selectedLecture: { showLecture($0) },
               placement: .view
             )
@@ -93,7 +106,8 @@ struct FriendTimetableView: View {
           LectureList(
             lectures: friendTimetable.timetable.lectures,
             activities: friendTimetable.timetable.activities,
-            selectedLecture: { showLecture($0) }
+            selectedLecture: { showLecture($0) },
+            sharedLectureIDs: viewModel.sharedLectureIDs
           )
           .timetableCardStyle()
         }

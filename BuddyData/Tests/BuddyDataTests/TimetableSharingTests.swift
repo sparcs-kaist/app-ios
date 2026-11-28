@@ -40,6 +40,22 @@ struct TimetableSharingTests {
     ])
   }
 
+  @Test func ownSharedTimetableAsksForTheSemester() async throws {
+    let request = try MoyaProvider<OTLTimetableTarget>
+      .defaultEndpointMapping(for: .fetchSharedTimetable(year: 2026, semester: 3)).urlRequest()
+    let url = try #require(request.url)
+    let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+    #expect(url.path == "/api/v2/timetables/shared")
+    #expect(request.httpMethod == "GET")
+    #expect(Set(items) == [URLQueryItem(name: "year", value: "2026"), URLQueryItem(name: "semester", value: "3")])
+
+    let repository = stub(#"""
+      {"lectures":[],"customBlocks":[],"year":2026,"semester":3,
+       "timetableType":"scholar","timetableId":null,"name":"Enrolled timetable"}
+      """#)
+    #expect(try await repository.getSharedTimetable(year: 2026, semester: .autumn).lectures.isEmpty)
+  }
+
   @Test func noSharedTimetableMeansEnrolledLectures() async throws {
     let repository = stub(#"{"timetables":[{"id":42,"name":"Plan A","year":2026,"semester":3,"timeTableOrder":0,"isShared":false}]}"#)
     #expect(try await repository.getSharing(year: 2026, semester: .autumn).sharedTimetableID == nil)

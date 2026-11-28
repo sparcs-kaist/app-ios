@@ -19,6 +19,8 @@ public protocol OTLTimetableRepositoryProtocol: Sendable {
   func getCurrentSemester() async throws -> Semester
   /// The semester's timetables and which one friends see.
   func getSharing(year: Int, semester: SemesterType) async throws -> TimetableSharing
+  /// What the user's friends see for the semester: the shared timetable or the enrolled lectures.
+  func getSharedTimetable(year: Int, semester: SemesterType) async throws -> Timetable
   /// The semesters the user shares a timetable or enrolled lectures in, newest first.
   func getSharedSemesters() async throws -> [FriendTimetableTerm]
   /// Shares `timetableID` with every friend for the semester, or the enrolled lectures when it's `nil`.

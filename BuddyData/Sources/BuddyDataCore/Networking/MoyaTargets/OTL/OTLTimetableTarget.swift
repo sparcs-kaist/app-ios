@@ -26,6 +26,8 @@ public enum OTLTimetableTarget {
   case setSharedTimetable(year: Int, semester: Int, timetableID: Int?)
   /// The semesters the user shares a timetable or enrolled lectures in.
   case fetchSharedSemesters
+  /// What the user's friends see for a semester.
+  case fetchSharedTimetable(year: Int, semester: Int)
 }
 
 extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
@@ -49,7 +51,7 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
       "/api/v2/semesters"
     case .fetchCurrentSemester:
       "/api/v2/semesters/current"
-    case .setSharedTimetable:
+    case .setSharedTimetable, .fetchSharedTimetable:
       "/api/v2/timetables/shared"
     case .fetchSharedSemesters:
       "/api/v2/timetables/shared/semesters"
@@ -64,7 +66,8 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
          .fetchMyTable,
          .fetchSemesters,
          .fetchCurrentSemester,
-         .fetchSharedSemesters:
+         .fetchSharedSemesters,
+         .fetchSharedTimetable:
         .get
     case .createTable:
         .post
@@ -77,7 +80,8 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
 
   public var task: Moya.Task {
     switch self {
-    case .fetchTables(let year, let semester), .fetchMyTable(let year, let semester):
+    case .fetchTables(let year, let semester), .fetchMyTable(let year, let semester),
+         .fetchSharedTimetable(let year, let semester):
         .requestParameters(parameters: [
           "year": year,
           "semester": semester
