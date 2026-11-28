@@ -43,6 +43,11 @@ public final class FriendRepository: FriendRepositoryProtocol, Sendable {
     return try response.map(FriendCodeResponseDTO.self).code
   }
 
+  public func fetchLectureFriends(lectureID: Int) async throws -> LectureFriends {
+    let response = try await provider.request(.fetchLectureFriends(lectureID: lectureID))
+    return try response.map(LectureFriendsDTO.self).toModel()
+  }
+
   public func fetchSharedTimetableTerms(friendID: Int) async throws -> [FriendTimetableTerm] {
     let response = try await provider.request(.fetchSharedSemesters(friendID: friendID))
     return try response.map(FriendSharedSemestersDTO.self).toModel()

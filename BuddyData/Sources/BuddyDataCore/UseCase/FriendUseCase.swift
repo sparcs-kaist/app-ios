@@ -49,6 +49,12 @@ public final class FriendUseCase: FriendUseCaseProtocol {
     }
   }
 
+  public func fetchLectureFriends(lectureID: Int) async throws -> LectureFriends {
+    try await execute(operation: "fetchLectureFriends") {
+      try await friendRepository.fetchLectureFriends(lectureID: lectureID)
+    }
+  }
+
   public func fetchSharedTimetableTerms(friendID: Int) async throws -> [FriendTimetableTerm] {
     try await execute(operation: "fetchSharedTimetableTerms") {
       try await friendRepository.fetchSharedTimetableTerms(friendID: friendID)

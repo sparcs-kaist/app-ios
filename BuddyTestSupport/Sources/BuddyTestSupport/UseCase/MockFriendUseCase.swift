@@ -16,6 +16,9 @@ public final class MockFriendUseCase: FriendUseCaseProtocol, @unchecked Sendable
   public var deleteFriendResult: Result<Void, Error> = .success(())
   public var setFavoriteResult: Result<Void, Error> = .success(())
   public var fetchMyCodeResult: Result<String, Error> = .success("ACD347")
+  public var fetchLectureFriendsResult: Result<LectureFriends, Error> = .success(
+    LectureFriends(sameLecture: [], sameCourse: [])
+  )
   public var fetchSharedTimetableTermsResult: Result<[FriendTimetableTerm], Error> = .success([])
   /// Keyed by term; a term with no entry fails with `NetworkError.notFound`.
   public var sharedTimetables: [FriendTimetableTerm: Result<FriendTimetable, Error>] = [:]
@@ -45,6 +48,10 @@ public final class MockFriendUseCase: FriendUseCaseProtocol, @unchecked Sendable
   public func fetchMyCode() async throws -> String {
     fetchMyCodeCallCount += 1
     return try fetchMyCodeResult.get()
+  }
+
+  public func fetchLectureFriends(lectureID: Int) async throws -> LectureFriends {
+    try fetchLectureFriendsResult.get()
   }
 
   public func fetchSharedTimetableTerms(friendID: Int) async throws -> [FriendTimetableTerm] {

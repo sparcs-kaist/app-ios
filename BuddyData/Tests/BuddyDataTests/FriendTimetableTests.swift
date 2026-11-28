@@ -56,6 +56,26 @@ struct FriendTimetableTests {
     #expect(result.timetable.lectures.isEmpty)
   }
 
+  @Test func lectureFriendsAskForTheLecture() throws {
+    let request = try MoyaProvider<FriendTarget>
+      .defaultEndpointMapping(for: .fetchLectureFriends(lectureID: 11)).urlRequest()
+    #expect(request.url?.path == "/api/v2/friends/lectures/11/overlaps")
+    #expect(request.httpMethod == "GET")
+  }
+
+  @Test func lectureFriendsKeepTheirSemester() async throws {
+    let repository = stub(#"""
+      {"sameLecture":[{"id":7,"name":"yoon inha","isFavorite":true,"timetable":{"id":42,"year":2026,"semester":3}}],
+       "sameCourseOtherSemester":[{"id":8,"name":"Minho Kim","isFavorite":false,"timetable":{"id":null,"year":2025,"semester":1}}]}
+      """#)
+    let friends = try await repository.fetchLectureFriends(lectureID: 11)
+    #expect(friends.sameLecture.map(\.friend.id) == [7])
+    #expect(friends.sameLecture.first?.term == autumn)
+    #expect(friends.sameCourse.first?.term == FriendTimetableTerm(year: 2025, semester: .spring))
+    #expect(friends.sameCourse.first?.friend.hasScheduleNow == nil)
+    #expect(!friends.isEmpty)
+  }
+
   private func stub(_ body: String) -> FriendRepository {
     FriendRepository(provider: MoyaProvider<FriendTarget>(endpointClosure: { target in
       Endpoint(

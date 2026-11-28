@@ -80,6 +80,10 @@ struct LectureDetailView: View {
         // Lecture Information
         LectureInformationSection(lecture: lecture, lectureClass: lectureClass)
 
+        if let friends = viewModel.friends, !friends.isEmpty {
+          LectureFriendsSection(friends: friends)
+        }
+
         // Lecture Reviews
         LectureReviewsSection(
           gradeLetter: lecture.gradeLetter,
@@ -103,9 +107,11 @@ struct LectureDetailView: View {
     .task {
       async let courseFetch = viewModel.fetchCourse(courseID: lecture.courseID)
       async let reviewsFetch = viewModel.fetchReviews(lecture: lecture)
+      async let friendsFetch = viewModel.fetchFriends(lectureID: lecture.id)
 
       await courseFetch
       await reviewsFetch
+      await friendsFetch
 
       canWriteReview = viewModel.course?.history.first(where: { $0.myLectureID != nil }) != nil
     }

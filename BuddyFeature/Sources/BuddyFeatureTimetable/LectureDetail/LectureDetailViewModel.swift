@@ -21,6 +21,8 @@ class LectureDetailViewModel {
   var state: ViewState = .loading
   var reviews: [LectureReview] = []
   var course: Course? = nil
+  /// Friends sharing this lecture or its course; `nil` until loaded, or when it couldn't be.
+  var friends: LectureFriends? = nil
   /// The on-device summary of `reviews`.
   let reviewDigest = ReviewDigestModel(source: "LectureDetailView")
   /// On-device summaries of single reviews.
@@ -33,6 +35,9 @@ class LectureDetailViewModel {
   @ObservationIgnored @Injected(
     \.v2CourseUseCase
   ) private var courseUseCase: CourseUseCaseProtocol?
+  @ObservationIgnored @Injected(
+    \.friendUseCase
+  ) private var friendUseCase: FriendUseCaseProtocol?
   @ObservationIgnored @Injected(
     \.crashlyticsService
   ) private var crashlyticsService: CrashlyticsServiceProtocol?
@@ -51,6 +56,16 @@ class LectureDetailViewModel {
     } catch {
       crashlyticsService?.recordException(error: error)
       self.state = .error(message: error.localizedDescription)
+    }
+  }
+
+  /// Not worth an error on screen: without it the detail simply has no Friends section.
+  func fetchFriends(lectureID: Int) async {
+    guard let friendUseCase else { return }
+    do {
+      friends = try await friendUseCase.fetchLectureFriends(lectureID: lectureID)
+    } catch {
+      crashlyticsService?.recordException(error: error)
     }
   }
 

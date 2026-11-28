@@ -18,8 +18,8 @@ struct FriendTimetableView: View {
   /// Keeps the grid usable on short (landscape) screens, as the main timetable does.
   private static let minimumGridHeight: CGFloat = 500
 
-  init(friend: Friend) {
-    self._viewModel = State(initialValue: FriendTimetableViewModel(friend: friend))
+  init(friend: Friend, term: FriendTimetableTerm? = nil) {
+    self._viewModel = State(initialValue: FriendTimetableViewModel(friend: friend, term: term))
   }
 
   var body: some View {

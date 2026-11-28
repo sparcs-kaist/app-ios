@@ -16,6 +16,7 @@ public enum FriendTarget {
   case fetchMyCode
   case fetchSharedSemesters(friendID: Int)
   case fetchSharedTimetable(friendID: Int, year: Int, semester: Int)
+  case fetchLectureFriends(lectureID: Int)
 }
 
 extension FriendTarget: TargetType, AccessTokenAuthorizable {
@@ -37,12 +38,14 @@ extension FriendTarget: TargetType, AccessTokenAuthorizable {
       "/api/v2/friends/\(friendID)/timetables/shared/semesters"
     case .fetchSharedTimetable(let friendID, _, _):
       "/api/v2/friends/\(friendID)/timetables/shared"
+    case .fetchLectureFriends(let lectureID):
+      "/api/v2/friends/lectures/\(lectureID)/overlaps"
     }
   }
 
   public var method: Moya.Method {
     switch self {
-    case .fetchFriends, .fetchMyCode, .fetchSharedSemesters, .fetchSharedTimetable:
+    case .fetchFriends, .fetchMyCode, .fetchSharedSemesters, .fetchSharedTimetable, .fetchLectureFriends:
       .get
     case .addFriend:
       .post
@@ -61,7 +64,7 @@ extension FriendTarget: TargetType, AccessTokenAuthorizable {
       .requestParameters(parameters: ["isFavorite": isFavorite], encoding: JSONEncoding.default)
     case .fetchSharedTimetable(_, let year, let semester):
       .requestParameters(parameters: ["year": year, "semester": semester], encoding: URLEncoding.queryString)
-    case .fetchFriends, .deleteFriend, .fetchMyCode, .fetchSharedSemesters:
+    case .fetchFriends, .deleteFriend, .fetchMyCode, .fetchSharedSemesters, .fetchLectureFriends:
       .requestPlain
     }
   }

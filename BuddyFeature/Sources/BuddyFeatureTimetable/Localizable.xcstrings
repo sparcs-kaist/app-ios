@@ -4232,6 +4232,39 @@
           }
         }
       }
+    },
+    "Taking This Class" : {
+      "comment" : "Heading above friends taking the same lecture.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 수업을 같이 듣는 친구"
+          }
+        }
+      }
+    },
+    "Took This Course" : {
+      "comment" : "Heading above friends who took the same course in another semester.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 과목을 수강한 친구"
+          }
+        }
+      }
+    },
+    "Shows their timetable" : {
+      "comment" : "Accessibility hint of a friend in a lecture’s detail.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구의 시간표를 보여줘요"
+          }
+        }
+      }
     }
   },
   "version" : "1.3"

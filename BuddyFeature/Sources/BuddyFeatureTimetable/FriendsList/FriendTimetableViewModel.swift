@@ -31,8 +31,11 @@ final class FriendTimetableViewModel {
   @ObservationIgnored @Injected(\.crashlyticsService) private var crashlyticsService: CrashlyticsServiceProtocol?
   @ObservationIgnored @Injected(\.analyticsService) private var analyticsService: AnalyticsServiceProtocol?
 
-  init(friend: Friend) {
+  /// - Parameter term: The semester to open on, such as the one a shared lecture is in.
+  ///   Defaults to the newest.
+  init(friend: Friend, term: FriendTimetableTerm? = nil) {
     self.friend = friend
+    self.selectedTerm = term
   }
 
   /// Loads the friend's semesters, then the selected one's timetable. Opens on the
