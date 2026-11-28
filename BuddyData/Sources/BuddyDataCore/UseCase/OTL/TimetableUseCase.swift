@@ -8,6 +8,7 @@
 import Foundation
 import BuddyDomain
 import WidgetKit
+import Synchronization
 
 public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendable {
   // MARK: - Properties
@@ -18,6 +19,10 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   private let sessionBridgeService: SessionBridgeServiceProtocol?
   private let crashlyticsService: CrashlyticsServiceProtocol?
   private let timetableIndexingService: TimetableIndexingServiceProtocol?
+  /// Per table, how many edits have finished, and the table the latest one left. A fetch
+  /// that started before an edit finished may hold the table from before it, so it must not
+  /// be saved over the edit's result.
+  private let edits = Mutex<[Int: (version: Int, table: Timetable?)]>([:])
   
   // MARK: - Initialiser
   public init(
@@ -101,10 +106,25 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   }
 
   public func refreshTable(id: Int) async throws -> Timetable {
+    let version = editVersion(of: id)
     let result = try await otlTimetableRepository.getTable(timetableID: id)
     try Task.checkCancellation()
+    // An edit finished while this was in flight: its answer is at least as new as this one.
+    if editVersion(of: id) != version {
+      if let edited = edits.withLock({ $0[id]?.table }) { return edited }
+      return result
+    }
     keep(result, id: id)
     return result
+  }
+
+  private func editVersion(of id: Int) -> Int {
+    edits.withLock { $0[id]?.version ?? 0 }
+  }
+
+  /// Marks an edit of `id` as finished, leaving `table` (or nothing known, when `nil`).
+  private func recordEdit(of id: Int, leaving table: Timetable?) {
+    edits.withLock { $0[id] = (version: ($0[id]?.version ?? 0) + 1, table: table) }
   }
 
   /// Saves a fresh copy of a table and passes it on to the widgets, Siri and the watch.
@@ -119,6 +139,7 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   /// rather than fetching it again.
   private func applyEdit(id: Int, _ edit: () async throws -> Timetable?) async throws -> Timetable {
     guard let updated = try await edit() else { return try await refreshAfterEdit(id: id) }
+    recordEdit(of: id, leaving: updated)
     keep(updated, id: id)
     return updated
   }
@@ -170,6 +191,8 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
 
   /// Fetches a table whose edit went through without a readable answer.
   private func refreshAfterEdit(id: Int) async throws -> Timetable {
+    // Fetches that began before the edit can't tell their table from the edit's.
+    recordEdit(of: id, leaving: nil)
     cache?.invalidate(key: String(id))
     WidgetCenter.shared.reloadAllTimelines()
     timetableIndexingService?.scheduleReindex()

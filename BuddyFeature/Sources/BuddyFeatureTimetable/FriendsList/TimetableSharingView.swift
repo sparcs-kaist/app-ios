@@ -188,6 +188,8 @@ struct TimetableSharingSemesterView: View {
     }
     .tint(.primary)
     .glassEffect(.regular.interactive())
+    // A choice waits for the one being saved.
+    .disabled(viewModel.isSaving(semester))
   }
 
   /// The timetable friends see now, drawn as the main timetable draws it.

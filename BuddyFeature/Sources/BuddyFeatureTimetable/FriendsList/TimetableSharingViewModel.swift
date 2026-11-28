@@ -27,7 +27,15 @@ final class TimetableSharingViewModel {
   private(set) var sharings: [String: TimetableSharingViewState] = [:]
   /// What each choice looks like, by `previewKey`. `nil` while it loads.
   private(set) var previews: [String: Timetable] = [:]
+  /// Semesters whose choice is being saved; their choices wait until it's done.
+  private(set) var savingSemesters: Set<String> = []
   var alertState: AlertState?
+
+  /// Per semester, bumped by every load and every change, so an answer to an older
+  /// request, such as a load that began before the user chose, can't replace a newer one.
+  @ObservationIgnored private var requestGenerations: [String: Int] = [:]
+  /// Per semester, what the server last confirmed, to fall back to if a change fails.
+  @ObservationIgnored private var confirmed: [String: TimetableSharing] = [:]
 
   // MARK: - Dependencies
   @ObservationIgnored @Injected(\.v2TimetableUseCase) private var timetableUseCase: TimetableUseCaseProtocol?
@@ -68,29 +76,57 @@ final class TimetableSharingViewModel {
   }
 
   func loadSharing(for semester: Semester) async {
-    guard let sharingUseCase else { return }
+    // A save under way already knows the newest choice; a load now could return the old one.
+    guard let sharingUseCase, !savingSemesters.contains(semester.id) else { return }
+    let request = nextRequest(for: semester)
     if case .loaded = sharings[semester.id] {} else { sharings[semester.id] = .loading }
     do {
-      sharings[semester.id] = .loaded(try await sharingUseCase.fetchSharing(semester: semester))
+      let sharing = try await sharingUseCase.fetchSharing(semester: semester)
+      guard isLatest(request, for: semester) else { return }
+      confirmed[semester.id] = sharing
+      sharings[semester.id] = .loaded(sharing)
     } catch {
+      guard isLatest(request, for: semester) else { return }
       crashlyticsService?.recordException(error: error)
       sharings[semester.id] = .error(message: error.localizedDescription)
     }
   }
 
+  func isSaving(_ semester: Semester) -> Bool {
+    savingSemesters.contains(semester.id)
+  }
+
+  private func nextRequest(for semester: Semester) -> Int {
+    let next = (requestGenerations[semester.id] ?? 0) + 1
+    requestGenerations[semester.id] = next
+    return next
+  }
+
+  private func isLatest(_ request: Int, for semester: Semester) -> Bool {
+    requestGenerations[semester.id] == request
+  }
+
   /// Shares `timetableID`, or the enrolled lectures when it's `nil`. The checkmark moves
   /// at once and moves back if the server refuses.
+  /// One change per semester at a time, so two can't reach the server out of order.
   func share(_ timetableID: Int?, semester: Semester) async {
-    guard let sharingUseCase, case .loaded(let sharing) = sharing(for: semester),
+    guard let sharingUseCase, !savingSemesters.contains(semester.id),
+          case .loaded(let sharing) = sharing(for: semester),
           sharing.sharedTimetableID != timetableID else { return }
-    sharings[semester.id] = .loaded(sharing.sharing(timetableID))
+    savingSemesters.insert(semester.id)
+    defer { savingSemesters.remove(semester.id) }
+    // Turns away any load already under way: it may answer with the choice from before.
+    let request = nextRequest(for: semester)
+    let chosen = sharing.sharing(timetableID)
+    sharings[semester.id] = .loaded(chosen)
     do {
       try await sharingUseCase.share(timetableID: timetableID, semester: semester)
+      confirmed[semester.id] = chosen
       analyticsService?.logEvent(FriendsListViewEvent.sharedTimetableChanged)
     } catch {
       crashlyticsService?.recordException(error: error)
-      if case .loaded(let shown) = sharings[semester.id], shown.sharedTimetableID == timetableID {
-        sharings[semester.id] = .loaded(sharing)
+      if isLatest(request, for: semester) {
+        sharings[semester.id] = .loaded(confirmed[semester.id] ?? sharing)
       }
       alertState = AlertState(
         title: String(localized: "Couldn’t Change Sharing", bundle: .module),

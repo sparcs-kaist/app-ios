@@ -121,6 +121,29 @@ struct TimetableActivityTests {
     #expect(stub.targets.allSatisfy { $0.method == .get })
   }
 
+  @Test func refreshFromBeforeAnEditDoesNotUndoIt() async throws {
+    // The GET is slow and answers with the table from before the delete; the PATCH is quick.
+    let provider = MoyaProvider<OTLTimetableTarget>(endpointClosure: { target in
+      let body: String = if case .fetchTable = target { blocks } else { empty }
+      return Endpoint(url: target.baseURL.absoluteString + target.path,
+        sampleResponseClosure: { .networkResponse(200, Data(body.utf8)) },
+        method: target.method, task: target.task, httpHeaderFields: target.headers)
+    }, stubClosure: { target in
+      if case .fetchTable = target { return .delayed(seconds: 0.3) }
+      return .immediate
+    })
+    let cache = try makeCache()
+    let useCase = TimetableUseCase(otlTimetableRepository: OTLTimetableRepository(provider: provider), cache: cache)
+
+    async let refreshed = useCase.refreshTable(id: 354045)
+    try await _Concurrency.Task.sleep(for: .milliseconds(50))
+    let deleted = try await useCase.deleteActivity(timetableID: 354045, activityID: 17)
+    #expect(deleted.activities.isEmpty)
+
+    #expect(try await refreshed.activities.isEmpty)
+    #expect(cache.timetable(forKey: "354045")?.activities.isEmpty == true)
+  }
+
   @Test func draftsRejectTimesThatOverlapEachOther() {
     var draft = multiTimeDraft
     #expect(draft.isValid)
