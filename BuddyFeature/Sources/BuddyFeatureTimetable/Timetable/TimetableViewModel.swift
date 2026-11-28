@@ -260,15 +260,16 @@ public final class TimetableViewModel {
       showRefreshedTable(current, id: selectedTimetableID)
       guard !current.contains(lecture) else { return }
       let overlapping = current.overlapping(with: lecture)
+      let updated: Timetable
       if overlapping.lectures.isEmpty && overlapping.activities.isEmpty {
-        try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+        updated = try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       } else {
         guard replacingConflicts else { throw TimetableActivityError.overlap }
         // One batch, which the server applies all together or not at all: a failure
         // leaves every lecture and activity where it was, with nothing to put back.
         let removals: [TimetableItemChange] = overlapping.lectures.map { .removeLecture(lectureID: $0.id) }
           + overlapping.activities.map { .removeActivity(activityID: $0.id) }
-        try await timetableUseCase.applyChanges(
+        updated = try await timetableUseCase.applyChanges(
           timetableID: selectedTimetableID,
           changes: removals + [.addLecture(lectureID: lecture.id)]
         )
@@ -276,10 +277,7 @@ public final class TimetableViewModel {
       }
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
       TimetableOnboarding.lectureAdded()
-      timetableLoadTask?.cancel()
-      timetableLoadTask = Task {
-        await loadTimetable()
-      }
+      showEditedTable(updated, id: selectedTimetableID)
 			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)
@@ -289,6 +287,18 @@ public final class TimetableViewModel {
       )
       isAlertPresented = true
     }
+  }
+
+  /// Puts the table an edit answered with on screen, if it is still the one selected.
+  /// It is the server's copy after the edit, so there is nothing to fetch again.
+  private func showEditedTable(_ table: Timetable, id: Int) {
+    guard selectedTimetableID == id else { return }
+    timetableLoadTask?.cancel()
+    timetable = table
+    lastUpdated = .now
+    isShowingSavedData = false
+    isAwaitingFreshTable = false
+    loadError = nil
   }
 
   /// Puts a table just fetched from the server on screen, if it is still the one selected.
@@ -337,12 +347,9 @@ public final class TimetableViewModel {
           let selectedTimetableID else { return }
 
     do {
-      try await timetableUseCase.deleteLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      let updated = try await timetableUseCase.deleteLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       analyticsService?.logEvent(TimetableViewEvent.lectureDeleted)
-      timetableLoadTask?.cancel()
-      timetableLoadTask = Task {
-        await loadTimetable()
-      }
+      showEditedTable(updated, id: selectedTimetableID)
 			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)

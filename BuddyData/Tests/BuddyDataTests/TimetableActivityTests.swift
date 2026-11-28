@@ -138,7 +138,7 @@ struct TimetableActivityTests {
     #expect(try JSONDecoder().decode(TimetableActivity.self, from: legacy).draft == draft)
   }
 
-  @Test func saveAlwaysRefetchesAndUsesServerResult() async throws {
+  @Test func saveUsesTheTimetableTheServerAnswersWith() async throws {
     let state = ActivityAPIState()
     let stub = ActivityAPIStub { target in
       switch target {
@@ -152,16 +152,17 @@ struct TimetableActivityTests {
     let result = try await useCase.saveActivity(timetableID: 354045, activityID: nil, draft: draft)
     #expect(result.activities.first?.id == 17)
     #expect(cache.timetable(forKey: "354045")?.activities == result.activities)
-    #expect(stub.targets.map(\.method) == [.get, .patch, .get])
+    // Validated against a fresh copy, then nothing more to fetch: the PATCH answer is the table.
+    #expect(stub.targets.map(\.method) == [.get, .patch])
   }
 
-  @Test func editingExcludesItselfAndDeletingRefetches() async throws {
+  @Test func editingExcludesItselfAndDeletingUsesTheAnswer() async throws {
     let state = ActivityAPIState()
     let stub = ActivityAPIStub { target in
       switch target {
       case .fetchTable: return (200, state.mutated ? empty : blocks)
       case .updateItems(_, let changes):
-        if changes == [.removeActivity(activityID: 17)] { state.mutated = true }
+        if changes == [.removeActivity(activityID: 17)] { state.mutated = true; return (200, empty) }
         return (200, applied)
       default: return (500, "")
       }
@@ -171,7 +172,7 @@ struct TimetableActivityTests {
     #expect(updated.activities.count == 1)
     let deleted = try await useCase.deleteActivity(timetableID: 354045, activityID: 17)
     #expect(deleted.activities.isEmpty)
-    #expect(Array(stub.targets.suffix(2)).map(\.method) == [.patch, .get])
+    #expect(stub.targets.last?.method == .patch)
   }
 
   @Test func overlapDoesNotSendMutation() async throws {
@@ -183,11 +184,38 @@ struct TimetableActivityTests {
     #expect(stub.targets.allSatisfy { $0.method == .get })
   }
 
+  @Test func unreadableAnswerRefetchesOnce() async throws {
+    let state = ActivityAPIState()
+    let stub = ActivityAPIStub { target in
+      switch target {
+      case .updateItems: state.mutated = true; return (200, "")
+      case .fetchTable: return (200, state.mutated ? blocks : empty)
+      default: return (500, "")
+      }
+    }
+    let result = try await TimetableUseCase(otlTimetableRepository: stub.repository)
+      .saveActivity(timetableID: 354045, activityID: nil, draft: draft)
+    #expect(result.activities.first?.id == 17)
+    #expect(stub.targets.map(\.method) == [.get, .patch, .get])
+  }
+
+  @Test func lectureEditsUseTheAnswerToo() async throws {
+    let stub = ActivityAPIStub { _ in (200, blocks) }
+    let cache = try makeCache()
+    let useCase = TimetableUseCase(otlTimetableRepository: stub.repository, cache: cache)
+    let added = try await useCase.addLecture(timetableID: 354045, lectureID: 5)
+    let replaced = try await useCase.applyChanges(timetableID: 354045, changes: [.addLecture(lectureID: 5)])
+    let deleted = try await useCase.deleteLecture(timetableID: 354045, lectureID: 5)
+    #expect([added, replaced, deleted].allSatisfy { $0.activities.first?.id == 17 })
+    #expect(cache.timetable(forKey: "354045") == deleted)
+    #expect(stub.targets.allSatisfy { $0.method == .patch })
+  }
+
   @Test func refreshFailureAfterSaveDoesNotResubmitAndInvalidatesCache() async throws {
     let state = ActivityAPIState()
     let stub = ActivityAPIStub { target in
       switch target {
-      case .updateItems: state.mutated = true; return (200, applied)
+      case .updateItems: state.mutated = true; return (200, "")
       case .fetchTable: return state.mutated ? (503, "") : (200, empty)
       default: return (500, "")
       }

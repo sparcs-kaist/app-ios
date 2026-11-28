@@ -32,27 +32,34 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
     return try response.map(TimetableDTO.self).toModel(id: String(timetableID))
   }
 
-  public func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws {
+  @discardableResult
+  public func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.addActivity(draft)])
   }
 
-  public func updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft) async throws {
+  @discardableResult
+  public func updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.updateActivity(activityID: activityID, draft)])
   }
 
-  public func deleteActivity(timetableID: Int, activityID: Int) async throws {
+  @discardableResult
+  public func deleteActivity(timetableID: Int, activityID: Int) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.removeActivity(activityID: activityID)])
   }
 
   /// Every lecture and activity change goes through the batch endpoint, which
   /// checks overlaps against the server's own copy, times this client can't see
   /// included.
-  public func updateItems(timetableID: Int, changes: [TimetableItemChange]) async throws {
+  @discardableResult
+  public func updateItems(timetableID: Int, changes: [TimetableItemChange]) async throws -> Timetable? {
+    let response: Response
     do {
-      _ = try await provider.request(.updateItems(timetableID: timetableID, changes: changes))
+      response = try await provider.request(.updateItems(timetableID: timetableID, changes: changes))
     } catch NetworkError.serverError(statusCode: 409) {
       throw TimetableActivityError.overlap
     }
+    // The changes are applied by now, so an answer this client can't read is not a failure.
+    return try? response.map(TimetableDTO.self).toModel(id: String(timetableID))
   }
 
   public func createTable(year: Int, semester: SemesterType) async throws -> TableCreation {
@@ -83,11 +90,13 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
     _ = try await self.provider.request(.renameTable(timetableID: timetableID, title: title))
   }
 
-  public func addLecture(timetableID: Int, lectureID: Int) async throws {
+  @discardableResult
+  public func addLecture(timetableID: Int, lectureID: Int) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.addLecture(lectureID: lectureID)])
   }
 
-  public func deleteLecture(timetableID: Int, lectureID: Int) async throws {
+  @discardableResult
+  public func deleteLecture(timetableID: Int, lectureID: Int) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.removeLecture(lectureID: lectureID)])
   }
 
