@@ -20,6 +20,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   private let tokenStorage: TokenStorageProtocol
   private let araUserRepository: AraUserRepositoryProtocol?
   private let otlUserRepository: OTLUserRepositoryProtocol?
+  private let taxiUserRepository: TaxiUserRepositoryProtocol?
 
   // `CurrentValueSubject` is internally thread-safe, so it is marked
   // `nonisolated(unsafe)` to let the auth-state publisher be read and observed
@@ -55,12 +56,14 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     authenticationService: AuthenticationServiceProtocol,
     tokenStorage: TokenStorageProtocol,
     araUserRepository: AraUserRepositoryProtocol?,
-    otlUserRepository: OTLUserRepositoryProtocol?
+    otlUserRepository: OTLUserRepositoryProtocol?,
+    taxiUserRepository: TaxiUserRepositoryProtocol?
   ) {
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
     self.araUserRepository = araUserRepository
     self.otlUserRepository = otlUserRepository
+    self.taxiUserRepository = taxiUserRepository
 
     let hasValidAccessToken = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
     let hasRefreshToken = tokenStorage.getRefreshToken() != nil
@@ -228,7 +231,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func signIn() async throws {
-    guard let araUserRepository, let otlUserRepository else { return }
+    guard let araUserRepository, let otlUserRepository, let taxiUserRepository else { return }
     do {
       let tokenResponse: SignInResponse = try await authenticationService.authenticate()
       try tokenStorage
@@ -241,8 +244,10 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       // MARK: Sign up OTL
       try await otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
-      // TODO: Sign up Taxi
-      
+      // MARK: Sign up Taxi
+      // The Buddy backend no longer creates Taxi accounts, so this is the only place one is made.
+      try await taxiUserRepository.bootstrap(ssoInfo: tokenResponse.ssoInfo)
+
       _isAuthenticatedSubject.value = true
       logger.info("Signed in.")
       WidgetCenter.shared.reloadAllTimelines()

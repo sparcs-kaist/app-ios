@@ -148,7 +148,7 @@ private final class Fixture {
 
   func makeAuth() -> AuthUseCase {
     AuthUseCase(authenticationService: service, tokenStorage: storage,
-      araUserRepository: nil, otlUserRepository: nil)
+      araUserRepository: nil, otlUserRepository: nil, taxiUserRepository: nil)
   }
 }
 

@@ -28,6 +28,11 @@ public final class TaxiUserRepository: TaxiUserRepositoryProtocol, Sendable {
     self.provider = provider
   }
 
+  public func bootstrap(ssoInfo: String) async throws {
+    let response = try await provider.request(.bootstrap(ssoInfo: ssoInfo))
+    _ = try response.filterSuccessfulStatusCodes()
+  }
+
   public func fetchUser() async throws -> TaxiUser {
     let response = try await provider.request(.fetchUserInfo)
     let result = try response.map(TaxiUserDTO.self).toModel()

@@ -264,7 +264,8 @@ extension Container: @retroactive AutoRegistering {
         authenticationService: self.authenticationService.resolve(),
         tokenStorage: self.tokenStorage.resolve(),
         araUserRepository: self.araUserRepository.resolve(),
-        otlUserRepository: self.otlUserRepository.resolve()
+        otlUserRepository: self.otlUserRepository.resolve(),
+        taxiUserRepository: self.taxiUserRepository.resolve()
       )
       AuthRetryConfig.tokenRefresher = { [weak useCase] in
         guard let useCase else { throw NetworkError.unauthorized }
