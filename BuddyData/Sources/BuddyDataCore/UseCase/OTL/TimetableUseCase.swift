@@ -8,6 +8,7 @@
 import Foundation
 import BuddyDomain
 import WidgetKit
+import Synchronization
 
 public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendable {
   // MARK: - Properties
@@ -18,6 +19,10 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   private let sessionBridgeService: SessionBridgeServiceProtocol?
   private let crashlyticsService: CrashlyticsServiceProtocol?
   private let timetableIndexingService: TimetableIndexingServiceProtocol?
+  /// Per table, how many edits have finished, and the table the latest one left. A fetch
+  /// that started before an edit finished may hold the table from before it, so it must not
+  /// be saved over the edit's result.
+  private let edits = Mutex<[Int: (version: Int, table: Timetable?)]>([:])
   
   // MARK: - Initialiser
   public init(
@@ -101,13 +106,42 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
   }
 
   public func refreshTable(id: Int) async throws -> Timetable {
+    let version = editVersion(of: id)
     let result = try await otlTimetableRepository.getTable(timetableID: id)
     try Task.checkCancellation()
-    cache?.store(result, forKey: String(id))
+    // An edit finished while this was in flight: its answer is at least as new as this one.
+    if editVersion(of: id) != version {
+      if let edited = edits.withLock({ $0[id]?.table }) { return edited }
+      return result
+    }
+    keep(result, id: id)
+    return result
+  }
+
+  private func editVersion(of id: Int) -> Int {
+    edits.withLock { $0[id]?.version ?? 0 }
+  }
+
+  /// Marks an edit of `id` as finished, leaving `table` (or nothing known, when `nil`).
+  private func recordEdit(of id: Int, leaving table: Timetable?) {
+    edits.withLock { $0[id] = (version: ($0[id]?.version ?? 0) + 1, table: table) }
+  }
+
+  /// Saves a fresh copy of a table and passes it on to the widgets, Siri and the watch.
+  private func keep(_ table: Timetable, id: Int) {
+    cache?.store(table, forKey: String(id))
     WidgetCenter.shared.reloadAllTimelines()
     timetableIndexingService?.scheduleReindex()
-    pushToWatchIfSelected(result, semester: nil, timetableID: id)
-    return result
+    pushToWatchIfSelected(table, semester: nil, timetableID: id)
+  }
+
+  /// Runs an edit and keeps the timetable the server answers with, as the web does,
+  /// rather than fetching it again.
+  private func applyEdit(id: Int, _ edit: () async throws -> Timetable?) async throws -> Timetable {
+    guard let updated = try await edit() else { return try await refreshAfterEdit(id: id) }
+    recordEdit(of: id, leaving: updated)
+    keep(updated, id: id)
+    return updated
   }
 
   /// The watch mirrors whichever timetable is selected in the Timetable tab,
@@ -135,21 +169,30 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     // Validate against fresh server data, including other devices' changes.
     let current = try await refreshTable(id: timetableID)
     guard !draft.hasConflict(in: current, excluding: activityID) else { throw TimetableActivityError.overlap }
-    if let activityID {
-      try await otlTimetableRepository.updateActivity(timetableID: timetableID, activityID: activityID, draft: draft)
-    } else {
-      try await otlTimetableRepository.createActivity(timetableID: timetableID, draft: draft)
+    return try await applyEdit(id: timetableID) {
+      if let activityID {
+        try await otlTimetableRepository.updateActivity(timetableID: timetableID, activityID: activityID, draft: draft)
+      } else {
+        try await otlTimetableRepository.createActivity(timetableID: timetableID, draft: draft)
+      }
     }
-    return try await refreshAfterActivityMutation(id: timetableID)
   }
 
   public func deleteActivity(timetableID: Int, activityID: Int) async throws -> Timetable {
-    do { try await otlTimetableRepository.deleteActivity(timetableID: timetableID, activityID: activityID) }
-    catch NetworkError.notFound { /* Already removed by another device or a previous request. */ }
-    return try await refreshAfterActivityMutation(id: timetableID)
+    do {
+      return try await applyEdit(id: timetableID) {
+        try await otlTimetableRepository.deleteActivity(timetableID: timetableID, activityID: activityID)
+      }
+    } catch NetworkError.notFound {
+      // Already removed by another device or a previous request.
+      return try await refreshAfterEdit(id: timetableID)
+    }
   }
 
-  private func refreshAfterActivityMutation(id: Int) async throws -> Timetable {
+  /// Fetches a table whose edit went through without a readable answer.
+  private func refreshAfterEdit(id: Int) async throws -> Timetable {
+    // Fetches that began before the edit can't tell their table from the edit's.
+    recordEdit(of: id, leaving: nil)
     cache?.invalidate(key: String(id))
     WidgetCenter.shared.reloadAllTimelines()
     timetableIndexingService?.scheduleReindex()
@@ -299,7 +342,8 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
     }
   }
 
-  public func addLecture(timetableID: Int, lectureID: Int) async throws {
+  @discardableResult
+  public func addLecture(timetableID: Int, lectureID: Int) async throws -> Timetable {
     let context = CrashContext(
       feature: feature,
       metadata: [
@@ -308,14 +352,15 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
       ]
     )
 
-    try await execute(context: context) {
-      try await self.otlTimetableRepository.addLecture(timetableID: timetableID, lectureID: lectureID)
-      // Invalidate so the updated timetable is fetched fresh on next load.
-      self.cache?.invalidate(key: String(timetableID))
+    return try await execute(context: context) {
+      try await self.applyEdit(id: timetableID) {
+        try await self.otlTimetableRepository.addLecture(timetableID: timetableID, lectureID: lectureID)
+      }
     }
   }
 
-  public func deleteLecture(timetableID: Int, lectureID: Int) async throws {
+  @discardableResult
+  public func deleteLecture(timetableID: Int, lectureID: Int) async throws -> Timetable {
     let context = CrashContext(
       feature: feature,
       metadata: [
@@ -324,13 +369,15 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
       ]
     )
 
-    try await execute(context: context) {
-      try await self.otlTimetableRepository.deleteLecture(timetableID: timetableID, lectureID: lectureID)
-      self.cache?.invalidate(key: String(timetableID))
+    return try await execute(context: context) {
+      try await self.applyEdit(id: timetableID) {
+        try await self.otlTimetableRepository.deleteLecture(timetableID: timetableID, lectureID: lectureID)
+      }
     }
   }
 
-  public func applyChanges(timetableID: Int, changes: [TimetableItemChange]) async throws {
+  @discardableResult
+  public func applyChanges(timetableID: Int, changes: [TimetableItemChange]) async throws -> Timetable {
     let context = CrashContext(
       feature: feature,
       metadata: [
@@ -339,11 +386,10 @@ public final class TimetableUseCase: TimetableUseCaseProtocol, @unchecked Sendab
       ]
     )
 
-    try await execute(context: context) {
-      try await self.otlTimetableRepository.updateItems(timetableID: timetableID, changes: changes)
-      self.cache?.invalidate(key: String(timetableID))
-      WidgetCenter.shared.reloadAllTimelines()
-      self.timetableIndexingService?.scheduleReindex()
+    return try await execute(context: context) {
+      try await self.applyEdit(id: timetableID) {
+        try await self.otlTimetableRepository.updateItems(timetableID: timetableID, changes: changes)
+      }
     }
   }
 

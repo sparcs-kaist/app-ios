@@ -37,6 +37,29 @@
         }
       }
     },
+    "NSBluetoothAlwaysUsageDescription" : {
+      "comment" : "Explains why the app requests Bluetooth access: finding friends nearby on Add Friends.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buddy uses Bluetooth to find friends next to you while Add Friends is open."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buddy uses Bluetooth to find friends next to you while Add Friends is open."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구 추가 화면이 열려 있는 동안 Bluetooth로 근처에 있는 친구를 찾습니다."
+          }
+        }
+      }
+    },
     "NSPhotoLibraryAddUsageDescription" : {
       "comment" : "Explains why the app requests permission to add images to Photos.",
       "localizations" : {

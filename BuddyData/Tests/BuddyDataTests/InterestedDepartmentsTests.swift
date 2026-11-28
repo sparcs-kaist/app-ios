@@ -20,7 +20,7 @@ struct InterestedDepartmentsTests {
 
     #expect(user.id == 7)
     #expect(user.email == "buddy@kaist.ac.kr")
-    #expect(user.degree == "")
+    #expect(user.degree == nil)
     #expect(user.majorDepartments.map(\.id) == [9945])
     #expect(user.interestedDepartments.map(\.id) == [623])
   }

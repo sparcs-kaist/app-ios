@@ -95,6 +95,14 @@ public struct TimetableView: View {
         .background(Color.systemGroupedBackground)
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
+            Button(String(localized: "Friends", bundle: .module), systemImage: "person.2") {
+              path.append(TimetableRoute.friends)
+            }
+          }
+
+          ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+          ToolbarItem(placement: .topBarTrailing) {
 						Menu("Add Event", systemImage: "square.badge.plus") {
 							Button(String(localized: "Add Lecture", bundle: .module), systemImage: "book.badge.plus") {
 								addEventTip.invalidate(reason: .actionPerformed)
@@ -126,6 +134,11 @@ public struct TimetableView: View {
           case .credits:
             CreditCalculationView(viewModel: creditViewModel)
               .navigationTransition(.zoom(sourceID: CreditsSummaryCard.transitionID, in: creditsTransition))
+          case .friends:
+            // On the path rather than `isPresented`, so a friend it pushes by value lands above it.
+            // No zoom from the toolbar button: it hid the Friends list's leading toolbar item
+            // on the first push.
+            FriendsListView()
           }
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
@@ -668,6 +681,7 @@ public struct TimetableView: View {
 enum TimetableRoute: Hashable {
   case lectureSearch
   case credits
+  case friends
 }
 
 struct TimetableShareImage: Identifiable {

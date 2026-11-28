@@ -13,15 +13,19 @@ import BuddyDomain
 public struct TimetableGridCell: View {
   let lectureItem: LectureItem
   let isCandidate: Bool
+  /// The user takes this lecture too, as on a friend's timetable.
+  let isShared: Bool
   let placement: TimetablePlacement
 
   public init(
     lectureItem: LectureItem,
     isCandidate: Bool,
+    isShared: Bool = false,
     placement: TimetablePlacement
   ) {
     self.lectureItem = lectureItem
     self.isCandidate = isCandidate
+    self.isShared = isShared
     self.placement = placement
   }
 
@@ -97,6 +101,16 @@ public struct TimetableGridCell: View {
         .padding(.vertical, verticalPadding)
       }
       .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
+      .overlay(alignment: .bottomTrailing) {
+        if isShared {
+          // A glyph, not web's "Shared" label, so it fits the narrowest cell.
+          Image(systemName: "person.2.fill")
+            .font(.system(size: 8, weight: .bold))
+            .foregroundStyle(theme.textColor)
+            .padding(4)
+            .accessibilityLabel(Text("Shared", bundle: .module))
+        }
+      }
       .clipped()
       .modifier(TimetableGlassModifier(
         placement: placement,

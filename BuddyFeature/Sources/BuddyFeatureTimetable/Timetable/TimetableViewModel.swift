@@ -116,6 +116,10 @@ public final class TimetableViewModel {
   private var networkUnavailable = false
   @ObservationIgnored private var loadGeneration = 0
   @ObservationIgnored private var listGeneration = 0
+  /// Lecture edits under way, and whether any two overlapped. Their answers can arrive in
+  /// any order, so after an overlap none is trusted and the table is loaded afresh instead.
+  @ObservationIgnored private var editsInFlight = 0
+  @ObservationIgnored private var editsOverlapped = false
   @ObservationIgnored private var setupGeneration = 0
   @ObservationIgnored private var isRefreshing = false
   public var isOffline: Bool { networkUnavailable || !offlineFailures.isEmpty }
@@ -251,6 +255,9 @@ public final class TimetableViewModel {
     // A second tap while the first add is in flight would race it.
     isAddingLecture = true
     defer { isAddingLecture = false }
+    beginEdit()
+    var edited: Timetable?
+    defer { endEdit(showing: edited, id: selectedTimetableID) }
 
     do {
       // Check against the server's copy, which may have changed since the search opened.
@@ -260,15 +267,16 @@ public final class TimetableViewModel {
       showRefreshedTable(current, id: selectedTimetableID)
       guard !current.contains(lecture) else { return }
       let overlapping = current.overlapping(with: lecture)
+      let updated: Timetable
       if overlapping.lectures.isEmpty && overlapping.activities.isEmpty {
-        try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+        updated = try await timetableUseCase.addLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       } else {
         guard replacingConflicts else { throw TimetableActivityError.overlap }
         // One batch, which the server applies all together or not at all: a failure
         // leaves every lecture and activity where it was, with nothing to put back.
         let removals: [TimetableItemChange] = overlapping.lectures.map { .removeLecture(lectureID: $0.id) }
           + overlapping.activities.map { .removeActivity(activityID: $0.id) }
-        try await timetableUseCase.applyChanges(
+        updated = try await timetableUseCase.applyChanges(
           timetableID: selectedTimetableID,
           changes: removals + [.addLecture(lectureID: lecture.id)]
         )
@@ -276,10 +284,7 @@ public final class TimetableViewModel {
       }
       analyticsService?.logEvent(TimetableViewEvent.lectureAdded)
       TimetableOnboarding.lectureAdded()
-      timetableLoadTask?.cancel()
-      timetableLoadTask = Task {
-        await loadTimetable()
-      }
+      edited = updated
 			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)
@@ -289,6 +294,39 @@ public final class TimetableViewModel {
       )
       isAlertPresented = true
     }
+  }
+
+  private func beginEdit() {
+    if editsInFlight > 0 { editsOverlapped = true }
+    editsInFlight += 1
+  }
+
+  /// Shows what the last edit left, or, after edits overlapped, loads the table afresh.
+  private func endEdit(showing table: Timetable?, id: Int) {
+    editsInFlight -= 1
+    guard editsInFlight == 0 else { return }
+    if editsOverlapped {
+      editsOverlapped = false
+      guard selectedTimetableID == id else { return }
+      timetableLoadTask?.cancel()
+      timetableLoadTask = Task { await loadTimetable() }
+    } else if let table {
+      showEditedTable(table, id: id)
+    }
+  }
+
+  /// Puts the table an edit answered with on screen, if it is still the one selected.
+  /// It is the server's copy after the edit, so there is nothing to fetch again.
+  private func showEditedTable(_ table: Timetable, id: Int) {
+    guard selectedTimetableID == id else { return }
+    timetableLoadTask?.cancel()
+    // Also turns away a load already under way, such as a refresh, whose table predates the edit.
+    loadGeneration += 1
+    timetable = table
+    lastUpdated = .now
+    isShowingSavedData = false
+    isAwaitingFreshTable = false
+    loadError = nil
   }
 
   /// Puts a table just fetched from the server on screen, if it is still the one selected.
@@ -335,14 +373,14 @@ public final class TimetableViewModel {
     guard !isReadOnly else { return }
     guard let timetableUseCase,
           let selectedTimetableID else { return }
+    beginEdit()
+    var edited: Timetable?
+    defer { endEdit(showing: edited, id: selectedTimetableID) }
 
     do {
-      try await timetableUseCase.deleteLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
+      let updated = try await timetableUseCase.deleteLecture(timetableID: selectedTimetableID, lectureID: lecture.id)
       analyticsService?.logEvent(TimetableViewEvent.lectureDeleted)
-      timetableLoadTask?.cancel()
-      timetableLoadTask = Task {
-        await loadTimetable()
-      }
+      edited = updated
 			WidgetCenter.shared.reloadAllTimelines()
     } catch {
       crashlyticsService?.recordException(error: error)

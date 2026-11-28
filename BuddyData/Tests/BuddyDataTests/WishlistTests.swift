@@ -71,4 +71,17 @@ struct WishlistTests {
     #expect(lecture.id == 11)
     #expect(lecture.grade == 0 && lecture.load == 0 && lecture.speech == 0)
   }
+
+  @Test func lectureWithoutAnEnrolmentCountStillDecodes() throws {
+    // The wishlist serializer passes `num_people` through unchanged, and the column is nullable.
+    let json = #"""
+    {"id":11,"courseId":7,"classNo":"A","name":"Data Structure","subtitle":"","code":"CS.20006",
+     "department":{"id":132,"name":"School of Computing"},"type":"Major Required",
+     "limitPeople":260,"numPeople":null,"credit":3,"creditAU":0,
+     "averageGrade":0,"averageLoad":0,"averageSpeech":0,"isEnglish":true,
+     "professors":[],"classes":[],"examTimes":[],"classDuration":3,"expDuration":0}
+    """#
+    let lecture = try JSONDecoder().decode(LectureDTO.self, from: Data(json.utf8)).toModel()
+    #expect(lecture.enrolledCount == 0)
+  }
 }

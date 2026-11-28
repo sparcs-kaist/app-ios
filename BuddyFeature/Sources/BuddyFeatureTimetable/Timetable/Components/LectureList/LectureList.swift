@@ -7,11 +7,14 @@
 
 import SwiftUI
 import BuddyDomain
+import TimetableUI
 
 struct LectureList: View {
 	let lectures: [Lecture]?
 	var activities: [TimetableActivity]?
 	var selectedLecture: ((LectureItem) -> Void)?
+	/// Lectures the user takes too, tagged on a friend's timetable.
+	var sharedLectureIDs: Set<Int> = []
 	
 	var body: some View {
 		VStack(alignment: .leading) {
@@ -21,7 +24,10 @@ struct LectureList: View {
 			
 			if let lectures, !lectures.isEmpty {
 				ForEach(lectures) { lecture in
-					LectureListRow(lecture: lecture)
+					LectureListRow(
+						lecture: lecture,
+						badge: sharedLectureIDs.contains(lecture.id) ? String(localized: "Shared", bundle: .module) : nil
+					)
 						.contentShape(.rect)
 						.onTapGesture {
 							guard let lectureClass = lecture.classes.first else { return }
@@ -48,6 +54,8 @@ struct LectureList: View {
 				
 				ForEach(activities) { activity in
 					ActivityListRow(activity: activity)
+						.contentShape(.rect)
+						.activityDetailsPopover(activity)
 					
 					if activity.id != activities.last?.id {
 						Divider()

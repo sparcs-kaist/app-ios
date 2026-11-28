@@ -78,7 +78,6 @@ struct TimetableWidgetOfflineTests {
       case .fetchSemesters: return self.response("{\"semesters\":[\(semesterJSON)]}")
       case .fetchCurrentSemester: return self.response(semesterJSON)
       case .fetchTables: return self.response(#"{"timetables":[{"id":42,"name":"Fresh","year":2026,"semester":3,"timeTableOrder":0}]}"#)
-      case .fetchActivities: return self.response(#"{"custom_blocks":[]}"#)
       default: return self.response(#"{"lectures":[]}"#)
       }
     }

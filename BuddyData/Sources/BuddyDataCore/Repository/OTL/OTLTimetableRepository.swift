@@ -27,27 +27,45 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
     return result.timetables.compactMap { $0.toModel() }
   }
 
+  public func getSharing(year: Int, semester: SemesterType) async throws -> TimetableSharing {
+    let response = try await provider.request(.fetchTables(year: year, semester: semester.intValue))
+    return try response.map(TimetableSharingDTO.self).toModel()
+  }
+
+  public func getSharedTimetable(year: Int, semester: SemesterType) async throws -> Timetable {
+    let response = try await provider.request(.fetchSharedTimetable(year: year, semester: semester.intValue))
+    return try response.map(TimetableDTO.self).toModel(id: "shared-\(year)-\(semester.rawValue)")
+  }
+
+  public func getSharedSemesters() async throws -> [FriendTimetableTerm] {
+    let response = try await provider.request(.fetchSharedSemesters)
+    // Same shape as a friend's list of shared semesters.
+    return try response.map(FriendSharedSemestersDTO.self).toModel()
+  }
+
+  public func setSharedTimetable(year: Int, semester: SemesterType, timetableID: Int?) async throws {
+    _ = try await provider.request(
+      .setSharedTimetable(year: year, semester: semester.intValue, timetableID: timetableID)
+    )
+  }
+
   public func getTable(timetableID: Int) async throws -> Timetable {
     let response = try await self.provider.request(.fetchTable(timetableID: timetableID))
-    var timetable = try response.map(TimetableDTO.self).toModel(id: String(timetableID))
-    timetable.activities = try await getActivities(timetableID: timetableID)
-    return timetable
+    return try response.map(TimetableDTO.self).toModel(id: String(timetableID))
   }
 
-  public func getActivities(timetableID: Int) async throws -> [TimetableActivity] {
-    let response = try await provider.request(.fetchActivities(timetableID: timetableID))
-    return try response.map(TimetableActivityListDTO.self).customBlocks.map { $0.toModel() }
-  }
-
-  public func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws {
+  @discardableResult
+  public func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.addActivity(draft)])
   }
 
-  public func updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft) async throws {
+  @discardableResult
+  public func updateActivity(timetableID: Int, activityID: Int, draft: TimetableActivityDraft) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.updateActivity(activityID: activityID, draft)])
   }
 
-  public func deleteActivity(timetableID: Int, activityID: Int) async throws {
+  @discardableResult
+  public func deleteActivity(timetableID: Int, activityID: Int) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.removeActivity(activityID: activityID)])
   }
 
@@ -55,14 +73,15 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
   /// checks overlaps against the server's own copy, times this client can't see
   /// included.
   @discardableResult
-  public func updateItems(timetableID: Int, changes: [TimetableItemChange]) async throws -> [Int] {
+  public func updateItems(timetableID: Int, changes: [TimetableItemChange]) async throws -> Timetable? {
     let response: Response
     do {
       response = try await provider.request(.updateItems(timetableID: timetableID, changes: changes))
     } catch NetworkError.serverError(statusCode: 409) {
       throw TimetableActivityError.overlap
     }
-    return try response.map(TimetableItemsUpdateDTO.self).results.sorted { $0.index < $1.index }.map(\.id)
+    // The changes are applied by now, so an answer this client can't read is not a failure.
+    return try? response.map(TimetableDTO.self).toModel(id: String(timetableID))
   }
 
   public func createTable(year: Int, semester: SemesterType) async throws -> TableCreation {
@@ -93,11 +112,13 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
     _ = try await self.provider.request(.renameTable(timetableID: timetableID, title: title))
   }
 
-  public func addLecture(timetableID: Int, lectureID: Int) async throws {
+  @discardableResult
+  public func addLecture(timetableID: Int, lectureID: Int) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.addLecture(lectureID: lectureID)])
   }
 
-  public func deleteLecture(timetableID: Int, lectureID: Int) async throws {
+  @discardableResult
+  public func deleteLecture(timetableID: Int, lectureID: Int) async throws -> Timetable? {
     try await updateItems(timetableID: timetableID, changes: [.removeLecture(lectureID: lectureID)])
   }
 

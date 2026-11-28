@@ -1899,6 +1899,61 @@
           }
         }
       }
+    },
+    "No one has this code. Check it with your friend." : {
+      "comment" : "Shown when a friend code belongs to no one.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 코드를 쓰는 사람이 없어요. 친구에게 코드를 다시 확인해 주세요."
+          }
+        }
+      }
+    },
+    "This is your own code. Enter your friend’s code instead." : {
+      "comment" : "Shown when the user enters their own friend code.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 코드예요. 친구의 코드를 입력해 주세요."
+          }
+        }
+      }
+    },
+    "Too many attempts. Try again in %@." : {
+      "comment" : "Shown after too many friend codes. The argument is how long to wait, such as “2 minutes”.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시도 횟수가 너무 많아요. %@ 후에 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "Too many attempts. Try again later." : {
+      "comment" : "Shown after too many friend codes when the wait is unknown.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시도 횟수가 너무 많아요. 잠시 후 다시 시도해 주세요."
+          }
+        }
+      }
+    },
+    "Adding friends by code isn’t available right now. Try again later." : {
+      "comment" : "Shown when friend codes can’t be checked.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금은 코드로 친구를 추가할 수 없어요. 잠시 후 다시 시도해 주세요."
+          }
+        }
+      }
     }
   },
   "version" : "1.3"
