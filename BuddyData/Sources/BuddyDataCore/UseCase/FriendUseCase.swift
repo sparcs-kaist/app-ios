@@ -70,6 +70,9 @@ public final class FriendUseCase: FriendUseCaseProtocol {
   private func execute<T>(operation: String, _ action: () async throws -> T) async throws -> T {
     do {
       return try await action()
+    } catch let error as AddFriendError {
+      // The user's to fix, not a fault to record.
+      throw error
     } catch {
       crashlyticsService?.record(
         error: error,

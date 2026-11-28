@@ -23,9 +23,25 @@ public final class FriendRepository: FriendRepositoryProtocol, Sendable {
     return try response.map(FriendListResponseDTO.self).toModel()
   }
 
+  /// Turns the server's refusals into `AddFriendError`s the user can act on.
   public func addFriend(code: String) async throws {
-    let response = try await provider.request(.addFriend(code: code))
-    _ = try response.filterSuccessfulStatusCodes()
+    let response = try await provider.requestAllowingFailure(.addFriend(code: code))
+    switch response.statusCode {
+    case 200...299:
+      return
+    case 400:
+      let body = try? response.map(APIErrorCodeDTO.self)
+      throw body?.code == "SELF_FRIENDSHIP" ? AddFriendError.ownCode : AddFriendError.invalidCode
+    case 429:
+      let retryAfter = response.response?.value(forHTTPHeaderField: "Retry-After").flatMap(TimeInterval.init)
+      throw AddFriendError.tooManyAttempts(retryAfter: retryAfter)
+    case 503:
+      throw AddFriendError.unavailable
+    case 404:
+      throw NetworkError.notFound
+    default:
+      throw NetworkError.serverError(statusCode: response.statusCode)
+    }
   }
 
   public func deleteFriend(id: Int) async throws {

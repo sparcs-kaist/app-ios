@@ -4287,6 +4287,17 @@
           }
         }
       }
+    },
+    "Couldn’t Add Friend" : {
+      "comment" : "Alert title when a friend can’t be added.",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구를 추가할 수 없음"
+          }
+        }
+      }
     }
   },
   "version" : "1.3"

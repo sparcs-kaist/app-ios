@@ -62,6 +62,11 @@ final class FriendsListViewModel {
       try await friendUseCase.addFriend(code: normalized)
       analyticsService?.logEvent(FriendsListViewEvent.friendAdded)
       await load()
+    } catch let error as AddFriendError {
+      alertState = AlertState(
+        title: String(localized: "Couldn’t Add Friend", bundle: .module),
+        message: error.localizedDescription
+      )
     } catch {
       crashlyticsService?.recordException(error: error)
       presentError(error)
