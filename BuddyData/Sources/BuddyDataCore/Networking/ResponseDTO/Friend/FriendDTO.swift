@@ -22,7 +22,7 @@ public extension FriendDTO {
       id: id,
       name: name,
       isFavorite: isFavorite,
-      hasScheduleNow: hasScheduleNow ?? false
+      hasScheduleNow: hasScheduleNow
     )
   }
 }

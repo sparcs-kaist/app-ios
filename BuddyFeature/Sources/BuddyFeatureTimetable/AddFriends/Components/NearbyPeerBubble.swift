@@ -18,7 +18,7 @@ struct NearbyPeerBubble: View {
   var body: some View {
     Button(action: onTap) {
       VStack(spacing: 8) {
-        NearbyInitialsCircle(name: peer.name)
+        InitialsCircle(name: peer.name)
           // Blurred behind the spinner/checkmark so the two don't overlap.
           .blur(radius: isBusyOrDone ? 6 : 0)
           .clipShape(.circle)

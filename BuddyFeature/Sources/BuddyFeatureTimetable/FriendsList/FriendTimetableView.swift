@@ -7,25 +7,151 @@
 
 import SwiftUI
 import BuddyDomain
+import TimetableUI
 
-/// Placeholder for viewing a friend's timetable. The backend API for this is
-/// not available yet; this screen is the landing spot so it can be filled in
-/// once it ships.
+/// A friend's timetable for one semester at a time: the one they share, or their enrolled
+/// lectures when they share none. Read-only; tapping a lecture shows its details.
 struct FriendTimetableView: View {
-  let friend: Friend
+  @State private var viewModel: FriendTimetableViewModel
+  @State private var selectedLecture: LectureItem?
+
+  /// Keeps the grid usable on short (landscape) screens, as the main timetable does.
+  private static let minimumGridHeight: CGFloat = 500
+
+  init(friend: Friend) {
+    self._viewModel = State(initialValue: FriendTimetableViewModel(friend: friend))
+  }
 
   var body: some View {
-    ContentUnavailableView {
-      Label {
-        Text("Timetable Coming Soon", bundle: .module)
-      } icon: {
-        Image(systemName: "calendar.badge.clock")
-      }
-    } description: {
-      Text("You’ll be able to see \(friend.name)’s timetable here soon.", bundle: .module)
+    GeometryReader { reader in
+      content(gridHeight: max(reader.size.height * 0.8, Self.minimumGridHeight))
     }
-    .navigationTitle(friend.name)
+    .background(Color.systemGroupedBackground)
+    .navigationTitle(viewModel.friend.name)
     .toolbarTitleDisplayMode(.inline)
+    .toolbar {
+      if !viewModel.terms.isEmpty {
+        ToolbarItem(placement: .topBarTrailing) {
+          semesterMenu
+        }
+      }
+    }
+    .task { await viewModel.load() }
+    .sheet(item: $selectedLecture) { item in
+      NavigationStack {
+        LectureDetailView(lecture: item.lecture, onAdd: nil, lectureClass: item.lectureClass)
+          .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+              Button(String(localized: "Close", bundle: .module), systemImage: "xmark", role: .close) {
+                selectedLecture = nil
+              }
+            }
+          }
+      }
+      .presentationDragIndicator(.visible)
+      .presentationDetents([.medium, .large])
+      .trailingPresentationPlacement()
+    }
+  }
+
+  @ViewBuilder
+  private func content(gridHeight: CGFloat) -> some View {
+    switch viewModel.viewState {
+    case .loading:
+      ProgressView()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    case .empty:
+      ContentUnavailableView {
+        Label(String(localized: "No Timetable", bundle: .module), systemImage: "calendar")
+      } description: {
+        Text("\(viewModel.friend.name) hasn’t shared a timetable or enrolled in any lectures yet.", bundle: .module)
+      }
+    case .error(let message):
+      ContentUnavailableView {
+        Label(String(localized: "Unable to Load Timetable", bundle: .module), systemImage: "exclamationmark.triangle")
+      } description: {
+        Text(message)
+      } actions: {
+        Button(String(localized: "Try Again", bundle: .module)) {
+          Task { await viewModel.load() }
+        }
+      }
+    case .loaded(let friendTimetable):
+      ScrollView {
+        VStack(alignment: .leading, spacing: 16) {
+          sourceLabel(friendTimetable)
+
+          ThemedGridCard {
+            TimetableGrid(
+              selectedTimetable: friendTimetable.timetable,
+              selectedLecture: { showLecture($0) },
+              placement: .view
+            )
+          }
+          .frame(height: gridHeight)
+
+          LectureList(
+            lectures: friendTimetable.timetable.lectures,
+            activities: friendTimetable.timetable.activities,
+            selectedLecture: { showLecture($0) }
+          )
+          .timetableCardStyle()
+        }
+        .padding()
+        // Crossfade from one semester's table to the next.
+        .animation(.spring, value: friendTimetable)
+      }
+      .scrollContentWidth()
+      .refreshable { await viewModel.load() }
+    }
+  }
+
+  /// Says whether this is a timetable the friend chose to share or their enrolled lectures.
+  private func sourceLabel(_ friendTimetable: FriendTimetable) -> some View {
+    Group {
+      switch friendTimetable.source {
+      case .shared(let name):
+        Label(name.isEmpty ? String(localized: "Shared Timetable", bundle: .module) : name, systemImage: "person.2")
+      case .enrolment:
+        Label(String(localized: "Enrolled Lectures", bundle: .module), systemImage: "graduationcap")
+      }
+    }
+    .font(.subheadline)
+    .foregroundStyle(.secondary)
+  }
+
+  private var semesterMenu: some View {
+    Menu {
+      Picker(
+        String(localized: "Semester", bundle: .module),
+        selection: Binding(
+          get: { viewModel.selectedTerm },
+          set: { term in
+            guard let term else { return }
+            Task { await viewModel.select(term) }
+          }
+        )
+      ) {
+        ForEach(viewModel.terms) { term in
+          Text(term.description).tag(Optional(term))
+        }
+      }
+    } label: {
+      if viewModel.isLoadingTimetable, case .loaded = viewModel.viewState {
+        ProgressView()
+      } else {
+        Label(
+          viewModel.selectedTerm?.description ?? String(localized: "Semester", bundle: .module),
+          systemImage: "calendar"
+        )
+        .labelStyle(.titleAndIcon)
+      }
+    }
+  }
+
+  private func showLecture(_ item: LectureItem) {
+    viewModel.lectureOpened()
+    selectedLecture = item
   }
 }
 

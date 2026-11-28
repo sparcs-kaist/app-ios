@@ -23,6 +23,6 @@ struct OTLContractTests {
     // `hasScheduleNow` is null while no semester is running.
     let json = #"{"id":1,"name":"Sujin Park","isFavorite":true,"hasScheduleNow":null}"#
     let friend = try JSONDecoder().decode(FriendDTO.self, from: Data(json.utf8)).toModel()
-    #expect(friend.hasScheduleNow == false)
+    #expect(friend.hasScheduleNow == nil)
   }
 }

@@ -58,7 +58,7 @@ struct IncomingRequestCard: View {
   var body: some View {
     VStack(spacing: 16) {
       HStack(spacing: 12) {
-        NearbyInitialsCircle(name: peer.name, diameter: 44)
+        InitialsCircle(name: peer.name, diameter: 44)
 
         VStack(alignment: .leading, spacing: 2) {
           Text(peer.name)

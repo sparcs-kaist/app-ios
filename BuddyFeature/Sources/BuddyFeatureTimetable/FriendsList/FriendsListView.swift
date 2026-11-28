@@ -13,6 +13,8 @@ struct FriendsListView: View {
   @State private var viewModel = FriendsListViewModel()
 
   @State private var showAddFriendsSheet = false
+  @State private var showSharingSheet = false
+  @State private var searchText = ""
 
   @Namespace private var addFriendsTransition
 
@@ -21,6 +23,20 @@ struct FriendsListView: View {
       .navigationTitle(Text("Friends", bundle: .module))
       .toolbarTitleDisplayMode(.inlineLarge)
       .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            showSharingSheet = true
+          } label: {
+            Label {
+              Text("Timetable Sharing", bundle: .module)
+            } icon: {
+              Image(systemName: "calendar.and.person")
+            }
+          }
+        }
+
+        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
         ToolbarItem(placement: .topBarTrailing) {
           Button {
             showAddFriendsSheet = true
@@ -36,6 +52,9 @@ struct FriendsListView: View {
       }
       .navigationDestination(for: Friend.self) { friend in
         FriendTimetableView(friend: friend)
+      }
+      .sheet(isPresented: $showSharingSheet) {
+        TimetableSharingView()
       }
       .sheet(isPresented: $showAddFriendsSheet) {
         AddFriendsView(viewModel: viewModel)
@@ -80,72 +99,34 @@ struct FriendsListView: View {
       }
 
     case .loaded(let friends):
+      let matches = matching(friends)
+      let favorites = matches.filter(\.isFavorite)
+      let others = matches.filter { !$0.isFavorite }
       List {
-        ForEach(friends) { friend in
-          NavigationLink(value: friend) {
-            FriendRow(friend: friend)
+        if !favorites.isEmpty {
+          Section {
+            rows(favorites)
+          } header: {
+            Text("Favorites", bundle: .module)
           }
-          .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            Button {
-              Task { await viewModel.toggleFavorite(friend) }
-            } label: {
-              if friend.isFavorite {
-                Label {
-                  Text("Unfavorite", bundle: .module)
-                } icon: {
-                  Image(systemName: "star.slash")
-                }
-              } else {
-                Label {
-                  Text("Favorite", bundle: .module)
-                } icon: {
-                  Image(systemName: "star")
-                }
-              }
-            }
-            .tint(.yellow)
-          }
-          .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-              Task { await viewModel.delete(friend) }
-            } label: {
-              Label {
-                Text("Delete", bundle: .module)
-              } icon: {
-                Image(systemName: "trash")
-              }
-            }
-          }
-          .contextMenu {
-            Button {
-              Task { await viewModel.toggleFavorite(friend) }
-            } label: {
-              if friend.isFavorite {
-                Label {
-                  Text("Unfavorite", bundle: .module)
-                } icon: {
-                  Image(systemName: "star.slash")
-                }
-              } else {
-                Label {
-                  Text("Favorite", bundle: .module)
-                } icon: {
-                  Image(systemName: "star")
-                }
-              }
-            }
-            Button(role: .destructive) {
-              Task { await viewModel.delete(friend) }
-            } label: {
-              Label {
-                Text("Delete", bundle: .module)
-              } icon: {
-                Image(systemName: "trash")
-              }
+        }
+        if !others.isEmpty {
+          Section {
+            rows(others)
+          } header: {
+            // A lone section needs no heading.
+            if !favorites.isEmpty {
+              Text("Friends", bundle: .module)
             }
           }
         }
       }
+      .overlay {
+        if matches.isEmpty {
+          ContentUnavailableView.search(text: searchText)
+        }
+      }
+      .searchable(text: $searchText, prompt: Text("Search Friends", bundle: .module))
       .refreshable {
         await viewModel.load()
       }
@@ -168,6 +149,79 @@ struct FriendsListView: View {
       }
     }
   }
+
+  private func matching(_ friends: [Friend]) -> [Friend] {
+    let query = searchText.trimmingCharacters(in: .whitespaces)
+    guard !query.isEmpty else { return friends }
+    return friends.filter { $0.name.localizedStandardContains(query) }
+  }
+
+  private func rows(_ friends: [Friend]) -> some View {
+    ForEach(friends) { friend in
+      NavigationLink(value: friend) {
+        FriendRow(friend: friend)
+      }
+      .swipeActions(edge: .leading, allowsFullSwipe: true) {
+        Button {
+          Task { await viewModel.toggleFavorite(friend) }
+        } label: {
+          if friend.isFavorite {
+            Label {
+              Text("Unfavorite", bundle: .module)
+            } icon: {
+              Image(systemName: "star.slash")
+            }
+          } else {
+            Label {
+              Text("Favorite", bundle: .module)
+            } icon: {
+              Image(systemName: "star")
+            }
+          }
+        }
+        .tint(.yellow)
+      }
+      .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+        Button(role: .destructive) {
+          Task { await viewModel.delete(friend) }
+        } label: {
+          Label {
+            Text("Delete", bundle: .module)
+          } icon: {
+            Image(systemName: "trash")
+          }
+        }
+      }
+      .contextMenu {
+        Button {
+          Task { await viewModel.toggleFavorite(friend) }
+        } label: {
+          if friend.isFavorite {
+            Label {
+              Text("Unfavorite", bundle: .module)
+            } icon: {
+              Image(systemName: "star.slash")
+            }
+          } else {
+            Label {
+              Text("Favorite", bundle: .module)
+            } icon: {
+              Image(systemName: "star")
+            }
+          }
+        }
+        Button(role: .destructive) {
+          Task { await viewModel.delete(friend) }
+        } label: {
+          Label {
+            Text("Delete", bundle: .module)
+          } icon: {
+            Image(systemName: "trash")
+          }
+        }
+      }
+    }
+  }
 }
 
 private struct FriendRow: View {
@@ -175,30 +229,32 @@ private struct FriendRow: View {
 
   var body: some View {
     HStack(spacing: 12) {
-      ZStack(alignment: .bottomTrailing) {
-        Image(systemName: "person.crop.circle.fill")
-          .font(.system(size: 36))
-          .foregroundStyle(.tertiary)
-
-        if friend.hasScheduleNow {
-          Circle()
-            .fill(.green)
-            .frame(width: 12, height: 12)
-            .overlay(
-              Circle().stroke(Color.systemGroupedBackground, lineWidth: 2)
-            )
+      InitialsCircle(name: friend.name, diameter: 44)
+        .overlay(alignment: .bottomTrailing) {
+          if friend.hasScheduleNow == true {
+            Circle()
+              .fill(.green)
+              .frame(width: 13, height: 13)
+              .overlay(Circle().stroke(Color.secondarySystemGroupedBackground, lineWidth: 2))
+          }
         }
-      }
 
       VStack(alignment: .leading, spacing: 2) {
         Text(friend.name)
           .font(.body)
           .foregroundStyle(.primary)
 
-        if friend.hasScheduleNow {
-          Text("In class now", bundle: .module)
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        // Nothing between semesters, when the server can't tell.
+        if let inClass = friend.hasScheduleNow {
+          Group {
+            if inClass {
+              Text("In class now", bundle: .module)
+            } else {
+              Text("Not in class", bundle: .module)
+            }
+          }
+          .font(.subheadline)
+          .foregroundStyle(inClass ? AnyShapeStyle(.green) : AnyShapeStyle(.secondary))
         }
       }
 
@@ -208,9 +264,11 @@ private struct FriendRow: View {
         Image(systemName: "star.fill")
           .font(.footnote)
           .foregroundStyle(.yellow)
+          .accessibilityLabel(Text("Favorite", bundle: .module))
       }
     }
-    .padding(.vertical, 4)
+    .padding(.vertical, 2)
+    .accessibilityElement(children: .combine)
   }
 }
 

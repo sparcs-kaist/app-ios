@@ -13,6 +13,7 @@ enum FriendsListViewEvent: Event {
   case friendAdded
   case friendDeleted
   case favoriteToggled
+  case sharedTimetableChanged
 
   var source: String { "FriendsListView" }
 
@@ -26,6 +27,8 @@ enum FriendsListViewEvent: Event {
       "friend_deleted"
     case .favoriteToggled:
       "friend_favorite_toggled"
+    case .sharedTimetableChanged:
+      "friend_shared_timetable_changed"
     }
   }
 

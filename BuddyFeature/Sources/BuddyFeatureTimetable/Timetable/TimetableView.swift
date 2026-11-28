@@ -57,10 +57,6 @@ public struct TimetableView: View {
   /// layout; see `FoldSplit`.
   @State private var foldSplit: FoldSplit?
 
-  @State private var showFriendsList: Bool = false
-
-  @Namespace private var friendsTransition
-
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -100,10 +96,9 @@ public struct TimetableView: View {
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) {
             Button(String(localized: "Friends", bundle: .module), systemImage: "person.2") {
-              showFriendsList = true
+              path.append(TimetableRoute.friends)
             }
           }
-          .matchedTransitionSource(id: "friends", in: friendsTransition)
 
           ToolbarSpacer(.fixed, placement: .topBarTrailing)
 
@@ -139,11 +134,12 @@ public struct TimetableView: View {
           case .credits:
             CreditCalculationView(viewModel: creditViewModel)
               .navigationTransition(.zoom(sourceID: CreditsSummaryCard.transitionID, in: creditsTransition))
+          case .friends:
+            // On the path rather than `isPresented`, so a friend it pushes by value lands above it.
+            // No zoom from the toolbar button: it hid the Friends list's leading toolbar item
+            // on the first push.
+            FriendsListView()
           }
-        }
-        .navigationDestination(isPresented: $showFriendsList) {
-          FriendsListView()
-            .navigationTransition(.zoom(sourceID: "friends", in: friendsTransition))
         }
         .sheet(item: $selectedLecture) { (item: LectureItem) in
           NavigationStack {
@@ -685,6 +681,7 @@ public struct TimetableView: View {
 enum TimetableRoute: Hashable {
   case lectureSearch
   case credits
+  case friends
 }
 
 struct TimetableShareImage: Identifiable {
