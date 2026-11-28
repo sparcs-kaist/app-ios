@@ -77,8 +77,8 @@ struct NearbyFriendUseCaseTests {
   let clock = TestClock()
 
   private func pair() async -> (Phone, Phone) {
-    let alice = await Phone.make(name: "Alice", code: "ALI456", relay: relay, clock: clock)
-    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
+    let alice = await Phone.make(name: "Alice", code: "ALEC47", relay: relay, clock: clock)
+    let bob = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock)
     await alice.sees(bob, clock: clock)
     await bob.sees(alice, clock: clock)
     return (alice, bob)
@@ -96,15 +96,15 @@ struct NearbyFriendUseCaseTests {
   }
 
   @Test func reenteringPhoneReplacesItsOldBubble() async throws {
-    let alice = await Phone.make(name: "Alice", code: "ALI456", relay: relay, clock: clock)
-    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
-    let carol = await Phone.make(name: "Carol", code: "CAR789", relay: relay, clock: clock)
+    let alice = await Phone.make(name: "Alice", code: "ALEC47", relay: relay, clock: clock)
+    let bob = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock)
+    let carol = await Phone.make(name: "Carol", code: "CARL77", relay: relay, clock: clock)
     await alice.sees(bob, clock: clock)
     await alice.sees(carol, clock: clock)
 
     // Bob leaves Add Friends and comes straight back: same app launch, new session.
     await bob.useCase.stop()
-    let bobAgain = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock, useCase: bob.useCase)
+    let bobAgain = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock, useCase: bob.useCase)
     #expect(bobAgain.id != bob.id)
     await alice.sees(bobAgain, clock: clock)
 
@@ -118,9 +118,9 @@ struct NearbyFriendUseCaseTests {
   }
 
   @Test func differentLaunchesWithTheSameNameStaySeparate() async {
-    let alice = await Phone.make(name: "Alice", code: "ALI456", relay: relay, clock: clock)
-    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
-    let otherBob = await Phone.make(name: "Bob", code: "BOB999", relay: relay, clock: clock)
+    let alice = await Phone.make(name: "Alice", code: "ALEC47", relay: relay, clock: clock)
+    let bob = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock)
+    let otherBob = await Phone.make(name: "Bob", code: "DAVE99", relay: relay, clock: clock)
     await alice.sees(bob, clock: clock)
     await alice.sees(otherBob, clock: clock)
     #expect(await alice.useCase.visiblePeers().map(\.id) == [bob.id, otherBob.id])
@@ -136,14 +136,14 @@ struct NearbyFriendUseCaseTests {
     #expect(await alice.state(of: bob) == .added)
 
     await bob.useCase.stop()
-    let bobAgain = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock, useCase: bob.useCase)
+    let bobAgain = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock, useCase: bob.useCase)
     await alice.sees(bobAgain, clock: clock)
     #expect(await alice.useCase.visiblePeers() == [NearbyPeer(id: bobAgain.id, name: "Bob", state: .added)])
   }
 
   @Test func hidesFarAwayPeers() async {
-    let alice = await Phone.make(name: "Alice", code: "ALI456", relay: relay, clock: clock)
-    let near = await Phone.make(name: "Near", code: "NEAR11", relay: relay, clock: clock)
+    let alice = await Phone.make(name: "Alice", code: "ALEC47", relay: relay, clock: clock)
+    let near = await Phone.make(name: "Near", code: "NEAR44", relay: relay, clock: clock)
     let far = await Phone.make(name: "Far", code: "FARR33", relay: relay, clock: clock)
     await alice.sees(near, rssi: -45, clock: clock)
     await alice.sees(far, rssi: -95, clock: clock)
@@ -151,9 +151,9 @@ struct NearbyFriendUseCaseTests {
   }
 
   @Test func keepsFirstSeenOrderWhenSignalChanges() async {
-    let alice = await Phone.make(name: "Alice", code: "ALI456", relay: relay, clock: clock)
-    let first = await Phone.make(name: "First", code: "FRST11", relay: relay, clock: clock)
-    let second = await Phone.make(name: "Second", code: "SCND22", relay: relay, clock: clock)
+    let alice = await Phone.make(name: "Alice", code: "ALEC47", relay: relay, clock: clock)
+    let first = await Phone.make(name: "First", code: "FRTA44", relay: relay, clock: clock)
+    let second = await Phone.make(name: "Second", code: "CNDA77", relay: relay, clock: clock)
     let third = await Phone.make(name: "Third", code: "THRD33", relay: relay, clock: clock)
     // Heard in this order but resolved in one batch, weakest first.
     await alice.useCase.ingest(BeaconSighting(token: first.session.token, rssi: -75, seenAt: clock.now))
@@ -197,7 +197,7 @@ struct NearbyFriendUseCaseTests {
   }
 
   @Test func ignoresOwnTokenAndRejectsForgedPresence() async throws {
-    let alice = await Phone.make(name: "Alice", code: "ALI456", relay: relay, clock: clock)
+    let alice = await Phone.make(name: "Alice", code: "ALEC47", relay: relay, clock: clock)
     await alice.useCase.ingest(BeaconSighting(token: alice.session.token, rssi: -40, seenAt: clock.now))
 
     // A presence published under someone's token but with another key.
@@ -230,11 +230,11 @@ struct NearbyFriendUseCaseTests {
     #expect(await bob.state(of: alice) == .adding)
 
     try await alice.receive()
-    #expect(alice.friends.addedCodes == ["BOB123"])
+    #expect(alice.friends.addedCodes == ["DAVE39"])
     #expect(await alice.state(of: bob) == .added)
 
     try await bob.receive()
-    #expect(bob.friends.addedCodes == ["ALI456"])
+    #expect(bob.friends.addedCodes == ["ALEC47"])
     #expect(await bob.state(of: alice) == .added)
   }
 
@@ -249,8 +249,8 @@ struct NearbyFriendUseCaseTests {
     try await alice.receive()
     try await bob.receive()
 
-    #expect(alice.friends.addedCodes == ["BOB123"])
-    #expect(bob.friends.addedCodes == ["ALI456"])
+    #expect(alice.friends.addedCodes == ["DAVE39"])
+    #expect(bob.friends.addedCodes == ["ALEC47"])
     #expect(await alice.state(of: bob) == .added)
     #expect(await bob.state(of: alice) == .added)
   }
@@ -355,8 +355,8 @@ struct NearbyFriendUseCaseTests {
   }
 
   @Test func relayOnlyRequesterKeepsFullSixtySeconds() async throws {
-    let alice = await Phone.make(name: "Alice", code: "ALI456", relay: relay, clock: clock)
-    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
+    let alice = await Phone.make(name: "Alice", code: "ALEC47", relay: relay, clock: clock)
+    let bob = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock)
     // Alice hears Bob, but Bob never hears Alice over BLE.
     await alice.sees(bob, clock: clock)
     await alice.useCase.request(bob.id)
@@ -381,14 +381,14 @@ struct NearbyFriendUseCaseTests {
     // If adding fails, the confirm must already be on its way to Bob.
     alice.friends.addFriendResult = .failure(NetworkError.serverError(statusCode: 500))
     try await alice.receive()
-    #expect(alice.friends.addedCodes == ["BOB123"])
+    #expect(alice.friends.addedCodes == ["DAVE39"])
     #expect(await alice.state(of: bob) == .failed)
     let confirm = try #require(await relay.posted.last)
     #expect(await relay.posted.count == postedBeforeAccept + 1)
     #expect(confirm.lookupId == bob.session.lookupId)
 
     try await bob.receive()
-    #expect(bob.friends.addedCodes == ["ALI456"])
+    #expect(bob.friends.addedCodes == ["ALEC47"])
   }
 
   @Test func missingConfirmFailsThenRetrySendsFreshRequest() async throws {
@@ -416,7 +416,7 @@ struct NearbyFriendUseCaseTests {
     // The session-start load failed; the retry on accept succeeds.
     bob.friends.fetchMyCodeResult = .failure(NetworkError.notFound)
     await bob.useCase.loadMyCode()
-    bob.friends.fetchMyCodeResult = .success("BOB123")
+    bob.friends.fetchMyCodeResult = .success("DAVE39")
     await alice.useCase.request(bob.id)
     try await bob.receive()
     await bob.useCase.accept(alice.id)
@@ -424,7 +424,7 @@ struct NearbyFriendUseCaseTests {
     #expect(await bob.state(of: alice) == .adding)
 
     try await alice.receive()
-    #expect(alice.friends.addedCodes == ["BOB123"])
+    #expect(alice.friends.addedCodes == ["DAVE39"])
   }
 
   @Test func acceptFailsWhenCodeRetryFails() async throws {
@@ -440,7 +440,7 @@ struct NearbyFriendUseCaseTests {
     #expect(await relay.posted.allSatisfy { $0.lookupId != alice.session.lookupId })
 
     // Failed is retryable: tapping sends a fresh request.
-    bob.friends.fetchMyCodeResult = .success("BOB123")
+    bob.friends.fetchMyCodeResult = .success("DAVE39")
     await bob.useCase.request(alice.id)
     #expect(await bob.state(of: alice) == .requested)
   }
@@ -462,15 +462,15 @@ struct NearbyFriendUseCaseTests {
     #expect(await relay.posted.last?.lookupId == alice.session.lookupId)
 
     // Retrying with the code now available confirms and adds without asking again.
-    alice.friends.fetchMyCodeResult = .success("ALI456")
+    alice.friends.fetchMyCodeResult = .success("ALEC47")
     let postedBeforeRetry = await relay.posted.count
     await alice.useCase.request(bob.id)
     #expect(await relay.posted.count == postedBeforeRetry + 1)
     #expect(await relay.posted.last?.lookupId == bob.session.lookupId)
     #expect(await alice.state(of: bob) == .added)
-    #expect(alice.friends.addedCodes == ["BOB123"])
+    #expect(alice.friends.addedCodes == ["DAVE39"])
     try await bob.receive()
-    #expect(bob.friends.addedCodes == ["ALI456"])
+    #expect(bob.friends.addedCodes == ["ALEC47"])
   }
 
   @Test func duplicateMessagesAreIgnored() async throws {
@@ -483,7 +483,7 @@ struct NearbyFriendUseCaseTests {
     let accept = try #require(await relay.posted.last)
     await relay.inject(header: accept.header, body: accept.body, to: accept.lookupId)
     try await alice.receive()
-    #expect(alice.friends.addedCodes == ["BOB123"])
+    #expect(alice.friends.addedCodes == ["DAVE39"])
   }
 
   @Test func staleMessagesAreDropped() async throws {
@@ -545,7 +545,7 @@ struct NearbyFriendUseCaseTests {
     await alice.useCase.request(bob.id)
     #expect(await alice.state(of: bob) == .added)
     // Retrying re-adds the stored code instead of asking Bob again.
-    #expect(alice.friends.addedCodes == ["BOB123", "BOB123"])
+    #expect(alice.friends.addedCodes == ["DAVE39", "DAVE39"])
     #expect(await relay.posted.count == messagesBefore)
   }
 
@@ -568,7 +568,7 @@ struct NearbyFriendUseCaseTests {
   // MARK: - Presence expiry
 
   /// A phone with a beacon, prepared but not yet published.
-  private func beaconPhone(name: String = "Alice", code: String = "ALI456") async -> (NearbyFriendUseCase, MockNearbyBeaconService, MockFriendUseCase) {
+  private func beaconPhone(name: String = "Alice", code: String = "ALEC47") async -> (NearbyFriendUseCase, MockNearbyBeaconService, MockFriendUseCase) {
     let beacon = MockNearbyBeaconService()
     let friends = MockFriendUseCase()
     friends.fetchMyCodeResult = .success(code)
@@ -618,7 +618,7 @@ struct NearbyFriendUseCaseTests {
     let oldLookup = NearbyCrypto.lookupId(for: oldToken)
 
     // Bob was added before the app went to the background.
-    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
+    let bob = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock)
     await alice.ingest(BeaconSighting(token: bob.session.token, rssi: -50, seenAt: clock.now))
     await alice.tick()
     await alice.request(bob.id)
@@ -650,7 +650,7 @@ struct NearbyFriendUseCaseTests {
     let (alice, _, _) = await beaconPhone()
     await alice.publishPresence()
     let oldToken = try #require(await alice.session?.token)
-    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
+    let bob = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock)
     await alice.ingest(BeaconSighting(token: bob.session.token, rssi: -50, seenAt: clock.now))
     await alice.tick()
     await alice.request(bob.id)
@@ -710,7 +710,7 @@ struct NearbyFriendUseCaseTests {
       configuration: configuration,
       now: { Date() }
     )
-    let bob = await Phone.make(name: "Bob", code: "BOB123", relay: relay, clock: clock)
+    let bob = await Phone.make(name: "Bob", code: "DAVE39", relay: relay, clock: clock)
 
     let stream = useCase.start(displayName: "Alice")
     let consumer = Task { () -> [NearbyPeer]? in

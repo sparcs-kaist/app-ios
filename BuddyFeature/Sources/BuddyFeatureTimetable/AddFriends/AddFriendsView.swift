@@ -129,10 +129,10 @@ struct AddFriendsView: View {
 
   // MARK: - Code entry
 
-  /// Friend codes are six upper-cased ASCII letters and digits, so anything else
-  /// never reaches the field rather than being rejected after the fact.
+  /// Only what a friend code can hold reaches the field, rather than being rejected
+  /// after the fact.
   private func sanitizedCode(_ input: String) -> String {
-    String(input.filter { $0.isASCII && ($0.isLetter || $0.isNumber) }.prefix(6)).uppercased()
+    FriendCode.sanitized(input)
   }
 
   private func submitCode() {
