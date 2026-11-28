@@ -12,12 +12,12 @@ import BuddyDomain
 public enum OTLTimetableTarget {
   case fetchTables(year: Int, semester: Int)
   case fetchTablesBySemester
+  /// Lectures and activities together, as the web reads a timetable.
   case fetchTable(timetableID: Int)
   case fetchMyTable(year: Int, semester: Int)
   case createTable(year: Int, semester: Int)
   case deleteTable(timetableID: Int)
   case renameTable(timetableID: Int, title: String)
-  case fetchActivities(timetableID: Int)
   /// Lecture and activity changes, applied all together or not at all.
   case updateItems(timetableID: Int, changes: [TimetableItemChange])
   case fetchSemesters
@@ -36,11 +36,9 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
     case .fetchTablesBySemester:
       "/api/v2/timetables/by-semester"
     case .fetchTable(let timetableID):
-      "/api/v2/timetables/\(timetableID)"
+      "/api/v2/timetables/\(timetableID)/items"
     case .fetchMyTable:
       "/api/v2/timetables/my-timetable"
-    case .fetchActivities(let id):
-      "/api/v2/timetables/\(id)/custom-blocks"
     case .updateItems(let id, _):
       "/api/v2/timetables/\(id)/items"
     case .fetchSemesters:
@@ -55,7 +53,6 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
     case .fetchTables,
          .fetchTablesBySemester,
          .fetchTable,
-         .fetchActivities,
          .fetchMyTable,
          .fetchSemesters,
          .fetchCurrentSemester:
@@ -92,23 +89,37 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
           "name": title
         ], encoding: JSONEncoding.default)
     case .updateItems(_, let changes):
-        .requestParameters(parameters: [
-          "changes": changes.map(Self.parameters)
-        ], encoding: JSONEncoding.default)
-    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester, .fetchActivities:
+        .requestParameters(parameters: Self.parameters(for: changes), encoding: JSONEncoding.default)
+    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester:
         .requestPlain
     }
   }
 
-  private static func parameters(for change: TimetableItemChange) -> [String: Any] {
-    switch change {
-    case .addLecture(let lectureID): ["op": "add", "kind": "lecture", "lectureId": lectureID]
-    case .removeLecture(let lectureID): ["op": "remove", "kind": "lecture", "id": lectureID]
-    case .addActivity(let draft): ["op": "add", "kind": "custom", "data": parameters(for: draft)]
-    case .updateActivity(let activityID, let draft):
-      ["op": "update", "kind": "custom", "id": activityID, "data": parameters(for: draft)]
-    case .removeActivity(let activityID): ["op": "remove", "kind": "custom", "id": activityID]
+  /// The grouped body the web sends. The server applies deletes, then updates,
+  /// then adds, all at once; every group must be present, even when empty.
+  private static func parameters(for changes: [TimetableItemChange]) -> [String: Any] {
+    var addLectureIDs: [Int] = []
+    var addBlocks: [[String: Any]] = []
+    var deleteLectureIDs: [Int] = []
+    var deleteBlockIDs: [Int] = []
+    var updateBlocks: [[String: Any]] = []
+
+    for change in changes {
+      switch change {
+      case .addLecture(let lectureID): addLectureIDs.append(lectureID)
+      case .removeLecture(let lectureID): deleteLectureIDs.append(lectureID)
+      case .addActivity(let draft): addBlocks.append(parameters(for: draft))
+      case .updateActivity(let activityID, let draft):
+        updateBlocks.append(parameters(for: draft).merging(["id": activityID]) { $1 })
+      case .removeActivity(let activityID): deleteBlockIDs.append(activityID)
+      }
     }
+
+    return [
+      "adds": ["lectureIds": addLectureIDs, "customBlocks": addBlocks],
+      "deletes": ["lectureIds": deleteLectureIDs, "customBlockIds": deleteBlockIDs],
+      "updates": ["customBlocks": updateBlocks]
+    ]
   }
 
   /// `times` carries every range and replaces the block's existing ones on

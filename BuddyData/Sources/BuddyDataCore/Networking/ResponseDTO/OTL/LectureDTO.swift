@@ -18,7 +18,8 @@ public struct LectureDTO: Codable {
   public let department: DepartmentDTO
   public let type: String
   public let limitPeople: Int
-  public let numPeople: Int
+  /// `null` for some lectures in the wishlist response.
+  public let numPeople: Int?
   public let credit: Int
   public let creditAU: Int
   public let averageGrade: Double
@@ -45,7 +46,7 @@ public extension LectureDTO {
       department: department.toModel(),
       type: LectureType.fromRawValue(type),
       capacity: limitPeople,
-      enrolledCount: numPeople,
+      enrolledCount: numPeople ?? 0,
       credit: credit,
       creditAU: creditAU,
       grade: averageGrade,

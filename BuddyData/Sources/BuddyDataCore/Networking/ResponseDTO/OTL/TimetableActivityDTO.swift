@@ -1,11 +1,6 @@
 import Foundation
 import BuddyDomain
 
-struct TimetableActivityListDTO: Decodable {
-  let customBlocks: [TimetableActivityDTO]
-  enum CodingKeys: String, CodingKey { case customBlocks = "custom_blocks" }
-}
-
 struct TimetableActivityDTO: Decodable {
   struct TimeDTO: Decodable {
     let day: DayType

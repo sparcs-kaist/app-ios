@@ -29,14 +29,7 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
 
   public func getTable(timetableID: Int) async throws -> Timetable {
     let response = try await self.provider.request(.fetchTable(timetableID: timetableID))
-    var timetable = try response.map(TimetableDTO.self).toModel(id: String(timetableID))
-    timetable.activities = try await getActivities(timetableID: timetableID)
-    return timetable
-  }
-
-  public func getActivities(timetableID: Int) async throws -> [TimetableActivity] {
-    let response = try await provider.request(.fetchActivities(timetableID: timetableID))
-    return try response.map(TimetableActivityListDTO.self).customBlocks.map { $0.toModel() }
+    return try response.map(TimetableDTO.self).toModel(id: String(timetableID))
   }
 
   public func createActivity(timetableID: Int, draft: TimetableActivityDraft) async throws {
@@ -54,15 +47,12 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
   /// Every lecture and activity change goes through the batch endpoint, which
   /// checks overlaps against the server's own copy, times this client can't see
   /// included.
-  @discardableResult
-  public func updateItems(timetableID: Int, changes: [TimetableItemChange]) async throws -> [Int] {
-    let response: Response
+  public func updateItems(timetableID: Int, changes: [TimetableItemChange]) async throws {
     do {
-      response = try await provider.request(.updateItems(timetableID: timetableID, changes: changes))
+      _ = try await provider.request(.updateItems(timetableID: timetableID, changes: changes))
     } catch NetworkError.serverError(statusCode: 409) {
       throw TimetableActivityError.overlap
     }
-    return try response.map(TimetableItemsUpdateDTO.self).results.sorted { $0.index < $1.index }.map(\.id)
   }
 
   public func createTable(year: Int, semester: SemesterType) async throws -> TableCreation {

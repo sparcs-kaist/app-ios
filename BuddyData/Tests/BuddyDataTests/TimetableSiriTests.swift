@@ -491,7 +491,6 @@ struct TimetableSiriPlumbingTests {
     let spy = IndexingSpy()
     let useCase = TimetableUseCase(
       otlTimetableRepository: repository { target in
-        if case .fetchActivities = target { return self.response(#"{"custom_blocks":[]}"#) }
         return self.response(#"{"lectures":[]}"#)
       },
       cache: TimetableCache(modelContainer: try makeContainer()),
@@ -525,7 +524,6 @@ struct TimetableSiriPlumbingTests {
         case .fetchSemesters: return self.response("{\"semesters\":[\(semesterJSON)]}")
         case .fetchCurrentSemester: return self.response(semesterJSON)
         case .fetchTables: return self.response(#"{"timetables":[{"id":42,"name":"Plan B","year":2026,"semester":3,"timeTableOrder":0}]}"#)
-        case .fetchActivities: return self.response(#"{"custom_blocks":[]}"#)
         default: return self.response(#"{"lectures":[]}"#)
         }
       },

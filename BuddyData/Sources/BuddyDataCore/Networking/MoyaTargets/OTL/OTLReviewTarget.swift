@@ -55,7 +55,7 @@ extension OTLReviewTarget: TargetType, AccessTokenAuthorizable {
       return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
     case .writeReview(let lectureID, let content, let grade, let load, let speech):
         return .requestParameters(parameters: [
-          "lecture": lectureID,
+          "lectureId": lectureID,
           "content": content,
           "grade": grade,
           "load": load,

@@ -12,7 +12,8 @@ public struct FriendDTO: Decodable {
   public let id: Int
   public let name: String
   public let isFavorite: Bool
-  public let hasScheduleNow: Bool
+  /// `null` while no semester is running.
+  public let hasScheduleNow: Bool?
 }
 
 public extension FriendDTO {
@@ -21,7 +22,7 @@ public extension FriendDTO {
       id: id,
       name: name,
       isFavorite: isFavorite,
-      hasScheduleNow: hasScheduleNow
+      hasScheduleNow: hasScheduleNow ?? false
     )
   }
 }
