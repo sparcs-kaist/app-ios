@@ -7,6 +7,7 @@
 
 import SwiftUI
 import BuddyDomain
+import TimetableUI
 
 struct LectureList: View {
 	let lectures: [Lecture]?
@@ -53,6 +54,8 @@ struct LectureList: View {
 				
 				ForEach(activities) { activity in
 					ActivityListRow(activity: activity)
+						.contentShape(.rect)
+						.activityDetailsPopover(activity)
 					
 					if activity.id != activities.last?.id {
 						Divider()

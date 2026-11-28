@@ -81,6 +81,51 @@ struct TimetableActivityCell: View {
   }
 }
 
+/// What a custom block is: its title, every time range and its place. Read-only, so it
+/// serves a friend's blocks as well as the user's own.
+public struct TimetableActivityDetails: View {
+  let activity: TimetableActivity
+
+  public init(activity: TimetableActivity) {
+    self.activity = activity
+  }
+
+  public var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text(activity.title)
+        .font(.headline)
+
+      // A block can repeat on several days; each gets a line.
+      ForEach(Array(activity.times.enumerated()), id: \.offset) { _, time in
+        Label {
+          Text("\(time.day.stringValue) \(Date.formattedTimeRange(minutesPastMidnight: time.begin, to: time.end))")
+        } icon: {
+          Image(systemName: "clock")
+        }
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+      }
+
+      if !activity.location.isEmpty {
+        Label(activity.location, systemImage: "mappin.and.ellipse")
+          .font(.subheadline)
+          .foregroundStyle(.secondary)
+      }
+    }
+    .frame(idealWidth: 240, maxWidth: 280, alignment: .leading)
+    .fixedSize(horizontal: false, vertical: true)
+    .padding()
+    .accessibilityIdentifier("activity.details")
+  }
+}
+
+public extension View {
+  /// Shows the block's details in a popover when tapped, as a block in the grid does.
+  func activityDetailsPopover(_ activity: TimetableActivity) -> some View {
+    modifier(ActivityPopoverModifier(activity: activity, isEnabled: true))
+  }
+}
+
 private struct ActivityPopoverModifier: ViewModifier {
   let activity: TimetableActivity
   let isEnabled: Bool
@@ -96,27 +141,15 @@ private struct ActivityPopoverModifier: ViewModifier {
     if isEnabled {
       content
         .onTapGesture {
-					isPresented = true
-					#if os(iOS)
-					UISelectionFeedbackGenerator().selectionChanged()
-					#endif
-				}
+          isPresented = true
+          #if os(iOS)
+          UISelectionFeedbackGenerator().selectionChanged()
+          #endif
+        }
         .accessibilityAddTraits(.isButton)
         .popover(isPresented: $isPresented) {
-          VStack(alignment: .leading, spacing: 8) {
-            Text(activity.title)
-              .font(.headline)
-            if !activity.location.isEmpty {
-              Label(activity.location, systemImage: "mappin.and.ellipse")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            }
-          }
-          .frame(idealWidth: 240, maxWidth: 280, alignment: .leading)
-          .fixedSize(horizontal: false, vertical: true)
-          .padding()
-          .accessibilityIdentifier("activity.details")
-          .presentationCompactAdaptation(.popover)
+          TimetableActivityDetails(activity: activity)
+            .presentationCompactAdaptation(.popover)
         }
     } else {
       content
