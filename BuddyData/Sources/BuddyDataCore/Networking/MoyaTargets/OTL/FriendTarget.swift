@@ -14,6 +14,8 @@ public enum FriendTarget {
   case deleteFriend(id: Int)
   case setFavorite(id: Int, isFavorite: Bool)
   case fetchMyCode
+  case fetchSharedSemesters(friendID: Int)
+  case fetchSharedTimetable(friendID: Int, year: Int, semester: Int)
 }
 
 extension FriendTarget: TargetType, AccessTokenAuthorizable {
@@ -31,12 +33,16 @@ extension FriendTarget: TargetType, AccessTokenAuthorizable {
       "/api/v2/friends/\(id)/favorite"
     case .fetchMyCode:
       "/api/v2/friends/code"
+    case .fetchSharedSemesters(let friendID):
+      "/api/v2/friends/\(friendID)/timetables/shared/semesters"
+    case .fetchSharedTimetable(let friendID, _, _):
+      "/api/v2/friends/\(friendID)/timetables/shared"
     }
   }
 
   public var method: Moya.Method {
     switch self {
-    case .fetchFriends, .fetchMyCode:
+    case .fetchFriends, .fetchMyCode, .fetchSharedSemesters, .fetchSharedTimetable:
       .get
     case .addFriend:
       .post
@@ -53,14 +59,18 @@ extension FriendTarget: TargetType, AccessTokenAuthorizable {
       .requestParameters(parameters: ["code": code], encoding: JSONEncoding.default)
     case .setFavorite(_, let isFavorite):
       .requestParameters(parameters: ["isFavorite": isFavorite], encoding: JSONEncoding.default)
-    case .fetchFriends, .deleteFriend, .fetchMyCode:
+    case .fetchSharedTimetable(_, let year, let semester):
+      .requestParameters(parameters: ["year": year, "semester": semester], encoding: URLEncoding.queryString)
+    case .fetchFriends, .deleteFriend, .fetchMyCode, .fetchSharedSemesters:
       .requestPlain
     }
   }
 
   public var headers: [String: String]? {
     var headers = [
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      // Lecture and department names in a friend's timetable follow it, like the other OTL targets.
+      "Accept-Language": Bundle.main.preferredLocalizations.first ?? "ko"
     ]
 
     #if DEBUG

@@ -27,6 +27,23 @@ public final class OTLTimetableRepository: OTLTimetableRepositoryProtocol, Senda
     return result.timetables.compactMap { $0.toModel() }
   }
 
+  public func getSharing(year: Int, semester: SemesterType) async throws -> TimetableSharing {
+    let response = try await provider.request(.fetchTables(year: year, semester: semester.intValue))
+    return try response.map(TimetableSharingDTO.self).toModel()
+  }
+
+  public func getSharedSemesters() async throws -> [FriendTimetableTerm] {
+    let response = try await provider.request(.fetchSharedSemesters)
+    // Same shape as a friend's list of shared semesters.
+    return try response.map(FriendSharedSemestersDTO.self).toModel()
+  }
+
+  public func setSharedTimetable(year: Int, semester: SemesterType, timetableID: Int?) async throws {
+    _ = try await provider.request(
+      .setSharedTimetable(year: year, semester: semester.intValue, timetableID: timetableID)
+    )
+  }
+
   public func getTable(timetableID: Int) async throws -> Timetable {
     let response = try await self.provider.request(.fetchTable(timetableID: timetableID))
     return try response.map(TimetableDTO.self).toModel(id: String(timetableID))

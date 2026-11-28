@@ -17,6 +17,12 @@ public protocol OTLTimetableRepositoryProtocol: Sendable {
   func renameTable(timetableID: Int, title: String) async throws
   func getSemesters() async throws -> [Semester]
   func getCurrentSemester() async throws -> Semester
+  /// The semester's timetables and which one friends see.
+  func getSharing(year: Int, semester: SemesterType) async throws -> TimetableSharing
+  /// The semesters the user shares a timetable or enrolled lectures in, newest first.
+  func getSharedSemesters() async throws -> [FriendTimetableTerm]
+  /// Shares `timetableID` with every friend for the semester, or the enrolled lectures when it's `nil`.
+  func setSharedTimetable(year: Int, semester: SemesterType, timetableID: Int?) async throws
 
   // Every edit returns the whole timetable as the server holds it afterwards, so
   // callers can show it without fetching it again. It is `nil` only when the edit

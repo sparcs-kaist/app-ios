@@ -451,6 +451,13 @@ extension Container: @retroactive AutoRegistering {
       )
     }
 
+    timetableSharingUseCase.register {
+      TimetableSharingUseCase(
+        otlTimetableRepository: self.otlTimetableRepository.resolve(),
+        crashlyticsService: self.crashlyticsService.resolve()
+      )
+    }
+
     nearbyFriendUseCase.register {
       NearbyFriendUseCase(
         beaconService: self.nearbyBeaconService.resolve(),

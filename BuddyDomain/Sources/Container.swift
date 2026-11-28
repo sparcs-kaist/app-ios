@@ -174,4 +174,8 @@ extension Container {
   public var nearbyFriendUseCase: Factory<NearbyFriendUseCaseProtocol?> {
     promised()
   }
+
+  public var timetableSharingUseCase: Factory<TimetableSharingUseCaseProtocol?> {
+    promised()
+  }
 }

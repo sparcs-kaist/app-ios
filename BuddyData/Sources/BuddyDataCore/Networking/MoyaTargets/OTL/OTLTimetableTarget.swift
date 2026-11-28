@@ -22,6 +22,10 @@ public enum OTLTimetableTarget {
   case updateItems(timetableID: Int, changes: [TimetableItemChange])
   case fetchSemesters
   case fetchCurrentSemester
+  /// Shares `timetableID` with every friend, or the enrolled lectures when it's `nil`.
+  case setSharedTimetable(year: Int, semester: Int, timetableID: Int?)
+  /// The semesters the user shares a timetable or enrolled lectures in.
+  case fetchSharedSemesters
 }
 
 extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
@@ -45,6 +49,10 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
       "/api/v2/semesters"
     case .fetchCurrentSemester:
       "/api/v2/semesters/current"
+    case .setSharedTimetable:
+      "/api/v2/timetables/shared"
+    case .fetchSharedSemesters:
+      "/api/v2/timetables/shared/semesters"
     }
   }
 
@@ -55,11 +63,12 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
          .fetchTable,
          .fetchMyTable,
          .fetchSemesters,
-         .fetchCurrentSemester:
+         .fetchCurrentSemester,
+         .fetchSharedSemesters:
         .get
     case .createTable:
         .post
-    case .renameTable, .updateItems:
+    case .renameTable, .updateItems, .setSharedTimetable:
         .patch
     case .deleteTable:
         .delete
@@ -90,7 +99,14 @@ extension OTLTimetableTarget: TargetType, AccessTokenAuthorizable {
         ], encoding: JSONEncoding.default)
     case .updateItems(_, let changes):
         .requestParameters(parameters: Self.parameters(for: changes), encoding: JSONEncoding.default)
-    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester:
+    case .setSharedTimetable(let year, let semester, let timetableID):
+        // `null` is how the server is told to share the enrolled lectures.
+        .requestParameters(parameters: [
+          "year": year,
+          "semester": semester,
+          "timetableId": timetableID.map { $0 as Any } ?? NSNull()
+        ], encoding: JSONEncoding.default)
+    case .fetchTablesBySemester, .fetchTable, .fetchSemesters, .fetchCurrentSemester, .fetchSharedSemesters:
         .requestPlain
     }
   }

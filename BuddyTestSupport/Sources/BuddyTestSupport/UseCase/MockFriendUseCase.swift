@@ -16,6 +16,10 @@ public final class MockFriendUseCase: FriendUseCaseProtocol, @unchecked Sendable
   public var deleteFriendResult: Result<Void, Error> = .success(())
   public var setFavoriteResult: Result<Void, Error> = .success(())
   public var fetchMyCodeResult: Result<String, Error> = .success("ACD347")
+  public var fetchSharedTimetableTermsResult: Result<[FriendTimetableTerm], Error> = .success([])
+  /// Keyed by term; a term with no entry fails with `NetworkError.notFound`.
+  public var sharedTimetables: [FriendTimetableTerm: Result<FriendTimetable, Error>] = [:]
+  public private(set) var requestedTerms: [FriendTimetableTerm] = []
   public private(set) var addedCodes: [String] = []
   public private(set) var fetchMyCodeCallCount = 0
 
@@ -41,5 +45,15 @@ public final class MockFriendUseCase: FriendUseCaseProtocol, @unchecked Sendable
   public func fetchMyCode() async throws -> String {
     fetchMyCodeCallCount += 1
     return try fetchMyCodeResult.get()
+  }
+
+  public func fetchSharedTimetableTerms(friendID: Int) async throws -> [FriendTimetableTerm] {
+    try fetchSharedTimetableTermsResult.get()
+  }
+
+  public func fetchSharedTimetable(friendID: Int, term: FriendTimetableTerm) async throws -> FriendTimetable {
+    requestedTerms.append(term)
+    guard let result = sharedTimetables[term] else { throw NetworkError.notFound }
+    return try result.get()
   }
 }
