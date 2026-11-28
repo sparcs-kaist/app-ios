@@ -249,7 +249,6 @@ public actor AuthUseCase: AuthUseCaseProtocol {
       try await otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
       // MARK: Sign up Taxi
-      // The Buddy backend no longer creates Taxi accounts, so this is the only place one is made.
       step = .taxi
       try await taxiUserRepository.bootstrap(ssoInfo: tokenResponse.ssoInfo)
 
