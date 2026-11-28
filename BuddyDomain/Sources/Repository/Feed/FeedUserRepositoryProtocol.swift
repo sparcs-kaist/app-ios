@@ -8,6 +8,5 @@
 import Foundation
 
 public protocol FeedUserRepositoryProtocol: Sendable {
-  func register(ssoInfo: String) async throws
   func fetchUser() async throws -> FeedUser
 }

@@ -19,8 +19,8 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   private let authenticationService: AuthenticationServiceProtocol
   private let tokenStorage: TokenStorageProtocol
   private let araUserRepository: AraUserRepositoryProtocol?
-  private let feedUserRepository: FeedUserRepositoryProtocol?
   private let otlUserRepository: OTLUserRepositoryProtocol?
+  private let taxiUserRepository: TaxiUserRepositoryProtocol?
 
   // `CurrentValueSubject` is internally thread-safe, so it is marked
   // `nonisolated(unsafe)` to let the auth-state publisher be read and observed
@@ -38,6 +38,7 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   // `await`, actor isolation guarantees only one refresh task is ever created —
   // replacing the previous `Mutex`.
   private var refreshTask: Task<Void, Error>?
+  private var isSigningOut = false
   private var lastFailure: Date?
   private let refreshCooldown: TimeInterval = 10
 
@@ -55,14 +56,14 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     authenticationService: AuthenticationServiceProtocol,
     tokenStorage: TokenStorageProtocol,
     araUserRepository: AraUserRepositoryProtocol?,
-    feedUserRepository: FeedUserRepositoryProtocol?,
-    otlUserRepository: OTLUserRepositoryProtocol?
+    otlUserRepository: OTLUserRepositoryProtocol?,
+    taxiUserRepository: TaxiUserRepositoryProtocol?
   ) {
     self.authenticationService = authenticationService
     self.tokenStorage = tokenStorage
     self.araUserRepository = araUserRepository
-    self.feedUserRepository = feedUserRepository
     self.otlUserRepository = otlUserRepository
+    self.taxiUserRepository = taxiUserRepository
 
     let hasValidAccessToken = tokenStorage.getAccessToken() != nil && !tokenStorage.isTokenExpired()
     let hasRefreshToken = tokenStorage.getRefreshToken() != nil
@@ -142,6 +143,8 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func refreshAccessToken(force: Bool) async throws {
+    guard !isSigningOut else { throw NetworkError.unauthorized }
+
     // Coalesce concurrent callers onto the in-flight refresh, if any.
     if let refreshTask {
       try await refreshTask.value
@@ -186,14 +189,19 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     }
 
     do {
+      let authenticationService = self.authenticationService
+      let tokenStorage = self.tokenStorage
       // Mark the in-flight refresh on the task-local
-      let tokenResponse: TokenResponse = try await AuthRetryConfig.$isRefreshing.withValue(true) {
-        try await self.authenticationService.refreshAccessToken(
-          refreshToken: currentRefreshToken
-        )
+      try await AuthRetryConfig.$isRefreshing.withValue(true) {
+        try await AuthTokenRefreshCoordinator.shared.refresh(
+          refreshToken: currentRefreshToken,
+          tokenStorage: tokenStorage
+        ) {
+          try await authenticationService.refreshAccessToken(
+            refreshToken: currentRefreshToken
+          )
+        }
       }
-      try tokenStorage
-        .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
       _isAuthenticatedSubject.value = true
       lastFailure = nil
       logger.info("Successfully refreshed access token.")
@@ -223,21 +231,26 @@ public actor AuthUseCase: AuthUseCaseProtocol {
   }
 
   public func signIn() async throws {
-    guard let araUserRepository, let feedUserRepository, let otlUserRepository else { return }
+    guard let araUserRepository, let otlUserRepository, let taxiUserRepository else { return }
+    // Tracks which service is being contacted so a failure can tell the user which one broke.
+    var step: SignInStep = .sso
     do {
       let tokenResponse: SignInResponse = try await authenticationService.authenticate()
       try tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
 
       // MARK: Sign up Ara
+      step = .ara
       let userInfo: AraSignInResponse = try await araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
       try? await araUserRepository.agreeTOS(userID: userInfo.userID)
 
-      // MARK: Sign up Feed
-      try await feedUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
-
       // MARK: Sign up OTL
+      step = .otl
       try await otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
+
+      // MARK: Sign up Taxi
+      step = .taxi
+      try await taxiUserRepository.bootstrap(ssoInfo: tokenResponse.ssoInfo)
 
       _isAuthenticatedSubject.value = true
       logger.info("Signed in.")
@@ -246,18 +259,44 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     } catch {
       tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
-      logger.error("Sign in failed: \(error.localizedDescription, privacy: .public)")
+      logger.error("Sign in failed at \(String(describing: step), privacy: .public): \(error.localizedDescription, privacy: .public)")
       cancelRefreshTimer()
-      throw AuthUseCaseError.signInFailed(error)
+      throw AuthUseCaseError.signInFailed(step: step, error)
     }
   }
 
   public func signOut() async throws {
+    guard !isSigningOut else { return }
+    isSigningOut = true
+    defer { isSigningOut = false }
+    let tokenStorage = self.tokenStorage
+    let authenticationService = self.authenticationService
+
+    // Wait for any refresh already in progress so logout uses the rotated token.
+    if let refreshTask {
+      try? await refreshTask.value
+    }
+
+    do {
+      try await AuthTokenRefreshCoordinator.shared.withExclusiveAccess {
+        if let refreshToken = try? tokenStorage.readRefreshToken() {
+          do {
+            try await authenticationService.logout(refreshToken: refreshToken)
+          } catch {
+            logger.error("Remote sign out failed: \(error.localizedDescription, privacy: .public)")
+          }
+        }
+        tokenStorage.clearTokens()
+      }
+    } catch {
+      logger.error("Unable to coordinate sign out: \(error.localizedDescription, privacy: .public)")
+      tokenStorage.clearTokens()
+    }
+
     TimetableSelectionStore().clear()
     if let container = TimetableCacheContainer.shared {
       TimetableCache(modelContainer: container).clear()
     }
-    tokenStorage.clearTokens()
     // After the tokens and cache, so a rebuild still running finishes first and is
     // wiped, and later ones see no session. The next account on this device must
     // not inherit this schedule in Siri or Spotlight.

@@ -538,6 +538,22 @@
         }
       }
     },
+    "Failed to sign in to %@. Please try again later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to sign in to %@. Please try again later."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@에 로그인하지 못했습니다. 잠시 후 다시 시도해 주세요."
+          }
+        }
+      }
+    },
     "False Information" : {
       "localizations" : {
         "en" : {
@@ -1205,22 +1221,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "성인 컨텐츠"
-          }
-        }
-      }
-    },
-    "Sign in failed: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in failed: %@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "로그인 실패: %@"
           }
         }
       }

@@ -9,6 +9,7 @@ import Foundation
 import Moya
 
 public enum TaxiUserTarget {
+  case bootstrap(ssoInfo: String)
   case fetchUserInfo
   case editBadge(badge: Bool)
   case editBankAccount(account: String)
@@ -29,6 +30,8 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
 
   public var path: String {
     switch self {
+    case .bootstrap:
+      "/auth/buddy/bootstrap"
     case .fetchUserInfo:
       "/logininfo"
     case .editBadge:
@@ -58,14 +61,16 @@ extension TaxiUserTarget: TargetType, AccessTokenAuthorizable {
     switch self {
     case .fetchUserInfo, .fetchReports, .fetchFavoriteRoutes:
       .get
-    case .editBadge, .editBankAccount, .registerPhoneNumber, .editNickname, .registerResidence, .deleteResidence,
-        .createFavoriteRoute, .deleteFavoriteRoute:
+    case .bootstrap, .editBadge, .editBankAccount, .registerPhoneNumber, .editNickname, .registerResidence,
+        .deleteResidence, .createFavoriteRoute, .deleteFavoriteRoute:
       .post
     }
   }
 
   public var task: Moya.Task {
     switch self {
+    case let .bootstrap(ssoInfo):
+      .requestParameters(parameters: ["ssoInfo": ssoInfo], encoding: JSONEncoding.default)
     case .fetchUserInfo:
       .requestPlain
     case let .editBadge(badge):

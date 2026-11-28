@@ -8,6 +8,9 @@
 import Foundation
 
 public protocol TaxiUserRepositoryProtocol: Sendable {
+  /// Creates your Taxi account, or brings its name and student details up to date, from the
+  /// `ssoInfo` returned at sign-in. Call it right after sign-in: the `ssoInfo` lasts five minutes.
+  func bootstrap(ssoInfo: String) async throws
   func fetchUser() async throws -> TaxiUser
   func editBankAccount(account: String) async throws
   func registerPhoneNumber(phoneNumber: String) async throws
