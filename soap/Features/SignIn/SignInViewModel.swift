@@ -25,7 +25,11 @@ class SignInViewModel {
     isLoading = true
     defer { isLoading = false }
 
-    try await authUseCase.signIn()
+    do {
+      try await authUseCase.signIn()
+    } catch let error as AuthUseCaseError where error.isUserCancellation {
+      return // The user closed the SSO sheet; leave them on the sign-in screen without an alert.
+    }
     await userUseCase.fetchUsers()
   }
 }

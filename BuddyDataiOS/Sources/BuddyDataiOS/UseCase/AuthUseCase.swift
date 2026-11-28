@@ -232,20 +232,25 @@ public actor AuthUseCase: AuthUseCaseProtocol {
 
   public func signIn() async throws {
     guard let araUserRepository, let otlUserRepository, let taxiUserRepository else { return }
+    // Tracks which service is being contacted so a failure can tell the user which one broke.
+    var step: SignInStep = .sso
     do {
       let tokenResponse: SignInResponse = try await authenticationService.authenticate()
       try tokenStorage
         .save(accessToken: tokenResponse.accessToken, refreshToken: tokenResponse.refreshToken)
 
       // MARK: Sign up Ara
+      step = .ara
       let userInfo: AraSignInResponse = try await araUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
       try? await araUserRepository.agreeTOS(userID: userInfo.userID)
 
       // MARK: Sign up OTL
+      step = .otl
       try await otlUserRepository.register(ssoInfo: tokenResponse.ssoInfo)
 
       // MARK: Sign up Taxi
       // The Buddy backend no longer creates Taxi accounts, so this is the only place one is made.
+      step = .taxi
       try await taxiUserRepository.bootstrap(ssoInfo: tokenResponse.ssoInfo)
 
       _isAuthenticatedSubject.value = true
@@ -255,9 +260,9 @@ public actor AuthUseCase: AuthUseCaseProtocol {
     } catch {
       tokenStorage.clearTokens()
       _isAuthenticatedSubject.value = false
-      logger.error("Sign in failed: \(error.localizedDescription, privacy: .public)")
+      logger.error("Sign in failed at \(String(describing: step), privacy: .public): \(error.localizedDescription, privacy: .public)")
       cancelRefreshTimer()
-      throw AuthUseCaseError.signInFailed(error)
+      throw AuthUseCaseError.signInFailed(step: step, error)
     }
   }
 
